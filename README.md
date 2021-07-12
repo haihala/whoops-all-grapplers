@@ -1,18 +1,27 @@
 # Oops! All grapplers
 
-Fighting game.
+Fighting game. Shortened to oag, pronounced 'waag'.
 
-## Design
-
-### Zen
+## Zen
 
 This is mostly so I can laugh at how wrong I got them later.
 
-1. No situation is without a tool and no tools without situations
+Major:
+
+1. No problem is without a tool and no tools without a problem
 2. Decision making over execution
 3. Seeing the mechanic explains the mechanic
 
-### Inputs
+Minor:
+
+1. If a button does something sometime, it should do something in neutral.
+2. If you can't learn a mechanic outside of a match, it shouldn't exist
+3. If a cool underused mechanic can get highlighted easily
+   1. For example, space usage, usually fg stages are very plain.
+      1. Corners suck to be in and the midscreen is where neutral happens is usually the extent of space usage.
+      2. Maybe including minor stage elements would make for a more dynamic game
+
+## Inputs
 
 | Symbol 	| Name         	| Mapping on xbox 	| Mapping on PS 	|
 |--------	|--------------	|-----------------	|---------------	|
@@ -29,16 +38,17 @@ Pressing play and record resets training mode.
 
 (Pseudo) universals using numpad notation:
 
-#### [F]
+### [F]
 
 - 5F is the fastest move
 - Rest are character based
 
-#### [S]
+### [S]
 
+- S for special is a bad name, due to the concept of special moves meaning motion inputs
 - Extremely character based
 
-#### [B]
+### [B]
 
 - 5B activates AJB
 - Push block
@@ -46,24 +56,27 @@ Pressing play and record resets training mode.
   - 6B is horizontal push block
   - 9B is upwards push block
 
-#### [D]
+### [D]
 
 - 5D is a super jump
 - Ground dashes back and forth
 - 8 Directional air dash
 
-#### [G]
+### [G]
 
 - 5G is the first step of of a two face grab
 - Directional grabs throw the opponent immediately in that direction
 
-#### [O]
+### [O]
 
+- Always uses stamina (name and symbol depend on what stamina will be called)
 - If pressed in hit/block stun, bursts
 - If pressed during own animation, prc
-- If opponent is in hitstun and own animation is not in progress, rrc
+- If neither of the previous conditions applies, makes your character have the overdrive state
+  - Empowers attacks with more damage in general
+  - Some moves gain extra frame advantage, some became launchers, some get new properties entirely
 
-#### Motions
+### Motions
 
 Motion inputs are useful for:
 - Expanding move lists without adding buttons
@@ -88,7 +101,7 @@ Characters have a numeric score of mechanical difficulty, based on the following
 - Motion difficulty in a vacuum
 - Move is the `best/only` solution to a `rare/common` situation
 
-##### Table of input difficulties
+#### Table of input difficulties
 
 Every one of these ends with a button
 
@@ -118,6 +131,10 @@ Every one of these ends with a button
 | Zigzag quarter circle back                     | 21412                         | 4                             |
 | Zigzag inverse quarter circle forwards         | 89698                         | 5                             |
 | Zigzag inverse quarter circle back             | 87478                         | 5                             |
+| Reverse zigzag quarter circle forwards         | 63236                         | 4                             |
+| Reverse zigzag quarter circle back             | 41214                         | 4                             |
+| Reverse zigzag inverse quarter circle forwards | 69896                         | 5                             |
+| Reverse zigzag inverse quarter circle back     | 47874                         | 5                             |
 | Charge back                                    | Hold 1/4/7, 6                 | 2                             |
 | Charge down                                    | Hold 1/2/3, 8                 | 2                             |
 | Charge up                                      | Hold 7/8/9, 2                 | 3                             |
@@ -133,15 +150,66 @@ Every one of these ends with a button
 | Pretzel forwards                               | 1632143                       | 10                            |
 | Pretzel back                                   | 3412361                       | 10                            |
 
-### Mechanics
+#### Charge
 
-#### Movement
-#### Attacking
-#### Blocking
-#### Just block
-#### AJB
-#### Push block
-####
-####
-####
-####
+- Diagonal charges?
+- Multi level charges (this is the solution to accidental 6h when you wanted hammer fall)
+  - Just tapping back and forth releases a level 0 move, which is intentionally lacking
+  - Charge level goes up every 0.5s (each direction individually)
+
+## Mechanics
+### Movement
+### Attacking
+### Blocking
+### Just block
+### AJB
+### Push block
+### Momentum/Velocity/Drive/Gumption
+Used to be stamina, it's what the meter is called and it's used for a variety of things.
+
+Name should explain why and how you occasionally need to recharge it.
+
+- Integer, max 3-5 depending on character
+- Rarely more than 3 used at once
+- Used by overdrives and special moves
+
+### Combo scaling
+
+Initially no, but it this becomes a problem add it in. Without supers it could be fine as is.
+
+## Aesthetics
+
+- low poly
+- stylized
+- somewhat pastel, punch planet-y palette
+- Thinking neo tokyo vibes, maybe position in the early 80s so you can have nam vets and shit
+
+# Glossary
+
+# Characters
+## Working on it
+
+- Grappler with a grenade salvo on their back
+  - great at melee, better at far off range.
+
+## Ideas for later
+A move that lets you cancel a backdash to a double forward dash.
+- Goatfatal christmas as opposed to ramlethal valentine
+- Arrogant swordsmith
+  - Many different swords. Leaves a mark on you with one where they bet some life they can get a hit in fast.
+- Footgun - a character with many footguns in the kit and literal guns for feet.
+  - Joke character with ridiculously needlessly complex inputs
+    - Thinking like 5xQCF or pentagram(927319) tier shit
+- The mechanical ceiling
+  - Many moves with frame perfect timings
+  - Theme around music I think, musician can quip about getting good
+- Axl but if opponent is too close you leash to them and maybe lose access to some attacks
+- Ultimate shield
+  - A designated turtle with several counters and get off me moves.
+  - Very important, no tools beyond mid range to retaliate
+  - Health regen?
+  - How do they win?
+- Air specialist
+  - Up charges
+- A character with actually decent install
+  - Thinking barbarian rage that makes it their turn for like a third of the round straight, but comes with a heavy drawback later

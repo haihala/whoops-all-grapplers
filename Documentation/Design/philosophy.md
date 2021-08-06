@@ -16,6 +16,8 @@ game will not provide them a story mode or an arcade mode or fishing minigames o
 1. Game will reward good decision making
 2. A new fighting game player will be able to execute necessities
 3. Game will be visually clear
+4. Solving genre problems
+5. Genre trope subversion
 
 ### Design borders
 
@@ -26,17 +28,24 @@ game will not provide them a story mode or an arcade mode or fishing minigames o
 
 This is mostly so I can laugh at how wrong I got them later.
 
-Major:
+1. Reward don't require
+2. No problem is without a tool and no tools without a problem
+3. Decision making over execution
+4. Go deep before going wide
+5. Seeing the mechanic explains the mechanic
+   1. This is for stuff like s and h dolphins are different
+   2. That is unlearnable without someone telling you.
+6. Mental load is a cost
+7. The obvious answer should be the best answer
+   1. If you can tech throws, the easiest way to not get thrown should be to tech them
+8. The fewer special cases the better
+9.  If something is explained with 'Genre convention', it needs to go or be reformed to something sensible
+10. If a cool underused mechanic can get highlighted easily, it should be
+11. If a button does something sometime, it should do something in neutral.
 
-1. No problem is without a tool and no tools without a problem
-2. Decision making over execution
-3. Go deep before going wide
-4. Seeing the mechanic explains the mechanic
-5. Mental load is a cost
 
-Minor:
+## Reward vs Requirement
 
-1. If you can't learn a mechanic outside of a match, it shouldn't exist
-   1. This is for stuff like s dolphin is -, h dolphin is +. That is unlearnable without someone telling you.
-2. If a cool underused mechanic can get highlighted easily, it should be
-3. If a button does something sometime, it should do something in neutral.
+Players have a default answer. Doing nothing, blocking, whatever it may be. If the default option is very bad for them in a situation, they need to do or know something. This is a requirement. If the default is only slightly negative or neutral, but they can do something to make it better, they perceive it as a reward.
+
+Players like getting rewards and too many requirements is off-putting.

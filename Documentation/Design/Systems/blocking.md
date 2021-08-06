@@ -1,25 +1,12 @@
 # Blocking
 
-Hold 4 or 1 to block. Every move does lethal chip damage.
+Hold back to block. Every move does lethal chip damage. Blocking is hitbox based. A blocking character has a blockbox similarily to a hitbox and if a move makes contact with the blockbox before touching a hurtbox, it is blocked. The blockbox is initially created when an attack would hit but the player is holding back. Holding down back places the blockbox differently to holding just back.
 
-## Just block
+## Parry
 
-TODO: How narrow?
-Start a block in a narrow window before getting hit. Just blocking leads to better **frame advantage**, reduced **push back**,
-and no chip damage.
+Quickly tapping forwards before blocking will result in a parry. For most characters, parrying will negate chip and increase pushback.
 
-## AJB
+You can't parry mid blockstring. The window only starts if you aren't blocking while doing the inputs.
 
-TODO: How long does ajb last?
-Stands for Auto Just Block. Press 5D to start AJB. Costs 1 zeal to start, but after starting will automatically just block all
-strikes for a period of time.
-
-## Push block
-
-Costs 1 zeal. Long but narrow strike that will push the opponent back if not blocked. Has no effect on the opponent if blocked. Deals no damage.
-
-Inputs:
-    3B is downwards push block
-    6B is horizontal push block
-    9B is upwards push block
-
+TODO: Window size
+Implementation: Tapping forward starts a window, if during this window an attack is blocked, it is parried instead.

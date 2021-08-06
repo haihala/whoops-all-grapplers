@@ -11,8 +11,10 @@ mobility should come from air dashes.
 
 ## Ground dash
 
-Either double tap 4 or 6 or press 4M or 6M to dash in a direction. Dashes will be good for fast and short adjustments, but running
+Either double tap 4 or 6 or press 4D or 6D to dash in a direction. Dashes will be good for fast and short adjustments, but running
 across the screen is faster than dashing.
+
+Every character has a ground dash. The length and speed vary and for some it consumes zeal.
 
 ## Air dash
 
@@ -21,10 +23,12 @@ airdashing. An airdash up is roughly twice as long as a jump.
 
 By default a character has two air dashes.
 
+Every character has an air dash. The length and speed vary and for some it consumes zeal.
+
 ## Super jump
 
-Press 5M while on the ground to super jump. Super jumping should take you about three times as high as a normal jump.
+Press 5D while on the ground to super jump. Super jumping should take you about three times as high as a normal jump.
 
 ## Hover
 
-Press 5M while in the air to hover stationary for a while. This is basically a stationary air dash.
+Press 5D while in the air to hover stationary for a while. This is basically a stationary air dash and uses one of your dashes.

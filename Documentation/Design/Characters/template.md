@@ -12,32 +12,15 @@ One sentence description
 
 ## Writeup
 
-A bit of a longer description, explaining how exactly is the character worth their space in the roster.
-
 ## Mechanics
-
-Character specific mechanics
 
 ## Moves
 
-Descriptions of all of the character's moves
-
-### Normals
-
-### Aerials
-
-### Specials
-
-Fireball - Quarter Circle Forward + [F]:
-Shoots a horizontal fireball that moves forward until it leaves the screen or collides with a player.
+### Move
 
 ## Visuals
 
-Descriptions of how the character is supposed to look
-
 ## Audio
-
-Description of how the character is supposed to sound (sfx, voice acting, theme music, all of it)
 
 ## Flair
 

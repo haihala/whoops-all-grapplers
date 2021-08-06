@@ -1,40 +1,20 @@
 # Inputs
 
-TODO: I don't really like Defend and Movement because they are both buttons and general concepts
-
-| Symbol | Name           | Mapping on xbox | Mapping on PS |
-| ------ | -------------- | --------------- | ------------- |
-| (F)    | Fast attack    | X               | Square        |
-| (V)    | Vicious attack | B               | Circle        |
-| (D)    | Defend         | Y               | Triangle      |
-| (M)    | Movement       | A               | X             |
-| (G)    | Grab           | Right trigger   | R2            |
-| (O)    | Overdrive      | Left trigger    | L2            |
-| N/A    | Play           | Right bumper    | R1            |
-| N/A    | Record         | Left bumper     | L1            |
-| N/A    | Reset          | View button     | Share button  |
+| Symbol | Name             | Mapping on xbox | Mapping on PS |
+| ------ | ---------------- | --------------- | ------------- |
+| (F)    | Fast attack      | X               | Square        |
+| (V)    | Vicious attack   | B               | Circle        |
+| (B)    | Break            | Y               | Triangle      |
+| (D)    | Dash             | A               | X             |
+| (G)    | Grab             | Right trigger   | R2            |
+| ()     |                  | Left trigger    | L2            |
+| N/A    | Replay shortcuts | Right bumper    | R1            |
+| N/A    | Macro shortcuts  | Left bumper     | L1            |
+| N/A    | Reset            | View button     | Share button  |
+| N/A    | Play             |                 |               |
+| N/A    | Record           |                 |               |
 
 Pressing play and record resets training mode.
-
-(Pseudo) universals using numpad notation:
-
-- 5F is the fastest move for most characters
-- 5B activates **AJB**
-- **Push block**
-  - 3B is downwards **push block**
-  - 6B is horizontal **push block**
-  - 9B is upwards **push block**
-- 5M on the ground is a **super jump**
-- 5M in the air will make you **hover**
-- Dashes
-  - 4M and 6M are **ground dashes** back and forth
-  - 8 Directional **air dash**
-- 5G is **grab**
-- 2G, 6G, 8G, and 4G **throw** the opponent immediately in that direction
-- **Overdrive**
-  - If pressed in hit/block stun, **Combo breaker**
-  - If pressed mid animation, **Flash cancel**
-  - If none of the above, puts your character into **Overcharge**
 
 ## Motions
 
@@ -84,6 +64,7 @@ but would needlessly flood the table so they are left out.
 | Dragon punch forward           | 623                           | 6                             |
 | Inverse dragon punch forward   | 689                           | 7                             |
 | Pretzel                        | 1632143                       | 8                             |
+| Pentagram                      | 927319                        | 10                            |
 
 Doubling a move adds +2, i.e. Double quarter circle = Quarter circle (3)+2 = 5
 
@@ -99,6 +80,18 @@ Back and forth and double both add +6, so a simple Quarter circle back doubled b
   - Holding for 0.5s gives you level 2
   - Holding for 1s gives you level 3
 
+## Replay shortcuts
+
+- Pressing the button opens up a radial menu of options.
+  - Neutral option is to reset. Other options:
+  - Record (another radial menu for slot opens up, slot 1 is neutral, slots 2-5 are directional)
+  - Play back (same as above)
+  - Loop (same as playback)
+  - Opponent settings (another radial menu)
+    - Blocking (All, first, after first, none)
+    - Stance (standing/crouching/jumping/super jumping/hovering)
+
+## Macro shortcuts
 ## Macros
 
 Player can define their own macros. Any combination of buttons can be mapped to any special move.

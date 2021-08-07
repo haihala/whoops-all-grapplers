@@ -43,11 +43,7 @@ Copy template.md and change the name. Add a page to the excel that holds move im
 ### Names
 
 ### Mechanics
-- Gun that needs to be reloaded
-  - Specialized bullets? (Explosive, Stun, Knockback)
 - Gain a character specific resource by canceling moves
-
-- Dio time frozen knives
 - Catch and release projectiles
 - Psychopath that is not evil (maybe in a relationship with another character)
 - Wave dash
@@ -57,35 +53,13 @@ Copy template.md and change the name. Add a page to the excel that holds move im
 - Proper shoryuken with inverse input that rekka's into downwards shoriyuken (normal input)
 - "Young, brute force shoto"
   - Instead of a reversal dp, they may have a massive dp that is just hugely negative on block.
-- Time character
-  - Stop time
-  - Edit timer
-  - Rewind
-  - Save state
-- Character that rarely touches the ground
-- Samurai with a rocket at the end of the sword (anti-tippers)
 - Rubber arms grappler
 - Goldlewis like glasses, but they give information to the player (maybe show like ghosts of predicted moves from the opponent)
-- Goatfatal christmas as opposed to ramlethal valentine
 - Vampire glass cannon (low max health, lifesteal)
 - Controllable dragon summon
 - Arrogant swordsmith
   - Add card gambling?
   - Many different swords. Leaves a mark on you with one where they bet some life they can get a hit in fast.
-- Footgun - a character with many footguns in the kit and literal guns for feet.
-  - Joke character with ridiculously needlessly complex inputs
-    - Thinking like 5xQCF or pentagram(927319) tier shit
-- The mechanical ceiling
-  - Many moves with frame perfect timings
-  - Theme around music I think, musician can quip about getting good
-  - Gary Clark Jr vibes
-  - Son of Ryan and a jazz singer, grew up with his dad who wasn't really that supportive, but wanted a mini-me
-  - Riffs.
-    - All attacks are divided into one of four notes
-    - Landing the right notes in the right order will make a riff
-    - List
-      - Queen we will rock you
-      - Fizzbuzz riff
 - Axl but if opponent is too close you leash to them and maybe lose access to some attacks
   - Call something between axl rose and axel foley
 - Ultimate shield
@@ -94,6 +68,7 @@ Copy template.md and change the name. Add a page to the excel that holds move im
   - Health regen?
   - How do they win?
 - Air specialist
+  - rarely touches the ground
   - Up charges
 - A character with actually decent install
   - Thinking barbarian rage that makes it their turn for like a third of the round straight, but comes with a heavy drawback later

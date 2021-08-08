@@ -19,6 +19,7 @@ He doesn't leap during a shoryuken, his fireballs are small, he uses some simple
 ## Mechanics
 
 Counter hits?
+Anti-tippers?
 
 ## Moves
 

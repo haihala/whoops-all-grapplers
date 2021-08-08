@@ -10,3 +10,5 @@ You can't parry mid blockstring. The window only starts if you aren't blocking w
 
 TODO: Window size
 Implementation: Tapping forward starts a window, if during this window an attack is blocked, it is parried instead.
+
+You can parry a parry.

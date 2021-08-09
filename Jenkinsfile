@@ -2,14 +2,26 @@ pipeline {
     agent any
 
     stages {
-        stage('build') {
+        stage('Build') {
             steps {
-                sh 'cargo build'
+                sh "cargo build"
             }
         }
-        stage('test') {
+        stage('Test') {
             steps {
-                sh 'cargo test'
+                sh "cargo test"
+            }
+        }
+        stage('Clippy') {
+            steps {
+                sh "cargo +nightly clippy --all"
+            }
+        }
+        stage('Rustfmt') {
+            steps {
+                // The build will fail if rustfmt thinks any changes are
+                // required.
+                sh "cargo +nightly fmt --all -- --write-mode diff"
             }
         }
     }

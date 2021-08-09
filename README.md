@@ -1,7 +1,5 @@
 # Oops! All grapplers
 
-Fighting game built in unity utilizing backroll by HouraiTeahouse as rollback netcode.
-
-See Documentation for design documents.
+Fighting game built in rust.
 
 Name is shortened to oag, pronounced 'waag'.

@@ -21,7 +21,7 @@ pipeline {
             steps {
                 // The build will fail if rustfmt thinks any changes are
                 // required.
-                sh "cargo +nightly fmt --all -- --write-mode diff"
+                sh "cargo +nightly fmt --all -- --check"
             }
         }
     }

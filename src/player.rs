@@ -6,13 +6,14 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(add_player.system());
+        app.add_startup_system(setup.system())
+            .add_system(move_left.system());
     }
 }
 
 pub struct Player;
 
-fn add_player(mut commands: Commands, assets: Res<Materials>) {
+fn setup(mut commands: Commands, assets: Res<Materials>) {
     let width = 10.;
     let height = 15.;
 
@@ -23,4 +24,10 @@ fn add_player(mut commands: Commands, assets: Res<Materials>) {
             ..Default::default()
         })
         .insert(Player);
+}
+
+fn move_left(mut query: Query<&mut Transform, With<Player>>) {
+    for mut transform in query.iter_mut() {
+        transform.translation.x += 1.;
+    }
 }

@@ -1,5 +1,8 @@
 release ?=
 
+run:
+	cargo run
+
 build:
 	cargo build $(release)
 

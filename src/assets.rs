@@ -10,9 +10,7 @@ pub struct Materials {
 
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        static ASSETS: &str = "assets";
-        app.add_startup_stage_before(StartupStage::Startup, ASSETS, SystemStage::parallel())
-            .add_startup_system_to_stage(ASSETS, colors.system());
+        app.add_startup_system_to_stage(crate::stages::LOAD_ASSETS, colors.system());
     }
 }
 

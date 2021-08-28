@@ -1,18 +1,13 @@
 use bevy::prelude::*;
+pub struct Clock(pub i32);
 
 pub struct ClockPlugin;
 
 impl Plugin for ClockPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(setup.system())
-            .add_system_to_stage(crate::stages::PRE_UPDATE, tick.system());
+        app.insert_resource(Clock(0))
+            .add_system_to_stage(CoreStage::First, tick.system());
     }
-}
-
-pub struct Clock(pub i32);
-
-fn setup(mut commands: Commands) {
-    commands.insert_resource(Clock(0));
 }
 
 fn tick(mut clock: ResMut<Clock>) {

@@ -5,7 +5,7 @@ use strum_macros::EnumIter;
 use std::collections::{HashMap, HashSet, VecDeque};
 
 #[derive(Debug)]
-pub struct Controller(Gamepad, pub StickPosition);
+pub struct Controller(Gamepad);
 
 #[derive(EnumIter, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum SpecialMove {
@@ -31,6 +31,11 @@ pub enum StickPosition {
     S,
     SE,
 }
+impl Default for StickPosition {
+    fn default() -> Self {
+        StickPosition::Neutral
+    }
+}
 impl From<IVec2> for StickPosition {
     fn from(item: IVec2) -> Self {
         let matrix = vec![
@@ -44,37 +49,52 @@ impl From<IVec2> for StickPosition {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct InputFrame {
+struct InputFrame {
     #[allow(dead_code)]
-    pub frame: i32,
-    pub stick_move: Option<StickPosition>,
-    pub pressed: HashSet<ActionButton>,
+    frame: i32,
+    stick_move: Option<StickPosition>,
+    pressed: HashSet<ActionButton>,
     #[allow(dead_code)]
-    pub released: HashSet<ActionButton>,
+    released: HashSet<ActionButton>,
 }
 
 pub struct InputBuffer {
-    pub frames: VecDeque<InputFrame>,
+    frames: VecDeque<InputFrame>,
     pub interpreted: Vec<SpecialMove>,
+    pub stick_position: StickPosition,
+    pub recently_pressed: HashSet<ActionButton>,
+    pub recently_released: HashSet<ActionButton>,
+}
+impl Default for InputBuffer {
+    fn default() -> Self {
+        Self {
+            frames: Default::default(),
+            interpreted: Default::default(),
+            stick_position: Default::default(),
+            recently_pressed: Default::default(),
+            recently_released: Default::default(),
+        }
+    }
 }
 impl InputBuffer {
     fn contains(&self, input: &SpecialMove) -> bool {
-        let requirements = match input {
+        let mut requirements = match input {
             SpecialMove::QuarterCircle => {
                 vec![StickPosition::S, StickPosition::SE, StickPosition::E]
             }
             SpecialMove::BackwardQuarterCircle => {
                 vec![StickPosition::S, StickPosition::SW, StickPosition::W]
             }
-        };
+        }
+        .into_iter();
 
-        let mut requirements_iter = requirements.iter();
-        let mut requirement = requirements_iter.next().unwrap().clone();
+        let mut requirement = requirements.next().unwrap().clone();
 
         for event in self.frames.iter() {
             if let Some(position) = &event.stick_move {
                 if position == &requirement {
-                    if let Some(next) = requirements_iter.next() {
+                    if let Some(next) = requirements.next() {
+                        // Get the next requirement
                         requirement = next.clone();
                     } else {
                         // We've gone through all the inputs, so it matches
@@ -100,12 +120,10 @@ pub fn detect_new_pads(
                 println!("New gamepad connected with ID: {:?}", id);
                 match uncontrolled.single() {
                     Ok(entity) => {
-                        commands
-                            .entity(entity)
-                            .insert(Controller(*id, StickPosition::Neutral));
+                        commands.entity(entity).insert(Controller(*id));
                     }
                     Err(_) => {
-                        let new_controller = Controller(*id, StickPosition::Neutral);
+                        let new_controller = Controller(*id);
                         match unused_pads {
                             Some(ref mut queue) => {
                                 queue.push(new_controller);
@@ -147,11 +165,11 @@ pub fn detect_new_pads(
 pub fn collect_input(
     axes: Res<Axis<GamepadAxis>>,
     buttons: Res<Input<GamepadButton>>,
-    mut players: Query<(&mut Controller, &mut InputBuffer)>,
+    mut players: Query<(&Controller, &mut InputBuffer)>,
     clock: Res<crate::Clock>,
     button_mappings: Res<HashMap<GamepadButtonType, ActionButton>>,
 ) {
-    for (mut controller, mut buffer) in players.iter_mut() {
+    for (controller, mut buffer) in players.iter_mut() {
         let lstick_x_axis = GamepadAxis(controller.0, GamepadAxisType::LeftStickX);
         let lstick_y_axis = GamepadAxis(controller.0, GamepadAxisType::LeftStickY);
 
@@ -188,18 +206,47 @@ pub fn collect_input(
             .map(|btn| btn.to_owned())
             .collect();
 
+        let stick_move = if stick_position != buffer.stick_position {
+            Some(stick_position.clone())
+        } else {
+            None
+        };
+
+        buffer.stick_position = stick_position;
+
+        let no_longer_recent_frame_index =
+            buffer.frames.len() - crate::constants::RECENT_INPUT_FRAMES;
+
+        buffer.recently_pressed = buffer
+            .recently_pressed
+            .clone()
+            .into_iter()
+            .filter(|x| {
+                buffer.frames[no_longer_recent_frame_index]
+                    .pressed
+                    .contains(x)
+            })
+            .chain(pressed.clone().into_iter())
+            .collect();
+
+        buffer.recently_released = buffer
+            .recently_released
+            .clone()
+            .into_iter()
+            .filter(|x| {
+                buffer.frames[no_longer_recent_frame_index]
+                    .released
+                    .contains(x)
+            })
+            .chain(released.clone().into_iter())
+            .collect();
+
         buffer.frames.push_back(InputFrame {
             frame: clock.0,
-            stick_move: if stick_position != controller.1 {
-                Some(stick_position.clone())
-            } else {
-                None
-            },
+            stick_move,
             pressed,
             released,
         });
-
-        controller.1 = stick_position.clone();
     }
 }
 

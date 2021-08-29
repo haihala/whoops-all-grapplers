@@ -1,28 +1,19 @@
 use bevy::prelude::*;
 
-use super::super::input::{ActionButton, Controller, InputBuffer, SpecialMove, StickPosition};
+use super::super::input::{ActionButton, InputBuffer, SpecialMove, StickPosition};
 
 pub struct Ryan;
 
-pub fn ryan(mut query: Query<(&InputBuffer, &Controller, &mut Transform), With<Ryan>>) {
-    for (buffer, controller, mut transform) in query.iter_mut() {
+pub fn ryan(mut query: Query<(&InputBuffer, &mut Transform), With<Ryan>>) {
+    for (buffer, mut transform) in query.iter_mut() {
         for special in buffer.interpreted.iter() {
             match special {
-                SpecialMove::QuarterCircle => {
-                    for frame in buffer.frames.iter() {
-                        for btn in frame.pressed.iter() {
-                            match btn {
-                                ActionButton::Vicious => todo!(),
-                                ActionButton::Fast => todo!(),
-                            }
-                        }
-                    }
-                }
+                SpecialMove::QuarterCircle => todo!(),
                 SpecialMove::BackwardQuarterCircle => todo!(),
             }
         }
 
-        match controller.1 {
+        match buffer.stick_position {
             StickPosition::W => {
                 transform.translation.x -= 1.0;
             }
@@ -31,5 +22,9 @@ pub fn ryan(mut query: Query<(&InputBuffer, &Controller, &mut Transform), With<R
             }
             _ => (),
         };
+
+        if buffer.recently_pressed.contains(&ActionButton::Fast) {
+            dbg!("recent fast");
+        }
     }
 }

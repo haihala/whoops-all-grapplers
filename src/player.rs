@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
 
 use crate::input;
 use crate::labels::{InputSystemLabel, SystemSetLabel};
@@ -65,8 +65,5 @@ fn setup(mut commands: Commands, assets: Res<Materials>) {
         })
         .insert(Player)
         .insert(crate::character::Ryan)
-        .insert(input::InputBuffer {
-            frames: VecDeque::new(),
-            interpreted: Vec::new(),
-        });
+        .insert(input::InputBuffer::default());
 }

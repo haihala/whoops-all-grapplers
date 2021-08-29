@@ -13,6 +13,7 @@ pub fn ryan(
         ),
         With<Ryan>,
     >,
+    time: Res<Time>,
 ) {
     for (buffer, state, mut physics_object) in query.iter_mut() {
         for special in buffer.interpreted.iter() {
@@ -24,10 +25,12 @@ pub fn ryan(
 
         match buffer.stick_position {
             StickPosition::W => {
-                physics_object.velocity.x -= crate::constants::PLAYER_SPEED;
+                physics_object.velocity.x -=
+                    crate::constants::PLAYER_ACCELERATION * time.delta_seconds();
             }
             StickPosition::E => {
-                physics_object.velocity.x += crate::constants::PLAYER_SPEED;
+                physics_object.velocity.x +=
+                    crate::constants::PLAYER_ACCELERATION * time.delta_seconds();
             }
             _ => (),
         };

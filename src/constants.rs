@@ -1,14 +1,21 @@
-pub static INPUT_BUFFER_LENGTH: usize = 60;
 pub static PLAYER_SPRITE_WIDTH: f32 = 10.0;
 pub static PLAYER_SPRITE_HEIGHT: f32 = 15.0;
-pub static RECENT_INPUT_FRAMES: usize = 5;
-pub static GROUND_PLANE_HEIGHT: f32 = -1.0;
-pub static ARENA_WIDTH: f32 = 300.0;
 
-pub static PLAYER_MIN_SPEED: f32 = 0.1;
-pub static PLAYER_SPEED: f32 = 1.0;
-pub static GROUND_DRAG: f32 = 0.2;
-pub static AIR_DRAG: f32 = 0.1;
+pub static INPUT_BUFFER_LENGTH: usize = 60;
+pub static RECENT_INPUT_FRAMES: usize = 5;
+
+pub static GROUND_PLANE_HEIGHT: f32 = -1.0;
+pub static ARENA_WIDTH: f32 = 600.0;
+
+static PLAYER_ACCELERATION_TIME: f32 = 1.0;
+static PLAYER_DECELERATION_TIME: f32 = 1.0;
+static AIR_DRAG_MULTIPLIER: f32 = 0.5;
+
+pub static PLAYER_TOP_SPEED: f32 = 200.0;
+
+pub static PLAYER_ACCELERATION: f32 = PLAYER_TOP_SPEED / PLAYER_ACCELERATION_TIME;
+pub static GROUND_DRAG: f32 = PLAYER_TOP_SPEED / PLAYER_DECELERATION_TIME;
+pub static AIR_DRAG: f32 = GROUND_DRAG * AIR_DRAG_MULTIPLIER;
 
 // Tweak these
 static PLAYER_JUMP_HEIGHT: f32 = 200.0;

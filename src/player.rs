@@ -47,10 +47,14 @@ pub struct Player;
 // Tracking for the players' state
 pub struct PlayerState {
     pub grounded: bool,
+    pub decelerating: bool,
 }
 impl Default for PlayerState {
     fn default() -> Self {
-        Self { grounded: true }
+        Self {
+            grounded: true,
+            decelerating: true,
+        }
     }
 }
 

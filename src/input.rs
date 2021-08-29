@@ -4,6 +4,8 @@ use strum_macros::EnumIter;
 
 use std::collections::{HashMap, HashSet, VecDeque};
 
+use crate::player::PlayerState;
+
 #[derive(Debug)]
 pub struct Controller(Gamepad);
 
@@ -165,11 +167,11 @@ pub fn detect_new_pads(
 pub fn collect_input(
     axes: Res<Axis<GamepadAxis>>,
     buttons: Res<Input<GamepadButton>>,
-    mut players: Query<(&Controller, &mut InputBuffer)>,
+    mut players: Query<(&Controller, &mut InputBuffer, &mut PlayerState)>,
     clock: Res<crate::Clock>,
     button_mappings: Res<HashMap<GamepadButtonType, ActionButton>>,
 ) {
-    for (controller, mut buffer) in players.iter_mut() {
+    for (controller, mut buffer, mut player_state) in players.iter_mut() {
         let lstick_x_axis = GamepadAxis(controller.0, GamepadAxisType::LeftStickX);
         let lstick_y_axis = GamepadAxis(controller.0, GamepadAxisType::LeftStickY);
 
@@ -205,6 +207,8 @@ pub fn collect_input(
             .filter_map(|btn| button_mappings.get(&btn.1))
             .map(|btn| btn.to_owned())
             .collect();
+
+        player_state.decelerating = stick_position == StickPosition::Neutral;
 
         let stick_move = if stick_position != buffer.stick_position {
             Some(stick_position.clone())

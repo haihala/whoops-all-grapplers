@@ -91,7 +91,7 @@ pub fn detect_new_pads(
     mut commands: Commands,
     mut gamepad_evr: EventReader<GamepadEvent>,
     mut controlled: Query<(Entity, &mut Controller)>,
-    uncontrolled: Query<Entity, (With<super::Player>, Without<Controller>)>,
+    uncontrolled: Query<Entity, (With<crate::Player>, Without<Controller>)>,
     mut unused_pads: Option<ResMut<Vec<Controller>>>,
 ) {
     for GamepadEvent(id, kind) in gamepad_evr.iter() {

@@ -1,13 +1,9 @@
 use bevy::prelude::*;
 use std::collections::{HashMap, VecDeque};
 
+use crate::input;
 use crate::labels::{InputSystemLabel, SystemSetLabel};
 use crate::Materials;
-
-mod character;
-mod inputparsing;
-
-use inputparsing::{ActionButton, InputBuffer};
 
 pub struct PlayerPlugin;
 
@@ -17,20 +13,20 @@ impl Plugin for PlayerPlugin {
             .add_system_set(
                 SystemSet::new()
                     .label(SystemSetLabel::Input)
-                    .with_system(inputparsing::detect_new_pads.system())
+                    .with_system(input::detect_new_pads.system())
                     .with_system(
-                        inputparsing::cull_stick_input_buffer
+                        input::cull_stick_input_buffer
                             .system()
                             .label(InputSystemLabel::Clear),
                     )
                     .with_system(
-                        inputparsing::collect_input
+                        input::collect_input
                             .system()
                             .label(InputSystemLabel::Collect)
                             .after(InputSystemLabel::Clear),
                     )
                     .with_system(
-                        inputparsing::interpret_stick_inputs
+                        input::interpret_stick_inputs
                             .system()
                             .label(InputSystemLabel::Parse)
                             .after(InputSystemLabel::Collect),
@@ -40,7 +36,7 @@ impl Plugin for PlayerPlugin {
                 SystemSet::new()
                     .label(SystemSetLabel::Characters)
                     .after(SystemSetLabel::Input)
-                    .with_system(character::ryan.system()),
+                    .with_system(crate::character::ryan.system()),
             );
     }
 }
@@ -48,9 +44,9 @@ impl Plugin for PlayerPlugin {
 pub struct Player;
 
 fn setup(mut commands: Commands, assets: Res<Materials>) {
-    let button_mappings: HashMap<GamepadButtonType, ActionButton> = [
-        (GamepadButtonType::South, ActionButton::Fast),
-        (GamepadButtonType::West, ActionButton::Vicious),
+    let button_mappings: HashMap<GamepadButtonType, input::ActionButton> = [
+        (GamepadButtonType::South, input::ActionButton::Fast),
+        (GamepadButtonType::West, input::ActionButton::Vicious),
     ]
     .iter()
     .cloned()
@@ -68,8 +64,8 @@ fn setup(mut commands: Commands, assets: Res<Materials>) {
             ..Default::default()
         })
         .insert(Player)
-        .insert(character::Ryan)
-        .insert(InputBuffer {
+        .insert(crate::character::Ryan)
+        .insert(input::InputBuffer {
             frames: VecDeque::new(),
             interpreted: Vec::new(),
         });

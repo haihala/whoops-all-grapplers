@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 
-use super::super::inputparsing::{
-    ActionButton, Controller, InputBuffer, SpecialMove, StickPosition,
-};
+use super::super::input::{ActionButton, Controller, InputBuffer, SpecialMove, StickPosition};
 
 pub struct Ryan;
 

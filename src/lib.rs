@@ -1,7 +1,9 @@
 mod assets;
 mod camera;
+mod character;
 mod clock;
 mod constants;
+mod input;
 mod labels;
 mod player;
 
@@ -13,3 +15,4 @@ pub use player::PlayerPlugin;
 
 pub(crate) use assets::Materials;
 pub(crate) use clock::Clock;
+pub(crate) use player::Player;

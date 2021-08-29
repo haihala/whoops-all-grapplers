@@ -10,5 +10,6 @@ fn main() {
         .add_plugin(AssetsPlugin)
         .add_plugin(CameraPlugin)
         .add_plugin(PlayerPlugin)
+        .add_plugin(PhysicsPlugin)
         .run();
 }

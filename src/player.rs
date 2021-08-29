@@ -41,7 +41,18 @@ impl Plugin for PlayerPlugin {
     }
 }
 
+// Tag
 pub struct Player;
+
+// Tracking for the players' state
+pub struct PlayerState {
+    pub grounded: bool,
+}
+impl Default for PlayerState {
+    fn default() -> Self {
+        Self { grounded: true }
+    }
+}
 
 fn setup(mut commands: Commands, assets: Res<Materials>) {
     let button_mappings: HashMap<GamepadButtonType, input::ActionButton> = [
@@ -63,7 +74,9 @@ fn setup(mut commands: Commands, assets: Res<Materials>) {
             )),
             ..Default::default()
         })
+        .insert(input::InputBuffer::default())
         .insert(Player)
-        .insert(crate::character::Ryan)
-        .insert(input::InputBuffer::default());
+        .insert(PlayerState::default())
+        .insert(crate::physics::PhysicsObject::default())
+        .insert(crate::character::Ryan);
 }

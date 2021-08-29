@@ -88,7 +88,7 @@ impl InputBuffer {
         }
         .into_iter();
 
-        let mut requirement = requirements.next().unwrap().clone();
+        let mut requirement = requirements.next().unwrap();
 
         for event in self.frames.iter() {
             if let Some(position) = &event.stick_move {
@@ -215,7 +215,11 @@ pub fn collect_input(
         buffer.stick_position = stick_position;
 
         let no_longer_recent_frame_index =
-            buffer.frames.len() - crate::constants::RECENT_INPUT_FRAMES;
+            if buffer.frames.len() > crate::constants::RECENT_INPUT_FRAMES {
+                buffer.frames.len() - crate::constants::RECENT_INPUT_FRAMES
+            } else {
+                0
+            };
 
         buffer.recently_pressed = buffer
             .recently_pressed

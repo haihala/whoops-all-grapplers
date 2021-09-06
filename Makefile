@@ -1,5 +1,8 @@
 release ?=
 
+run:
+	cargo run
+
 build:
 	cargo build $(release)
 
@@ -12,4 +15,4 @@ clippy:
 fmt:
 	cargo +nightly fmt --all -- --check
 
-all: build test clippy fmt
+check: build test clippy fmt

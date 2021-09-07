@@ -1,7 +1,5 @@
 # Meaningfully absent
-
 ## Combo scaling
-
 Upsides:
 - It emphasizes shorter combos
 - It reduces touch of deaths
@@ -17,7 +15,6 @@ Workaround:
   - TODO: Separate file
 
 ## Running
-
 Upsides:
 - Go fast
 
@@ -28,7 +25,6 @@ Workaround:
 - Every character is always running.
 
 ## Counter hit
-
 Upsides:
 - Encourages noobs to use smaller moves
 - Rewards knowing your character and the matchup
@@ -41,7 +37,6 @@ Workaround:
 - Try without to go without. If it looks like the game could benefit from counter hits, reconsider
 
 ## Block invincibility on getting up
-
 Upsides:
 - Simplify oki
 
@@ -52,7 +47,6 @@ Workaround:
 - Just don't bother with it, include throws in the oki rps.
 
 ## Hard and soft knockdown
-
 Upsides:
 - Balance levers
 - Differences in kind
@@ -66,7 +60,6 @@ Workaround:
 
 
 ## Ground invincibility
-
 Upsides:
 - Prevents many loops
 

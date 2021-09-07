@@ -1,5 +1,4 @@
 # Inputs
-
 | Symbol | Name             | Mapping on xbox |
 | ------ | ---------------- | --------------- |
 | (F)    | Fast attack      | X               |
@@ -15,7 +14,6 @@
 | N/A    |           		|                 |
 
 ## Motions
-
 Motion inputs are useful for:
 - Expanding move lists without adding buttons
 - Balance mechanism for bigger moves
@@ -39,7 +37,6 @@ Characters have a numeric score of mechanical difficulty, based on the following
 - Move is the `best/only` solution to a `rare/common` situation
 
 ### Table of input difficulties
-
 Every one of these ends with a button and assumes that the player is facing right, mirrored options exist,
 but would needlessly flood the table so they are left out.
 

@@ -1,11 +1,6 @@
 # Design
 
-## Idea dump
-
--
-
 ## Definition of done
-
 Done does not mean finished or immutable.
 
 A character design is done when all of the character's parts are done, see `Characters/index.md`
@@ -17,16 +12,15 @@ A systems mechanic is done when:
 - It doesn't clash with player promises
 
 ## What goes where
-
 ### Characters
-
 - Character design documents
 - Character ideas (mechanics, moves, visuals, audio, fx, personalities, and so on)
 
-### Systems
-
+### Universals
 - Universal systems
 
-### Documentation root
+### Tutorials
+- Teaching players stuff
 
+### Design docs root
 - The rest. Make new folders as needed.

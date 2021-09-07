@@ -1,7 +1,5 @@
 # Philosophy
-
 ## Audience
-
 The game will be a competetive fighting game *mainly* for people who aren't necessarily fighting game players, but are competetive
 gamers from other games like CS:GO or LOL.
 
@@ -12,7 +10,6 @@ There will be people who don't have experience with competetive games, they are 
 game will not provide them a story mode or an arcade mode or fishing minigames or anything to keep the circusgoers entertained.
 
 ### Player promises
-
 1. Game will reward good decision making
 2. A new fighting game player will be able to execute necessities
 3. Game will be visually clear
@@ -20,12 +17,10 @@ game will not provide them a story mode or an arcade mode or fishing minigames o
 5. Genre trope subversion
 
 ### Design borders
-
 1. I need to be able to do it mechanically 5 times in a row.
 2. A tool for every situation, nothing should be impossible given perfect information for the next five seconds.
 
 ## Zen
-
 This is mostly so I can laugh at how wrong I got them later.
 
 1. Reward don't require
@@ -45,7 +40,6 @@ This is mostly so I can laugh at how wrong I got them later.
 
 
 ## Reward vs Requirement
-
 Players have a default answer. Doing nothing, blocking, whatever it may be. If the default option is very bad for them in a situation, they need to do or know something. This is a requirement. If the default is only slightly negative or neutral, but they can do something to make it better, they perceive it as a reward.
 
 Players like getting rewards and too many requirements is off-putting.

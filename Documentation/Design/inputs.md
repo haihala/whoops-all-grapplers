@@ -1,20 +1,18 @@
 # Inputs
 
-| Symbol | Name             | Mapping on xbox | Mapping on PS |
-| ------ | ---------------- | --------------- | ------------- |
-| (F)    | Fast attack      | X               | Square        |
-| (V)    | Vicious attack   | B               | Circle        |
-| (B)    | Break            | Y               | Triangle      |
-| (D)    | Dash             | A               | X             |
-| (G)    | Grab             | Right trigger   | R2            |
-| ()     |                  | Left trigger    | L2            |
-| N/A    | Replay shortcuts | Right bumper    | R1            |
-| N/A    | Macro shortcuts  | Left bumper     | L1            |
-| N/A    | Reset            | View button     | Share button  |
-| N/A    | Play             |                 |               |
-| N/A    | Record           |                 |               |
-
-Pressing play and record resets training mode.
+| Symbol | Name             | Mapping on xbox |
+| ------ | ---------------- | --------------- |
+| (F)    | Fast attack      | X               |
+| (H)    | Heavy attack    	| B               |
+| (C)    | Cancel           | Y               |
+| (G)    | Gimmick          | A               |
+| (T)    | Throw      		| Right trigger   |
+| (D)    | Dash				| Left trigger    |
+| N/A    | Play / Record 	| Right bumper    |
+| N/A    |   				| Left bumper     |
+| N/A    | Reset            | View button     |
+| N/A    |             		|                 |
+| N/A    |           		|                 |
 
 ## Motions
 
@@ -73,30 +71,8 @@ Back and forth also adds +2
 Back and forth and double both add +6, so a simple Quarter circle back doubled back and forth would be 3+6=9. Order doesn't matter.
 
 ### Charge
-
 - Holding in a cardinal direction builds charge in that direction.
   - Charge has levels 1-3
   - Just tapping in a direction gives you charge level 1
   - Holding for 0.5s gives you level 2
   - Holding for 1s gives you level 3
-
-## Replay shortcuts
-
-- Pressing the button opens up a radial menu of options.
-  - Neutral option is to reset. Other options:
-  - Record (another radial menu for slot opens up, slot 1 is neutral, slots 2-5 are directional)
-  - Play back (same as above)
-  - Loop (same as playback)
-  - Opponent settings (another radial menu)
-    - Blocking (All, first, after first, none)
-    - Stance (standing/crouching/jumping/super jumping/hovering)
-
-## Macro shortcuts
-## Macros
-
-Player can define their own macros. Any combination of buttons can be mapped to any special move.
-These bindings are not set by default, because the game needs to be playable without them, but the game
-needs to encourage binding harder things like DPs to macros.
-
-The macro will play back the special move with frame perfect inputs, so if it includes something like an inverse quarter circle,
-the move will still have a jump in it.

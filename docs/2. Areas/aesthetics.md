@@ -1,0 +1,1 @@
+The game is secretly professional wrestling. This factors into the aesthetic as it's a bit 'tekken' in the "Pop star fights a cyborg"-sense.

@@ -1,17 +1,17 @@
 # Inputs
-| Symbol | Name             | Mapping on xbox |
-| ------ | ---------------- | --------------- |
-| (F)    | Fast attack      | X               |
-| (H)    | Heavy attack    	| B               |
-| (C)    | Cancel           | Y               |
-| (G)    | Gimmick          | A               |
-| (T)    | Throw      		| Right trigger   |
-| (D)    | Dash				| Left trigger    |
-| N/A    | Play / Record 	| Right bumper    |
-| N/A    |   				| Left bumper     |
-| N/A    | Reset            | View button     |
-| N/A    |             		|                 |
-| N/A    |           		|                 |
+| Symbol | Name          | Mapping on xbox |
+| ------ | ------------- | --------------- |
+| `F`    | Fast attack   | X               |
+| `H`    | Heavy attack  | B               |
+| `C`    | Cancel        | Y               |
+| `G`    | Gimmick       | A               |
+| `T`    | Throw         | Right trigger   |
+| `D`    | Dash          | Left trigger    |
+| N/A    | Play / Record | Right bumper    |
+| N/A    |               | Left bumper     |
+| N/A    | Reset         | View button     |
+| N/A    |               |                 |
+| N/A    |               |                 |
 
 ## Motions
 Motion inputs are useful for:
@@ -30,15 +30,13 @@ Motion inputs can create frustrations due to:
       - L/M/H/ DP: 3/4/5 frames vs C.HP 6
       - It takes a minimum of 3 frames to input a DP and doing it that fast is not really physically doable
 
-So motion inputs have uses, but they also have several pain points, thus limit motion inputs per character.
-Characters have a numeric score of mechanical difficulty, based on the following factors:
+So motion inputs have uses, but they also have several pain points, thus limit motion inputs per character. Characters have a numeric score of mechanical difficulty, based on the following factors:
 
 - Motion difficulty in a vacuum
 - Move is the `best/only` solution to a `rare/common` situation
 
 ### Table of input difficulties
-Every one of these ends with a button and assumes that the player is facing right, mirrored options exist,
-but would needlessly flood the table so they are left out.
+Every one of these ends with a button and assumes that the player is facing right, mirrored options exist, but would needlessly flood the table so they are left out.
 
 | Name of input                  | Numpad notation               | Difficulty in a vacuum [0-10] |
 | ------------------------------ | ----------------------------- | ----------------------------- |

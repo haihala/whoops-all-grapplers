@@ -1,13 +1,10 @@
 # Philosophy
 ## Audience
-The game will be a competetive fighting game *mainly* for people who aren't necessarily fighting game players, but are competetive
-gamers from other games like CS:GO or LOL.
+The game will be a competetive fighting game *mainly* for people who aren't necessarily fighting game players, but are competetive gamers from other games like CS:GO or LOL.
 
-There will be people who are fighting gamers, but they will be fine with anything as long as the first group is fine with it, and so
-while they aren't necessarily secondary, their needs are a subset of the first group's needs
+There will be people who are fighting gamers, but they will be fine with anything as long as the first group is fine with it, and so while they aren't necessarily secondary, their needs are a subset of the first group's needs
 
-There will be people who don't have experience with competetive games, they are free to learn with the resources provided, but the
-game will not provide them a story mode or an arcade mode or fishing minigames or anything to keep the circusgoers entertained.
+There will be people who don't have experience with competetive games, they are free to learn with the resources provided, but the game will not provide them a story mode or an arcade mode or fishing minigames or anything to keep the circusgoers entertained.
 
 ### Player promises
 1. Game will reward good decision making
@@ -43,3 +40,14 @@ This is mostly so I can laugh at how wrong I got them later.
 Players have a default answer. Doing nothing, blocking, whatever it may be. If the default option is very bad for them in a situation, they need to do or know something. This is a requirement. If the default is only slightly negative or neutral, but they can do something to make it better, they perceive it as a reward.
 
 Players like getting rewards and too many requirements is off-putting.
+
+## Definition of done
+Done does not mean finished or immutable.
+
+A character design is done when all of the character's parts are done, see `Characters/index.md`
+
+A systems mechanic is done when:
+- It can be explained in three bullets
+- It fixes a problem or enhances gameplay
+- It doesn't have any obvious problems
+- It doesn't clash with player promises

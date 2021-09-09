@@ -1,6 +1,5 @@
-# Name
-
-Time specialist
+# Footgun
+World's first triple edged sword
 
 |           | Vision | Started | Designed | Implemented | Polished |
 | --------- | ------ | ------- | -------- | ----------- | -------- |
@@ -12,25 +11,22 @@ Time specialist
 
 ## Writeup
 
-Name comes from 'brand' in italian, obvious Dio reference
-
 ## Mechanics
+Literal guns for feet. Those need to be reloaded. They have specialized bullets:
+- Regular
+- Explosive (Low range, high spread)
+- Stun (Low damage high hitstun)
+- Knockback (Low damage fast startup)
+QCF+V accesses one leg, QCB+V the other. If a shot is loaded, it shoots. If not, a reload happens
+
+Reloading maybe uses a secondary 'dialog' to choose ammo type.
 
 ## Moves
 
-- Projectile
-- Time character
-  - Stop time (Maybe like 0.5s)
-    - Just give them an unblockable
-  - Edit timer
-  - Save state
-  - Rewind
+### Move
 
 ## Visuals
 
 ## Audio
 
 ## Flair
-
-Descriptions of what makes them stay. The player may pick up this character for this reason, or they may discover it later.
-What makes this character unique

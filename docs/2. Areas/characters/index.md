@@ -1,11 +1,8 @@
 # Characters
-
 - MVP will have one character, Final product will have 10
   - If the amount of characters is known before hand, each one is maybe considered more critically
 
-
 ## Philosophy
-
 1. Every character is someone's baby, treat them all with respect
 2. Each character needs a reason to exist.
    1. They serve a player profile that was previously without a character
@@ -13,12 +10,8 @@
    3. They are an interesting twist on something
 3. There are bad ideas and there are cursed ideas. Course correct early and often.
 
-
 ## Stages
-
-Characters are composed of multiple phases. Mechanics, Moves, visuals, audio, and flair.
-Before a character is done, each of these parts will go through several phases. A character is done
-when all the parts are done.
+Characters are composed of multiple phases. Mechanics, Moves, visuals, audio, and flair. Before a character is done, each of these parts will go through several phases. A character is done when all the parts are done.
 
 Part phases are 'Blank', 'Started', 'Designed', Implemented', and 'Polished'
 
@@ -35,14 +28,8 @@ Each character file ought to have a matrix like this at the start:
 One X per line, when all lines have an X at polished, the character is done.
 
 ## Idea dump
+If a character has a name or more than 3 lines, they need a file of their own. Copy [[template]] and change the name. Add a page to the excel that holds move importance.
 
-If a character has a name or more than 3 lines, they need a file of their own.
-Copy template.md and change the name. Add a page to the excel that holds move importance.
-
-### Characters
-### Names
-
-### Mechanics
 - Gain a character specific resource by canceling moves
 - Catch and release projectiles
 - Psychopath that is not evil (maybe in a relationship with another character)

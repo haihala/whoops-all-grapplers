@@ -1,0 +1,4 @@
+- [x] Directional influence
+- [x] Scaling
+- [x] Philosophy
+- [x] Clean up

@@ -1,0 +1,32 @@
+# Read aid
+Each of these are meant to be large tasks with sub tasks. Make separate projects for those, this is meant to track the progress over the entire mvp.
+# Big tasks
+- [ ] Health
+	- [ ] Bar
+- [ ] Rounds
+	- [ ] Win screen
+	- [ ] Reset
+	- [ ] Timer
+- [ ] Input parsing
+	- [x] V1
+	- [ ] Deal with sides
+- [ ] Movement
+	- [x] Model movement model with understandable units
+	- [ ] Dash
+	- [ ] Jump
+	- [ ] Run
+- [ ] Meter
+	- [ ] Cancel button
+- [ ] Basic combat
+	- [ ] Attack (Damage boxes created on command)
+	- [ ] Block
+	- [ ] Throw
+		- [ ] Yomi counter
+	- [ ] Parry
+	- [ ] Automatic cancel
+- [ ] One character ([[Ryan]])
+	- [ ] 4 normals
+	- [ ] 3 specials
+	- [x] Visuals (Box)
+	- [ ] Animations (moving boxes)
+	- [ ] SFX (POC)

@@ -15,35 +15,37 @@ Ryan is a 50-something year old half asian half white dude who has been "doing t
 He doesn't leap during a shoryuken, his fireballs are small, he uses some simple gadgets to help him move around. His shins and forearms have metal braces that he uses to attack.
 
 ## Mechanics
+Ryan gathers something like "Hype" when he does stuff that is traditionally seen as hard (frame perfect timings, landing the counter)
+
 Counter hits?
 Anti-tippers?
 
 ## Moves
 ### Jab
-- [F]
+- `F`
 - Quick jab
 
 ### Sweep
 ### Backhand
-- Back + [F]
+- Back + `F`
 - Similar to Guile's Spinning Back Knuckle
 
 ### Parry/super block/?
-- [V]
+- `H`
 - This has to do *something*
 
 ### Hail mary
-- Forwards + [V]
+- Forwards + `H`
 - Lunges forwards, somewhat similarly to fafnir
 - Can be used mid dash for easy kara like cancel
 
 ### Dragon counter
-- Dragon punch motion + [V]
+- Dragon punch motion + `H`
 - Shoryuken that is also a counter, doesn't go off unless hit during startup
 - Pulls the opponent across and launches them in the air
 
 ### Fireball
-- Quarter Circle Forward + [V]
+- Quarter Circle Forward + `H`
 - Quick and small fireball that goes about half screen or less
 - Looks wimpy but can be cancelled into stuff
 

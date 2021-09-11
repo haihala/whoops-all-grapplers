@@ -1,0 +1,2 @@
+- [ ] Handle side changes
+- [x] Clarify button to move flow

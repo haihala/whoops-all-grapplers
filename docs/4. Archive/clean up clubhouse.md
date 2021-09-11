@@ -1,0 +1,4 @@
+- [x] Move wrong MVP stories to beyond MVP
+	- Don't touch beyond MVP ones, deal with those when we get to it
+- [x] Go through the remaining stories and check accuracy
+- [x] Remove questions, those are mostly polish

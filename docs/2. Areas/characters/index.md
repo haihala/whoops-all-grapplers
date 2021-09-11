@@ -30,13 +30,25 @@ One X per line, when all lines have an X at polished, the character is done.
 ## Idea dump
 If a character has a name or more than 3 lines, they need a file of their own. Copy [[template]] and change the name. Add a page to the excel that holds move importance.
 
+- Counter hit character with slow moves but you can block during the first few startup frames
+- Dirty boxer (Has a gun in one glove) Maybe something that can't be reloaded)
+- Traditionally aquaman sucks. The ocean character should be cool. Maybe a lovecraft thing with the power of the deep. 
+	- Needs to signal power, similar to how Potemkin makes the ground shake just by walking
+- Damage over time status effect with long setup (garuda)
+- Armor plane (not whole body armor just like a shield)
+- Passive armor that regenerates every 10s or so
+- Press button multiple times for a strong attack
+- Hold button for a strong attack
+- Negative edge
+- Area specific hits
+	- Headshots add hitstun, gutshots reduce meter gain
 - Gain a character specific resource by canceling moves
 - Catch and release projectiles
 - Psychopath that is not evil (maybe in a relationship with another character)
 - Wave dash
 - A physics object that swings around the character (attack by moving)
 - Back and forth dash canceling
-- "Batman" with many gadgets and gizmos
+- "Batman" with many gadgets and gizmos that are single use
 - Proper shoryuken with inverse input that rekka's into downwards shoriyuken (normal input)
 - "Young, brute force shoto"
   - Instead of a reversal dp, they may have a massive dp that is just hugely negative on block.

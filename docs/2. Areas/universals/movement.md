@@ -16,7 +16,7 @@ Either double tap one of the eight directions or press a direction with M to air
 By default a character has two air dashes.
 
 ## Super jump
-Press 5D while on the ground to super jump. Super jumping should take you about three times as high as a normal jump.
+Press `5D` while on the ground to super jump. Super jumping should take you about three times as high as a normal jump.
 
 ## Hover
-Press 5D while in the air to hover stationary for a while. This is basically a stationary air dash and uses one of your dashes.
+Press `5D` while in the air to hover stationary for a while. This is basically a stationary air dash and uses one of your dashes.

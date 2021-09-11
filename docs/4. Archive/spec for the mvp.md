@@ -1,0 +1,2 @@
+- [x] List stuff that will me in MVP
+- [x] Organize it in a way that will be motivating to fill out

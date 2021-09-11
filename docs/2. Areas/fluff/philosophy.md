@@ -21,19 +21,22 @@ There will be people who don't have experience with competetive games, they are 
 This is mostly so I can laugh at how wrong I got them later.
 
 1. Reward don't require
-2. No problem is without a tool and no tools without a problem
-3. Decision making over execution
-4. Go deep before going wide
-5. Seeing the mechanic explains the mechanic
+2. Net positive fun
+	2. Dropping a combo is sad for attacker, neutral for defender, net negative
+3. No problem is without a tool and no tools without a problem
+4. Decision making over execution
+5. Go deep before going wide
+	1. When adding ideas, prefer characters over universals (complex characters over many universals)
+6. Seeing the mechanic explains the mechanic
    1. This is for stuff like s and h dolphins are different
    2. That is unlearnable without someone telling you.
-6. Mental load is a cost
-7. The obvious answer should be the best answer
-   1. If you can tech throws, the easiest way to not get thrown should be to tech them
-8. The fewer special cases the better
-9.  If something is explained with 'Genre convention', it needs to go or be reformed to something sensible
-10. If a cool underused mechanic can get highlighted easily, it should be
-11. If a button does something sometime, it should do something in neutral.
+7. Mental load is a cost
+8. The obvious answer should be the best answer
+   1. If you can tech throws, it should usually be the best way to avoid them 
+9. The fewer special cases the better
+12. If a cool underused mechanic can get highlighted easily, it should be
+13. If a button does something sometime, it should do something in neutral.
+14.  If something conflicts with the rest of the zen and is explained with convention, it needs to go or be reconstructed,
 
 
 ## Reward vs Requirement

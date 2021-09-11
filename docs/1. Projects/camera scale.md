@@ -1,0 +1,4 @@
+- [ ] Can the camera zoom
+- [ ] If, pick scale
+- [ ] If not, scale up elements to be visible.
+- [ ] Add background for testing.

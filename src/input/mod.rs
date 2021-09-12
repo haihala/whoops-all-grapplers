@@ -1,17 +1,18 @@
 use bevy::prelude::*;
+
+#[allow(unused_imports)]
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
+use core::panic;
 use std::collections::{HashMap, HashSet, VecDeque};
+
+use crate::clock::Clock;
+
+pub mod special_moves;
 
 #[derive(Debug)]
 pub struct Controller(Gamepad);
-
-#[derive(EnumIter, Clone, Debug, PartialEq, Eq, Hash)]
-pub enum SpecialMove {
-    QuarterCircle,
-    BackwardQuarterCircle,
-}
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ActionButton {
@@ -34,6 +35,22 @@ pub enum StickPosition {
 impl Default for StickPosition {
     fn default() -> Self {
         StickPosition::Neutral
+    }
+}
+impl From<i32> for StickPosition {
+    fn from(numpad: i32) -> Self {
+        match numpad {
+            1 => StickPosition::SW,
+            2 => StickPosition::S,
+            3 => StickPosition::SE,
+            4 => StickPosition::W,
+            5 => StickPosition::Neutral,
+            6 => StickPosition::E,
+            7 => StickPosition::NW,
+            8 => StickPosition::N,
+            9 => StickPosition::NE,
+            _ => panic!("Invalid numpad to StickPosition conversion"),
+        }
     }
 }
 impl From<IVec2> for StickPosition {
@@ -73,48 +90,36 @@ fn test_ivec_stickposition_conversions() {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-struct InputFrame {
+struct InputUpdate {
     #[allow(dead_code)]
-    frame: i32,
+    frame: usize,
     stick_move: Option<StickPosition>,
     pressed: HashSet<ActionButton>,
     #[allow(dead_code)]
     released: HashSet<ActionButton>,
 }
 
-pub struct InputBuffer {
-    frames: VecDeque<InputFrame>,
-    pub interpreted: Vec<SpecialMove>,
+pub struct InputStore {
+    diff_buffer: VecDeque<InputUpdate>,
     pub stick_position: StickPosition,
     pub recently_pressed: HashSet<ActionButton>,
     pub recently_released: HashSet<ActionButton>,
 }
-impl Default for InputBuffer {
+impl Default for InputStore {
     fn default() -> Self {
         Self {
-            frames: Default::default(),
-            interpreted: Default::default(),
+            diff_buffer: Default::default(),
             stick_position: Default::default(),
             recently_pressed: Default::default(),
             recently_released: Default::default(),
         }
     }
 }
-impl InputBuffer {
-    fn contains(&self, input: &SpecialMove) -> bool {
-        let mut requirements = match input {
-            SpecialMove::QuarterCircle => {
-                vec![StickPosition::S, StickPosition::SE, StickPosition::E]
-            }
-            SpecialMove::BackwardQuarterCircle => {
-                vec![StickPosition::S, StickPosition::SW, StickPosition::W]
-            }
-        }
-        .into_iter();
-
+impl InputStore {
+    pub fn contains(&self, mut requirements: Box<dyn Iterator<Item = StickPosition>>) -> bool {
         let mut requirement = requirements.next().unwrap();
 
-        for event in self.frames.iter() {
+        for event in self.diff_buffer.iter() {
             if let Some(position) = &event.stick_move {
                 if position == &requirement {
                     if let Some(next) = requirements.next() {
@@ -189,11 +194,11 @@ pub fn detect_new_pads(
 pub fn collect_input(
     axes: Res<Axis<GamepadAxis>>,
     buttons: Res<Input<GamepadButton>>,
-    mut players: Query<(&Controller, &mut InputBuffer)>,
+    mut players: Query<(&Controller, &mut InputStore)>,
     clock: Res<crate::Clock>,
     button_mappings: Res<HashMap<GamepadButtonType, ActionButton>>,
 ) {
-    for (controller, mut buffer) in players.iter_mut() {
+    for (controller, mut inputs) in players.iter_mut() {
         let lstick_x_axis = GamepadAxis(controller.0, GamepadAxisType::LeftStickX);
         let lstick_y_axis = GamepadAxis(controller.0, GamepadAxisType::LeftStickY);
 
@@ -230,70 +235,57 @@ pub fn collect_input(
             .map(|btn| btn.to_owned())
             .collect();
 
-        let stick_move = if stick_position != buffer.stick_position {
+        let stick_move = if stick_position != inputs.stick_position {
             Some(stick_position.clone())
         } else {
             None
         };
 
-        buffer.stick_position = stick_position;
+        inputs.stick_position = stick_position;
+        let last_recent_frame = if clock.0 > crate::constants::RECENT_INPUT_FRAMES {
+            clock.0 - crate::constants::RECENT_INPUT_FRAMES
+        } else {
+            0
+        };
 
-        let no_longer_recent_frame_index =
-            if buffer.frames.len() > crate::constants::RECENT_INPUT_FRAMES {
-                buffer.frames.len() - crate::constants::RECENT_INPUT_FRAMES
-            } else {
-                0
-            };
-
-        buffer.recently_pressed = buffer
-            .recently_pressed
-            .clone()
-            .into_iter()
-            .filter(|x| {
-                buffer.frames[no_longer_recent_frame_index]
-                    .pressed
-                    .contains(x)
-            })
-            .chain(pressed.clone().into_iter())
+        let recent_frames: Vec<InputUpdate> = inputs
+            .diff_buffer
+            .iter()
+            .filter(|x| x.frame >= last_recent_frame)
+            .cloned()
             .collect();
 
-        buffer.recently_released = buffer
-            .recently_released
-            .clone()
-            .into_iter()
-            .filter(|x| {
-                buffer.frames[no_longer_recent_frame_index]
-                    .released
-                    .contains(x)
-            })
-            .chain(released.clone().into_iter())
+        inputs.recently_pressed = recent_frames
+            .iter()
+            .flat_map(|x| x.pressed.clone())
             .collect();
 
-        buffer.frames.push_back(InputFrame {
-            frame: clock.0,
-            stick_move,
-            pressed,
-            released,
-        });
-    }
-}
+        inputs.recently_released = recent_frames
+            .iter()
+            .flat_map(|x| x.released.clone())
+            .collect();
 
-pub fn interpret_stick_inputs(mut query: Query<&mut InputBuffer>) {
-    for mut buffer in query.iter_mut() {
-        buffer.interpreted.clear();
-        // TODO: Check if player is free to act
-        for input in SpecialMove::iter() {
-            if buffer.contains(&input) {
-                buffer.interpreted.push(input.clone());
-            }
+        if !pressed.is_empty() || !released.is_empty() || stick_move.is_some() {
+            inputs.diff_buffer.push_back(InputUpdate {
+                frame: clock.0,
+                stick_move,
+                pressed,
+                released,
+            });
         }
     }
 }
 
-pub fn cull_stick_input_buffer(mut query: Query<&mut InputBuffer>) {
-    for mut buffer in query.iter_mut() {
-        while buffer.frames.len() > crate::constants::INPUT_BUFFER_LENGTH {
-            buffer.frames.pop_front();
-        }
+pub fn cull_diff_buffer(mut query: Query<&mut InputStore>, clock: Res<Clock>) {
+    let oldest_allowed_frame = if clock.0 > crate::constants::INPUT_BUFFER_FRAMES {
+        clock.0 - crate::constants::INPUT_BUFFER_FRAMES
+    } else {
+        0
+    };
+
+    for mut inputs in query.iter_mut() {
+        inputs
+            .diff_buffer
+            .retain(|x| x.frame >= oldest_allowed_frame);
     }
 }

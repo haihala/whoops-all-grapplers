@@ -1,5 +1,0 @@
-- [ ] Handle side changes
-- [ ] Rename current input buffer to diff buffer
-- [x] Add action buffer
-- [ ] Don't add inputs to diff buffer if nothing has changed
-- [x] Clarify button to move flow

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-pub struct Clock(pub i32);
+pub struct Clock(pub usize);
 
 pub struct ClockPlugin;
 

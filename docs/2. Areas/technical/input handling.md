@@ -33,5 +33,10 @@ Stores a bunch of input frame objects, which have:
 - If buttons were pressed, which ones
 - If buttons were released, which ones
 
+Part of the [[#Input store]].
+
 # Move buffer
 Has two optional enum fields, only one of which is some at a time. One is for generic actions like [[movement]], the other is for character specific actions like attacks and special moves.
+
+# Input store
+Stores the [[#Diff buffer]], recently pressed and released buttons and current stick position.

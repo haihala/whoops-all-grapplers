@@ -16,6 +16,7 @@ pub enum InputSystemLabel {
     Clear,
     Collect,
     Parse,
+    Execute,
 }
 
 pub struct StagePlugin;

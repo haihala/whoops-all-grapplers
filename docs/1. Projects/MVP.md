@@ -9,11 +9,11 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 	- [ ] Timer
 - [ ] Input parsing
 	- [x] V1
-	- [ ] Deal with sides
+	- [x] Deal with sides
 - [ ] Movement
 	- [x] Model movement model with understandable units
 	- [ ] Dash
-	- [ ] Jump
+	- [x] Jump
 	- [ ] Run
 - [ ] Meter
 	- [ ] Cancel button
@@ -30,3 +30,4 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 	- [x] Visuals (Box)
 	- [ ] Animations (moving boxes)
 	- [ ] SFX (POC)
+- [x] Background

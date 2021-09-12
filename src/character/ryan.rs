@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 
-use crate::input::{ActionButton, InputBuffer, SpecialMove, StickPosition};
-
-use super::CharacterAction;
+use crate::input::special_moves::{MotionMapping, SpecialMoveName};
+use crate::input::{ActionButton, InputStore};
 
 pub struct Ryan;
 
@@ -16,24 +15,28 @@ pub enum RyanAction {
 pub fn ryan_parser(
     mut query: Query<
         (
-            &InputBuffer,
+            &InputStore,
             &crate::player::PlayerState,
             &mut RyanMoveBuffer,
         ),
         With<Ryan>,
     >,
+    motion_mappings: Res<MotionMapping>,
 ) {
-    for (input_buffer, state, mut move_buffer) in query.iter_mut() {
+    for (input_store, state, mut move_buffer) in query.iter_mut() {
         move_buffer.0 = None;
+        let quarter_circle = motion_mappings
+            .get(&SpecialMoveName::QuarterCircleForward)
+            .unwrap();
 
-        for special in input_buffer.interpreted.iter() {
-            match special {
-                SpecialMove::QuarterCircle => todo!(),
-                SpecialMove::BackwardQuarterCircle => todo!(),
+        if input_store.contains(quarter_circle.requirements(state.flipped)) {
+            if input_store.recently_pressed.contains(&ActionButton::Fast) {
+                move_buffer.0 = Some(RyanAction::Hadouken);
+                continue;
             }
         }
 
-        move_buffer.1 = super::parse_character_action(input_buffer, state.grounded);
+        move_buffer.1 = super::parse_character_action(input_store, state.grounded);
     }
 }
 

@@ -1,3 +1,5 @@
+const FRAMES_PER_SECOND: f32 = 60.0; // f32 here to avoid casting elsewhere
+
 const CAMERA_HEIGHT: f32 = 5.0;
 pub const CAMERA_POSITION: (f32, f32, f32) = (0.0, CAMERA_HEIGHT, 0.0);
 pub const BACKGROUND_POSITION: (f32, f32, f32) = CAMERA_POSITION;
@@ -13,8 +15,10 @@ pub const BACKGROUND_SCALE: (f32, f32, f32) = (30.0, 20.0, 1.0);
 pub const PLAYER_SPRITE_WIDTH: f32 = 0.80;
 pub const PLAYER_SPRITE_HEIGHT: f32 = 1.80;
 
-pub const INPUT_BUFFER_LENGTH: usize = 60;
-pub const RECENT_INPUT_FRAMES: usize = 5;
+const RECENT_INPUT_WINDOW: f32 = 0.1; // Seconds a button press is 'recent'
+const INPUT_BUFFER_WINDOW: f32 = 1.0; // Seconds an input diff stays in the motion input detection window.
+pub const RECENT_INPUT_FRAMES: usize = (RECENT_INPUT_WINDOW * FRAMES_PER_SECOND) as usize;
+pub const INPUT_BUFFER_FRAMES: usize = (INPUT_BUFFER_WINDOW * FRAMES_PER_SECOND) as usize;
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
 pub const ARENA_WIDTH: f32 = 600.0;

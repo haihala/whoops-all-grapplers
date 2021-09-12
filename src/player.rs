@@ -15,7 +15,7 @@ impl Plugin for PlayerPlugin {
                     .label(SystemSetLabel::Input)
                     .with_system(input::detect_new_pads.system())
                     .with_system(
-                        input::cull_stick_input_buffer
+                        input::cull_diff_buffer
                             .system()
                             .label(InputSystemLabel::Clear),
                     )
@@ -24,20 +24,23 @@ impl Plugin for PlayerPlugin {
                             .system()
                             .label(InputSystemLabel::Collect)
                             .after(InputSystemLabel::Clear),
-                    )
-                    .with_system(
-                        input::interpret_stick_inputs
-                            .system()
-                            .label(InputSystemLabel::Parse)
-                            .after(InputSystemLabel::Collect),
                     ),
             )
             .add_system_set(
                 SystemSet::new()
                     .label(SystemSetLabel::Characters)
                     .after(SystemSetLabel::Input)
-                    .with_system(crate::character::ryan_parser.system())
-                    .with_system(crate::character::ryan_executor.system()),
+                    .with_system(
+                        crate::character::ryan_parser
+                            .system()
+                            .label(InputSystemLabel::Parse),
+                    )
+                    .with_system(
+                        crate::character::ryan_executor
+                            .system()
+                            .label(InputSystemLabel::Execute)
+                            .after(InputSystemLabel::Parse),
+                    ),
             );
     }
 }
@@ -71,6 +74,7 @@ fn setup(mut commands: Commands, assets: Res<Materials>) {
     .collect();
 
     commands.insert_resource(button_mappings);
+    commands.insert_resource(crate::input::special_moves::get_special_move_name_mappings());
 
     commands
         .spawn_bundle(SpriteBundle {
@@ -83,7 +87,7 @@ fn setup(mut commands: Commands, assets: Res<Materials>) {
         })
         .insert(Player)
         .insert(crate::physics::PhysicsObject::default())
-        .insert(input::InputBuffer::default())
+        .insert(input::InputStore::default())
         .insert(PlayerState::default())
         .insert(crate::character::RyanMoveBuffer(None, None))
         .insert(crate::character::Ryan);

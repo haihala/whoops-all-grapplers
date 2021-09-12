@@ -2,7 +2,7 @@ mod ryan;
 
 pub use ryan::{ryan_executor, ryan_parser, Ryan, RyanMoveBuffer};
 
-use crate::{input::InputBuffer, input::StickPosition, physics::PhysicsObject};
+use crate::{input::InputStore, input::StickPosition, physics::PhysicsObject};
 
 #[derive(Debug)]
 pub enum CharacterAction {
@@ -13,7 +13,7 @@ pub enum CharacterAction {
     RightJump,
 }
 
-fn parse_character_action(input_buffer: &InputBuffer, grounded: bool) -> Option<CharacterAction> {
+fn parse_character_action(input_buffer: &InputStore, grounded: bool) -> Option<CharacterAction> {
     match input_buffer.stick_position {
         StickPosition::W => Some(CharacterAction::Left),
         StickPosition::E => Some(CharacterAction::Right),

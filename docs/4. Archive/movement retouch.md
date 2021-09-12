@@ -1,0 +1,8 @@
+- [x] Redo fucked movement values as scale has change.
+	- It'll probably go real fucking fast.
+- [x] Run model: Start speed, acceleration, max speed
+- [x] Walk model: Constant speed
+- [x] Rework how player will is applied an how that relates to knockback
+	- [x] Leave room for DI
+- [x] Jumping
+	- [x] Diagonals

@@ -4,8 +4,6 @@ use strum_macros::EnumIter;
 
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use crate::player::PlayerState;
-
 #[derive(Debug)]
 pub struct Controller(Gamepad);
 
@@ -17,11 +15,11 @@ pub enum SpecialMove {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ActionButton {
-    Vicious,
+    Heavy,
     Fast,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(EnumIter, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum StickPosition {
     NW,
     N,
@@ -47,6 +45,30 @@ impl From<IVec2> for StickPosition {
         ];
 
         matrix[(item.y + 1) as usize][(item.x + 1) as usize].clone()
+    }
+}
+impl Into<IVec2> for StickPosition {
+    fn into(self) -> IVec2 {
+        match self {
+            StickPosition::NW => (-1, 1).into(),
+            StickPosition::N => (0, 1).into(),
+            StickPosition::NE => (1, 1).into(),
+            StickPosition::W => (-1, 0).into(),
+            StickPosition::Neutral => (0, 0).into(),
+            StickPosition::E => (1, 0).into(),
+            StickPosition::SW => (-1, -1).into(),
+            StickPosition::S => (0, -1).into(),
+            StickPosition::SE => (1, -1).into(),
+        }
+    }
+}
+
+#[test]
+fn test_ivec_stickposition_conversions() {
+    for sp1 in StickPosition::iter() {
+        let ivec: IVec2 = sp1.clone().into();
+        let sp2: StickPosition = ivec.into();
+        assert!(sp1 == sp2)
     }
 }
 
@@ -167,11 +189,11 @@ pub fn detect_new_pads(
 pub fn collect_input(
     axes: Res<Axis<GamepadAxis>>,
     buttons: Res<Input<GamepadButton>>,
-    mut players: Query<(&Controller, &mut InputBuffer, &mut PlayerState)>,
+    mut players: Query<(&Controller, &mut InputBuffer)>,
     clock: Res<crate::Clock>,
     button_mappings: Res<HashMap<GamepadButtonType, ActionButton>>,
 ) {
-    for (controller, mut buffer, mut player_state) in players.iter_mut() {
+    for (controller, mut buffer) in players.iter_mut() {
         let lstick_x_axis = GamepadAxis(controller.0, GamepadAxisType::LeftStickX);
         let lstick_y_axis = GamepadAxis(controller.0, GamepadAxisType::LeftStickY);
 
@@ -207,8 +229,6 @@ pub fn collect_input(
             .filter_map(|btn| button_mappings.get(&btn.1))
             .map(|btn| btn.to_owned())
             .collect();
-
-        player_state.decelerating = stick_position == StickPosition::Neutral;
 
         let stick_move = if stick_position != buffer.stick_position {
             Some(stick_position.clone())

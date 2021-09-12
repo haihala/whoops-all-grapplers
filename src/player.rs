@@ -36,7 +36,8 @@ impl Plugin for PlayerPlugin {
                 SystemSet::new()
                     .label(SystemSetLabel::Characters)
                     .after(SystemSetLabel::Input)
-                    .with_system(crate::character::ryan.system()),
+                    .with_system(crate::character::ryan_parser.system())
+                    .with_system(crate::character::ryan_executor.system()),
             );
     }
 }
@@ -48,12 +49,14 @@ pub struct Player;
 pub struct PlayerState {
     pub grounded: bool,
     pub decelerating: bool,
+    pub flipped: bool,
 }
 impl Default for PlayerState {
     fn default() -> Self {
         Self {
             grounded: true,
             decelerating: true,
+            flipped: false,
         }
     }
 }
@@ -61,7 +64,7 @@ impl Default for PlayerState {
 fn setup(mut commands: Commands, assets: Res<Materials>) {
     let button_mappings: HashMap<GamepadButtonType, input::ActionButton> = [
         (GamepadButtonType::South, input::ActionButton::Fast),
-        (GamepadButtonType::West, input::ActionButton::Vicious),
+        (GamepadButtonType::West, input::ActionButton::Heavy),
     ]
     .iter()
     .cloned()
@@ -78,9 +81,10 @@ fn setup(mut commands: Commands, assets: Res<Materials>) {
             )),
             ..Default::default()
         })
-        .insert(input::InputBuffer::default())
         .insert(Player)
-        .insert(PlayerState::default())
         .insert(crate::physics::PhysicsObject::default())
+        .insert(input::InputBuffer::default())
+        .insert(PlayerState::default())
+        .insert(crate::character::RyanMoveBuffer(None, None))
         .insert(crate::character::Ryan);
 }

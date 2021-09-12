@@ -5,11 +5,13 @@ use crate::player::PlayerState;
 
 pub struct PhysicsObject {
     pub velocity: Vec3,
+    pub ground_speed: f32,
 }
 impl Default for PhysicsObject {
     fn default() -> Self {
         Self {
             velocity: Default::default(),
+            ground_speed: Default::default(),
         }
     }
 }
@@ -17,7 +19,10 @@ impl Default for PhysicsObject {
 pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_system(gravity.system()).add_system(tick.system());
+        app.add_system(gravity.system())
+            .add_system(combine_speeds.system())
+            .add_system(sideswitcher.system())
+            .add_system(tick.system());
     }
 }
 
@@ -26,27 +31,39 @@ fn gravity(mut query: Query<&mut PhysicsObject>, time: Res<Time>) {
         object.velocity.y -= crate::constants::PLAYER_GRAVITY * time.delta_seconds();
     }
 }
+fn combine_speeds(mut query: Query<(&mut PhysicsObject, &mut PlayerState)>) {
+    for (mut physics_object, mut state) in query.iter_mut() {
+        state.decelerating = true;
+        if state.grounded {
+            if physics_object.ground_speed != 0.0 {
+                physics_object.velocity.x = physics_object.ground_speed;
+                state.decelerating = false;
+            }
+        }
+    }
+}
+
+fn sideswitcher(mut query: Query<(&Transform, &mut PlayerState)>) {
+    for (transform, mut player) in query.iter_mut() {
+        player.flipped = transform.translation.x > 0.0;
+    }
+}
 
 fn tick(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>, time: Res<Time>) {
     for (mut physics_object, mut transform, mut player) in query.iter_mut() {
-        let drag = if player.decelerating {
-            if player.grounded {
-                crate::constants::GROUND_DRAG * time.delta_seconds()
-            } else {
-                crate::constants::AIR_DRAG * time.delta_seconds()
-            }
+        if player.decelerating {
+            let drag = time.delta_seconds()
+                * if player.grounded {
+                    crate::constants::GROUND_DRAG
+                } else {
+                    crate::constants::AIR_DRAG
+                };
+
+            let speed = (physics_object.velocity.length() - drag).max(0.0);
+            physics_object.velocity = physics_object.velocity.normalize_or_zero() * speed;
         } else {
-            0.0
+            0.0;
         };
-
-        let speed = clamp(physics_object.velocity.length() - drag, 0.0, f32::MAX);
-
-        physics_object.velocity = physics_object.velocity.normalize_or_zero() * speed;
-        physics_object.velocity.x = clamp(
-            physics_object.velocity.x,
-            -crate::constants::PLAYER_TOP_SPEED,
-            crate::constants::PLAYER_TOP_SPEED,
-        );
 
         transform.translation += physics_object.velocity * time.delta_seconds();
 

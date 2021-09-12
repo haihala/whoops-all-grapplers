@@ -1,10 +1,22 @@
-pub const PLAYER_SPRITE_WIDTH: f32 = 10.0;
-pub const PLAYER_SPRITE_HEIGHT: f32 = 15.0;
+const CAMERA_HEIGHT: f32 = 5.0;
+pub const CAMERA_POSITION: (f32, f32, f32) = (0.0, CAMERA_HEIGHT, 0.0);
+pub const BACKGROUND_POSITION: (f32, f32, f32) = CAMERA_POSITION;
+
+const CAMERA_ZOOM_MULTIPLIER: f32 = 50.0;
+pub const CAMERA_SCALE: (f32, f32, f32) = (
+    1.0 / CAMERA_ZOOM_MULTIPLIER,
+    1.0 / CAMERA_ZOOM_MULTIPLIER,
+    1.0,
+);
+pub const BACKGROUND_SCALE: (f32, f32, f32) = (30.0, 20.0, 1.0);
+
+pub const PLAYER_SPRITE_WIDTH: f32 = 0.80;
+pub const PLAYER_SPRITE_HEIGHT: f32 = 1.80;
 
 pub const INPUT_BUFFER_LENGTH: usize = 60;
 pub const RECENT_INPUT_FRAMES: usize = 5;
 
-pub const GROUND_PLANE_HEIGHT: f32 = -1.0;
+pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
 pub const ARENA_WIDTH: f32 = 600.0;
 
 const PLAYER_ACCELERATION_TIME: f32 = 1.0;

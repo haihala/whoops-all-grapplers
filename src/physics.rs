@@ -34,11 +34,9 @@ fn gravity(mut query: Query<&mut PhysicsObject>, time: Res<Time>) {
 fn combine_speeds(mut query: Query<(&mut PhysicsObject, &mut PlayerState)>) {
     for (mut physics_object, mut state) in query.iter_mut() {
         state.decelerating = true;
-        if state.grounded {
-            if physics_object.ground_speed != 0.0 {
-                physics_object.velocity.x = physics_object.ground_speed;
-                state.decelerating = false;
-            }
+        if state.grounded && physics_object.ground_speed != 0.0 {
+            physics_object.velocity.x = physics_object.ground_speed;
+            state.decelerating = false;
         }
     }
 }
@@ -61,8 +59,6 @@ fn tick(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>
 
             let speed = (physics_object.velocity.length() - drag).max(0.0);
             physics_object.velocity = physics_object.velocity.normalize_or_zero() * speed;
-        } else {
-            0.0;
         };
 
         transform.translation += physics_object.velocity * time.delta_seconds();

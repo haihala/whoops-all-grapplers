@@ -29,11 +29,11 @@ pub fn ryan_parser(
             .get(&SpecialMoveName::QuarterCircleForward)
             .unwrap();
 
-        if input_store.contains(quarter_circle.requirements(state.flipped)) {
-            if input_store.recently_pressed.contains(&ActionButton::Fast) {
-                move_buffer.0 = Some(RyanAction::Hadouken);
-                continue;
-            }
+        if input_store.contains(quarter_circle.requirements(state.flipped))
+            && input_store.recently_pressed.contains(&ActionButton::Fast)
+        {
+            move_buffer.0 = Some(RyanAction::Hadouken);
+            continue;
         }
 
         move_buffer.1 = super::parse_character_action(input_store, state.grounded);
@@ -60,7 +60,7 @@ pub fn ryan_executor(
 
         super::handle_character_action(
             &move_buffer.1,
-            &state,
+            state,
             &mut physics_object,
             time.delta_seconds(),
         );

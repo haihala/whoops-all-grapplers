@@ -20,11 +20,7 @@ fn add_camera(mut commands: Commands) {
 }
 
 fn add_stage(mut commands: Commands, materials: Res<Materials>, mut meshes: ResMut<Assets<Mesh>>) {
-    let mut uvs = Vec::new();
-    uvs.push([0.0, 1.0]);
-    uvs.push([0.0, 0.0]);
-    uvs.push([1.0, 0.0]);
-    uvs.push([1.0, 1.0]);
+    let uvs = vec![[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]];
 
     let mut mesh = Mesh::from(shape::Quad::new(Vec2::new(1.0, 1.0)));
     mesh.set_attribute(Mesh::ATTRIBUTE_UV_0, uvs);

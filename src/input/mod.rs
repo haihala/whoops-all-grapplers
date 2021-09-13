@@ -64,6 +64,8 @@ impl From<IVec2> for StickPosition {
         matrix[(item.y + 1) as usize][(item.x + 1) as usize].clone()
     }
 }
+// Can't implement traits for bevy types
+#[allow(clippy::from_over_into)]
 impl Into<IVec2> for StickPosition {
     fn into(self) -> IVec2 {
         match self {

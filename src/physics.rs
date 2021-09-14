@@ -71,12 +71,10 @@ fn tick(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>
             player.grounded = false;
         }
 
-        if transform.translation.x > crate::constants::ARENA_WIDTH {
+        if transform.translation.x.abs() > crate::constants::ARENA_WIDTH {
             physics_object.velocity.x = 0.0;
-            transform.translation.x = crate::constants::ARENA_WIDTH;
-        } else if transform.translation.x < -crate::constants::ARENA_WIDTH {
-            physics_object.velocity.x = 0.0;
-            transform.translation.x = -crate::constants::ARENA_WIDTH;
+            transform.translation.x =
+                transform.translation.x.signum() * crate::constants::ARENA_WIDTH;
         }
     }
 }

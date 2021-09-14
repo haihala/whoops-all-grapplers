@@ -1,3 +1,4 @@
+// use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use oops_all_grapplers::*;
 
@@ -11,5 +12,7 @@ fn main() {
         .add_plugin(CameraPlugin)
         .add_plugin(PlayerPlugin)
         .add_plugin(PhysicsPlugin)
+        // .add_plugin(LogDiagnosticsPlugin::default())
+        // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .run();
 }

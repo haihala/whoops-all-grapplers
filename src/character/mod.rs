@@ -53,18 +53,18 @@ fn handle_character_action(
             physics_object.ground_speed.abs() + crate::constants::PLAYER_ACCELERATION * delta_time,
         ));
 
-    physics_object.ground_speed = 0.0;
+    let mut ground_speed = 0.0;
     if let Some(action) = character_action {
         match action {
             CharacterAction::Right => {
-                physics_object.ground_speed = if state.flipped {
+                ground_speed = if state.flipped {
                     crate::constants::PLAYER_WALK_SPEED
                 } else {
                     run_speed
                 };
             }
             CharacterAction::Left => {
-                physics_object.ground_speed = if state.flipped {
+                ground_speed = if state.flipped {
                     -run_speed
                 } else {
                     -crate::constants::PLAYER_WALK_SPEED
@@ -87,4 +87,5 @@ fn handle_character_action(
             }
         }
     }
+    physics_object.ground_speed = ground_speed;
 }

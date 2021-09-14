@@ -5,8 +5,8 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 	- [ ] Bar
 - [ ] Rounds
 	- [ ] Win screen
-	- [ ] Reset
-	- [ ] Timer
+	- [ ] Reset between
+	- [ ] Round timer
 - [ ] Input parsing
 	- [x] V1
 	- [x] Deal with sides

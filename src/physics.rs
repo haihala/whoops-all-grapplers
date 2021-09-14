@@ -3,17 +3,10 @@ use num::clamp;
 
 use crate::player::PlayerState;
 
+#[derive(Debug, Default)]
 pub struct PhysicsObject {
     pub velocity: Vec3,
     pub ground_speed: f32,
-}
-impl Default for PhysicsObject {
-    fn default() -> Self {
-        Self {
-            velocity: Default::default(),
-            ground_speed: Default::default(),
-        }
-    }
 }
 
 pub struct PhysicsPlugin;

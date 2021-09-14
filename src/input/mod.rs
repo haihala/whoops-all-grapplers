@@ -101,21 +101,12 @@ struct InputUpdate {
     released: HashSet<ActionButton>,
 }
 
+#[derive(Debug, Default)]
 pub struct InputStore {
     diff_buffer: VecDeque<InputUpdate>,
     pub stick_position: StickPosition,
     pub recently_pressed: HashSet<ActionButton>,
     pub recently_released: HashSet<ActionButton>,
-}
-impl Default for InputStore {
-    fn default() -> Self {
-        Self {
-            diff_buffer: Default::default(),
-            stick_position: Default::default(),
-            recently_pressed: Default::default(),
-            recently_released: Default::default(),
-        }
-    }
 }
 impl InputStore {
     pub fn contains(&self, mut requirements: Box<dyn Iterator<Item = StickPosition>>) -> bool {

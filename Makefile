@@ -10,9 +10,9 @@ test:
 	cargo test $(release)
 
 clippy:
-	cargo +nightly clippy --all
+	cargo clippy --all
 
 fmt:
-	cargo +nightly fmt --all -- --check
+	cargo fmt --all -- --check
 
 check: build test clippy fmt

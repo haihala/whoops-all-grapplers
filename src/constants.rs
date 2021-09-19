@@ -1,13 +1,13 @@
-const CAMERA_HEIGHT: f32 = 5.0;
-pub const CAMERA_POSITION: (f32, f32, f32) = (0.0, CAMERA_HEIGHT, 0.0);
-pub const BACKGROUND_POSITION: (f32, f32, f32) = CAMERA_POSITION;
+// I've understood this to be the distance, beyond which the camera stops drawing stuff
+pub const CAMERA_FAR_DISTANCE: f32 = 10000.0;
+pub const CAMERA_HEIGHT: f32 = 2.0;
 
-const CAMERA_ZOOM_MULTIPLIER: f32 = 50.0;
-pub const CAMERA_SCALE: (f32, f32, f32) = (
-    1.0 / CAMERA_ZOOM_MULTIPLIER,
-    1.0 / CAMERA_ZOOM_MULTIPLIER,
-    1.0,
-);
+// World units (meters) for how high and how wide the viewport should be.
+// The eventual value will be 2x this, since the pixels go from -1 to 1 on both axis
+pub const VIEWPORT_WIDTH: f32 = 5.0;
+pub const VIEWPORT_HEIGHT: f32 = 3.0;
+
+pub const BACKGROUND_POSITION: (f32, f32, f32) = (0.0, 5.0, 0.0);
 pub const BACKGROUND_SCALE: (f32, f32, f32) = (30.0, 20.0, 1.0);
 
 pub const PLAYER_SPRITE_WIDTH: f32 = 0.80;

@@ -76,8 +76,17 @@ fn setup(mut commands: Commands, assets: Res<Materials>) {
     commands.insert_resource(button_mappings);
     commands.insert_resource(crate::input::special_moves::get_special_move_name_mappings());
 
+    spawn_player(&mut commands, &assets, 2.0);
+    spawn_player(&mut commands, &assets, -2.0);
+}
+
+fn spawn_player(commands: &mut Commands, assets: &Res<Materials>, offset: f32) {
     commands
         .spawn_bundle(SpriteBundle {
+            transform: Transform {
+                translation: (offset, 0.0, 0.0).into(),
+                ..Default::default()
+            },
             material: assets.collision_box_color.clone(),
             sprite: Sprite::new(Vec2::new(
                 crate::constants::PLAYER_SPRITE_WIDTH,

@@ -62,27 +62,23 @@ pub fn detect_new_pads(
     uncontrolled: Query<Entity, (With<crate::Player>, Without<Controller>)>,
     mut unused_pads: Option<ResMut<Vec<Controller>>>,
 ) {
+    let mut uci = uncontrolled.iter();
     for GamepadEvent(id, kind) in gamepad_evr.iter() {
         match kind {
             GamepadEventType::Connected => {
                 println!("New gamepad connected with ID: {:?}", id);
-                match uncontrolled.single() {
-                    Ok(entity) => {
-                        commands.entity(entity).insert(Controller(*id));
-                    }
-                    Err(_) => {
-                        let new_controller = Controller(*id);
-                        match unused_pads {
-                            Some(ref mut queue) => {
-                                queue.push(new_controller);
-                            }
-                            None => {
-                                let mut queue = VecDeque::new();
-                                queue.push_back(new_controller);
-                                commands.insert_resource(queue);
-                            }
-                        };
-                    }
+
+                if let Some(character) = uci.next() {
+                    commands.entity(character).insert(Controller(*id));
+                } else {
+                    match unused_pads {
+                        Some(ref mut queue) => {
+                            queue.push(Controller(*id));
+                        }
+                        None => {
+                            commands.insert_resource(vec![Controller(*id)]);
+                        }
+                    };
                 }
             }
             GamepadEventType::Disconnected => {

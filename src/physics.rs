@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use num::clamp;
 
-use crate::player::PlayerState;
+use crate::player::{Player, PlayerState};
 
 #[derive(Debug, Default)]
 pub struct PhysicsObject {
@@ -34,9 +34,18 @@ fn combine_speeds(mut query: Query<(&mut PhysicsObject, &mut PlayerState)>) {
     }
 }
 
-fn sideswitcher(mut query: Query<(&Transform, &mut PlayerState)>) {
-    for (transform, mut player) in query.iter_mut() {
-        player.flipped = transform.translation.x > 0.0;
+fn sideswitcher(
+    mut players: Query<(Entity, &Transform, &mut PlayerState), With<Player>>,
+    others: Query<(Entity, &Transform), With<Player>>,
+) {
+    for (entity, transform, mut player) in players.iter_mut() {
+        for (e, tf) in others.iter() {
+            if e == entity {
+                continue;
+            }
+
+            player.flipped = transform.translation.x > tf.translation.x;
+        }
     }
 }
 

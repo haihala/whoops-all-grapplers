@@ -6,10 +6,12 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 - [ ] Rounds
 	- [ ] Win screen
 	- [ ] Reset between
-	- [ ] Round timer
+	- [x] Round timer
 - [ ] Input parsing
 	- [x] V1
 	- [x] Deal with sides
+	- [ ] Incremental
+	- [x] Controller detection
 - [ ] Movement
 	- [x] Model movement model with understandable units
 	- [ ] Dash
@@ -31,3 +33,4 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 	- [ ] Animations (moving boxes)
 	- [ ] SFX (POC)
 - [x] Background
+- [x] Camera

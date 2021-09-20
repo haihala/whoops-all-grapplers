@@ -3,6 +3,7 @@ use bevy::prelude::*;
 #[derive(StageLabel, Clone, Copy, Hash, Debug, PartialEq, Eq)]
 pub enum StartupStageLabel {
     LoadAssets,
+    UI,
 }
 
 #[derive(SystemLabel, Clone, Copy, Hash, Debug, PartialEq, Eq)]
@@ -26,6 +27,11 @@ impl Plugin for StagePlugin {
         app.add_startup_stage_before(
             StartupStage::Startup,
             StartupStageLabel::LoadAssets,
+            SystemStage::parallel(),
+        )
+        .add_startup_stage_after(
+            StartupStage::Startup,
+            StartupStageLabel::UI,
             SystemStage::parallel(),
         );
     }

@@ -157,8 +157,8 @@ pub fn collect_input(
         };
 
         inputs.stick_position = stick_position;
-        let last_recent_frame = if clock.0 > crate::constants::RECENT_INPUT_FRAMES {
-            clock.0 - crate::constants::RECENT_INPUT_FRAMES
+        let last_recent_frame = if clock.frame > crate::constants::RECENT_INPUT_FRAMES {
+            clock.frame - crate::constants::RECENT_INPUT_FRAMES
         } else {
             0
         };
@@ -182,7 +182,7 @@ pub fn collect_input(
 
         if !pressed.is_empty() || !released.is_empty() || stick_move.is_some() {
             inputs.diff_buffer.push_back(InputUpdate {
-                frame: clock.0,
+                frame: clock.frame,
                 stick_move,
                 pressed,
                 released,
@@ -192,8 +192,8 @@ pub fn collect_input(
 }
 
 pub fn cull_diff_buffer(mut query: Query<&mut InputStore>, clock: Res<Clock>) {
-    let oldest_allowed_frame = if clock.0 > crate::constants::INPUT_BUFFER_FRAMES {
-        clock.0 - crate::constants::INPUT_BUFFER_FRAMES
+    let oldest_allowed_frame = if clock.frame > crate::constants::INPUT_BUFFER_FRAMES {
+        clock.frame - crate::constants::INPUT_BUFFER_FRAMES
     } else {
         0
     };

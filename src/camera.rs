@@ -7,6 +7,8 @@ use bevy::render::render_graph::base::camera::CAMERA_2D;
 use crate::player::Player;
 use crate::Materials;
 
+struct WorldCamera;
+
 // Originally from
 // https://bevy-cheatbook.github.io/cookbook/custom-projection.html?highlight=window#custom-camera-projection
 // Edited somewhat
@@ -45,7 +47,7 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(add_camera.system())
+        app.add_startup_system(add_cameras.system())
             .add_startup_system(add_stage.system())
             .add_system_to_stage(
                 CoreStage::PostUpdate,
@@ -55,24 +57,29 @@ impl Plugin for CameraPlugin {
     }
 }
 
-fn add_camera(mut commands: Commands) {
+fn add_cameras(mut commands: Commands) {
+    let camera = Camera {
+        name: Some(CAMERA_2D.to_string()),
+        ..Default::default()
+    };
     let projection = SimpleOrthoProjection::default();
-    let cam_name = CAMERA_2D;
-    let mut camera = Camera::default();
-    camera.name = Some(cam_name.to_string());
 
-    commands.spawn_bundle((
-        // position the camera like bevy would do by default for 2D:
-        Transform::from_translation(Vec3::new(
-            0.0,
-            crate::constants::CAMERA_HEIGHT,
-            crate::constants::CAMERA_FAR_DISTANCE - 0.1,
-        )),
-        GlobalTransform::default(),
-        VisibleEntities::default(),
-        camera,
-        projection,
-    ));
+    commands
+        .spawn_bundle((
+            // position the camera like bevy would do by default for 2D:
+            Transform::from_translation(Vec3::new(
+                0.0,
+                crate::constants::CAMERA_HEIGHT,
+                crate::constants::CAMERA_FAR_DISTANCE - 0.1,
+            )),
+            GlobalTransform::default(),
+            VisibleEntities::default(),
+            camera,
+            projection,
+        ))
+        .insert(WorldCamera);
+
+    commands.spawn_bundle(UiCameraBundle::default());
 }
 
 fn add_stage(mut commands: Commands, materials: Res<Materials>, mut meshes: ResMut<Assets<Mesh>>) {
@@ -97,7 +104,7 @@ fn add_stage(mut commands: Commands, materials: Res<Materials>, mut meshes: ResM
 fn center_camera(
     mut queryies: QuerySet<(
         Query<&Transform, With<Player>>,
-        Query<&mut Transform, With<Camera>>,
+        Query<&mut Transform, With<WorldCamera>>,
     )>,
 ) {
     if let Some(player_pos_sum) = queryies

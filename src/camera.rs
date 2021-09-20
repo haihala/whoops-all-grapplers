@@ -11,22 +11,26 @@ use crate::Materials;
 // https://bevy-cheatbook.github.io/cookbook/custom-projection.html?highlight=window#custom-camera-projection
 // Edited somewhat
 #[derive(Default)]
-struct SimpleOrthoProjection {}
+struct SimpleOrthoProjection {
+    viewport_height: f32,
+}
 
 impl CameraProjection for SimpleOrthoProjection {
     fn get_projection_matrix(&self) -> Mat4 {
         Mat4::orthographic_rh(
             -crate::constants::VIEWPORT_WIDTH,
             crate::constants::VIEWPORT_WIDTH,
-            -crate::constants::VIEWPORT_HEIGHT,
-            crate::constants::VIEWPORT_HEIGHT,
+            -self.viewport_height,
+            self.viewport_height,
             0.0,
             crate::constants::CAMERA_FAR_DISTANCE,
         )
     }
 
     // what to do on window resize
-    fn update(&mut self, _width: f32, _height: f32) {}
+    fn update(&mut self, width: f32, height: f32) {
+        self.viewport_height = crate::constants::VIEWPORT_WIDTH * height / width;
+    }
 
     fn depth_calculation(&self) -> DepthCalculation {
         // for 2D (camera doesn't rotate)

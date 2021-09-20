@@ -5,7 +5,6 @@ pub const CAMERA_HEIGHT: f32 = 2.0;
 // World units (meters) for how high and how wide the viewport should be.
 // The eventual value will be 2x this, since the pixels go from -1 to 1 on both axis
 pub const VIEWPORT_WIDTH: f32 = 5.0;
-pub const VIEWPORT_HEIGHT: f32 = 3.0;
 
 pub const BACKGROUND_POSITION: (f32, f32, f32) = (0.0, 5.0, 0.0);
 pub const BACKGROUND_SCALE: (f32, f32, f32) = (30.0, 20.0, 1.0);

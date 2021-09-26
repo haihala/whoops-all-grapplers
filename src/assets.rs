@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-pub struct AssetsPlugin;
-
 pub struct Colors {
     pub transparent: Handle<ColorMaterial>,
     pub health: Handle<ColorMaterial>,
@@ -17,6 +15,7 @@ pub struct Fonts {
 pub struct Sprites {
     pub background_image: Handle<StandardMaterial>,
 }
+pub struct AssetsPlugin;
 
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut AppBuilder) {

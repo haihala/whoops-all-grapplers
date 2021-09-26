@@ -3,6 +3,7 @@ use bevy_inspector_egui::Inspectable;
 
 use crate::labels::StartupStageLabel;
 use crate::{Colors, Fonts};
+
 #[derive(Inspectable, Default)]
 pub struct Clock {
     pub frame: usize,

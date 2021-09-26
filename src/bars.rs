@@ -2,6 +2,10 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use crate::{Colors, Health, Player};
+
+#[derive(Inspectable, Default)]
+struct HealthBar(i32);
+
 pub struct BarsPlugin;
 
 impl Plugin for BarsPlugin {
@@ -10,9 +14,6 @@ impl Plugin for BarsPlugin {
             .add_system(update.system());
     }
 }
-
-#[derive(Inspectable, Default)]
-struct HealthBar(i32);
 
 fn setup(mut commands: Commands, colors: Res<Colors>) {
     commands

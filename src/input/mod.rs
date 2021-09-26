@@ -3,7 +3,6 @@ use bevy::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 
 use crate::clock::Clock;
-
 pub mod special_moves;
 mod stick_position;
 pub use stick_position::StickPosition;

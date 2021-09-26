@@ -101,6 +101,7 @@ fn add_stage(mut commands: Commands, sprites: Res<Sprites>, mut meshes: ResMut<A
     });
 }
 
+#[allow(clippy::type_complexity)]
 fn center_camera(
     mut queryies: QuerySet<(
         Query<&Transform, With<Player>>,

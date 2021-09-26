@@ -75,8 +75,7 @@ fn tick(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>
 
         if transform.translation.x.abs() > crate::ARENA_WIDTH {
             physics_object.velocity.x = 0.0;
-            transform.translation.x =
-                transform.translation.x.signum() * crate::ARENA_WIDTH;
+            transform.translation.x = transform.translation.x.signum() * crate::ARENA_WIDTH;
         }
     }
 }

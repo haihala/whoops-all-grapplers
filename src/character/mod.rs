@@ -48,10 +48,10 @@ fn handle_character_action(
     physics_object: &mut PhysicsObject,
     delta_time: f32,
 ) {
-    let run_speed =
-        crate::PLAYER_INITIAL_RUN_SPEED.max(crate::PLAYER_TOP_SPEED.min(
-            physics_object.ground_speed.abs() + crate::PLAYER_ACCELERATION * delta_time,
-        ));
+    let run_speed = crate::PLAYER_INITIAL_RUN_SPEED.max(
+        crate::PLAYER_TOP_SPEED
+            .min(physics_object.ground_speed.abs() + crate::PLAYER_ACCELERATION * delta_time),
+    );
 
     let mut ground_speed = 0.0;
     if let Some(action) = character_action {

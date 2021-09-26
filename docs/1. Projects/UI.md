@@ -1,4 +1,4 @@
 - [x] Draw text on screen
 - [x] Round timer
-- [ ] Red health bar
+- [x] Red health bar
 - [ ] Blue meter bar

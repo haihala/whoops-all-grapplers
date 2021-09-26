@@ -21,7 +21,7 @@ impl Plugin for PhysicsPlugin {
 
 fn gravity(mut query: Query<&mut PhysicsObject>, time: Res<Time>) {
     for mut object in query.iter_mut() {
-        object.velocity.y -= crate::constants::PLAYER_GRAVITY * time.delta_seconds();
+        object.velocity.y -= crate::PLAYER_GRAVITY * time.delta_seconds();
     }
 }
 fn combine_speeds(mut query: Query<(&mut PhysicsObject, &mut PlayerState)>) {
@@ -54,9 +54,9 @@ fn tick(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>
         if player.decelerating {
             let drag = time.delta_seconds()
                 * if player.grounded {
-                    crate::constants::GROUND_DRAG
+                    crate::GROUND_DRAG
                 } else {
-                    crate::constants::AIR_DRAG
+                    crate::AIR_DRAG
                 };
 
             let speed = (physics_object.velocity.length() - drag).max(0.0);
@@ -65,18 +65,18 @@ fn tick(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>
 
         transform.translation += physics_object.velocity * time.delta_seconds();
 
-        if transform.translation.y < crate::constants::GROUND_PLANE_HEIGHT {
+        if transform.translation.y < crate::GROUND_PLANE_HEIGHT {
             physics_object.velocity.y = clamp(physics_object.velocity.y, 0.0, f32::MAX);
-            transform.translation.y = crate::constants::GROUND_PLANE_HEIGHT;
+            transform.translation.y = crate::GROUND_PLANE_HEIGHT;
             player.grounded = true;
-        } else if transform.translation.y > crate::constants::GROUND_PLANE_HEIGHT {
+        } else if transform.translation.y > crate::GROUND_PLANE_HEIGHT {
             player.grounded = false;
         }
 
-        if transform.translation.x.abs() > crate::constants::ARENA_WIDTH {
+        if transform.translation.x.abs() > crate::ARENA_WIDTH {
             physics_object.velocity.x = 0.0;
             transform.translation.x =
-                transform.translation.x.signum() * crate::constants::ARENA_WIDTH;
+                transform.translation.x.signum() * crate::ARENA_WIDTH;
         }
     }
 }

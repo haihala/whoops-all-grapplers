@@ -157,8 +157,8 @@ pub fn collect_input(
         };
 
         inputs.stick_position = stick_position;
-        let last_recent_frame = if clock.frame > crate::constants::RECENT_INPUT_FRAMES {
-            clock.frame - crate::constants::RECENT_INPUT_FRAMES
+        let last_recent_frame = if clock.frame > crate::RECENT_INPUT_FRAMES {
+            clock.frame - crate::RECENT_INPUT_FRAMES
         } else {
             0
         };
@@ -192,8 +192,8 @@ pub fn collect_input(
 }
 
 pub fn cull_diff_buffer(mut query: Query<&mut InputStore>, clock: Res<Clock>) {
-    let oldest_allowed_frame = if clock.frame > crate::constants::INPUT_BUFFER_FRAMES {
-        clock.frame - crate::constants::INPUT_BUFFER_FRAMES
+    let oldest_allowed_frame = if clock.frame > crate::INPUT_BUFFER_FRAMES {
+        clock.frame - crate::INPUT_BUFFER_FRAMES
     } else {
         0
     };

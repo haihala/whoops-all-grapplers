@@ -3,6 +3,8 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 # Big tasks
 - [ ] Health
 	- [ ] Bar
+- [ ] Meter
+	- [ ] Cancel button
 - [ ] Rounds
 	- [ ] Win screen
 	- [ ] Reset between
@@ -16,9 +18,7 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 	- [x] Model movement model with understandable units
 	- [ ] Dash
 	- [x] Jump
-	- [ ] Run
-- [ ] Meter
-	- [ ] Cancel button
+	- [x] Run
 - [ ] Basic combat
 	- [ ] Attack (Damage boxes created on command)
 	- [ ] Block

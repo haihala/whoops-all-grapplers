@@ -1,9 +1,38 @@
 use bevy::prelude::*;
+use bevy_inspector_egui::Inspectable;
+
 use std::collections::HashMap;
 
 use crate::input;
 use crate::labels::{InputSystemLabel, SystemSetLabel};
-use crate::Materials;
+use crate::Colors;
+
+// Tag
+#[derive(Inspectable, Default)]
+pub struct Player(pub i32);
+
+#[derive(Inspectable, Default)]
+pub struct Health {
+    // For rendering purposes, max health=1 and store only the ratio.
+    // Different characters ought to have a scalar scale for incoming damage
+    // This won't be communicated to the player.
+    pub ratio: f32,
+}
+
+pub struct PlayerState {
+    pub grounded: bool,
+    pub decelerating: bool,
+    pub flipped: bool,
+}
+impl Default for PlayerState {
+    fn default() -> Self {
+        Self {
+            grounded: true,
+            decelerating: true,
+            flipped: false,
+        }
+    }
+}
 
 pub struct PlayerPlugin;
 
@@ -45,26 +74,7 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-// Tag
-pub struct Player;
-
-// Tracking for the players' state
-pub struct PlayerState {
-    pub grounded: bool,
-    pub decelerating: bool,
-    pub flipped: bool,
-}
-impl Default for PlayerState {
-    fn default() -> Self {
-        Self {
-            grounded: true,
-            decelerating: true,
-            flipped: false,
-        }
-    }
-}
-
-fn setup(mut commands: Commands, assets: Res<Materials>) {
+fn setup(mut commands: Commands, assets: Res<Colors>) {
     let button_mappings: HashMap<GamepadButtonType, input::ActionButton> = [
         (GamepadButtonType::South, input::ActionButton::Fast),
         (GamepadButtonType::West, input::ActionButton::Heavy),
@@ -76,25 +86,26 @@ fn setup(mut commands: Commands, assets: Res<Materials>) {
     commands.insert_resource(button_mappings);
     commands.insert_resource(crate::input::special_moves::get_special_move_name_mappings());
 
-    spawn_player(&mut commands, &assets, 2.0);
-    spawn_player(&mut commands, &assets, -2.0);
+    spawn_player(&mut commands, &assets, 2.0, 1);
+    spawn_player(&mut commands, &assets, -2.0, 2);
 }
 
-fn spawn_player(commands: &mut Commands, assets: &Res<Materials>, offset: f32) {
+fn spawn_player(commands: &mut Commands, assets: &Res<Colors>, offset: f32, player_number: i32) {
     commands
         .spawn_bundle(SpriteBundle {
             transform: Transform {
                 translation: (offset, 0.0, 0.0).into(),
                 ..Default::default()
             },
-            material: assets.collision_box_color.clone(),
+            material: assets.collision_box.clone(),
             sprite: Sprite::new(Vec2::new(
-                crate::constants::PLAYER_SPRITE_WIDTH,
-                crate::constants::PLAYER_SPRITE_HEIGHT,
+                crate::PLAYER_SPRITE_WIDTH,
+                crate::PLAYER_SPRITE_HEIGHT,
             )),
             ..Default::default()
         })
-        .insert(Player)
+        .insert(Player(player_number))
+        .insert(Health { ratio: 1.0 })
         .insert(crate::physics::PhysicsObject::default())
         .insert(input::InputStore::default())
         .insert(PlayerState::default())

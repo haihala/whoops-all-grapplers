@@ -5,7 +5,7 @@ use bevy::render::camera::{
 use bevy::render::render_graph::base::camera::CAMERA_2D;
 
 use crate::player::Player;
-use crate::Materials;
+use crate::Sprites;
 
 struct WorldCamera;
 
@@ -20,18 +20,18 @@ struct SimpleOrthoProjection {
 impl CameraProjection for SimpleOrthoProjection {
     fn get_projection_matrix(&self) -> Mat4 {
         Mat4::orthographic_rh(
-            -crate::constants::VIEWPORT_WIDTH,
-            crate::constants::VIEWPORT_WIDTH,
+            -crate::VIEWPORT_WIDTH,
+            crate::VIEWPORT_WIDTH,
             -self.viewport_height,
             self.viewport_height,
             0.0,
-            crate::constants::CAMERA_FAR_DISTANCE,
+            crate::CAMERA_FAR_DISTANCE,
         )
     }
 
     // what to do on window resize
     fn update(&mut self, width: f32, height: f32) {
-        self.viewport_height = crate::constants::VIEWPORT_WIDTH * height / width;
+        self.viewport_height = crate::VIEWPORT_WIDTH * height / width;
     }
 
     fn depth_calculation(&self) -> DepthCalculation {
@@ -69,8 +69,8 @@ fn add_cameras(mut commands: Commands) {
             // position the camera like bevy would do by default for 2D:
             Transform::from_translation(Vec3::new(
                 0.0,
-                crate::constants::CAMERA_HEIGHT,
-                crate::constants::CAMERA_FAR_DISTANCE - 0.1,
+                crate::CAMERA_HEIGHT,
+                crate::CAMERA_FAR_DISTANCE - 0.1,
             )),
             GlobalTransform::default(),
             VisibleEntities::default(),
@@ -82,18 +82,18 @@ fn add_cameras(mut commands: Commands) {
     commands.spawn_bundle(UiCameraBundle::default());
 }
 
-fn add_stage(mut commands: Commands, materials: Res<Materials>, mut meshes: ResMut<Assets<Mesh>>) {
+fn add_stage(mut commands: Commands, sprites: Res<Sprites>, mut meshes: ResMut<Assets<Mesh>>) {
     let uvs = vec![[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]];
 
     let mut mesh = Mesh::from(shape::Quad::new(Vec2::new(1.0, 1.0)));
     mesh.set_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
 
     commands.spawn_bundle(PbrBundle {
-        material: materials.background_image.clone(),
+        material: sprites.background_image.clone(),
         mesh: meshes.add(mesh),
         transform: Transform {
-            translation: crate::constants::BACKGROUND_POSITION.into(),
-            scale: crate::constants::BACKGROUND_SCALE.into(),
+            translation: crate::BACKGROUND_POSITION.into(),
+            scale: crate::BACKGROUND_SCALE.into(),
             ..Default::default()
         },
 

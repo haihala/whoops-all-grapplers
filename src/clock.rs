@@ -1,7 +1,9 @@
 use bevy::prelude::*;
+use bevy_inspector_egui::Inspectable;
 
 use crate::labels::StartupStageLabel;
-#[derive(Default)]
+use crate::{Colors, Fonts};
+#[derive(Inspectable, Default)]
 pub struct Clock {
     pub frame: usize,
     elapsed_time: f32,
@@ -20,12 +22,7 @@ impl Plugin for ClockPlugin {
     }
 }
 
-fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut color_assets: ResMut<Assets<ColorMaterial>>,
-) {
-    let font = asset_server.load("FiraSans-Bold.ttf");
+fn setup(mut commands: Commands, fonts: Res<Fonts>, colors: Res<Colors>) {
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
@@ -39,7 +36,7 @@ fn setup(
                 },
                 ..Default::default()
             },
-            material: color_assets.add(Color::NONE.into()),
+            material: colors.transparent.clone(),
             ..Default::default()
         })
         .with_children(|parent| {
@@ -48,7 +45,7 @@ fn setup(
                     text: Text::with_section(
                         "value",
                         TextStyle {
-                            font: font,
+                            font: fonts.basic.clone(),
                             font_size: 100.0,
                             color: Color::WHITE,
                         },
@@ -71,8 +68,6 @@ fn tick(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
 fn draw_timer(mut query: Query<&mut Text, With<Timer>>, clock: Res<Clock>) {
     // TODO: Timer doesn't show up for some reason
     for mut text in query.iter_mut() {
-        text.sections[0].value = (crate::constants::ROUND_TIME - clock.elapsed_time)
-            .floor()
-            .to_string();
+        text.sections[0].value = (crate::ROUND_TIME - clock.elapsed_time).floor().to_string();
     }
 }

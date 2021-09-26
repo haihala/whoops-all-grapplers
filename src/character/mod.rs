@@ -49,8 +49,8 @@ fn handle_character_action(
     delta_time: f32,
 ) {
     let run_speed =
-        crate::constants::PLAYER_INITIAL_RUN_SPEED.max(crate::constants::PLAYER_TOP_SPEED.min(
-            physics_object.ground_speed.abs() + crate::constants::PLAYER_ACCELERATION * delta_time,
+        crate::PLAYER_INITIAL_RUN_SPEED.max(crate::PLAYER_TOP_SPEED.min(
+            physics_object.ground_speed.abs() + crate::PLAYER_ACCELERATION * delta_time,
         ));
 
     let mut ground_speed = 0.0;
@@ -58,7 +58,7 @@ fn handle_character_action(
         match action {
             CharacterAction::Right => {
                 ground_speed = if state.flipped {
-                    crate::constants::PLAYER_WALK_SPEED
+                    crate::PLAYER_WALK_SPEED
                 } else {
                     run_speed
                 };
@@ -67,22 +67,22 @@ fn handle_character_action(
                 ground_speed = if state.flipped {
                     -run_speed
                 } else {
-                    -crate::constants::PLAYER_WALK_SPEED
+                    -crate::PLAYER_WALK_SPEED
                 };
             }
             CharacterAction::Jump => {
                 if state.grounded {
-                    physics_object.velocity = crate::constants::PLAYER_JUMP_VECTOR.into();
+                    physics_object.velocity = crate::PLAYER_JUMP_VECTOR.into();
                 }
             }
             CharacterAction::RightJump => {
                 if state.grounded {
-                    physics_object.velocity = crate::constants::PLAYER_RIGHT_JUMP_VECTOR.into();
+                    physics_object.velocity = crate::PLAYER_RIGHT_JUMP_VECTOR.into();
                 }
             }
             CharacterAction::LeftJump => {
                 if state.grounded {
-                    physics_object.velocity = crate::constants::PLAYER_LEFT_JUMP_VECTOR.into();
+                    physics_object.velocity = crate::PLAYER_LEFT_JUMP_VECTOR.into();
                 }
             }
         }

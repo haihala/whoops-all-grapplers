@@ -3,6 +3,7 @@ use bevy::prelude::*;
 pub struct Colors {
     pub transparent: Handle<ColorMaterial>,
     pub health: Handle<ColorMaterial>,
+    pub meter: Handle<ColorMaterial>,
     pub hitbox: Handle<ColorMaterial>,
     pub hurbox: Handle<ColorMaterial>,
     pub collision_box: Handle<ColorMaterial>,
@@ -35,6 +36,7 @@ fn colors(mut commands: Commands, mut color_assets: ResMut<Assets<ColorMaterial>
     commands.insert_resource(Colors {
         transparent: color_assets.add(Color::rgba(0.0, 0.0, 0.0, 0.0).into()),
         health: color_assets.add(Color::rgb(0.9, 0.0, 0.0).into()),
+        meter: color_assets.add(Color::rgb(0.04, 0.5, 0.55).into()),
         hitbox: color_assets.add(Color::rgb(1.0, 0.0, 0.0).into()),
         hurbox: color_assets.add(Color::rgb(0.0, 1.0, 0.0).into()),
         collision_box: color_assets.add(Color::rgb(0.0, 0.0, 1.0).into()),

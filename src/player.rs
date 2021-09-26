@@ -19,6 +19,12 @@ pub struct Health {
     pub ratio: f32,
 }
 
+#[derive(Inspectable, Default)]
+pub struct Meter {
+    // See Health comment
+    pub ratio: f32,
+}
+
 pub struct PlayerState {
     pub grounded: bool,
     pub decelerating: bool,
@@ -106,6 +112,7 @@ fn spawn_player(commands: &mut Commands, assets: &Res<Colors>, offset: f32, play
         })
         .insert(Player(player_number))
         .insert(Health { ratio: 1.0 })
+        .insert(Meter { ratio: 1.0 })
         .insert(crate::physics::PhysicsObject::default())
         .insert(input::InputStore::default())
         .insert(PlayerState::default())

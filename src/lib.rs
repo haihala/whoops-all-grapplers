@@ -24,4 +24,4 @@ pub use player::PlayerPlugin;
 pub(crate) use assets::{Colors, Fonts, Sprites};
 pub(crate) use clock::Clock;
 pub(crate) use constants::*;
-pub(crate) use player::{Health, Player};
+pub(crate) use player::{Health, Meter, Player};

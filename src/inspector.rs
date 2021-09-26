@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::{InspectableRegistry, WorldInspectorPlugin};
 
-use crate::{Clock, Health, Player};
+use crate::{Clock, Health, Meter, Player};
 
 pub struct InspectorPlugin;
 
@@ -14,8 +14,9 @@ impl Plugin for InspectorPlugin {
             .get_resource_mut::<InspectableRegistry>()
             .expect("InspectableRegistry not initiated");
 
-        registry.register::<Health>();
         registry.register::<Player>();
+        registry.register::<Meter>();
+        registry.register::<Health>();
         registry.register::<Clock>();
     }
 }

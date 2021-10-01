@@ -4,7 +4,6 @@ mod camera;
 mod character;
 mod clock;
 mod constants;
-mod input;
 mod inspector;
 mod labels;
 mod physics;

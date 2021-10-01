@@ -14,12 +14,7 @@ pub const PLAYER_SPRITE_HEIGHT: f32 = 1.80;
 
 // TODO: This is wrong. The fps is simply put way more
 // However the numbers seem to match which was weird.
-const FRAMES_PER_SECOND: f32 = 60.0; // f32 here to avoid casting elsewhere
-
-const INPUT_BUFFER_WINDOW: f32 = 1.0; // Seconds an input diff stays in the motion input detection window.
-const RECENT_INPUT_WINDOW: f32 = 0.1; // Seconds a button press is 'recent'
-pub const RECENT_INPUT_FRAMES: usize = (RECENT_INPUT_WINDOW * FRAMES_PER_SECOND) as usize;
-pub const INPUT_BUFFER_FRAMES: usize = (INPUT_BUFFER_WINDOW * FRAMES_PER_SECOND) as usize;
+// const FRAMES_PER_SECOND: f32 = 60.0; // f32 here to avoid casting elsewhere
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
 pub const ARENA_WIDTH: f32 = 10.0;
@@ -31,7 +26,8 @@ pub const PLAYER_TOP_SPEED: f32 = 10.0;
 
 const PLAYER_RUN_SPEED_DELTA: f32 = PLAYER_TOP_SPEED - PLAYER_INITIAL_RUN_SPEED;
 
-const PLAYER_DECELERATION_TIME: f32 = 0.2;
+pub const REVERSE_DRAG_MULTIPLIER: f32 = 2.0; // Drag multiplier when pressing in the other direction
+const PLAYER_DECELERATION_TIME: f32 = 0.7;
 const AIR_DRAG_MULTIPLIER: f32 = 0.0;
 
 pub const PLAYER_ACCELERATION: f32 = PLAYER_RUN_SPEED_DELTA / PLAYER_ACCELERATION_TIME;
@@ -80,10 +76,10 @@ pub const PLAYER_JUMP_VELOCITY: f32 = PLAYER_JUMP_HEIGHT / PLAYER_JUMP_DURATION_
 
 pub const PLAYER_JUMP_VECTOR: (f32, f32, f32) = (0.0, PLAYER_JUMP_VELOCITY, 0.0);
 
-// const DIAGONAL_JUMP_ANGLE: f32 = (PI as f32) / 8.0;
 // float.sin() can't be used in const.
-const DIAGONAL_JUMP_ANGLE_SIN: f32 = std::f32::consts::FRAC_1_SQRT_2;
-const DIAGONAL_JUMP_ANGLE_COS: f32 = std::f32::consts::FRAC_1_SQRT_2;
+// Angle is 60 degrees
+const DIAGONAL_JUMP_ANGLE_SIN: f32 = 0.866;
+const DIAGONAL_JUMP_ANGLE_COS: f32 = 0.5;
 
 const VERTICAL_JUMP_PART: f32 = PLAYER_JUMP_VELOCITY * DIAGONAL_JUMP_ANGLE_SIN;
 const HORIZONTAL_JUMP_PART: f32 = PLAYER_JUMP_VELOCITY * DIAGONAL_JUMP_ANGLE_COS;

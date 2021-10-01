@@ -1,18 +1,19 @@
 # Read aid
 Each of these are meant to be large tasks with sub tasks. Make separate projects for those, this is meant to track the progress over the entire mvp.
 # Big tasks
-- [ ] Health
-	- [ ] Bar
+- [x] Health
+	- [x] Bar
 - [ ] Meter
+	- [x] Bar
 	- [ ] Cancel button
 - [ ] Rounds
 	- [ ] Win screen
 	- [ ] Reset between
 	- [x] Round timer
-- [ ] Input parsing
+- [x] Input parsing
 	- [x] V1
 	- [x] Deal with sides
-	- [ ] Incremental
+	- [x] Incremental
 	- [x] Controller detection
 - [ ] Movement
 	- [x] Model movement model with understandable units
@@ -28,7 +29,7 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 	- [ ] Automatic cancel
 - [ ] One character ([[Ryan]])
 	- [ ] 4 normals
-	- [ ] 3 specials
+	- [ ] 2 specials
 	- [x] Visuals (Box)
 	- [ ] Animations (moving boxes)
 	- [ ] SFX (POC)

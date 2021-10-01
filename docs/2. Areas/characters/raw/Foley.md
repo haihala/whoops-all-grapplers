@@ -28,7 +28,13 @@ Riffs:
 
 ## Moves
 
-### Move
+### Counter
+A counter that is activated after getting hit and reverses time back to when you were not hit
+
+### Care package
+A move to send something back in time, maybe one to receive (closed time loops)
+
+Don't force the design if it isn't coming out
 
 ## Visuals
 Gary Clark Jr vibes

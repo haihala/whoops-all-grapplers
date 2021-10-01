@@ -6,20 +6,6 @@ pub enum StartupStageLabel {
     UI,
 }
 
-#[derive(SystemLabel, Clone, Copy, Hash, Debug, PartialEq, Eq)]
-pub enum SystemSetLabel {
-    Input,
-    Characters,
-}
-
-#[derive(SystemLabel, Clone, Copy, Hash, Debug, PartialEq, Eq)]
-pub enum InputSystemLabel {
-    Clear,
-    Collect,
-    Parse,
-    Execute,
-}
-
 pub struct StagePlugin;
 
 impl Plugin for StagePlugin {

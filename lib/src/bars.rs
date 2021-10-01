@@ -90,6 +90,7 @@ fn setup(mut commands: Commands, colors: Res<Colors>) {
         .insert(MeterBar(2));
 }
 
+#[allow(clippy::type_complexity)]
 fn update(
     mut bars: QuerySet<(
         Query<(&mut Style, &HealthBar)>,

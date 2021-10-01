@@ -89,18 +89,19 @@ fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ButtonUpdate {
     Pressed,
     Released,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum InputChange {
     Button(GameButton, ButtonUpdate),
     Stick(StickPosition),
 }
 
+#[derive(Clone)]
 pub struct OwnedChange {
     pub controller: Gamepad,
     pub change: InputChange,

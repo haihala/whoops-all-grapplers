@@ -1,0 +1,2 @@
+- [x] Lock framerate of the simulation
+- [x] Remove references to delta time

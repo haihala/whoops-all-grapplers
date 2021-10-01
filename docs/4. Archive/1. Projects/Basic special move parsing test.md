@@ -1,0 +1,3 @@
+- [x] Register a basic move like quarter circle forward light
+- [x] Walk through the inputs
+- [x] Assert the event is in the buffer

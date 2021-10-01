@@ -348,3 +348,76 @@ fn combine_raw_diffs(
         })
         .collect()
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn hadouken_recognized() {
+        let mut world = World::default();
+
+        let mut update_stage = SystemStage::parallel();
+        update_stage.add_system(fake_parser.system());
+
+        let uuid = Uuid::new_v4();
+        let mut reader = InputReader::default();
+        reader.register(
+            uuid,
+            SpecialMove {
+                motion: vec![2, 3, 6].into(),
+                button: GameButton::Fast,
+            },
+        );
+        reader.controller = Some(Gamepad(1));
+
+        world.spawn().insert(reader);
+
+        let inputs: Vec<OwnedChange> = vec![];
+        world.insert_resource(inputs);
+
+        // Initial tick
+        update_stage.run(&mut world);
+
+        // Down
+        add_input(&mut world, InputChange::Stick(StickPosition::S));
+        update_stage.run(&mut world);
+
+        // Down forward
+        add_input(&mut world, InputChange::Stick(StickPosition::SE));
+        update_stage.run(&mut world);
+
+        // Forward
+        add_input(&mut world, InputChange::Stick(StickPosition::E));
+        update_stage.run(&mut world);
+
+        // Button to finish
+        add_input(
+            &mut world,
+            InputChange::Button(GameButton::Fast, ButtonUpdate::Pressed),
+        );
+        update_stage.run(&mut world);
+
+        // Check that the event got registered
+        for r in world.query::<&InputReader>().iter(&world) {
+            assert_eq!(r.events.len(), 1);
+
+            for event in r.events.iter() {
+                assert_eq!(event.id, uuid);
+            }
+        }
+    }
+
+    fn fake_parser(readers: Query<&mut InputReader>, events: ResMut<Vec<OwnedChange>>) {
+        update_readers(readers, events.to_vec());
+    }
+
+    fn add_input(world: &mut World, change: InputChange) {
+        let mut changes = world.get_resource_mut::<Vec<OwnedChange>>().unwrap();
+        changes.clear();
+        changes.push(OwnedChange {
+            controller: Gamepad(1),
+            change,
+        });
+    }
+}

@@ -12,9 +12,7 @@ pub const BACKGROUND_SCALE: (f32, f32, f32) = (30.0, 20.0, 1.0);
 pub const PLAYER_SPRITE_WIDTH: f32 = 0.80;
 pub const PLAYER_SPRITE_HEIGHT: f32 = 1.80;
 
-// TODO: This is wrong. The fps is simply put way more
-// However the numbers seem to match which was weird.
-// const FRAMES_PER_SECOND: f32 = 60.0; // f32 here to avoid casting elsewhere
+pub const FPS: f32 = 60.0;
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
 pub const ARENA_WIDTH: f32 = 10.0;
@@ -30,11 +28,11 @@ pub const REVERSE_DRAG_MULTIPLIER: f32 = 2.0; // Drag multiplier when pressing i
 const PLAYER_DECELERATION_TIME: f32 = 0.7;
 const AIR_DRAG_MULTIPLIER: f32 = 0.0;
 
-pub const PLAYER_ACCELERATION: f32 = PLAYER_RUN_SPEED_DELTA / PLAYER_ACCELERATION_TIME;
-pub const GROUND_DRAG: f32 = PLAYER_TOP_SPEED / PLAYER_DECELERATION_TIME;
+pub const PLAYER_ACCELERATION: f32 = PLAYER_RUN_SPEED_DELTA / PLAYER_ACCELERATION_TIME / FPS;
+pub const GROUND_DRAG: f32 = PLAYER_TOP_SPEED / PLAYER_DECELERATION_TIME / FPS;
 pub const AIR_DRAG: f32 = GROUND_DRAG * AIR_DRAG_MULTIPLIER;
 
-// Tweak these
+// These should about replicate meters and seconds
 const PLAYER_JUMP_HEIGHT: f32 = 2.0;
 const PLAYER_JUMP_DURATION: f32 = 1.0;
 
@@ -55,7 +53,10 @@ v0 = 0
 1/2*a*t^2 = h
 a = 2*h/t^2
 */
-pub const PLAYER_GRAVITY: f32 = 2.0 * PLAYER_JUMP_HEIGHT / PLAYER_JUMP_DURATION_HALVED_SQUARED;
+pub const PLAYER_GRAVITY_FORCE: f32 =
+    2.0 * PLAYER_JUMP_HEIGHT / PLAYER_JUMP_DURATION_HALVED_SQUARED;
+
+pub const PLAYER_GRAVITY_PER_FRAME: f32 = PLAYER_GRAVITY_FORCE / FPS;
 
 /*
 x = x0 + v0*t + 1/2*a*t^2
@@ -70,9 +71,20 @@ H - 1/2*a*t^2 = v0*t
 
 v0 = (h - 1/2*a*t^2)/t
 v0 = h/t - 1/2*a*t
-*/
 pub const PLAYER_JUMP_VELOCITY: f32 = PLAYER_JUMP_HEIGHT / PLAYER_JUMP_DURATION_HALVED
     + 0.5 * PLAYER_GRAVITY * PLAYER_JUMP_DURATION_HALVED;
+
+x = x0 + v0*t + 1/2*a*t^2
+From start to end
+
+x0 = 0
+x = 0
+t and a = known, solve v0
+
+0 = v0*t + 1/2*a*t^2
+v0 = -1/2*a*t
+*/
+pub const PLAYER_JUMP_VELOCITY: f32 = 0.5 * PLAYER_GRAVITY_FORCE * PLAYER_JUMP_DURATION;
 
 pub const PLAYER_JUMP_VECTOR: (f32, f32, f32) = (0.0, PLAYER_JUMP_VELOCITY, 0.0);
 

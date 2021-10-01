@@ -1,3 +1,4 @@
+use bevy::core::FixedTimestep;
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
@@ -18,7 +19,12 @@ impl Plugin for ClockPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.insert_resource(Clock::default())
             .add_startup_system_to_stage(StartupStageLabel::UI, setup.system())
-            .add_system_to_stage(CoreStage::First, tick.system())
+            .add_system_set_to_stage(
+                CoreStage::First,
+                SystemSet::new()
+                    .with_run_criteria(FixedTimestep::steps_per_second(crate::FPS as f64))
+                    .with_system(tick.system()),
+            )
             .add_system(draw_timer.system());
     }
 }

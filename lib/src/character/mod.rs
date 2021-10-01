@@ -1,4 +1,6 @@
 mod ryan;
+use std::time::Instant;
+
 pub use ryan::{register_ryan_moves, ryan_executor, Ryan};
 
 use crate::{physics::PhysicsObject, player::PlayerState};
@@ -6,14 +8,12 @@ use crate::{physics::PhysicsObject, player::PlayerState};
 use bevy::prelude::*;
 use input_parsing::{InputReader, StickPosition};
 
-pub fn movement_executor(
-    mut query: Query<(&mut PhysicsObject, &InputReader, &PlayerState)>,
-    time: Res<Time>,
-) {
+pub fn movement_executor(mut query: Query<(&mut PhysicsObject, &InputReader, &PlayerState)>) {
     for (mut physics_object, reader, state) in query.iter_mut() {
-        let run_speed = crate::PLAYER_INITIAL_RUN_SPEED.max(crate::PLAYER_TOP_SPEED.min(
-            physics_object.velocity.x.abs() + crate::PLAYER_ACCELERATION * time.delta_seconds(),
-        ));
+        let run_speed = crate::PLAYER_INITIAL_RUN_SPEED.max(
+            crate::PLAYER_TOP_SPEED
+                .min(physics_object.velocity.x.abs() + crate::PLAYER_ACCELERATION),
+        );
 
         let change = match reader.get_stick_position() {
             StickPosition::E => move_right(run_speed, state),
@@ -61,6 +61,9 @@ fn move_left(run_speed: f32, state: &PlayerState) -> Option<Vec3> {
 }
 fn neutral_jump(state: &PlayerState) -> Option<Vec3> {
     if state.grounded {
+        dbg!("Jump");
+        dbg!(Instant::now());
+
         Some(crate::PLAYER_JUMP_VECTOR.into())
     } else {
         None

@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{core::FixedTimestep, prelude::*, utils::Instant};
 use bevy_inspector_egui::Inspectable;
 use input_parsing::InputReader;
 use num::clamp;
@@ -14,31 +14,39 @@ pub struct PhysicsObject {
 pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_system(gravity.system())
-            .add_system(player_drag.system())
-            .add_system(incorporate_desired_velocity.system())
-            .add_system(sideswitcher.system())
-            .add_system(move_objects.system());
+        app.add_system_set(
+            SystemSet::new()
+                .with_run_criteria(FixedTimestep::steps_per_second(crate::FPS as f64))
+                .with_system(gravity.system())
+                .with_system(player_drag.system())
+                .with_system(incorporate_desired_velocity.system())
+                .with_system(sideswitcher.system())
+                .with_system(move_objects.system()),
+        );
     }
 }
 
-fn gravity(mut query: Query<&mut PhysicsObject>, time: Res<Time>) {
-    for mut object in query.iter_mut() {
-        object.velocity.y -= crate::PLAYER_GRAVITY * time.delta_seconds();
+fn gravity(mut query: Query<(&mut PhysicsObject, &PlayerState)>) {
+    for (mut object, state) in query.iter_mut() {
+        if !state.grounded {
+            object.velocity.y -= crate::PLAYER_GRAVITY_PER_FRAME;
+        }
     }
 }
 
-fn player_drag(mut query: Query<(&mut PhysicsObject, &PlayerState)>, time: Res<Time>) {
+fn player_drag(mut query: Query<(&mut PhysicsObject, &PlayerState)>) {
     for (mut object, player) in query.iter_mut() {
         let drag = player.drag_multiplier
-            * time.delta_seconds()
             * if player.grounded {
                 crate::GROUND_DRAG
             } else {
                 crate::AIR_DRAG
             };
-        let speed = (object.velocity.length() - drag).max(0.0);
-        object.velocity = object.velocity.normalize_or_zero() * speed;
+
+        if drag > 0.0 {
+            let speed = (object.velocity.length() - drag).max(0.0);
+            object.velocity = object.velocity.normalize_or_zero() * speed;
+        }
     }
 }
 
@@ -81,17 +89,16 @@ fn sideswitcher(
     }
 }
 
-fn move_objects(
-    mut query: Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>,
-    time: Res<Time>,
-) {
+fn move_objects(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>) {
     for (mut object, mut transform, mut state) in query.iter_mut() {
-        transform.translation += object.velocity * time.delta_seconds();
+        transform.translation += object.velocity / crate::FPS;
 
         if transform.translation.y < crate::GROUND_PLANE_HEIGHT {
             object.velocity.y = clamp(object.velocity.y, 0.0, f32::MAX);
             transform.translation.y = crate::GROUND_PLANE_HEIGHT;
             state.grounded = true;
+            dbg!("Land");
+            dbg!(Instant::now());
         } else if transform.translation.y > crate::GROUND_PLANE_HEIGHT {
             state.grounded = false;
         }

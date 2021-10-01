@@ -391,6 +391,11 @@ mod test {
         add_input(&mut world, InputChange::Stick(StickPosition::E));
         update_stage.run(&mut world);
 
+        // Check that the event isn't recognized before the button
+        for r in world.query::<&InputReader>().iter(&world) {
+            assert_eq!(r.events.len(), 0);
+        }
+
         // Button to finish
         add_input(
             &mut world,

@@ -73,7 +73,6 @@ fn tick(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
 }
 
 fn draw_timer(mut query: Query<&mut Text, With<Timer>>, clock: Res<Clock>) {
-    // TODO: Timer doesn't show up for some reason
     for mut text in query.iter_mut() {
         text.sections[0].value = (crate::ROUND_TIME - clock.elapsed_time).floor().to_string();
     }

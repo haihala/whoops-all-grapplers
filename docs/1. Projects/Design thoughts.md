@@ -14,3 +14,10 @@ Trails of thought to explore later:
 	- Maybe you can't crouch block and the meta is to jump sweeps and duck highs
 		- This contradicts the varying character sizes
 		- Contradiction isn't as bad if it's just insentivized but not mandatory, if you can low block but moves are usually safe-ish and jumping over leads to easy punishes
+
+# Items
+Favor items over universals
+- Minimum width, maximum depth
+	- Width is amount of levers to pull
+	- Depth is the amount of interactions those levers have
+- Some things should probably still be universal, but which ones?

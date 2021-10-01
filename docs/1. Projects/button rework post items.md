@@ -11,9 +11,4 @@
 5. Character specific gimmick
 6. Combination of the above
 7. Maybe heavy is just double light
-
-# Items
-Favor items over universals
-- Minimum width, maximum depth
-	- Width is amount of levers to pull
-	- Depth is the amount of interactions those levers have
+	1. Maybe for a character, but this is too harsh to be universal

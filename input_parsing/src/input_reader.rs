@@ -299,8 +299,6 @@ fn dpad_position(
     delta_x: Option<i32>,
     delta_y: Option<i32>,
 ) -> Option<InputChange> {
-    // TODO: In cases where multiple dpad inputs land on the same frame, this breaks
-    // Assumes that stick was in reader.head, which is true for the first event
     for mut reader in readers.iter_mut() {
         if reader.controller == Some(*id) {
             let mut stick: IVec2 = reader.temp_stick.clone().into();
@@ -403,14 +401,15 @@ mod test {
         );
         update_stage.run(&mut world);
 
-        // Check that the event got registered
-        for r in world.query::<&InputReader>().iter(&world) {
-            assert_eq!(r.events.len(), 1);
+        assert_event_is_present(&mut &mut world, uuid);
 
-            for event in r.events.iter() {
-                assert_eq!(event.id, uuid);
-            }
-        }
+        // Run a few frames
+        update_stage.run(&mut world);
+        update_stage.run(&mut world);
+        update_stage.run(&mut world);
+
+        // Check that the event is still in (repeat works)
+        assert_event_is_present(&mut &mut world, uuid);
     }
 
     fn fake_parser(readers: Query<&mut InputReader>, events: ResMut<Vec<OwnedChange>>) {
@@ -424,5 +423,15 @@ mod test {
             controller: Gamepad(1),
             change,
         });
+    }
+
+    fn assert_event_is_present(world: &mut World, uuid: Uuid) {
+        for r in world.query::<&InputReader>().iter(&world) {
+            assert_eq!(r.events.len(), 1);
+
+            for event in r.events.iter() {
+                assert_eq!(event.id, uuid);
+            }
+        }
     }
 }

@@ -12,13 +12,13 @@ use uuid::Uuid;
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
 pub struct InputReader {
+    pub flipped: bool,
     events: HashMap<Uuid, Instant>,
 
     controller: Option<Gamepad>,
     registered_specials: HashMap<Uuid, Special>,
     registered_normals: HashMap<Uuid, Normal>,
     head: Frame,
-    flipped: bool,
 
     // This is a workaround to dpad inputs
     // Not an elegant one, but the first that came to mind
@@ -38,16 +38,12 @@ impl InputReader {
         self.registered_normals.remove(id);
     }
 
-    pub fn set_flipped(&mut self, flipped: bool) {
-        self.flipped = flipped;
-    }
-
     pub fn get_stick_position(&self) -> StickPosition {
         self.head.stick_position.clone()
     }
 
-    pub fn active_events(&self) -> std::collections::hash_map::Keys<Uuid, Instant> {
-        self.events.keys()
+    pub fn get_events(&mut self) -> Vec<Uuid> {
+        self.events.drain().map(|(id, _)| id).collect()
     }
 
     fn add_frame(&mut self, diff: Diff) {

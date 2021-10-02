@@ -22,18 +22,17 @@ pub struct Meter {
     pub ratio: f32,
 }
 
-pub struct PlayerState {
-    pub grounded: bool,
-    pub drag_multiplier: f32,
-    pub flipped: bool,
+#[derive(PartialEq, Eq)]
+pub enum MainState {
+    Standing,
+    Air,
 }
-impl Default for PlayerState {
-    fn default() -> Self {
-        Self {
-            grounded: true,
-            drag_multiplier: 1.0,
-            flipped: false,
-        }
+impl MainState {
+    pub fn land(&mut self) {
+        // Depending on current state, could either:
+        // - Air -> Standing
+        // - Freefall -> Grounded
+        *self = MainState::Standing;
     }
 }
 
@@ -70,7 +69,7 @@ fn spawn_player(commands: &mut Commands, assets: &Res<Colors>, offset: f32, play
         .insert(Health { ratio: 1.0 })
         .insert(Meter { ratio: 1.0 })
         .insert(crate::physics::PhysicsObject::default())
-        .insert(PlayerState::default())
+        .insert(MainState::Standing)
         .insert(register_ryan_moves(input_parsing::InputReader::default()))
         .insert(Ryan);
 }

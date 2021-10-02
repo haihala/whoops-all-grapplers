@@ -25,17 +25,17 @@ pub struct InputReader {
     temp_stick: StickPosition,
 }
 impl InputReader {
-    pub fn register_special(&mut self, uuid: Uuid, special: Special) {
-        self.registered_specials.insert(uuid, special);
+    pub fn register_special(&mut self, id: Uuid, special: Special) {
+        self.registered_specials.insert(id, special);
     }
 
-    pub fn register_normal(&mut self, uuid: Uuid, normal: Normal) {
-        self.registered_normals.insert(uuid, normal);
+    pub fn register_normal(&mut self, id: Uuid, normal: Normal) {
+        self.registered_normals.insert(id, normal);
     }
 
-    pub fn unregister(&mut self, uuid: &Uuid) {
-        self.registered_specials.remove(uuid);
-        self.registered_normals.remove(uuid);
+    pub fn unregister(&mut self, id: &Uuid) {
+        self.registered_specials.remove(id);
+        self.registered_normals.remove(id);
     }
 
     pub fn set_flipped(&mut self, flipped: bool) {
@@ -324,10 +324,10 @@ mod test {
 
     #[test]
     fn hadouken_recognized() {
-        let uuid = Uuid::new_v4();
+        let id = Uuid::new_v4();
         let mut reader = InputReader::default();
         reader.register_special(
-            uuid,
+            id,
             Special {
                 motion: vec![2, 3, 6].into(),
                 button: GameButton::Fast,
@@ -362,15 +362,15 @@ mod test {
         );
         update_stage.run(&mut world);
 
-        assert_event_is_present(&mut &mut world, uuid);
+        assert_event_is_present(&mut &mut world, id);
     }
 
     #[test]
     fn normal_recognized() {
-        let uuid = Uuid::new_v4();
+        let id = Uuid::new_v4();
         let mut reader = InputReader::default();
         reader.register_normal(
-            uuid,
+            id,
             Normal {
                 button: GameButton::Fast,
                 stick: None,
@@ -391,7 +391,7 @@ mod test {
         );
         update_stage.run(&mut world);
 
-        assert_event_is_present(&mut &mut world, uuid);
+        assert_event_is_present(&mut &mut world, id);
 
         // Run a few frames
         update_stage.run(&mut world);
@@ -399,7 +399,7 @@ mod test {
         update_stage.run(&mut world);
 
         // Check that the event is still in (repeat works)
-        assert_event_is_present(&mut &mut world, uuid);
+        assert_event_is_present(&mut &mut world, id);
 
         // Wait for the event to leave the buffer
         sleep(Duration::from_secs_f32(crate::EVENT_REPEAT_PERIOD));
@@ -413,11 +413,11 @@ mod test {
 
     #[test]
     fn command_normal_recognized() {
-        let uuid = Uuid::new_v4();
+        let id = Uuid::new_v4();
 
         let mut reader = InputReader::default();
         reader.register_normal(
-            uuid,
+            id,
             Normal {
                 button: GameButton::Fast,
                 stick: Some(StickPosition::S),
@@ -442,7 +442,7 @@ mod test {
         );
         update_stage.run(&mut world);
 
-        assert_event_is_present(&mut &mut world, uuid);
+        assert_event_is_present(&mut &mut world, id);
     }
 
     fn test_setup(mut reader: InputReader) -> (World, SystemStage) {
@@ -477,12 +477,12 @@ mod test {
         });
     }
 
-    fn assert_event_is_present(world: &mut World, uuid: Uuid) {
+    fn assert_event_is_present(world: &mut World, id: Uuid) {
         for r in world.query::<&InputReader>().iter(&world) {
             assert_eq!(r.events.len(), 1);
 
             for (event, _) in r.events.iter() {
-                assert_eq!(event, &uuid);
+                assert_eq!(event, &id);
             }
         }
     }

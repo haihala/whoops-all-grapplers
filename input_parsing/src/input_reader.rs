@@ -1,7 +1,8 @@
 use std::{collections::VecDeque, time::Instant};
 
 use crate::{
-    ButtonUpdate, Diff, Frame, GameButton, InputChange, OwnedChange, SpecialMove, StickPosition,
+    ButtonUpdate, Diff, Frame, GameButton, InputChange, MotionInput, OwnedChange, SpecialMove,
+    StickPosition,
 };
 
 use bevy::{
@@ -15,26 +16,6 @@ pub struct InputEvent {
     pub id: Uuid,
     created: Instant,
 }
-
-#[derive(PartialEq)]
-struct IncompleteMotionInput {
-    progress: usize,
-    previous_event_time: Instant,
-    next: StickPosition,
-    done: bool,
-}
-impl IncompleteMotionInput {
-    fn new(next: StickPosition) -> IncompleteMotionInput {
-        IncompleteMotionInput {
-            next,
-
-            progress: 1,
-            previous_event_time: Instant::now(),
-            done: false,
-        }
-    }
-}
-
 #[derive(Default)]
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
@@ -45,7 +26,6 @@ pub struct InputReader {
     registered_events: HashMap<Uuid, SpecialMove>,
     head: Frame,
     flipped: bool,
-    motions_in_progress: HashMap<Uuid, IncompleteMotionInput>,
 
     // This is a workaround to dpad inputs
     // Not an elegant one, but the first that came to mind
@@ -78,88 +58,59 @@ impl InputReader {
         self.head.apply(diff.clone());
         self.temp_stick = self.head.stick_position.clone();
 
-        self.start_motion_inputs();
-        self.increment_motion_inputs(&diff);
-        self.complete_motion_inputs(&diff);
+        self.parse_motion_inputs(&diff);
     }
 
-    fn start_motion_inputs(&mut self) {
-        let unstarted: HashMap<&Uuid, &SpecialMove> = self
-            .registered_events
-            .iter()
-            .filter(|(key, _)| !self.motions_in_progress.contains_key(key))
-            .collect();
+    fn parse_motion_inputs(&mut self, diff: &Diff) {
+        let flipped = self.flipped;
+        let current_stick = self.head.stick_position.clone();
 
-        for (target, action) in unstarted.iter() {
-            let first = action.motion.requirements(self.flipped).next().unwrap();
-
-            if first == self.head.stick_position {
-                self.motions_in_progress
-                    .insert(<Uuid>::clone(target), IncompleteMotionInput::new(first));
-            }
-        }
-    }
-    fn increment_motion_inputs(&mut self, diff: &Diff) {
-        for (target, motion) in self.motions_in_progress.iter_mut() {
-            if !motion.done {
-                if let Some(stick) = diff.stick_move.clone() {
-                    // Stick position changed
-                    if stick == motion.next {
-                        // New stick position is what this motion needed
-
-                        if let Some(next) =
-                            Self::get_requirements(&self.registered_events, target, self.flipped)
-                                .nth(motion.progress)
-                        {
-                            // Still more to go
-                            motion.next = next;
-                            motion.progress += 1;
-                            motion.previous_event_time = Instant::now();
+        self.events.extend(
+            self.registered_events
+                .iter_mut()
+                .filter_map(|(id, special)| {
+                    if special.motion.is_started() {
+                        if special.motion.is_done() {
+                            return Self::finalize_motion_input(diff, special, id);
                         } else {
-                            // Motion has no more requirements, so it's done
-                            motion.done = true;
+                            Self::advance_motion_input(diff, &mut special.motion, flipped);
+                            special.motion.handle_expiration();
                         }
+                    } else if special.motion.next_requirement(flipped) == current_stick {
+                        special.motion.bump();
                     }
-                }
+                    None
+                }),
+        );
+    }
+
+    fn advance_motion_input(diff: &Diff, motion: &mut MotionInput, flipped: bool) {
+        if let Some(stick) = diff.stick_move.clone() {
+            if stick == motion.next_requirement(flipped) {
+                motion.bump();
             }
         }
     }
 
-    fn get_requirements(
-        registered_events: &HashMap<Uuid, SpecialMove>,
+    fn finalize_motion_input(
+        diff: &Diff,
+        special: &mut SpecialMove,
         target: &Uuid,
-        flipped: bool,
-    ) -> Box<dyn Iterator<Item = StickPosition>> {
-        registered_events
-            .get(target)
-            .unwrap()
-            .motion
-            .clone()
-            .requirements(flipped)
-    }
+    ) -> Option<InputEvent> {
+        if let Some(pressed) = &diff.pressed {
+            if pressed.contains(&special.button) {
+                special.motion.clear();
 
-    fn complete_motion_inputs(&mut self, diff: &Diff) {
-        if let Some(pressed) = diff.pressed.clone() {
-            for (target, motion) in self.motions_in_progress.iter_mut() {
-                if motion.done {
-                    let action = self.registered_events.get(target).unwrap();
-                    if pressed.contains(&action.button) {
-                        self.events.insert(InputEvent {
-                            id: *target,
-                            created: Instant::now(),
-                        });
-                    }
-                }
+                return Some(InputEvent {
+                    id: *target,
+                    created: Instant::now(),
+                });
             }
         }
+        None
     }
 
-    fn remove_old_incomplete_moves(&mut self) {
-        self.motions_in_progress.retain(|_, motion| {
-            motion.previous_event_time.elapsed().as_secs_f32()
-                < crate::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
-        });
-
+    fn purge_old_events(&mut self) {
         self.events
             .retain(|event| event.created.elapsed().as_secs_f32() < crate::EVENT_REPEAT_PERIOD)
     }
@@ -322,7 +273,7 @@ fn update_readers(mut readers: Query<&mut InputReader>, raw_events: Vec<OwnedCha
         if let Some(controller) = reader.controller {
             if let Some(diff) = diffs.get(&controller) {
                 reader.add_frame(diff.to_owned());
-                reader.remove_old_incomplete_moves();
+                reader.purge_old_events();
             }
         }
     }

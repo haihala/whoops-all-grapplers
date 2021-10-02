@@ -3,8 +3,8 @@ pub use stick_position::StickPosition;
 mod motion_input;
 pub use motion_input::MotionInput;
 
-use bevy::prelude::*;
-use std::{collections::HashSet, time::Instant};
+use bevy::{prelude::*, utils::HashSet};
+use std::time::Instant;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 /// Buttons of the game

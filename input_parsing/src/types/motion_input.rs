@@ -13,14 +13,14 @@ pub struct MotionInput {
 }
 impl MotionInput {
     pub fn is_done(&self) -> bool {
-        self.index == self.key_points.len() - 1
+        self.index == self.key_points.len()
     }
 
     pub fn is_started(&self) -> bool {
         self.index != 0
     }
 
-    pub fn bump(&mut self) {
+    pub fn advance(&mut self) {
         self.index += 1;
         self.previous_event_time = Some(Instant::now());
     }

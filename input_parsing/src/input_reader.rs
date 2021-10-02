@@ -1,29 +1,22 @@
 use std::{collections::VecDeque, time::Instant};
 
 use crate::{
-    ButtonUpdate, Diff, Frame, GameButton, InputChange, MotionInput, OwnedChange, SpecialMove,
+    ButtonUpdate, Diff, Frame, GameButton, InputChange, MotionInput, Normal, OwnedChange, Special,
     StickPosition,
 };
 
-use bevy::{
-    prelude::*,
-    utils::{HashMap, HashSet},
-};
+use bevy::{prelude::*, utils::HashMap};
 use uuid::Uuid;
 
-#[derive(PartialEq, Eq, Hash)]
-pub struct InputEvent {
-    pub id: Uuid,
-    created: Instant,
-}
 #[derive(Default)]
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
 pub struct InputReader {
-    pub events: HashSet<InputEvent>,
+    events: HashMap<Uuid, Instant>,
 
     controller: Option<Gamepad>,
-    registered_events: HashMap<Uuid, SpecialMove>,
+    registered_specials: HashMap<Uuid, Special>,
+    registered_normals: HashMap<Uuid, Normal>,
     head: Frame,
     flipped: bool,
 
@@ -32,12 +25,17 @@ pub struct InputReader {
     temp_stick: StickPosition,
 }
 impl InputReader {
-    pub fn register(&mut self, uuid: Uuid, action: SpecialMove) {
-        self.registered_events.insert(uuid, action);
+    pub fn register_special(&mut self, uuid: Uuid, special: Special) {
+        self.registered_specials.insert(uuid, special);
+    }
+
+    pub fn register_normal(&mut self, uuid: Uuid, normal: Normal) {
+        self.registered_normals.insert(uuid, normal);
     }
 
     pub fn unregister(&mut self, uuid: &Uuid) {
-        self.registered_events.remove(uuid);
+        self.registered_specials.remove(uuid);
+        self.registered_normals.remove(uuid);
     }
 
     pub fn set_flipped(&mut self, flipped: bool) {
@@ -47,26 +45,25 @@ impl InputReader {
     pub fn get_stick_position(&self) -> StickPosition {
         self.head.stick_position.clone()
     }
-    pub fn get_temp_stick(&self) -> StickPosition {
-        self.temp_stick.clone()
-    }
-    pub fn set_temp_stick(&mut self, new: StickPosition) {
-        self.temp_stick = new;
+
+    pub fn active_events(&self) -> std::collections::hash_map::Keys<Uuid, Instant> {
+        self.events.keys()
     }
 
     fn add_frame(&mut self, diff: Diff) {
         self.head.apply(diff.clone());
         self.temp_stick = self.head.stick_position.clone();
 
-        self.parse_motion_inputs(&diff);
+        self.parse_specials(&diff);
+        self.parse_normals(&diff);
     }
 
-    fn parse_motion_inputs(&mut self, diff: &Diff) {
+    fn parse_specials(&mut self, diff: &Diff) {
         let flipped = self.flipped;
         let current_stick = self.head.stick_position.clone();
 
         self.events.extend(
-            self.registered_events
+            self.registered_specials
                 .iter_mut()
                 .filter_map(|(id, special)| {
                     if special.motion.is_started() {
@@ -77,7 +74,7 @@ impl InputReader {
                             special.motion.handle_expiration();
                         }
                     } else if special.motion.next_requirement(flipped) == current_stick {
-                        special.motion.bump();
+                        special.motion.advance();
                     }
                     None
                 }),
@@ -87,32 +84,53 @@ impl InputReader {
     fn advance_motion_input(diff: &Diff, motion: &mut MotionInput, flipped: bool) {
         if let Some(stick) = diff.stick_move.clone() {
             if stick == motion.next_requirement(flipped) {
-                motion.bump();
+                motion.advance();
             }
         }
     }
 
     fn finalize_motion_input(
         diff: &Diff,
-        special: &mut SpecialMove,
+        special: &mut Special,
         target: &Uuid,
-    ) -> Option<InputEvent> {
+    ) -> Option<(Uuid, Instant)> {
         if let Some(pressed) = &diff.pressed {
             if pressed.contains(&special.button) {
                 special.motion.clear();
 
-                return Some(InputEvent {
-                    id: *target,
-                    created: Instant::now(),
-                });
+                return Some((*target, Instant::now()));
             }
         }
         None
     }
 
+    fn parse_normals(&mut self, diff: &Diff) {
+        if diff.pressed.is_none() {
+            return;
+        }
+
+        let pressed = diff.pressed.clone().unwrap();
+        let stick = self.head.stick_position.clone();
+        let now = Instant::now();
+
+        self.events.extend(
+            self.registered_normals
+                .iter()
+                .filter(|(_, normal)| pressed.contains(&normal.button))
+                .filter(|(_, normal)| {
+                    if normal.stick.is_none() || stick == normal.stick.clone().unwrap() {
+                        return true;
+                    }
+
+                    false
+                })
+                .map(|(id, _)| (*id, now)),
+        );
+    }
+
     fn purge_old_events(&mut self) {
         self.events
-            .retain(|event| event.created.elapsed().as_secs_f32() < crate::EVENT_REPEAT_PERIOD)
+            .retain(|_, timestamp| timestamp.elapsed().as_secs_f32() < crate::EVENT_REPEAT_PERIOD)
     }
 }
 
@@ -300,33 +318,25 @@ fn combine_raw_diffs(
 
 #[cfg(test)]
 mod test {
+    use std::{thread::sleep, time::Duration};
+
     use super::*;
 
     #[test]
     fn hadouken_recognized() {
-        let mut world = World::default();
-
-        let mut update_stage = SystemStage::parallel();
-        update_stage.add_system(fake_parser.system());
-
         let uuid = Uuid::new_v4();
         let mut reader = InputReader::default();
-        reader.register(
+        reader.register_special(
             uuid,
-            SpecialMove {
+            Special {
                 motion: vec![2, 3, 6].into(),
                 button: GameButton::Fast,
             },
         );
-        reader.controller = Some(Gamepad(1));
-
-        world.spawn().insert(reader);
+        let (mut world, mut update_stage) = test_setup(reader);
 
         let inputs: Vec<OwnedChange> = vec![];
         world.insert_resource(inputs);
-
-        // Initial tick
-        update_stage.run(&mut world);
 
         // Down
         add_input(&mut world, InputChange::Stick(StickPosition::S));
@@ -353,6 +363,35 @@ mod test {
         update_stage.run(&mut world);
 
         assert_event_is_present(&mut &mut world, uuid);
+    }
+
+    #[test]
+    fn normal_recognized() {
+        let uuid = Uuid::new_v4();
+        let mut reader = InputReader::default();
+        reader.register_normal(
+            uuid,
+            Normal {
+                button: GameButton::Fast,
+                stick: None,
+            },
+        );
+
+        let (mut world, mut update_stage) = test_setup(reader);
+
+        // Check that the event isn't recognized before the button
+        for r in world.query::<&InputReader>().iter(&world) {
+            assert_eq!(r.events.len(), 0);
+        }
+
+        // Button
+        add_input(
+            &mut world,
+            InputChange::Button(GameButton::Fast, ButtonUpdate::Pressed),
+        );
+        update_stage.run(&mut world);
+
+        assert_event_is_present(&mut &mut world, uuid);
 
         // Run a few frames
         update_stage.run(&mut world);
@@ -361,15 +400,77 @@ mod test {
 
         // Check that the event is still in (repeat works)
         assert_event_is_present(&mut &mut world, uuid);
+
+        // Wait for the event to leave the buffer
+        sleep(Duration::from_secs_f32(crate::EVENT_REPEAT_PERIOD));
+        update_stage.run(&mut world);
+
+        // Check that the event is deleted
+        for r in world.query::<&InputReader>().iter(&world) {
+            assert_eq!(r.events.len(), 0);
+        }
     }
 
-    fn fake_parser(readers: Query<&mut InputReader>, events: ResMut<Vec<OwnedChange>>) {
+    #[test]
+    fn command_normal_recognized() {
+        let uuid = Uuid::new_v4();
+
+        let mut reader = InputReader::default();
+        reader.register_normal(
+            uuid,
+            Normal {
+                button: GameButton::Fast,
+                stick: Some(StickPosition::S),
+            },
+        );
+
+        let (mut world, mut update_stage) = test_setup(reader);
+
+        // Down
+        add_input(&mut world, InputChange::Stick(StickPosition::S));
+        update_stage.run(&mut world);
+
+        // Check that the event isn't recognized before the button
+        for r in world.query::<&InputReader>().iter(&world) {
+            assert_eq!(r.events.len(), 0);
+        }
+
+        // Button
+        add_input(
+            &mut world,
+            InputChange::Button(GameButton::Fast, ButtonUpdate::Pressed),
+        );
+        update_stage.run(&mut world);
+
+        assert_event_is_present(&mut &mut world, uuid);
+    }
+
+    fn test_setup(mut reader: InputReader) -> (World, SystemStage) {
+        let mut world = World::default();
+
+        let mut update_stage = SystemStage::parallel();
+        update_stage.add_system(fake_parser.system());
+
+        reader.controller = Some(Gamepad(1));
+
+        world.spawn().insert(reader);
+
+        let inputs: Vec<OwnedChange> = vec![];
+        world.insert_resource(inputs);
+
+        // Initial tick
+        update_stage.run(&mut world);
+
+        (world, update_stage)
+    }
+
+    fn fake_parser(readers: Query<&mut InputReader>, mut events: ResMut<Vec<OwnedChange>>) {
         update_readers(readers, events.to_vec());
+        events.clear();
     }
 
     fn add_input(world: &mut World, change: InputChange) {
         let mut changes = world.get_resource_mut::<Vec<OwnedChange>>().unwrap();
-        changes.clear();
         changes.push(OwnedChange {
             controller: Gamepad(1),
             change,
@@ -380,8 +481,8 @@ mod test {
         for r in world.query::<&InputReader>().iter(&world) {
             assert_eq!(r.events.len(), 1);
 
-            for event in r.events.iter() {
-                assert_eq!(event.id, uuid);
+            for (event, _) in r.events.iter() {
+                assert_eq!(event, &uuid);
             }
         }
     }

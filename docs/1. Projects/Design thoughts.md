@@ -7,13 +7,12 @@ Trails of thought to explore later:
 - Spam has a cost or timing has a reward
 - Spam leads to a different action
 
-
-# Crouching
-- Can you low-profile moves?
-- How does crouch-blocking work?
-	- Maybe you can't crouch block and the meta is to jump sweeps and duck highs
-		- This contradicts the varying character sizes
-		- Contradiction isn't as bad if it's just insentivized but not mandatory, if you can low block but moves are usually safe-ish and jumping over leads to easy punishes
+# Attack heights
+- Overhead
+	- high that hits crouching
+	- some faster ones are duckable by the smaller characters
+- Mid
+- Low
 
 # Items
 Favor items over universals
@@ -21,3 +20,19 @@ Favor items over universals
 	- Width is amount of levers to pull
 	- Depth is the amount of interactions those levers have
 - Some things should probably still be universal, but which ones?
+
+# Buttons
+## Guaranteed face buttons
+1. Light
+2. Heavy
+3. Item
+
+## Maybe buttons
+1. Grab
+2. Dash
+3. Cancel
+4. Taunt
+5. Character specific gimmick
+6. Combination of the above
+7. Maybe heavy is just double light
+	1. Maybe for a character, but this is too harsh to be universal

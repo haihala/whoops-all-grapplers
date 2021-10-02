@@ -1,11 +1,12 @@
+This could use a pass
+
 # Read aid
 Each of these are meant to be large tasks with sub tasks. Make separate projects for those, this is meant to track the progress over the entire mvp.
 # Big tasks
 - [x] Health
 	- [x] Bar
-- [ ] Meter
+- [x] Meter
 	- [x] Bar
-	- [ ] Cancel button
 - [ ] Rounds
 	- [ ] Win screen
 	- [ ] Reset between

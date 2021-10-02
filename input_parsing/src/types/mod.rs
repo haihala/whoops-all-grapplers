@@ -10,15 +10,19 @@ use std::time::Instant;
 /// Buttons of the game
 /// The name 'Button' is in prelude
 pub enum GameButton {
-    Null, // Button used in match for unbound buttons and for nothing else
     Heavy,
     Fast,
 }
 
 /// I.E. Quarter circle forward press punch -> fireball
-pub struct SpecialMove {
+pub struct Special {
     pub motion: MotionInput,
     pub button: GameButton,
+}
+
+pub struct Normal {
+    pub button: GameButton,
+    pub stick: Option<StickPosition>,
 }
 
 #[derive(Clone, PartialEq)]

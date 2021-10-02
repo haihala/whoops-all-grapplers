@@ -17,77 +17,65 @@ impl Plugin for BarsPlugin {
 }
 
 fn setup(mut commands: Commands, colors: Res<Colors>) {
-    // P1 Health
+    create_healthbar(&mut commands, &colors, 1);
+    create_meterbar(&mut commands, &colors, 1);
+
+    create_healthbar(&mut commands, &colors, 2);
+    create_meterbar(&mut commands, &colors, 2);
+}
+
+fn create_healthbar(commands: &mut Commands, colors: &Res<Colors>, player: i32) {
+    let base_position = Rect {
+        top: Val::Percent(2.0),
+        ..Default::default()
+    };
+
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
                 size: Size::new(Val::Percent(crate::RESOURCE_BAR_WIDTH), Val::Percent(10.0)),
-                position: Rect {
-                    top: Val::Percent(2.0),
-                    right: Val::Percent(crate::HEALTH_BAR_ANCHOR),
-                    ..Default::default()
-                },
+                position: get_bar_position(base_position, player),
                 ..Default::default()
             },
             material: colors.health.clone(),
             ..Default::default()
         })
-        .insert(HealthBar(1));
+        .insert(HealthBar(player));
+}
 
-    // P1 Meter
+fn create_meterbar(commands: &mut Commands, colors: &Res<Colors>, player: i32) {
+    let base_position = Rect {
+        bottom: Val::Percent(2.0),
+        ..Default::default()
+    };
+
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
                 size: Size::new(Val::Percent(crate::RESOURCE_BAR_WIDTH), Val::Percent(10.0)),
-                position: Rect {
-                    bottom: Val::Percent(2.0),
-                    right: Val::Percent(crate::HEALTH_BAR_ANCHOR),
-                    ..Default::default()
-                },
+                position: get_bar_position(base_position, player),
                 ..Default::default()
             },
             material: colors.meter.clone(),
             ..Default::default()
         })
-        .insert(MeterBar(1));
+        .insert(MeterBar(player));
+}
 
-    // P2 Health
-    commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                size: Size::new(Val::Percent(crate::RESOURCE_BAR_WIDTH), Val::Percent(10.0)),
-                position: Rect {
-                    top: Val::Percent(2.0),
-                    left: Val::Percent(crate::HEALTH_BAR_ANCHOR),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-            material: colors.health.clone(),
-            ..Default::default()
-        })
-        .insert(HealthBar(2));
-
-    // P2 Meter
-    commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                size: Size::new(Val::Percent(crate::RESOURCE_BAR_WIDTH), Val::Percent(10.0)),
-                position: Rect {
-                    bottom: Val::Percent(2.0),
-                    left: Val::Percent(crate::HEALTH_BAR_ANCHOR),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-            material: colors.meter.clone(),
-            ..Default::default()
-        })
-        .insert(MeterBar(2));
+fn get_bar_position(base: Rect<Val>, player: i32) -> Rect<Val> {
+    match player {
+        1 => Rect {
+            right: Val::Percent(crate::HEALTH_BAR_ANCHOR),
+            ..base
+        },
+        2 => Rect {
+            left: Val::Percent(crate::HEALTH_BAR_ANCHOR),
+            ..base
+        },
+        _ => panic!("Weird player number"),
+    }
 }
 
 #[allow(clippy::type_complexity)]

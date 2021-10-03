@@ -3,7 +3,7 @@ use bevy_inspector_egui::Inspectable;
 use input_parsing::InputReader;
 use num::clamp;
 
-use crate::player::{MainState, Player};
+use crate::{Player, PlayerState};
 
 #[derive(Debug, Default, Inspectable)]
 pub struct PhysicsObject {
@@ -27,21 +27,21 @@ impl Plugin for PhysicsPlugin {
     }
 }
 
-fn gravity(mut query: Query<(&mut PhysicsObject, &MainState)>) {
+fn gravity(mut query: Query<(&mut PhysicsObject, &PlayerState)>) {
     for (mut object, state) in query.iter_mut() {
-        if *state != MainState::Standing {
+        if *state == PlayerState::Air {
             object.velocity.y -= crate::PLAYER_GRAVITY_PER_FRAME;
         }
     }
 }
 
-fn player_drag(mut query: Query<(&mut PhysicsObject, &MainState)>) {
+fn player_drag(mut query: Query<(&mut PhysicsObject, &PlayerState)>) {
     for (mut object, state) in query.iter_mut() {
         let drag = object.drag_multiplier
-            * if *state == MainState::Standing {
-                crate::GROUND_DRAG
-            } else {
+            * if *state == PlayerState::Air {
                 crate::AIR_DRAG
+            } else {
+                crate::GROUND_DRAG
             };
 
         if drag > 0.0 {
@@ -88,7 +88,7 @@ fn sideswitcher(
     }
 }
 
-fn move_objects(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut MainState)>) {
+fn move_objects(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>) {
     for (mut object, mut transform, mut state) in query.iter_mut() {
         transform.translation += object.velocity / crate::FPS;
 
@@ -103,4 +103,18 @@ fn move_objects(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut MainS
             transform.translation.x = transform.translation.x.signum() * crate::ARENA_WIDTH;
         }
     }
+}
+
+pub fn rect_collision(a_pos: Vec3, a_size: Vec2, b_pos: Vec3, b_size: Vec2) -> bool {
+    // Bevy collide only detects collisions if the edges overlap, most of the time this is good enough
+    // But occasionally a collider spawns inside another, in which case we need a check for that.
+    let a_min = a_pos.truncate() - a_size;
+    let a_max = a_pos.truncate() + a_size;
+    let b_min = b_pos.truncate() - b_size;
+    let b_max = b_pos.truncate() + b_size;
+
+    if a_min.x < b_max.x && a_max.x > b_min.x && a_min.y < b_max.y && a_max.y > b_min.y {
+        return true;
+    }
+    false
 }

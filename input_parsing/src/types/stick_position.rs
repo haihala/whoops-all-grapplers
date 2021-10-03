@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-#[derive(EnumIter, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(EnumIter, Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum StickPosition {
     NW,
     N,
@@ -45,7 +45,7 @@ impl From<IVec2> for StickPosition {
             vec![StickPosition::NW, StickPosition::N, StickPosition::NE],
         ];
 
-        matrix[(item.y + 1) as usize][(item.x + 1) as usize].clone()
+        matrix[(item.y + 1) as usize][(item.x + 1) as usize]
     }
 }
 // Can't implement traits for bevy types
@@ -69,7 +69,7 @@ impl Into<IVec2> for StickPosition {
 #[test]
 fn test_ivec_stickposition_conversions() {
     for sp1 in StickPosition::iter() {
-        let ivec: IVec2 = sp1.clone().into();
+        let ivec: IVec2 = sp1.into();
         let sp2: StickPosition = ivec.into();
         assert!(sp1 == sp2)
     }

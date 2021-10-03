@@ -6,7 +6,7 @@ pub use motion_input::MotionInput;
 use bevy::{prelude::*, utils::HashSet};
 use std::time::Instant;
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 /// Buttons of the game
 /// The name 'Button' is in prelude
 pub enum GameButton {
@@ -69,15 +69,11 @@ impl Diff {
     pub fn apply(mut self, change: &InputChange) -> Self {
         match change {
             InputChange::Button(button, update) => match update {
-                ButtonUpdate::Pressed => {
-                    self.pressed = Some(add_or_init(self.pressed, button.clone()))
-                }
-                ButtonUpdate::Released => {
-                    self.released = Some(add_or_init(self.released, button.clone()))
-                }
+                ButtonUpdate::Pressed => self.pressed = Some(add_or_init(self.pressed, *button)),
+                ButtonUpdate::Released => self.released = Some(add_or_init(self.released, *button)),
             },
             InputChange::Stick(stick) => {
-                self.stick_move = Some(stick.clone());
+                self.stick_move = Some(*stick);
             }
         }
 
@@ -93,13 +89,13 @@ fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum ButtonUpdate {
     Pressed,
     Released,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum InputChange {
     Button(GameButton, ButtonUpdate),
     Stick(StickPosition),

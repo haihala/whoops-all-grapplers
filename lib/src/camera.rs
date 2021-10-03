@@ -4,8 +4,7 @@ use bevy::render::camera::{
 };
 use bevy::render::render_graph::base::camera::CAMERA_2D;
 
-use crate::player::Player;
-use crate::Sprites;
+use crate::{Player, Sprites};
 
 struct WorldCamera;
 

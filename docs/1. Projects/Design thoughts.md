@@ -8,7 +8,7 @@ Trails of thought to explore later:
 	- Reward over require demands the latter
 	- Rewarding some meter on frame perfect (or close enough) presses
 		- Simple, effective
-		- 
+		- Reward for those who want it, doesn't hurt to spam but you know better
 
 - Spam leads to a different action
 	- This on it's own is cool, but

@@ -26,7 +26,7 @@ impl MotionInput {
     }
 
     pub fn next_requirement(&self, flipped: bool) -> StickPosition {
-        let nth = self.key_points.get(self.index).unwrap().clone();
+        let nth = *self.key_points.get(self.index).unwrap();
 
         if flipped {
             let as_vec: IVec2 = nth.into();

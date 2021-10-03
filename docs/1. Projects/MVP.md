@@ -22,7 +22,7 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 	- [x] Jump
 	- [x] Run
 - [ ] Basic combat
-	- [ ] Attack (Damage boxes created on command)
+	- [x] Attack (Damage boxes created on command)
 	- [ ] Block
 	- [ ] Throw
 		- [ ] Yomi counter

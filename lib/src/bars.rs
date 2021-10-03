@@ -1,11 +1,9 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
 use crate::{Colors, Health, Meter, Player};
 
-#[derive(Inspectable, Default)]
-struct MeterBar(i32);
-struct HealthBar(i32);
+struct MeterBar(Player);
+struct HealthBar(Player);
 
 pub struct BarsPlugin;
 
@@ -17,14 +15,14 @@ impl Plugin for BarsPlugin {
 }
 
 fn setup(mut commands: Commands, colors: Res<Colors>) {
-    create_healthbar(&mut commands, &colors, 1);
-    create_meterbar(&mut commands, &colors, 1);
+    create_healthbar(&mut commands, &colors, Player::One);
+    create_meterbar(&mut commands, &colors, Player::One);
 
-    create_healthbar(&mut commands, &colors, 2);
-    create_meterbar(&mut commands, &colors, 2);
+    create_healthbar(&mut commands, &colors, Player::Two);
+    create_meterbar(&mut commands, &colors, Player::Two);
 }
 
-fn create_healthbar(commands: &mut Commands, colors: &Res<Colors>, player: i32) {
+fn create_healthbar(commands: &mut Commands, colors: &Res<Colors>, player: Player) {
     let base_position = Rect {
         top: Val::Percent(2.0),
         ..Default::default()
@@ -44,7 +42,7 @@ fn create_healthbar(commands: &mut Commands, colors: &Res<Colors>, player: i32) 
         .insert(HealthBar(player));
 }
 
-fn create_meterbar(commands: &mut Commands, colors: &Res<Colors>, player: i32) {
+fn create_meterbar(commands: &mut Commands, colors: &Res<Colors>, player: Player) {
     let base_position = Rect {
         bottom: Val::Percent(2.0),
         ..Default::default()
@@ -64,17 +62,16 @@ fn create_meterbar(commands: &mut Commands, colors: &Res<Colors>, player: i32) {
         .insert(MeterBar(player));
 }
 
-fn get_bar_position(base: Rect<Val>, player: i32) -> Rect<Val> {
+fn get_bar_position(base: Rect<Val>, player: Player) -> Rect<Val> {
     match player {
-        1 => Rect {
+        Player::One => Rect {
             right: Val::Percent(crate::HEALTH_BAR_ANCHOR),
             ..base
         },
-        2 => Rect {
+        Player::Two => Rect {
             left: Val::Percent(crate::HEALTH_BAR_ANCHOR),
             ..base
         },
-        _ => panic!("Weird player number"),
     }
 }
 
@@ -88,12 +85,12 @@ fn update(
 ) {
     for (player, health, meter) in players.iter() {
         for (mut style, bar) in bars.q0_mut().iter_mut() {
-            if player.0 == bar.0 {
+            if *player == bar.0 {
                 style.size.width = Val::Percent(health.ratio * crate::RESOURCE_BAR_WIDTH);
             }
         }
         for (mut style, bar) in bars.q1_mut().iter_mut() {
-            if player.0 == bar.0 {
+            if *player == bar.0 {
                 style.size.width = Val::Percent(meter.ratio * crate::RESOURCE_BAR_WIDTH);
             }
         }

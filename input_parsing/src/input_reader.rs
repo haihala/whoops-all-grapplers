@@ -39,16 +39,16 @@ impl InputReader {
     }
 
     pub fn get_stick_position(&self) -> StickPosition {
-        self.head.stick_position.clone()
+        self.head.stick_position
     }
 
-    pub fn get_events(&mut self) -> Vec<Uuid> {
+    pub fn drain_events(&mut self) -> Vec<Uuid> {
         self.events.drain().map(|(id, _)| id).collect()
     }
 
     fn add_frame(&mut self, diff: Diff) {
         self.head.apply(diff.clone());
-        self.temp_stick = self.head.stick_position.clone();
+        self.temp_stick = self.head.stick_position;
 
         self.parse_specials(&diff);
         self.parse_normals(&diff);
@@ -56,7 +56,7 @@ impl InputReader {
 
     fn parse_specials(&mut self, diff: &Diff) {
         let flipped = self.flipped;
-        let current_stick = self.head.stick_position.clone();
+        let current_stick = self.head.stick_position;
 
         self.events.extend(
             self.registered_specials
@@ -78,7 +78,7 @@ impl InputReader {
     }
 
     fn advance_motion_input(diff: &Diff, motion: &mut MotionInput, flipped: bool) {
-        if let Some(stick) = diff.stick_move.clone() {
+        if let Some(stick) = diff.stick_move {
             if stick == motion.next_requirement(flipped) {
                 motion.advance();
             }
@@ -106,7 +106,7 @@ impl InputReader {
         }
 
         let pressed = diff.pressed.clone().unwrap();
-        let stick = self.head.stick_position.clone();
+        let stick = self.head.stick_position;
         let now = Instant::now();
 
         self.events.extend(
@@ -114,7 +114,7 @@ impl InputReader {
                 .iter()
                 .filter(|(_, normal)| pressed.contains(&normal.button))
                 .filter(|(_, normal)| {
-                    if normal.stick.is_none() || stick == normal.stick.clone().unwrap() {
+                    if normal.stick.is_none() || stick == normal.stick.unwrap() {
                         return true;
                     }
 
@@ -266,7 +266,7 @@ fn dpad_position(
 ) -> Option<InputChange> {
     for mut reader in readers.iter_mut() {
         if reader.controller == Some(*id) {
-            let mut stick: IVec2 = reader.temp_stick.clone().into();
+            let mut stick: IVec2 = reader.temp_stick.into();
             if let Some(x) = delta_x {
                 stick.x = x * value;
             }
@@ -274,7 +274,7 @@ fn dpad_position(
                 stick.y = y * value;
             }
             reader.temp_stick = stick.into();
-            return Some(InputChange::Stick(reader.temp_stick.clone()));
+            return Some(InputChange::Stick(reader.temp_stick));
         }
     }
     None

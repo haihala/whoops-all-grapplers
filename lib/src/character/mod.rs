@@ -1,61 +1,81 @@
+mod movement;
 mod ryan;
 
-pub use ryan::{register_ryan_moves, ryan_executor, Ryan};
+use movement::movement;
 
-use crate::{physics::PhysicsObject, player::MainState};
+use crate::{damage::Hurtbox, physics::PhysicsObject};
 
 use bevy::prelude::*;
-use input_parsing::{InputReader, StickPosition};
+use bevy_inspector_egui::Inspectable;
 
-pub fn movement_executor(mut query: Query<(&mut PhysicsObject, &InputReader, &mut MainState)>) {
-    for (mut physics_object, reader, mut state) in query.iter_mut() {
-        let run_speed = crate::PLAYER_INITIAL_RUN_SPEED.max(
-            crate::PLAYER_TOP_SPEED
-                .min(physics_object.velocity.x.abs() + crate::PLAYER_ACCELERATION),
-        );
+use crate::{Colors, Health, Meter};
 
-        let change = if *state == MainState::Standing {
-            match reader.get_stick_position() {
-                StickPosition::E => move_right(run_speed, reader),
-                StickPosition::W => move_left(run_speed, reader),
-                StickPosition::N => jump(&mut state, crate::PLAYER_JUMP_VECTOR),
-                StickPosition::NW => jump(&mut state, crate::PLAYER_LEFT_JUMP_VECTOR),
-                StickPosition::NE => jump(&mut state, crate::PLAYER_RIGHT_JUMP_VECTOR),
-                _ => None,
-            }
-        } else {
-            None
-        };
+#[derive(Inspectable, PartialEq, Eq, Clone, Copy)]
+pub enum Player {
+    One,
+    Two,
+}
 
-        physics_object.desired_velocity = change;
+#[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug)]
+pub enum PlayerState {
+    Startup,
+    Active,
+    Recovery,
+    Standing,
+    Air,
+}
+impl PlayerState {
+    pub fn land(&mut self) {
+        // Depending on current state, could either:
+        // - Air -> Standing
+        // - Freefall -> Grounded
+        *self = PlayerState::Standing;
+    }
+    pub fn recover(&mut self) {
+        *self = PlayerState::Standing;
     }
 }
 
-fn move_right(run_speed: f32, inputs: &InputReader) -> Option<Vec3> {
-    Some(Vec3::new(
-        if inputs.flipped {
-            crate::PLAYER_WALK_SPEED
-        } else {
-            run_speed
-        },
-        0.0,
-        0.0,
-    ))
+pub struct PlayerPlugin;
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut AppBuilder) {
+        app.add_startup_system(setup.system())
+            .add_system(ryan::move_starter.system())
+            .add_system(movement.system());
+    }
 }
 
-fn move_left(run_speed: f32, inputs: &InputReader) -> Option<Vec3> {
-    Some(Vec3::new(
-        if inputs.flipped {
-            -run_speed
-        } else {
-            -crate::PLAYER_WALK_SPEED
-        },
-        0.0,
-        0.0,
-    ))
+fn setup(mut commands: Commands, colors: Res<Colors>) {
+    spawn_player(&mut commands, &colors, -2.0, Player::One);
+    spawn_player(&mut commands, &colors, 2.0, Player::Two);
 }
 
-fn jump(state: &mut MainState, direction: (f32, f32, f32)) -> Option<Vec3> {
-    *state = MainState::Air;
-    Some(direction.into())
+fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {
+    commands
+        .spawn_bundle(SpriteBundle {
+            transform: Transform {
+                translation: (offset, 0.0, 0.0).into(),
+                ..Default::default()
+            },
+            material: colors.collision_box.clone(),
+            sprite: Sprite::new(Vec2::new(
+                crate::PLAYER_SPRITE_WIDTH,
+                crate::PLAYER_SPRITE_HEIGHT,
+            )),
+            ..Default::default()
+        })
+        .insert(player)
+        .insert(Health::default())
+        .insert(Meter::default())
+        .insert(PhysicsObject::default())
+        .insert(PlayerState::Standing)
+        .insert(ryan::inputs())
+        .insert(ryan::animations())
+        .insert(ryan::hitboxes())
+        .insert(Hurtbox::new(Vec2::new(
+            crate::PLAYER_SPRITE_WIDTH,
+            crate::PLAYER_SPRITE_HEIGHT,
+        )))
+        .insert(ryan::Ryan);
 }

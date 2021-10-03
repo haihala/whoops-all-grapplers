@@ -2,6 +2,7 @@ use bevy::core::FixedTimestep;
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
+use crate::game_flow::GameState;
 use crate::labels::StartupStageLabel;
 use crate::{Colors, Fonts};
 
@@ -9,6 +10,16 @@ use crate::{Colors, Fonts};
 pub struct Clock {
     pub frame: usize,
     elapsed_time: f32,
+}
+impl Clock {
+    pub fn time_out(&self) -> bool {
+        self.elapsed_time >= crate::ROUND_TIME - 1.0
+    }
+
+    fn reset(&mut self) {
+        self.frame = 0;
+        self.elapsed_time = 0.0;
+    }
 }
 #[derive(Debug)]
 pub struct Timer;
@@ -25,7 +36,12 @@ impl Plugin for ClockPlugin {
                     .with_run_criteria(FixedTimestep::steps_per_second(crate::FPS as f64))
                     .with_system(tick.system()),
             )
-            .add_system(draw_timer.system());
+            .add_system_set(
+                SystemSet::on_update(GameState::Combat).with_system(update_timer.system()),
+            )
+            .add_system_set(
+                SystemSet::on_enter(GameState::Combat).with_system(reset_timer.system()),
+            );
     }
 }
 
@@ -50,7 +66,7 @@ fn setup(mut commands: Commands, fonts: Res<Fonts>, colors: Res<Colors>) {
             parent
                 .spawn_bundle(TextBundle {
                     text: Text::with_section(
-                        "value",
+                        crate::ROUND_TIME.round().to_string(),
                         TextStyle {
                             font: fonts.basic.clone(),
                             font_size: 100.0,
@@ -72,8 +88,11 @@ fn tick(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
     clock.elapsed_time += bevy_clock.delta_seconds();
 }
 
-fn draw_timer(mut query: Query<&mut Text, With<Timer>>, clock: Res<Clock>) {
-    for mut text in query.iter_mut() {
-        text.sections[0].value = (crate::ROUND_TIME - clock.elapsed_time).floor().to_string();
-    }
+fn update_timer(mut query: Query<&mut Text, With<Timer>>, clock: Res<Clock>) {
+    let mut text = query.single_mut().unwrap();
+    text.sections[0].value = (crate::ROUND_TIME - clock.elapsed_time).floor().to_string();
+}
+
+fn reset_timer(mut clock: ResMut<Clock>) {
+    clock.reset();
 }

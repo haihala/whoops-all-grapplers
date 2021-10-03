@@ -7,9 +7,9 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 	- [x] Bar
 - [x] Meter
 	- [x] Bar
-- [ ] Rounds
-	- [ ] Win screen
-	- [ ] Reset between
+- [x] Rounds
+	- [x] Win screen
+	- [x] Reset between
 	- [x] Round timer
 - [x] Input parsing
 	- [x] V1
@@ -26,8 +26,10 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 	- [ ] Block
 	- [ ] Throw
 		- [ ] Yomi counter
-	- [ ] Parry
 	- [ ] Automatic cancel
+- [ ] Items
+	- [ ] Projectile
+	- [ ] Parry
 - [ ] One character ([[Ryan]])
 	- [ ] 4 normals
 	- [ ] 2 specials

@@ -5,6 +5,7 @@ mod character;
 mod clock;
 mod constants;
 mod damage;
+mod game_flow;
 mod inspector;
 mod labels;
 mod meter;
@@ -26,7 +27,8 @@ impl PluginGroup for WAGLib {
             .add(character::PlayerPlugin)
             .add(damage::DamagePlugin)
             .add(inspector::InspectorPlugin)
-            .add(physics::PhysicsPlugin);
+            .add(physics::PhysicsPlugin)
+            .add(game_flow::GameFlowPlugin);
     }
 }
 

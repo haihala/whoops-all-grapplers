@@ -3,17 +3,23 @@ mod ryan;
 
 use movement::movement;
 
-use crate::{damage::Hurtbox, physics::PhysicsObject};
+use crate::{damage::Hurtbox, game_flow::GameState, physics::PhysicsObject};
 
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
+use std::fmt::{Debug, Display};
 
 use crate::{Colors, Health, Meter};
 
-#[derive(Inspectable, PartialEq, Eq, Clone, Copy)]
+#[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug, Hash)]
 pub enum Player {
     One,
     Two,
+}
+impl Display for Player {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Debug::fmt(self, f)
+    }
 }
 
 #[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug)]
@@ -41,14 +47,28 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_startup_system(setup.system())
-            .add_system(ryan::move_starter.system())
-            .add_system(movement.system());
+            .add_system_set(
+                SystemSet::on_update(GameState::Combat)
+                    .with_system(ryan::move_starter.system())
+                    .with_system(movement.system()),
+            )
+            .add_system_set(SystemSet::on_enter(GameState::Combat).with_system(reset.system()));
     }
 }
 
 fn setup(mut commands: Commands, colors: Res<Colors>) {
-    spawn_player(&mut commands, &colors, -2.0, Player::One);
-    spawn_player(&mut commands, &colors, 2.0, Player::Two);
+    spawn_player(
+        &mut commands,
+        &colors,
+        -crate::PLAYER_SPAWN_DISTANCE,
+        Player::One,
+    );
+    spawn_player(
+        &mut commands,
+        &colors,
+        crate::PLAYER_SPAWN_DISTANCE,
+        Player::Two,
+    );
 }
 
 fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {
@@ -78,4 +98,14 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
             crate::PLAYER_SPRITE_HEIGHT,
         )))
         .insert(ryan::Ryan);
+}
+
+fn reset(mut query: Query<(&mut Health, &mut Transform, &Player)>) {
+    for (mut health, mut tf, player) in query.iter_mut() {
+        health.ratio = 1.0;
+        tf.translation.x = match *player {
+            Player::One => -crate::PLAYER_SPAWN_DISTANCE,
+            Player::Two => crate::PLAYER_SPAWN_DISTANCE,
+        };
+    }
 }

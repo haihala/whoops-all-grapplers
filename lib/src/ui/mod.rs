@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 
-use crate::Sprites;
+use crate::{game_flow::GameState, Sprites};
 
 mod bars;
+mod round_text;
 
 pub struct UIPlugin;
 
@@ -10,6 +11,15 @@ impl Plugin for UIPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_startup_system(bars::setup.system())
             .add_system(bars::update.system())
+            .add_startup_system(round_text::setup.system())
+            .add_system_set(
+                SystemSet::on_enter(GameState::Combat)
+                    .with_system(round_text::round_start.system()),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameState::PostRound)
+                    .with_system(round_text::round_over.system()),
+            )
             .add_startup_system(add_stage.system());
     }
 }

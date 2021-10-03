@@ -2,19 +2,10 @@ use bevy::prelude::*;
 
 use crate::{Colors, Health, Meter, Player};
 
-struct MeterBar(Player);
-struct HealthBar(Player);
+pub struct MeterBar(Player);
+pub struct HealthBar(Player);
 
-pub struct BarsPlugin;
-
-impl Plugin for BarsPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(setup.system())
-            .add_system(update.system());
-    }
-}
-
-fn setup(mut commands: Commands, colors: Res<Colors>) {
+pub fn setup(mut commands: Commands, colors: Res<Colors>) {
     create_healthbar(&mut commands, &colors, Player::One);
     create_meterbar(&mut commands, &colors, Player::One);
 
@@ -76,7 +67,7 @@ fn get_bar_position(base: Rect<Val>, player: Player) -> Rect<Val> {
 }
 
 #[allow(clippy::type_complexity)]
-fn update(
+pub fn update(
     mut bars: QuerySet<(
         Query<(&mut Style, &HealthBar)>,
         Query<(&mut Style, &MeterBar)>,

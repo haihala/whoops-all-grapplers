@@ -4,7 +4,7 @@ use bevy::render::camera::{
 };
 use bevy::render::render_graph::base::camera::CAMERA_2D;
 
-use crate::{Player, Sprites};
+use crate::Player;
 
 struct WorldCamera;
 
@@ -47,7 +47,6 @@ pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_startup_system(add_cameras.system())
-            .add_startup_system(add_stage.system())
             .add_system_to_stage(
                 CoreStage::PostUpdate,
                 camera_system::<SimpleOrthoProjection>.system(),
@@ -79,25 +78,6 @@ fn add_cameras(mut commands: Commands) {
         .insert(WorldCamera);
 
     commands.spawn_bundle(UiCameraBundle::default());
-}
-
-fn add_stage(mut commands: Commands, sprites: Res<Sprites>, mut meshes: ResMut<Assets<Mesh>>) {
-    let uvs = vec![[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]];
-
-    let mut mesh = Mesh::from(shape::Quad::new(Vec2::new(1.0, 1.0)));
-    mesh.set_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
-
-    commands.spawn_bundle(PbrBundle {
-        material: sprites.background_image.clone(),
-        mesh: meshes.add(mesh),
-        transform: Transform {
-            translation: crate::BACKGROUND_POSITION.into(),
-            scale: crate::BACKGROUND_SCALE.into(),
-            ..Default::default()
-        },
-
-        ..Default::default()
-    });
 }
 
 #[allow(clippy::type_complexity)]

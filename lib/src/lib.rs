@@ -1,6 +1,5 @@
 mod animation;
 mod assets;
-mod bars;
 mod camera;
 mod character;
 mod clock;
@@ -10,6 +9,7 @@ mod inspector;
 mod labels;
 mod meter;
 mod physics;
+mod ui;
 
 use bevy::prelude::*;
 // Only thing exported out of this crate
@@ -21,7 +21,7 @@ impl PluginGroup for WAGLib {
             .add(assets::AssetsPlugin)
             .add(clock::ClockPlugin)
             .add(animation::AnimationPlugin)
-            .add(bars::BarsPlugin)
+            .add(ui::UIPlugin)
             .add(camera::CameraPlugin)
             .add(character::PlayerPlugin)
             .add(damage::DamagePlugin)

@@ -1,0 +1,7 @@
+- [ ] UI
+	- [x] Move ui stuff a module
+	- [ ] Add round winner text
+- [ ] Detect round end
+	- [ ] Timeout
+	- [ ] Death
+- [ ] Reset after a few seconds

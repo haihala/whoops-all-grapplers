@@ -66,10 +66,10 @@ impl InputReader {
 
         let relative_diff = if self.flipped {
             self.relative_stick = self.temp_stick.flip();
-            diff.clone().flip()
+            diff.flip()
         } else {
             self.relative_stick = self.temp_stick;
-            diff.clone()
+            diff
         };
 
         self.parse_specials(&relative_diff);

@@ -1,41 +1,25 @@
 use bevy::core::FixedTimestep;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
-use uuid::Uuid;
+
+use moves::{FrameData, MoveType};
 
 use crate::damage::HitboxManager;
 use crate::{Clock, PlayerState};
 
-// For now, this is mostly just to invalidate infinite hurtbox spam
-
-pub struct Animation {
-    active_start: usize,
-    recovery_start: usize,
-    recovered: usize,
-}
-impl Animation {
-    pub fn new(startup: usize, active: usize, recovery: usize) -> Self {
-        Self {
-            active_start: startup,
-            recovery_start: startup + active,
-            recovered: startup + active + recovery,
-        }
-    }
-}
-
 #[derive(Default)]
 pub struct AnimationBank {
-    registered: HashMap<Uuid, Animation>,
-    active: Option<Uuid>,
+    registered: HashMap<MoveType, FrameData>,
+    active: Option<MoveType>,
     start_frame: usize,
 }
 
 impl AnimationBank {
-    pub fn register(&mut self, id: Uuid, animation: Animation) {
+    pub fn register(&mut self, id: MoveType, animation: FrameData) {
         self.registered.insert(id, animation);
     }
 
-    pub fn start(&mut self, id: Uuid, frame: usize) {
+    pub fn start(&mut self, id: MoveType, frame: usize) {
         // Not strictly necessary but may cause an oopsie in the future if left out
         self.interrupt();
 

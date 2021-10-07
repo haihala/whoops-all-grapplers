@@ -1,19 +1,17 @@
 use bevy::prelude::*;
-use uuid::Uuid;
 
 use super::movement::{DASH_BACK, DASH_FORWARD};
 use super::PlayerState;
 use crate::{
-    animation::{Animation, AnimationBank},
+    animation::AnimationBank,
     damage::{Hitbox, HitboxManager},
     Clock,
 };
 use input_parsing::{GameButton, InputReader, Normal, Special};
+use moves::FrameData;
+use moves::{ryan::*, MoveType};
 
 pub struct Ryan;
-
-const PUNCH: Uuid = Uuid::from_u128(0x10);
-const HADOUKEN: Uuid = Uuid::from_u128(0x11);
 
 pub fn inputs() -> InputReader {
     let mut reader = InputReader::default();
@@ -55,8 +53,8 @@ pub fn inputs() -> InputReader {
 pub fn animations() -> AnimationBank {
     let mut bank = AnimationBank::default();
 
-    bank.register(HADOUKEN, Animation::new(30, 10, 20));
-    bank.register(PUNCH, Animation::new(10, 10, 10));
+    bank.register(HADOUKEN, FrameData::new(30, 10, 20));
+    bank.register(PUNCH, FrameData::new(10, 10, 10));
 
     bank
 }
@@ -98,7 +96,7 @@ pub fn move_starter(
     }
 }
 
-fn highest_priority_move(options: Vec<Uuid>) -> Uuid {
+fn highest_priority_move(options: Vec<MoveType>) -> MoveType {
     if options.contains(&HADOUKEN) {
         HADOUKEN
     } else if options.contains(&PUNCH) {

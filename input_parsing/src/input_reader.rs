@@ -5,17 +5,17 @@ use crate::{
 };
 
 use bevy::{prelude::*, utils::HashMap};
-use uuid::Uuid;
+use moves::MoveType;
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
 pub struct InputReader {
     pub flipped: bool,
-    events: HashMap<Uuid, Instant>,
+    events: HashMap<MoveType, Instant>,
 
     controller: Option<Gamepad>,
-    registered_specials: HashMap<Uuid, Special>,
-    registered_normals: HashMap<Uuid, Normal>,
+    registered_specials: HashMap<MoveType, Special>,
+    registered_normals: HashMap<MoveType, Normal>,
     head: Frame,
     relative_stick: StickPosition,
 
@@ -44,11 +44,11 @@ impl InputReader {
         self.controller.is_some()
     }
 
-    pub fn register_special(&mut self, id: Uuid, special: Special) {
+    pub fn register_special(&mut self, id: MoveType, special: Special) {
         self.registered_specials.insert(id, special);
     }
 
-    pub fn register_normal(&mut self, id: Uuid, normal: Normal) {
+    pub fn register_normal(&mut self, id: MoveType, normal: Normal) {
         self.registered_normals.insert(id, normal);
     }
 
@@ -60,11 +60,11 @@ impl InputReader {
         self.relative_stick
     }
 
-    pub fn get_events(&self) -> Vec<Uuid> {
+    pub fn get_events(&self) -> Vec<MoveType> {
         self.events.clone().into_iter().map(|(id, _)| id).collect()
     }
 
-    pub fn consume_event(&mut self, event: &Uuid) {
+    pub fn consume_event(&mut self, event: &MoveType) {
         self.events.remove(event);
     }
 
@@ -314,10 +314,9 @@ mod test {
 
     #[test]
     fn hadouken_recognized() {
-        let id = Uuid::new_v4();
         let mut reader = InputReader::default();
         reader.register_special(
-            id,
+            moves::ryan::HADOUKEN,
             Special {
                 motion: vec![2, 3, 6].into(),
                 button: Some(GameButton::Fast),
@@ -352,15 +351,14 @@ mod test {
         );
         update_stage.run(&mut world);
 
-        assert_event_is_present(&mut &mut world, id);
+        assert_event_is_present(&mut &mut world, moves::ryan::HADOUKEN);
     }
 
     #[test]
     fn normal_recognized() {
-        let id = Uuid::new_v4();
         let mut reader = InputReader::default();
         reader.register_normal(
-            id,
+            moves::ryan::PUNCH,
             Normal {
                 button: GameButton::Fast,
                 stick: None,
@@ -381,7 +379,7 @@ mod test {
         );
         update_stage.run(&mut world);
 
-        assert_event_is_present(&mut &mut world, id);
+        assert_event_is_present(&mut &mut world, moves::ryan::PUNCH);
 
         // Run a few frames
         update_stage.run(&mut world);
@@ -389,7 +387,7 @@ mod test {
         update_stage.run(&mut world);
 
         // Check that the event is still in (repeat works)
-        assert_event_is_present(&mut &mut world, id);
+        assert_event_is_present(&mut &mut world, moves::ryan::PUNCH);
 
         // Wait for the event to leave the buffer
         sleep(Duration::from_secs_f32(crate::EVENT_REPEAT_PERIOD));
@@ -403,11 +401,9 @@ mod test {
 
     #[test]
     fn command_normal_recognized() {
-        let id = Uuid::new_v4();
-
         let mut reader = InputReader::default();
         reader.register_normal(
-            id,
+            moves::ryan::COMMAND_PUNCH,
             Normal {
                 button: GameButton::Fast,
                 stick: Some(StickPosition::S),
@@ -432,7 +428,7 @@ mod test {
         );
         update_stage.run(&mut world);
 
-        assert_event_is_present(&mut &mut world, id);
+        assert_event_is_present(&mut &mut world, moves::ryan::COMMAND_PUNCH);
     }
 
     fn test_setup(mut reader: InputReader) -> (World, SystemStage) {
@@ -467,7 +463,7 @@ mod test {
         });
     }
 
-    fn assert_event_is_present(world: &mut World, id: Uuid) {
+    fn assert_event_is_present(world: &mut World, id: MoveType) {
         for r in world.query::<&InputReader>().iter(&world) {
             assert_eq!(r.events.len(), 1);
 

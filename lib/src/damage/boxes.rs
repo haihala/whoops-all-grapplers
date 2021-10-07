@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::utils::{HashMap, HashSet};
 use input_parsing::InputReader;
-use uuid::Uuid;
+use moves::MoveType;
 
 use crate::physics::rect_collision;
 use crate::{Colors, Player};
@@ -50,22 +50,22 @@ impl Hitbox {
 
 #[derive(Default)]
 pub struct HitboxManager {
-    registered: HashMap<Uuid, Hitbox>,
+    registered: HashMap<MoveType, Hitbox>,
 
-    spawn_requests: HashSet<Uuid>,
-    spawned: HashMap<Uuid, Entity>,
-    despawn_requests: HashSet<Uuid>,
+    spawn_requests: HashSet<MoveType>,
+    spawned: HashMap<MoveType, Entity>,
+    despawn_requests: HashSet<MoveType>,
 }
 impl HitboxManager {
-    pub fn register(&mut self, id: Uuid, hurtbox: Hitbox) {
+    pub fn register(&mut self, id: MoveType, hurtbox: Hitbox) {
         self.registered.insert(id, hurtbox);
     }
 
-    pub fn spawn(&mut self, id: Uuid) {
+    pub fn spawn(&mut self, id: MoveType) {
         // Tell the system that a box has been requested
         self.spawn_requests.insert(id);
     }
-    pub fn despawn(&mut self, id: Uuid) {
+    pub fn despawn(&mut self, id: MoveType) {
         // Tell the system that a box has been requested to not exist anymore
         self.despawn_requests.insert(id);
     }
@@ -78,12 +78,12 @@ impl HitboxManager {
         player: Player,
         parent: Entity,
     ) {
-        let spawn_requests: HashSet<Uuid> = self.spawn_requests.drain().collect();
+        let spawn_requests: HashSet<MoveType> = self.spawn_requests.drain().collect();
         for id in spawn_requests {
             self.spawn_box(commands, colors, id, flipped, player, parent);
         }
 
-        let despawn_requests: HashSet<Uuid> = self.despawn_requests.drain().collect();
+        let despawn_requests: HashSet<MoveType> = self.despawn_requests.drain().collect();
         for id in despawn_requests {
             self.despawn_box(commands, id);
         }
@@ -93,7 +93,7 @@ impl HitboxManager {
         &mut self,
         commands: &mut Commands,
         colors: &Res<Colors>,
-        id: Uuid,
+        id: MoveType,
         flipped: bool,
         player: Player,
         parent: Entity,
@@ -119,7 +119,7 @@ impl HitboxManager {
         }
     }
 
-    fn despawn_box(&mut self, commands: &mut Commands, id: Uuid) {
+    fn despawn_box(&mut self, commands: &mut Commands, id: MoveType) {
         if let Some(spawned) = self.spawned.get(&id) {
             commands.entity(*spawned).despawn();
             self.spawned.remove(&id);

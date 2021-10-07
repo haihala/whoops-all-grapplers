@@ -10,8 +10,8 @@ edition = "2018"
 bevy = "0.5.0"
 strum = "0.21"
 strum_macros = "0.21"
-uuid = "0.8.2"
 num = "0.4.0"
 bevy-inspector-egui = "0.6.1"
 
 input_parsing = { path = "../input_parsing" }
+moves = { path = "../moves" }

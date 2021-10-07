@@ -1,4 +1,11 @@
-- [ ] Animation
-- [ ] Frame data
-- [ ] Damage
-- [ ] Input
+- [x] Move ids
+- [ ] Values
+	- [ ] Animation
+	- [ ] Frame data
+	- [ ] Damage
+	- [ ] Input
+- [ ] Method to insert values
+	- [ ] Animation
+	- [ ] Frame data
+	- [ ] Damage
+	- [ ] Input

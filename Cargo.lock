@@ -1898,9 +1898,9 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
+ "moves",
  "strum",
  "strum_macros",
- "uuid",
 ]
 
 [[package]]
@@ -2225,6 +2225,10 @@ checksum = "b9f1c5b025cda876f66ef43a113f91ebc9f4ccef34843000e0adf6ebbab84e21"
 dependencies = [
  "winapi 0.3.9",
 ]
+
+[[package]]
+name = "moves"
+version = "0.1.0"
 
 [[package]]
 name = "naga"
@@ -2637,10 +2641,10 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "input_parsing",
+ "moves",
  "num",
  "strum",
  "strum_macros",
- "uuid",
 ]
 
 [[package]]

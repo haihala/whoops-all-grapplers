@@ -1,12 +1,10 @@
 use bevy::prelude::*;
-use uuid::Uuid;
 
 use super::PlayerState;
 use crate::physics::PhysicsObject;
 use input_parsing::{InputReader, StickPosition};
 
-pub const DASH_FORWARD: Uuid = Uuid::from_u128(0x00);
-pub const DASH_BACK: Uuid = Uuid::from_u128(0x01);
+pub use moves::universal::{DASH_BACK, DASH_FORWARD};
 
 pub fn movement(mut query: Query<(&mut PhysicsObject, &mut InputReader, &mut PlayerState)>) {
     for (mut physics_object, mut reader, mut state) in query.iter_mut() {

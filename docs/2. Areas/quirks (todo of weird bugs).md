@@ -1,0 +1,5 @@
+- Health bar height seems to be inconsistent
+	- Maybe going under the node used to lay down the round start text?
+- Movement
+	- Maybe add a "max ground speed" that is used as a point where drag starts to happen
+	- Top speed would just be a cap, nothing can move faster than that

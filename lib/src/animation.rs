@@ -3,9 +3,8 @@ use bevy::prelude::*;
 use bevy::utils::HashMap;
 use uuid::Uuid;
 
-use crate::character::PlayerState;
-use crate::clock::Clock;
 use crate::damage::HitboxManager;
+use crate::{Clock, PlayerState};
 
 // For now, this is mostly just to invalidate infinite hurtbox spam
 

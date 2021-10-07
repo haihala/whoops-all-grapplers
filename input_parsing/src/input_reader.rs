@@ -40,6 +40,10 @@ impl Default for InputReader {
     }
 }
 impl InputReader {
+    pub fn is_active(&self) -> bool {
+        self.controller.is_some()
+    }
+
     pub fn register_special(&mut self, id: Uuid, special: Special) {
         self.registered_specials.insert(id, special);
     }
@@ -56,8 +60,12 @@ impl InputReader {
         self.relative_stick
     }
 
-    pub fn drain_events(&mut self) -> Vec<Uuid> {
-        self.events.drain().map(|(id, _)| id).collect()
+    pub fn get_events(&self) -> Vec<Uuid> {
+        self.events.clone().into_iter().map(|(id, _)| id).collect()
+    }
+
+    pub fn consume_event(&mut self, event: &Uuid) {
+        self.events.remove(event);
     }
 
     fn add_frame(&mut self, diff: Diff) {
@@ -273,9 +281,9 @@ fn update_readers(mut readers: Query<&mut InputReader>, raw_events: Vec<OwnedCha
         if let Some(controller) = reader.controller {
             if let Some(diff) = diffs.get(&controller) {
                 reader.add_frame(diff.to_owned());
-                reader.purge_old_events();
             }
         }
+        reader.purge_old_events();
     }
 }
 

@@ -98,32 +98,32 @@ impl HitboxManager {
         player: Player,
         parent: Entity,
     ) {
-        let hitbox = self.registered.get_mut(&id).unwrap();
-        hitbox.owner = Some(player);
+        if let Some(hitbox) = self.registered.get_mut(&id) {
+            hitbox.owner = Some(player);
 
-        let spawned_box = commands
-            .spawn_bundle(SpriteBundle {
-                transform: Transform {
-                    translation: hitbox.get_offset(flipped),
+            let spawned_box = commands
+                .spawn_bundle(SpriteBundle {
+                    transform: Transform {
+                        translation: hitbox.get_offset(flipped),
+                        ..Default::default()
+                    },
+                    material: colors.hurtbox.clone(),
+                    sprite: Sprite::new(hitbox.size),
                     ..Default::default()
-                },
-                material: colors.hurtbox.clone(),
-                sprite: Sprite::new(hitbox.size),
-                ..Default::default()
-            })
-            .insert(*hitbox)
-            .id();
+                })
+                .insert(*hitbox)
+                .id();
 
-        commands.entity(parent).push_children(&[spawned_box]);
-        self.spawned.insert(id, spawned_box);
-        self.spawn_requests.remove(&id);
+            commands.entity(parent).push_children(&[spawned_box]);
+            self.spawned.insert(id, spawned_box);
+        }
     }
 
     fn despawn_box(&mut self, commands: &mut Commands, id: Uuid) {
-        commands.entity(*self.spawned.get(&id).unwrap()).despawn();
-
-        self.spawned.remove(&id);
-        self.despawn_requests.remove(&id);
+        if let Some(spawned) = self.spawned.get(&id) {
+            commands.entity(*spawned).despawn();
+            self.spawned.remove(&id);
+        }
     }
 }
 

@@ -1,2 +1,0 @@
-- [ ] Add a way to say "Clear if this input enters the buffer"
-- [ ] Add that to dashes (clear if opposite direction is input)

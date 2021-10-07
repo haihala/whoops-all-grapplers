@@ -10,6 +10,7 @@ pub struct MotionInput {
     done: bool,
 
     key_points: Vec<StickPosition>,
+    autoresets: Vec<StickPosition>,
 }
 impl Default for MotionInput {
     fn default() -> Self {
@@ -17,6 +18,7 @@ impl Default for MotionInput {
             heads: Default::default(),
             done: false,
             key_points: Default::default(),
+            autoresets: Default::default(),
         }
     }
 }
@@ -52,8 +54,8 @@ impl MotionInput {
                     } else {
                         Some((at + 1, now))
                     }
-                } else if time.elapsed().as_secs_f32()
-                    > crate::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
+                } else if self.autoresets.contains(&stick)
+                    || time.elapsed().as_secs_f32() > crate::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
                 {
                     None
                 } else {
@@ -70,8 +72,17 @@ impl MotionInput {
 }
 impl From<Vec<i32>> for MotionInput {
     fn from(requirements: Vec<i32>) -> Self {
-        MotionInput {
+        Self {
             key_points: requirements.into_iter().map(StickPosition::from).collect(),
+            ..Default::default()
+        }
+    }
+}
+impl From<(Vec<i32>, Vec<i32>)> for MotionInput {
+    fn from(specs: (Vec<i32>, Vec<i32>)) -> Self {
+        Self {
+            key_points: specs.0.into_iter().map(StickPosition::from).collect(),
+            autoresets: specs.1.into_iter().map(StickPosition::from).collect(),
             ..Default::default()
         }
     }

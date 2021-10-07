@@ -37,7 +37,7 @@ pub fn inputs() -> InputReader {
     reader.register_special(
         DASH_FORWARD,
         Special {
-            motion: vec![6, 5, 6].into(),
+            motion: (vec![6, 5, 6], vec![7, 4, 1]).into(),
             button: None,
         },
     );
@@ -45,7 +45,7 @@ pub fn inputs() -> InputReader {
     reader.register_special(
         DASH_BACK,
         Special {
-            motion: vec![4, 5, 4].into(),
+            motion: (vec![4, 5, 4], vec![9, 6, 3]).into(),
             button: None,
         },
     );

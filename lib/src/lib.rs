@@ -1,10 +1,10 @@
-mod animation;
 mod assets;
 mod camera;
 mod character;
 mod clock;
 mod constants;
 mod damage;
+mod frame_data_manager;
 mod game_flow;
 mod inspector;
 mod labels;
@@ -21,7 +21,7 @@ impl PluginGroup for WAGLib {
             .add(labels::StagePlugin)
             .add(assets::AssetsPlugin)
             .add(clock::ClockPlugin)
-            .add(animation::AnimationPlugin)
+            .add(frame_data_manager::AnimationPlugin)
             .add(ui::UIPlugin)
             .add(camera::CameraPlugin)
             .add(character::PlayerPlugin)

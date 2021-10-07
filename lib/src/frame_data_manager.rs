@@ -8,14 +8,14 @@ use crate::damage::HitboxManager;
 use crate::{Clock, PlayerState};
 
 #[derive(Default)]
-pub struct AnimationBank {
+pub struct FrameDataManager {
     registered: HashMap<MoveType, FrameData>,
     active: Option<MoveType>,
     start_frame: usize,
 }
-impl AnimationBank {
-    pub fn load(target: HashMap<MoveType, FrameData>) -> AnimationBank {
-        AnimationBank {
+impl FrameDataManager {
+    pub fn load(target: HashMap<MoveType, FrameData>) -> FrameDataManager {
+        FrameDataManager {
             registered: target,
             ..Default::default()
         }
@@ -47,7 +47,7 @@ impl Plugin for AnimationPlugin {
 
 fn animation(
     clock: Res<Clock>,
-    mut query: Query<(&mut AnimationBank, &mut HitboxManager, &mut PlayerState)>,
+    mut query: Query<(&mut FrameDataManager, &mut HitboxManager, &mut PlayerState)>,
 ) {
     for (mut bank, mut hurtbox_generator, mut state) in query.iter_mut() {
         if let Some(active_id) = bank.active {

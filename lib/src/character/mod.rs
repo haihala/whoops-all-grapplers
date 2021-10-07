@@ -6,8 +6,8 @@ use moves::{ryan_frames, ryan_hitboxes};
 use types::Player;
 
 use crate::{
-    animation::AnimationBank,
     damage::{HitboxManager, Hurtbox},
+    frame_data_manager::FrameDataManager,
     game_flow::GameState,
     physics::PhysicsObject,
 };
@@ -87,7 +87,7 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(PhysicsObject::default())
         .insert(PlayerState::Standing)
         .insert(ryan::inputs())
-        .insert(AnimationBank::load(ryan_frames()))
+        .insert(FrameDataManager::load(ryan_frames()))
         .insert(HitboxManager::load(ryan_hitboxes()))
         .insert(Hurtbox::new(Vec2::new(
             crate::PLAYER_SPRITE_WIDTH,

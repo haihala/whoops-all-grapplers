@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use super::movement::{DASH_BACK, DASH_FORWARD};
 use super::PlayerState;
-use crate::{animation::AnimationBank, Clock};
+use crate::{frame_data_manager::FrameDataManager, Clock};
 use input_parsing::{GameButton, InputReader, Normal, Special};
 use moves::{ryan::*, MoveType};
 
@@ -47,7 +47,7 @@ pub fn inputs() -> InputReader {
 
 pub fn move_starter(
     clock: Res<Clock>,
-    mut query: Query<(&mut InputReader, &mut PlayerState, &mut AnimationBank), With<Ryan>>,
+    mut query: Query<(&mut InputReader, &mut PlayerState, &mut FrameDataManager), With<Ryan>>,
 ) {
     for (mut reader, mut state, mut animation) in query.iter_mut() {
         if *state == PlayerState::Standing {

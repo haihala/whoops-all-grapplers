@@ -165,13 +165,6 @@ pub fn handle_hits(
                     health.hurt(amount);
                     hitbox.owner = None;
                 }
-            } else {
-                dbg!(
-                    tf1.translation,
-                    hitbox.size,
-                    tf2.translation + hurtbox.offset,
-                    hurtbox.size,
-                );
             }
         }
     }

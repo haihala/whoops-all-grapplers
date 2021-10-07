@@ -62,21 +62,6 @@ pub const PLAYER_GRAVITY_PER_FRAME: f32 = PLAYER_GRAVITY_FORCE / FPS;
 
 /*
 x = x0 + v0*t + 1/2*a*t^2
-
-From start to apex
-x0 = 0
-x = h
-
-h = v0*t + 1/2*a*t^2
-H - 1/2*a*t^2 = v0*t
-(h - 1/2*a*t^2)/t = v0
-
-v0 = (h - 1/2*a*t^2)/t
-v0 = h/t - 1/2*a*t
-pub const PLAYER_JUMP_VELOCITY: f32 = PLAYER_JUMP_HEIGHT / PLAYER_JUMP_DURATION_HALVED
-    + 0.5 * PLAYER_GRAVITY * PLAYER_JUMP_DURATION_HALVED;
-
-x = x0 + v0*t + 1/2*a*t^2
 From start to end
 
 x0 = 0

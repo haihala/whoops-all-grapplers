@@ -1,10 +1,11 @@
 use bevy::prelude::*;
 use bevy::utils::{HashMap, HashSet};
 use input_parsing::InputReader;
-use moves::MoveType;
+use moves::{Hitbox, MoveType};
+use types::Player;
 
 use crate::physics::rect_collision;
-use crate::{Colors, Player};
+use crate::Colors;
 
 use super::Health;
 
@@ -22,32 +23,6 @@ impl Hurtbox {
     }
 }
 
-#[derive(Default, Clone, Copy)]
-pub struct Hitbox {
-    offset: Vec3,
-    size: Vec2,
-    on_hit_damage: Option<f32>,
-    owner: Option<Player>,
-}
-impl Hitbox {
-    fn get_offset(&self, flipped: bool) -> Vec3 {
-        if flipped {
-            Vec3::new(-self.offset.x, self.offset.y, self.offset.z)
-        } else {
-            self.offset
-        }
-    }
-
-    pub fn new(offset: Vec2, size: Vec2, damage: Option<f32>) -> Self {
-        Self {
-            offset: offset.extend(0.0),
-            size,
-            on_hit_damage: damage,
-            owner: None,
-        }
-    }
-}
-
 #[derive(Default)]
 pub struct HitboxManager {
     registered: HashMap<MoveType, Hitbox>,
@@ -57,8 +32,11 @@ pub struct HitboxManager {
     despawn_requests: HashSet<MoveType>,
 }
 impl HitboxManager {
-    pub fn register(&mut self, id: MoveType, hurtbox: Hitbox) {
-        self.registered.insert(id, hurtbox);
+    pub fn load(target: HashMap<MoveType, Hitbox>) -> HitboxManager {
+        HitboxManager {
+            registered: target,
+            ..Default::default()
+        }
     }
 
     pub fn spawn(&mut self, id: MoveType) {

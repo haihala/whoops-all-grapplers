@@ -4,5 +4,6 @@ members = [
     "main",
     "lib",
     "input_parsing",
-    "moves"
+    "moves",
+    "types",
 ]

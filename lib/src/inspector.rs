@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::{InspectableRegistry, WorldInspectorPlugin};
+use types::Player;
 
-use crate::{character::PlayerState, physics::PhysicsObject, Clock, Health, Meter, Player};
+use crate::{character::PlayerState, physics::PhysicsObject, Clock, Health, Meter};
 
 pub struct InspectorPlugin;
 

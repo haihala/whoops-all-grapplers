@@ -3,8 +3,7 @@ use bevy::render::camera::{
     camera_system, Camera, CameraProjection, DepthCalculation, VisibleEntities,
 };
 use bevy::render::render_graph::base::camera::CAMERA_2D;
-
-use crate::Player;
+use types::Player;
 
 struct WorldCamera;
 

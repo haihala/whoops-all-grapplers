@@ -13,10 +13,12 @@ pub struct AnimationBank {
     active: Option<MoveType>,
     start_frame: usize,
 }
-
 impl AnimationBank {
-    pub fn register(&mut self, id: MoveType, animation: FrameData) {
-        self.registered.insert(id, animation);
+    pub fn load(target: HashMap<MoveType, FrameData>) -> AnimationBank {
+        AnimationBank {
+            registered: target,
+            ..Default::default()
+        }
     }
 
     pub fn start(&mut self, id: MoveType, frame: usize) {

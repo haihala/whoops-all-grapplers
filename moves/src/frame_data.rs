@@ -1,3 +1,8 @@
+use bevy::utils::HashMap;
+
+use crate::ryan::*;
+use crate::MoveType;
+
 pub struct FrameData {
     pub active_start: usize,
     pub recovery_start: usize,
@@ -11,4 +16,14 @@ impl FrameData {
             recovered: startup + active + recovery,
         }
     }
+}
+
+pub fn ryan_frames() -> HashMap<MoveType, FrameData> {
+    vec![
+        (HADOUKEN, FrameData::new(10, 10, 10)),
+        (PUNCH, FrameData::new(10, 10, 10)),
+        (COMMAND_PUNCH, FrameData::new(10, 10, 10)),
+    ]
+    .into_iter()
+    .collect()
 }

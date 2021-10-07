@@ -2,13 +2,8 @@ use bevy::prelude::*;
 
 use super::movement::{DASH_BACK, DASH_FORWARD};
 use super::PlayerState;
-use crate::{
-    animation::AnimationBank,
-    damage::{Hitbox, HitboxManager},
-    Clock,
-};
+use crate::{animation::AnimationBank, Clock};
 use input_parsing::{GameButton, InputReader, Normal, Special};
-use moves::FrameData;
 use moves::{ryan::*, MoveType};
 
 pub struct Ryan;
@@ -48,31 +43,6 @@ pub fn inputs() -> InputReader {
         },
     );
     reader
-}
-
-pub fn animations() -> AnimationBank {
-    let mut bank = AnimationBank::default();
-
-    bank.register(HADOUKEN, FrameData::new(30, 10, 20));
-    bank.register(PUNCH, FrameData::new(10, 10, 10));
-
-    bank
-}
-
-pub fn hitboxes() -> HitboxManager {
-    let mut generator = HitboxManager::default();
-
-    generator.register(
-        HADOUKEN,
-        Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2), Some(0.3)),
-    );
-
-    generator.register(
-        PUNCH,
-        Hitbox::new(Vec2::new(1.0, 0.5), Vec2::new(0.2, 0.3), Some(0.2)),
-    );
-
-    generator
 }
 
 pub fn move_starter(

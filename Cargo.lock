@@ -2229,6 +2229,10 @@ dependencies = [
 [[package]]
 name = "moves"
 version = "0.1.0"
+dependencies = [
+ "bevy",
+ "types",
+]
 
 [[package]]
 name = "naga"
@@ -2645,6 +2649,7 @@ dependencies = [
  "num",
  "strum",
  "strum_macros",
+ "types",
 ]
 
 [[package]]
@@ -3398,6 +3403,13 @@ name = "ttf-parser"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ae2f58a822f08abdaf668897e96a5656fe72f5a9ce66422423e8849384872e6"
+
+[[package]]
+name = "types"
+version = "0.1.0"
+dependencies = [
+ "bevy-inspector-egui",
+]
 
 [[package]]
 name = "unicode-segmentation"

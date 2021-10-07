@@ -2,8 +2,9 @@ use bevy::{core::FixedTimestep, prelude::*};
 use bevy_inspector_egui::Inspectable;
 use input_parsing::InputReader;
 use num::clamp;
+use types::Player;
 
-use crate::{Player, PlayerState};
+use crate::PlayerState;
 
 #[derive(Debug, Default, Inspectable)]
 pub struct PhysicsObject {

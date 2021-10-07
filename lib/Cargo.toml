@@ -15,3 +15,4 @@ bevy-inspector-egui = "0.6.1"
 
 input_parsing = { path = "../input_parsing" }
 moves = { path = "../moves" }
+types = { path = "../types" }

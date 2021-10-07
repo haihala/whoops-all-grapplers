@@ -1,6 +1,7 @@
-mod data;
+mod hitbox;
+pub use hitbox::{ryan_hitboxes, Hitbox};
 mod frame_data;
-pub use frame_data::FrameData;
+pub use frame_data::{ryan_frames, FrameData};
 
 pub type MoveType = u32;
 

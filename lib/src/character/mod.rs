@@ -2,25 +2,21 @@ mod movement;
 mod ryan;
 
 use movement::movement;
+use moves::{ryan_frames, ryan_hitboxes};
+use types::Player;
 
-use crate::{damage::Hurtbox, game_flow::GameState, physics::PhysicsObject};
+use crate::{
+    animation::AnimationBank,
+    damage::{HitboxManager, Hurtbox},
+    game_flow::GameState,
+    physics::PhysicsObject,
+};
 
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 
 use crate::{Colors, Health, Meter};
-
-#[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug, Hash)]
-pub enum Player {
-    One,
-    Two,
-}
-impl Display for Player {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        Debug::fmt(self, f)
-    }
-}
 
 #[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug)]
 pub enum PlayerState {
@@ -91,8 +87,8 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(PhysicsObject::default())
         .insert(PlayerState::Standing)
         .insert(ryan::inputs())
-        .insert(ryan::animations())
-        .insert(ryan::hitboxes())
+        .insert(AnimationBank::load(ryan_frames()))
+        .insert(HitboxManager::load(ryan_hitboxes()))
         .insert(Hurtbox::new(Vec2::new(
             crate::PLAYER_SPRITE_WIDTH,
             crate::PLAYER_SPRITE_HEIGHT,

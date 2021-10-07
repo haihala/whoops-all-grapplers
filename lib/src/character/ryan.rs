@@ -21,7 +21,7 @@ pub fn inputs() -> InputReader {
         HADOUKEN,
         Special {
             motion: vec![2, 3, 6].into(),
-            button: GameButton::Fast,
+            button: Some(GameButton::Fast),
         },
     );
 

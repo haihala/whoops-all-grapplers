@@ -1,17 +1,12 @@
 # Inputs
 | Symbol | Name          | Mapping on xbox |
 | ------ | ------------- | --------------- |
-| `F`    | Fast attack   | X               |
-| `H`    | Heavy attack  | B               |
-| `C`    | Cancel        | Y               |
-| `G`    | Gimmick       | A               |
-| `T`    | Throw         | Right trigger   |
-| `D`    | Dash          | Left trigger    |
-| N/A    | Play / Record | Right bumper    |
-| N/A    |               | Left bumper     |
-| N/A    | Reset         | View button     |
-| N/A    |               |                 |
-| N/A    |               |                 |
+| `f`    | Fast attack   | X               |
+| `h`    | Heavy attack  | B               |
+| `g`    | Grab          | Y               |
+| `i`    | Item          | A               |
+
+Maybe a dash macro at some point, maybe a taunt, some demo replay buttons.
 
 ## Motions
 Motion inputs are useful for:

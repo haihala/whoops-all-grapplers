@@ -1,14 +1,12 @@
 use std::{collections::VecDeque, time::Instant};
 
 use crate::{
-    ButtonUpdate, Diff, Frame, GameButton, InputChange, MotionInput, Normal, OwnedChange, Special,
-    StickPosition,
+    ButtonUpdate, Diff, Frame, GameButton, InputChange, Normal, OwnedChange, Special, StickPosition,
 };
 
 use bevy::{prelude::*, utils::HashMap};
 use uuid::Uuid;
 
-#[derive(Default)]
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
 pub struct InputReader {
@@ -19,10 +17,27 @@ pub struct InputReader {
     registered_specials: HashMap<Uuid, Special>,
     registered_normals: HashMap<Uuid, Normal>,
     head: Frame,
+    relative_stick: StickPosition,
 
     // This is a workaround to dpad inputs
     // Not an elegant one, but the first that came to mind
     temp_stick: StickPosition,
+}
+
+impl Default for InputReader {
+    fn default() -> Self {
+        Self {
+            controller: None,
+            flipped: false,
+
+            events: Default::default(),
+            registered_specials: Default::default(),
+            registered_normals: Default::default(),
+            head: Default::default(),
+            relative_stick: Default::default(),
+            temp_stick: Default::default(),
+        }
+    }
 }
 impl InputReader {
     pub fn register_special(&mut self, id: Uuid, special: Special) {
@@ -33,13 +48,12 @@ impl InputReader {
         self.registered_normals.insert(id, normal);
     }
 
-    pub fn unregister(&mut self, id: &Uuid) {
-        self.registered_specials.remove(id);
-        self.registered_normals.remove(id);
+    pub fn get_absolute_stick_position(&self) -> StickPosition {
+        self.head.stick_position
     }
 
-    pub fn get_stick_position(&self) -> StickPosition {
-        self.head.stick_position
+    pub fn get_relative_stick_position(&self) -> StickPosition {
+        self.relative_stick
     }
 
     pub fn drain_events(&mut self) -> Vec<Uuid> {
@@ -50,76 +64,48 @@ impl InputReader {
         self.head.apply(diff.clone());
         self.temp_stick = self.head.stick_position;
 
-        self.parse_specials(&diff);
-        self.parse_normals(&diff);
+        let relative_diff = if self.flipped {
+            self.relative_stick = self.temp_stick.flip();
+            diff.clone().flip()
+        } else {
+            self.relative_stick = self.temp_stick;
+            diff.clone()
+        };
+
+        self.parse_specials(&relative_diff);
+        self.parse_normals(&relative_diff);
     }
 
     fn parse_specials(&mut self, diff: &Diff) {
-        let flipped = self.flipped;
-        let current_stick = self.head.stick_position;
+        let now = Instant::now();
 
         self.events.extend(
             self.registered_specials
                 .iter_mut()
                 .filter_map(|(id, special)| {
-                    if special.motion.is_started() {
-                        if special.motion.is_done() {
-                            return Self::finalize_motion_input(diff, special, id);
-                        } else {
-                            Self::advance_motion_input(diff, &mut special.motion, flipped);
-                            special.motion.handle_expiration();
-                        }
-                    } else if special.motion.next_requirement(flipped) == current_stick {
-                        special.motion.advance();
+                    if special.advance(diff) {
+                        special.clear();
+                        return Some((*id, now));
                     }
                     None
                 }),
         );
     }
 
-    fn advance_motion_input(diff: &Diff, motion: &mut MotionInput, flipped: bool) {
-        if let Some(stick) = diff.stick_move {
-            if stick == motion.next_requirement(flipped) {
-                motion.advance();
-            }
-        }
-    }
-
-    fn finalize_motion_input(
-        diff: &Diff,
-        special: &mut Special,
-        target: &Uuid,
-    ) -> Option<(Uuid, Instant)> {
-        if let Some(pressed) = &diff.pressed {
-            if pressed.contains(&special.button) {
-                special.motion.clear();
-
-                return Some((*target, Instant::now()));
-            }
-        }
-        None
-    }
-
     fn parse_normals(&mut self, diff: &Diff) {
         if diff.pressed.is_none() {
+            // Normals have a button, if no buttons were pressed, no events can fire
             return;
         }
 
-        let pressed = diff.pressed.clone().unwrap();
-        let stick = self.head.stick_position;
+        let stick = self.relative_stick;
         let now = Instant::now();
 
         self.events.extend(
             self.registered_normals
                 .iter()
-                .filter(|(_, normal)| pressed.contains(&normal.button))
-                .filter(|(_, normal)| {
-                    if normal.stick.is_none() || stick == normal.stick.unwrap() {
-                        return true;
-                    }
-
-                    false
-                })
+                .filter(|(_, normal)| diff.pressed_contains(&normal.button))
+                .filter(|(_, normal)| normal.stick.is_none() || stick == normal.stick.unwrap())
                 .map(|(id, _)| (*id, now)),
         );
     }
@@ -326,7 +312,7 @@ mod test {
             id,
             Special {
                 motion: vec![2, 3, 6].into(),
-                button: GameButton::Fast,
+                button: Some(GameButton::Fast),
             },
         );
         let (mut world, mut update_stage) = test_setup(reader);

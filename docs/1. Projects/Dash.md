@@ -1,0 +1,2 @@
+- [ ] Recognize motions without buttons
+- [ ] Make this motion move the character at max speed in a direction

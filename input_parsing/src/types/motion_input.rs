@@ -1,64 +1,78 @@
 use std::time::Instant;
 
-use bevy::prelude::*;
+use bevy::utils::HashMap;
 
 use crate::StickPosition;
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct MotionInput {
-    index: usize,
-    previous_event_time: Option<Instant>,
+    heads: HashMap<usize, Instant>,
+    done: bool,
 
-    key_points: Vec<super::StickPosition>,
+    key_points: Vec<StickPosition>,
+}
+impl Default for MotionInput {
+    fn default() -> Self {
+        Self {
+            heads: Default::default(),
+            done: false,
+            key_points: Default::default(),
+        }
+    }
 }
 impl MotionInput {
     pub fn is_done(&self) -> bool {
-        self.index == self.key_points.len()
+        self.done
     }
 
-    pub fn is_started(&self) -> bool {
-        self.index != 0
-    }
-
-    pub fn advance(&mut self) {
-        self.index += 1;
-        self.previous_event_time = Some(Instant::now());
-    }
-
-    pub fn next_requirement(&self, flipped: bool) -> StickPosition {
-        let nth = *self.key_points.get(self.index).unwrap();
-
-        if flipped {
-            let as_vec: IVec2 = nth.into();
-            super::StickPosition::from(IVec2::new(-as_vec.x, as_vec.y))
-        } else {
-            nth
+    pub fn advance(&mut self, stick: StickPosition) {
+        if self.done {
+            // If we're done, don't bother looping
+            return;
         }
-    }
 
-    pub fn handle_expiration(&mut self) {
-        if self.previous_event_time.is_some()
-            && self.previous_event_time.unwrap().elapsed().as_secs_f32()
-                > crate::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
-        {
-            self.clear();
+        let now = Instant::now();
+        let first = self.key_points[0];
+
+        if stick == first {
+            self.heads.insert(1, now);
         }
+
+        self.heads = self
+            .heads
+            .clone()
+            .iter()
+            .filter_map(|(at, time)| {
+                let next = self.key_points[*at];
+                if next == stick {
+                    if (at + 1) == self.key_points.len() {
+                        // Motion is complete
+                        self.done = true;
+                        None
+                    } else {
+                        Some((at + 1, now))
+                    }
+                } else if time.elapsed().as_secs_f32()
+                    > crate::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
+                {
+                    None
+                } else {
+                    Some((*at, *time))
+                }
+            })
+            .collect();
     }
 
     pub fn clear(&mut self) {
-        self.index = 0;
-        self.previous_event_time = None;
+        self.heads.clear();
+        self.done = false;
     }
 }
 impl From<Vec<i32>> for MotionInput {
     fn from(requirements: Vec<i32>) -> Self {
         MotionInput {
-            key_points: requirements
-                .into_iter()
-                .map(super::StickPosition::from)
-                .collect(),
-            index: 0,
-            previous_event_time: None,
+            key_points: requirements.into_iter().map(StickPosition::from).collect(),
+            ..Default::default()
         }
     }
 }

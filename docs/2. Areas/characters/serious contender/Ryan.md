@@ -4,6 +4,7 @@ The entry point. An old grizzled shoto.
 |           | Vision | Started | Designed | Implemented | Polished |
 | --------- | ------ | ------- | -------- | ----------- | -------- |
 | Mechanics |        | x       |          |             |          |
+| Items     |        | x       |          |             |          |
 | Moves     |        | x       |          |             |          |
 | Visuals   |        | x       |          |             |          |
 | Audio     |        | x       |          |             |          |
@@ -12,40 +13,47 @@ The entry point. An old grizzled shoto.
 ## Writeup
 Ryan is a 50-something year old half asian half white dude who has been "doing this for a while". He is an obvious "Loganification" of Ryu.
 
-He doesn't leap during a shoryuken, his fireballs are small, he uses some simple gadgets to help him move around. His shins and forearms have metal braces that he uses to attack.
+He doesn't leap during a shoryuken, his fireballs are small, but ultimately he trusts his technique which he has honed throughout the years.
 
 ## Mechanics
-Ryan gathers something like "Hype" when he does stuff that is traditionally seen as hard (frame perfect timings, landing the counter)
+### Frail
+- Hitting an opponent (more on block) will make [[Ryan]] go frail
+- Each hit does less damage than the previous one
+- Lasts over the rounds
 
-Counter hits?
-Anti-tippers?
+## Items
+Drugs 
+- Buying them removes the downsides of [[#Frail]] and even gets you above the baseline
+- Each time you buy, the price goes up a bit
+	- Starts at a no-brainer low cost
+- Not buying them will lead into withdrawal, which makes him a bit slower
 
 ## Moves
 ### Jab
-- `F`
+- `f`
 - Quick jab
 
 ### Sweep
 ### Backhand
-- Back + `F`
+- Back + `f`
 - Similar to Guile's Spinning Back Knuckle
 
 ### Parry/super block/?
-- `H`
+- `h`
 - This has to do *something*
 
 ### Hail mary
-- Forwards + `H`
+- Forwards + `h`
 - Lunges forwards, somewhat similarly to fafnir
 - Can be used mid dash for easy kara like cancel
 
 ### Dragon counter
-- Dragon punch motion + `H`
+- Dragon punch motion + `h`
 - Shoryuken that is also a counter, doesn't go off unless hit during startup
 - Pulls the opponent across and launches them in the air
 
 ### Fireball
-- Quarter Circle Forward + `H`
+- Quarter Circle Forward + `h`
 - Quick and small fireball that goes about half screen or less
 - Looks wimpy but can be cancelled into stuff
 

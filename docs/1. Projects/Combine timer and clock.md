@@ -1,0 +1,1 @@
+- Instead of a resource, query the clock

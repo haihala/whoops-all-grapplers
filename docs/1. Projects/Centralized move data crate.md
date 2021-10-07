@@ -1,0 +1,4 @@
+- [ ] Animation
+- [ ] Frame data
+- [ ] Damage
+- [ ] Input

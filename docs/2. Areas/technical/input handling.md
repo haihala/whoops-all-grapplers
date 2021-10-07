@@ -19,10 +19,12 @@ How pressing buttons leads to a move coming out.
 
 # Limitations
 Currently incapable of handling:
-- Formats that arent (stick position changes)(one button). These include:
+- Formats that arent (stick position changes)(maybe button). These include:
 - Charge
 - Negative edge
-	- This wouldn't be a huge rework
 - Delays
-- Normals
-	- This could be done in main, but can just as easily be put in input parsing 
+- Multi-button inputs
+
+# Improvements for a later day
+- [ ] Convert ownedchanges directly to diffs without merging
+	- This may have a problem if the events are not in order

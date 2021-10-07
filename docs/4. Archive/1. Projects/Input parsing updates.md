@@ -1,0 +1,3 @@
+- [x] Move special move button parsing to specials (function that takes a diff and returns bool if it's done)
+- [x] Multi-index parsing
+- [x] Flip incoming inputs rather than requirements

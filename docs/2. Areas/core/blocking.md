@@ -1,6 +1,13 @@
 # Blocking
 Hold back to block. Every move does lethal chip damage. Blocking height is dynamic. Same attack can be a high for a small character and a mid for big character.
 
+## Attack heights
+- Overhead
+	- high that hits crouching
+	- some faster ones are duckable by the smaller characters
+- Mid
+- Low
+
 ## Parry
 Quickly tapping forwards will parry an incoming attacks. Parrying will negate chip and increase pushback.
 

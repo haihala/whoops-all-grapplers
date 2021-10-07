@@ -12,7 +12,7 @@ pub fn movement(mut query: Query<(&mut PhysicsObject, &InputReader, &mut PlayerS
         );
 
         let change = if *state == PlayerState::Standing {
-            match reader.get_stick_position() {
+            match reader.get_absolute_stick_position() {
                 StickPosition::E => move_right(run_speed, reader),
                 StickPosition::W => move_left(run_speed, reader),
                 StickPosition::N => jump(&mut state, crate::PLAYER_JUMP_VECTOR),

@@ -17,7 +17,28 @@ pub enum GameButton {
 /// I.E. Quarter circle forward press punch -> fireball
 pub struct Special {
     pub motion: MotionInput,
-    pub button: GameButton,
+    pub button: Option<GameButton>,
+}
+impl Special {
+    pub fn advance(&mut self, diff: &Diff) -> bool {
+        if let Some(stick) = diff.stick_move {
+            self.motion.advance(stick);
+        }
+
+        if self.motion.is_done() {
+            if let Some(button) = &self.button {
+                diff.pressed_contains(button)
+            } else {
+                true
+            }
+        } else {
+            false
+        }
+    }
+
+    pub fn clear(&mut self) {
+        self.motion.clear();
+    }
 }
 
 pub struct Normal {
@@ -66,6 +87,13 @@ pub struct Diff {
     pub released: Option<HashSet<GameButton>>,
 }
 impl Diff {
+    pub fn flip(mut self) -> Self {
+        if let Some(stick) = self.stick_move {
+            self.stick_move = Some(stick.flip());
+        }
+        self
+    }
+
     pub fn apply(mut self, change: &InputChange) -> Self {
         match change {
             InputChange::Button(button, update) => match update {
@@ -78,6 +106,14 @@ impl Diff {
         }
 
         self
+    }
+
+    pub fn pressed_contains(&self, button: &GameButton) -> bool {
+        if let Some(pressed) = &self.pressed {
+            pressed.contains(button)
+        } else {
+            false
+        }
     }
 }
 fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet<GameButton> {

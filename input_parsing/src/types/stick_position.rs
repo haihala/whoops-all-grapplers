@@ -65,12 +65,43 @@ impl Into<IVec2> for StickPosition {
         }
     }
 }
+impl StickPosition {
+    pub fn flip(self) -> Self {
+        let as_vec: IVec2 = self.into();
+        IVec2::new(-as_vec.x, as_vec.y).into()
+    }
+}
 
-#[test]
-fn test_ivec_stickposition_conversions() {
-    for sp1 in StickPosition::iter() {
-        let ivec: IVec2 = sp1.into();
-        let sp2: StickPosition = ivec.into();
-        assert!(sp1 == sp2)
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_ivec_stickposition_conversions() {
+        for sp1 in StickPosition::iter() {
+            let ivec: IVec2 = sp1.into();
+            let sp2: StickPosition = ivec.into();
+            assert!(sp1 == sp2)
+        }
+    }
+
+    #[test]
+    fn test_flip_idempotence() {
+        for sp1 in StickPosition::iter() {
+            assert!(sp1 == sp1.flip().flip())
+        }
+    }
+
+    #[test]
+    fn test_flip() {
+        assert!(StickPosition::NW.flip() == StickPosition::NE);
+        assert!(StickPosition::N.flip() == StickPosition::N);
+        assert!(StickPosition::NE.flip() == StickPosition::NW);
+        assert!(StickPosition::W.flip() == StickPosition::E);
+        assert!(StickPosition::Neutral.flip() == StickPosition::Neutral);
+        assert!(StickPosition::E.flip() == StickPosition::W);
+        assert!(StickPosition::SW.flip() == StickPosition::SE);
+        assert!(StickPosition::S.flip() == StickPosition::S);
+        assert!(StickPosition::SE.flip() == StickPosition::SW);
     }
 }

@@ -30,6 +30,7 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 - [ ] Items
 	- [ ] Projectile
 	- [ ] Parry
+	- [ ] RC
 - [ ] One character ([[Ryan]])
 	- [ ] 4 normals
 	- [ ] 2 specials

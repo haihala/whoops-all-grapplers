@@ -1,49 +1,61 @@
-mod stick_position;
-pub use stick_position::StickPosition;
-mod motion_input;
-pub use motion_input::MotionInput;
+use bevy::{
+    prelude::*,
+    utils::{HashSet, Instant},
+};
+use types::{GameButton, MotionInput, Special, StickPosition};
 
-use bevy::{prelude::*, utils::HashSet};
-use std::time::Instant;
+pub fn advance_special(special: &mut Special, diff: &Diff) -> bool {
+    if let Some(stick) = diff.stick_move {
+        advance_motion(&mut special.motion, stick)
+    }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-/// Buttons of the game
-/// The name 'Button' is in prelude
-pub enum GameButton {
-    Heavy,
-    Fast,
-}
-
-/// I.E. Quarter circle forward press punch -> fireball
-pub struct Special {
-    pub motion: MotionInput,
-    pub button: Option<GameButton>,
-}
-impl Special {
-    pub fn advance(&mut self, diff: &Diff) -> bool {
-        if let Some(stick) = diff.stick_move {
-            self.motion.advance(stick);
-        }
-
-        if self.motion.is_done() {
-            if let Some(button) = &self.button {
-                diff.pressed_contains(button)
-            } else {
-                true
-            }
+    if special.motion.done {
+        if let Some(button) = &special.button {
+            diff.pressed_contains(button)
         } else {
-            false
+            true
         }
-    }
-
-    pub fn clear(&mut self) {
-        self.motion.clear();
+    } else {
+        false
     }
 }
 
-pub struct Normal {
-    pub button: GameButton,
-    pub stick: Option<StickPosition>,
+pub fn advance_motion(motion: &mut MotionInput, stick: StickPosition) {
+    if motion.done {
+        // If we're done, don't bother looping
+        return;
+    }
+
+    let now = Instant::now();
+    let first = motion.key_points[0];
+
+    if stick == first {
+        motion.heads.insert(1, now);
+    }
+
+    motion.heads = motion
+        .heads
+        .clone()
+        .iter()
+        .filter_map(|(at, time)| {
+            let next = motion.key_points[*at];
+            if next == stick {
+                if (at + 1) == motion.key_points.len() {
+                    // Motion is complete
+                    motion.done = true;
+                    None
+                } else {
+                    Some((at + 1, now))
+                }
+            } else if motion.autoresets.contains(&stick)
+                || time.elapsed().as_secs_f32() > crate::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
+            {
+                None
+            } else {
+                Some((*at, *time))
+            }
+        })
+        .collect();
 }
 
 #[derive(Clone, PartialEq)]

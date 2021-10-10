@@ -1,11 +1,8 @@
 use std::{collections::VecDeque, time::Instant};
 
-use crate::{
-    ButtonUpdate, Diff, Frame, GameButton, InputChange, Normal, OwnedChange, Special, StickPosition,
-};
-
+use crate::helper_types::{advance_special, ButtonUpdate, Diff, Frame, InputChange, OwnedChange};
 use bevy::{prelude::*, utils::HashMap};
-use moves::MoveType;
+use types::{GameButton, MoveType, Normal, Special, StickPosition};
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
@@ -42,6 +39,17 @@ impl Default for InputReader {
 impl InputReader {
     pub fn is_active(&self) -> bool {
         self.controller.is_some()
+    }
+
+    pub fn load(
+        registered_specials: HashMap<MoveType, Special>,
+        registered_normals: HashMap<MoveType, Normal>,
+    ) -> Self {
+        Self {
+            registered_specials,
+            registered_normals,
+            ..Default::default()
+        }
     }
 
     pub fn register_special(&mut self, id: MoveType, special: Special) {
@@ -91,7 +99,7 @@ impl InputReader {
             self.registered_specials
                 .iter_mut()
                 .filter_map(|(id, special)| {
-                    if special.advance(diff) {
+                    if advance_special(special, diff) {
                         special.clear();
                         return Some((*id, now));
                     }

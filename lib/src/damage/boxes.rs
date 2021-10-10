@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy::utils::{HashMap, HashSet};
 use input_parsing::InputReader;
-use moves::{Hitbox, MoveType};
+use moves::Hitbox;
+use types::MoveType;
 use types::Player;
 
 use crate::physics::rect_collision;

@@ -1,8 +1,6 @@
+mod helper_types;
 mod input_reader;
 pub use input_reader::InputReader;
-mod types;
-pub(crate) use types::*;
-pub use types::{GameButton, Normal, Special, StickPosition};
 
 use bevy::prelude::*;
 use std::collections::VecDeque;

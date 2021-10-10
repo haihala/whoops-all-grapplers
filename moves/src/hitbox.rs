@@ -1,10 +1,9 @@
 use bevy::prelude::*;
 
 use bevy::utils::HashMap;
-use types::Player;
+use types::{MoveType, Player};
 
 use crate::ryan::*;
-use crate::MoveType;
 
 #[derive(Default, Clone, Copy)]
 pub struct Hitbox {

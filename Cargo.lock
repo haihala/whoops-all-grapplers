@@ -1899,8 +1899,7 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "moves",
- "strum",
- "strum_macros",
+ "types",
 ]
 
 [[package]]
@@ -3408,7 +3407,10 @@ checksum = "7ae2f58a822f08abdaf668897e96a5656fe72f5a9ce66422423e8849384872e6"
 name = "types"
 version = "0.1.0"
 dependencies = [
+ "bevy",
  "bevy-inspector-egui",
+ "strum",
+ "strum_macros",
 ]
 
 [[package]]

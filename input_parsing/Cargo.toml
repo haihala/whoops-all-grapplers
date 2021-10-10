@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 bevy = "0.5.0"
 bevy-inspector-egui = "0.6.1"
-strum = "0.21"
-strum_macros = "0.21"
+
 
 moves = { path = "../moves" }
+types = { path = "../types" }

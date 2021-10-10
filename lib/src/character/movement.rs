@@ -1,8 +1,10 @@
 use bevy::prelude::*;
 
+use input_parsing::InputReader;
+use types::StickPosition;
+
 use super::PlayerState;
 use crate::physics::PhysicsObject;
-use input_parsing::{InputReader, StickPosition};
 
 pub use moves::universal::{DASH_BACK, DASH_FORWARD};
 

@@ -1,49 +1,13 @@
 use bevy::prelude::*;
 
+use input_parsing::InputReader;
+use types::MoveType;
+
 use super::movement::{DASH_BACK, DASH_FORWARD};
 use super::PlayerState;
 use crate::{frame_data_manager::FrameDataManager, Clock};
-use input_parsing::{GameButton, InputReader, Normal, Special};
-use moves::{ryan::*, MoveType};
 
 pub struct Ryan;
-
-pub fn inputs() -> InputReader {
-    let mut reader = InputReader::default();
-
-    reader.register_special(
-        HADOUKEN,
-        Special {
-            motion: vec![2, 3, 6].into(),
-            button: Some(GameButton::Fast),
-        },
-    );
-
-    reader.register_normal(
-        PUNCH,
-        Normal {
-            button: GameButton::Fast,
-            stick: None,
-        },
-    );
-
-    reader.register_special(
-        DASH_FORWARD,
-        Special {
-            motion: (vec![6, 5, 6], vec![7, 4, 1]).into(),
-            button: None,
-        },
-    );
-
-    reader.register_special(
-        DASH_BACK,
-        Special {
-            motion: (vec![4, 5, 4], vec![9, 6, 3]).into(),
-            button: None,
-        },
-    );
-    reader
-}
 
 pub fn move_starter(
     clock: Res<Clock>,
@@ -67,13 +31,5 @@ pub fn move_starter(
 }
 
 fn highest_priority_move(options: Vec<MoveType>) -> MoveType {
-    if options.contains(&HADOUKEN) {
-        HADOUKEN
-    } else if options.contains(&PUNCH) {
-        PUNCH
-    } else if options.len() == 1 {
-        options[0]
-    } else {
-        todo!()
-    }
+    options.into_iter().min().unwrap()
 }

@@ -2,7 +2,8 @@ use bevy::core::FixedTimestep;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 
-use moves::{FrameData, MoveType};
+use moves::FrameData;
+use types::MoveType;
 
 use crate::damage::HitboxManager;
 use crate::{Clock, PlayerState};

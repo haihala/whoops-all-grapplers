@@ -1,8 +1,9 @@
 mod movement;
 mod ryan;
 
+use input_parsing::InputReader;
 use movement::movement;
-use moves::{ryan_frames, ryan_hitboxes};
+use moves::{ryan_frames, ryan_hitboxes, ryan_normals, ryan_specials};
 use types::Player;
 
 use crate::{
@@ -86,7 +87,7 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(Meter::default())
         .insert(PhysicsObject::default())
         .insert(PlayerState::Standing)
-        .insert(ryan::inputs())
+        .insert(InputReader::load(ryan_specials(), ryan_normals()))
         .insert(FrameDataManager::load(ryan_frames()))
         .insert(HitboxManager::load(ryan_hitboxes()))
         .insert(Hurtbox::new(Vec2::new(

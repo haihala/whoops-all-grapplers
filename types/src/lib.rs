@@ -1,5 +1,15 @@
+mod moves;
+pub use moves::*;
+mod inputs;
+pub use inputs::{GameButton, MotionInput, Normal, Special, StickPosition};
+
 use bevy_inspector_egui::Inspectable;
 use std::fmt::{Debug, Display};
+
+// This crate will be as small as possible so that types are where they are used
+// It's meant for common universal types to circumvent circular dependencies.
+
+pub type MoveType = u32;
 
 #[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug, Hash)]
 pub enum Player {

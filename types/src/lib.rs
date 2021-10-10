@@ -1,5 +1,3 @@
-mod moves;
-pub use moves::*;
 mod inputs;
 pub use inputs::{GameButton, Normal, StickPosition};
 

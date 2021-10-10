@@ -28,5 +28,6 @@ macro_rules! moves {
     };
 }
 
+// Order matters, moves defined first have priority over later ones
 moves!(universal, 1usize, (DASH_FORWARD, DASH_BACK));
-moves!(ryan, 2usize, (HADOUKEN, PUNCH, COMMAND_PUNCH));
+moves!(ryan, 2usize, (HADOUKEN, COMMAND_PUNCH, PUNCH));

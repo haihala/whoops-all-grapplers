@@ -67,8 +67,6 @@ impl Motion {
         if Self::transition_matches(first, old_stick, new_stick) {
             self.heads.insert(1, now);
         }
-
-        dbg!(&self.heads);
     }
 
     fn transition_matches(

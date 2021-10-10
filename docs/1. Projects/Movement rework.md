@@ -1,0 +1,4 @@
+- [ ] Add dashing state
+- [ ] Rethink how movement is applied
+	- [ ] I think dash may be frame rate dependent atm
+- [ ] Jumps as events or dependent on stick position?

@@ -1,0 +1,6 @@
+- [ ] Acquire currency
+- [ ] Buy menu
+	- [ ] Menu input parsing (fully event based)
+- [ ] Basic items
+	- [ ] Projectile active 6i
+	- [ ] Basic damage multiplier passive

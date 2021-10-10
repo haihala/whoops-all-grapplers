@@ -44,17 +44,24 @@ fn check_dead(
     query: Query<(&Health, &Player)>,
     mut state: ResMut<State<GameState>>,
 ) {
-    if query.iter().any(|(health, _)| health.ratio <= ALMOST_ZERO) || clock.time_out() {
+    if query
+        .iter()
+        .any(|(health, _)| health.get_ratio() <= ALMOST_ZERO)
+        || clock.time_out()
+    {
         let healths: HashMap<&Player, &Health> = query.iter().map(|(h, p)| (p, h)).collect();
 
         commands.insert_resource(
-            if healths.get(&Player::One).unwrap().ratio - healths.get(&Player::Two).unwrap().ratio
+            if healths.get(&Player::One).unwrap().get_ratio()
+                - healths.get(&Player::Two).unwrap().get_ratio()
                 > ALMOST_ZERO
             {
                 RoundResult {
                     winner: healths
                         .into_iter()
-                        .max_by(|(_, h1), (_, h2)| h1.ratio.partial_cmp(&h2.ratio).unwrap())
+                        .max_by(|(_, h1), (_, h2)| {
+                            h1.get_ratio().partial_cmp(&h2.get_ratio()).unwrap()
+                        })
                         .map(|(p, _)| *p),
                 }
             } else {

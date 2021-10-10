@@ -50,7 +50,7 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
     commands
         .spawn_bundle(SpriteBundle {
             transform: Transform {
-                translation: (offset, 0.0, 0.0).into(),
+                translation: (offset, crate::PLAYER_SPAWN_HEIGHT, 0.0).into(),
                 ..Default::default()
             },
             material: colors.collision_box.clone(),
@@ -75,12 +75,15 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(ryan::Ryan);
 }
 
-fn reset(mut query: Query<(&mut Health, &mut Transform, &Player)>) {
-    for (mut health, mut tf, player) in query.iter_mut() {
-        health.ratio = 1.0;
+fn reset(mut query: Query<(&mut Health, &mut Meter, &mut Transform, &Player)>) {
+    for (mut health, mut meter, mut tf, player) in query.iter_mut() {
+        health.reset();
+        meter.reset();
+
         tf.translation.x = match *player {
             Player::One => -crate::PLAYER_SPAWN_DISTANCE,
             Player::Two => crate::PLAYER_SPAWN_DISTANCE,
         };
+        tf.translation.y = crate::PLAYER_SPAWN_HEIGHT;
     }
 }

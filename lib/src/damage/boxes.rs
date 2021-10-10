@@ -106,7 +106,7 @@ impl HitboxManager {
     }
 }
 
-pub fn hurtbox_manager(
+pub fn spawn_hitboxes(
     mut commands: Commands,
     colors: Res<Colors>,
     mut hitboxes: Query<(Entity, &mut HitboxManager, &InputReader, &Player)>,
@@ -122,7 +122,7 @@ pub fn hurtbox_manager(
     }
 }
 
-pub fn handle_hits(
+pub fn register_hits(
     mut hitboxes: Query<(&mut Hitbox, &GlobalTransform)>,
     mut hurtboxes: Query<(&Hurtbox, &GlobalTransform, &mut Health, &Player)>,
 ) {

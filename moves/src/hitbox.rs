@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use bevy::utils::HashMap;
-use types::{MoveType, Player};
+use types::{Hit, MoveType, Player};
 
 use crate::ryan::*;
 
@@ -9,7 +9,7 @@ use crate::ryan::*;
 pub struct Hitbox {
     offset: Vec3,
     pub size: Vec2,
-    pub on_hit_damage: Option<f32>,
+    pub hit: Hit,
     pub owner: Option<Player>,
 }
 impl Hitbox {
@@ -21,11 +21,11 @@ impl Hitbox {
         }
     }
 
-    pub fn new(offset: Vec2, size: Vec2, damage: Option<f32>) -> Self {
+    pub fn new(offset: Vec2, size: Vec2, hit: Hit) -> Self {
         Self {
             offset: offset.extend(0.0),
             size,
-            on_hit_damage: damage,
+            hit,
             owner: None,
         }
     }
@@ -35,15 +35,42 @@ pub fn ryan_hitboxes() -> HashMap<MoveType, Hitbox> {
     vec![
         (
             HADOUKEN,
-            Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2), Some(0.3)),
+            Hitbox::new(
+                Vec2::new(0.5, 0.5),
+                Vec2::new(0.3, 0.2),
+                Hit {
+                    damage: 20.0,
+                    block_stun: 5,
+                    hit_stun: 10,
+                    ..Default::default()
+                },
+            ),
         ),
         (
             PUNCH,
-            Hitbox::new(Vec2::new(1.0, 0.5), Vec2::new(0.2, 0.3), Some(0.2)),
+            Hitbox::new(
+                Vec2::new(1.0, 0.5),
+                Vec2::new(0.2, 0.3),
+                Hit {
+                    damage: 20.0,
+                    block_stun: 5,
+                    hit_stun: 10,
+                    ..Default::default()
+                },
+            ),
         ),
         (
             COMMAND_PUNCH,
-            Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(1.0, 1.0), Some(0.4)),
+            Hitbox::new(
+                Vec2::new(0.5, 0.5),
+                Vec2::new(1.0, 1.0),
+                Hit {
+                    damage: 20.0,
+                    block_stun: 5,
+                    hit_stun: 10,
+                    ..Default::default()
+                },
+            ),
         ),
     ]
     .into_iter()

@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 use bevy::utils::{HashMap, HashSet};
-use input_parsing::InputReader;
 use moves::Hitbox;
-use types::MoveType;
-use types::Player;
+use types::{MoveType, Player, PlayerState};
 
 use crate::physics::rect_collision;
 use crate::Colors;
@@ -109,13 +107,13 @@ impl HitboxManager {
 pub fn spawn_hitboxes(
     mut commands: Commands,
     colors: Res<Colors>,
-    mut hitboxes: Query<(Entity, &mut HitboxManager, &InputReader, &Player)>,
+    mut hitboxes: Query<(Entity, &mut HitboxManager, &PlayerState, &Player)>,
 ) {
-    for (parent, mut hitboxes, reader, attacking_player) in hitboxes.iter_mut() {
+    for (parent, mut hitboxes, state, attacking_player) in hitboxes.iter_mut() {
         hitboxes.handle_requests(
             &mut commands,
             &colors,
-            reader.flipped,
+            state.flipped(),
             *attacking_player,
             parent,
         );
@@ -123,14 +121,15 @@ pub fn spawn_hitboxes(
 }
 
 pub fn register_hits(
-    mut hitboxes: Query<(&mut Hitbox, &GlobalTransform)>,
+    mut commands: Commands,
+    mut hitboxes: Query<(Entity, &Hitbox, &GlobalTransform)>,
     mut hurtboxes: Query<(&Hurtbox, &GlobalTransform, &mut Health, &Player)>,
 ) {
-    for (mut hitbox, tf1) in hitboxes.iter_mut() {
+    for (entity, hitbox, tf1) in hitboxes.iter_mut() {
         for (hurtbox, tf2, mut health, defending_player) in hurtboxes.iter_mut() {
-            if hitbox.owner.is_none() || hitbox.owner.unwrap() == *defending_player {
+            if hitbox.owner.unwrap() == *defending_player {
                 // You can't hit yourself
-                // If a hitbox owner is None, it already hit and can't do so again
+                // If a hitbox active is false, it already hit and can't do so again
                 continue;
             }
 
@@ -140,10 +139,8 @@ pub fn register_hits(
                 tf1.translation,
                 hitbox.size,
             ) {
-                if let Some(amount) = hitbox.on_hit_damage {
-                    health.hurt(amount);
-                    hitbox.owner = None;
-                }
+                health.hit(hitbox.hit);
+                commands.entity(entity).despawn()
             }
         }
     }

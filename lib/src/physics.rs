@@ -1,6 +1,5 @@
 use bevy::{core::FixedTimestep, prelude::*};
 use bevy_inspector_egui::Inspectable;
-use input_parsing::InputReader;
 use num::clamp;
 use types::{Player, PlayerState};
 
@@ -73,16 +72,16 @@ fn incorporate_desired_velocity(mut query: Query<&mut PhysicsObject>) {
 }
 
 fn sideswitcher(
-    mut players: Query<(Entity, &Transform, &mut InputReader), With<Player>>,
+    mut players: Query<(Entity, &Transform, &mut PlayerState), With<Player>>,
     others: Query<(Entity, &Transform), With<Player>>,
 ) {
-    for (entity, transform, mut reader) in players.iter_mut() {
+    for (entity, transform, mut state) in players.iter_mut() {
         for (e, tf) in others.iter() {
             if e == entity {
                 continue;
             }
 
-            reader.flipped = transform.translation.x > tf.translation.x;
+            state.set_flipped(transform.translation.x > tf.translation.x);
         }
     }
 }

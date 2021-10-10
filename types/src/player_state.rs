@@ -13,11 +13,19 @@ enum GroundedState {
     Ground,
     Air,
 }
+use bevy::prelude::*;
+
+#[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug)]
+pub enum Facing {
+    Left,
+    Right,
+}
 
 #[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug)]
 pub struct PlayerState {
     animation: Option<AnimationState>,
     grounded: GroundedState,
+    facing: Facing,
 }
 
 impl Default for PlayerState {
@@ -25,6 +33,7 @@ impl Default for PlayerState {
         Self {
             animation: None,
             grounded: GroundedState::Ground,
+            facing: Facing::Right,
         }
     }
 }
@@ -57,5 +66,28 @@ impl PlayerState {
     }
     pub fn animation_state(&self) -> Option<AnimationState> {
         self.animation
+    }
+
+    pub fn flipped(&self) -> bool {
+        self.facing == Facing::Left
+    }
+
+    pub fn set_flipped(&mut self, flipped: bool) {
+        if flipped {
+            self.facing = Facing::Left;
+        } else {
+            self.facing = Facing::Right;
+        }
+    }
+
+    pub fn forward(&self) -> Vec3 {
+        Vec3::new(
+            match self.facing {
+                Facing::Right => 1.0,
+                Facing::Left => -1.0,
+            },
+            0.0,
+            0.0,
+        )
     }
 }

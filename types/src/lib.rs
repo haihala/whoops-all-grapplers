@@ -1,5 +1,6 @@
 mod player_state;
 pub use player_state::{AnimationState, PlayerState};
+
 mod inputs;
 pub use inputs::{GameButton, Normal, StickPosition};
 
@@ -20,4 +21,12 @@ impl Display for Player {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(self, f)
     }
+}
+
+#[derive(Inspectable, Default, Clone, Copy)]
+pub struct Hit {
+    pub damage: f32,
+    pub hit_stun: usize,
+    pub block_stun: usize,
+    pub knockback: f32,
 }

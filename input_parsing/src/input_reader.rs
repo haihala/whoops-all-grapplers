@@ -4,12 +4,11 @@ use crate::helper_types::{ButtonUpdate, Diff, Frame, InputChange, OwnedChange};
 use crate::special::Special;
 use bevy::{prelude::*, utils::HashMap};
 use moves::SpecialDefinition;
-use types::{GameButton, MoveType, Normal, StickPosition};
+use types::{GameButton, MoveType, Normal, PlayerState, StickPosition};
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
 pub struct InputReader {
-    pub flipped: bool,
     events: HashMap<MoveType, Instant>,
 
     controller: Option<Gamepad>,
@@ -27,8 +26,6 @@ impl Default for InputReader {
     fn default() -> Self {
         Self {
             controller: None,
-            flipped: false,
-
             events: Default::default(),
             registered_specials: Default::default(),
             registered_normals: Default::default(),
@@ -81,13 +78,13 @@ impl InputReader {
         self.events.remove(event);
     }
 
-    fn add_frame(&mut self, diff: Diff) {
+    fn add_frame(&mut self, diff: Diff, flipped: bool) {
         let old_stick = self.relative_stick;
 
         self.head.apply(diff.clone());
         self.temp_stick = self.head.stick_position;
 
-        let relative_diff = if self.flipped {
+        let relative_diff = if flipped {
             self.relative_stick = self.temp_stick.flip();
             diff.flip()
         } else {
@@ -143,7 +140,7 @@ impl InputReader {
 pub fn parse_controller_input(
     gamepad_events: EventReader<GamepadEvent>,
     unused_pads: ResMut<VecDeque<Gamepad>>,
-    mut readers: Query<&mut InputReader>,
+    mut readers: Query<(&mut InputReader, &PlayerState)>,
 ) {
     let raw_events = handle_raw_events(gamepad_events, unused_pads, &mut readers);
     update_readers(readers, raw_events);
@@ -153,7 +150,7 @@ pub fn parse_controller_input(
 fn handle_raw_events(
     mut gamepad_events: EventReader<GamepadEvent>,
     mut unused_pads: ResMut<VecDeque<Gamepad>>,
-    mut readers: &mut Query<&mut InputReader>,
+    mut readers: &mut Query<(&mut InputReader, &PlayerState)>,
 ) -> Vec<OwnedChange> {
     gamepad_events
         .iter()
@@ -178,12 +175,12 @@ fn handle_raw_events(
 
 fn pad_connection(
     id: &Gamepad,
-    readers: &mut Query<&mut InputReader>,
+    readers: &mut Query<(&mut InputReader, &PlayerState)>,
     unused_pads: &mut ResMut<VecDeque<Gamepad>>,
 ) {
     println!("New gamepad connected with ID: {:?}", id);
 
-    for mut reader in readers.iter_mut() {
+    for (mut reader, _) in readers.iter_mut() {
         if reader.controller.is_none() {
             reader.controller = Some(*id);
             return;
@@ -195,13 +192,13 @@ fn pad_connection(
 
 fn pad_disconnection(
     id: &Gamepad,
-    readers: &mut Query<&mut InputReader>,
+    readers: &mut Query<(&mut InputReader, &PlayerState)>,
     unused_pads: &mut ResMut<VecDeque<Gamepad>>,
 ) {
     println!("Gamepad disconnected with ID: {:?}", id);
     let next_in_queue = unused_pads.pop_front();
 
-    for mut reader in readers.iter_mut() {
+    for (mut reader, _) in readers.iter_mut() {
         if let Some(controller) = reader.controller {
             if controller == *id {
                 reader.controller = next_in_queue;
@@ -239,7 +236,7 @@ fn button_change(
     id: &Gamepad,
     button: GamepadButtonType,
     new_value: f32,
-    readers: &mut Query<&mut InputReader>,
+    readers: &mut Query<(&mut InputReader, &PlayerState)>,
 ) -> Option<OwnedChange> {
     // TODO: real button mappings
     let update = if new_value > 0.1 {
@@ -269,12 +266,12 @@ fn button_change(
 
 fn dpad_position(
     id: &Gamepad,
-    readers: &mut Query<&mut InputReader>,
+    readers: &mut Query<(&mut InputReader, &PlayerState)>,
     value: i32,
     delta_x: Option<i32>,
     delta_y: Option<i32>,
 ) -> Option<InputChange> {
-    for mut reader in readers.iter_mut() {
+    for (mut reader, _) in readers.iter_mut() {
         if reader.controller == Some(*id) {
             let mut stick: IVec2 = reader.temp_stick.into();
             if let Some(x) = delta_x {
@@ -290,13 +287,16 @@ fn dpad_position(
     None
 }
 
-fn update_readers(mut readers: Query<&mut InputReader>, raw_events: Vec<OwnedChange>) {
+fn update_readers(
+    mut readers: Query<(&mut InputReader, &PlayerState)>,
+    raw_events: Vec<OwnedChange>,
+) {
     let diffs = combine_raw_diffs(raw_events, &mut readers);
 
-    for mut reader in readers.iter_mut() {
+    for (mut reader, state) in readers.iter_mut() {
         if let Some(controller) = reader.controller {
             if let Some(diff) = diffs.get(&controller) {
-                reader.add_frame(diff.to_owned());
+                reader.add_frame(diff.to_owned(), state.flipped());
             }
         }
         reader.purge_old_events();
@@ -305,10 +305,11 @@ fn update_readers(mut readers: Query<&mut InputReader>, raw_events: Vec<OwnedCha
 
 fn combine_raw_diffs(
     raw_events: Vec<OwnedChange>,
-    readers: &mut Query<&mut InputReader>,
+    readers: &mut Query<(&mut InputReader, &PlayerState)>,
 ) -> HashMap<Gamepad, Diff> {
     readers
         .iter_mut()
+        .map(|(reader, _)| reader)
         .filter_map(|reader| reader.controller)
         .map(|controller| {
             (
@@ -327,6 +328,7 @@ mod test {
     use std::{thread::sleep, time::Duration};
 
     use moves::MotionDefinition;
+    use types::PlayerState;
 
     use super::*;
 
@@ -446,7 +448,7 @@ mod test {
 
         reader.controller = Some(Gamepad(1));
 
-        world.spawn().insert(reader);
+        world.spawn().insert(reader).insert(PlayerState::default());
 
         let inputs: Vec<OwnedChange> = vec![];
         world.insert_resource(inputs);
@@ -457,7 +459,10 @@ mod test {
         (world, update_stage)
     }
 
-    fn fake_parser(readers: Query<&mut InputReader>, mut events: ResMut<Vec<OwnedChange>>) {
+    fn fake_parser(
+        readers: Query<(&mut InputReader, &PlayerState)>,
+        mut events: ResMut<Vec<OwnedChange>>,
+    ) {
         update_readers(readers, events.to_vec());
         events.clear();
     }

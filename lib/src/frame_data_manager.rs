@@ -3,10 +3,10 @@ use bevy::prelude::*;
 use bevy::utils::HashMap;
 
 use moves::FrameData;
-use types::MoveType;
+use types::{AnimationState, MoveType, PlayerState};
 
 use crate::damage::HitboxManager;
-use crate::{Clock, PlayerState};
+use crate::Clock;
 
 #[derive(Default)]
 pub struct FrameDataManager {
@@ -53,23 +53,23 @@ fn animation(
     for (mut bank, mut hurtbox_generator, mut state) in query.iter_mut() {
         if let Some(active_id) = bank.active {
             let active_animation = bank.registered.get(&active_id).unwrap();
-            match *state {
-                PlayerState::Startup => {
+            match state.animation_state() {
+                Some(AnimationState::Startup) => {
                     if clock.frame >= active_animation.active_start + bank.start_frame {
                         hurtbox_generator.spawn(active_id);
-                        *state = PlayerState::Active;
+                        state.start_active();
                     }
                 }
-                PlayerState::Active => {
+                Some(AnimationState::Active) => {
                     if clock.frame >= active_animation.recovery_start + bank.start_frame {
                         hurtbox_generator.despawn(active_id);
-                        *state = PlayerState::Recovery;
+                        state.start_recovery()
                     }
                 }
-                PlayerState::Recovery => {
+                Some(AnimationState::Recovery) => {
                     if clock.frame >= active_animation.recovered + bank.start_frame {
                         bank.active = None;
-                        state.recover();
+                        state.recover_animation();
                     }
                 }
                 _ => {}

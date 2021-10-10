@@ -1,6 +1,0 @@
-- [ ] Make into a struct
-- [ ] State parts
-	- [ ] Animation state
-	- [ ] Grounded state
-	- [ ] Stun state
-- [ ] Define functions for transitions instead of just setting state externally

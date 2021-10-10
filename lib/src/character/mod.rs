@@ -4,7 +4,7 @@ mod ryan;
 use input_parsing::InputReader;
 use movement::movement;
 use moves::{ryan_frames, ryan_hitboxes, ryan_normals, ryan_specials};
-use types::Player;
+use types::{Player, PlayerState};
 
 use crate::{
     damage::{HitboxManager, Hurtbox},
@@ -14,30 +14,8 @@ use crate::{
 };
 
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
-use std::fmt::Debug;
 
 use crate::{Colors, Health, Meter};
-
-#[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug)]
-pub enum PlayerState {
-    Startup,
-    Active,
-    Recovery,
-    Standing,
-    Air,
-}
-impl PlayerState {
-    pub fn land(&mut self) {
-        // Depending on current state, could either:
-        // - Air -> Standing
-        // - Freefall -> Grounded
-        *self = PlayerState::Standing;
-    }
-    pub fn recover(&mut self) {
-        *self = PlayerState::Standing;
-    }
-}
 
 pub struct PlayerPlugin;
 
@@ -86,7 +64,7 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(Health::default())
         .insert(Meter::default())
         .insert(PhysicsObject::default())
-        .insert(PlayerState::Standing)
+        .insert(PlayerState::default())
         .insert(InputReader::load(ryan_specials(), ryan_normals()))
         .insert(FrameDataManager::load(ryan_frames()))
         .insert(HitboxManager::load(ryan_hitboxes()))

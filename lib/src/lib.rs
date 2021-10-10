@@ -34,7 +34,6 @@ impl PluginGroup for WAGLib {
 
 // Make these more easily accessable internally
 use assets::{Colors, Fonts, Sprites};
-use character::PlayerState;
 use clock::Clock;
 use constants::*;
 use damage::Health;

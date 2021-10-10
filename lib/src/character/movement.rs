@@ -18,7 +18,7 @@ pub fn movement(mut query: Query<(&mut PhysicsObject, &mut InputReader, &mut Pla
 
             let events = reader.get_events();
 
-            let change = if *state == PlayerState::Standing {
+            let change = if state.can_act() && state.is_grounded() {
                 if events.contains(&DASH_FORWARD) {
                     reader.consume_event(&DASH_FORWARD);
                     Some(forward(reader.flipped) * crate::PLAYER_DASH_SPEED)
@@ -69,7 +69,7 @@ fn move_left(run_speed: f32, inputs: &InputReader) -> Option<Vec3> {
 }
 
 fn jump(state: &mut PlayerState, direction: (f32, f32, f32)) -> Option<Vec3> {
-    *state = PlayerState::Air;
+    state.jump();
     Some(direction.into())
 }
 

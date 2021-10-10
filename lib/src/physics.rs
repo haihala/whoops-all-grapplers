@@ -2,9 +2,7 @@ use bevy::{core::FixedTimestep, prelude::*};
 use bevy_inspector_egui::Inspectable;
 use input_parsing::InputReader;
 use num::clamp;
-use types::Player;
-
-use crate::PlayerState;
+use types::{Player, PlayerState};
 
 #[derive(Debug, Default, Inspectable)]
 pub struct PhysicsObject {
@@ -30,7 +28,7 @@ impl Plugin for PhysicsPlugin {
 
 fn gravity(mut query: Query<(&mut PhysicsObject, &PlayerState)>) {
     for (mut object, state) in query.iter_mut() {
-        if *state == PlayerState::Air {
+        if !state.is_grounded() {
             object.velocity.y -= crate::PLAYER_GRAVITY_PER_FRAME;
         }
     }
@@ -39,7 +37,7 @@ fn gravity(mut query: Query<(&mut PhysicsObject, &PlayerState)>) {
 fn player_drag(mut query: Query<(&mut PhysicsObject, &PlayerState)>) {
     for (mut object, state) in query.iter_mut() {
         let drag = object.drag_multiplier
-            * if *state == PlayerState::Air {
+            * if !state.is_grounded() {
                 crate::AIR_DRAG
             } else {
                 crate::GROUND_DRAG

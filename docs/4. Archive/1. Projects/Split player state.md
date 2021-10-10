@@ -1,0 +1,6 @@
+- [x] Move to types
+- [x] Make into a struct
+- [x] State parts
+	- [x] Animation state
+	- [x] Grounded state
+- [x] Define functions for transitions instead of just setting state externally

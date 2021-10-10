@@ -1,3 +1,5 @@
+mod player_state;
+pub use player_state::{AnimationState, PlayerState};
 mod inputs;
 pub use inputs::{GameButton, Normal, StickPosition};
 

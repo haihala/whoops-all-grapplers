@@ -4,6 +4,7 @@ pub use player_state::{AnimationState, PlayerState};
 mod inputs;
 pub use inputs::{GameButton, Normal, StickPosition};
 
+use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 use std::fmt::{Debug, Display};
 
@@ -23,10 +24,23 @@ impl Display for Player {
     }
 }
 
-#[derive(Inspectable, Default, Clone, Copy)]
+#[derive(Inspectable, Clone, Copy)]
 pub struct Hit {
     pub damage: f32,
     pub hit_stun: usize,
     pub block_stun: usize,
-    pub knockback: f32,
+    pub hit_knockback: Vec3,
+    pub block_knockback: Vec3,
+}
+
+impl Default for Hit {
+    fn default() -> Self {
+        Self {
+            damage: 10.0,
+            hit_stun: 30,
+            block_stun: 15,
+            hit_knockback: Vec3::new(2.0, 2.0, 0.0),
+            block_knockback: Vec3::new(1.0, 0.0, 0.0),
+        }
+    }
 }

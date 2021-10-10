@@ -3,9 +3,9 @@ use std::fmt::Debug;
 
 #[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug)]
 pub enum AnimationState {
-    Startup,
-    Active,
-    Recovery,
+    Startup(usize),
+    Active(usize),
+    Recovery(usize),
 }
 
 #[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug)]
@@ -26,6 +26,7 @@ pub struct PlayerState {
     animation: Option<AnimationState>,
     grounded: GroundedState,
     facing: Facing,
+    stun: Option<usize>,
 }
 
 impl Default for PlayerState {
@@ -34,12 +35,13 @@ impl Default for PlayerState {
             animation: None,
             grounded: GroundedState::Ground,
             facing: Facing::Right,
+            stun: None,
         }
     }
 }
 impl PlayerState {
     pub fn can_act(&self) -> bool {
-        self.animation.is_none()
+        self.animation.is_none() && !self.stunned()
     }
 
     pub fn land(&mut self) {
@@ -52,17 +54,17 @@ impl PlayerState {
         self.grounded == GroundedState::Ground
     }
 
-    pub fn start_animation(&mut self) {
-        self.animation = Some(AnimationState::Startup);
+    pub fn start_animation(&mut self, progress_frame: usize) {
+        self.animation = Some(AnimationState::Startup(progress_frame));
     }
-    pub fn start_active(&mut self) {
-        self.animation = Some(AnimationState::Active);
+    pub fn start_active(&mut self, progress_frame: usize) {
+        self.animation = Some(AnimationState::Active(progress_frame))
     }
-    pub fn start_recovery(&mut self) {
-        self.animation = Some(AnimationState::Recovery);
+    pub fn start_recovery(&mut self, progress_frame: usize) {
+        self.animation = Some(AnimationState::Recovery(progress_frame))
     }
     pub fn recover_animation(&mut self) {
-        self.animation = None;
+        self.animation = None
     }
     pub fn animation_state(&self) -> Option<AnimationState> {
         self.animation
@@ -89,5 +91,19 @@ impl PlayerState {
             0.0,
             0.0,
         )
+    }
+
+    pub fn stun(&mut self, recovery_frame: usize) {
+        self.stun = Some(recovery_frame);
+        self.animation = None;
+    }
+    pub fn stunned(&self) -> bool {
+        self.stun.is_some()
+    }
+    pub fn stunned_until(&self) -> Option<usize> {
+        self.stun
+    }
+    pub fn recover_from_hitstun(&mut self) {
+        self.stun = None;
     }
 }

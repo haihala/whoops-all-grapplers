@@ -1,3 +1,4 @@
+- Maybe add a speed cap and a max sustainable speed and a variable for how well a player can influence their speed instead of current application 
 - [ ] Add dashing state
 - [ ] Rethink how movement is applied
 	- [ ] I think dash may be frame rate dependent atm

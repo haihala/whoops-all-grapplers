@@ -16,14 +16,14 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 	- [x] Deal with sides
 	- [x] Incremental
 	- [x] Controller detection
-- [ ] Movement
+- [x] Movement
 	- [x] Model movement model with understandable units
-	- [ ] Dash
+	- [x] Dash
 	- [x] Jump
 	- [x] Run
 - [ ] Basic combat
 	- [x] Attack (Damage boxes created on command)
-	- [ ] Block
+	- [x] Block
 	- [ ] Throw
 		- [ ] Yomi counter
 	- [ ] Automatic cancel

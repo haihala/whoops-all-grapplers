@@ -11,9 +11,9 @@ pub struct Ryan;
 
 pub fn move_starter(
     clock: Res<Clock>,
-    mut query: Query<(&mut InputReader, &mut PlayerState, &mut FrameDataManager), With<Ryan>>,
+    mut query: Query<(&mut InputReader, &PlayerState, &mut FrameDataManager), With<Ryan>>,
 ) {
-    for (mut reader, mut state, mut animation) in query.iter_mut() {
+    for (mut reader, state, mut frame_data) in query.iter_mut() {
         if state.can_act() && state.is_grounded() {
             let events = reader.get_events();
             if events.is_empty() {
@@ -24,8 +24,7 @@ pub fn move_starter(
             if to_start != DASH_FORWARD && to_start != DASH_BACK {
                 reader.consume_event(&to_start);
 
-                state.start_animation();
-                animation.start(to_start, clock.frame);
+                frame_data.start(to_start, clock.frame);
             }
         }
     }

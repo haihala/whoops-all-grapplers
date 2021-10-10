@@ -39,9 +39,6 @@ pub fn ryan_hitboxes() -> HashMap<MoveType, Hitbox> {
                 Vec2::new(0.5, 0.5),
                 Vec2::new(0.3, 0.2),
                 Hit {
-                    damage: 20.0,
-                    block_stun: 5,
-                    hit_stun: 10,
                     ..Default::default()
                 },
             ),
@@ -52,9 +49,7 @@ pub fn ryan_hitboxes() -> HashMap<MoveType, Hitbox> {
                 Vec2::new(1.0, 0.5),
                 Vec2::new(0.2, 0.3),
                 Hit {
-                    damage: 20.0,
-                    block_stun: 5,
-                    hit_stun: 10,
+                    hit_knockback: Vec3::new(2.0, 2.0, 0.0),
                     ..Default::default()
                 },
             ),
@@ -65,9 +60,6 @@ pub fn ryan_hitboxes() -> HashMap<MoveType, Hitbox> {
                 Vec2::new(0.5, 0.5),
                 Vec2::new(1.0, 1.0),
                 Hit {
-                    damage: 20.0,
-                    block_stun: 5,
-                    hit_stun: 10,
                     ..Default::default()
                 },
             ),

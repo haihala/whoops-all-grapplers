@@ -52,27 +52,30 @@ fn animation(
 ) {
     for (mut bank, mut hurtbox_generator, mut state) in query.iter_mut() {
         if let Some(active_id) = bank.active {
-            let active_animation = bank.registered.get(&active_id).unwrap();
-            match state.animation_state() {
-                Some(AnimationState::Startup) => {
-                    if clock.frame >= active_animation.active_start + bank.start_frame {
-                        hurtbox_generator.spawn(active_id);
-                        state.start_active();
+            let active_move = bank.registered.get(&active_id).unwrap();
+            if state.animation_state().is_none() {
+                state.start_animation(clock.frame + active_move.active_start)
+            } else {
+                match state.animation_state().unwrap() {
+                    AnimationState::Startup(progress_frame) => {
+                        if clock.frame >= progress_frame {
+                            hurtbox_generator.spawn(active_id);
+                            state.start_active(clock.frame + active_move.recovery_start);
+                        }
+                    }
+                    AnimationState::Active(progress_frame) => {
+                        if clock.frame >= progress_frame {
+                            hurtbox_generator.despawn(active_id);
+                            state.start_recovery(clock.frame + active_move.recovery_start);
+                        }
+                    }
+                    AnimationState::Recovery(progress_frame) => {
+                        if clock.frame >= progress_frame {
+                            bank.active = None;
+                            state.recover_animation();
+                        }
                     }
                 }
-                Some(AnimationState::Active) => {
-                    if clock.frame >= active_animation.recovery_start + bank.start_frame {
-                        hurtbox_generator.despawn(active_id);
-                        state.start_recovery()
-                    }
-                }
-                Some(AnimationState::Recovery) => {
-                    if clock.frame >= active_animation.recovered + bank.start_frame {
-                        bank.active = None;
-                        state.recover_animation();
-                    }
-                }
-                _ => {}
             }
         }
     }

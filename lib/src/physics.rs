@@ -7,7 +7,18 @@ use types::{Player, PlayerState};
 pub struct PhysicsObject {
     pub velocity: Vec3,
     pub desired_velocity: Option<Vec3>,
+    impulse: Vec3,
     drag_multiplier: f32,
+}
+impl PhysicsObject {
+    pub fn add_impulse(&mut self, impulse: Vec3) {
+        self.impulse += impulse;
+    }
+    fn use_impulse(&mut self) -> Vec3 {
+        let impulse = self.impulse;
+        self.impulse = Vec3::ZERO;
+        impulse
+    }
 }
 
 pub struct PhysicsPlugin;
@@ -88,7 +99,9 @@ fn sideswitcher(
 
 fn move_objects(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>) {
     for (mut object, mut transform, mut state) in query.iter_mut() {
-        transform.translation += object.velocity / crate::FPS;
+        let impulse = object.use_impulse();
+        object.velocity += impulse;
+        transform.translation += (object.velocity) / crate::FPS;
 
         if transform.translation.y < crate::GROUND_PLANE_HEIGHT {
             object.velocity.y = clamp(object.velocity.y, 0.0, f32::MAX);

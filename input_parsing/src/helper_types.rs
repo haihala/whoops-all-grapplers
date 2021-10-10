@@ -37,7 +37,7 @@ impl Frame {
     }
 }
 
-#[derive(Default, Clone, PartialEq, Eq)]
+#[derive(Default, Clone, PartialEq, Eq, Debug)]
 /// A single update in input state
 pub struct Diff {
     pub stick_move: Option<StickPosition>,

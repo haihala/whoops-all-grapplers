@@ -164,7 +164,7 @@ fn handle_raw_events(
                 None
             }
             GamepadEventType::AxisChanged(axis, new_value) => {
-                Some(axis_change(id, *axis, *new_value))
+                axis_change(id, *axis, *new_value, &mut readers)
             }
             GamepadEventType::ButtonChanged(button, new_value) => {
                 button_change(id, *button, *new_value, &mut readers)
@@ -208,7 +208,23 @@ fn pad_disconnection(
     }
 }
 
-fn axis_change(id: &Gamepad, axis: GamepadAxisType, new_value: f32) -> OwnedChange {
+fn axis_change(
+    id: &Gamepad,
+    axis: GamepadAxisType,
+    new_value: f32,
+    readers: &mut Query<(&mut InputReader, &PlayerState)>,
+) -> Option<OwnedChange> {
+    let current = readers
+        .iter_mut()
+        .find_map(|(reader, _)| {
+            if reader.controller == Some(*id) {
+                Some(reader.temp_stick)
+            } else {
+                None
+            }
+        })
+        .unwrap();
+
     let stick = if new_value.abs() > crate::STICK_DEAD_ZONE {
         match axis {
             // Even though DPad axis are on the list, they don't fire
@@ -226,9 +242,13 @@ fn axis_change(id: &Gamepad, axis: GamepadAxisType, new_value: f32) -> OwnedChan
         IVec2::new(0, 0).into()
     };
 
-    OwnedChange {
-        change: InputChange::Stick(stick),
-        controller: *id,
+    if stick != current {
+        Some(OwnedChange {
+            change: InputChange::Stick(stick),
+            controller: *id,
+        })
+    } else {
+        None
     }
 }
 

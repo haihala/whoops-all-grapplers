@@ -2,61 +2,7 @@ use bevy::{
     prelude::*,
     utils::{HashSet, Instant},
 };
-use types::{GameButton, MotionInput, Special, StickPosition};
-
-pub fn advance_special(special: &mut Special, diff: &Diff) -> bool {
-    if let Some(stick) = diff.stick_move {
-        advance_motion(&mut special.motion, stick)
-    }
-
-    if special.motion.done {
-        if let Some(button) = &special.button {
-            diff.pressed_contains(button)
-        } else {
-            true
-        }
-    } else {
-        false
-    }
-}
-
-pub fn advance_motion(motion: &mut MotionInput, stick: StickPosition) {
-    if motion.done {
-        // If we're done, don't bother looping
-        return;
-    }
-
-    let now = Instant::now();
-    let first = motion.key_points[0];
-
-    if stick == first {
-        motion.heads.insert(1, now);
-    }
-
-    motion.heads = motion
-        .heads
-        .clone()
-        .iter()
-        .filter_map(|(at, time)| {
-            let next = motion.key_points[*at];
-            if next == stick {
-                if (at + 1) == motion.key_points.len() {
-                    // Motion is complete
-                    motion.done = true;
-                    None
-                } else {
-                    Some((at + 1, now))
-                }
-            } else if motion.autoresets.contains(&stick)
-                || time.elapsed().as_secs_f32() > crate::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
-            {
-                None
-            } else {
-                Some((*at, *time))
-            }
-        })
-        .collect();
-}
+use types::{GameButton, StickPosition};
 
 #[derive(Clone, PartialEq)]
 /// Frame is a situation, diff is a change

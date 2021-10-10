@@ -1,7 +1,7 @@
 mod moves;
 pub use moves::*;
 mod inputs;
-pub use inputs::{GameButton, MotionInput, Normal, Special, StickPosition};
+pub use inputs::{GameButton, Normal, StickPosition};
 
 use bevy_inspector_egui::Inspectable;
 use std::fmt::{Debug, Display};

@@ -1,5 +1,7 @@
 mod inputs;
-pub use inputs::{ryan_normals, ryan_specials};
+pub use inputs::{
+    ryan_normals, ryan_specials, MotionDefinition, SpecialDefinition, StickTransition,
+};
 mod hitbox;
 pub use hitbox::{ryan_hitboxes, Hitbox};
 mod frame_data;

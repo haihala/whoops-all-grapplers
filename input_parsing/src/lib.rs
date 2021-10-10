@@ -1,5 +1,7 @@
 mod helper_types;
 mod input_reader;
+mod motion_input;
+mod special;
 pub use input_reader::InputReader;
 
 use bevy::prelude::*;

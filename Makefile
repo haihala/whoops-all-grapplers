@@ -1,4 +1,5 @@
 release ?=
+RUST_BACKTRACE := 1
 
 run:
 	cargo run

@@ -1,8 +1,10 @@
 use std::{collections::VecDeque, time::Instant};
 
-use crate::helper_types::{advance_special, ButtonUpdate, Diff, Frame, InputChange, OwnedChange};
+use crate::helper_types::{ButtonUpdate, Diff, Frame, InputChange, OwnedChange};
+use crate::special::Special;
 use bevy::{prelude::*, utils::HashMap};
-use types::{GameButton, MoveType, Normal, Special, StickPosition};
+use moves::SpecialDefinition;
+use types::{GameButton, MoveType, Normal, StickPosition};
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
@@ -42,11 +44,14 @@ impl InputReader {
     }
 
     pub fn load(
-        registered_specials: HashMap<MoveType, Special>,
+        specials: HashMap<MoveType, SpecialDefinition>,
         registered_normals: HashMap<MoveType, Normal>,
     ) -> Self {
         Self {
-            registered_specials,
+            registered_specials: specials
+                .into_iter()
+                .map(|(id, definition)| (id, definition.into()))
+                .collect(),
             registered_normals,
             ..Default::default()
         }
@@ -77,6 +82,8 @@ impl InputReader {
     }
 
     fn add_frame(&mut self, diff: Diff) {
+        let old_stick = self.relative_stick;
+
         self.head.apply(diff.clone());
         self.temp_stick = self.head.stick_position;
 
@@ -88,18 +95,19 @@ impl InputReader {
             diff
         };
 
-        self.parse_specials(&relative_diff);
+        self.parse_specials(&relative_diff, old_stick);
         self.parse_normals(&relative_diff);
     }
 
-    fn parse_specials(&mut self, diff: &Diff) {
+    fn parse_specials(&mut self, diff: &Diff, old_stick: StickPosition) {
         let now = Instant::now();
 
         self.events.extend(
             self.registered_specials
                 .iter_mut()
                 .filter_map(|(id, special)| {
-                    if advance_special(special, diff) {
+                    special.advance(diff, old_stick);
+                    if special.is_done() {
                         special.clear();
                         return Some((*id, now));
                     }
@@ -318,6 +326,8 @@ fn combine_raw_diffs(
 mod test {
     use std::{thread::sleep, time::Duration};
 
+    use moves::MotionDefinition;
+
     use super::*;
 
     #[test]
@@ -325,39 +335,49 @@ mod test {
         let mut reader = InputReader::default();
         reader.register_special(
             moves::ryan::HADOUKEN,
-            Special {
-                motion: vec![2, 3, 6].into(),
-                button: Some(GameButton::Fast),
-            },
+            Special::from((
+                MotionDefinition::from(vec![2, 3, 6]),
+                Some(GameButton::Fast),
+            )),
         );
         let (mut world, mut update_stage) = test_setup(reader);
 
         let inputs: Vec<OwnedChange> = vec![];
         world.insert_resource(inputs);
 
-        // Down
-        add_input(&mut world, InputChange::Stick(StickPosition::S));
-        update_stage.run(&mut world);
+        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::S);
+        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::SE);
+        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::E);
 
-        // Down forward
-        add_input(&mut world, InputChange::Stick(StickPosition::SE));
-        update_stage.run(&mut world);
+        assert_no_events(&mut world);
 
-        // Forward
-        add_input(&mut world, InputChange::Stick(StickPosition::E));
-        update_stage.run(&mut world);
+        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
 
-        // Check that the event isn't recognized before the button
-        for r in world.query::<&InputReader>().iter(&world) {
-            assert_eq!(r.events.len(), 0);
-        }
+        assert_event_is_present(&mut &mut world, moves::ryan::HADOUKEN);
+    }
 
-        // Button to finish
-        add_input(
-            &mut world,
-            InputChange::Button(GameButton::Fast, ButtonUpdate::Pressed),
+    #[test]
+    fn early_button_hadouken_recognized() {
+        let mut reader = InputReader::default();
+        reader.register_special(
+            moves::ryan::HADOUKEN,
+            Special::from((
+                MotionDefinition::from(vec![2, 3, 6]),
+                Some(GameButton::Fast),
+            )),
         );
-        update_stage.run(&mut world);
+        let (mut world, mut update_stage) = test_setup(reader);
+
+        let inputs: Vec<OwnedChange> = vec![];
+        world.insert_resource(inputs);
+
+        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::S);
+        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::SE);
+        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
+
+        assert_no_events(&mut world);
+
+        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::E);
 
         assert_event_is_present(&mut &mut world, moves::ryan::HADOUKEN);
     }
@@ -375,17 +395,9 @@ mod test {
 
         let (mut world, mut update_stage) = test_setup(reader);
 
-        // Check that the event isn't recognized before the button
-        for r in world.query::<&InputReader>().iter(&world) {
-            assert_eq!(r.events.len(), 0);
-        }
+        assert_no_events(&mut world);
 
-        // Button
-        add_input(
-            &mut world,
-            InputChange::Button(GameButton::Fast, ButtonUpdate::Pressed),
-        );
-        update_stage.run(&mut world);
+        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
 
         assert_event_is_present(&mut &mut world, moves::ryan::PUNCH);
 
@@ -401,10 +413,7 @@ mod test {
         sleep(Duration::from_secs_f32(crate::EVENT_REPEAT_PERIOD));
         update_stage.run(&mut world);
 
-        // Check that the event is deleted
-        for r in world.query::<&InputReader>().iter(&world) {
-            assert_eq!(r.events.len(), 0);
-        }
+        assert_no_events(&mut world);
     }
 
     #[test]
@@ -420,21 +429,11 @@ mod test {
 
         let (mut world, mut update_stage) = test_setup(reader);
 
-        // Down
-        add_input(&mut world, InputChange::Stick(StickPosition::S));
-        update_stage.run(&mut world);
+        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::S);
 
-        // Check that the event isn't recognized before the button
-        for r in world.query::<&InputReader>().iter(&world) {
-            assert_eq!(r.events.len(), 0);
-        }
+        assert_no_events(&mut world);
 
-        // Button
-        add_input(
-            &mut world,
-            InputChange::Button(GameButton::Fast, ButtonUpdate::Pressed),
-        );
-        update_stage.run(&mut world);
+        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
 
         assert_event_is_present(&mut &mut world, moves::ryan::COMMAND_PUNCH);
     }
@@ -463,6 +462,27 @@ mod test {
         events.clear();
     }
 
+    fn add_button_and_tick(
+        mut world: &mut World,
+        update_stage: &mut SystemStage,
+        button: GameButton,
+    ) {
+        add_input(
+            &mut world,
+            InputChange::Button(button, ButtonUpdate::Pressed),
+        );
+        update_stage.run(&mut world);
+    }
+
+    fn add_stick_and_tick(
+        mut world: &mut World,
+        update_stage: &mut SystemStage,
+        stick: StickPosition,
+    ) {
+        add_input(&mut world, InputChange::Stick(stick));
+        update_stage.run(&mut world);
+    }
+
     fn add_input(world: &mut World, change: InputChange) {
         let mut changes = world.get_resource_mut::<Vec<OwnedChange>>().unwrap();
         changes.push(OwnedChange {
@@ -478,6 +498,12 @@ mod test {
             for (event, _) in r.events.iter() {
                 assert_eq!(event, &id);
             }
+        }
+    }
+
+    fn assert_no_events(world: &mut World) {
+        for r in world.query::<&InputReader>().iter(&world) {
+            assert_eq!(r.events.len(), 0);
         }
     }
 }

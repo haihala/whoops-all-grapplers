@@ -24,7 +24,10 @@ fn create_healthbar(commands: &mut Commands, colors: &Res<Colors>, player: Playe
         .spawn_bundle(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
-                size: Size::new(Val::Percent(crate::RESOURCE_BAR_WIDTH), Val::Percent(10.0)),
+                size: Size::new(
+                    Val::Percent(constants::RESOURCE_BAR_WIDTH),
+                    Val::Percent(10.0),
+                ),
                 position: get_bar_position(base_position, player),
                 ..Default::default()
             },
@@ -44,7 +47,10 @@ fn create_meterbar(commands: &mut Commands, colors: &Res<Colors>, player: Player
         .spawn_bundle(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
-                size: Size::new(Val::Percent(crate::RESOURCE_BAR_WIDTH), Val::Percent(10.0)),
+                size: Size::new(
+                    Val::Percent(constants::RESOURCE_BAR_WIDTH),
+                    Val::Percent(10.0),
+                ),
                 position: get_bar_position(base_position, player),
                 ..Default::default()
             },
@@ -57,11 +63,11 @@ fn create_meterbar(commands: &mut Commands, colors: &Res<Colors>, player: Player
 fn get_bar_position(base: Rect<Val>, player: Player) -> Rect<Val> {
     match player {
         Player::One => Rect {
-            right: Val::Percent(crate::HEALTH_BAR_ANCHOR),
+            right: Val::Percent(constants::HEALTH_BAR_ANCHOR),
             ..base
         },
         Player::Two => Rect {
-            left: Val::Percent(crate::HEALTH_BAR_ANCHOR),
+            left: Val::Percent(constants::HEALTH_BAR_ANCHOR),
             ..base
         },
     }
@@ -78,12 +84,12 @@ pub fn update(
     for (player, health, meter) in players.iter() {
         for (mut style, bar) in bars.q0_mut().iter_mut() {
             if *player == bar.0 {
-                style.size.width = Val::Percent(health.get_ratio() * crate::RESOURCE_BAR_WIDTH);
+                style.size.width = Val::Percent(health.get_ratio() * constants::RESOURCE_BAR_WIDTH);
             }
         }
         for (mut style, bar) in bars.q1_mut().iter_mut() {
             if *player == bar.0 {
-                style.size.width = Val::Percent(meter.get_ratio() * crate::RESOURCE_BAR_WIDTH);
+                style.size.width = Val::Percent(meter.get_ratio() * constants::RESOURCE_BAR_WIDTH);
             }
         }
     }

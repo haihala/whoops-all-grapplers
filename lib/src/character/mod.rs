@@ -35,13 +35,13 @@ fn setup(mut commands: Commands, colors: Res<Colors>) {
     spawn_player(
         &mut commands,
         &colors,
-        -crate::PLAYER_SPAWN_DISTANCE,
+        -constants::PLAYER_SPAWN_DISTANCE,
         Player::One,
     );
     spawn_player(
         &mut commands,
         &colors,
-        crate::PLAYER_SPAWN_DISTANCE,
+        constants::PLAYER_SPAWN_DISTANCE,
         Player::Two,
     );
 }
@@ -50,13 +50,13 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
     commands
         .spawn_bundle(SpriteBundle {
             transform: Transform {
-                translation: (offset, crate::PLAYER_SPAWN_HEIGHT, 0.0).into(),
+                translation: (offset, constants::PLAYER_SPAWN_HEIGHT, 0.0).into(),
                 ..Default::default()
             },
             material: colors.collision_box.clone(),
             sprite: Sprite::new(Vec2::new(
-                crate::PLAYER_SPRITE_WIDTH,
-                crate::PLAYER_SPRITE_HEIGHT,
+                constants::PLAYER_SPRITE_WIDTH,
+                constants::PLAYER_SPRITE_HEIGHT,
             )),
             ..Default::default()
         })
@@ -69,8 +69,8 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(FrameDataManager::load(ryan_frames()))
         .insert(HitboxManager::load(ryan_hitboxes()))
         .insert(Hurtbox::new(Vec2::new(
-            crate::PLAYER_SPRITE_WIDTH,
-            crate::PLAYER_SPRITE_HEIGHT,
+            constants::PLAYER_SPRITE_WIDTH,
+            constants::PLAYER_SPRITE_HEIGHT,
         )))
         .insert(ryan::Ryan);
 }
@@ -81,9 +81,9 @@ fn reset(mut query: Query<(&mut Health, &mut Meter, &mut Transform, &Player)>) {
         meter.reset();
 
         tf.translation.x = match *player {
-            Player::One => -crate::PLAYER_SPAWN_DISTANCE,
-            Player::Two => crate::PLAYER_SPAWN_DISTANCE,
+            Player::One => -constants::PLAYER_SPAWN_DISTANCE,
+            Player::Two => constants::PLAYER_SPAWN_DISTANCE,
         };
-        tf.translation.y = crate::PLAYER_SPAWN_HEIGHT;
+        tf.translation.y = constants::PLAYER_SPAWN_HEIGHT;
     }
 }

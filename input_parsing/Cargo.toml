@@ -11,5 +11,6 @@ bevy = "0.5.0"
 bevy-inspector-egui = "0.6.1"
 
 
+constants = { path = "../constants" }
 moves = { path = "../moves" }
 types = { path = "../types" }

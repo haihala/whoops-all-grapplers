@@ -1,9 +1,10 @@
 [workspace]
 
 members = [
-    "main",
-    "lib",
+    "constants",
     "input_parsing",
+    "lib",
+    "main",
     "moves",
     "types",
 ]

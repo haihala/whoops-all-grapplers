@@ -1,10 +1,12 @@
 # Inputs
-| Symbol | Name          | Mapping on xbox |
-| ------ | ------------- | --------------- |
-| `f`    | Fast attack   | X               |
-| `h`    | Heavy attack  | B               |
-| `g`    | Grab          | Y               |
-| `i`    | Item          | A               |
+symbol - mapping on xbox - name
+
+- `f` - X - Fast attack
+- `h` - B - Heavy
+- `w` - Y - Wrestling
+	- Grab and gimmicks
+- `i` - A - Item
+	- [[item]]
 
 Maybe a dash macro at some point, maybe a taunt, some demo replay buttons.
 

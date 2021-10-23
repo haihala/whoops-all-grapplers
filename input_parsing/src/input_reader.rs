@@ -132,8 +132,9 @@ impl InputReader {
     }
 
     fn purge_old_events(&mut self) {
-        self.events
-            .retain(|_, timestamp| timestamp.elapsed().as_secs_f32() < crate::EVENT_REPEAT_PERIOD)
+        self.events.retain(|_, timestamp| {
+            timestamp.elapsed().as_secs_f32() < constants::EVENT_REPEAT_PERIOD
+        })
     }
 }
 
@@ -225,7 +226,7 @@ fn axis_change(
         })
         .unwrap();
 
-    let stick = if new_value.abs() > crate::STICK_DEAD_ZONE {
+    let stick = if new_value.abs() > constants::STICK_DEAD_ZONE {
         match axis {
             // Even though DPad axis are on the list, they don't fire
             GamepadAxisType::LeftStickX | GamepadAxisType::RightStickX | GamepadAxisType::DPadX => {
@@ -432,7 +433,7 @@ mod test {
         assert_event_is_present(&mut &mut world, moves::ryan::PUNCH);
 
         // Wait for the event to leave the buffer
-        sleep(Duration::from_secs_f32(crate::EVENT_REPEAT_PERIOD));
+        sleep(Duration::from_secs_f32(constants::EVENT_REPEAT_PERIOD));
         update_stage.run(&mut world);
 
         assert_no_events(&mut world);

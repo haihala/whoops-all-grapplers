@@ -26,7 +26,7 @@ impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_system_set(
             SystemSet::new()
-                .with_run_criteria(FixedTimestep::steps_per_second(crate::FPS as f64))
+                .with_run_criteria(FixedTimestep::steps_per_second(constants::FPS_F64))
                 .with_system(gravity.system())
                 .with_system(player_drag.system())
                 .with_system(incorporate_desired_velocity.system())
@@ -39,7 +39,7 @@ impl Plugin for PhysicsPlugin {
 fn gravity(mut query: Query<(&mut PhysicsObject, &PlayerState)>) {
     for (mut object, state) in query.iter_mut() {
         if !state.is_grounded() {
-            object.velocity.y -= crate::PLAYER_GRAVITY_PER_FRAME;
+            object.velocity.y -= constants::PLAYER_GRAVITY_PER_FRAME;
         }
     }
 }
@@ -48,9 +48,9 @@ fn player_drag(mut query: Query<(&mut PhysicsObject, &PlayerState)>) {
     for (mut object, state) in query.iter_mut() {
         let drag = object.drag_multiplier
             * if !state.is_grounded() {
-                crate::AIR_DRAG
+                constants::AIR_DRAG
             } else {
-                crate::GROUND_DRAG
+                constants::GROUND_DRAG
             };
 
         if drag > 0.0 {
@@ -74,7 +74,7 @@ fn incorporate_desired_velocity(mut query: Query<&mut PhysicsObject>) {
                     desired_direction * object.velocity.x.abs().max(desired.x.abs());
                 object.drag_multiplier = 0.0;
             } else {
-                object.drag_multiplier = crate::REVERSE_DRAG_MULTIPLIER;
+                object.drag_multiplier = constants::REVERSE_DRAG_MULTIPLIER;
             }
         } else {
             object.drag_multiplier = 1.0;
@@ -101,17 +101,17 @@ fn move_objects(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut Playe
     for (mut object, mut transform, mut state) in query.iter_mut() {
         let impulse = object.use_impulse();
         object.velocity += impulse;
-        transform.translation += (object.velocity) / crate::FPS;
+        transform.translation += (object.velocity) / constants::FPS;
 
-        if transform.translation.y < crate::GROUND_PLANE_HEIGHT {
+        if transform.translation.y < constants::GROUND_PLANE_HEIGHT {
             object.velocity.y = clamp(object.velocity.y, 0.0, f32::MAX);
-            transform.translation.y = crate::GROUND_PLANE_HEIGHT;
+            transform.translation.y = constants::GROUND_PLANE_HEIGHT;
             state.land();
         }
 
-        if transform.translation.x.abs() > crate::ARENA_WIDTH {
+        if transform.translation.x.abs() > constants::ARENA_WIDTH {
             object.velocity.x = 0.0;
-            transform.translation.x = transform.translation.x.signum() * crate::ARENA_WIDTH;
+            transform.translation.x = transform.translation.x.signum() * constants::ARENA_WIDTH;
         }
     }
 }

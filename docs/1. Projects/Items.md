@@ -2,5 +2,5 @@
 - [ ] Buy menu
 	- [ ] Menu input parsing (fully event based)
 - [ ] Basic items
-	- [ ] Projectile active 6i
+	- [ ] Projectile active 6i (gun with limited bullets)
 	- [ ] Basic damage multiplier passive

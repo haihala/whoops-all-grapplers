@@ -36,8 +36,8 @@ fn add_stage(mut commands: Commands, sprites: Res<Sprites>, mut meshes: ResMut<A
         material: sprites.background_image.clone(),
         mesh: meshes.add(mesh),
         transform: Transform {
-            translation: crate::BACKGROUND_POSITION.into(),
-            scale: crate::BACKGROUND_SCALE.into(),
+            translation: constants::BACKGROUND_POSITION.into(),
+            scale: constants::BACKGROUND_SCALE.into(),
             ..Default::default()
         },
 

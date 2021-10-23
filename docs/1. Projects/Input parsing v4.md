@@ -1,0 +1,7 @@
+- [ ] Motion parsing to Special impl
+- [ ] Define requirements as an enum
+	- [ ] Whitelist of inputs that advance to the next
+	- [ ] Whitelist of inputs, the stick position must be one of for a certain time
+		- AKA holding a direction
+	- [ ] Button press
+	- [ ] Button release 

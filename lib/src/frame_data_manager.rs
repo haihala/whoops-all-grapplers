@@ -40,7 +40,7 @@ impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_system(animation.system()).add_system_set(
             SystemSet::new()
-                .with_run_criteria(FixedTimestep::steps_per_second(crate::FPS as f64))
+                .with_run_criteria(FixedTimestep::steps_per_second(constants::FPS_F64))
                 .with_system(animation.system()),
         );
     }

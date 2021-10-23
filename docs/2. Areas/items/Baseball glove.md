@@ -1,0 +1,1 @@
+Lets you grab projectiles and throw them back like animal crossing characters in smash ultimate.

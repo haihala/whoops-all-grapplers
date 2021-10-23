@@ -63,7 +63,7 @@ pub fn apply_hits(
 
             let (damage, stun, knockback) = if blocked {
                 (
-                    hit.damage * crate::CHIP_DAMAGE_MULTIPLIER,
+                    hit.damage * constants::CHIP_DAMAGE_MULTIPLIER,
                     hit.block_stun,
                     mirror_knockback(hit.block_knockback, state.flipped()),
                 )

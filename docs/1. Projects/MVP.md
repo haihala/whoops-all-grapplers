@@ -24,18 +24,20 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 - [ ] Basic combat
 	- [x] Attack (Damage boxes created on command)
 	- [x] Block
+	- [ ] Parry
+	- [ ] Recovery
 	- [ ] Throw
 		- [ ] Yomi counter
-	- [ ] Automatic cancel
-- [ ] Items
-	- [ ] Projectile
-	- [ ] Parry
-	- [ ] RC
 - [ ] One character ([[Ryan]])
 	- [ ] 4 normals
 	- [ ] 2 specials
 	- [x] Visuals (Box)
 	- [ ] Animations (moving boxes)
 	- [ ] SFX (POC)
+- [ ] Items
+	- [ ] Projectile
+	- [ ] Parry
+	- [ ] RC
+	- [ ] Drugs for [[Ryan]]
 - [x] Background
 - [x] Camera

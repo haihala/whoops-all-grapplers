@@ -18,18 +18,18 @@ struct SimpleOrthoProjection {
 impl CameraProjection for SimpleOrthoProjection {
     fn get_projection_matrix(&self) -> Mat4 {
         Mat4::orthographic_rh(
-            -crate::VIEWPORT_WIDTH,
-            crate::VIEWPORT_WIDTH,
+            -constants::VIEWPORT_WIDTH,
+            constants::VIEWPORT_WIDTH,
             -self.viewport_height,
             self.viewport_height,
             0.0,
-            crate::CAMERA_FAR_DISTANCE,
+            constants::CAMERA_FAR_DISTANCE,
         )
     }
 
     // what to do on window resize
     fn update(&mut self, width: f32, height: f32) {
-        self.viewport_height = crate::VIEWPORT_WIDTH * height / width;
+        self.viewport_height = constants::VIEWPORT_WIDTH * height / width;
     }
 
     fn depth_calculation(&self) -> DepthCalculation {
@@ -66,8 +66,8 @@ fn add_cameras(mut commands: Commands) {
             // position the camera like bevy would do by default for 2D:
             Transform::from_translation(Vec3::new(
                 0.0,
-                crate::CAMERA_HEIGHT,
-                crate::CAMERA_FAR_DISTANCE - 0.1,
+                constants::CAMERA_HEIGHT,
+                constants::CAMERA_FAR_DISTANCE - 0.1,
             )),
             GlobalTransform::default(),
             VisibleEntities::default(),

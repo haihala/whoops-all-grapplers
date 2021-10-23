@@ -2,7 +2,6 @@ mod assets;
 mod camera;
 mod character;
 mod clock;
-mod constants;
 mod damage;
 mod frame_data_manager;
 mod game_flow;
@@ -35,6 +34,5 @@ impl PluginGroup for WAGLib {
 // Make these more easily accessable internally
 use assets::{Colors, Fonts, Sprites};
 use clock::Clock;
-use constants::*;
 use damage::Health;
 use meter::Meter;

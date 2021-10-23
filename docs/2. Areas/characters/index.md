@@ -30,6 +30,11 @@ One X per line, when all lines have an X at polished, the character is done.
 ## Idea dump
 If a character has a name or more than 3 lines, they need a file of their own. Copy [[template]] and change the name. Add a page to the excel that holds move importance.
 
+- 6w as a reversal grab parry where a character grabs an incoming high attack
+- Dashes
+	- Teleport
+	- Wavedash with attacks
+	- Slide with 323 or 121
 - Counter hit character with slow moves but you can block during the first few startup frames
 - Dirty boxer (Has a gun in one glove) Maybe something that can't be reloaded)
 - Traditionally aquaman sucks. The ocean character should be cool. Maybe a lovecraft thing with the power of the deep. 

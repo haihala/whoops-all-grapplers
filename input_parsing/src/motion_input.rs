@@ -55,7 +55,7 @@ impl Motion {
                 if Self::transition_matches(next, old_stick, new_stick) {
                     Some((at + 1, now))
                 } else if time.elapsed().as_secs_f32()
-                    > crate::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
+                    > constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
                 {
                     None
                 } else {

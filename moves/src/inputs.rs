@@ -70,8 +70,8 @@ pub fn ryan_specials() -> HashMap<MoveType, SpecialDefinition> {
 
 fn universal_specials() -> std::vec::IntoIter<(MoveType, SpecialDefinition)> {
     vec![
-        (DASH_FORWARD, (vec![6, 6].into(), None)),
-        (DASH_BACK, (vec![4, 4].into(), None)),
+        (DASH_FORWARD, (vec![6, 5, 6].into(), None)),
+        (DASH_BACK, (vec![4, 5, 4].into(), None)),
     ]
     .into_iter()
 }

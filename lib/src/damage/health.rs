@@ -76,11 +76,8 @@ pub fn apply_hits(
             };
 
             health.apply_damage(damage);
-            state.stun(stun + clock.frame);
             physics_object.add_impulse(knockback);
-            if knockback.y > 0.0 {
-                state.jump();
-            }
+            state.hit(stun + clock.frame, knockback.y > 0.0);
         }
     }
 }

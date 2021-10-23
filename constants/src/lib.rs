@@ -22,6 +22,7 @@ pub const BACKGROUND_SCALE: (f32, f32, f32) = (30.0, 20.0, 1.0);
 // Player size
 pub const PLAYER_SPRITE_WIDTH: f32 = 0.80;
 pub const PLAYER_SPRITE_HEIGHT: f32 = 1.80;
+pub const PLAYER_COLLIDER_SIZE: (f32, f32) = (PLAYER_SPRITE_WIDTH, PLAYER_SPRITE_HEIGHT);
 
 // FPS
 pub const FPS: f32 = 60.0;
@@ -32,7 +33,7 @@ pub const CHIP_DAMAGE_MULTIPLIER: f32 = 0.01;
 
 // Spawn point
 pub const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
-pub const PLAYER_SPAWN_HEIGHT: f32 = 0.0;
+pub const PLAYER_SPAWN_HEIGHT: f32 = 0.01;
 
 // Arena
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;

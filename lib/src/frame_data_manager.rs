@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy::utils::HashMap;
 
 use moves::FrameData;
-use types::{AnimationState, MoveType, PlayerState};
+use types::{AnimationPhase, MoveType, PlayerState};
 
 use crate::damage::HitboxManager;
 use crate::Clock;
@@ -57,19 +57,19 @@ fn animation(
                 state.start_animation(clock.frame + active_move.active_start)
             } else {
                 match state.animation_state().unwrap() {
-                    AnimationState::Startup(progress_frame) => {
+                    AnimationPhase::Startup(progress_frame) => {
                         if clock.frame >= progress_frame {
                             hurtbox_generator.spawn(active_id);
                             state.start_active(clock.frame + active_move.recovery_start);
                         }
                     }
-                    AnimationState::Active(progress_frame) => {
+                    AnimationPhase::Active(progress_frame) => {
                         if clock.frame >= progress_frame {
                             hurtbox_generator.despawn(active_id);
                             state.start_recovery(clock.frame + active_move.recovery_start);
                         }
                     }
-                    AnimationState::Recovery(progress_frame) => {
+                    AnimationPhase::Recovery(progress_frame) => {
                         if clock.frame >= progress_frame {
                             bank.active = None;
                             state.recover_animation();

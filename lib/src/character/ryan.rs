@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use input_parsing::InputReader;
-use types::MoveType;
+use types::{FreedomLevel, MoveType};
 
 use super::movement::{DASH_BACK, DASH_FORWARD};
 use super::PlayerState;
@@ -14,7 +14,7 @@ pub fn move_starter(
     mut query: Query<(&mut InputReader, &PlayerState, &mut FrameDataManager), With<Ryan>>,
 ) {
     for (mut reader, state, mut frame_data) in query.iter_mut() {
-        if state.can_act() && state.is_grounded() {
+        if state.freedom_level(clock.frame) >= FreedomLevel::LightBusy && state.is_grounded() {
             let events = reader.get_events();
             if events.is_empty() {
                 continue;

@@ -30,6 +30,7 @@ One X per line, when all lines have an X at polished, the character is done.
 ## Idea dump
 If a character has a name or more than 3 lines, they need a file of their own. Copy [[template]] and change the name. Add a page to the excel that holds move importance.
 
+- Charge move that requires expiring charge (Can't hold too long)
 - 6w as a reversal grab parry where a character grabs an incoming high attack
 - Dashes
 	- Teleport

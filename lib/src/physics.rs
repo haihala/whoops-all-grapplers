@@ -1,12 +1,13 @@
 use bevy::{core::FixedTimestep, prelude::*};
 use bevy_inspector_egui::Inspectable;
-use num::clamp;
+
 use types::{Player, PlayerState};
 
-#[derive(Debug, Default, Inspectable)]
+use crate::clock::Clock;
+
+#[derive(Debug, Default, Inspectable, Clone, Copy)]
 pub struct PhysicsObject {
     pub velocity: Vec3,
-    pub desired_velocity: Option<Vec3>,
     impulse: Vec3,
     drag_multiplier: f32,
 }
@@ -15,7 +16,7 @@ impl PhysicsObject {
         self.impulse += impulse;
     }
     fn use_impulse(&mut self) -> Vec3 {
-        let impulse = self.impulse;
+        let impulse = self.impulse.clone();
         self.impulse = Vec3::ZERO;
         impulse
     }
@@ -28,10 +29,10 @@ impl Plugin for PhysicsPlugin {
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::steps_per_second(constants::FPS_F64))
                 .with_system(gravity.system())
-                .with_system(player_drag.system())
-                .with_system(incorporate_desired_velocity.system())
+                .with_system(player_input.system())
                 .with_system(sideswitcher.system())
-                .with_system(move_objects.system()),
+                .with_system(move_players.system())
+                .with_system(push_players.system()),
         );
     }
 }
@@ -44,40 +45,40 @@ fn gravity(mut query: Query<(&mut PhysicsObject, &PlayerState)>) {
     }
 }
 
-fn player_drag(mut query: Query<(&mut PhysicsObject, &PlayerState)>) {
-    for (mut object, state) in query.iter_mut() {
-        let drag = object.drag_multiplier
-            * if !state.is_grounded() {
-                constants::AIR_DRAG
-            } else {
-                constants::GROUND_DRAG
+fn player_input(mut query: Query<(&mut PlayerState, &mut PhysicsObject)>, clock: Res<Clock>) {
+    // TODO: This could use a once-over, but the problem is complex
+    // Try to dash
+    // If can't dash, try to jump
+    // If can't jump, walk
+    // If can't walk, drag
+    // If can't drag, do nothing
+    for (mut state, mut object) in query.iter_mut() {
+        if let Some(dash_phase) = state.get_dash_phase(clock.frame) {
+            // Dashing
+            let direction = state.get_dash_direction().unwrap();
+
+            object.velocity = match dash_phase {
+                types::DashPhase::Start => direction * constants::DASH_START_SPEED,
+                types::DashPhase::Recovery => direction * constants::DASH_RECOVERY_SPEED,
             };
-
-        if drag > 0.0 {
-            let speed = (object.velocity.length() - drag).max(0.0);
-            object.velocity = object.velocity.normalize_or_zero() * speed;
-        }
-    }
-}
-
-fn incorporate_desired_velocity(mut query: Query<&mut PhysicsObject>) {
-    for mut object in query.iter_mut() {
-        if let Some(desired) = object.desired_velocity {
-            let desired_direction = desired.x.signum();
-            let current_direction = object.velocity.x.signum();
-
-            object.velocity.y = desired.y;
-
-            #[allow(clippy::float_cmp)]
-            if object.velocity.x == 0.0 || current_direction == desired_direction {
-                object.velocity.x =
-                    desired_direction * object.velocity.x.abs().max(desired.x.abs());
-                object.drag_multiplier = 0.0;
-            } else {
-                object.drag_multiplier = constants::REVERSE_DRAG_MULTIPLIER;
-            }
         } else {
-            object.drag_multiplier = 1.0;
+            if let Some(impulse) = state.get_jump_impulse() {
+                // Jumping
+                object.add_impulse(impulse);
+            } else {
+                if let Some(direction) = state.get_walk_direction() {
+                    // Walking
+                    object.velocity = direction * constants::WALK_SPEED;
+                } else if state.is_grounded() {
+                    // Drag
+                    if object.velocity.length() < constants::DRAG {
+                        object.velocity = Vec3::ZERO;
+                    } else {
+                        object.velocity = (object.velocity.length() - constants::DRAG)
+                            * object.velocity.normalize();
+                    }
+                }
+            }
         }
     }
 }
@@ -97,23 +98,126 @@ fn sideswitcher(
     }
 }
 
-fn move_objects(mut query: Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>) {
-    for (mut object, mut transform, mut state) in query.iter_mut() {
+fn move_players(mut players: Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>) {
+    // Handle static collision
+    for (mut object, mut transform, mut state) in players.iter_mut() {
         let impulse = object.use_impulse();
         object.velocity += impulse;
-        transform.translation += (object.velocity) / constants::FPS;
+        let shift = object.velocity / constants::FPS;
 
-        if transform.translation.y < constants::GROUND_PLANE_HEIGHT {
-            object.velocity.y = clamp(object.velocity.y, 0.0, f32::MAX);
-            transform.translation.y = constants::GROUND_PLANE_HEIGHT;
-            state.land();
-        }
+        if let Some(collision) = static_collision(transform.translation, shift) {
+            transform.translation += collision.legal_movement;
+            if collision.x_collision {
+                object.velocity.x = 0.0;
+            }
 
-        if transform.translation.x.abs() > constants::ARENA_WIDTH {
-            object.velocity.x = 0.0;
-            transform.translation.x = transform.translation.x.signum() * constants::ARENA_WIDTH;
+            if collision.y_collision {
+                object.velocity.y = 0.0;
+                state.land()
+            }
+        } else {
+            transform.translation += shift;
         }
     }
+}
+
+fn push_players(
+    players: Query<Entity, With<Player>>,
+    mut query_set: QuerySet<(
+        Query<(&PhysicsObject, &Transform)>,
+        Query<(&mut PhysicsObject, &mut Transform, &mut PlayerState)>,
+    )>,
+) {
+    for entity1 in players.iter() {
+        for entity2 in players.iter() {
+            if entity1 != entity2 {
+                let (object1, transform1) = query_set.q0().get(entity1).unwrap();
+                let (object2, transform2) = query_set.q0().get(entity2).unwrap();
+
+                let future_position1 = transform1.translation + object1.velocity / constants::FPS;
+                let future_position2 = transform2.translation + object2.velocity / constants::FPS;
+
+                if rect_collision(
+                    future_position1,
+                    constants::PLAYER_COLLIDER_SIZE.into(),
+                    future_position2,
+                    constants::PLAYER_COLLIDER_SIZE.into(),
+                ) {
+                    // Player-player collision is happening
+                    let difference = future_position1 - future_position2;
+
+                    // Leads into some wonky interactions, but allows for pushing
+                    // Should probably be based on the distance, but turned off when too close
+                    if difference.length() > constants::PUSHING_DEAD_ZONE {
+                        let push_vector = Vec3::new(
+                            difference.normalize_or_zero().x / difference.length(),
+                            0.0,
+                            0.0,
+                        );
+
+                        let (mut object, _, _) = query_set.q1_mut().get_mut(entity1).unwrap();
+                        object.add_impulse(push_vector);
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct StaticCollision {
+    legal_movement: Vec3, // How much space there is to move
+    x_collision: bool,
+    y_collision: bool,
+}
+impl StaticCollision {
+    fn did_collide(&self) -> bool {
+        self.x_collision || self.y_collision
+    }
+
+    fn wrap(self) -> Option<StaticCollision> {
+        if self.did_collide() {
+            Some(self)
+        } else {
+            None
+        }
+    }
+}
+
+fn static_collision(current_position: Vec3, movement: Vec3) -> Option<StaticCollision> {
+    let mut future_position = current_position + movement;
+    let mut ratio = 1.0;
+
+    let mut collision = StaticCollision {
+        legal_movement: movement,
+        x_collision: false,
+        y_collision: false,
+    };
+
+    let distance_to_ground = future_position.y - constants::GROUND_PLANE_HEIGHT;
+    if distance_to_ground <= 0.0 {
+        collision.y_collision = true;
+
+        ratio = (current_position.y - constants::GROUND_PLANE_HEIGHT) / movement.y;
+
+        collision.legal_movement = movement * ratio;
+        future_position = current_position + collision.legal_movement;
+    }
+
+    if future_position.x.abs() > constants::ARENA_WIDTH {
+        collision.x_collision = true;
+
+        ratio = if future_position.x > 0.0 {
+            // Colliding to the right wall
+            ratio.min((current_position.x - constants::ARENA_WIDTH) / movement.x)
+        } else {
+            // Colliding to the left wall
+            ratio.min((current_position.x + constants::ARENA_WIDTH) / movement.x)
+        };
+        collision.legal_movement = movement * ratio;
+    }
+
+    collision.wrap()
 }
 
 pub fn rect_collision(a_pos: Vec3, a_size: Vec2, b_pos: Vec3, b_size: Vec2) -> bool {

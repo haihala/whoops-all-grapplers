@@ -197,6 +197,7 @@ fn move_players(mut players: Query<(&mut PlayerVelocity, &mut Transform, &mut Pl
     }
 }
 
+#[allow(clippy::type_complexity)]
 fn push_players(
     players: Query<Entity, With<Player>>,
     mut query_set: QuerySet<(

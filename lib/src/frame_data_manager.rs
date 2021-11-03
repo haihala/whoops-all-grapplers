@@ -50,7 +50,7 @@ fn animation(mut query: Query<(&mut FrameDataManager, &mut HitboxManager, &mut P
         if let Some(active_id) = bank.active {
             let active_move = bank.registered.get(&active_id).unwrap();
             let events = state.get_events();
-            if events.len() == 0 && !state.animation_in_progress() {
+            if events.is_empty() && !state.animation_in_progress() {
                 state.start_animation(*active_move);
             } else {
                 for event in events {

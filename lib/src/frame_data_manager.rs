@@ -1,12 +1,11 @@
-use bevy::core::FixedTimestep;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 
 use moves::FrameData;
-use types::{AnimationPhase, MoveType, PlayerState};
+use player_state::{AnimationEvent, PlayerState, StateEvent};
+use types::MoveType;
 
-use crate::damage::HitboxManager;
-use crate::Clock;
+use crate::{clock::run_max_once_per_combat_frame, damage::HitboxManager};
 
 #[derive(Default)]
 pub struct FrameDataManager {
@@ -40,40 +39,39 @@ impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_system(animation.system()).add_system_set(
             SystemSet::new()
-                .with_run_criteria(FixedTimestep::steps_per_second(constants::FPS_F64))
+                .with_run_criteria(run_max_once_per_combat_frame.system())
                 .with_system(animation.system()),
         );
     }
 }
 
-fn animation(
-    clock: Res<Clock>,
-    mut query: Query<(&mut FrameDataManager, &mut HitboxManager, &mut PlayerState)>,
-) {
+fn animation(mut query: Query<(&mut FrameDataManager, &mut HitboxManager, &mut PlayerState)>) {
     for (mut bank, mut hurtbox_generator, mut state) in query.iter_mut() {
         if let Some(active_id) = bank.active {
             let active_move = bank.registered.get(&active_id).unwrap();
-            if state.animation_state().is_none() {
-                state.start_animation(clock.frame + active_move.active_start)
+            let events = state.get_events();
+            if events.len() == 0 && !state.animation_in_progress() {
+                state.start_animation(*active_move);
             } else {
-                match state.animation_state().unwrap() {
-                    AnimationPhase::Startup(progress_frame) => {
-                        if clock.frame >= progress_frame {
-                            hurtbox_generator.spawn(active_id);
-                            state.start_active(clock.frame + active_move.recovery_start);
-                        }
-                    }
-                    AnimationPhase::Active(progress_frame) => {
-                        if clock.frame >= progress_frame {
-                            hurtbox_generator.despawn(active_id);
-                            state.start_recovery(clock.frame + active_move.recovery_start);
-                        }
-                    }
-                    AnimationPhase::Recovery(progress_frame) => {
-                        if clock.frame >= progress_frame {
-                            bank.active = None;
-                            state.recover_animation();
-                        }
+                for event in events {
+                    match event {
+                        StateEvent::AnimationUpdate(new_phase) => match new_phase {
+                            AnimationEvent::StartActive => {
+                                hurtbox_generator.spawn(active_id);
+                                state.consume_event(event);
+                            }
+                            AnimationEvent::EndActive => {
+                                hurtbox_generator.despawn(active_id);
+                                state.consume_event(event);
+                            }
+                            AnimationEvent::Recovered => {
+                                bank.active = None;
+                                state.consume_event(event);
+                            }
+                            AnimationEvent::Null => panic!("Null animation event"),
+                        },
+                        StateEvent::Null => panic!("Null event"),
+                        _ => {}
                     }
                 }
             }

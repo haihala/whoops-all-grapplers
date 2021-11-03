@@ -1,8 +1,10 @@
 use bevy::utils::HashMap;
+use bevy_inspector_egui::Inspectable;
 
 use crate::ryan::*;
 use crate::MoveType;
 
+#[derive(Inspectable, PartialEq, Clone, Copy, Debug)]
 pub struct FrameData {
     pub active_start: usize,
     pub recovery_start: usize,

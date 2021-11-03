@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::{game_flow::RoundResult, Colors, Fonts};
+use crate::{
+    assets::{Colors, Fonts},
+    game_flow::RoundResult,
+};
 
 pub struct RoundText;
 

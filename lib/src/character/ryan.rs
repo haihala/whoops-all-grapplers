@@ -1,11 +1,12 @@
 use bevy::prelude::*;
 
 use input_parsing::InputReader;
-use types::{FreedomLevel, MoveType};
+use player_state::FreedomLevel;
+use types::MoveType;
 
 use super::movement::{DASH_BACK, DASH_FORWARD};
 use super::PlayerState;
-use crate::{frame_data_manager::FrameDataManager, Clock};
+use crate::{clock::Clock, frame_data_manager::FrameDataManager};
 
 pub struct Ryan;
 
@@ -14,7 +15,7 @@ pub fn move_starter(
     mut query: Query<(&mut InputReader, &PlayerState, &mut FrameDataManager), With<Ryan>>,
 ) {
     for (mut reader, state, mut frame_data) in query.iter_mut() {
-        if state.freedom_level(clock.frame) >= FreedomLevel::LightBusy && state.is_grounded() {
+        if state.freedom_level() >= FreedomLevel::LightBusy && state.is_grounded() {
             let events = reader.get_events();
             if events.is_empty() {
                 continue;

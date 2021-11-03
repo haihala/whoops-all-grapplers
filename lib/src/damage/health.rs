@@ -2,9 +2,10 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use input_parsing::InputReader;
-use types::{Hit, PlayerState};
+use player_state::PlayerState;
+use types::Hit;
 
-use crate::{clock::Clock, physics::PhysicsObject};
+use crate::{clock::Clock, physics::PlayerVelocity};
 
 #[derive(Inspectable)]
 pub struct Health {
@@ -50,12 +51,12 @@ pub fn apply_hits(
     mut query: Query<(
         &mut Health,
         &mut PlayerState,
-        &mut PhysicsObject,
+        &mut PlayerVelocity,
         &InputReader,
     )>,
     clock: Res<Clock>,
 ) {
-    for (mut health, mut state, mut physics_object, reader) in query.iter_mut() {
+    for (mut health, mut state, mut velocity, reader) in query.iter_mut() {
         for hit in health.drain_hits() {
             // Todo high/low
             let stick: IVec2 = reader.get_relative_stick_position().into();
@@ -76,7 +77,7 @@ pub fn apply_hits(
             };
 
             health.apply_damage(damage);
-            physics_object.add_impulse(knockback);
+            velocity.add_impulse(knockback);
             state.hit(stun + clock.frame, knockback.y > 0.0);
         }
     }
@@ -88,15 +89,5 @@ fn mirror_knockback(knockback: Vec3, flipped: bool) -> Vec3 {
         knockback
     } else {
         Vec3::new(-knockback.x, knockback.y, knockback.z)
-    }
-}
-
-pub fn recover_from_hitstun(mut query: Query<&mut PlayerState>, clock: Res<Clock>) {
-    for mut state in query.iter_mut() {
-        if let Some(stun_end_frame) = state.stunned_until() {
-            if clock.frame >= stun_end_frame {
-                state.recover_from_hitstun();
-            }
-        }
     }
 }

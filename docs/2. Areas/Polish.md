@@ -1,1 +1,2 @@
 - Grace period to turn neutral jumps into diagonals
+- High five when two characters whiff throws close up

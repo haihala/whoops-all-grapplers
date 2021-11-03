@@ -1,30 +1,21 @@
-# TODO
-Collision seems a tad wonky with statics
-- Could be a floating point thing
+# Debugging
+- [x] Attack hangs
+- [x] Extra attack events
+- [x] Spazzing walk state
+- [x] Dashes are too long
 
-Crouching
-
-Crawling
-
-Think about re-introducing some weight to the movement
+# State
+- [x] Combine to a mass enum to eliminate illegal state
 
 # Physics
-- [x] Impulse (velocity change)
-	- Fire and forget, these cannot be accessed afterwards
 - [x] Detect collisions
 - [x] Interface
 	- [x] Add an impulse
-	- [x] Get current velocity
+	- [x] What is the current velocity
+	- [x] Update current velocity based on state
 
 # Basic ground movement
 - [x] forward or back = run
-- [ ] directly down = ducking (used to dodge stuff)
-	- [ ] Shrink visuals
-	- [ ] Shrink hitbox
-- [ ] down forward or back = crawl
-	- [ ] Shrink visuals (but less than ducking)
-	- [ ] Shrink hitbox (but less than ducking)
-	- [ ] Apply continuous force
 
 # Basic air movement
 - [x] Up = neutral jump

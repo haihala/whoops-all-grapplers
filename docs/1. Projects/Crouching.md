@@ -1,0 +1,7 @@
+- [ ] directly down = ducking (used to dodge stuff)
+	- [ ] Shrink visuals
+	- [ ] Shrink hitbox
+- [ ] down forward or back = crawl
+	- [ ] Shrink visuals (but less than ducking)
+	- [ ] Shrink hitbox (but less than ducking)
+	- [ ] Apply continuous force

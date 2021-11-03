@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 use types::Player;
 
-use crate::{Clock, Health};
+use crate::{clock::Clock, damage::Health};
 
 #[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
 pub enum GameState {

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use types::Player;
 
-use crate::{Colors, Health, Meter};
+use crate::{assets::Colors, damage::Health, meter::Meter};
 
 pub struct MeterBar(Player);
 pub struct HealthBar(Player);

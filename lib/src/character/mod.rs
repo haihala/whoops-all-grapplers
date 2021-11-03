@@ -4,18 +4,19 @@ mod ryan;
 use input_parsing::InputReader;
 use movement::movement;
 use moves::{ryan_frames, ryan_hitboxes, ryan_normals, ryan_specials};
-use types::{Player, PlayerState};
+use player_state::PlayerState;
+use types::Player;
 
 use crate::{
-    damage::{HitboxManager, Hurtbox},
+    assets::Colors,
+    damage::{Health, HitboxManager, Hurtbox},
     frame_data_manager::FrameDataManager,
     game_flow::GameState,
-    physics::PhysicsObject,
+    meter::Meter,
+    physics::PlayerVelocity,
 };
 
 use bevy::prelude::*;
-
-use crate::{Colors, Health, Meter};
 
 pub struct PlayerPlugin;
 
@@ -63,7 +64,7 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(player)
         .insert(Health::default())
         .insert(Meter::default())
-        .insert(PhysicsObject::default())
+        .insert(PlayerVelocity::default())
         .insert(PlayerState::default())
         .insert(InputReader::load(ryan_specials(), ryan_normals()))
         .insert(FrameDataManager::load(ryan_frames()))

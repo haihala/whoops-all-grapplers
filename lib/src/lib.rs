@@ -30,9 +30,3 @@ impl PluginGroup for WAGLib {
             .add(game_flow::GameFlowPlugin);
     }
 }
-
-// Make these more easily accessable internally
-use assets::{Colors, Fonts, Sprites};
-use clock::Clock;
-use damage::Health;
-use meter::Meter;

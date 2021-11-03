@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{game_flow::GameState, Sprites};
+use crate::{assets::Sprites, game_flow::GameState};
 
 mod bars;
 mod round_text;

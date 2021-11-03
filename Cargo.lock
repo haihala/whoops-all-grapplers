@@ -1904,6 +1904,7 @@ dependencies = [
  "bevy-inspector-egui",
  "constants",
  "moves",
+ "player_state",
  "types",
 ]
 
@@ -2235,6 +2236,7 @@ name = "moves"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy-inspector-egui",
  "types",
 ]
 
@@ -2652,6 +2654,7 @@ dependencies = [
  "input_parsing",
  "moves",
  "num",
+ "player_state",
  "strum",
  "strum_macros",
  "types",
@@ -2739,6 +2742,19 @@ name = "pkg-config"
 version = "0.3.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c9b1041b4387893b91ee6746cddfc28516aff326a3519fb2adf820932c5e6cb"
+
+[[package]]
+name = "player_state"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "constants",
+ "moves",
+ "strum",
+ "strum_macros",
+ "types",
+]
 
 [[package]]
 name = "png"

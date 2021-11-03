@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 use bevy::utils::{HashMap, HashSet};
 use moves::Hitbox;
-use types::{MoveType, Player, PlayerState};
+use player_state::PlayerState;
+use types::{MoveType, Player};
 
-use crate::physics::rect_collision;
-use crate::Colors;
+use crate::{assets::Colors, physics::rect_collision};
 
 use super::Health;
 

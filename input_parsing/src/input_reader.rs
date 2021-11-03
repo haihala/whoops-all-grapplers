@@ -4,7 +4,8 @@ use crate::helper_types::{ButtonUpdate, Diff, Frame, InputChange, OwnedChange};
 use crate::special::Special;
 use bevy::{prelude::*, utils::HashMap};
 use moves::SpecialDefinition;
-use types::{GameButton, MoveType, Normal, PlayerState, StickPosition};
+use player_state::PlayerState;
+use types::{GameButton, MoveType, Normal, StickPosition};
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
@@ -349,7 +350,7 @@ mod test {
     use std::{thread::sleep, time::Duration};
 
     use moves::MotionDefinition;
-    use types::PlayerState;
+    use player_state::PlayerState;
 
     use super::*;
 

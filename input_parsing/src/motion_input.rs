@@ -52,12 +52,12 @@ impl Motion {
                 }
 
                 let next = self.transitions[at];
-                if Self::transition_matches(next, old_stick, new_stick) {
-                    Some((at + 1, now))
-                } else if time.elapsed().as_secs_f32()
-                    > constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
+
+                if time.elapsed().as_secs_f32() > constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
                 {
                     None
+                } else if Self::transition_matches(next, old_stick, new_stick) {
+                    Some((at + 1, now))
                 } else {
                     Some((at, time))
                 }

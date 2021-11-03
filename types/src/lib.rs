@@ -1,11 +1,5 @@
-mod dash;
-pub use dash::*;
-
 mod direction;
 pub use direction::*;
-
-mod player_state;
-pub use player_state::{AnimationPhase, FreedomLevel, PlayerState};
 
 mod inputs;
 pub use inputs::{GameButton, Normal, StickPosition};

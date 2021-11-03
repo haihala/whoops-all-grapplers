@@ -1,10 +1,13 @@
-use bevy::core::FixedTimestep;
 use bevy::prelude::*;
+use bevy::{core::FixedTimestep, ecs::schedule::ShouldRun};
 use bevy_inspector_egui::Inspectable;
+use player_state::PlayerState;
 
-use crate::game_flow::GameState;
-use crate::labels::StartupStageLabel;
-use crate::{Colors, Fonts};
+use crate::{
+    assets::{Colors, Fonts},
+    game_flow::GameState,
+    labels::StartupStageLabel,
+};
 
 #[derive(Inspectable, Default)]
 pub struct Clock {
@@ -83,9 +86,13 @@ fn setup(mut commands: Commands, fonts: Res<Fonts>, colors: Res<Colors>) {
         });
 }
 
-fn tick(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
+fn tick(mut clock: ResMut<Clock>, bevy_clock: Res<Time>, mut query: Query<&mut PlayerState>) {
     clock.frame += 1;
     clock.elapsed_time += bevy_clock.delta_seconds();
+
+    for mut state in query.iter_mut() {
+        state.tick(clock.frame);
+    }
 }
 
 fn update_timer(mut query: Query<&mut Text, With<Timer>>, clock: Res<Clock>) {
@@ -97,4 +104,17 @@ fn update_timer(mut query: Query<&mut Text, With<Timer>>, clock: Res<Clock>) {
 
 fn reset_timer(mut clock: ResMut<Clock>) {
     clock.reset();
+}
+
+pub fn run_max_once_per_combat_frame(
+    mut last_frame: Local<usize>,
+    clock: Res<Clock>,
+    state: Res<State<GameState>>,
+) -> ShouldRun {
+    if *state.current() == GameState::Combat && *last_frame < clock.frame {
+        *last_frame = clock.frame;
+        ShouldRun::Yes
+    } else {
+        ShouldRun::No
+    }
 }

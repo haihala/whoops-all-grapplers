@@ -181,7 +181,9 @@ fn move_players(mut players: Query<(&mut PlayerVelocity, &mut Transform, &mut Pl
 
         let shift = velocity.get_shift();
 
-        if let Some(collision) = static_collision(transform.translation, shift) {
+        if let Some(collision) =
+            static_collision(transform.translation, shift, state.get_collider_size())
+        {
             transform.translation = collision.legal_position;
             if collision.x_collision {
                 velocity.x_collision();
@@ -209,16 +211,16 @@ fn push_players(
         for entity2 in players.iter() {
             if entity1 != entity2 {
                 let (velocity1, transform1, player1) = query_set.q0().get(entity1).unwrap();
-                let (velocity2, transform2, _) = query_set.q0().get(entity2).unwrap();
+                let (velocity2, transform2, player2) = query_set.q0().get(entity2).unwrap();
 
                 let future_position1 = transform1.translation + velocity1.get_shift();
                 let future_position2 = transform2.translation + velocity2.get_shift();
 
                 if rect_collision(
                     future_position1,
-                    constants::PLAYER_COLLIDER_SIZE.into(),
+                    player1.get_collider_size(),
                     future_position2,
-                    constants::PLAYER_COLLIDER_SIZE.into(),
+                    player2.get_collider_size(),
                 ) {
                     // Player-player collision is happening
                     let distance = (transform1.translation - transform2.translation).length();
@@ -278,13 +280,18 @@ impl StaticCollision {
     }
 }
 
-fn static_collision(current_position: Vec3, movement: Vec3) -> Option<StaticCollision> {
+fn static_collision(
+    current_position: Vec3,
+    movement: Vec3,
+    player_size: Vec2,
+) -> Option<StaticCollision> {
     let future_position = current_position + movement;
+    let relative_ground_plane = constants::GROUND_PLANE_HEIGHT + player_size.y / 2.0;
 
-    let distance_to_ground = future_position.y - constants::GROUND_PLANE_HEIGHT;
+    let distance_to_ground = future_position.y - relative_ground_plane;
     let y_collision = distance_to_ground < 0.0;
     let legal_y = if y_collision {
-        constants::GROUND_PLANE_HEIGHT
+        relative_ground_plane
     } else {
         future_position.y
     };

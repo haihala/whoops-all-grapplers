@@ -6,8 +6,15 @@ use types::{RelativeDirection, StickPosition};
 
 pub use moves::universal::{DASH_BACK, DASH_FORWARD};
 
-pub fn movement(mut query: Query<(&mut InputReader, &mut PlayerState)>) {
-    for (mut reader, mut state) in query.iter_mut() {
+pub fn movement(
+    mut query: Query<(
+        &mut InputReader,
+        &mut PlayerState,
+        &mut Sprite,
+        &mut Transform,
+    )>,
+) {
+    for (mut reader, mut state, mut sprite, mut tf) in query.iter_mut() {
         if reader.is_active()
             && state.freedom_level() >= FreedomLevel::LightBusy
             && state.is_grounded()
@@ -31,7 +38,19 @@ pub fn movement(mut query: Query<(&mut InputReader, &mut PlayerState)>) {
                 StickPosition::NE => state.register_jump(Some(RelativeDirection::Forward)),
                 StickPosition::W => state.walk(RelativeDirection::Back),
                 StickPosition::E => state.walk(RelativeDirection::Forward),
-                _ => {}
+                StickPosition::SW | StickPosition::S | StickPosition::SE => state.crouch(),
+                StickPosition::Neutral => state.stand(),
+            }
+            let new_size = state.get_collider_size();
+            if sprite.size != new_size {
+                if sprite.size.y > new_size.y {
+                    // Crouching
+                    tf.translation.y += constants::PLAYER_CROUCHING_SHIFT;
+                } else {
+                    // Standing up
+                    tf.translation.y += constants::PLAYER_STANDING_SHIFT;
+                }
+                sprite.size = new_size;
             }
         }
     }

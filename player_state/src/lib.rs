@@ -249,4 +249,25 @@ impl PlayerState {
             None
         }
     }
+
+    pub fn crouch(&mut self) {
+        self.primary = PrimaryState::Ground(GroundActivity::Crouching);
+    }
+    pub fn stand(&mut self) {
+        self.primary = PrimaryState::Ground(GroundActivity::Standing);
+    }
+
+    pub fn get_collider_size(&self) -> Vec2 {
+        if self.primary == PrimaryState::Ground(GroundActivity::Crouching) {
+            Vec2::new(
+                constants::PLAYER_SPRITE_WIDTH,
+                constants::PLAYER_SPRITE_CROUCHING_HEIGHT,
+            )
+        } else {
+            Vec2::new(
+                constants::PLAYER_SPRITE_WIDTH,
+                constants::PLAYER_SPRITE_STANDING_HEIGHT,
+            )
+        }
+    }
 }

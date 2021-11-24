@@ -30,6 +30,15 @@ One X per line, when all lines have an X at polished, the character is done.
 ## Idea dump
 If a character has a name or more than 3 lines, they need a file of their own. Copy [[template]] and change the name. Add a page to the excel that holds move importance.
 
+- Move that enters a commital mixup-rekka state
+	- You can't move
+	- You have fast and slow low and overhead (four moves)
+	- Can use options in any order
+	- Max like 5 hits
+	- Can end at any time
+	- Each input makes it more punishable
+	- Getting an option blocked puts a status on you where you take more damage on the next hit
+		- Getting all 5 blocked makes you instantly die on the first hit
 - Charge move that requires expiring charge (Can't hold too long)
 - 6w as a reversal grab parry where a character grabs an incoming high attack
 - Dashes

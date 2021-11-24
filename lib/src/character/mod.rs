@@ -48,31 +48,36 @@ fn setup(mut commands: Commands, colors: Res<Colors>) {
 }
 
 fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {
+    let state = PlayerState::default();
+
     commands
         .spawn_bundle(SpriteBundle {
             transform: Transform {
-                translation: (offset, constants::PLAYER_SPAWN_HEIGHT, 0.0).into(),
+                translation: (
+                    offset,
+                    constants::PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0,
+                    0.0,
+                )
+                    .into(),
                 ..Default::default()
             },
             material: colors.collision_box.clone(),
-            sprite: Sprite::new(Vec2::new(
-                constants::PLAYER_SPRITE_WIDTH,
-                constants::PLAYER_SPRITE_HEIGHT,
-            )),
+            sprite: Sprite {
+                size: state.get_collider_size(),
+                resize_mode: SpriteResizeMode::Automatic,
+                ..Default::default()
+            },
             ..Default::default()
         })
         .insert(player)
         .insert(Health::default())
         .insert(Meter::default())
         .insert(PlayerVelocity::default())
-        .insert(PlayerState::default())
         .insert(InputReader::load(ryan_specials(), ryan_normals()))
         .insert(FrameDataManager::load(ryan_frames()))
         .insert(HitboxManager::load(ryan_hitboxes()))
-        .insert(Hurtbox::new(Vec2::new(
-            constants::PLAYER_SPRITE_WIDTH,
-            constants::PLAYER_SPRITE_HEIGHT,
-        )))
+        .insert(Hurtbox::new(state.get_collider_size()))
+        .insert(state)
         .insert(ryan::Ryan);
 }
 

@@ -7,5 +7,6 @@ Not part of the MVP, dump for ideas for presentation
 
 # Visual
 - In game notifications (Solution to confusion with things like why didn't air throw hit the ground)
-	- Chip damage kill
+	- Chip damage (kills?)
 	- Throw dodge (Jump a ground throw)
+	- Grabbed

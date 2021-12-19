@@ -54,3 +54,7 @@ A systems mechanic is done when:
 - It fixes a problem or enhances gameplay
 - It doesn't have any obvious problems
 - It doesn't clash with player promises
+
+## What makes WAG special
+- The items system
+- Tight and fast gameplay. Strive for almost a duck game esque speed.

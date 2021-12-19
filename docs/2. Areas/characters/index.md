@@ -30,6 +30,13 @@ One X per line, when all lines have an X at polished, the character is done.
 ## Idea dump
 If a character has a name or more than 3 lines, they need a file of their own. Copy [[template]] and change the name. Add a page to the excel that holds move importance.
 
+- Forward charge parry
+- Whip attack that is a hit far up, grab close up and has a dead zone in the middle where it's a movement slowing very negative whiff
+- Two step guard crush, the first puts on a status that makes you take more chip, the second opens you up.
+- Samurai with the motto "measure twice, cut once" each blocked non-mid and each parry increase a counter. Has a slow heavy slash type of move, that deals damage based on stacks. Very punishable on block.
+- Slow lazy character with massive muscles and equally massive damage
+- Upside down quarter that has two variants depending on if you do it grounded or not
+- 693 as an overhead input (heavy smash)
 - Move that enters a commital mixup-rekka state
 	- You can't move
 	- You have fast and slow low and overhead (four moves)

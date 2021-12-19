@@ -1,5 +1,5 @@
 
-[Github repo](https://github.com/rorawok/oops-all-grapplers)
+[Github repo](https://github.com/rorawok/whoops-all-grapplers)
 
 [Shortcut](https://app.shortcut.com/bathrobe)
 

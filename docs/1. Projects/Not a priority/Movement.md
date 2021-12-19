@@ -1,0 +1,3 @@
+- [ ] Prejump frames (5+)
+- [ ] Short and long hops
+	- [ ] If holding up at the end of prejump, you get a long hop

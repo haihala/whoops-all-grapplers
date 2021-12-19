@@ -5,3 +5,5 @@
 		- AKA holding a direction
 	- [ ] Button press
 	- [ ] Button release 
+- [ ] Separate input parsing from input event generation
+	- [ ] Generators: Pad, Keyboard, File(for tests)

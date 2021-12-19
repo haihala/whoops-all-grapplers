@@ -1,4 +1,3 @@
-# Foley rose
 A rock musician with a high skill ceiling
 
 |           | Vision | Started | Designed | Implemented | Polished |

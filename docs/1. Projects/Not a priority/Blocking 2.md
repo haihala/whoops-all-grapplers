@@ -1,6 +1,7 @@
 High/low blocks
-- [ ] 2 hitboxes
-- [ ] Detect if block is correct
+- [ ] High/Low/Mid are tags on attacks
+- [ ] Detect block level
+- [ ] Respond
 
 Parry
 - [ ] Open and close the parry window

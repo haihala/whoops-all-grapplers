@@ -1,15 +1,22 @@
 # Cancel
-## Automatic cancel
+## Free cancel
 Many moves can be canceled automatically.
 
 Dash/jump -> Any normal -> Some normals -> Any special
 
 Some very specific special -> Some equally specific normals
 
-## Manual cancel
+## Costly cancel
+You can cancel back from heavy to light and from special to normal, but it costs meter based on how many frames you cancel
+
+Nearly everything combos if you cancel all of the recovery
+
+ Can't cancel a move into itself.
+
+## Cancel items
 The cancel button has multiple effects. All the options cost some [[meter]].
 
-## Instant recovery
+### Instant recovery
 2 [[meter]]
 Text is invalid, make into an item
 
@@ -17,7 +24,7 @@ Text is invalid, make into an item
 
 It's supposed to be commonly used. Combos would work around juggling for more damage 'mixups'. If you expect the opponent to juggle you high up, you could recover there and block on your way down or attack, but if the opponent is instantly following up with a less damaging but fast attack, you get clapped for even more. 
 
-## Active cancel
+### Active cancel
 1 [[meter]]
 
 `5i` [[item]] pressed during any part of an attack animation to activate. The rest of that animation is cancelled.

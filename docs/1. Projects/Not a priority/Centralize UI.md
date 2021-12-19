@@ -1,1 +1,0 @@
-All ui is created in a singular place. This will handle overlaps nicely and seeing conflicts is easier.

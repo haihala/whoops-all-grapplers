@@ -3,11 +3,7 @@ use bevy::{core::FixedTimestep, ecs::schedule::ShouldRun};
 use bevy_inspector_egui::Inspectable;
 use player_state::PlayerState;
 
-use crate::{
-    assets::{Colors, Fonts},
-    game_flow::GameState,
-    labels::StartupStageLabel,
-};
+use crate::game_flow::GameState;
 
 #[derive(Inspectable, Default)]
 pub struct Clock {
@@ -32,7 +28,6 @@ pub struct ClockPlugin;
 impl Plugin for ClockPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.insert_resource(Clock::default())
-            .add_startup_system_to_stage(StartupStageLabel::UI, setup.system())
             .add_system_set_to_stage(
                 CoreStage::First,
                 SystemSet::new()
@@ -46,44 +41,6 @@ impl Plugin for ClockPlugin {
                 SystemSet::on_enter(GameState::Combat).with_system(reset_timer.system()),
             );
     }
-}
-
-fn setup(mut commands: Commands, fonts: Res<Fonts>, colors: Res<Colors>) {
-    commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                justify_content: JustifyContent::Center,
-                size: Size::new(Val::Percent(100.0), Val::Percent(10.0)),
-                position: Rect {
-                    top: Val::Percent(5.0),
-                    left: Val::Px(0.0),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-            material: colors.transparent.clone(),
-            ..Default::default()
-        })
-        .with_children(|parent| {
-            parent
-                .spawn_bundle(TextBundle {
-                    text: Text::with_section(
-                        constants::ROUND_TIME.round().to_string(),
-                        TextStyle {
-                            font: fonts.basic.clone(),
-                            font_size: 100.0,
-                            color: Color::WHITE,
-                        },
-                        TextAlignment {
-                            horizontal: HorizontalAlign::Center,
-                            ..Default::default()
-                        },
-                    ),
-                    ..Default::default()
-                })
-                .insert(Timer);
-        });
 }
 
 fn tick(mut clock: ResMut<Clock>, bevy_clock: Res<Time>, mut query: Query<&mut PlayerState>) {

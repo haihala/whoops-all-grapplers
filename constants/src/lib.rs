@@ -1,6 +1,9 @@
 mod movement;
 pub use movement::*;
 
+mod hud;
+pub use hud::*;
+
 // Inputs
 pub const MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS: f32 = 0.1; // In seconds
 pub const EVENT_REPEAT_PERIOD: f32 = 0.3; // In seconds
@@ -40,15 +43,8 @@ pub const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 pub const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 
 // Arena
-pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
+pub const GROUND_PLANE_HEIGHT: f32 = -0.4;
 pub const ARENA_WIDTH: f32 = 10.0;
-
-// UI
-const HEALTH_BAR_TIMER_WIDTH: f32 = 10.0;
-const HEALTH_BAR_EDGE_PADDING: f32 = 5.0;
-pub const HEALTH_BAR_ANCHOR: f32 = 50.0 + (HEALTH_BAR_TIMER_WIDTH / 2.0);
-pub const RESOURCE_BAR_WIDTH: f32 =
-    (100.0 - HEALTH_BAR_TIMER_WIDTH - HEALTH_BAR_EDGE_PADDING) / 2.0;
 
 // Other
 pub const ROUND_TIME: f32 = 99.0;

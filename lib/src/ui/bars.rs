@@ -1,77 +1,10 @@
 use bevy::prelude::*;
 use types::Player;
 
-use crate::{assets::Colors, damage::Health, meter::Meter};
+use crate::{damage::Health, meter::Meter};
 
-pub struct MeterBar(Player);
-pub struct HealthBar(Player);
-
-pub fn setup(mut commands: Commands, colors: Res<Colors>) {
-    create_healthbar(&mut commands, &colors, Player::One);
-    create_meterbar(&mut commands, &colors, Player::One);
-
-    create_healthbar(&mut commands, &colors, Player::Two);
-    create_meterbar(&mut commands, &colors, Player::Two);
-}
-
-fn create_healthbar(commands: &mut Commands, colors: &Res<Colors>, player: Player) {
-    let base_position = Rect {
-        top: Val::Percent(2.0),
-        ..Default::default()
-    };
-
-    commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                size: Size::new(
-                    Val::Percent(constants::RESOURCE_BAR_WIDTH),
-                    Val::Percent(10.0),
-                ),
-                position: get_bar_position(base_position, player),
-                ..Default::default()
-            },
-            material: colors.health.clone(),
-            ..Default::default()
-        })
-        .insert(HealthBar(player));
-}
-
-fn create_meterbar(commands: &mut Commands, colors: &Res<Colors>, player: Player) {
-    let base_position = Rect {
-        bottom: Val::Percent(2.0),
-        ..Default::default()
-    };
-
-    commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                size: Size::new(
-                    Val::Percent(constants::RESOURCE_BAR_WIDTH),
-                    Val::Percent(10.0),
-                ),
-                position: get_bar_position(base_position, player),
-                ..Default::default()
-            },
-            material: colors.meter.clone(),
-            ..Default::default()
-        })
-        .insert(MeterBar(player));
-}
-
-fn get_bar_position(base: Rect<Val>, player: Player) -> Rect<Val> {
-    match player {
-        Player::One => Rect {
-            right: Val::Percent(constants::HEALTH_BAR_ANCHOR),
-            ..base
-        },
-        Player::Two => Rect {
-            left: Val::Percent(constants::HEALTH_BAR_ANCHOR),
-            ..base
-        },
-    }
-}
+pub struct MeterBar(pub Player);
+pub struct HealthBar(pub Player);
 
 #[allow(clippy::type_complexity)]
 pub fn update(
@@ -84,12 +17,12 @@ pub fn update(
     for (player, health, meter) in players.iter() {
         for (mut style, bar) in bars.q0_mut().iter_mut() {
             if *player == bar.0 {
-                style.size.width = Val::Percent(health.get_ratio() * constants::RESOURCE_BAR_WIDTH);
+                style.size.width = Val::Percent(health.get_ratio() * constants::HEALTH_BAR_WIDTH);
             }
         }
         for (mut style, bar) in bars.q1_mut().iter_mut() {
             if *player == bar.0 {
-                style.size.width = Val::Percent(meter.get_ratio() * constants::RESOURCE_BAR_WIDTH);
+                style.size.width = Val::Percent(meter.get_ratio() * constants::METER_BAR_WIDTH);
             }
         }
     }

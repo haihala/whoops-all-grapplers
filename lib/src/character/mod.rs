@@ -81,8 +81,16 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(ryan::Ryan);
 }
 
-fn reset(mut query: Query<(&mut Health, &mut Meter, &mut Transform, &Player)>) {
-    for (mut health, mut meter, mut tf, player) in query.iter_mut() {
+fn reset(
+    mut query: Query<(
+        &mut Health,
+        &mut Meter,
+        &mut Transform,
+        &Player,
+        &PlayerState,
+    )>,
+) {
+    for (mut health, mut meter, mut tf, player, state) in query.iter_mut() {
         health.reset();
         meter.reset();
 
@@ -90,6 +98,6 @@ fn reset(mut query: Query<(&mut Health, &mut Meter, &mut Transform, &Player)>) {
             Player::One => -constants::PLAYER_SPAWN_DISTANCE,
             Player::Two => constants::PLAYER_SPAWN_DISTANCE,
         };
-        tf.translation.y = constants::PLAYER_SPAWN_HEIGHT;
+        tf.translation.y = constants::PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0;
     }
 }

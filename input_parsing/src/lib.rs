@@ -5,6 +5,7 @@ mod motion_input;
 mod special;
 
 pub use input_parser::InputParser;
+pub use input_reader::InputReader;
 
 use bevy::prelude::*;
 use std::collections::VecDeque;

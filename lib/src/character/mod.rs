@@ -1,7 +1,7 @@
 mod movement;
 mod ryan;
 
-use input_parsing::InputParser;
+use input_parsing::{InputParser, InputReader};
 use movement::movement;
 use moves::{ryan_frames, ryan_hitboxes, ryan_normals, ryan_specials};
 use player_state::PlayerState;
@@ -74,6 +74,7 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(Meter::default())
         .insert(PlayerVelocity::default())
         .insert(InputParser::load(ryan_specials(), ryan_normals()))
+        .insert(InputReader::default())
         .insert(FrameDataManager::load(ryan_frames()))
         .insert(HitboxManager::load(ryan_hitboxes()))
         .insert(Hurtbox::new(state.get_collider_size()))

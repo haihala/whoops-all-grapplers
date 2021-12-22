@@ -17,3 +17,4 @@ You can buy items that make your character better between rounds. Money is earne
 - Balrog vskill 2 (no charge required for a charge move)
 	- Buy it, you can do charge moves without charge, if you do it consumes the item
 - Steel toed boots, block one low per round you would've gotten hit by
+- Custom combo like mechanic where yoiu play back your own moves at fractions of speed speed

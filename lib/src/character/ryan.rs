@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use input_parsing::InputReader;
+use input_parsing::InputParser;
 use player_state::FreedomLevel;
 use types::MoveType;
 
@@ -12,7 +12,7 @@ pub struct Ryan;
 
 pub fn move_starter(
     clock: Res<Clock>,
-    mut query: Query<(&mut InputReader, &PlayerState, &mut FrameDataManager), With<Ryan>>,
+    mut query: Query<(&mut InputParser, &PlayerState, &mut FrameDataManager), With<Ryan>>,
 ) {
     for (mut reader, state, mut frame_data) in query.iter_mut() {
         if state.freedom_level() >= FreedomLevel::LightBusy && state.is_grounded() {

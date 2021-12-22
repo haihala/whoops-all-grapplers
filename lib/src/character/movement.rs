@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use input_parsing::InputReader;
+use input_parsing::InputParser;
 use player_state::{FreedomLevel, PlayerState};
 use types::{RelativeDirection, StickPosition};
 
@@ -8,17 +8,14 @@ pub use moves::universal::{DASH_BACK, DASH_FORWARD};
 
 pub fn movement(
     mut query: Query<(
-        &mut InputReader,
+        &mut InputParser,
         &mut PlayerState,
         &mut Sprite,
         &mut Transform,
     )>,
 ) {
     for (mut reader, mut state, mut sprite, mut tf) in query.iter_mut() {
-        if reader.is_active()
-            && state.freedom_level() >= FreedomLevel::LightBusy
-            && state.is_grounded()
-        {
+        if state.freedom_level() >= FreedomLevel::LightBusy && state.is_grounded() {
             let events = reader.get_events();
             // Dashing
             if events.contains(&DASH_FORWARD) {

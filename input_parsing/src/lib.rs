@@ -1,8 +1,10 @@
 mod helper_types;
+mod input_parser;
 mod input_reader;
 mod motion_input;
 mod special;
-pub use input_reader::InputReader;
+
+pub use input_parser::InputParser;
 
 use bevy::prelude::*;
 use std::collections::VecDeque;
@@ -12,6 +14,7 @@ pub struct InputParsingPlugin;
 impl Plugin for InputParsingPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.insert_resource(VecDeque::<Gamepad>::default())
-            .add_system(input_reader::parse_controller_input.system());
+            .add_system(input_reader::update_readers.system().label("collect"))
+            .add_system(input_parser::parse_input.system().after("collect"));
     }
 }

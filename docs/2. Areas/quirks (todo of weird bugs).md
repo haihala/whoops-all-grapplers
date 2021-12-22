@@ -1,5 +1,3 @@
-- Health bar height seems to be inconsistent
-	- Maybe going under the node used to lay down the round start text?
 - Jumps are very high (inconsistently)
 - Old stick != new stick assert firing with xbox controller occasionally
 	- One tick back and forth movements cause assert?

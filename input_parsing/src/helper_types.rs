@@ -1,7 +1,4 @@
-use bevy::{
-    prelude::*,
-    utils::{HashSet, Instant},
-};
+use bevy::utils::{HashSet, Instant};
 use types::{GameButton, StickPosition};
 
 #[derive(Clone, PartialEq)]
@@ -93,10 +90,4 @@ pub enum ButtonUpdate {
 pub enum InputChange {
     Button(GameButton, ButtonUpdate),
     Stick(StickPosition),
-}
-
-#[derive(Clone)]
-pub struct OwnedChange {
-    pub controller: Gamepad,
-    pub change: InputChange,
 }

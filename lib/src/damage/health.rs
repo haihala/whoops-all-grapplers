@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use input_parsing::InputReader;
+use input_parsing::InputParser;
 use player_state::PlayerState;
 use types::Hit;
 
@@ -52,7 +52,7 @@ pub fn apply_hits(
         &mut Health,
         &mut PlayerState,
         &mut PlayerVelocity,
-        &InputReader,
+        &InputParser,
     )>,
     clock: Res<Clock>,
 ) {

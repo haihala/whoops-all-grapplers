@@ -1,8 +1,7 @@
-use std::time::Instant;
-
 use crate::helper_types::{Diff, Frame};
 use crate::input_reader::InputReader;
 use crate::special::Special;
+use bevy::utils::Instant;
 use bevy::{prelude::*, utils::HashMap};
 use moves::SpecialDefinition;
 use player_state::PlayerState;

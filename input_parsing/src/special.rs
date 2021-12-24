@@ -35,10 +35,12 @@ impl Special {
             self.advance_motion(old_stick, new_stick);
         }
 
-        if !self.button_received && self.required_button.is_some() {
-            if self.is_halfway() && diff.pressed_contains(&self.required_button.unwrap()) {
-                self.button_received = true;
-            }
+        if !self.button_received
+            && self.required_button.is_some()
+            && self.is_halfway()
+            && diff.pressed_contains(&self.required_button.unwrap())
+        {
+            self.button_received = true;
         }
     }
 

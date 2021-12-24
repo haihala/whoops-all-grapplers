@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 use bevy::prelude::*;
-use types::GameButton;
+use types::{GameButton, StickPosition};
 
 use crate::helper_types::{ButtonUpdate, Diff, InputChange};
 
@@ -10,6 +10,7 @@ pub struct InputReader {
     pub pad_id: Option<Gamepad>,
     next_read: Vec<InputChange>,
     stick_position: IVec2,
+    stick_position_last_read: StickPosition,
 }
 
 impl InputReader {
@@ -70,10 +71,17 @@ impl InputReader {
         if self.readable() {
             let temp = self.next_read.clone();
             self.next_read.clear();
-            Some(
-                temp.into_iter()
-                    .fold(Diff::default(), |acc, new| acc.apply(&new)),
-            )
+            let mut diff = temp
+                .into_iter()
+                .fold(Diff::default(), |acc, new| acc.apply(&new));
+
+            if let Some(new_stick) = diff.stick_move {
+                if new_stick == self.stick_position_last_read {
+                    diff.stick_move = None
+                }
+                self.stick_position_last_read = new_stick;
+            }
+            Some(diff)
         } else {
             None
         }

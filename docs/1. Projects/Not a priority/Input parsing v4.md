@@ -7,4 +7,4 @@ Tasks:
 		- [ ] The stick position must be one of for that duration
 	- [ ] Button press, "press"
 	- [ ] Button release, "release"
-- [ ] Old stick != new stick assert triggers presumably if event is done and undone within a frame.
+- [x] Old stick != new stick assert triggers presumably if event is done and undone within a frame.

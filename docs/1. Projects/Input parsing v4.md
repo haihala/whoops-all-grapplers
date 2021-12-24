@@ -1,6 +1,6 @@
 Tasks:
 - [x] Separate input parsing from input event generation
-- [ ] Motion parsing to Special impl
+- [x] Motion parsing to Special impl
 - [ ] Define requirements as a list of enums:
 	- [ ] Whitelist of inputs that advance to the next, "basic"
 	- [ ] Whitelist of inputs and a duration, "hold"

@@ -17,10 +17,6 @@ pub struct InputParser {
     registered_normals: HashMap<MoveType, Normal>,
     head: Frame,
     relative_stick: StickPosition,
-
-    // This is a workaround to dpad inputs
-    // Not an elegant one, but the first that came to mind
-    temp_stick: StickPosition,
 }
 
 impl Default for InputParser {
@@ -31,7 +27,6 @@ impl Default for InputParser {
             registered_normals: Default::default(),
             head: Default::default(),
             relative_stick: Default::default(),
-            temp_stick: Default::default(),
         }
     }
 }
@@ -78,13 +73,12 @@ impl InputParser {
         let old_stick = self.relative_stick;
 
         self.head.apply(diff.clone());
-        self.temp_stick = self.head.stick_position;
 
         let relative_diff = if flipped {
-            self.relative_stick = self.temp_stick.flip();
+            self.relative_stick = self.head.stick_position.flip();
             diff.flip()
         } else {
-            self.relative_stick = self.temp_stick;
+            self.relative_stick = self.head.stick_position;
             diff
         };
 

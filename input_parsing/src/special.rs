@@ -18,7 +18,12 @@ impl Special {
 
     pub fn advance(&mut self, diff: &Diff, old_stick: StickPosition) {
         if let Some(new_stick) = diff.stick_move {
-            assert!(old_stick != new_stick);
+            assert!(
+                old_stick != new_stick,
+                "old={}, new={}",
+                old_stick,
+                new_stick,
+            );
             self.motion.advance(old_stick, new_stick);
         }
 

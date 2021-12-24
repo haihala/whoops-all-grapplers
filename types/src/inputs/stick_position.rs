@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use std::fmt::Debug;
 #[allow(unused_imports)]
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
@@ -16,6 +17,13 @@ pub enum StickPosition {
     S,
     SE,
 }
+
+impl std::fmt::Display for StickPosition {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Debug::fmt(self, f)
+    }
+}
+
 impl Default for StickPosition {
     fn default() -> Self {
         StickPosition::Neutral

@@ -1,10 +1,9 @@
-use bevy::utils::{HashSet, Instant};
+use bevy::utils::HashSet;
 use types::{GameButton, StickPosition};
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 /// Frame is a situation, diff is a change
 pub struct Frame {
-    pub timestamp: Instant,
     pub stick_position: StickPosition,
     pub pressed: HashSet<GameButton>,
 }
@@ -12,7 +11,6 @@ pub struct Frame {
 impl Default for Frame {
     fn default() -> Self {
         Self {
-            timestamp: Instant::now(),
             stick_position: Default::default(),
             pressed: Default::default(),
         }
@@ -66,6 +64,14 @@ impl Diff {
     pub fn pressed_contains(&self, button: &GameButton) -> bool {
         if let Some(pressed) = &self.pressed {
             pressed.contains(button)
+        } else {
+            false
+        }
+    }
+
+    pub fn released_contains(&self, button: &GameButton) -> bool {
+        if let Some(released) = &self.released {
+            released.contains(button)
         } else {
             false
         }

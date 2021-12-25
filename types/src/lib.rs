@@ -2,7 +2,7 @@ mod direction;
 pub use direction::*;
 
 mod inputs;
-pub use inputs::{GameButton, Normal, StickPosition};
+pub use inputs::{GameButton, StickPosition};
 
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;

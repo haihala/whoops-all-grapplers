@@ -1,7 +1,7 @@
 mod helper_types;
 mod input_parser;
 mod input_reader;
-mod special;
+mod motion_input;
 
 pub use input_parser::InputParser;
 pub use input_reader::InputReader;

@@ -8,8 +8,3 @@ pub enum GameButton {
     Heavy,
     Fast,
 }
-
-pub struct Normal {
-    pub button: GameButton,
-    pub stick: Option<StickPosition>,
-}

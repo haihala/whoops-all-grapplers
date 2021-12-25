@@ -1,7 +1,5 @@
 mod inputs;
-pub use inputs::{
-    ryan_normals, ryan_specials, MotionDefinition, SpecialDefinition, StickTransition,
-};
+pub use inputs::ryan_inputs;
 mod hitbox;
 pub use hitbox::{ryan_hitboxes, Hitbox};
 mod frame_data;
@@ -26,6 +24,12 @@ macro_rules! moves {
     ($idx:expr, $offset:expr, ($move_name:ident)) => {  // Last of recursion
         pub const $move_name: MoveType = ($idx+($offset*1000)) as MoveType;
     };
+}
+
+pub mod test {
+    use super::*;
+
+    pub const TEST_MOVE: MoveType = 0;
 }
 
 // Order matters, moves defined first have priority over later ones

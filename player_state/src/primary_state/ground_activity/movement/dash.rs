@@ -26,10 +26,6 @@ impl DashState {
     }
 
     pub fn get_phase(&self) -> Option<DashPhase> {
-        // dbg!(self.current_frame);
-        // dbg!(self.midpoint_frame);
-        // dbg!(self.end_frame);
-
         if self.current_frame <= self.midpoint_frame {
             Some(DashPhase::Start)
         } else if self.current_frame <= self.end_frame {

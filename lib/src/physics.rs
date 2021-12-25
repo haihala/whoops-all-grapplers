@@ -250,9 +250,6 @@ fn push_players(
 
                         let mut object = query_set.q1_mut().get_mut(entity1).unwrap();
                         object.add_impulse(push_vector);
-                        dbg!("Not in the deadzone");
-                    } else {
-                        dbg!("In the deadzone");
                     }
                 }
             }

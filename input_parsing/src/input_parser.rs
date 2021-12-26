@@ -132,7 +132,25 @@ mod test {
         assert_no_events(&mut world);
 
         add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_event_is_present(&mut &mut world, TEST_MOVE);
+        assert_event_is_present(&mut world, TEST_MOVE);
+    }
+
+    #[test]
+    fn inputs_expire() {
+        let (mut world, mut update_stage) = test_setup(InputParser::with_input(TEST_MOVE, "236f"));
+
+        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::S);
+        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::SE);
+        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::E);
+        assert_no_events(&mut world);
+
+        sleep(Duration::from_secs_f32(
+            constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS + 0.1,
+        ));
+        tick_frames(&mut world, &mut update_stage, 1);
+
+        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
+        assert_no_events(&mut world);
     }
 
     #[test]
@@ -147,7 +165,7 @@ mod test {
         assert_no_events(&mut world);
 
         add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_event_is_present(&mut &mut world, TEST_MOVE);
+        assert_event_is_present(&mut world, TEST_MOVE);
     }
 
     #[test]
@@ -165,16 +183,16 @@ mod test {
     }
 
     #[test]
-    fn normal_recognized_and_events_clear() {
+    fn normal_recognized_and_events_repeat_and_clear() {
         let (mut world, mut update_stage) = test_setup(InputParser::with_input(TEST_MOVE, "f"));
 
         assert_no_events(&mut world);
         add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_event_is_present(&mut &mut world, TEST_MOVE);
+        assert_event_is_present(&mut world, TEST_MOVE);
 
         tick_frames(&mut world, &mut update_stage, 3);
         // Check that the event is still in (repeat works)
-        assert_event_is_present(&mut &mut world, TEST_MOVE);
+        assert_event_is_present(&mut world, TEST_MOVE);
 
         // Wait for the event to leave the buffer
         sleep(Duration::from_secs_f32(
@@ -191,7 +209,7 @@ mod test {
         add_stick_and_tick(&mut world, &mut update_stage, StickPosition::S);
         assert_no_events(&mut world);
         add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_event_is_present(&mut &mut world, TEST_MOVE);
+        assert_event_is_present(&mut world, TEST_MOVE);
     }
 
     #[test]
@@ -201,7 +219,7 @@ mod test {
         add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
         assert_no_events(&mut world);
         add_button_and_tick(&mut world, &mut update_stage, GameButton::Heavy);
-        assert_event_is_present(&mut &mut world, TEST_MOVE);
+        assert_event_is_present(&mut world, TEST_MOVE);
     }
 
     #[test]
@@ -211,7 +229,7 @@ mod test {
         add_button_and_tick(&mut world, &mut update_stage, GameButton::Heavy);
         assert_no_events(&mut world);
         add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_event_is_present(&mut &mut world, TEST_MOVE);
+        assert_event_is_present(&mut world, TEST_MOVE);
     }
 
     fn test_setup(parser: InputParser) -> (World, SystemStage) {

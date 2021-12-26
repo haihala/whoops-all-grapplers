@@ -186,11 +186,10 @@ impl MotionInput {
             .clone()
             .into_iter()
             .filter_map(|mut head| {
-                head.advance(self.requirements.clone(), diff);
-
                 if head.expired() {
                     None
                 } else {
+                    head.advance(self.requirements.clone(), diff);
                     Some(head)
                 }
             })

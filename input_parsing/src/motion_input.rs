@@ -21,7 +21,7 @@ enum Requirement {
     Release(GameButton),
 }
 
-#[derive(Default, Clone, PartialEq)]
+#[derive(Default, Debug, Clone, PartialEq)]
 struct ParserHead {
     index: usize,
     last_update: Option<Instant>,
@@ -168,11 +168,7 @@ impl MotionInput {
     }
 
     pub fn is_done(&self) -> bool {
-        if let Some(last) = self.heads.last() {
-            last.requirement.is_none()
-        } else {
-            false
-        }
+        self.heads.iter().any(|head| head.requirement.is_none())
     }
 
     pub fn advance(&mut self, diff: &Diff) {
@@ -180,10 +176,9 @@ impl MotionInput {
             return;
         }
 
-        if self.heads.is_empty() {
-            self.heads.push(ParserHead::new(Some(
-                self.requirements.get(0).unwrap().clone(),
-            )));
+        if !self.heads.iter().any(|head| head.index == 0) {
+            self.heads
+                .push(ParserHead::new(self.requirements.get(0).cloned()));
         }
 
         self.heads = self

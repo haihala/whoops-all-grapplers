@@ -75,10 +75,11 @@ impl InputParser {
 
     fn parse_inputs(&mut self, diff: &Diff) {
         let now = Instant::now();
+        let frame = &self.head;
 
         self.events
             .extend(self.registered_inputs.iter_mut().filter_map(|(id, input)| {
-                input.advance(diff);
+                input.advance(diff, frame);
                 if input.is_done() {
                     input.clear();
                     return Some((*id, now));
@@ -208,6 +209,22 @@ mod test {
 
         add_stick_and_tick(&mut world, &mut update_stage, StickPosition::S);
         assert_no_events(&mut world);
+        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
+        assert_event_is_present(&mut world, TEST_MOVE);
+    }
+
+    #[test]
+    fn slow_command_normal_recognized() {
+        let (mut world, mut update_stage) = test_setup(InputParser::with_input(TEST_MOVE, "2f"));
+
+        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::S);
+        assert_no_events(&mut world);
+
+        sleep(Duration::from_secs_f32(
+            constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS + 0.1,
+        ));
+        tick_frames(&mut world, &mut update_stage, 1);
+
         add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
         assert_event_is_present(&mut world, TEST_MOVE);
     }

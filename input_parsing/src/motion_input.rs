@@ -2,7 +2,7 @@ use bevy::utils::Instant;
 
 use types::{GameButton, StickPosition};
 
-use crate::helper_types::Diff;
+use crate::helper_types::{Diff, Frame};
 
 /// Enum used to define move inputs.
 #[derive(Debug, Clone, PartialEq)]
@@ -47,6 +47,7 @@ impl ParserHead {
         now.duration_since(self.last_update.unwrap_or(now))
             .as_secs_f32()
             > constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
+            && self.charge_started.is_none()
     }
 
     fn bump(&mut self, requirement: Option<Requirement>) {
@@ -87,9 +88,8 @@ impl ParserHead {
                         let post_charge_requirement =
                             self.get_requirement_with_offset(&requirements, 2);
                         self.double_bump(post_charge_requirement);
-                    } else if requirement_met {
-                        // Update last update so that the charge won't expire
-                        self.last_update = Some(now);
+                    } else if !requirement_met {
+                        self.charge_started = None;
                     }
                 } else if requirement_met {
                     // Start charge
@@ -171,14 +171,16 @@ impl MotionInput {
         self.heads.iter().any(|head| head.requirement.is_none())
     }
 
-    pub fn advance(&mut self, diff: &Diff) {
+    pub fn advance(&mut self, diff: &Diff, frame: &Frame) {
         if self.is_done() {
             return;
         }
 
         if !self.heads.iter().any(|head| head.index == 0) {
-            self.heads
-                .push(ParserHead::new(self.requirements.get(0).cloned()));
+            let mut head = ParserHead::new(self.requirements.get(0).cloned());
+            // This is mostly for command normals, holding a direction works only on the first definition of the move
+            head.advance(self.requirements.clone(), &frame.diff_from_neutral());
+            self.heads.push(head);
         }
 
         self.heads = self

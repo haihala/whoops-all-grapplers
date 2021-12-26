@@ -30,6 +30,26 @@ impl Frame {
             self.pressed.retain(|button| !released.contains(button));
         }
     }
+
+    pub fn diff_from_neutral(&self) -> Diff {
+        let stick_move = if self.stick_position == StickPosition::Neutral {
+            None
+        } else {
+            Some(self.stick_position)
+        };
+
+        let pressed = if self.pressed.is_empty() {
+            None
+        } else {
+            Some(self.pressed.clone())
+        };
+
+        Diff {
+            stick_move,
+            pressed,
+            ..Default::default()
+        }
+    }
 }
 
 #[derive(Default, Clone, PartialEq, Eq, Debug)]

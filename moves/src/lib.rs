@@ -26,12 +26,7 @@ macro_rules! moves {
     };
 }
 
-pub mod test {
-    use super::*;
-
-    pub const TEST_MOVE: MoveType = 0;
-}
-
 // Order matters, moves defined first have priority over later ones
+moves!(test, 1usize, (TEST_MOVE, SECOND_TEST_MOVE));
 moves!(universal, 1usize, (DASH_FORWARD, DASH_BACK));
 moves!(ryan, 2usize, (HADOUKEN, COMMAND_PUNCH, PUNCH));

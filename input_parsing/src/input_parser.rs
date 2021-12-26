@@ -115,7 +115,7 @@ pub fn parse_input(mut characters: Query<(&mut InputParser, &mut InputReader, &P
 mod test {
     use std::{thread::sleep, time::Duration};
 
-    use moves::test::TEST_MOVE;
+    use moves::test::{SECOND_TEST_MOVE, TEST_MOVE};
     use player_state::PlayerState;
     use types::GameButton;
 
@@ -239,12 +239,34 @@ mod test {
         interface.assert_test_event_is_present();
     }
 
+    #[test]
+    fn multiple_events() {
+        let mut interface = TestInterface::with_inputs("2f", "f");
+
+        interface.add_stick_and_tick(StickPosition::S);
+        interface.assert_no_events();
+        interface.add_button_and_tick(GameButton::Fast);
+        interface.assert_both_test_events_are_present();
+    }
+
     struct TestInterface {
         world: World,
         stage: SystemStage,
     }
     impl TestInterface {
         fn with_input(input: &str) -> TestInterface {
+            TestInterface::with_parser(InputParser::with_input(TEST_MOVE, input))
+        }
+
+        fn with_inputs(input: &str, second_input: &str) -> TestInterface {
+            TestInterface::with_parser(InputParser::load(
+                vec![(TEST_MOVE, input), (SECOND_TEST_MOVE, second_input)]
+                    .into_iter()
+                    .collect(),
+            ))
+        }
+
+        fn with_parser(parser: InputParser) -> TestInterface {
             let mut world = World::default();
 
             let mut stage = SystemStage::parallel();
@@ -252,7 +274,7 @@ mod test {
 
             world
                 .spawn()
-                .insert(InputParser::with_input(TEST_MOVE, input))
+                .insert(parser)
                 .insert(PlayerState::default())
                 .insert(InputReader::with_pad(Gamepad(1)));
 
@@ -297,34 +319,39 @@ mod test {
             self.tick();
         }
 
-        fn assert_event_is_present(&mut self, id: MoveType) {
-            for r in self.world.query::<&InputParser>().iter(&self.world) {
-                assert_eq!(
-                    r.events.len(),
-                    1,
-                    "Expected one event, found {}",
-                    r.events.len()
-                );
-
-                for (event, _) in r.events.iter() {
-                    assert_eq!(event, &id, "Expected id '{}', found '{}'", id, event);
-                }
-            }
+        fn assert_test_event_is_present(&mut self) {
+            self.assert_event_is_present(TEST_MOVE);
         }
 
-        fn assert_test_event_is_present(&mut self) {
-            self.assert_event_is_present(TEST_MOVE)
+        fn assert_both_test_events_are_present(&mut self) {
+            self.assert_event_is_present(TEST_MOVE);
+            self.assert_event_is_present(SECOND_TEST_MOVE);
+        }
+
+        fn assert_event_is_present(&mut self, id: MoveType) {
+            let parser = self
+                .world
+                .query::<&InputParser>()
+                .iter(&self.world)
+                .next()
+                .unwrap();
+
+            assert!(parser.events.contains_key(&id));
         }
 
         fn assert_no_events(&mut self) {
-            for r in self.world.query::<&InputParser>().iter(&self.world) {
-                assert_eq!(
-                    r.events.len(),
-                    0,
-                    "Expected no events, found {:?}",
-                    r.events
-                );
-            }
+            let parser = self
+                .world
+                .query::<&InputParser>()
+                .iter(&self.world)
+                .next()
+                .unwrap();
+
+            assert!(
+                parser.events.is_empty(),
+                "Expected no events, found {:?}",
+                parser.events,
+            );
         }
     }
 }

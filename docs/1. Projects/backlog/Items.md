@@ -3,5 +3,8 @@
 	- [ ] Menu input parsing (fully event based)
 - [ ] Basic items
 	- [ ] Projectile active 6i (gun with limited bullets)
-	- [ ] Basic damage multiplier passive
+	- [ ] Basic damage buff passive
+	- [ ] Parry
+		- [ ] Open and close the parry window
+		- [ ] Ignore damage, hitstun and knockback on a parry
 - [ ] What if you had a pool of random things you could buy instead of always being able to buy everything

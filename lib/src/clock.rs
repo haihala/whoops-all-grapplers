@@ -5,6 +5,8 @@ use player_state::PlayerState;
 
 use crate::game_flow::GameState;
 
+pub const ROUND_TIME: f32 = 99.0;
+
 #[derive(Inspectable, Default)]
 pub struct Clock {
     pub frame: usize,
@@ -12,7 +14,7 @@ pub struct Clock {
 }
 impl Clock {
     pub fn time_out(&self) -> bool {
-        self.elapsed_time >= constants::ROUND_TIME - 1.0
+        self.elapsed_time >= ROUND_TIME - 1.0
     }
 
     fn reset(&mut self) {
@@ -31,7 +33,7 @@ impl Plugin for ClockPlugin {
             .add_system_set_to_stage(
                 CoreStage::First,
                 SystemSet::new()
-                    .with_run_criteria(FixedTimestep::steps_per_second(constants::FPS_F64))
+                    .with_run_criteria(FixedTimestep::steps_per_second(constants::FPS as f64))
                     .with_system(tick.system()),
             )
             .add_system_set(
@@ -54,9 +56,7 @@ fn tick(mut clock: ResMut<Clock>, bevy_clock: Res<Time>, mut query: Query<&mut P
 
 fn update_timer(mut query: Query<&mut Text, With<Timer>>, clock: Res<Clock>) {
     let mut text = query.single_mut().unwrap();
-    text.sections[0].value = (constants::ROUND_TIME - clock.elapsed_time)
-        .floor()
-        .to_string();
+    text.sections[0].value = (ROUND_TIME - clock.elapsed_time).floor().to_string();
 }
 
 fn reset_timer(mut clock: ResMut<Clock>) {

@@ -13,10 +13,13 @@ use crate::{
     frame_data_manager::FrameDataManager,
     game_flow::GameState,
     meter::Meter,
-    physics::PlayerVelocity,
+    physics::{PlayerVelocity, GROUND_PLANE_HEIGHT},
 };
 
 use bevy::prelude::*;
+
+const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
+const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 
 pub struct PlayerPlugin;
 
@@ -33,18 +36,8 @@ impl Plugin for PlayerPlugin {
 }
 
 fn setup(mut commands: Commands, colors: Res<Colors>) {
-    spawn_player(
-        &mut commands,
-        &colors,
-        -constants::PLAYER_SPAWN_DISTANCE,
-        Player::One,
-    );
-    spawn_player(
-        &mut commands,
-        &colors,
-        constants::PLAYER_SPAWN_DISTANCE,
-        Player::Two,
-    );
+    spawn_player(&mut commands, &colors, -PLAYER_SPAWN_DISTANCE, Player::One);
+    spawn_player(&mut commands, &colors, PLAYER_SPAWN_DISTANCE, Player::Two);
 }
 
 fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {
@@ -55,7 +48,7 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
             transform: Transform {
                 translation: (
                     offset,
-                    constants::PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0,
+                    PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0,
                     0.0,
                 )
                     .into(),
@@ -96,9 +89,9 @@ fn reset(
         meter.reset();
 
         tf.translation.x = match *player {
-            Player::One => -constants::PLAYER_SPAWN_DISTANCE,
-            Player::Two => constants::PLAYER_SPAWN_DISTANCE,
+            Player::One => -PLAYER_SPAWN_DISTANCE,
+            Player::Two => PLAYER_SPAWN_DISTANCE,
         };
-        tf.translation.y = constants::PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0;
+        tf.translation.y = PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0;
     }
 }

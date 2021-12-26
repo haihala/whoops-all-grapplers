@@ -6,6 +6,9 @@ use types::{AbsoluteDirection, Player};
 
 use crate::clock::run_max_once_per_combat_frame;
 
+pub const GROUND_PLANE_HEIGHT: f32 = -0.4;
+pub const ARENA_WIDTH: f32 = 10.0;
+
 #[derive(Debug, Inspectable, Clone)]
 enum PlayerVelocityType {
     Walk,
@@ -283,7 +286,7 @@ fn static_collision(
     player_size: Vec2,
 ) -> Option<StaticCollision> {
     let future_position = current_position + movement;
-    let relative_ground_plane = constants::GROUND_PLANE_HEIGHT + player_size.y / 2.0;
+    let relative_ground_plane = GROUND_PLANE_HEIGHT + player_size.y / 2.0;
 
     let distance_to_ground = future_position.y - relative_ground_plane;
     let y_collision = distance_to_ground < 0.0;
@@ -293,9 +296,9 @@ fn static_collision(
         future_position.y
     };
 
-    let x_collision = future_position.x.abs() > constants::ARENA_WIDTH;
+    let x_collision = future_position.x.abs() > ARENA_WIDTH;
     let legal_x = if x_collision {
-        current_position.x.signum() * constants::ARENA_WIDTH
+        current_position.x.signum() * ARENA_WIDTH
     } else {
         future_position.x
     };

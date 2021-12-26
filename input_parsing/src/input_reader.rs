@@ -3,7 +3,10 @@ use std::collections::VecDeque;
 use bevy::prelude::*;
 use types::{GameButton, StickPosition};
 
-use crate::helper_types::{ButtonUpdate, Diff, InputChange};
+use crate::{
+    helper_types::{ButtonUpdate, Diff, InputChange},
+    STICK_DEAD_ZONE,
+};
 
 #[derive(Default)]
 pub struct InputReader {
@@ -155,7 +158,7 @@ fn axis_change(reader: &mut Mut<InputReader>, axis: GamepadAxisType, new_value: 
         // Even though DPad axis are on the list, they don't fire
         GamepadAxisType::LeftStickX | GamepadAxisType::RightStickX | GamepadAxisType::DPadX => {
             reader.update_stick(
-                Some(if new_value.abs() > constants::STICK_DEAD_ZONE {
+                Some(if new_value.abs() > STICK_DEAD_ZONE {
                     new_value.signum() as i32
                 } else {
                     0
@@ -166,7 +169,7 @@ fn axis_change(reader: &mut Mut<InputReader>, axis: GamepadAxisType, new_value: 
         GamepadAxisType::LeftStickY | GamepadAxisType::RightStickY | GamepadAxisType::DPadY => {
             reader.update_stick(
                 None,
-                Some(if new_value.abs() > constants::STICK_DEAD_ZONE {
+                Some(if new_value.abs() > STICK_DEAD_ZONE {
                     new_value.signum() as i32
                 } else {
                     0

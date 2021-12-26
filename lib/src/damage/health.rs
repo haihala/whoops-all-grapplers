@@ -7,6 +7,8 @@ use types::Hit;
 
 use crate::{clock::Clock, physics::PlayerVelocity};
 
+const CHIP_DAMAGE_MULTIPLIER: f32 = 0.01;
+
 #[derive(Inspectable)]
 pub struct Health {
     // For rendering purposes, max health=1 and store only the ratio.
@@ -64,7 +66,7 @@ pub fn apply_hits(
 
             let (damage, stun, knockback) = if blocked {
                 (
-                    hit.damage * constants::CHIP_DAMAGE_MULTIPLIER,
+                    hit.damage * CHIP_DAMAGE_MULTIPLIER,
                     hit.block_stun,
                     mirror_knockback(hit.block_knockback, state.flipped()),
                 )

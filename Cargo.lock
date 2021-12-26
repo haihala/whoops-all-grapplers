@@ -1902,7 +1902,6 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
- "constants",
  "moves",
  "player_state",
  "types",
@@ -3431,7 +3430,6 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
- "constants",
  "strum",
  "strum_macros",
 ]

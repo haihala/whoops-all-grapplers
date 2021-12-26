@@ -4,3 +4,4 @@
 - [ ] Basic items
 	- [ ] Projectile active 6i (gun with limited bullets)
 	- [ ] Basic damage multiplier passive
+- [ ] What if you had a pool of random things you could buy instead of always being able to buy everything

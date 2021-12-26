@@ -2,7 +2,10 @@ use bevy::utils::Instant;
 
 use types::{GameButton, StickPosition};
 
-use crate::helper_types::{Diff, Frame};
+use crate::{
+    helper_types::{Diff, Frame},
+    CHARGE_TIME, MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
+};
 
 /// Enum used to define move inputs.
 #[derive(Debug, Clone, PartialEq)]
@@ -46,7 +49,7 @@ impl ParserHead {
         let now = Instant::now();
         now.duration_since(self.last_update.unwrap_or(now))
             .as_secs_f32()
-            > constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
+            > MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
             && self.charge_started.is_none()
     }
 
@@ -83,7 +86,7 @@ impl ParserHead {
                 let requirement_met = self.requirement_met(next_requirement.unwrap(), diff);
 
                 if let Some(charge_start) = self.charge_started {
-                    if now.duration_since(charge_start).as_secs_f32() > constants::CHARGE_TIME {
+                    if now.duration_since(charge_start).as_secs_f32() > CHARGE_TIME {
                         // Charge is done
                         let post_charge_requirement =
                             self.get_requirement_with_offset(&requirements, 2);

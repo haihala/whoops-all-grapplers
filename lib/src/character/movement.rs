@@ -6,6 +6,11 @@ use types::{RelativeDirection, StickPosition};
 
 pub use moves::universal::{DASH_BACK, DASH_FORWARD};
 
+const PLAYER_CROUCHING_OFFSET: f32 = constants::PLAYER_SPRITE_STANDING_HEIGHT / 2.0;
+const PLAYER_STANDING_OFFSET: f32 = constants::PLAYER_SPRITE_CROUCHING_HEIGHT / 2.0;
+const PLAYER_CROUCHING_SHIFT: f32 = PLAYER_STANDING_OFFSET - PLAYER_CROUCHING_OFFSET;
+const PLAYER_STANDING_SHIFT: f32 = -PLAYER_CROUCHING_SHIFT;
+
 pub fn movement(
     mut query: Query<(
         &mut InputParser,
@@ -42,10 +47,10 @@ pub fn movement(
             if sprite.size != new_size {
                 if sprite.size.y > new_size.y {
                     // Crouching
-                    tf.translation.y += constants::PLAYER_CROUCHING_SHIFT;
+                    tf.translation.y += PLAYER_CROUCHING_SHIFT;
                 } else {
                     // Standing up
-                    tf.translation.y += constants::PLAYER_STANDING_SHIFT;
+                    tf.translation.y += PLAYER_STANDING_SHIFT;
                 }
                 sprite.size = new_size;
             }

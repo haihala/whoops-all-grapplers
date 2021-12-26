@@ -1,6 +1,7 @@
 use crate::helper_types::{Diff, Frame};
 use crate::input_reader::InputReader;
 use crate::motion_input::MotionInput;
+use crate::EVENT_REPEAT_PERIOD;
 
 use bevy::utils::Instant;
 use bevy::{prelude::*, utils::HashMap};
@@ -89,9 +90,8 @@ impl InputParser {
     }
 
     fn purge_old_events(&mut self) {
-        self.events.retain(|_, timestamp| {
-            timestamp.elapsed().as_secs_f32() < constants::EVENT_REPEAT_PERIOD
-        })
+        self.events
+            .retain(|_, timestamp| timestamp.elapsed().as_secs_f32() < EVENT_REPEAT_PERIOD)
     }
 
     #[cfg(test)]
@@ -119,7 +119,10 @@ mod test {
     use player_state::PlayerState;
     use types::GameButton;
 
-    use crate::helper_types::{ButtonUpdate, InputChange};
+    use crate::{
+        helper_types::{ButtonUpdate, InputChange},
+        CHARGE_TIME, MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
+    };
 
     use super::*;
 
@@ -145,7 +148,7 @@ mod test {
         interface.add_stick_and_tick(StickPosition::E);
         interface.assert_no_events();
 
-        interface.sleep(constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
+        interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
 
         interface.add_button_and_tick(GameButton::Fast);
         interface.assert_no_events();
@@ -156,7 +159,7 @@ mod test {
         let mut interface = TestInterface::with_input("c46f");
 
         interface.add_stick_and_tick(StickPosition::W);
-        interface.sleep(constants::CHARGE_TIME);
+        interface.sleep(CHARGE_TIME);
 
         interface.add_stick_and_tick(StickPosition::E);
         interface.assert_no_events();
@@ -192,7 +195,7 @@ mod test {
         interface.assert_test_event_is_present();
 
         // Wait for the event to leave the buffer
-        interface.sleep(constants::EVENT_REPEAT_PERIOD);
+        interface.sleep(EVENT_REPEAT_PERIOD);
         interface.assert_no_events();
     }
 
@@ -213,7 +216,7 @@ mod test {
         interface.add_stick_and_tick(StickPosition::S);
         interface.assert_no_events();
 
-        interface.sleep(constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
+        interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
 
         interface.add_button_and_tick(GameButton::Fast);
         interface.assert_test_event_is_present();

@@ -7,6 +7,10 @@ use types::Player;
 
 struct WorldCamera;
 
+const CAMERA_FAR_DISTANCE: f32 = 10000.0;
+const CAMERA_HEIGHT: f32 = 2.0;
+const VIEWPORT_WIDTH: f32 = 5.0;
+
 // Originally from
 // https://bevy-cheatbook.github.io/cookbook/custom-projection.html?highlight=window#custom-camera-projection
 // Edited somewhat
@@ -18,18 +22,18 @@ struct SimpleOrthoProjection {
 impl CameraProjection for SimpleOrthoProjection {
     fn get_projection_matrix(&self) -> Mat4 {
         Mat4::orthographic_rh(
-            -constants::VIEWPORT_WIDTH,
-            constants::VIEWPORT_WIDTH,
+            -VIEWPORT_WIDTH,
+            VIEWPORT_WIDTH,
             -self.viewport_height,
             self.viewport_height,
             0.0,
-            constants::CAMERA_FAR_DISTANCE,
+            CAMERA_FAR_DISTANCE,
         )
     }
 
     // what to do on window resize
     fn update(&mut self, width: f32, height: f32) {
-        self.viewport_height = constants::VIEWPORT_WIDTH * height / width;
+        self.viewport_height = VIEWPORT_WIDTH * height / width;
     }
 
     fn depth_calculation(&self) -> DepthCalculation {
@@ -64,11 +68,7 @@ fn add_cameras(mut commands: Commands) {
     commands
         .spawn_bundle((
             // position the camera like bevy would do by default for 2D:
-            Transform::from_translation(Vec3::new(
-                0.0,
-                constants::CAMERA_HEIGHT,
-                constants::CAMERA_FAR_DISTANCE - 0.1,
-            )),
+            Transform::from_translation(Vec3::new(0.0, CAMERA_HEIGHT, CAMERA_FAR_DISTANCE - 0.1)),
             GlobalTransform::default(),
             VisibleEntities::default(),
             camera,

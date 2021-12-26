@@ -3,6 +3,8 @@ use types::Player;
 
 use crate::{damage::Health, meter::Meter};
 
+use super::{HEALTH_BAR_WIDTH, METER_BAR_WIDTH};
+
 pub struct MeterBar(pub Player);
 pub struct HealthBar(pub Player);
 
@@ -17,12 +19,12 @@ pub fn update(
     for (player, health, meter) in players.iter() {
         for (mut style, bar) in bars.q0_mut().iter_mut() {
             if *player == bar.0 {
-                style.size.width = Val::Percent(health.get_ratio() * constants::HEALTH_BAR_WIDTH);
+                style.size.width = Val::Percent(health.get_ratio() * HEALTH_BAR_WIDTH);
             }
         }
         for (mut style, bar) in bars.q1_mut().iter_mut() {
             if *player == bar.0 {
-                style.size.width = Val::Percent(meter.get_ratio() * constants::METER_BAR_WIDTH);
+                style.size.width = Val::Percent(meter.get_ratio() * METER_BAR_WIDTH);
             }
         }
     }

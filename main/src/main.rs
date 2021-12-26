@@ -1,7 +1,7 @@
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use input_parsing::InputParsingPlugin;
-use oops_all_grapplers_lib::WAGLib;
+use whoops_all_grapplers_lib::WAGLib;
 
 fn main() {
     // Happens roughly in order, so add stages, click and assets before using them

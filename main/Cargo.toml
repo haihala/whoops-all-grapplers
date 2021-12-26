@@ -1,5 +1,5 @@
 [package]
-name = "oops-all-grapplers"
+name = "whoops-all-grapplers"
 version = "0.1.0"
 authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 edition = "2018"
@@ -9,5 +9,5 @@ edition = "2018"
 [dependencies]
 bevy = "0.5.0"
 
-oops-all-grapplers-lib = { path = "../lib" }
+whoops-all-grapplers-lib = { path = "../lib" }
 input_parsing = { path = "../input_parsing" }

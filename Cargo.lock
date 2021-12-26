@@ -2635,29 +2635,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "692fcb63b64b1758029e0a96ee63e049ce8c5948587f2f7208df04625e5f6b56"
 
 [[package]]
-name = "oops-all-grapplers"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "input_parsing",
- "oops-all-grapplers-lib",
-]
-
-[[package]]
-name = "oops-all-grapplers-lib"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy-inspector-egui",
- "constants",
- "input_parsing",
- "moves",
- "num",
- "player_state",
- "types",
-]
-
-[[package]]
 name = "ordered-float"
 version = "2.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3638,6 +3615,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72fa9ba80626278fd87351555c363378d08122d7601e58319be3d6fa85a87747"
 dependencies = [
  "bitflags",
+]
+
+[[package]]
+name = "whoops-all-grapplers"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "input_parsing",
+ "whoops-all-grapplers-lib",
+]
+
+[[package]]
+name = "whoops-all-grapplers-lib"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "constants",
+ "input_parsing",
+ "moves",
+ "num",
+ "player_state",
+ "types",
 ]
 
 [[package]]

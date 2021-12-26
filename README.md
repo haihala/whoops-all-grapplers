@@ -1,4 +1,4 @@
-# Oops! All grapplers
+# Whoops! All grapplers
 
 Fighting game built in rust.
 

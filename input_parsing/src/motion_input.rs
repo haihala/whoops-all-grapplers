@@ -199,8 +199,8 @@ impl MotionInput {
     }
 }
 
-impl From<&'static str> for MotionInput {
-    fn from(input: &'static str) -> Self {
+impl From<&str> for MotionInput {
+    fn from(input: &str) -> Self {
         let mut tokens = vec![];
         let mut multichar = None;
 

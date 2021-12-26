@@ -29,7 +29,7 @@ impl Default for InputParser {
     }
 }
 impl InputParser {
-    pub fn load(inputs: HashMap<MoveType, &'static str>) -> Self {
+    pub fn load(inputs: HashMap<MoveType, &str>) -> Self {
         Self {
             registered_inputs: inputs
                 .into_iter()
@@ -95,7 +95,7 @@ impl InputParser {
     }
 
     #[cfg(test)]
-    fn with_input(id: MoveType, input: &'static str) -> InputParser {
+    fn with_input(id: MoveType, input: &str) -> InputParser {
         let mut parser = InputParser::default();
         parser.register_input(id, input.into());
         parser
@@ -125,204 +125,206 @@ mod test {
 
     #[test]
     fn hadouken_recognized() {
-        let (mut world, mut update_stage) = test_setup(InputParser::with_input(TEST_MOVE, "236f"));
+        let mut interface = TestInterface::with_input("236f");
 
-        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::S);
-        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::SE);
-        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::E);
-        assert_no_events(&mut world);
+        interface.add_stick_and_tick(StickPosition::S);
+        interface.add_stick_and_tick(StickPosition::SE);
+        interface.add_stick_and_tick(StickPosition::E);
+        interface.assert_no_events();
 
-        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_event_is_present(&mut world, TEST_MOVE);
+        interface.add_button_and_tick(GameButton::Fast);
+        interface.assert_test_event_is_present();
     }
 
     #[test]
     fn inputs_expire() {
-        let (mut world, mut update_stage) = test_setup(InputParser::with_input(TEST_MOVE, "236f"));
+        let mut interface = TestInterface::with_input("236f");
 
-        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::S);
-        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::SE);
-        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::E);
-        assert_no_events(&mut world);
+        interface.add_stick_and_tick(StickPosition::S);
+        interface.add_stick_and_tick(StickPosition::SE);
+        interface.add_stick_and_tick(StickPosition::E);
+        interface.assert_no_events();
 
-        sleep(Duration::from_secs_f32(
-            constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS + 0.1,
-        ));
-        tick_frames(&mut world, &mut update_stage, 1);
+        interface.sleep(constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
 
-        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_no_events(&mut world);
+        interface.add_button_and_tick(GameButton::Fast);
+        interface.assert_no_events();
     }
 
     #[test]
     fn sonic_boom_recognized() {
-        let (mut world, mut update_stage) = test_setup(InputParser::with_input(TEST_MOVE, "c46f"));
+        let mut interface = TestInterface::with_input("c46f");
 
-        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::W);
-        sleep(Duration::from_secs_f32(constants::CHARGE_TIME + 0.01));
-        tick_frames(&mut world, &mut update_stage, 1);
+        interface.add_stick_and_tick(StickPosition::W);
+        interface.sleep(constants::CHARGE_TIME);
 
-        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::E);
-        assert_no_events(&mut world);
+        interface.add_stick_and_tick(StickPosition::E);
+        interface.assert_no_events();
 
-        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_event_is_present(&mut world, TEST_MOVE);
+        interface.add_button_and_tick(GameButton::Fast);
+        interface.assert_test_event_is_present();
     }
 
     #[test]
     fn sonic_boom_needs_charge() {
-        let (mut world, mut update_stage) = test_setup(InputParser::with_input(TEST_MOVE, "c46f"));
+        let mut interface = TestInterface::with_input("c46f");
 
-        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::W);
-        tick_frames(&mut world, &mut update_stage, 1);
+        interface.add_stick_and_tick(StickPosition::W);
+        interface.tick();
 
-        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::E);
-        assert_no_events(&mut world);
+        interface.add_stick_and_tick(StickPosition::E);
+        interface.assert_no_events();
 
-        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_no_events(&mut world);
+        interface.add_button_and_tick(GameButton::Fast);
+        interface.assert_no_events();
     }
 
     #[test]
     fn normal_recognized_and_events_repeat_and_clear() {
-        let (mut world, mut update_stage) = test_setup(InputParser::with_input(TEST_MOVE, "f"));
+        let mut interface = TestInterface::with_input("f");
 
-        assert_no_events(&mut world);
-        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_event_is_present(&mut world, TEST_MOVE);
+        interface.assert_no_events();
+        interface.add_button_and_tick(GameButton::Fast);
+        interface.assert_test_event_is_present();
 
-        tick_frames(&mut world, &mut update_stage, 3);
         // Check that the event is still in (repeat works)
-        assert_event_is_present(&mut world, TEST_MOVE);
+        interface.multi_tick(3);
+        interface.assert_test_event_is_present();
 
         // Wait for the event to leave the buffer
-        sleep(Duration::from_secs_f32(
-            constants::EVENT_REPEAT_PERIOD + 0.01,
-        ));
-        tick_frames(&mut world, &mut update_stage, 1);
-        assert_no_events(&mut world);
+        interface.sleep(constants::EVENT_REPEAT_PERIOD);
+        interface.assert_no_events();
     }
 
     #[test]
     fn command_normal_recognized() {
-        let (mut world, mut update_stage) = test_setup(InputParser::with_input(TEST_MOVE, "2f"));
+        let mut interface = TestInterface::with_input("2f");
 
-        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::S);
-        assert_no_events(&mut world);
-        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_event_is_present(&mut world, TEST_MOVE);
+        interface.add_stick_and_tick(StickPosition::S);
+        interface.assert_no_events();
+        interface.add_button_and_tick(GameButton::Fast);
+        interface.assert_test_event_is_present();
     }
 
     #[test]
     fn slow_command_normal_recognized() {
-        let (mut world, mut update_stage) = test_setup(InputParser::with_input(TEST_MOVE, "2f"));
+        let mut interface = TestInterface::with_input("2f");
 
-        add_stick_and_tick(&mut world, &mut update_stage, StickPosition::S);
-        assert_no_events(&mut world);
+        interface.add_stick_and_tick(StickPosition::S);
+        interface.assert_no_events();
 
-        sleep(Duration::from_secs_f32(
-            constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS + 0.1,
-        ));
-        tick_frames(&mut world, &mut update_stage, 1);
+        interface.sleep(constants::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
 
-        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_event_is_present(&mut world, TEST_MOVE);
+        interface.add_button_and_tick(GameButton::Fast);
+        interface.assert_test_event_is_present();
     }
 
     #[test]
     fn multibutton_normal_recognized() {
-        let (mut world, mut update_stage) = test_setup(InputParser::with_input(TEST_MOVE, "[fh]"));
+        let mut interface = TestInterface::with_input("[fh]");
 
-        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_no_events(&mut world);
-        add_button_and_tick(&mut world, &mut update_stage, GameButton::Heavy);
-        assert_event_is_present(&mut world, TEST_MOVE);
+        interface.add_button_and_tick(GameButton::Fast);
+        interface.assert_no_events();
+        interface.add_button_and_tick(GameButton::Heavy);
+        interface.assert_test_event_is_present();
     }
 
     #[test]
     fn multibutton_normal_recognized_despite_order() {
-        let (mut world, mut update_stage) = test_setup(InputParser::with_input(TEST_MOVE, "[fh]"));
+        let mut interface = TestInterface::with_input("[fh]");
 
-        add_button_and_tick(&mut world, &mut update_stage, GameButton::Heavy);
-        assert_no_events(&mut world);
-        add_button_and_tick(&mut world, &mut update_stage, GameButton::Fast);
-        assert_event_is_present(&mut world, TEST_MOVE);
+        interface.add_button_and_tick(GameButton::Heavy);
+        interface.assert_no_events();
+        interface.add_button_and_tick(GameButton::Fast);
+        interface.assert_test_event_is_present();
     }
 
-    fn test_setup(parser: InputParser) -> (World, SystemStage) {
-        let mut world = World::default();
-
-        let mut update_stage = SystemStage::parallel();
-        update_stage.add_system(parse_input.system());
-
-        world
-            .spawn()
-            .insert(parser)
-            .insert(PlayerState::default())
-            .insert(InputReader::with_pad(Gamepad(1)));
-
-        // Initial tick
-        update_stage.run(&mut world);
-
-        (world, update_stage)
+    struct TestInterface {
+        world: World,
+        stage: SystemStage,
     }
+    impl TestInterface {
+        fn with_input(input: &str) -> TestInterface {
+            let mut world = World::default();
 
-    fn tick_frames(mut world: &mut World, update_stage: &mut SystemStage, frames: i32) {
-        for _ in 0..frames {
-            update_stage.run(&mut world);
+            let mut stage = SystemStage::parallel();
+            stage.add_system(parse_input.system());
+
+            world
+                .spawn()
+                .insert(InputParser::with_input(TEST_MOVE, input))
+                .insert(PlayerState::default())
+                .insert(InputReader::with_pad(Gamepad(1)));
+
+            let mut tester = TestInterface { world, stage };
+            tester.tick();
+
+            tester
         }
-    }
 
-    fn add_button_and_tick(
-        mut world: &mut World,
-        update_stage: &mut SystemStage,
-        button: GameButton,
-    ) {
-        add_input(
-            &mut world,
-            InputChange::Button(button, ButtonUpdate::Pressed),
-        );
-        update_stage.run(&mut world);
-    }
-
-    fn add_stick_and_tick(
-        mut world: &mut World,
-        update_stage: &mut SystemStage,
-        stick: StickPosition,
-    ) {
-        add_input(&mut world, InputChange::Stick(stick));
-        update_stage.run(&mut world);
-    }
-
-    fn add_input(world: &mut World, change: InputChange) {
-        for mut reader in world.query::<&mut InputReader>().iter_mut(world) {
-            reader.push(change);
+        fn tick(&mut self) {
+            self.stage.run(&mut self.world);
         }
-    }
 
-    fn assert_event_is_present(world: &mut World, id: MoveType) {
-        for r in world.query::<&InputParser>().iter(&world) {
-            assert_eq!(
-                r.events.len(),
-                1,
-                "Expected one event, found {}",
-                r.events.len()
-            );
-
-            for (event, _) in r.events.iter() {
-                assert_eq!(event, &id, "Expected id '{}', found '{}'", id, event);
+        fn multi_tick(&mut self, frames: usize) {
+            for _ in 0..frames {
+                self.tick();
             }
         }
-    }
 
-    fn assert_no_events(world: &mut World) {
-        for r in world.query::<&InputParser>().iter(&world) {
-            assert_eq!(
-                r.events.len(),
-                0,
-                "Expected no events, found {:?}",
-                r.events
-            );
+        fn add_button_and_tick(&mut self, button: GameButton) {
+            self.add_input(InputChange::Button(button, ButtonUpdate::Pressed));
+            self.tick();
+        }
+
+        fn add_stick_and_tick(&mut self, stick: StickPosition) {
+            self.add_input(InputChange::Stick(stick));
+            self.tick();
+        }
+
+        fn add_input(&mut self, change: InputChange) {
+            for mut reader in self
+                .world
+                .query::<&mut InputReader>()
+                .iter_mut(&mut self.world)
+            {
+                reader.push(change);
+            }
+        }
+
+        fn sleep(&mut self, seconds: f32) {
+            sleep(Duration::from_secs_f32(seconds + 0.1));
+            self.tick();
+        }
+
+        fn assert_event_is_present(&mut self, id: MoveType) {
+            for r in self.world.query::<&InputParser>().iter(&self.world) {
+                assert_eq!(
+                    r.events.len(),
+                    1,
+                    "Expected one event, found {}",
+                    r.events.len()
+                );
+
+                for (event, _) in r.events.iter() {
+                    assert_eq!(event, &id, "Expected id '{}', found '{}'", id, event);
+                }
+            }
+        }
+
+        fn assert_test_event_is_present(&mut self) {
+            self.assert_event_is_present(TEST_MOVE)
+        }
+
+        fn assert_no_events(&mut self) {
+            for r in self.world.query::<&InputParser>().iter(&self.world) {
+                assert_eq!(
+                    r.events.len(),
+                    0,
+                    "Expected no events, found {:?}",
+                    r.events
+                );
+            }
         }
     }
 }

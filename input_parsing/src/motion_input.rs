@@ -34,6 +34,12 @@ struct ParserHead {
     multipresses_received: Vec<GameButton>,
 }
 impl ParserHead {
+    fn new_from_diff(requirements: Vec<Requirement>, diff: &Diff) -> ParserHead {
+        let mut new = ParserHead::new(requirements.get(0).cloned());
+        new.advance(requirements, diff);
+        new
+    }
+
     fn new(requirement: Option<Requirement>) -> ParserHead {
         ParserHead {
             requirement,
@@ -179,11 +185,11 @@ impl MotionInput {
             return;
         }
 
-        if !self.heads.iter().any(|head| head.index == 0) {
-            let mut head = ParserHead::new(self.requirements.get(0).cloned());
-            // This is mostly for command normals, holding a direction works only on the first definition of the move
-            head.advance(self.requirements.clone(), &frame.diff_from_neutral());
-            self.heads.push(head);
+        let new_head =
+            ParserHead::new_from_diff(self.requirements.clone(), &frame.diff_from_neutral());
+
+        if !self.heads.iter().any(|head| head.index == new_head.index) {
+            self.heads.push(new_head);
         }
 
         self.heads = self

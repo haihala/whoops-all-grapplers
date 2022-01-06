@@ -1,0 +1,10 @@
+- Just instead of make
+- Toolchain.toml
+- resolver = "2" for workspace cargo.toml
+- Linker to llvm
+- Debug = 1
+- Incremental builds
+- lto off to speed up rebuilds
+- Circle CI instead of jenkins?
+- cargo-udeps
+- cargo-outdated (or renovate)

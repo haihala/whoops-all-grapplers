@@ -1,6 +1,0 @@
-- Functions bound to the keyboard
-- Play and record
-- Restart
-- Flip characters
-- Add tests for moves timing out
-- Write tests to the point where a list of inputs goes in and then you can make assertions on the world. 

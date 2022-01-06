@@ -23,10 +23,12 @@ Each of these are meant to be large tasks with sub tasks. Make separate projects
 	- [x] Run
 - [ ] Basic combat
 	- [x] Attack (Damage boxes created on command)
-	- [x] Block
-	- [ ] Parry
+	- [ ] Block
+		- [x] Can block
+		- [ ] High/low
 	- [ ] Recovery
 	- [ ] Throw
+		- [ ] Can throw
 		- [ ] Yomi counter
 - [ ] One character ([[Ryan]])
 	- [ ] 4 normals

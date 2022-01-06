@@ -30,7 +30,12 @@ One X per line, when all lines have an X at polished, the character is done.
 ## Idea dump
 If a character has a name or more than 3 lines, they need a file of their own. Copy [[template]] and change the name. Add a page to the excel that holds move importance.
 
-- Forward charge parry
+- Characters have small strings of music attached to some of their combos
+	- Like a few hit combo that sounds like the start of the american national anthem
+- Character with a miniquest mechanic where they get rewarded for completing quests
+	- Each quest has a progress bar and the joke is to have super many bars
+- Character who is kinda bad but they get bonus money because they are rich
+- Forward charge, back+button = parry or a reposte
 - Whip attack that is a hit far up, grab close up and has a dead zone in the middle where it's a movement slowing very negative whiff
 - Two step guard crush, the first puts on a status that makes you take more chip, the second opens you up.
 - Samurai with the motto "measure twice, cut once" each blocked non-mid and each parry increase a counter. Has a slow heavy slash type of move, that deals damage based on stacks. Very punishable on block.

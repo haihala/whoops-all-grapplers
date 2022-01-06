@@ -10,3 +10,4 @@ Not part of the MVP, dump for ideas for presentation
 	- Chip damage (kills?)
 	- Throw dodge (Jump a ground throw)
 	- Grabbed
+- Instead of a combo counter, show frame advantage

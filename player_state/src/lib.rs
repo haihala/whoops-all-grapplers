@@ -1,13 +1,10 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
+use moves::{CancelLevel, Move, Phase, PhaseKind};
 
 use std::fmt::Debug;
 
-use moves::FrameData;
-use types::{AbsoluteDirection, RelativeDirection};
-
-mod animation;
-use animation::Animation;
+use types::{AbsoluteDirection, MoveId, RelativeDirection};
 
 mod primary_state;
 use primary_state::*;
@@ -15,21 +12,25 @@ use primary_state::*;
 mod events;
 use events::*;
 
-pub use events::{AnimationEvent, StateEvent};
+pub use events::StateEvent;
 
-#[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug, PartialOrd, Ord)]
-pub enum FreedomLevel {
-    // TODO: This probably needs to adapt when cancelling complexity comes
-    Stunned,
-    Busy,
-    LightBusy,
-    Free,
+#[derive(Debug, Default, Inspectable, Clone)]
+struct MoveTracker {
+    move_data: Move,
+    start_frame: usize,
+    previous_phase: Phase,
+}
+impl MoveTracker {
+    fn get_phase(&self, frame: usize) -> Option<&Phase> {
+        self.move_data.get_phase(self.start_frame, frame)
+    }
 }
 
-#[derive(Inspectable, PartialEq, Clone, Debug)]
+#[derive(Inspectable, Debug)]
 pub struct PlayerState {
-    facing: AbsoluteDirection,
     primary: PrimaryState,
+    move_tracker: Option<MoveTracker>,
+    facing: AbsoluteDirection,
     frame: usize,
     events: Vec<(usize, StateEvent)>,
 }
@@ -37,16 +38,16 @@ pub struct PlayerState {
 impl Default for PlayerState {
     fn default() -> Self {
         Self {
-            facing: Default::default(),
             primary: PrimaryState::Ground(GroundActivity::Standing),
-            frame: 0,
+            move_tracker: Default::default(),
+            facing: Default::default(),
+            frame: Default::default(),
             events: Default::default(),
         }
     }
 }
 impl PlayerState {
     pub fn tick(&mut self, current_frame: usize) {
-        // TODO: change dash and
         self.frame = current_frame;
 
         match self.primary {
@@ -57,55 +58,21 @@ impl PlayerState {
                             self.primary = PrimaryState::Ground(GroundActivity::Standing);
                         }
                     }
-                    GroundActivity::Animation(mut animation) => {
-                        if let Some(event) = animation.tick(self.frame) {
-                            if matches!(
-                                event,
-                                StateEvent::AnimationUpdate(AnimationEvent::Recovered)
-                            ) {
-                                // TODO: Returning to neutral can't always go standing
-                                self.primary = PrimaryState::Ground(GroundActivity::Standing);
-                            } else {
-                                self.primary =
-                                    PrimaryState::Ground(GroundActivity::Animation(animation));
-                            }
-                            self.events.push((self.frame, event));
+                    GroundActivity::Walk(last_input_frame, _) => {
+                        // Implicitly stop walking if no events have come in for a few frames
+                        // The delay of 5 frames is a bit much, but hopefully gives the character some weight
+                        if last_input_frame + 5 < self.frame {
+                            self.primary = PrimaryState::Ground(GroundActivity::Standing);
                         }
                     }
-                    GroundActivity::Movement(movement) => match movement {
-                        Movement::Dash(mut dash) => {
-                            if dash.tick_check_expiration(self.frame) {
-                                // Dash has ended
-                                self.primary = PrimaryState::Ground(GroundActivity::Standing);
-                            } else {
-                                self.primary = PrimaryState::Ground(GroundActivity::Movement(
-                                    Movement::Dash(dash),
-                                ));
-                            }
-                        }
-                        Movement::Walk((last_input_frame, _)) => {
-                            // Implicitly stop walking if no events have come in for a few frames
-                            if last_input_frame + 5 < self.frame {
-                                self.primary = PrimaryState::Ground(GroundActivity::Standing);
-                            }
-                        }
-                        Movement::Null => panic!("Null movement state"),
-                    },
+                    GroundActivity::Move(id) => {
+                        self.move_tick(id, PrimaryState::Ground(GroundActivity::Standing))
+                    }
                     _ => {}
                 }
             }
-            PrimaryState::Air(AirActivity::Animation(mut animation)) => {
-                if let Some(event) = animation.tick(self.frame) {
-                    if matches!(
-                        event,
-                        StateEvent::AnimationUpdate(AnimationEvent::Recovered)
-                    ) {
-                        self.primary = PrimaryState::Air(AirActivity::Idle);
-                    } else {
-                        self.primary = PrimaryState::Air(AirActivity::Animation(animation));
-                    }
-                    self.events.push((self.frame, event));
-                }
+            PrimaryState::Air(AirActivity::Move(id)) => {
+                self.move_tick(id, PrimaryState::Air(AirActivity::Idle))
             }
             _ => {}
         }
@@ -115,16 +82,34 @@ impl PlayerState {
             .iter()
             .filter(|(frame, _)| frame + 300 < self.frame)
         {
-            dbg!(late_event);
-            panic!("Event wasn't processed");
+            panic!("Late event {:?} wasn't processed", late_event);
+        }
+    }
+    fn move_tick(&mut self, move_id: MoveId, return_state: PrimaryState) {
+        let mut tracker = self.move_tracker.clone().unwrap();
+        let phase = tracker.get_phase(self.frame);
+
+        if let Some(new_phase) = phase {
+            if *new_phase != tracker.previous_phase {
+                if let PhaseKind::Hitbox(_) = new_phase.kind {
+                    self.add_event(StateEvent::Hitbox {
+                        move_id,
+                        ttl: new_phase.duration,
+                    });
+                }
+
+                tracker.previous_phase = new_phase.to_owned();
+                self.move_tracker = Some(tracker);
+            }
+        } else {
+            // Move is over
+            self.move_tracker = None;
+            self.primary = return_state;
         }
     }
 
-    pub fn freedom_level(&self) -> FreedomLevel {
-        match self.primary {
-            PrimaryState::Ground(activity) => activity.freedom_level(),
-            PrimaryState::Air(_) => FreedomLevel::Busy, // TODO: This is temporary and prohibits attacking while in the air
-        }
+    fn add_event(&mut self, event: StateEvent) {
+        self.events.push((self.frame, event));
     }
 
     pub fn get_events(&self) -> Vec<StateEvent> {
@@ -154,23 +139,35 @@ impl PlayerState {
         self.facing.to_vec3()
     }
 
-    // Animation
-    pub fn start_animation(&mut self, frame_data: FrameData) {
-        let animation = Animation::new(self.frame, frame_data);
-        match self.primary {
-            PrimaryState::Ground(_) => {
-                self.primary = PrimaryState::Ground(GroundActivity::Animation(animation));
-            }
-            PrimaryState::Air(_) => {
-                self.primary = PrimaryState::Air(AirActivity::Animation(animation));
+    // Moves
+    pub fn start_move(&mut self, id: MoveId, move_data: Move) {
+        self.primary = match self.primary {
+            PrimaryState::Ground(_) => PrimaryState::Ground(GroundActivity::Move(id.to_owned())),
+            PrimaryState::Air(_) => PrimaryState::Air(AirActivity::Move(id.to_owned())),
+        };
+        self.move_tracker = Some(MoveTracker {
+            previous_phase: move_data
+                .get_phase(self.frame, self.frame)
+                .unwrap()
+                .to_owned(),
+            move_data,
+            start_frame: self.frame,
+        });
+    }
+    pub fn cancel_requirement(&self) -> CancelLevel {
+        if let Some(tracker) = &self.move_tracker {
+            if let Some(phase) = tracker.get_phase(self.frame) {
+                return phase.cancel_requirement;
             }
         }
+
+        CancelLevel::Anything
     }
-    pub fn animation_in_progress(&self) -> bool {
-        matches!(
-            self.primary,
-            PrimaryState::Ground(GroundActivity::Animation(_))
-        ) || matches!(self.primary, PrimaryState::Air(AirActivity::Animation(_)))
+    pub fn get_move_mobility(&self) -> Option<Vec3> {
+        self.move_tracker
+            .as_ref()
+            .map(|tracker| tracker.get_phase(self.frame).map(|phase| phase.mobility))
+            .unwrap_or_default()
     }
 
     // Stun
@@ -189,37 +186,23 @@ impl PlayerState {
         }
     }
 
-    // Dash
-    pub fn start_dash(&mut self, direction: RelativeDirection) {
-        self.primary = PrimaryState::Ground(GroundActivity::Movement(Movement::Dash(
-            DashState::new(direction, self.frame),
-        )));
-    }
-    pub fn get_dash(&mut self) -> Option<DashState> {
-        match self.primary {
-            PrimaryState::Ground(GroundActivity::Movement(Movement::Dash(dash_state))) => {
-                Some(dash_state)
-            }
-            _ => None,
-        }
-    }
-
     // Jumping
     pub fn land(&mut self) {
         self.primary = PrimaryState::Ground(GroundActivity::Standing);
     }
     pub fn register_jump(&mut self, direction: Option<RelativeDirection>) {
+        if self.cancel_requirement() > CancelLevel::Jump {
+            return;
+        }
+
         dbg!("Jump");
         self.primary = PrimaryState::Air(AirActivity::Idle);
-        self.events.push((
-            self.frame,
-            StateEvent::Jump(match direction {
-                Some(relative_direction) => {
-                    JumpDirection::Diagonal(relative_direction.as_absolute(self.facing))
-                }
-                None => JumpDirection::Neutral,
-            }),
-        ));
+        self.add_event(StateEvent::Jump(match direction {
+            Some(relative_direction) => {
+                JumpDirection::Diagonal(relative_direction.as_absolute(self.facing))
+            }
+            None => JumpDirection::Neutral,
+        }));
     }
     pub fn jump_direction_to_impulse(&mut self, jump_direction: JumpDirection) -> Vec3 {
         match jump_direction {
@@ -236,14 +219,14 @@ impl PlayerState {
 
     // Walking
     pub fn walk(&mut self, direction: RelativeDirection) {
-        self.primary = PrimaryState::Ground(GroundActivity::Movement(Movement::Walk((
-            self.frame, direction,
-        ))));
+        if self.cancel_requirement() > CancelLevel::Anything {
+            return;
+        }
+
+        self.primary = PrimaryState::Ground(GroundActivity::Walk(self.frame, direction));
     }
     pub fn get_walk_direction(&self) -> Option<AbsoluteDirection> {
-        if let PrimaryState::Ground(GroundActivity::Movement(Movement::Walk((_, direction)))) =
-            self.primary
-        {
+        if let PrimaryState::Ground(GroundActivity::Walk(_, direction)) = self.primary {
             Some(direction.as_absolute(self.facing))
         } else {
             None
@@ -251,9 +234,15 @@ impl PlayerState {
     }
 
     pub fn crouch(&mut self) {
+        if self.cancel_requirement() > CancelLevel::Anything {
+            return;
+        }
         self.primary = PrimaryState::Ground(GroundActivity::Crouching);
     }
     pub fn stand(&mut self) {
+        if self.cancel_requirement() > CancelLevel::Anything {
+            return;
+        }
         self.primary = PrimaryState::Ground(GroundActivity::Standing);
     }
 

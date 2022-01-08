@@ -38,7 +38,8 @@ impl Default for AbsoluteDirection {
     }
 }
 impl AbsoluteDirection {
-    pub fn inverse(&self) -> Self {
+    #[must_use]
+    fn inverse(self) -> AbsoluteDirection {
         match self {
             AbsoluteDirection::Left => AbsoluteDirection::Right,
             AbsoluteDirection::Right => AbsoluteDirection::Left,
@@ -54,14 +55,6 @@ impl AbsoluteDirection {
             0.0,
             0.0,
         )
-    }
-
-    pub fn as_relative(&self, pivot: AbsoluteDirection) -> RelativeDirection {
-        if *self == pivot {
-            RelativeDirection::Forward
-        } else {
-            RelativeDirection::Back
-        }
     }
 
     pub fn handle_mirroring(&self, vector: Vec3) -> Vec3 {

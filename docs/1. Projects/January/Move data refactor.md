@@ -19,35 +19,25 @@ Blocked by: [[Input parsing v4]]
 	- Knockback
 
 Steps
-1. [ ] Make a move struct
-2. [ ] Make a move bank that holds the character's moves
-3. [ ] Simplify animation bank to only store current animation steps
-4. [ ] Integrate inputs parsing to move bank
+1. [x] Make a move struct
+2. [x] Rethink cancelling to be intuitive
+3. [x] Make a move bank that holds the character's moves
+4. [x] Remove animation bank
+5. [x] Remove HitboxManager
+6. [x] Integrate inputs parsing to move bank
+7. [x] No more HitboxManager
+8. [x] Change PlayerState
+	1. [x] No more animation bank, active move state is now a part of player state
+	3. [x] Dash is a move instead of being a unique state
+9. [x] Mapping of spawn id to entity with components
+	1. [x] Load similarly to inputs
+	2. [x] Trigger an event to spawn with a ttl
+	3. [x] Spawn and despawn accordingly
+10. [x] Use new cancel system for jumps and movement
 
-
-From taskboard:
-# Define move data in phases, each phase has:
-
-Startup, active, recovery is a three phase process, multihitting moves get more phases. 
-
-A phase is an enum. One of:
--animation(recovery or startup)
--spawn(projectile)
--active
-
-Every phase has:
--duration
--optional position at the end (if it moves you)
--freedom level
-
-Spawn has a reference to the spawned object. (Maybe static mapping from id)
-
-Active has:
--optional 'hit' (damage, knockback, stuff that will be relevant if it connects)
--optional hitbox(size and offset)
-
-Dash is a move with two animation phases.
-
-In addition to phases, moves have:
--input
--costs
+Bugs:
+- [x] Sometimes button does nothing
+- [x] Forward punch stops the user
+- [x] Wrong box is spawned on command normal
+- [x] Special isn't interpreted
+- [x] Crouch ignores cancels

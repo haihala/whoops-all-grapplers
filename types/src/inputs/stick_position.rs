@@ -74,6 +74,7 @@ impl Into<IVec2> for StickPosition {
     }
 }
 impl StickPosition {
+    #[must_use]
     pub fn flip(self) -> Self {
         let as_vec: IVec2 = self.into();
         IVec2::new(-as_vec.x, as_vec.y).into()

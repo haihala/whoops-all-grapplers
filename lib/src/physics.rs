@@ -12,7 +12,7 @@ pub const ARENA_WIDTH: f32 = 10.0;
 #[derive(Debug, Inspectable, Clone)]
 enum PlayerVelocityType {
     Walk,
-    Dash,
+    Move,
     Previous,
 }
 
@@ -40,7 +40,7 @@ impl PlayerVelocity {
     pub fn get_total(&self) -> Vec3 {
         match self.used_velocity {
             PlayerVelocityType::Walk => Vec3::new(self.walk_velocity, 0.0, 0.0),
-            PlayerVelocityType::Dash => self.dash_velocity,
+            PlayerVelocityType::Move => self.dash_velocity,
             PlayerVelocityType::Previous => self.total,
         }
     }
@@ -52,8 +52,8 @@ impl PlayerVelocity {
     }
     pub fn tick(&mut self, state: &mut PlayerState) {
         // Set correct velocity mode
-        if state.get_dash().is_some() {
-            self.used_velocity = PlayerVelocityType::Dash;
+        if state.get_move_mobility().is_some() {
+            self.used_velocity = PlayerVelocityType::Move;
         } else if state.get_walk_direction().is_some() {
             self.used_velocity = PlayerVelocityType::Walk;
         } else {
@@ -63,7 +63,7 @@ impl PlayerVelocity {
         // Calculate new velocity
         self.total = match self.used_velocity {
             PlayerVelocityType::Walk => Vec3::new(self.walk_velocity, 0.0, 0.0),
-            PlayerVelocityType::Dash => self.dash_velocity,
+            PlayerVelocityType::Move => self.dash_velocity,
             PlayerVelocityType::Previous => {
                 if state.is_grounded() {
                     // Drag
@@ -88,9 +88,9 @@ impl PlayerVelocity {
         } + self.impulse_collector;
         self.impulse_collector = Vec3::ZERO;
     }
-    fn set_dash_velocity(&mut self, state: &mut PlayerState) {
-        if let Some(dash) = state.get_dash() {
-            self.dash_velocity = dash.get_vec(state.forward());
+    fn set_move_velocity(&mut self, state: &mut PlayerState) {
+        if let Some(mobility) = state.get_move_mobility() {
+            self.dash_velocity = mobility;
         } else {
             self.dash_velocity = Vec3::ZERO;
         }
@@ -147,7 +147,7 @@ impl Plugin for PhysicsPlugin {
 
 fn player_input(mut query: Query<(&mut PlayerState, &mut PlayerVelocity)>) {
     for (mut state, mut velocity) in query.iter_mut() {
-        velocity.set_dash_velocity(&mut state);
+        velocity.set_move_velocity(&mut state);
         for event in state.get_events() {
             match event {
                 StateEvent::Jump(direction) => {

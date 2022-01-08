@@ -1,36 +1,30 @@
-use crate::helper_types::{Diff, Frame};
-use crate::input_reader::InputReader;
-use crate::motion_input::MotionInput;
-use crate::EVENT_REPEAT_PERIOD;
+use crate::{
+    helper_types::{Diff, Frame},
+    input_reader::InputReader,
+    motion_input::MotionInput,
+    EVENT_REPEAT_PERIOD,
+};
 
-use bevy::utils::Instant;
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{
+    prelude::*,
+    utils::{HashMap, Instant},
+};
 
 use player_state::PlayerState;
-use types::{MoveType, StickPosition};
+use types::{MoveId, StickPosition};
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
+#[derive(Debug, Default)]
 pub struct InputParser {
-    events: HashMap<MoveType, Instant>,
+    events: HashMap<MoveId, Instant>,
 
-    registered_inputs: HashMap<MoveType, MotionInput>,
+    registered_inputs: HashMap<MoveId, MotionInput>,
     head: Frame,
     relative_stick: StickPosition,
 }
-
-impl Default for InputParser {
-    fn default() -> Self {
-        Self {
-            events: Default::default(),
-            registered_inputs: Default::default(),
-            head: Default::default(),
-            relative_stick: Default::default(),
-        }
-    }
-}
 impl InputParser {
-    pub fn load(inputs: HashMap<MoveType, &str>) -> Self {
+    pub fn load(inputs: HashMap<MoveId, &str>) -> Self {
         Self {
             registered_inputs: inputs
                 .into_iter()
@@ -40,7 +34,7 @@ impl InputParser {
         }
     }
 
-    pub fn register_input(&mut self, id: MoveType, input: MotionInput) {
+    pub fn register_input(&mut self, id: MoveId, input: MotionInput) {
         self.registered_inputs.insert(id, input);
     }
 
@@ -52,12 +46,12 @@ impl InputParser {
         self.relative_stick
     }
 
-    pub fn get_events(&self) -> Vec<MoveType> {
+    pub fn get_events(&self) -> Vec<MoveId> {
         self.events.clone().into_iter().map(|(id, _)| id).collect()
     }
 
-    pub fn consume_event(&mut self, event: &MoveType) {
-        self.events.remove(event);
+    pub fn consume_event(&mut self, event: MoveId) {
+        self.events.remove(&event);
     }
 
     fn add_frame(&mut self, diff: Diff, flipped: bool) {
@@ -95,7 +89,7 @@ impl InputParser {
     }
 
     #[cfg(test)]
-    fn with_input(id: MoveType, input: &str) -> InputParser {
+    fn with_input(id: MoveId, input: &str) -> InputParser {
         let mut parser = InputParser::default();
         parser.register_input(id, input.into());
         parser
@@ -128,20 +122,20 @@ mod test {
 
     #[test]
     fn hadouken_recognized() {
-        let mut interface = TestInterface::with_input("236f");
+        let mut interface = TestInterface::with_input("236l");
 
         interface.add_stick_and_tick(StickPosition::S);
         interface.add_stick_and_tick(StickPosition::SE);
         interface.add_stick_and_tick(StickPosition::E);
         interface.assert_no_events();
 
-        interface.add_button_and_tick(GameButton::Fast);
+        interface.add_button_and_tick(GameButton::Light);
         interface.assert_test_event_is_present();
     }
 
     #[test]
     fn inputs_expire() {
-        let mut interface = TestInterface::with_input("236f");
+        let mut interface = TestInterface::with_input("236l");
 
         interface.add_stick_and_tick(StickPosition::S);
         interface.add_stick_and_tick(StickPosition::SE);
@@ -150,13 +144,13 @@ mod test {
 
         interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
 
-        interface.add_button_and_tick(GameButton::Fast);
+        interface.add_button_and_tick(GameButton::Light);
         interface.assert_no_events();
     }
 
     #[test]
     fn sonic_boom_recognized() {
-        let mut interface = TestInterface::with_input("c46f");
+        let mut interface = TestInterface::with_input("c46l");
 
         interface.add_stick_and_tick(StickPosition::W);
         interface.sleep(CHARGE_TIME);
@@ -164,13 +158,13 @@ mod test {
         interface.add_stick_and_tick(StickPosition::E);
         interface.assert_no_events();
 
-        interface.add_button_and_tick(GameButton::Fast);
+        interface.add_button_and_tick(GameButton::Light);
         interface.assert_test_event_is_present();
     }
 
     #[test]
     fn sonic_boom_needs_charge() {
-        let mut interface = TestInterface::with_input("c46f");
+        let mut interface = TestInterface::with_input("c46l");
 
         interface.add_stick_and_tick(StickPosition::W);
         interface.tick();
@@ -178,16 +172,16 @@ mod test {
         interface.add_stick_and_tick(StickPosition::E);
         interface.assert_no_events();
 
-        interface.add_button_and_tick(GameButton::Fast);
+        interface.add_button_and_tick(GameButton::Light);
         interface.assert_no_events();
     }
 
     #[test]
     fn normal_recognized_and_events_repeat_and_clear() {
-        let mut interface = TestInterface::with_input("f");
+        let mut interface = TestInterface::with_input("l");
 
         interface.assert_no_events();
-        interface.add_button_and_tick(GameButton::Fast);
+        interface.add_button_and_tick(GameButton::Light);
         interface.assert_test_event_is_present();
 
         // Check that the event is still in (repeat works)
@@ -201,32 +195,32 @@ mod test {
 
     #[test]
     fn command_normal_recognized() {
-        let mut interface = TestInterface::with_input("2f");
+        let mut interface = TestInterface::with_input("2l");
 
         interface.add_stick_and_tick(StickPosition::S);
         interface.assert_no_events();
-        interface.add_button_and_tick(GameButton::Fast);
+        interface.add_button_and_tick(GameButton::Light);
         interface.assert_test_event_is_present();
     }
 
     #[test]
     fn slow_command_normal_recognized() {
-        let mut interface = TestInterface::with_input("2f");
+        let mut interface = TestInterface::with_input("2l");
 
         interface.add_stick_and_tick(StickPosition::S);
         interface.assert_no_events();
 
         interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
 
-        interface.add_button_and_tick(GameButton::Fast);
+        interface.add_button_and_tick(GameButton::Light);
         interface.assert_test_event_is_present();
     }
 
     #[test]
     fn multibutton_normal_recognized() {
-        let mut interface = TestInterface::with_input("[fh]");
+        let mut interface = TestInterface::with_input("[lh]");
 
-        interface.add_button_and_tick(GameButton::Fast);
+        interface.add_button_and_tick(GameButton::Light);
         interface.assert_no_events();
         interface.add_button_and_tick(GameButton::Heavy);
         interface.assert_test_event_is_present();
@@ -234,21 +228,21 @@ mod test {
 
     #[test]
     fn multibutton_normal_recognized_despite_order() {
-        let mut interface = TestInterface::with_input("[fh]");
+        let mut interface = TestInterface::with_input("[lh]");
 
         interface.add_button_and_tick(GameButton::Heavy);
         interface.assert_no_events();
-        interface.add_button_and_tick(GameButton::Fast);
+        interface.add_button_and_tick(GameButton::Light);
         interface.assert_test_event_is_present();
     }
 
     #[test]
     fn multiple_events() {
-        let mut interface = TestInterface::with_inputs("2f", "f");
+        let mut interface = TestInterface::with_inputs("2l", "l");
 
         interface.add_stick_and_tick(StickPosition::S);
         interface.assert_no_events();
-        interface.add_button_and_tick(GameButton::Fast);
+        interface.add_button_and_tick(GameButton::Light);
         interface.assert_both_test_events_are_present();
     }
 
@@ -331,7 +325,7 @@ mod test {
             self.assert_event_is_present(SECOND_TEST_MOVE);
         }
 
-        fn assert_event_is_present(&mut self, id: MoveType) {
+        fn assert_event_is_present(&mut self, id: MoveId) {
             let parser = self
                 .world
                 .query::<&InputParser>()

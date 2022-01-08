@@ -6,5 +6,5 @@ pub use stick_position::StickPosition;
 /// The name 'Button' is in prelude
 pub enum GameButton {
     Heavy,
-    Fast,
+    Light,
 }

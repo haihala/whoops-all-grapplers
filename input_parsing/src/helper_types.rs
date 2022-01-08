@@ -1,20 +1,11 @@
 use bevy::utils::HashSet;
 use types::{GameButton, StickPosition};
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug, Default)]
 /// Frame is a situation, diff is a change
 pub struct Frame {
     pub stick_position: StickPosition,
     pub pressed: HashSet<GameButton>,
-}
-
-impl Default for Frame {
-    fn default() -> Self {
-        Self {
-            stick_position: Default::default(),
-            pressed: Default::default(),
-        }
-    }
 }
 impl Frame {
     pub fn apply(&mut self, diff: Diff) {

@@ -166,7 +166,7 @@ impl ParserHead {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct MotionInput {
     heads: Vec<ParserHead>,
     requirements: Vec<Requirement>,
@@ -213,7 +213,7 @@ impl From<&str> for MotionInput {
         let mut tokens = vec![];
         let mut multichar = None;
 
-        for ch in input.chars().into_iter() {
+        for ch in input.chars() {
             match ch {
                 '[' => {
                     assert!(multichar.is_none(), "Nested '['");
@@ -291,9 +291,9 @@ fn char_to_requirement(ch: char) -> Requirement {
     } else {
         match ch {
             'c' => Requirement::Charge,
-            'f' => Requirement::Press(GameButton::Fast),
+            'l' => Requirement::Press(GameButton::Light),
             'h' => Requirement::Press(GameButton::Heavy),
-            'F' => Requirement::Release(GameButton::Fast),
+            'L' => Requirement::Release(GameButton::Light),
             'H' => Requirement::Release(GameButton::Heavy),
             _ => panic!("Invalid character {}", ch),
         }
@@ -306,55 +306,55 @@ mod test {
 
     #[test]
     fn hadouken() {
-        let parsed: MotionInput = "236f".into();
+        let parsed: MotionInput = "236l".into();
         assert_eq!(
             parsed.requirements,
             vec![
                 Requirement::Point(StickPosition::S),
                 Requirement::Point(StickPosition::SE),
                 Requirement::Point(StickPosition::E),
-                Requirement::Press(GameButton::Fast),
+                Requirement::Press(GameButton::Light),
             ]
         )
     }
 
     #[test]
     fn simple_sonic_boom() {
-        let parsed: MotionInput = "c46f".into();
+        let parsed: MotionInput = "c46l".into();
         assert_eq!(
             parsed.requirements,
             vec![
                 Requirement::Charge,
                 Requirement::Point(StickPosition::W),
                 Requirement::Point(StickPosition::E),
-                Requirement::Press(GameButton::Fast),
+                Requirement::Press(GameButton::Light),
             ]
         )
     }
 
     #[test]
     fn real_sonic_boom() {
-        let parsed: MotionInput = "c[741][63]f".into();
+        let parsed: MotionInput = "c[741][63]l".into();
         assert_eq!(
             parsed.requirements,
             vec![
                 Requirement::Charge,
                 Requirement::Range(vec![StickPosition::NW, StickPosition::W, StickPosition::SW,]),
                 Requirement::Range(vec![StickPosition::E, StickPosition::SE]),
-                Requirement::Press(GameButton::Fast),
+                Requirement::Press(GameButton::Light),
             ]
         )
     }
 
     #[test]
     fn zonk() {
-        let parsed: MotionInput = "cfF".into();
+        let parsed: MotionInput = "clL".into();
         assert_eq!(
             parsed.requirements,
             vec![
                 Requirement::Charge,
-                Requirement::Press(GameButton::Fast),
-                Requirement::Release(GameButton::Fast),
+                Requirement::Press(GameButton::Light),
+                Requirement::Release(GameButton::Light),
             ]
         )
     }

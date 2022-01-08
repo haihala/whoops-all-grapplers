@@ -1,14 +1,15 @@
+#![feature(drain_filter)]
 mod assets;
 mod camera;
 mod character;
 mod clock;
 mod damage;
-mod frame_data_manager;
 mod game_flow;
 mod inspector;
 mod labels;
 mod meter;
 mod physics;
+mod spawner;
 mod ui;
 
 use bevy::prelude::*;
@@ -20,13 +21,13 @@ impl PluginGroup for WAGLib {
             .add(labels::StagePlugin)
             .add(assets::AssetsPlugin)
             .add(clock::ClockPlugin)
-            .add(frame_data_manager::AnimationPlugin)
             .add(ui::UIPlugin)
             .add(camera::CameraPlugin)
             .add(character::PlayerPlugin)
             .add(damage::DamagePlugin)
             .add(inspector::InspectorPlugin)
             .add(physics::PhysicsPlugin)
+            .add(spawner::SpawnerPlugin)
             .add(game_flow::GameFlowPlugin);
     }
 }

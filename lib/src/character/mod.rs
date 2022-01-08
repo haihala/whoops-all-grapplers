@@ -3,17 +3,17 @@ mod ryan;
 
 use input_parsing::{InputParser, InputReader};
 use movement::movement;
-use moves::{ryan_frames, ryan_hitboxes, ryan_inputs};
+use moves::{ryan_bank, CancelLevel, Move, MoveBank};
 use player_state::PlayerState;
-use types::Player;
+use types::{Hurtbox, MoveId, Player};
 
 use crate::{
     assets::Colors,
-    damage::{Health, HitboxManager, Hurtbox},
-    frame_data_manager::FrameDataManager,
+    damage::Health,
     game_flow::GameState,
     meter::Meter,
     physics::{PlayerVelocity, GROUND_PLANE_HEIGHT},
+    spawner::Spawner,
 };
 
 use bevy::prelude::*;
@@ -42,6 +42,7 @@ fn setup(mut commands: Commands, colors: Res<Colors>) {
 
 fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {
     let state = PlayerState::default();
+    let bank = ryan_bank();
 
     commands
         .spawn_bundle(SpriteBundle {
@@ -65,11 +66,11 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(player)
         .insert(Health::default())
         .insert(Meter::default())
-        .insert(PlayerVelocity::default())
-        .insert(InputParser::load(ryan_inputs()))
         .insert(InputReader::default())
-        .insert(FrameDataManager::load(ryan_frames()))
-        .insert(HitboxManager::load(ryan_hitboxes()))
+        .insert(InputParser::load(bank.get_inputs()))
+        .insert(Spawner::load(bank.get_hitboxes(), player))
+        .insert(bank)
+        .insert(PlayerVelocity::default())
         .insert(Hurtbox::new(state.get_collider_size()))
         .insert(state)
         .insert(ryan::Ryan);
@@ -94,4 +95,16 @@ fn reset(
         };
         tf.translation.y = PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0;
     }
+}
+
+fn move_to_activate(
+    options: Vec<MoveId>,
+    bank: &MoveBank,
+    cancel_requirement: CancelLevel,
+) -> Option<(MoveId, Move)> {
+    options
+        .into_iter()
+        .map(|id| (id, bank.get(id).to_owned()))
+        .filter(|(_, action)| action.cancel_level >= cancel_requirement)
+        .min_by(|(id1, _), (id2, _)| id1.cmp(id2))
 }

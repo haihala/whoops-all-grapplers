@@ -1,32 +1,56 @@
-mod inputs;
-pub use inputs::ryan_inputs;
-mod hitbox;
-pub use hitbox::{ryan_hitboxes, Hitbox};
-mod frame_data;
-pub use frame_data::{ryan_frames, FrameData};
-use types::MoveType;
+use bevy_inspector_egui::Inspectable;
 
-/// Creates a module with a unique MoveType for each listed identifier
+mod ryan;
+pub use ryan::*;
+mod move_bank;
+pub use move_bank::*;
+
+/// Creates a unique MoveId for each listed identifier provided the offset is unique
 #[macro_export]
 macro_rules! moves {
-    ($module:ident, $offset:expr, ($move_name:ident, $($tail:ident),+)) => {    // Entry point
-        pub mod $module {
-            use super::*;
-            moves!(0usize, $offset, ($move_name, $($tail),*));  // Calls the next one
-        }
+    ($offset:expr, ($move_name:ident, $($tail:ident),+)) => {    // Entry point
+        use types::MoveId;
+
+        moves!(0usize, $offset, ($move_name, $($tail),*));  // Calls the next one
     };
 
-    ($idx:expr, $offset:expr, ($move_name:ident, $($tail:ident),+)) => {  // Recursively unpacks the moves
-        pub const $move_name: MoveType = ($idx+($offset*1000)) as MoveType;
-        moves!($idx + 1usize, $offset, ($($tail),*));
+    ($idx:expr, $offset:expr, ($move_name:ident, $($tail:ident),+)) => {
+        pub const $move_name: MoveId = ($idx+($offset*1000)) as MoveId;
+        moves!($idx + 1usize, $offset, ($($tail),*));   // Recursively calls itself
     };
 
     ($idx:expr, $offset:expr, ($move_name:ident)) => {  // Last of recursion
-        pub const $move_name: MoveType = ($idx+($offset*1000)) as MoveType;
+        pub const $move_name: MoveId = ($idx+($offset*1000)) as MoveId;
     };
 }
 
 // Order matters, moves defined first have priority over later ones
-moves!(test, 1usize, (TEST_MOVE, SECOND_TEST_MOVE));
-moves!(universal, 1usize, (DASH_FORWARD, DASH_BACK));
-moves!(ryan, 2usize, (HADOUKEN, COMMAND_PUNCH, PUNCH));
+pub mod test {
+    moves!(1usize, (TEST_MOVE, SECOND_TEST_MOVE));
+}
+
+pub mod universal {
+    moves!(1usize, (DASH_FORWARD, DASH_BACK));
+}
+
+// Defined smallest to largest aka later ones can cancel earlier ones.
+#[derive(PartialEq, PartialOrd, Debug, Inspectable, Clone, Copy)]
+pub enum CancelLevel {
+    Anything,
+    Walk,
+    LightNormal,
+    LightSpecial,
+    HeavyNormal,
+    HeavySpecial,
+    Jump,
+    Dash,
+    Grab,
+    Hitstun,
+    Uncancellable,
+}
+
+impl Default for CancelLevel {
+    fn default() -> Self {
+        CancelLevel::Anything
+    }
+}

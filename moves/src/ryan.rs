@@ -17,14 +17,14 @@ const DASH_RECOVERY_SPEED: f32 = SHIFT_DURING_DASH_RECOVERY / DASH_RECOVERY_DURA
 const DASH_START_FRAMES: usize = (DASH_START_DURATION_SECONDS * constants::FPS) as usize;
 const DASH_RECOVERY_FRAMES: usize = (DASH_RECOVERY_DURATION_SECONDS * constants::FPS) as usize;
 
-moves!(2usize, (HADOUKEN, COMMAND_PUNCH, PUNCH));
+moves!(2usize, (HADOUKEN, AIR_PUNCH, COMMAND_PUNCH, PUNCH));
 
 pub fn ryan_bank() -> MoveBank {
     MoveBank::new(
         vec![
             (
                 universal::DASH_FORWARD,
-                Move::new(
+                Move::ground_move(
                     "656",
                     CancelLevel::Dash,
                     vec![
@@ -45,7 +45,7 @@ pub fn ryan_bank() -> MoveBank {
             ),
             (
                 universal::DASH_BACK,
-                Move::new(
+                Move::ground_move(
                     "454",
                     CancelLevel::Dash,
                     vec![
@@ -66,7 +66,7 @@ pub fn ryan_bank() -> MoveBank {
             ),
             (
                 PUNCH,
-                Move::new(
+                Move::ground_move(
                     "l",
                     CancelLevel::LightNormal,
                     vec![
@@ -100,7 +100,7 @@ pub fn ryan_bank() -> MoveBank {
             ),
             (
                 COMMAND_PUNCH,
-                Move::new(
+                Move::ground_move(
                     "6l",
                     CancelLevel::LightNormal,
                     vec![
@@ -133,7 +133,7 @@ pub fn ryan_bank() -> MoveBank {
             ),
             (
                 HADOUKEN,
-                Move::new(
+                Move::ground_move(
                     "236l",
                     CancelLevel::LightSpecial,
                     vec![
@@ -159,6 +159,40 @@ pub fn ryan_bank() -> MoveBank {
                             kind: PhaseKind::Animation,
                             duration: 10,
                             cancel_requirement: CancelLevel::HeavyNormal,
+                            mobility: Vec3::ZERO,
+                        },
+                    ],
+                ),
+            ),
+            (
+                AIR_PUNCH,
+                Move::air_move(
+                    "l",
+                    CancelLevel::LightNormal,
+                    vec![
+                        Phase {
+                            kind: PhaseKind::Animation,
+                            duration: 10,
+                            cancel_requirement: CancelLevel::Uncancellable,
+                            mobility: Vec3::ZERO,
+                        },
+                        Phase {
+                            kind: PhaseKind::Hitbox(Hitbox::new(
+                                Vec2::new(0.4, -1.2),
+                                Vec2::new(0.2, 0.3),
+                                Hit {
+                                    hit_knockback: Vec3::new(2.0, 2.0, 0.0),
+                                    ..Default::default()
+                                },
+                            )),
+                            duration: 10,
+                            cancel_requirement: CancelLevel::Uncancellable,
+                            mobility: Vec3::ZERO,
+                        },
+                        Phase {
+                            kind: PhaseKind::Animation,
+                            duration: 10,
+                            cancel_requirement: CancelLevel::LightSpecial,
                             mobility: Vec3::ZERO,
                         },
                     ],

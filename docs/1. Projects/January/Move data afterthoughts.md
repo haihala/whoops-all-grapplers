@@ -1,0 +1,3 @@
+- [ ] Instead of loading hitboxes, just pass them in the events.
+	- May require setting the owner in the bank which is fine.
+- [x] Ground ok and air ok to moves

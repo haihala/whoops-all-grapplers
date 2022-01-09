@@ -7,5 +7,8 @@
 	- [ ] Parry
 		- [ ] Open and close the parry window
 		- [ ] Ignore damage, hitstun and knockback on a parry
+		- [ ] Something (Gi?) of the old masters, similtaneously refering to Daigo and Ken.
 - [ ] What if you had a pool of random things you could buy instead of always being able to buy everything
 	- [ ] Maybe pin some items with mostly a random pool
+- [ ] What you items had tiers and you gotta by an amount of things from a tier to unlock the next
+	- [ ] Maybe max items bought per tier? (probably not)

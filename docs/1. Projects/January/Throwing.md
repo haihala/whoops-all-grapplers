@@ -1,0 +1,3 @@
+- New button for throws
+- Deals damage
+- Can be teched by not inputing anything

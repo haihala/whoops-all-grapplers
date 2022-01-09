@@ -101,10 +101,18 @@ fn move_to_activate(
     options: Vec<MoveId>,
     bank: &MoveBank,
     cancel_requirement: CancelLevel,
+    grounded: bool,
 ) -> Option<(MoveId, Move)> {
     options
         .into_iter()
         .map(|id| (id, bank.get(id).to_owned()))
+        .filter(|(_, action)| {
+            if grounded {
+                action.ground_ok
+            } else {
+                action.air_ok
+            }
+        })
         .filter(|(_, action)| action.cancel_level >= cancel_requirement)
         .min_by(|(id1, _), (id2, _)| id1.cmp(id2))
 }

@@ -1,3 +1,4 @@
 - What if you had to pin instead of reduce health
 	- Maybe a smash like system? Maybe this is a thing in addition to regular health? Maybe there is a minigame.
 - What if health didn't fully recover between rounds and you had to buy it
+- Don't duplicate size to hurtbox

@@ -39,5 +39,5 @@ Bugs:
 - [x] Sometimes button does nothing
 - [x] Forward punch stops the user
 - [x] Wrong box is spawned on command normal
-- [x] Special isn't interpreted
+- [x] Special isn't interpreted (nvm the duration between moves was just low)
 - [x] Crouch ignores cancels

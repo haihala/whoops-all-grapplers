@@ -4,4 +4,4 @@
 		- This breaks if the same move has multiple boxes out at once, but so did the previous model.
 		- This is fixable by changing the  id when that is relevant.
 - [x] Ground ok and air ok to moves
-- [ ] Maybe generalize the move executor since it no longer references anything ryan specific
+- [x] Generalize the move starter since it no longer references anything ryan specific

@@ -1,5 +1,4 @@
 mod movement;
-mod ryan;
 
 use input_parsing::{InputParser, InputReader};
 use movement::movement;
@@ -28,7 +27,7 @@ impl Plugin for PlayerPlugin {
         app.add_startup_system(setup.system())
             .add_system_set(
                 SystemSet::on_update(GameState::Combat)
-                    .with_system(ryan::move_starter.system())
+                    .with_system(move_activator.system())
                     .with_system(movement.system()),
             )
             .add_system_set(SystemSet::on_enter(GameState::Combat).with_system(reset.system()));
@@ -72,8 +71,7 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(bank)
         .insert(PlayerVelocity::default())
         .insert(Hurtbox::new(state.get_collider_size()))
-        .insert(state)
-        .insert(ryan::Ryan);
+        .insert(state);
 }
 
 fn reset(
@@ -94,6 +92,25 @@ fn reset(
             Player::Two => PLAYER_SPAWN_DISTANCE,
         };
         tf.translation.y = PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0;
+    }
+}
+
+pub fn move_activator(mut query: Query<(&mut InputParser, &mut PlayerState, &MoveBank)>) {
+    for (mut reader, mut state, bank) in query.iter_mut() {
+        let events = reader.get_events();
+        if events.is_empty() {
+            continue;
+        }
+
+        if let Some((starting_move, move_data)) = move_to_activate(
+            events,
+            bank,
+            state.cancel_requirement(),
+            state.is_grounded(),
+        ) {
+            state.start_move(starting_move, move_data);
+            reader.consume_event(starting_move);
+        }
     }
 }
 

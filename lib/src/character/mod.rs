@@ -42,7 +42,7 @@ fn setup(mut commands: Commands, colors: Res<Colors>) {
 
 fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {
     let state = PlayerState::default();
-    let bank = ryan_bank();
+    let bank = ryan_bank(player);
 
     commands
         .spawn_bundle(SpriteBundle {
@@ -68,7 +68,7 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(Meter::default())
         .insert(InputReader::default())
         .insert(InputParser::load(bank.get_inputs()))
-        .insert(Spawner::load(bank.get_hitboxes(), player))
+        .insert(Spawner::default())
         .insert(bank)
         .insert(PlayerVelocity::default())
         .insert(Hurtbox::new(state.get_collider_size()))

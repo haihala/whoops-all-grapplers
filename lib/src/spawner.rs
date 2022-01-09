@@ -12,54 +12,35 @@ pub struct SpawnerPlugin;
 
 impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_system(spawn_hitboxes.system())
-            .add_system(update_hitboxes.system())
+        app.add_system(handle_hitbox_events.system())
+            .add_system(handle_requests.system())
             .add_system(register_hits.system());
     }
 }
 
-struct TimedEvent {
+struct SpawnRequest {
     id: MoveId,
-    frame: Option<usize>,
+    hitbox: Hitbox,
 }
-impl TimedEvent {
-    fn now(id: MoveId) -> Self {
-        Self { id, frame: None }
-    }
-    fn later(id: MoveId, frame: usize) -> Self {
-        Self {
-            id,
-            frame: Some(frame),
-        }
-    }
+
+struct DespawnRequest {
+    id: MoveId,
+    frame: usize,
 }
 
 #[derive(Default)]
 pub struct Spawner {
-    registered_hitboxes: HashMap<MoveId, Hitbox>,
-
-    spawn_requests: Vec<TimedEvent>,
+    spawn_requests: Vec<SpawnRequest>,
     spawned: HashMap<MoveId, Entity>,
-    despawn_requests: Vec<TimedEvent>,
+    despawn_requests: Vec<DespawnRequest>,
 }
 impl Spawner {
-    pub fn load(target: HashMap<MoveId, Hitbox>, player: Player) -> Spawner {
-        Spawner {
-            registered_hitboxes: target
-                .into_iter()
-                .map(|(id, mut hitbox)| {
-                    hitbox.owner = Some(player);
-                    (id, hitbox)
-                })
-                .collect(),
-            ..Default::default()
-        }
-    }
-
-    fn add_hitbox(&mut self, id: MoveId, time_of_death: usize) {
-        self.spawn_requests.push(TimedEvent::now(id));
-        self.despawn_requests
-            .push(TimedEvent::later(id, time_of_death));
+    fn add_hitbox(&mut self, hitbox: Hitbox, id: MoveId, time_of_death: usize) {
+        self.spawn_requests.push(SpawnRequest { id, hitbox });
+        self.despawn_requests.push(DespawnRequest {
+            id,
+            frame: time_of_death,
+        });
     }
 
     fn handle_requests(
@@ -70,67 +51,50 @@ impl Spawner {
         parent: Entity,
         frame: usize,
     ) {
-        for id in self
-            .spawn_requests
-            .drain_filter(|event| (event.frame.is_none() || event.frame.unwrap() <= frame))
-            .map(|event| event.id)
-            .collect::<Vec<MoveId>>()
-            .into_iter()
-        {
-            self.spawn_box(commands, colors, id, flipped, parent);
+        for request in self.spawn_requests.drain(..) {
+            let spawned_box = commands
+                .spawn_bundle(SpriteBundle {
+                    transform: Transform {
+                        translation: request.hitbox.get_offset(flipped),
+                        ..Default::default()
+                    },
+                    material: colors.hurtbox.clone(),
+                    sprite: Sprite::new(request.hitbox.size),
+                    ..Default::default()
+                })
+                .insert(request.hitbox.to_owned())
+                .id();
+
+            commands.entity(parent).push_children(&[spawned_box]);
+            self.spawned.insert(request.id, spawned_box);
         }
 
         for id in self
             .despawn_requests
-            .drain_filter(|event| (event.frame.is_none() || event.frame.unwrap() <= frame))
+            .drain_filter(|event| (event.frame <= frame))
             .map(|event| event.id)
-            .collect::<Vec<MoveId>>()
-            .iter()
         {
-            self.despawn_entity(commands, id);
-        }
-    }
-
-    fn spawn_box(
-        &mut self,
-        commands: &mut Commands,
-        colors: &Res<Colors>,
-        id: MoveId,
-        flipped: bool,
-        parent: Entity,
-    ) {
-        let hitbox = self.registered_hitboxes.get(&id).unwrap();
-
-        let spawned_box = commands
-            .spawn_bundle(SpriteBundle {
-                transform: Transform {
-                    translation: hitbox.get_offset(flipped),
-                    ..Default::default()
-                },
-                material: colors.hurtbox.clone(),
-                sprite: Sprite::new(hitbox.size),
-                ..Default::default()
-            })
-            .insert(hitbox.to_owned())
-            .id();
-
-        commands.entity(parent).push_children(&[spawned_box]);
-        self.spawned.insert(id, spawned_box);
-    }
-
-    fn despawn_entity(&mut self, commands: &mut Commands, id: &MoveId) {
-        if let Some(spawned) = self.spawned.get(id) {
-            commands.entity(*spawned).despawn();
-            self.spawned.remove(id);
+            if let Some(spawned) = self.spawned.get(&id) {
+                commands.entity(*spawned).despawn();
+                self.spawned.remove(&id);
+            }
         }
     }
 }
 
-pub fn spawn_hitboxes(clock: Res<Clock>, mut hitboxes: Query<(&mut Spawner, &mut PlayerState)>) {
+pub fn handle_hitbox_events(
+    clock: Res<Clock>,
+    mut hitboxes: Query<(&mut Spawner, &mut PlayerState)>,
+) {
     for (mut hitboxes, mut state) in hitboxes.iter_mut() {
         for event in state.get_events() {
-            if let StateEvent::Hitbox { move_id, ttl } = event {
-                hitboxes.add_hitbox(move_id, ttl + clock.frame);
+            if let StateEvent::Hitbox {
+                hitbox,
+                move_id,
+                ttl,
+            } = event
+            {
+                hitboxes.add_hitbox(hitbox, move_id, ttl + clock.frame);
 
                 state.consume_event(event);
             }
@@ -138,7 +102,7 @@ pub fn spawn_hitboxes(clock: Res<Clock>, mut hitboxes: Query<(&mut Spawner, &mut
     }
 }
 
-pub fn update_hitboxes(
+pub fn handle_requests(
     mut commands: Commands,
     clock: Res<Clock>,
     colors: Res<Colors>,

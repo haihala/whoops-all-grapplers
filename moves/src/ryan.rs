@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use types::{Hit, Hitbox};
+use types::{Hit, Hitbox, Player};
 
 use crate::{move_bank::MoveBank, moves, universal, CancelLevel, Move, Phase, PhaseKind};
 
@@ -19,8 +19,9 @@ const DASH_RECOVERY_FRAMES: usize = (DASH_RECOVERY_DURATION_SECONDS * constants:
 
 moves!(2usize, (HADOUKEN, AIR_PUNCH, COMMAND_PUNCH, PUNCH));
 
-pub fn ryan_bank() -> MoveBank {
+pub fn ryan_bank(player: Player) -> MoveBank {
     MoveBank::new(
+        player,
         vec![
             (
                 universal::DASH_FORWARD,

@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_inspector_egui::Inspectable;
 
-use types::{Hitbox, MoveId};
+use types::{Hitbox, MoveId, Player};
 
 use crate::CancelLevel;
 
@@ -11,8 +11,16 @@ pub struct MoveBank {
 }
 
 impl MoveBank {
-    pub fn new(moves: HashMap<MoveId, Move>) -> MoveBank {
-        MoveBank { moves }
+    pub fn new(owner: Player, moves: HashMap<MoveId, Move>) -> MoveBank {
+        MoveBank {
+            moves: moves
+                .into_iter()
+                .map(|(id, mut action)| {
+                    action.claim(owner);
+                    (id, action)
+                })
+                .collect(),
+        }
     }
 
     pub fn get(&self, id: MoveId) -> &Move {
@@ -91,6 +99,15 @@ impl Move {
         }
 
         None
+    }
+
+    fn claim(&mut self, owner: Player) {
+        for phase in self.phases.iter_mut() {
+            if let PhaseKind::Hitbox(mut hitbox) = phase.kind {
+                hitbox.owner = Some(owner);
+                phase.kind = PhaseKind::Hitbox(hitbox);
+            }
+        }
     }
 }
 

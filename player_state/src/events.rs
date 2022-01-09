@@ -1,6 +1,6 @@
 use bevy_inspector_egui::Inspectable;
 
-use types::{AbsoluteDirection, MoveId};
+use types::{AbsoluteDirection, Hitbox, MoveId};
 
 #[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug)]
 pub enum JumpDirection {
@@ -18,7 +18,11 @@ impl Default for JumpDirection {
 #[derive(Inspectable, PartialEq, Clone, Copy, Debug)]
 pub enum StateEvent {
     Jump(JumpDirection),
-    Hitbox { move_id: MoveId, ttl: usize },
+    Hitbox {
+        hitbox: Hitbox,
+        move_id: MoveId,
+        ttl: usize,
+    },
     Null,
 }
 

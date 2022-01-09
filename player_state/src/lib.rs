@@ -91,8 +91,9 @@ impl PlayerState {
 
         if let Some(new_phase) = phase {
             if *new_phase != tracker.previous_phase {
-                if let PhaseKind::Hitbox(_) = new_phase.kind {
+                if let PhaseKind::Hitbox(hitbox) = new_phase.kind {
                     self.add_event(StateEvent::Hitbox {
+                        hitbox,
                         move_id,
                         ttl: new_phase.duration,
                     });

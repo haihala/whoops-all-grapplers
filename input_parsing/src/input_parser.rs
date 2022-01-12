@@ -70,11 +70,14 @@ impl InputParser {
 
     fn parse_inputs(&mut self, diff: &Diff) {
         let now = Instant::now();
-        let frame = &self.head;
+        let frame = Frame {
+            stick_position: self.relative_stick,
+            ..self.head.clone()
+        };
 
         self.events
             .extend(self.registered_inputs.iter_mut().filter_map(|(id, input)| {
-                input.advance(diff, frame);
+                input.advance(diff, &frame);
                 if input.is_done() {
                     input.clear();
                     return Some((*id, now));

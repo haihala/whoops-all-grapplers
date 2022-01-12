@@ -179,7 +179,15 @@ impl PlayerState {
     pub fn get_move_mobility(&self) -> Option<Vec3> {
         self.move_tracker
             .as_ref()
-            .map(|tracker| tracker.get_phase(self.frame).map(|phase| phase.mobility))
+            .map(|tracker| {
+                tracker.get_phase(self.frame).map(|phase| {
+                    if self.flipped() {
+                        Vec3::new(-phase.mobility.x, phase.mobility.y, phase.mobility.z)
+                    } else {
+                        phase.mobility
+                    }
+                })
+            })
             .unwrap_or_default()
     }
 

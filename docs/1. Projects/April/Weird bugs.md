@@ -1,2 +1,3 @@
-- Jumps are very high (inconsistently)
-- Special interpretation is sometimes kinda tight
+- [ ] Jumps are very high (inconsistently)
+- [x] Special interpretation is sometimes kinda tight
+- [x] Some inputs are flipped, some aren't

@@ -1,3 +1,0 @@
-- Spawn
-- Despawn on collision
-- Move

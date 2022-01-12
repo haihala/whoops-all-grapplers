@@ -1,13 +1,4 @@
 - [ ] Make a model for Ryan
-- [ ] Animations
-	- [ ] Idle
-	- [ ] Jump
-	- [ ] Walk forwards
-	- [ ] Walk back
-	- [ ] Punch
-	- [ ] Alt Punch
-	- [ ] Fireball
-	- [ ] Uppercut
-	- [ ] Gun
-	- [ ] Hitstun
-	- [ ] Freefall
+	- [ ] Skeleton
+	- [ ] Mesh
+	- [ ] Colors

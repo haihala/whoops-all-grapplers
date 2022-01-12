@@ -23,6 +23,12 @@ pub enum StateEvent {
         move_id: MoveId,
         ttl: usize,
     },
+    Projectile {
+        hitbox: Hitbox,
+        speed: f32,
+        move_id: MoveId,
+        ttl: Option<usize>,
+    },
     Null,
 }
 

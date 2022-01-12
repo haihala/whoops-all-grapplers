@@ -115,9 +115,7 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             kind: PhaseKind::Hitbox(Hitbox::new(
                                 Vec2::new(0.5, 0.5),
                                 Vec2::new(1.0, 1.0),
-                                Hit {
-                                    ..Default::default()
-                                },
+                                Hit::default(),
                             )),
                             duration: 20,
                             cancel_requirement: CancelLevel::Uncancellable,
@@ -145,13 +143,15 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                         Phase {
-                            kind: PhaseKind::Hitbox(Hitbox::new(
-                                Vec2::new(0.5, 0.5),
-                                Vec2::new(0.3, 0.2),
-                                Hit {
-                                    ..Default::default()
-                                },
-                            )),
+                            kind: PhaseKind::Projectile {
+                                speed: 1.0,
+                                hitbox: Hitbox::new(
+                                    Vec2::new(0.5, 0.5),
+                                    Vec2::new(0.3, 0.2),
+                                    Hit::default(),
+                                ),
+                                lifetime: None,
+                            },
                             duration: 4,
                             cancel_requirement: CancelLevel::Uncancellable,
                             mobility: Vec3::ZERO,

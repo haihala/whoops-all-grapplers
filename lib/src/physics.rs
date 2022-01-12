@@ -9,6 +9,21 @@ use crate::clock::run_max_once_per_combat_frame;
 pub const GROUND_PLANE_HEIGHT: f32 = -0.4;
 pub const ARENA_WIDTH: f32 = 10.0;
 
+pub struct ConstantVelocity {
+    shift: Vec3,
+}
+impl ConstantVelocity {
+    pub fn new(speed: f32, flipped: bool) -> Self {
+        Self {
+            shift: Vec3::new(
+                if flipped { -speed } else { speed } / constants::FPS,
+                0.0,
+                0.0,
+            ),
+        }
+    }
+}
+
 #[derive(Debug, Inspectable, Clone)]
 enum PlayerVelocityType {
     Walk,
@@ -140,7 +155,8 @@ impl Plugin for PhysicsPlugin {
                 .with_system(player_input.system())
                 .with_system(sideswitcher.system())
                 .with_system(push_players.system())
-                .with_system(move_players.system()),
+                .with_system(move_players.system())
+                .with_system(move_constants.system()),
         );
     }
 }
@@ -173,6 +189,21 @@ fn sideswitcher(
             }
 
             state.set_flipped(transform.translation.x > tf.translation.x);
+        }
+    }
+}
+
+fn move_constants(
+    mut commands: Commands,
+    mut query: Query<(Entity, &ConstantVelocity, &mut Transform)>,
+) {
+    // Handle static collision
+    for (entity, velocity, mut transform) in query.iter_mut() {
+        transform.translation += velocity.shift;
+
+        // Despawn the thing if it's outside of the arena
+        if transform.translation.length() > ARENA_WIDTH + 1.0 {
+            commands.entity(entity).despawn();
         }
     }
 }

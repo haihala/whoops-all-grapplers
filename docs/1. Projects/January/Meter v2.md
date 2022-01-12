@@ -1,5 +1,3 @@
-Blocked by [[Move data refactor]]
-
 Tasks:
 - [ ] Add a move that uses meter
 - [ ] Make characters gain meter and start with none

@@ -97,6 +97,18 @@ impl PlayerState {
                         move_id,
                         ttl: new_phase.duration,
                     });
+                } else if let PhaseKind::Projectile {
+                    hitbox,
+                    speed,
+                    lifetime,
+                } = new_phase.kind
+                {
+                    self.add_event(StateEvent::Projectile {
+                        speed,
+                        hitbox,
+                        move_id,
+                        ttl: lifetime,
+                    });
                 }
 
                 tracker.previous_phase = new_phase.to_owned();

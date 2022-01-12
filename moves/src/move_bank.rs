@@ -106,6 +106,18 @@ impl Move {
             if let PhaseKind::Hitbox(mut hitbox) = phase.kind {
                 hitbox.owner = Some(owner);
                 phase.kind = PhaseKind::Hitbox(hitbox);
+            } else if let PhaseKind::Projectile {
+                mut hitbox,
+                speed,
+                lifetime,
+            } = phase.kind
+            {
+                hitbox.owner = Some(owner);
+                phase.kind = PhaseKind::Projectile {
+                    hitbox,
+                    speed,
+                    lifetime,
+                };
             }
         }
     }
@@ -122,9 +134,15 @@ pub struct Phase {
 #[derive(Debug, Inspectable, Clone, PartialEq)]
 pub enum PhaseKind {
     Animation,
-    Grab { range: f32 },
+    Grab {
+        range: f32,
+    },
     Hitbox(Hitbox),
-    Projectile(Hitbox), // TODO (this does nothing atm). May be smart to combine hitbox and projectile to a Spawn
+    Projectile {
+        hitbox: Hitbox,
+        speed: f32,
+        lifetime: Option<usize>,
+    },
 }
 impl Default for PhaseKind {
     fn default() -> Self {

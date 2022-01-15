@@ -3,7 +3,7 @@ use bevy_inspector_egui::Inspectable;
 
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use types::Hit;
+use types::{HeightWindow, Hit};
 
 use crate::{clock::Clock, physics::PlayerVelocity};
 
@@ -16,7 +16,7 @@ pub struct Health {
     // This won't be communicated to the player.
     ratio: f32,
     defense: f32,
-    hits: Vec<Hit>,
+    hits: Vec<(Hit, HeightWindow)>,
 }
 impl Default for Health {
     fn default() -> Self {
@@ -36,11 +36,11 @@ impl Health {
         self.ratio = 1.0;
     }
 
-    pub fn hit(&mut self, hit: Hit) {
-        self.hits.push(hit);
+    pub fn hit(&mut self, hit: Hit, height_window: HeightWindow) {
+        self.hits.push((hit, height_window));
     }
 
-    fn drain_hits(&mut self) -> Vec<Hit> {
+    fn drain_hits(&mut self) -> Vec<(Hit, HeightWindow)> {
         self.hits.drain(..).collect()
     }
 
@@ -59,10 +59,12 @@ pub fn apply_hits(
     clock: Res<Clock>,
 ) {
     for (mut health, mut state, mut velocity, reader) in query.iter_mut() {
-        for hit in health.drain_hits() {
-            // Todo high/low
+        for (hit, height_window) in health.drain_hits() {
             let stick: IVec2 = reader.get_relative_stick_position().into();
-            let blocked = stick.x == -1; // Holding back
+            let holding_back = stick.x == -1;
+            let holding_down = stick.y == -1;
+            let blocked =
+                holding_back && state.blocked(hit.fixed_height, height_window, holding_down);
 
             let (damage, stun, knockback) = if blocked {
                 (

@@ -1,15 +1,10 @@
 use bevy::prelude::*;
 
 use input_parsing::InputParser;
-use player_state::PlayerState;
+use player_state::{PlayerState, PLAYER_CROUCHING_SHIFT, PLAYER_STANDING_SHIFT};
 use types::{RelativeDirection, StickPosition};
 
 pub use moves::universal::{DASH_BACK, DASH_FORWARD};
-
-const PLAYER_CROUCHING_OFFSET: f32 = constants::PLAYER_SPRITE_STANDING_HEIGHT / 2.0;
-const PLAYER_STANDING_OFFSET: f32 = constants::PLAYER_SPRITE_CROUCHING_HEIGHT / 2.0;
-const PLAYER_CROUCHING_SHIFT: f32 = PLAYER_STANDING_OFFSET - PLAYER_CROUCHING_OFFSET;
-const PLAYER_STANDING_SHIFT: f32 = -PLAYER_CROUCHING_SHIFT;
 
 pub fn movement(mut query: Query<(&InputParser, &mut PlayerState, &mut Sprite, &mut Transform)>) {
     for (reader, mut state, mut sprite, mut tf) in query.iter_mut() {

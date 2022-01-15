@@ -8,6 +8,12 @@ pub struct Hurtbox {
     pub offset: Vec3,
 }
 
+impl Default for AttackHeight {
+    fn default() -> Self {
+        AttackHeight::Mid
+    }
+}
+
 #[derive(Default, Clone, Copy, Debug, Inspectable, PartialEq)]
 pub struct Hitbox {
     offset: Vec3,
@@ -34,6 +40,12 @@ impl Hitbox {
     }
 }
 
+#[derive(Clone, Copy, Debug, Inspectable, PartialEq)]
+pub enum AttackHeight {
+    Low,
+    Mid,
+    High,
+}
 #[derive(Debug, Inspectable, Clone, Copy, PartialEq)]
 pub struct Hit {
     pub damage: f32,
@@ -41,6 +53,7 @@ pub struct Hit {
     pub block_stun: usize,
     pub hit_knockback: Vec3,
     pub block_knockback: Vec3,
+    pub fixed_height: Option<AttackHeight>,
 }
 
 impl Default for Hit {
@@ -51,6 +64,7 @@ impl Default for Hit {
             block_stun: 15,
             hit_knockback: Vec3::new(2.0, 2.0, 0.0),
             block_knockback: Vec3::new(1.0, 0.0, 0.0),
+            fixed_height: None,
         }
     }
 }

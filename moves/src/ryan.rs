@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use types::{Hit, Hitbox, Player};
+use types::{AttackHeight, Hit, Hitbox, Player};
 
 use crate::{move_bank::MoveBank, moves, universal, CancelLevel, Move, Phase, PhaseKind};
 
@@ -193,6 +193,7 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                                 Vec2::new(0.2, 0.3),
                                 Hit {
                                     hit_knockback: Vec3::new(2.0, 2.0, 0.0),
+                                    fixed_height: Some(AttackHeight::High),
                                     ..Default::default()
                                 },
                             )),

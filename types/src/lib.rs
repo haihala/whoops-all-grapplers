@@ -29,3 +29,9 @@ impl Display for Player {
         Debug::fmt(self, f)
     }
 }
+
+#[derive(Inspectable, Default)]
+pub struct HeightWindow {
+    pub top: f32,
+    pub bottom: f32,
+}

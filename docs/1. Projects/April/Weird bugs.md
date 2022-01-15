@@ -1,3 +1,4 @@
 - [ ] Jumps are very high (inconsistently)
 - [x] Special interpretation is sometimes kinda tight
 - [x] Some inputs are flipped, some aren't
+- [ ] Knockback next to wall can leave a character in the air

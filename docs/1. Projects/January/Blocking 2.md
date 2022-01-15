@@ -1,5 +1,5 @@
-- [ ] High/Low/Mid are tags on attacks
-- [ ] Detect block level and react accordingly
+- [x] High/Low/Mid are tags on attacks
+- [x] Detect block level and react accordingly
 - [ ] Push back attacker on blocked hits
 
 How to represent attack height

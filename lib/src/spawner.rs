@@ -2,20 +2,18 @@ use bevy::prelude::*;
 use bevy::utils::HashMap;
 
 use player_state::{PlayerState, StateEvent};
-use types::{Hitbox, Hurtbox, MoveId, Player};
+use types::{Hitbox, MoveId};
 
+use crate::assets::Colors;
 use crate::clock::{Clock, ROUND_TIME};
-use crate::damage::Health;
 use crate::physics::ConstantVelocity;
-use crate::{assets::Colors, physics::rect_collision};
 
 pub struct SpawnerPlugin;
 
 impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_system(handle_hitbox_events.system())
-            .add_system(handle_requests.system())
-            .add_system(register_hits.system());
+            .add_system(handle_requests.system());
     }
 }
 
@@ -162,31 +160,5 @@ pub fn handle_requests(
             tf.translation,
             clock.frame,
         );
-    }
-}
-
-pub fn register_hits(
-    mut commands: Commands,
-    mut hitboxes: Query<(Entity, &Hitbox, &GlobalTransform)>,
-    mut hurtboxes: Query<(&Hurtbox, &Sprite, &GlobalTransform, &mut Health, &Player)>,
-) {
-    for (entity, hitbox, tf1) in hitboxes.iter_mut() {
-        for (hurtbox, sprite, tf2, mut health, defending_player) in hurtboxes.iter_mut() {
-            if hitbox.owner.unwrap() == *defending_player {
-                // You can't hit yourself
-                // If a hitbox active is false, it already hit and can't do so again
-                continue;
-            }
-
-            if rect_collision(
-                tf2.translation + hurtbox.offset,
-                sprite.size,
-                tf1.translation,
-                hitbox.size,
-            ) {
-                health.hit(hitbox.hit);
-                commands.entity(entity).despawn()
-            }
-        }
     }
 }

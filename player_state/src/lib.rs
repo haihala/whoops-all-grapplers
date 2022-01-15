@@ -4,7 +4,7 @@ use moves::{CancelLevel, Move, Phase, PhaseKind};
 
 use std::fmt::Debug;
 
-use types::{AbsoluteDirection, MoveId, RelativeDirection};
+use types::{AbsoluteDirection, AttackHeight, HeightWindow, MoveId, RelativeDirection};
 
 mod primary_state;
 use primary_state::*;
@@ -13,6 +13,19 @@ mod events;
 use events::*;
 
 pub use events::StateEvent;
+
+pub const PLAYER_SPRITE_WIDTH: f32 = 0.80;
+pub const PLAYER_SPRITE_STANDING_HEIGHT: f32 = 1.80;
+const PLAYER_SPRITE_CROUCHING_HEIGHT_MULTIPLIER: f32 = 0.6;
+const PLAYER_LOW_BLOCK_THRESHOLD_RATIO: f32 = 0.25;
+const PLAYER_HIGH_BLOCK_THRESHOLD_RATIO: f32 = 0.75;
+
+pub const PLAYER_SPRITE_CROUCHING_HEIGHT: f32 =
+    PLAYER_SPRITE_STANDING_HEIGHT * PLAYER_SPRITE_CROUCHING_HEIGHT_MULTIPLIER;
+pub const PLAYER_CROUCHING_OFFSET: f32 = PLAYER_SPRITE_STANDING_HEIGHT / 2.0;
+pub const PLAYER_STANDING_OFFSET: f32 = PLAYER_SPRITE_CROUCHING_HEIGHT / 2.0;
+pub const PLAYER_CROUCHING_SHIFT: f32 = PLAYER_STANDING_OFFSET - PLAYER_CROUCHING_OFFSET;
+pub const PLAYER_STANDING_SHIFT: f32 = -PLAYER_CROUCHING_SHIFT;
 
 #[derive(Debug, Default, Inspectable, Clone)]
 struct MoveTracker {
@@ -266,18 +279,54 @@ impl PlayerState {
         }
         self.primary = PrimaryState::Ground(GroundActivity::Standing);
     }
-
-    pub fn get_collider_size(&self) -> Vec2 {
-        if self.primary == PrimaryState::Ground(GroundActivity::Crouching) {
-            Vec2::new(
-                constants::PLAYER_SPRITE_WIDTH,
-                constants::PLAYER_SPRITE_CROUCHING_HEIGHT,
-            )
+    pub fn is_crouching(&self) -> bool {
+        matches!(
+            self.primary,
+            PrimaryState::Ground(GroundActivity::Crouching)
+        )
+    }
+    pub fn get_height(&self) -> f32 {
+        if self.is_crouching() {
+            PLAYER_SPRITE_CROUCHING_HEIGHT
         } else {
-            Vec2::new(
-                constants::PLAYER_SPRITE_WIDTH,
-                constants::PLAYER_SPRITE_STANDING_HEIGHT,
-            )
+            PLAYER_SPRITE_STANDING_HEIGHT
         }
+    }
+    pub fn get_collider_size(&self) -> Vec2 {
+        Vec2::new(PLAYER_SPRITE_WIDTH, self.get_height())
+    }
+
+    pub fn blocked(
+        &self,
+        fixed_height: Option<AttackHeight>,
+        height_window: HeightWindow,
+        blocking_low: bool,
+    ) -> bool {
+        if !self.can_block_now() {
+            return false;
+        }
+
+        let height = fixed_height.unwrap_or(if self.low_block_threshold() > height_window.top {
+            AttackHeight::Low
+        } else if self.high_block_threshold() > height_window.bottom {
+            AttackHeight::High
+        } else {
+            AttackHeight::Mid
+        });
+
+        match height {
+            AttackHeight::Low => blocking_low,
+            AttackHeight::Mid => true,
+            AttackHeight::High => !blocking_low,
+        }
+    }
+    fn can_block_now(&self) -> bool {
+        self.cancel_requirement() < CancelLevel::LightNormal
+    }
+    fn low_block_threshold(&self) -> f32 {
+        self.get_height() * PLAYER_LOW_BLOCK_THRESHOLD_RATIO
+    }
+    fn high_block_threshold(&self) -> f32 {
+        self.get_height() * PLAYER_HIGH_BLOCK_THRESHOLD_RATIO
     }
 }

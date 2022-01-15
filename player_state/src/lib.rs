@@ -80,6 +80,7 @@ impl PlayerState {
                     GroundActivity::Stun(unstun_frame) => {
                         if unstun_frame <= self.frame {
                             self.primary = PrimaryState::Ground(GroundActivity::Standing);
+                            self.add_event(StateEvent::Recovery);
                         }
                     }
                     GroundActivity::Walk(last_input_frame, _) => {
@@ -233,6 +234,10 @@ impl PlayerState {
 
     // Jumping
     pub fn land(&mut self) {
+        if matches!(self.primary, PrimaryState::Air(AirActivity::Freefall)) {
+            // TODO: Better handling of what happens on landing
+            self.add_event(StateEvent::Recovery);
+        }
         self.primary = PrimaryState::Ground(GroundActivity::Standing);
     }
     pub fn register_jump(&mut self, direction: Option<RelativeDirection>) {

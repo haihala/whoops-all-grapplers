@@ -29,6 +29,7 @@ pub enum StateEvent {
         move_id: MoveId,
         ttl: Option<usize>,
     },
+    Recovery,
     Null,
 }
 

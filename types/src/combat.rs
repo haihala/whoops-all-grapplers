@@ -48,7 +48,7 @@ pub enum AttackHeight {
 }
 #[derive(Debug, Inspectable, Clone, Copy, PartialEq)]
 pub struct Hit {
-    pub damage: f32,
+    pub damage: i32,
     pub hit_stun: usize,
     pub block_stun: usize,
     pub hit_knockback: Vec3,
@@ -59,7 +59,7 @@ pub struct Hit {
 impl Default for Hit {
     fn default() -> Self {
         Self {
-            damage: 10.0,
+            damage: 10,
             hit_stun: 30,
             block_stun: 15,
             hit_knockback: Vec3::new(2.0, 2.0, 0.0),

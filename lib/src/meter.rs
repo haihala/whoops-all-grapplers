@@ -22,14 +22,17 @@ impl Meter {
         self.ratio
     }
     pub fn reset(&mut self) {
-        self.value = 100;
+        self.value = self.max;
         self.ratio = 1.0;
     }
     pub fn can_afford(&self, amount: i32) -> bool {
         self.value >= amount
     }
     pub fn pay(&mut self, amount: i32) {
-        self.value -= amount;
+        self.gain(-amount);
+    }
+    pub fn gain(&mut self, amount: i32) {
+        self.value += amount;
         self.ratio = self.value as f32 / self.max as f32;
     }
 }

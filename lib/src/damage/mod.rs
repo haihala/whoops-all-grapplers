@@ -11,6 +11,7 @@ pub struct DamagePlugin;
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_system(health::apply_hits.system())
+            .add_system(health::refill_meter.system())
             .add_system(register_hits.system());
     }
 }

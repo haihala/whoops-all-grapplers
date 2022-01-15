@@ -168,10 +168,10 @@ pub fn handle_requests(
 pub fn register_hits(
     mut commands: Commands,
     mut hitboxes: Query<(Entity, &Hitbox, &GlobalTransform)>,
-    mut hurtboxes: Query<(&Hurtbox, &GlobalTransform, &mut Health, &Player)>,
+    mut hurtboxes: Query<(&Hurtbox, &Sprite, &GlobalTransform, &mut Health, &Player)>,
 ) {
     for (entity, hitbox, tf1) in hitboxes.iter_mut() {
-        for (hurtbox, tf2, mut health, defending_player) in hurtboxes.iter_mut() {
+        for (hurtbox, sprite, tf2, mut health, defending_player) in hurtboxes.iter_mut() {
             if hitbox.owner.unwrap() == *defending_player {
                 // You can't hit yourself
                 // If a hitbox active is false, it already hit and can't do so again
@@ -180,7 +180,7 @@ pub fn register_hits(
 
             if rect_collision(
                 tf2.translation + hurtbox.offset,
-                hurtbox.size,
+                sprite.size,
                 tf1.translation,
                 hitbox.size,
             ) {

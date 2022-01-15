@@ -3,18 +3,9 @@ use bevy_inspector_egui::Inspectable;
 
 use crate::Player;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
 pub struct Hurtbox {
     pub offset: Vec3,
-    pub size: Vec2,
-}
-impl Hurtbox {
-    pub fn new(size: Vec2) -> Self {
-        Self {
-            size,
-            offset: Vec3::new(0.0, 0.0, 0.0),
-        }
-    }
 }
 
 #[derive(Default, Clone, Copy, Debug, Inspectable, PartialEq)]

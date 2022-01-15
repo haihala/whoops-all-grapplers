@@ -46,6 +46,7 @@ struct PlayerDefaults {
     meter: Meter,
     input_reader: InputReader,
     spawner: Spawner,
+    hurtbox: Hurtbox,
     player_velocity: PlayerVelocity,
 }
 
@@ -75,7 +76,6 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert_bundle(PlayerDefaults::default())
         .insert(InputParser::load(bank.get_inputs()))
         .insert(bank)
-        .insert(Hurtbox::new(state.get_collider_size()))
         .insert(player)
         .insert(state);
 }

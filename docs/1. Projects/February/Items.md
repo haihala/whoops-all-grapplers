@@ -12,3 +12,4 @@
 	- [ ] Maybe pin some items with mostly a random pool
 - [ ] What you items had tiers and you gotta by an amount of things from a tier to unlock the next
 	- [ ] Maybe max items bought per tier? (probably not)
+	- [ ] Maybe unlocking a tier automatically gives you something (meter on tier 2, cancels on tier 3 and so on)

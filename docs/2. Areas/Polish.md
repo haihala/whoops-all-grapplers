@@ -2,6 +2,8 @@
 - High five when two characters whiff throws close up
 - Instead of hold to pause, pausing in multiplayer leaves a pause request for the other player
 - Instead of a combo counter, show the cumulative frame advantage
+- Convey different types of invulnerabilities with sharders similarly to how ex is shown in sf
+	- It's more important to know something is invincible than to know it costs bar
 
 # Tutorial
 - Response trials

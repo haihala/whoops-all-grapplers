@@ -103,22 +103,7 @@ impl Move {
 
     fn claim(&mut self, owner: Player) {
         for phase in self.phases.iter_mut() {
-            if let PhaseKind::Hitbox(mut hitbox) = phase.kind {
-                hitbox.owner = Some(owner);
-                phase.kind = PhaseKind::Hitbox(hitbox);
-            } else if let PhaseKind::Projectile {
-                mut hitbox,
-                speed,
-                lifetime,
-            } = phase.kind
-            {
-                hitbox.owner = Some(owner);
-                phase.kind = PhaseKind::Projectile {
-                    hitbox,
-                    speed,
-                    lifetime,
-                };
-            }
+            phase.kind.claim(owner);
         }
     }
 }
@@ -147,5 +132,28 @@ pub enum PhaseKind {
 impl Default for PhaseKind {
     fn default() -> Self {
         PhaseKind::Animation
+    }
+}
+impl PhaseKind {
+    fn claim(&mut self, owner: Player) {
+        match self {
+            PhaseKind::Hitbox(mut hitbox) => {
+                hitbox.owner = Some(owner);
+                *self = PhaseKind::Hitbox(hitbox);
+            }
+            PhaseKind::Projectile {
+                hitbox,
+                speed,
+                lifetime,
+            } => {
+                hitbox.owner = Some(owner);
+                *self = PhaseKind::Projectile {
+                    hitbox: *hitbox,
+                    speed: *speed,
+                    lifetime: *lifetime,
+                };
+            }
+            _ => {}
+        }
     }
 }

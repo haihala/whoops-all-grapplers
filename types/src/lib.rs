@@ -29,6 +29,15 @@ impl Display for Player {
         Debug::fmt(self, f)
     }
 }
+impl Player {
+    #[must_use]
+    pub fn other(self) -> Self {
+        match self {
+            Player::One => Player::Two,
+            Player::Two => Player::One,
+        }
+    }
+}
 
 #[derive(Inspectable, Default)]
 pub struct HeightWindow {

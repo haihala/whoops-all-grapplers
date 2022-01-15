@@ -3,7 +3,7 @@ use bevy_inspector_egui::Inspectable;
 
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use types::{HeightWindow, Hit};
+use types::{HeightWindow, Hit, Player};
 
 use crate::{clock::Clock, physics::PlayerVelocity};
 
@@ -50,15 +50,18 @@ impl Health {
 }
 
 pub fn apply_hits(
-    mut query: Query<(
+    mut players: Query<(
         &mut Health,
         &mut PlayerState,
         &mut PlayerVelocity,
         &InputParser,
+        &Player,
     )>,
     clock: Res<Clock>,
 ) {
-    for (mut health, mut state, mut velocity, reader) in query.iter_mut() {
+    let mut attacker_knockbacks = vec![];
+
+    for (mut health, mut state, mut velocity, reader, player) in players.iter_mut() {
         for (hit, height_window) in health.drain_hits() {
             let stick: IVec2 = reader.get_relative_stick_position().into();
             let holding_back = stick.x == -1;
@@ -66,7 +69,12 @@ pub fn apply_hits(
             let blocked =
                 holding_back && state.blocked(hit.fixed_height, height_window, holding_down);
 
-            let (damage, stun, knockback) = if blocked {
+            let (damage, stun, defender_knockback) = if blocked {
+                attacker_knockbacks.push((
+                    player.other(),
+                    mirror_knockback(hit.block_knockback, !state.flipped()),
+                ));
+
                 (
                     hit.damage * CHIP_DAMAGE_MULTIPLIER,
                     hit.block_stun,
@@ -81,8 +89,16 @@ pub fn apply_hits(
             };
 
             health.apply_damage(damage);
-            velocity.add_impulse(knockback);
-            state.hit(stun + clock.frame, knockback.y > 0.0);
+            velocity.add_impulse(defender_knockback);
+            state.hit(stun + clock.frame, defender_knockback.y > 0.0);
+        }
+    }
+    for (_, _, mut velocity, _, player) in players.iter_mut() {
+        for (_, amount) in attacker_knockbacks
+            .iter()
+            .filter(|(target, _)| *target == *player)
+        {
+            velocity.add_impulse(*amount);
         }
     }
 }

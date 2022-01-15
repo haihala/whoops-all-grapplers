@@ -51,7 +51,7 @@ struct PlayerDefaults {
 }
 
 fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {
-    let state = PlayerState::default();
+    let state = PlayerState::new_flipped(offset.is_sign_positive());
     let bank = ryan_bank(player);
 
     commands

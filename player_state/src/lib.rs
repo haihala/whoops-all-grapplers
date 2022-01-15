@@ -60,6 +60,17 @@ impl Default for PlayerState {
     }
 }
 impl PlayerState {
+    pub fn new_flipped(flipped: bool) -> PlayerState {
+        PlayerState {
+            facing: if flipped {
+                AbsoluteDirection::Left
+            } else {
+                AbsoluteDirection::Right
+            },
+            ..Default::default()
+        }
+    }
+
     pub fn tick(&mut self, current_frame: usize) {
         self.frame = current_frame;
 

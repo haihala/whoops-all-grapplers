@@ -56,6 +56,7 @@ pub struct Move {
     pub input: &'static str,
     pub cancel_level: CancelLevel,
     pub phases: Vec<Phase>,
+    pub meter_cost: i32,
     pub air_ok: bool,
     pub ground_ok: bool,
 }

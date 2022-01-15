@@ -5,8 +5,12 @@ use moves::{CancelLevel, Move, MoveBank};
 use player_state::PlayerState;
 use types::MoveId;
 
-pub fn move_activator(mut query: Query<(&mut InputParser, &mut PlayerState, &MoveBank)>) {
-    for (mut reader, mut state, bank) in query.iter_mut() {
+use crate::meter::Meter;
+
+pub fn move_activator(
+    mut query: Query<(&mut InputParser, &mut PlayerState, &MoveBank, &mut Meter)>,
+) {
+    for (mut reader, mut state, bank, mut meter) in query.iter_mut() {
         let events = reader.get_events();
         if events.is_empty() {
             continue;
@@ -17,7 +21,9 @@ pub fn move_activator(mut query: Query<(&mut InputParser, &mut PlayerState, &Mov
             bank,
             state.cancel_requirement(),
             state.is_grounded(),
+            &meter,
         ) {
+            meter.pay(move_data.meter_cost);
             state.start_move(starting_move, move_data);
             reader.consume_event(starting_move);
         }
@@ -29,6 +35,7 @@ fn move_to_activate(
     bank: &MoveBank,
     cancel_requirement: CancelLevel,
     grounded: bool,
+    meter: &Meter,
 ) -> Option<(MoveId, Move)> {
     options
         .into_iter()
@@ -41,5 +48,6 @@ fn move_to_activate(
             }
         })
         .filter(|(_, action)| action.cancel_level >= cancel_requirement)
+        .filter(|(_, action)| meter.can_afford(action.meter_cost))
         .min_by(|(id1, _), (id2, _)| id1.cmp(id2))
 }

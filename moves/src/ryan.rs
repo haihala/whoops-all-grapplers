@@ -17,7 +17,10 @@ const DASH_RECOVERY_SPEED: f32 = SHIFT_DURING_DASH_RECOVERY / DASH_RECOVERY_DURA
 const DASH_START_FRAMES: usize = (DASH_START_DURATION_SECONDS * constants::FPS) as usize;
 const DASH_RECOVERY_FRAMES: usize = (DASH_RECOVERY_DURATION_SECONDS * constants::FPS) as usize;
 
-moves!(2usize, (HADOUKEN, AIR_PUNCH, COMMAND_PUNCH, PUNCH));
+moves!(
+    2usize,
+    (HEAVY_HADOUKEN, HADOUKEN, AIR_PUNCH, COMMAND_PUNCH, PUNCH)
+);
 
 pub fn ryan_bank(player: Player) -> MoveBank {
     MoveBank::new(
@@ -28,6 +31,7 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                 Move {
                     input: "656",
                     cancel_level: CancelLevel::Dash,
+                    ground_ok: true,
                     phases: vec![
                         Phase {
                             kind: PhaseKind::Animation,
@@ -42,7 +46,6 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::new(DASH_RECOVERY_SPEED, 0.0, 0.0),
                         },
                     ],
-                    ground_ok: true,
                     ..Default::default()
                 },
             ),
@@ -51,6 +54,7 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                 Move {
                     input: "454",
                     cancel_level: CancelLevel::Dash,
+                    ground_ok: true,
                     phases: vec![
                         Phase {
                             kind: PhaseKind::Animation,
@@ -65,7 +69,6 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::new(-DASH_RECOVERY_SPEED, 0.0, 0.0),
                         },
                     ],
-                    ground_ok: true,
                     ..Default::default()
                 },
             ),
@@ -74,6 +77,7 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                 Move {
                     input: "l",
                     cancel_level: CancelLevel::LightNormal,
+                    ground_ok: true,
                     phases: vec![
                         Phase {
                             kind: PhaseKind::Animation,
@@ -101,7 +105,6 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                     ],
-                    ground_ok: true,
                     ..Default::default()
                 },
             ),
@@ -110,6 +113,7 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                 Move {
                     input: "6l",
                     cancel_level: CancelLevel::LightNormal,
+                    ground_ok: true,
                     phases: vec![
                         Phase {
                             kind: PhaseKind::Animation,
@@ -134,7 +138,6 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                     ],
-                    ground_ok: true,
                     ..Default::default()
                 },
             ),
@@ -143,6 +146,7 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                 Move {
                     input: "236l",
                     cancel_level: CancelLevel::LightSpecial,
+                    ground_ok: true,
                     phases: vec![
                         Phase {
                             kind: PhaseKind::Animation,
@@ -171,7 +175,44 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                     ],
+                    ..Default::default()
+                },
+            ),
+            (
+                HEAVY_HADOUKEN,
+                Move {
+                    input: "236h",
+                    cancel_level: CancelLevel::HeavySpecial,
+                    meter_cost: 10,
                     ground_ok: true,
+                    phases: vec![
+                        Phase {
+                            kind: PhaseKind::Animation,
+                            duration: 30,
+                            cancel_requirement: CancelLevel::Uncancellable,
+                            mobility: Vec3::ZERO,
+                        },
+                        Phase {
+                            kind: PhaseKind::Projectile {
+                                speed: 2.0,
+                                hitbox: Hitbox::new(
+                                    Vec2::new(0.5, 0.5),
+                                    Vec2::new(0.7, 0.7),
+                                    Hit::default(),
+                                ),
+                                lifetime: None,
+                            },
+                            duration: 4,
+                            cancel_requirement: CancelLevel::Uncancellable,
+                            mobility: Vec3::ZERO,
+                        },
+                        Phase {
+                            kind: PhaseKind::Animation,
+                            duration: 10,
+                            cancel_requirement: CancelLevel::Jump,
+                            mobility: Vec3::ZERO,
+                        },
+                    ],
                     ..Default::default()
                 },
             ),
@@ -180,6 +221,7 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                 Move {
                     input: "l",
                     cancel_level: CancelLevel::LightNormal,
+                    air_ok: true,
                     phases: vec![
                         Phase {
                             kind: PhaseKind::Animation,
@@ -208,7 +250,6 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                     ],
-                    air_ok: true,
                     ..Default::default()
                 },
             ),

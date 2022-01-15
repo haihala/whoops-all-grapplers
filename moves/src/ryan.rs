@@ -25,10 +25,10 @@ pub fn ryan_bank(player: Player) -> MoveBank {
         vec![
             (
                 universal::DASH_FORWARD,
-                Move::ground_move(
-                    "656",
-                    CancelLevel::Dash,
-                    vec![
+                Move {
+                    input: "656",
+                    cancel_level: CancelLevel::Dash,
+                    phases: vec![
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: DASH_START_FRAMES,
@@ -42,14 +42,16 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::new(DASH_RECOVERY_SPEED, 0.0, 0.0),
                         },
                     ],
-                ),
+                    ground_ok: true,
+                    ..Default::default()
+                },
             ),
             (
                 universal::DASH_BACK,
-                Move::ground_move(
-                    "454",
-                    CancelLevel::Dash,
-                    vec![
+                Move {
+                    input: "454",
+                    cancel_level: CancelLevel::Dash,
+                    phases: vec![
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: DASH_START_FRAMES,
@@ -63,14 +65,16 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::new(-DASH_RECOVERY_SPEED, 0.0, 0.0),
                         },
                     ],
-                ),
+                    ground_ok: true,
+                    ..Default::default()
+                },
             ),
             (
                 PUNCH,
-                Move::ground_move(
-                    "l",
-                    CancelLevel::LightNormal,
-                    vec![
+                Move {
+                    input: "l",
+                    cancel_level: CancelLevel::LightNormal,
+                    phases: vec![
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 10,
@@ -97,14 +101,16 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                     ],
-                ),
+                    ground_ok: true,
+                    ..Default::default()
+                },
             ),
             (
                 COMMAND_PUNCH,
-                Move::ground_move(
-                    "6l",
-                    CancelLevel::LightNormal,
-                    vec![
+                Move {
+                    input: "6l",
+                    cancel_level: CancelLevel::LightNormal,
+                    phases: vec![
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 10,
@@ -128,14 +134,16 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                     ],
-                ),
+                    ground_ok: true,
+                    ..Default::default()
+                },
             ),
             (
                 HADOUKEN,
-                Move::ground_move(
-                    "236l",
-                    CancelLevel::LightSpecial,
-                    vec![
+                Move {
+                    input: "236l",
+                    cancel_level: CancelLevel::LightSpecial,
+                    phases: vec![
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 30,
@@ -163,14 +171,16 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                     ],
-                ),
+                    ground_ok: true,
+                    ..Default::default()
+                },
             ),
             (
                 AIR_PUNCH,
-                Move::air_move(
-                    "l",
-                    CancelLevel::LightNormal,
-                    vec![
+                Move {
+                    input: "l",
+                    cancel_level: CancelLevel::LightNormal,
+                    phases: vec![
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 10,
@@ -197,7 +207,9 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                     ],
-                ),
+                    air_ok: true,
+                    ..Default::default()
+                },
             ),
         ]
         .into_iter()

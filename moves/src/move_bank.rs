@@ -56,37 +56,11 @@ pub struct Move {
     pub input: &'static str,
     pub cancel_level: CancelLevel,
     pub phases: Vec<Phase>,
-    pub total_duration: usize,
     pub air_ok: bool,
     pub ground_ok: bool,
 }
 
 impl Move {
-    pub fn new(
-        input: &'static str,
-        cancel_level: CancelLevel,
-        phases: Vec<Phase>,
-        air_ok: bool,
-        ground_ok: bool,
-    ) -> Self {
-        Self {
-            input,
-            cancel_level,
-            total_duration: phases.iter().map(|phase| phase.duration).sum(),
-            phases,
-            air_ok,
-            ground_ok,
-        }
-    }
-
-    pub fn ground_move(input: &'static str, cancel_level: CancelLevel, phases: Vec<Phase>) -> Self {
-        Self::new(input, cancel_level, phases, false, true)
-    }
-
-    pub fn air_move(input: &'static str, cancel_level: CancelLevel, phases: Vec<Phase>) -> Self {
-        Self::new(input, cancel_level, phases, true, false)
-    }
-
     pub fn get_phase(&self, start_frame: usize, current_frame: usize) -> Option<&Phase> {
         let mut frames_left = current_frame as i32 - start_frame as i32;
 

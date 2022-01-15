@@ -1,10 +1,11 @@
+mod move_activation;
 mod movement;
 
 use input_parsing::{InputParser, InputReader};
 use movement::movement;
-use moves::{ryan_bank, CancelLevel, Move, MoveBank};
+use moves::ryan_bank;
 use player_state::PlayerState;
-use types::{Hurtbox, MoveId, Player};
+use types::{Hurtbox, Player};
 
 use crate::{
     assets::Colors,
@@ -27,7 +28,7 @@ impl Plugin for PlayerPlugin {
         app.add_startup_system(setup.system())
             .add_system_set(
                 SystemSet::on_update(GameState::Combat)
-                    .with_system(move_activator.system())
+                    .with_system(move_activation::move_activator.system())
                     .with_system(movement.system()),
             )
             .add_system_set(SystemSet::on_enter(GameState::Combat).with_system(reset.system()));
@@ -37,6 +38,15 @@ impl Plugin for PlayerPlugin {
 fn setup(mut commands: Commands, colors: Res<Colors>) {
     spawn_player(&mut commands, &colors, -PLAYER_SPAWN_DISTANCE, Player::One);
     spawn_player(&mut commands, &colors, PLAYER_SPAWN_DISTANCE, Player::Two);
+}
+
+#[derive(Bundle, Default)]
+struct PlayerDefaults {
+    health: Health,
+    meter: Meter,
+    input_reader: InputReader,
+    spawner: Spawner,
+    player_velocity: PlayerVelocity,
 }
 
 fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {
@@ -62,15 +72,11 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
             },
             ..Default::default()
         })
-        .insert(player)
-        .insert(Health::default())
-        .insert(Meter::default())
-        .insert(InputReader::default())
+        .insert_bundle(PlayerDefaults::default())
         .insert(InputParser::load(bank.get_inputs()))
-        .insert(Spawner::default())
         .insert(bank)
-        .insert(PlayerVelocity::default())
         .insert(Hurtbox::new(state.get_collider_size()))
+        .insert(player)
         .insert(state);
 }
 
@@ -93,43 +99,4 @@ fn reset(
         };
         tf.translation.y = PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0;
     }
-}
-
-pub fn move_activator(mut query: Query<(&mut InputParser, &mut PlayerState, &MoveBank)>) {
-    for (mut reader, mut state, bank) in query.iter_mut() {
-        let events = reader.get_events();
-        if events.is_empty() {
-            continue;
-        }
-
-        if let Some((starting_move, move_data)) = move_to_activate(
-            events,
-            bank,
-            state.cancel_requirement(),
-            state.is_grounded(),
-        ) {
-            state.start_move(starting_move, move_data);
-            reader.consume_event(starting_move);
-        }
-    }
-}
-
-fn move_to_activate(
-    options: Vec<MoveId>,
-    bank: &MoveBank,
-    cancel_requirement: CancelLevel,
-    grounded: bool,
-) -> Option<(MoveId, Move)> {
-    options
-        .into_iter()
-        .map(|id| (id, bank.get(id).to_owned()))
-        .filter(|(_, action)| {
-            if grounded {
-                action.ground_ok
-            } else {
-                action.air_ok
-            }
-        })
-        .filter(|(_, action)| action.cancel_level >= cancel_requirement)
-        .min_by(|(id1, _), (id2, _)| id1.cmp(id2))
 }

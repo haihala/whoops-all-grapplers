@@ -90,7 +90,7 @@ pub fn apply_hits(
                 ));
 
                 (
-                    (hit.damage as f32 * CHIP_DAMAGE_MULTIPLIER) as i32,
+                    (hit.damage as f32 * CHIP_DAMAGE_MULTIPLIER).ceil() as i32,
                     hit.block_stun,
                     mirror_knockback(hit.block_knockback, state.flipped()),
                 )

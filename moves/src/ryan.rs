@@ -37,13 +37,13 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             kind: PhaseKind::Animation,
                             duration: DASH_START_FRAMES,
                             cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::new(DASH_START_SPEED, 0.0, 0.0),
+                            mobility: Vec3::X * DASH_START_SPEED,
                         },
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: DASH_RECOVERY_FRAMES,
                             cancel_requirement: CancelLevel::LightNormal,
-                            mobility: Vec3::new(DASH_RECOVERY_SPEED, 0.0, 0.0),
+                            mobility: Vec3::X * DASH_RECOVERY_SPEED,
                         },
                     ],
                     ..Default::default()

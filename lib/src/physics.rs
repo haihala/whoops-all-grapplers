@@ -15,11 +15,7 @@ pub struct ConstantVelocity {
 impl ConstantVelocity {
     pub fn new(speed: f32, flipped: bool) -> Self {
         Self {
-            shift: Vec3::new(
-                if flipped { -speed } else { speed } / constants::FPS,
-                0.0,
-                0.0,
-            ),
+            shift: Vec3::X * if flipped { -speed } else { speed } / constants::FPS,
         }
     }
 }
@@ -54,7 +50,7 @@ impl Default for PlayerVelocity {
 impl PlayerVelocity {
     pub fn get_total(&self) -> Vec3 {
         match self.used_velocity {
-            PlayerVelocityType::Walk => Vec3::new(self.walk_velocity, 0.0, 0.0),
+            PlayerVelocityType::Walk => Vec3::X * self.walk_velocity,
             PlayerVelocityType::Move => self.dash_velocity,
             PlayerVelocityType::Previous => self.total,
         }
@@ -166,8 +162,8 @@ fn player_input(mut query: Query<(&mut PlayerState, &mut PlayerVelocity)>) {
         velocity.set_move_velocity(&mut state);
         for event in state.get_events() {
             match event {
-                StateEvent::Jump(direction) => {
-                    velocity.add_impulse(state.jump_direction_to_impulse(direction));
+                StateEvent::Jump(impulse) => {
+                    velocity.add_impulse(impulse);
                     state.consume_event(event);
                 }
                 StateEvent::Null => panic!("Null event from player state"),

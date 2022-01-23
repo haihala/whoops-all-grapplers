@@ -4,13 +4,12 @@ use moves::{CancelLevel, Move, Phase, PhaseKind};
 
 use std::fmt::Debug;
 
-use types::{AbsoluteDirection, AttackHeight, HeightWindow, MoveId, RelativeDirection};
+use types::{AbsoluteDirection, AttackHeight, HeightWindow, MoveId};
 
 mod primary_state;
 use primary_state::*;
 
 mod events;
-use events::*;
 
 pub use events::StateEvent;
 
@@ -240,35 +239,30 @@ impl PlayerState {
         }
         self.primary = PrimaryState::Ground(GroundActivity::Standing);
     }
-    pub fn register_jump(&mut self, direction: Option<RelativeDirection>) {
+    pub fn jump(&mut self, direction: Option<AbsoluteDirection>) {
         if self.cancel_requirement() > CancelLevel::Jump {
             return;
         }
 
+        if matches!(
+            self.primary,
+            PrimaryState::Ground(GroundActivity::PreJump(_))
+        ) {}
+
         dbg!("Jump");
         self.primary = PrimaryState::Air(AirActivity::Idle);
         self.add_event(StateEvent::Jump(match direction {
-            Some(relative_direction) => {
-                JumpDirection::Diagonal(relative_direction.as_absolute(self.facing))
-            }
-            None => JumpDirection::Neutral,
+            Some(direction) => direction.handle_mirroring(constants::DIAGONAL_JUMP_VECTOR.into()),
+            None => constants::NEUTRAL_JUMP_VECTOR.into(),
         }));
     }
-    pub fn jump_direction_to_impulse(&mut self, jump_direction: JumpDirection) -> Vec3 {
-        match jump_direction {
-            JumpDirection::Neutral => constants::NEUTRAL_JUMP_VECTOR.into(),
-            JumpDirection::Diagonal(direction) => {
-                direction.handle_mirroring(constants::DIAGONAL_JUMP_VECTOR.into())
-            }
-            JumpDirection::Null => panic!("Null jump direction"),
-        }
-    }
+
     pub fn is_grounded(&self) -> bool {
         matches!(self.primary, PrimaryState::Ground(_))
     }
 
     // Walking
-    pub fn walk(&mut self, direction: RelativeDirection) {
+    pub fn walk(&mut self, direction: AbsoluteDirection) {
         if self.cancel_requirement() > CancelLevel::Anything {
             return;
         }
@@ -277,7 +271,7 @@ impl PlayerState {
     }
     pub fn get_walk_direction(&self) -> Option<AbsoluteDirection> {
         if let PrimaryState::Ground(GroundActivity::Walk(_, direction)) = self.primary {
-            Some(direction.as_absolute(self.facing))
+            Some(direction)
         } else {
             None
         }

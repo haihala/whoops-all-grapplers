@@ -1,23 +1,11 @@
+use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use types::{AbsoluteDirection, Hitbox, MoveId};
-
-#[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug)]
-pub enum JumpDirection {
-    Neutral,
-    Diagonal(AbsoluteDirection),
-    Null,
-}
-impl Default for JumpDirection {
-    fn default() -> Self {
-        // Required by Inspectability, not actually used anywhere
-        JumpDirection::Null
-    }
-}
+use types::{Hitbox, MoveId};
 
 #[derive(Inspectable, PartialEq, Clone, Copy, Debug)]
 pub enum StateEvent {
-    Jump(JumpDirection),
+    Jump(Vec3),
     Hitbox {
         hitbox: Hitbox,
         move_id: MoveId,

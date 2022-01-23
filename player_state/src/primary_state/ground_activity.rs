@@ -6,7 +6,11 @@ pub enum GroundActivity {
     Stun(usize),
     Move(MoveId),
     Walk(usize, AbsoluteDirection),
-    PreJump(usize),
+    PreJump {
+        launch_frame: usize,
+        direction: Option<AbsoluteDirection>,
+        held: bool,
+    },
     Crouching,
     Standing,
 }

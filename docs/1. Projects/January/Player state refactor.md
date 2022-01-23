@@ -1,0 +1,9 @@
+- Get rid of the tick function
+- Make domain specific systems. Performance doesn't matter here
+	- One for walking
+	- One for jumping
+	- One for crouching
+	- One for move progression
+	- Put all of them in a plugin that you export
+- Add a system for more dynamic move phase checks.
+	- Moves that can trigger in certain states (Rekka)

@@ -38,6 +38,7 @@ pub mod universal {
 pub enum CancelLevel {
     Anything,
     Walk,
+    PreJump,
     LightNormal,
     LightSpecial,
     HeavyNormal,

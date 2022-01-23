@@ -13,6 +13,8 @@ mod events;
 
 pub use events::StateEvent;
 
+const HELD_JUMP_IMPULSE_MULTIPLIER: f32 = 1.4;
+const PLAYER_PREJUMP_FRAMES: usize = 8;
 pub const PLAYER_SPRITE_WIDTH: f32 = 0.80;
 pub const PLAYER_SPRITE_STANDING_HEIGHT: f32 = 1.80;
 const PLAYER_SPRITE_CROUCHING_HEIGHT_MULTIPLIER: f32 = 0.6;
@@ -91,6 +93,28 @@ impl PlayerState {
                     }
                     GroundActivity::Move(id) => {
                         self.move_tick(id, PrimaryState::Ground(GroundActivity::Standing))
+                    }
+                    GroundActivity::PreJump {
+                        launch_frame,
+                        direction,
+                        held,
+                    } => {
+                        if self.frame >= launch_frame {
+                            let impulse = match direction {
+                                Some(direction) => direction
+                                    .handle_mirroring(constants::DIAGONAL_JUMP_VECTOR.into()),
+                                None => constants::NEUTRAL_JUMP_VECTOR.into(),
+                            };
+
+                            self.add_event(StateEvent::Jump(if held {
+                                HELD_JUMP_IMPULSE_MULTIPLIER * impulse
+                            } else {
+                                impulse
+                            }));
+
+                            self.primary = PrimaryState::Air(AirActivity::Idle);
+                            dbg!("Jump event");
+                        }
                     }
                     _ => {}
                 }
@@ -197,8 +221,15 @@ impl PlayerState {
                 return phase.cancel_requirement;
             }
         }
-
-        CancelLevel::Anything
+        match self.primary {
+            PrimaryState::Ground(GroundActivity::Walk(_, _)) => CancelLevel::Walk,
+            PrimaryState::Ground(GroundActivity::PreJump {
+                launch_frame: _,
+                direction: _,
+                held: _,
+            }) => CancelLevel::PreJump,
+            _ => CancelLevel::Anything,
+        }
     }
     pub fn get_move_mobility(&self) -> Option<Vec3> {
         self.move_tracker
@@ -240,33 +271,63 @@ impl PlayerState {
         self.primary = PrimaryState::Ground(GroundActivity::Standing);
     }
     pub fn jump(&mut self, direction: Option<AbsoluteDirection>) {
-        if self.cancel_requirement() > CancelLevel::Jump {
+        if self.cancel_requirement() > CancelLevel::Jump && !self.in_prejump() {
             return;
         }
 
-        if matches!(
-            self.primary,
-            PrimaryState::Ground(GroundActivity::PreJump(_))
-        ) {}
-
-        dbg!("Jump");
-        self.primary = PrimaryState::Air(AirActivity::Idle);
-        self.add_event(StateEvent::Jump(match direction {
-            Some(direction) => direction.handle_mirroring(constants::DIAGONAL_JUMP_VECTOR.into()),
-            None => constants::NEUTRAL_JUMP_VECTOR.into(),
-        }));
+        self.primary = if let PrimaryState::Ground(GroundActivity::PreJump {
+            launch_frame,
+            direction: _,
+            held: _,
+        }) = self.primary
+        {
+            PrimaryState::Ground(GroundActivity::PreJump {
+                launch_frame,
+                direction,
+                held: true,
+            })
+        } else {
+            PrimaryState::Ground(GroundActivity::PreJump {
+                launch_frame: self.frame + PLAYER_PREJUMP_FRAMES,
+                direction,
+                held: true,
+            })
+        }
     }
-
+    fn unhold_prejump(&mut self) {
+        if let PrimaryState::Ground(GroundActivity::PreJump {
+            launch_frame,
+            direction,
+            held: _,
+        }) = self.primary
+        {
+            self.primary = PrimaryState::Ground(GroundActivity::PreJump {
+                launch_frame,
+                direction,
+                held: false,
+            });
+        }
+    }
     pub fn is_grounded(&self) -> bool {
         matches!(self.primary, PrimaryState::Ground(_))
+    }
+    fn in_prejump(&self) -> bool {
+        matches!(
+            self.primary,
+            PrimaryState::Ground(GroundActivity::PreJump {
+                launch_frame: _,
+                direction: _,
+                held: _,
+            })
+        )
     }
 
     // Walking
     pub fn walk(&mut self, direction: AbsoluteDirection) {
-        if self.cancel_requirement() > CancelLevel::Anything {
+        self.unhold_prejump();
+        if self.cancel_requirement() > CancelLevel::Walk {
             return;
         }
-
         self.primary = PrimaryState::Ground(GroundActivity::Walk(self.frame, direction));
     }
     pub fn get_walk_direction(&self) -> Option<AbsoluteDirection> {
@@ -278,12 +339,14 @@ impl PlayerState {
     }
 
     pub fn crouch(&mut self) {
+        self.unhold_prejump();
         if self.cancel_requirement() > CancelLevel::Anything {
             return;
         }
         self.primary = PrimaryState::Ground(GroundActivity::Crouching);
     }
     pub fn stand(&mut self) {
+        self.unhold_prejump();
         if self.cancel_requirement() > CancelLevel::Anything {
             return;
         }

@@ -77,30 +77,27 @@ pub fn apply_hits(
 
     for (mut health, mut state, mut velocity, reader, player) in players.iter_mut() {
         for (hit, height_window) in health.drain_hits() {
-            let stick: IVec2 = reader.get_relative_stick_position().into();
-            let holding_back = stick.x == -1;
-            let holding_down = stick.y == -1;
-            let blocked =
-                holding_back && state.blocked(hit.fixed_height, height_window, holding_down);
+            let stick = reader.get_relative_stick_position();
 
-            let (damage, stun, defender_knockback) = if blocked {
-                attacker_knockbacks.push((
-                    player.other(),
-                    mirror_knockback(hit.block_knockback, !state.flipped()),
-                ));
+            let (damage, stun, defender_knockback) =
+                if state.blocked(hit.fixed_height, height_window, stick) {
+                    attacker_knockbacks.push((
+                        player.other(),
+                        mirror_knockback(hit.block_knockback, !state.flipped()),
+                    ));
 
-                (
-                    (hit.damage as f32 * CHIP_DAMAGE_MULTIPLIER).ceil() as i32,
-                    hit.block_stun,
-                    mirror_knockback(hit.block_knockback, state.flipped()),
-                )
-            } else {
-                (
-                    hit.damage,
-                    hit.hit_stun,
-                    mirror_knockback(hit.hit_knockback, state.flipped()),
-                )
-            };
+                    (
+                        (hit.damage as f32 * CHIP_DAMAGE_MULTIPLIER).ceil() as i32,
+                        hit.block_stun,
+                        mirror_knockback(hit.block_knockback, state.flipped()),
+                    )
+                } else {
+                    (
+                        hit.damage,
+                        hit.hit_stun,
+                        mirror_knockback(hit.hit_knockback, state.flipped()),
+                    )
+                };
 
             health.apply_damage(damage);
             velocity.add_impulse(defender_knockback);

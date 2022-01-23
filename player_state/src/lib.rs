@@ -4,7 +4,7 @@ use moves::{CancelLevel, Move, Phase, PhaseKind};
 
 use std::fmt::Debug;
 
-use types::{AbsoluteDirection, AttackHeight, HeightWindow, MoveId};
+use types::{AbsoluteDirection, AttackHeight, HeightWindow, MoveId, StickPosition};
 
 mod primary_state;
 use primary_state::*;
@@ -373,11 +373,14 @@ impl PlayerState {
         &self,
         fixed_height: Option<AttackHeight>,
         height_window: HeightWindow,
-        blocking_low: bool,
+        stick: StickPosition,
     ) -> bool {
         if !self.can_block_now() {
             return false;
         }
+
+        let blocking_high = stick == StickPosition::E;
+        let blocking_low = stick == StickPosition::SE;
 
         let height = fixed_height.unwrap_or(if self.low_block_threshold() > height_window.top {
             AttackHeight::Low
@@ -389,12 +392,12 @@ impl PlayerState {
 
         match height {
             AttackHeight::Low => blocking_low,
-            AttackHeight::Mid => true,
-            AttackHeight::High => !blocking_low,
+            AttackHeight::Mid => blocking_low || blocking_high,
+            AttackHeight::High => blocking_high,
         }
     }
     fn can_block_now(&self) -> bool {
-        self.cancel_requirement() < CancelLevel::LightNormal
+        self.cancel_requirement() < CancelLevel::PreJump && self.is_grounded()
     }
     fn low_block_threshold(&self) -> f32 {
         self.get_height() * PLAYER_LOW_BLOCK_THRESHOLD_RATIO

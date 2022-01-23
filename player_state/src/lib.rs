@@ -100,6 +100,7 @@ impl PlayerState {
                         held,
                     } => {
                         if self.frame >= launch_frame {
+                            self.primary = PrimaryState::Air(AirActivity::Idle);
                             let impulse = match direction {
                                 Some(direction) => direction
                                     .handle_mirroring(constants::DIAGONAL_JUMP_VECTOR.into()),
@@ -112,7 +113,6 @@ impl PlayerState {
                                 impulse
                             }));
 
-                            self.primary = PrimaryState::Air(AirActivity::Idle);
                             dbg!("Jump event");
                         }
                     }

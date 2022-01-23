@@ -3,7 +3,11 @@
 	- One for walking
 	- One for jumping
 	- One for crouching
-	- One for move progression
+	- One for move progression and activation
+		- There is a circular dependency issue with this one
+		- parser requires state to know which way it's facing
+		- state would require parser to know what moves to start up
 	- Put all of them in a plugin that you export
 - Add a system for more dynamic move phase checks.
 	- Moves that can trigger in certain states (Rekka)
+- Currently doing a move while crouching will nudge the charcter up a bit, causing issues.

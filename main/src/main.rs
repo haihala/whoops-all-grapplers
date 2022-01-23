@@ -1,4 +1,4 @@
-// use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+// use bevy::{ecs::schedule::ReportExecutionOrderAmbiguities, diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}};
 use bevy::prelude::*;
 use input_parsing::InputParsingPlugin;
 use whoops_all_grapplers_lib::WAGLib;
@@ -11,5 +11,6 @@ fn main() {
         .add_plugin(InputParsingPlugin)
         // .add_plugin(LogDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        // .insert_resource(ReportExecutionOrderAmbiguities)
         .run();
 }

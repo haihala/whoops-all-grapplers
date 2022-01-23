@@ -2,9 +2,10 @@
 	- [x] Add prejump state (ground)
 - [x] Short and long hops
 	- [x] If holding up at the end of prejump, you get a long hop
-- [ ] Investigate double hops while at it
+- [x] Investigate double hops while at it
 	- Likely are a product of parallelization
 	- They definitely still happen. Even with the prejump, for some reason the event is sent twice.
+	- Moved this to [[Fix execution order]]
 - [x] Why does doubling the impulse give so much more height?
 - [x] Why does it always long jump
 

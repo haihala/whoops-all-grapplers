@@ -12,3 +12,6 @@ Weekly regional tournaments, the winners of which can be shown in the game. Mayb
 
 ## Wiki
 All the content that is available for learning in game ought to also be available online in the browser.
+
+## Balance change streams
+Purge-like go through patch notes. Initially twitch chat may ask stuff. If this goes somewhere condence twitch chat to a few community members. People can then filter their questions through them.

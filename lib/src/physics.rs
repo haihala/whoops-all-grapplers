@@ -4,7 +4,10 @@ use bevy_inspector_egui::Inspectable;
 use player_state::{PlayerState, StateEvent};
 use types::{LRDirection, Player};
 
-use crate::clock::run_max_once_per_combat_frame;
+use crate::{
+    camera::{WorldCamera, VIEWPORT_WIDTH},
+    clock::run_max_once_per_combat_frame,
+};
 
 pub const GROUND_PLANE_HEIGHT: f32 = -0.4;
 pub const ARENA_WIDTH: f32 = 10.0;
@@ -203,16 +206,31 @@ fn move_constants(
     }
 }
 
-fn move_players(mut players: Query<(&mut PlayerVelocity, &mut Transform, &mut PlayerState)>) {
+#[allow(clippy::type_complexity)]
+fn move_players(
+    mut queries: QuerySet<(
+        Query<(&mut PlayerVelocity, &mut Transform, &mut PlayerState)>,
+        Query<&Transform, With<WorldCamera>>,
+    )>,
+) {
+    let camera_x = queries
+        .q1()
+        .single()
+        .map(|camtf| camtf.translation.x)
+        .unwrap_or_default();
+
     // Handle static collision
-    for (mut velocity, mut transform, mut state) in players.iter_mut() {
+    for (mut velocity, mut transform, mut state) in queries.q0_mut().iter_mut() {
         velocity.tick(&mut state);
 
         let shift = velocity.get_shift();
 
-        if let Some(collision) =
-            static_collision(transform.translation, shift, state.get_collider_size())
-        {
+        if let Some(collision) = static_collision(
+            transform.translation,
+            shift,
+            state.get_collider_size(),
+            camera_x,
+        ) {
             transform.translation = collision.legal_position;
             if collision.x_collision {
                 velocity.x_collision();
@@ -307,10 +325,13 @@ impl StaticCollision {
     }
 }
 
+const CAMERA_EDGE_COLLISION_PADDING: f32 = 1.0;
+
 fn static_collision(
     current_position: Vec3,
     movement: Vec3,
     player_size: Vec2,
+    camera_x: f32,
 ) -> Option<StaticCollision> {
     let future_position = current_position + movement;
     let relative_ground_plane = GROUND_PLANE_HEIGHT + player_size.y / 2.0;
@@ -323,11 +344,15 @@ fn static_collision(
         future_position.y
     };
 
-    let x_collision = future_position.x.abs() > ARENA_WIDTH;
-    let legal_x = if x_collision {
-        current_position.x.signum() * ARENA_WIDTH
+    let right_wall = ARENA_WIDTH.min(camera_x + VIEWPORT_WIDTH - CAMERA_EDGE_COLLISION_PADDING);
+    let left_wall = (-ARENA_WIDTH).max(camera_x - VIEWPORT_WIDTH + CAMERA_EDGE_COLLISION_PADDING);
+
+    let (legal_x, x_collision) = if future_position.x > right_wall {
+        (right_wall, true)
+    } else if future_position.x < left_wall {
+        (left_wall, true)
     } else {
-        future_position.x
+        (future_position.x, false)
     };
 
     StaticCollision {

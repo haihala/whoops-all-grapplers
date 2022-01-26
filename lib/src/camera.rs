@@ -5,11 +5,11 @@ use bevy::render::camera::{
 use bevy::render::render_graph::base::camera::CAMERA_2D;
 use types::Player;
 
-struct WorldCamera;
+pub struct WorldCamera;
 
 const CAMERA_FAR_DISTANCE: f32 = 10000.0;
 const CAMERA_HEIGHT: f32 = 2.0;
-const VIEWPORT_WIDTH: f32 = 5.0;
+pub const VIEWPORT_WIDTH: f32 = 5.0;
 
 // Originally from
 // https://bevy-cheatbook.github.io/cookbook/custom-projection.html?highlight=window#custom-camera-projection

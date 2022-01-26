@@ -127,24 +127,10 @@ impl PlayerState {
 
         if let Some(new_phase) = phase {
             if *new_phase != tracker.previous_phase {
-                if let PhaseKind::Hitbox(hitbox) = new_phase.kind {
-                    self.add_event(StateEvent::Hitbox {
-                        hitbox,
-                        move_id,
-                        ttl: new_phase.duration,
-                    });
-                } else if let PhaseKind::Projectile {
-                    hitbox,
-                    speed,
-                    lifetime,
-                } = new_phase.kind
-                {
-                    self.add_event(StateEvent::Projectile {
-                        speed,
-                        hitbox,
-                        move_id,
-                        ttl: lifetime,
-                    });
+                self.add_event(StateEvent::PhaseChange);
+
+                if let PhaseKind::Attack(descriptor) = new_phase.kind {
+                    self.add_event(StateEvent::Attack(move_id, descriptor));
                 }
 
                 tracker.previous_phase = new_phase.to_owned();
@@ -336,7 +322,7 @@ impl PlayerState {
 
     pub fn blocked(
         &self,
-        fixed_height: Option<AttackHeight>,
+        fixed_height: Option<&AttackHeight>,
         height_window: HeightWindow,
         stick: StickPosition,
     ) -> bool {
@@ -348,11 +334,11 @@ impl PlayerState {
         let blocking_low = stick == StickPosition::SE;
 
         let height = fixed_height.unwrap_or(if self.low_block_threshold() > height_window.top {
-            AttackHeight::Low
+            &AttackHeight::Low
         } else if self.high_block_threshold() > height_window.bottom {
-            AttackHeight::High
+            &AttackHeight::High
         } else {
-            AttackHeight::Mid
+            &AttackHeight::Mid
         });
 
         match height {

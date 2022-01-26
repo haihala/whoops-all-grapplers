@@ -2,10 +2,11 @@ use bevy::prelude::*;
 use bevy::utils::HashMap;
 
 use player_state::{PlayerState, StateEvent};
-use types::{Hitbox, LRDirection, MoveId};
+use types::{AttackDescriptor, LRDirection, Lifetime, MoveId, Player, PlayerCollisionTrigger};
 
 use crate::assets::Colors;
-use crate::clock::{Clock, ROUND_TIME};
+use crate::clock::Clock;
+use crate::game_flow::GameState;
 use crate::physics::ConstantVelocity;
 
 pub struct SpawnerPlugin;
@@ -13,152 +14,203 @@ pub struct SpawnerPlugin;
 impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_system(handle_hitbox_events.system())
-            .add_system(handle_requests.system());
+            .add_system(despawn_expired.system())
+            .add_system(despawn_on_phase_change.system())
+            .add_system_set(
+                SystemSet::on_exit(GameState::Combat).with_system(despawn_everything.system()),
+            );
     }
 }
 
-struct SpawnRequest {
-    id: MoveId,
-    hitbox: Hitbox,
-    attached_to_player: bool,
-    speed: f32,
+#[derive(Debug, Clone, Copy)]
+enum DespawnTime {
+    Frame(usize),
+    StateChange,
+    OnHit,
+    EndOfRound,
 }
 
 struct DespawnRequest {
     id: MoveId,
-    frame: usize,
+    time: DespawnTime,
 }
 
 #[derive(Default)]
 pub struct Spawner {
-    spawn_requests: Vec<SpawnRequest>,
     spawned: HashMap<MoveId, Entity>,
     despawn_requests: Vec<DespawnRequest>,
 }
 impl Spawner {
-    fn add_hitbox(&mut self, hitbox: Hitbox, id: MoveId, time_of_death: usize) {
-        self.spawn_requests.push(SpawnRequest {
-            id,
-            hitbox,
-            attached_to_player: true,
-            speed: 0.0,
-        });
-        self.despawn_requests.push(DespawnRequest {
-            id,
-            frame: time_of_death,
-        });
-    }
-
-    fn add_projectile(&mut self, hitbox: Hitbox, id: MoveId, time_of_death: usize, speed: f32) {
-        self.spawn_requests.push(SpawnRequest {
-            id,
-            hitbox,
-            attached_to_player: false,
-            speed,
-        });
-        self.despawn_requests.push(DespawnRequest {
-            id,
-            frame: time_of_death,
-        });
-    }
-
-    fn handle_requests(
+    #[allow(clippy::too_many_arguments)]
+    fn spawn_attack(
         &mut self,
+        id: MoveId,
+        descriptor: AttackDescriptor,
         commands: &mut Commands,
         colors: &Res<Colors>,
-        facing: &LRDirection,
-        parent: Entity,
-        parent_position: Vec3,
         frame: usize,
+        parent: Entity,
+        facing: &LRDirection,
+        player: Player,
+        parent_position: Vec3,
     ) {
-        for request in self.spawn_requests.drain(..) {
-            let offset = facing.mirror_vec(request.hitbox.offset);
-            let translation = if request.attached_to_player {
-                offset
-            } else {
-                parent_position + offset
-            };
+        let offset = facing.mirror_vec(descriptor.hitbox.offset);
+        let translation = if descriptor.attached_to_player {
+            offset
+        } else {
+            parent_position + offset
+        };
 
-            let spawned_box = commands
-                .spawn_bundle(SpriteBundle {
-                    transform: Transform {
-                        translation,
-                        ..Default::default()
-                    },
-                    material: colors.hurtbox.clone(),
-                    sprite: Sprite::new(request.hitbox.size),
-                    ..Default::default()
-                })
-                .insert(request.hitbox.to_owned())
-                .insert(ConstantVelocity::new(facing.to_vec3() * request.speed))
-                .id();
+        let mut builder = commands.spawn_bundle(SpriteBundle {
+            transform: Transform {
+                translation,
+                ..Default::default()
+            },
+            material: colors.hurtbox.clone(),
+            sprite: Sprite::new(descriptor.hitbox.size),
+            ..Default::default()
+        });
 
-            if request.attached_to_player {
-                commands.entity(parent).push_children(&[spawned_box]);
-            }
-
-            self.spawned.insert(request.id, spawned_box);
+        // Components used when collision happens
+        builder.insert(PlayerCollisionTrigger { owner: player });
+        if let Some(damage) = descriptor.damage {
+            builder.insert(damage);
+        }
+        if let Some(stun) = descriptor.stun {
+            builder.insert(stun);
+        }
+        if let Some(knockback) = descriptor.knockback {
+            builder.insert(knockback);
+        }
+        if let Some(pushback) = descriptor.pushback {
+            builder.insert(pushback);
+        }
+        if let Some(speed) = descriptor.speed {
+            builder.insert(ConstantVelocity::new(facing.to_vec3() * speed));
+        }
+        if let Some(fixed_height) = descriptor.fixed_height {
+            builder.insert(fixed_height);
         }
 
-        for id in self
-            .despawn_requests
-            .drain_filter(|event| (event.frame <= frame))
-            .map(|event| event.id)
-        {
+        // Housekeeping
+        let new_hitbox = builder.id();
+        if descriptor.attached_to_player {
+            commands.entity(parent).push_children(&[new_hitbox]);
+        }
+        self.spawned.insert(id, new_hitbox);
+        self.despawn_requests.push(DespawnRequest {
+            id,
+            time: match descriptor.lifetime {
+                Lifetime::Phase => DespawnTime::StateChange,
+                Lifetime::UntilHit => DespawnTime::OnHit,
+                Lifetime::Frames(time_to_live) => DespawnTime::Frame(frame + time_to_live),
+                Lifetime::Forever => DespawnTime::EndOfRound,
+            },
+        });
+    }
+
+    fn despawn(&mut self, commands: &mut Commands, ids: Vec<MoveId>) {
+        for id in ids.into_iter() {
             if let Some(spawned) = self.spawned.get(&id) {
                 commands.entity(*spawned).despawn();
                 self.spawned.remove(&id);
             }
         }
     }
+
+    fn drain(&mut self, predicate: impl Fn(&mut DespawnRequest) -> bool) -> Vec<MoveId> {
+        self.despawn_requests
+            .drain_filter(predicate)
+            .map(|event| event.id)
+            .collect()
+    }
+
+    fn drain_old(&mut self, frame: usize) -> Vec<MoveId> {
+        self.drain(|event| {
+            if let DespawnTime::Frame(despawn_frame) = event.time {
+                despawn_frame <= frame
+            } else {
+                false
+            }
+        })
+    }
+
+    pub fn despawn_on_hit(&mut self, commands: &mut Commands) {
+        let ids = self.drain(|event| {
+            matches!(event.time, DespawnTime::OnHit)
+            // Getting hit changes the state
+                || matches!(event.time, DespawnTime::StateChange)
+        });
+
+        self.despawn(commands, ids);
+    }
 }
 
-pub fn handle_hitbox_events(clock: Res<Clock>, mut query: Query<(&mut Spawner, &mut PlayerState)>) {
-    for (mut spawner, mut state) in query.iter_mut() {
+pub fn handle_hitbox_events(
+    mut commands: Commands,
+    clock: Res<Clock>,
+    colors: Res<Colors>,
+    mut query: Query<(
+        &mut Spawner,
+        &mut PlayerState,
+        Entity,
+        &LRDirection,
+        &Player,
+        &Transform,
+    )>,
+) {
+    for (mut spawner, mut state, parent, facing, player, parent_tf) in query.iter_mut() {
         for event in state.get_events() {
-            if let StateEvent::Hitbox {
-                hitbox,
-                move_id,
-                ttl,
-            } = event
-            {
-                spawner.add_hitbox(hitbox, move_id, ttl + clock.frame);
-                state.consume_event(event);
-            } else if let StateEvent::Projectile {
-                hitbox,
-                move_id,
-                ttl,
-                speed,
-            } = event
-            {
-                spawner.add_projectile(
-                    hitbox,
-                    move_id,
-                    ttl.map(|frame| frame + clock.frame)
-                        // If not specified, despawn after a round. Despawned early if moved too far
-                        .unwrap_or((ROUND_TIME * constants::FPS) as usize),
-                    speed,
+            if let StateEvent::Attack(id, descriptor) = event {
+                spawner.spawn_attack(
+                    id,
+                    descriptor,
+                    &mut commands,
+                    &colors,
+                    clock.frame,
+                    parent,
+                    facing,
+                    *player,
+                    parent_tf.translation,
                 );
+
                 state.consume_event(event);
             }
         }
     }
 }
 
-pub fn handle_requests(
+pub fn despawn_expired(
     mut commands: Commands,
     clock: Res<Clock>,
-    colors: Res<Colors>,
-    mut hitboxes: Query<(Entity, &Transform, &mut Spawner, &LRDirection)>,
+    mut spawners: Query<&mut Spawner>,
 ) {
-    for (parent, tf, mut hitboxes, facing) in hitboxes.iter_mut() {
-        hitboxes.handle_requests(
-            &mut commands,
-            &colors,
-            facing,
-            parent,
-            tf.translation,
-            clock.frame,
-        );
+    for mut spawner in spawners.iter_mut() {
+        let ids = spawner.drain_old(clock.frame);
+
+        spawner.despawn(&mut commands, ids);
+    }
+}
+
+pub fn despawn_on_phase_change(
+    mut commands: Commands,
+    mut spawners: Query<(&mut Spawner, &mut PlayerState)>,
+) {
+    for (mut spawner, mut state) in spawners.iter_mut() {
+        for event in state.get_events() {
+            if matches!(event, StateEvent::PhaseChange) {
+                let ids = spawner.drain(|event| matches!(event.time, DespawnTime::StateChange));
+                spawner.despawn(&mut commands, ids);
+
+                state.consume_event(event);
+            }
+        }
+    }
+}
+
+pub fn despawn_everything(mut commands: Commands, mut spawners: Query<&mut Spawner>) {
+    for mut spawner in spawners.iter_mut() {
+        let ids = spawner.spawned.drain().map(|(id, _)| id).collect();
+        spawner.despawn(&mut commands, ids);
     }
 }

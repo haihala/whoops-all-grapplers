@@ -52,7 +52,7 @@ struct PlayerDefaults {
 
 fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {
     let state = PlayerState::default();
-    let bank = ryan_bank(player);
+    let bank = ryan_bank();
 
     commands
         .spawn_bundle(SpriteBundle {

@@ -1,13 +1,11 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use input_parsing::InputParser;
 use player_state::{PlayerState, StateEvent};
-use types::{HeightWindow, Hit, LRDirection, Player};
+use types::Player;
 
-use crate::{clock::Clock, meter::Meter, physics::PlayerVelocity};
+use crate::meter::Meter;
 
-const CHIP_DAMAGE_MULTIPLIER: f32 = 0.01;
 const METER_GAINED_PER_DAMAGE: f32 = 0.5;
 
 #[derive(Inspectable)]
@@ -19,7 +17,6 @@ pub struct Health {
     value: i32,
     max: i32,
     combo_damage: i32,
-    hits: Vec<(Hit, HeightWindow)>,
 }
 impl Default for Health {
     fn default() -> Self {
@@ -28,7 +25,6 @@ impl Default for Health {
             value: 100,
             max: 100,
             combo_damage: 0,
-            hits: Vec::new(),
         }
     }
 }
@@ -38,16 +34,7 @@ impl Health {
     }
 
     pub fn reset(&mut self) {
-        self.value = self.max;
-        self.ratio = 1.0;
-    }
-
-    pub fn hit(&mut self, hit: Hit, height_window: HeightWindow) {
-        self.hits.push((hit, height_window));
-    }
-
-    fn drain_hits(&mut self) -> Vec<(Hit, HeightWindow)> {
-        self.hits.drain(..).collect()
+        *self = Health::default();
     }
 
     fn drain_meter_gain(&mut self) -> i32 {
@@ -56,60 +43,10 @@ impl Health {
         (temp as f32 * METER_GAINED_PER_DAMAGE) as i32
     }
 
-    fn apply_damage(&mut self, amount: i32) {
+    pub fn apply_damage(&mut self, amount: i32) {
         self.value -= amount;
         self.combo_damage += amount;
         self.ratio = self.value as f32 / self.max as f32;
-    }
-}
-
-pub fn apply_hits(
-    mut players: Query<(
-        &mut Health,
-        &mut PlayerState,
-        &mut PlayerVelocity,
-        &InputParser,
-        &Player,
-        &LRDirection,
-    )>,
-    clock: Res<Clock>,
-) {
-    let mut attacker_knockbacks = vec![];
-
-    for (mut health, mut state, mut velocity, reader, player, facing) in players.iter_mut() {
-        for (hit, height_window) in health.drain_hits() {
-            let stick = reader.get_relative_stick_position();
-
-            let (damage, stun, defender_knockback) =
-                if state.blocked(hit.fixed_height, height_window, stick) {
-                    attacker_knockbacks
-                        .push((player.other(), facing.mirror_vec(hit.block_knockback)));
-
-                    (
-                        (hit.damage as f32 * CHIP_DAMAGE_MULTIPLIER).ceil() as i32,
-                        hit.block_stun,
-                        facing.mirror_vec(hit.block_knockback),
-                    )
-                } else {
-                    (
-                        hit.damage,
-                        hit.hit_stun,
-                        facing.mirror_vec(hit.hit_knockback),
-                    )
-                };
-
-            health.apply_damage(damage);
-            velocity.add_impulse(defender_knockback);
-            state.hit(stun + clock.frame, defender_knockback.y > 0.0);
-        }
-    }
-    for (_, _, mut velocity, _, player, _) in players.iter_mut() {
-        for (_, amount) in attacker_knockbacks
-            .iter()
-            .filter(|(target, _)| *target == *player)
-        {
-            velocity.add_impulse(*amount);
-        }
     }
 }
 

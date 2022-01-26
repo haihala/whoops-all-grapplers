@@ -1,23 +1,14 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use types::{Hitbox, MoveId};
+use types::{AttackDescriptor, MoveId};
 
 #[derive(Inspectable, PartialEq, Clone, Copy, Debug)]
 pub enum StateEvent {
     Jump(Vec3),
-    Hitbox {
-        hitbox: Hitbox,
-        move_id: MoveId,
-        ttl: usize,
-    },
-    Projectile {
-        hitbox: Hitbox,
-        speed: f32,
-        move_id: MoveId,
-        ttl: Option<usize>,
-    },
+    Attack(MoveId, AttackDescriptor),
     Recovery,
+    PhaseChange,
     Null,
 }
 

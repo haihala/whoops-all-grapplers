@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use types::{AttackHeight, Hit, Hitbox, Player};
+use types::{AttackDescriptor, AttackHeight, Hitbox, Lifetime};
 
 use crate::{move_bank::MoveBank, moves, universal, CancelLevel, Move, Phase, PhaseKind};
 
@@ -22,9 +22,8 @@ moves!(
     (HEAVY_HADOUKEN, HADOUKEN, AIR_PUNCH, COMMAND_PUNCH, PUNCH)
 );
 
-pub fn ryan_bank(player: Player) -> MoveBank {
+pub fn ryan_bank() -> MoveBank {
     MoveBank::new(
-        player,
         vec![
             (
                 universal::DASH_FORWARD,
@@ -86,14 +85,12 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                         Phase {
-                            kind: PhaseKind::Hitbox(Hitbox::new(
-                                Vec2::new(1.0, 0.5),
-                                Vec2::new(0.2, 0.3),
-                                Hit {
-                                    hit_knockback: Vec3::new(2.0, 2.0, 0.0),
-                                    ..Default::default()
-                                },
-                            )),
+                            kind: PhaseKind::Attack(AttackDescriptor {
+                                hitbox: Hitbox::new(Vec2::new(1.0, 0.5), Vec2::new(0.2, 0.3)),
+                                attached_to_player: true,
+                                damage: Some(20.into()),
+                                ..Default::default()
+                            }),
                             duration: 10,
                             cancel_requirement: CancelLevel::Uncancellable,
                             mobility: Vec3::ZERO,
@@ -122,11 +119,11 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::new(1.0, 0.0, 0.0),
                         },
                         Phase {
-                            kind: PhaseKind::Hitbox(Hitbox::new(
-                                Vec2::new(0.5, 0.5),
-                                Vec2::new(1.0, 1.0),
-                                Hit::default(),
-                            )),
+                            kind: PhaseKind::Attack(AttackDescriptor {
+                                hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(1.0, 1.0)),
+                                attached_to_player: true,
+                                ..Default::default()
+                            }),
                             duration: 20,
                             cancel_requirement: CancelLevel::Uncancellable,
                             mobility: Vec3::new(5.0, 0.0, 0.0),
@@ -155,15 +152,12 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                         Phase {
-                            kind: PhaseKind::Projectile {
-                                speed: 1.0,
-                                hitbox: Hitbox::new(
-                                    Vec2::new(0.5, 0.5),
-                                    Vec2::new(0.3, 0.2),
-                                    Hit::default(),
-                                ),
-                                lifetime: None,
-                            },
+                            kind: PhaseKind::Attack(AttackDescriptor {
+                                hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
+                                speed: Some(1.0 * Vec3::X),
+                                lifetime: Lifetime::Forever,
+                                ..Default::default()
+                            }),
                             duration: 4,
                             cancel_requirement: CancelLevel::Uncancellable,
                             mobility: Vec3::ZERO,
@@ -193,15 +187,12 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                         Phase {
-                            kind: PhaseKind::Projectile {
-                                speed: 2.0,
-                                hitbox: Hitbox::new(
-                                    Vec2::new(0.5, 0.5),
-                                    Vec2::new(0.7, 0.7),
-                                    Hit::default(),
-                                ),
-                                lifetime: None,
-                            },
+                            kind: PhaseKind::Attack(AttackDescriptor {
+                                hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.7, 0.7)),
+                                speed: Some(2.0 * Vec3::X),
+                                lifetime: Lifetime::Forever,
+                                ..Default::default()
+                            }),
                             duration: 4,
                             cancel_requirement: CancelLevel::Uncancellable,
                             mobility: Vec3::ZERO,
@@ -230,15 +221,13 @@ pub fn ryan_bank(player: Player) -> MoveBank {
                             mobility: Vec3::ZERO,
                         },
                         Phase {
-                            kind: PhaseKind::Hitbox(Hitbox::new(
-                                Vec2::new(0.4, -1.2),
-                                Vec2::new(0.2, 0.3),
-                                Hit {
-                                    hit_knockback: Vec3::new(2.0, 2.0, 0.0),
-                                    fixed_height: Some(AttackHeight::High),
-                                    ..Default::default()
-                                },
-                            )),
+                            kind: PhaseKind::Attack(AttackDescriptor {
+                                hitbox: Hitbox::new(Vec2::new(0.4, -1.2), Vec2::new(0.2, 0.3)),
+                                knockback: Some(Vec3::new(2.0, 2.0, 0.0).into()),
+                                fixed_height: Some(AttackHeight::High),
+                                attached_to_player: true,
+                                ..Default::default()
+                            }),
                             duration: 10,
                             cancel_requirement: CancelLevel::Uncancellable,
                             mobility: Vec3::ZERO,

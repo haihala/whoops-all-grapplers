@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_inspector_egui::Inspectable;
 
-use types::{Hitbox, MoveId, Player};
+use types::{AttackDescriptor, MoveId};
 
 use crate::CancelLevel;
 
@@ -11,16 +11,8 @@ pub struct MoveBank {
 }
 
 impl MoveBank {
-    pub fn new(owner: Player, moves: HashMap<MoveId, Move>) -> MoveBank {
-        MoveBank {
-            moves: moves
-                .into_iter()
-                .map(|(id, mut action)| {
-                    action.claim(owner);
-                    (id, action)
-                })
-                .collect(),
-        }
+    pub fn new(moves: HashMap<MoveId, Move>) -> MoveBank {
+        MoveBank { moves }
     }
 
     pub fn get(&self, id: MoveId) -> &Move {
@@ -32,21 +24,6 @@ impl MoveBank {
         self.moves
             .iter()
             .map(|(key, value)| (*key, value.input))
-            .collect()
-    }
-
-    pub fn get_hitboxes(&self) -> HashMap<MoveId, Hitbox> {
-        self.moves
-            .iter()
-            .filter_map(|(key, value)| {
-                value.phases.iter().find_map(|phase| {
-                    if let PhaseKind::Hitbox(hitbox) = &phase.kind {
-                        Some((key.to_owned(), hitbox.to_owned()))
-                    } else {
-                        None
-                    }
-                })
-            })
             .collect()
     }
 }
@@ -75,12 +52,6 @@ impl Move {
 
         None
     }
-
-    fn claim(&mut self, owner: Player) {
-        for phase in self.phases.iter_mut() {
-            phase.kind.claim(owner);
-        }
-    }
 }
 
 #[derive(Debug, Default, Inspectable, Clone, PartialEq)]
@@ -94,41 +65,11 @@ pub struct Phase {
 #[derive(Debug, Inspectable, Clone, PartialEq)]
 pub enum PhaseKind {
     Animation,
-    Grab {
-        range: f32,
-    },
-    Hitbox(Hitbox),
-    Projectile {
-        hitbox: Hitbox,
-        speed: f32,
-        lifetime: Option<usize>,
-    },
+    Grab { range: f32 },
+    Attack(AttackDescriptor),
 }
 impl Default for PhaseKind {
     fn default() -> Self {
         PhaseKind::Animation
-    }
-}
-impl PhaseKind {
-    fn claim(&mut self, owner: Player) {
-        match self {
-            PhaseKind::Hitbox(mut hitbox) => {
-                hitbox.owner = Some(owner);
-                *self = PhaseKind::Hitbox(hitbox);
-            }
-            PhaseKind::Projectile {
-                hitbox,
-                speed,
-                lifetime,
-            } => {
-                hitbox.owner = Some(owner);
-                *self = PhaseKind::Projectile {
-                    hitbox: *hitbox,
-                    speed: *speed,
-                    lifetime: *lifetime,
-                };
-            }
-            _ => {}
-        }
     }
 }

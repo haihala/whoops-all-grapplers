@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use types::{AttackDescriptor, MoveId};
+use types::{AttackDescriptor, GrabDescription, MoveId};
 
 #[derive(Inspectable, PartialEq, Clone, Copy, Debug)]
 pub enum StateEvent {
     Jump(Vec3),
     Attack(MoveId, AttackDescriptor),
+    Grab(GrabDescription),
     Recovery,
     PhaseChange,
     Null,

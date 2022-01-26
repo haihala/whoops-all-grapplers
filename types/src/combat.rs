@@ -8,9 +8,14 @@ pub struct Hurtbox {
     pub offset: Vec3,
 }
 
-impl Default for AttackHeight {
+#[derive(Clone, Copy)]
+pub struct Grabable {
+    pub size: f32,
+}
+
+impl Default for Grabable {
     fn default() -> Self {
-        AttackHeight::Mid
+        Self { size: 0.5 }
     }
 }
 
@@ -33,6 +38,11 @@ pub enum AttackHeight {
     Low,
     Mid,
     High,
+}
+impl Default for AttackHeight {
+    fn default() -> Self {
+        AttackHeight::Mid
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Inspectable)]
@@ -110,4 +120,13 @@ pub struct AttackDescriptor {
     pub fixed_height: Option<AttackHeight>,
     pub lifetime: Lifetime,
     pub attached_to_player: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]
+pub struct GrabDescription {
+    pub damage: i32,
+    pub impulse: Vec3,
+
+    pub range: f32,
+    pub offset: Vec2,
 }

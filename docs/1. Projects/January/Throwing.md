@@ -1,5 +1,0 @@
-- New button for throws
-- Deals damage
-- Can be teched by not inputing anything
-- Makes the opponent into a hard knockdown
-	- Requires [[Recovery and knockdown]]

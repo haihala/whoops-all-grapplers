@@ -1,0 +1,5 @@
+- [x] New button for throws
+- [x] Deals damage
+- [x] Moves the opponent
+- [x] Can be teched by not inputing anything
+- [x] Makes the opponent into freefall

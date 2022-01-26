@@ -5,7 +5,7 @@ use input_parsing::{InputParser, InputReader};
 use movement::movement;
 use moves::ryan_bank;
 use player_state::PlayerState;
-use types::{Hurtbox, LRDirection, Player};
+use types::{Grabable, Hurtbox, LRDirection, Player};
 
 use crate::{
     assets::Colors,
@@ -47,6 +47,7 @@ struct PlayerDefaults {
     input_reader: InputReader,
     spawner: Spawner,
     hurtbox: Hurtbox,
+    grab_target: Grabable,
     player_velocity: PlayerVelocity,
 }
 

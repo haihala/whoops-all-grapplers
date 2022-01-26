@@ -131,6 +131,8 @@ impl PlayerState {
 
                 if let PhaseKind::Attack(descriptor) = new_phase.kind {
                     self.add_event(StateEvent::Attack(move_id, descriptor));
+                } else if let PhaseKind::Grab(descriptor) = new_phase.kind {
+                    self.add_event(StateEvent::Grab(descriptor));
                 }
 
                 tracker.previous_phase = new_phase.to_owned();
@@ -211,6 +213,9 @@ impl PlayerState {
                 self.primary = PrimaryState::Air(AirActivity::Freefall);
             }
         }
+    }
+    pub fn throw(&mut self) {
+        self.primary = PrimaryState::Air(AirActivity::Freefall);
     }
 
     // Jumping

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use types::{AttackDescriptor, AttackHeight, Hitbox, Lifetime};
+use types::{AttackDescriptor, AttackHeight, GrabDescription, Hitbox, Lifetime};
 
 use crate::{move_bank::MoveBank, moves, universal, CancelLevel, Move, Phase, PhaseKind};
 
@@ -19,7 +19,14 @@ const DASH_RECOVERY_FRAMES: usize = (DASH_RECOVERY_DURATION_SECONDS * constants:
 
 moves!(
     2usize,
-    (HEAVY_HADOUKEN, HADOUKEN, AIR_PUNCH, COMMAND_PUNCH, PUNCH)
+    (
+        GRAB,
+        HEAVY_HADOUKEN,
+        HADOUKEN,
+        AIR_PUNCH,
+        COMMAND_PUNCH,
+        PUNCH
+    )
 );
 
 pub fn ryan_bank() -> MoveBank {
@@ -236,6 +243,40 @@ pub fn ryan_bank() -> MoveBank {
                             kind: PhaseKind::Animation,
                             duration: 10,
                             cancel_requirement: CancelLevel::LightSpecial,
+                            mobility: Vec3::ZERO,
+                        },
+                    ],
+                    ..Default::default()
+                },
+            ),
+            (
+                GRAB,
+                Move {
+                    input: "g",
+                    cancel_level: CancelLevel::Grab,
+                    ground_ok: true,
+                    phases: vec![
+                        Phase {
+                            kind: PhaseKind::Animation,
+                            duration: 1,
+                            cancel_requirement: CancelLevel::Uncancellable,
+                            mobility: Vec3::ZERO,
+                        },
+                        Phase {
+                            kind: PhaseKind::Grab(GrabDescription {
+                                damage: 40,
+                                impulse: Vec3::Y * 2.0,
+                                range: 1.0,
+                                ..Default::default()
+                            }),
+                            duration: 1,
+                            cancel_requirement: CancelLevel::Uncancellable,
+                            mobility: Vec3::ZERO,
+                        },
+                        Phase {
+                            kind: PhaseKind::Animation,
+                            duration: 10,
+                            cancel_requirement: CancelLevel::Uncancellable,
                             mobility: Vec3::ZERO,
                         },
                     ],

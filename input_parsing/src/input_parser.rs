@@ -53,6 +53,10 @@ impl InputParser {
         self.events.remove(&event);
     }
 
+    pub fn clear_head(&self) -> bool {
+        self.head.stick_position == StickPosition::Neutral && self.head.pressed.is_empty()
+    }
+
     fn add_frame(&mut self, diff: Diff, facing: &LRDirection) {
         self.head.apply(diff.clone());
 

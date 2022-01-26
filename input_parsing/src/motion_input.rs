@@ -292,9 +292,11 @@ fn char_to_requirement(ch: char) -> Requirement {
         match ch {
             'c' => Requirement::Charge,
             'l' => Requirement::Press(GameButton::Light),
-            'h' => Requirement::Press(GameButton::Heavy),
             'L' => Requirement::Release(GameButton::Light),
+            'h' => Requirement::Press(GameButton::Heavy),
             'H' => Requirement::Release(GameButton::Heavy),
+            'g' => Requirement::Press(GameButton::Grab),
+            'G' => Requirement::Release(GameButton::Grab),
             _ => panic!("Invalid character {}", ch),
         }
     }

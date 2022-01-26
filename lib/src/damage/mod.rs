@@ -1,9 +1,10 @@
 use bevy::{prelude::*, utils::HashMap};
 use input_parsing::InputParser;
-use player_state::PlayerState;
+use moves::CancelLevel;
+use player_state::{PlayerState, StateEvent};
 use types::{
-    AttackHeight, Damage, HeightWindow, Hurtbox, Knockback, LRDirection, Player,
-    PlayerCollisionTrigger, Pushback, Stun,
+    AttackHeight, Damage, GrabDescription, Grabable, HeightWindow, Hurtbox, Knockback, LRDirection,
+    Player, PlayerCollisionTrigger, Pushback, Stun,
 };
 
 mod health;
@@ -20,7 +21,8 @@ pub struct DamagePlugin;
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_system(health::refill_meter.system())
-            .add_system(register_hits.system());
+            .add_system(register_hits.system())
+            .add_system(throwing.system());
     }
 }
 
@@ -129,6 +131,60 @@ pub fn register_hits(
     for (_, _, _, _, player, _, _, mut velocity, _, _) in hurtboxes.iter_mut() {
         if let Some(pushback_impulse) = pushbacks.get(player) {
             velocity.add_impulse(pushback_impulse.to_owned());
+        }
+    }
+}
+
+#[allow(clippy::type_complexity)]
+fn throwing(
+    mut query: QuerySet<(
+        Query<(&Transform, &Player, &mut PlayerState)>, // Thrower
+        Query<(
+            // Target
+            &Transform,
+            &Player,
+            &Grabable,
+            &InputParser,
+            &mut PlayerState,
+            &mut PlayerVelocity,
+            &mut Health,
+        )>,
+    )>,
+) {
+    let mut throws: HashMap<Player, (GrabDescription, Vec3)> = vec![].into_iter().collect();
+
+    for (tf, player, mut state) in query.q0_mut().iter_mut() {
+        for (event, description) in state.get_events().iter().filter_map(|ev| {
+            let owned = ev.to_owned();
+            if let StateEvent::Grab(description) = owned {
+                Some((owned, description))
+            } else {
+                None
+            }
+        }) {
+            state.consume_event(event);
+            assert!(throws
+                .insert(player.other(), (description, tf.translation))
+                .is_none()); // If this is not none, it means we had two throw events lined up between frames which is a bug
+        }
+    }
+
+    for (tf, player, throwable, parser, mut state, mut velocity, mut health) in
+        query.q1_mut().iter_mut()
+    {
+        if let Some((description, origin)) = throws.get(player) {
+            let distance = (*origin - tf.translation).length();
+            let max_distance = throwable.size + description.range;
+            let in_range = distance <= max_distance;
+
+            let teched =
+                state.cancel_requirement() < CancelLevel::LightNormal && parser.clear_head();
+
+            if in_range && !teched {
+                state.throw();
+                velocity.add_impulse(description.impulse);
+                health.apply_damage(description.damage);
+            }
         }
     }
 }

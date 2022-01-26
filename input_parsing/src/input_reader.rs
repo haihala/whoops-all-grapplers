@@ -194,6 +194,7 @@ fn button_change(reader: &mut Mut<InputReader>, button: GamepadButtonType, new_v
     match button {
         GamepadButtonType::South => reader.update_button(GameButton::Light, update),
         GamepadButtonType::East => reader.update_button(GameButton::Heavy, update),
+        GamepadButtonType::West => reader.update_button(GameButton::Grab, update),
 
         GamepadButtonType::DPadUp => reader.update_dpad(update, None, Some(1)),
         GamepadButtonType::DPadDown => reader.update_dpad(update, None, Some(-1)),

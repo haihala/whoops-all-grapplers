@@ -1,5 +1,5 @@
 - Characters are heels or faces and gain meter / money for different things
 	- otg hits reward heels
-	- selling hits rewards faces
+	- selling hits
 		- Option to extend the opponent's combo for meter gain. Maybe another to stun yourself more on opener, cause a big hitstop that signals "this is a consentual crush counter"
 	- winning rewards faces

@@ -1,14 +1,14 @@
 use bevy_inspector_egui::Inspectable;
-use types::{AbsoluteDirection, MoveId};
+use types::{LRDirection, MoveId};
 
 #[derive(Inspectable, PartialEq, Clone, Copy, Debug)]
 pub enum GroundActivity {
     Stun(usize),
     Move(MoveId),
-    Walk(usize, AbsoluteDirection),
+    Walk(usize, LRDirection),
     PreJump {
         launch_frame: usize,
-        direction: Option<AbsoluteDirection>,
+        direction: Option<LRDirection>,
         held: bool,
     },
     Crouching,

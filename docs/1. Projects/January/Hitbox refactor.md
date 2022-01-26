@@ -1,1 +1,9 @@
-Separate player collision trigger component from hitbox (new hitbox defines size and what to do on player hit, doesn't care who owns the thing) pct keeps track of owner. Add a damage component and a knockback component and check for them when the hit occurs.
+- [ ] New hitbox
+	- [ ] Defines size and what to do on player hit
+	- [ ] Doesn't have an owner
+- [ ] Player collision trigger
+	- [ ] Keeps track of owner
+- [ ] Damage component
+- [ ] Knockback component
+- [ ] On hit system checks if a PCT of it's size collides
+- [ ] On hit system queries optionals to see what to do on hit.

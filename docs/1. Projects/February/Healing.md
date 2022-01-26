@@ -1,0 +1,2 @@
+- Automatically heal 50% at the end of the round
+- You can buy a heal

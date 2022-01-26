@@ -3,7 +3,7 @@ use bevy_inspector_egui::Inspectable;
 
 use input_parsing::InputParser;
 use player_state::{PlayerState, StateEvent};
-use types::{HeightWindow, Hit, Player};
+use types::{HeightWindow, Hit, LRDirection, Player};
 
 use crate::{clock::Clock, meter::Meter, physics::PlayerVelocity};
 
@@ -70,32 +70,31 @@ pub fn apply_hits(
         &mut PlayerVelocity,
         &InputParser,
         &Player,
+        &LRDirection,
     )>,
     clock: Res<Clock>,
 ) {
     let mut attacker_knockbacks = vec![];
 
-    for (mut health, mut state, mut velocity, reader, player) in players.iter_mut() {
+    for (mut health, mut state, mut velocity, reader, player, facing) in players.iter_mut() {
         for (hit, height_window) in health.drain_hits() {
             let stick = reader.get_relative_stick_position();
 
             let (damage, stun, defender_knockback) =
                 if state.blocked(hit.fixed_height, height_window, stick) {
-                    attacker_knockbacks.push((
-                        player.other(),
-                        mirror_knockback(hit.block_knockback, !state.flipped()),
-                    ));
+                    attacker_knockbacks
+                        .push((player.other(), facing.mirror_vec(hit.block_knockback)));
 
                     (
                         (hit.damage as f32 * CHIP_DAMAGE_MULTIPLIER).ceil() as i32,
                         hit.block_stun,
-                        mirror_knockback(hit.block_knockback, state.flipped()),
+                        facing.mirror_vec(hit.block_knockback),
                     )
                 } else {
                     (
                         hit.damage,
                         hit.hit_stun,
-                        mirror_knockback(hit.hit_knockback, state.flipped()),
+                        facing.mirror_vec(hit.hit_knockback),
                     )
                 };
 
@@ -104,22 +103,13 @@ pub fn apply_hits(
             state.hit(stun + clock.frame, defender_knockback.y > 0.0);
         }
     }
-    for (_, _, mut velocity, _, player) in players.iter_mut() {
+    for (_, _, mut velocity, _, player, _) in players.iter_mut() {
         for (_, amount) in attacker_knockbacks
             .iter()
             .filter(|(target, _)| *target == *player)
         {
             velocity.add_impulse(*amount);
         }
-    }
-}
-
-fn mirror_knockback(knockback: Vec3, flipped: bool) -> Vec3 {
-    // Flipped is from the target's perspective
-    if flipped {
-        knockback
-    } else {
-        Vec3::new(-knockback.x, knockback.y, knockback.z)
     }
 }
 

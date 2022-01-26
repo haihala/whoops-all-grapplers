@@ -1,11 +1,10 @@
-Ground
+Ground recovery options:
 - [ ] Default to quick rise
 - [ ] Hold down to delay for a max time
 - [ ] Hold back to immediately backdash
 
-Air
-- [ ] Hold direction to air dodge that way before next hit
-	- A way to interact with being juggled
-	- Consumes [[meter]], first one is free
+No recovery options in the air
 
-- [ ] Get to knockdown state with some moves
+- [ ] Get to knockdown state on landing while in freefall
+- [ ] Get to freefall state on ground level with some moves
+- [ ] Turn sprite in freefall state

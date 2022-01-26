@@ -5,6 +5,7 @@
 	- [ ] Walking should override
 	- [ ] Everything else should add
 	- [ ] Make sure walking doesn't override knockback
+		- [ ] If only walking overrides, knockback shouldn't get overridden
 
 Goals:
 - Walking is a constant speed with no acceleration

@@ -1,0 +1,5 @@
+- Item with limited ammo
+- Six shooter revolver
+- Can not be reloaded
+- Shot with 6i
+- Can be shot multiple times with one drawing

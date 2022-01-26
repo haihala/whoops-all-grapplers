@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use player_state::{PlayerState, StateEvent};
-use types::{AbsoluteDirection, Player};
+use types::{LRDirection, Player};
 
 use crate::clock::run_max_once_per_combat_frame;
 
@@ -10,12 +10,14 @@ pub const GROUND_PLANE_HEIGHT: f32 = -0.4;
 pub const ARENA_WIDTH: f32 = 10.0;
 
 pub struct ConstantVelocity {
-    shift: Vec3,
+    pub shift: Vec3,
+    pub speed: Vec3,
 }
 impl ConstantVelocity {
-    pub fn new(speed: f32, flipped: bool) -> Self {
-        Self {
-            shift: Vec3::X * if flipped { -speed } else { speed } / constants::FPS,
+    pub fn new(speed: Vec3) -> ConstantVelocity {
+        ConstantVelocity {
+            speed,
+            shift: speed / constants::FPS,
         }
     }
 }
@@ -99,20 +101,17 @@ impl PlayerVelocity {
         } + self.impulse_collector;
         self.impulse_collector = Vec3::ZERO;
     }
-    fn set_move_velocity(&mut self, state: &mut PlayerState) {
-        if let Some(mobility) = state.get_move_mobility() {
-            self.dash_velocity = mobility;
-        } else {
-            self.dash_velocity = Vec3::ZERO;
-        }
+    fn set_move_velocity(&mut self, state: &mut PlayerState, facing: &LRDirection) {
+        self.dash_velocity = state
+            .get_move_mobility()
+            .map(|mobility| facing.mirror_vec(mobility))
+            .unwrap_or(Vec3::ZERO);
     }
 
-    fn set_walking_velocity(&mut self, direction: Option<AbsoluteDirection>) {
+    fn set_walking_velocity(&mut self, direction: Option<LRDirection>) {
         if let Some(direction) = direction {
-            let acceleration = match direction {
-                AbsoluteDirection::Right => constants::PLAYER_ACCELERATION,
-                AbsoluteDirection::Left => -constants::PLAYER_ACCELERATION,
-            };
+            let acceleration = direction.mirror_f32(constants::PLAYER_ACCELERATION);
+
             if self.walk_velocity.abs() < constants::MINIMUM_WALK_SPEED
                 || (self.walk_velocity.signum() - acceleration.signum()).abs() < 1.1
             {
@@ -157,9 +156,9 @@ impl Plugin for PhysicsPlugin {
     }
 }
 
-fn player_input(mut query: Query<(&mut PlayerState, &mut PlayerVelocity)>) {
-    for (mut state, mut velocity) in query.iter_mut() {
-        velocity.set_move_velocity(&mut state);
+fn player_input(mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &LRDirection)>) {
+    for (mut state, mut velocity, facing) in query.iter_mut() {
+        velocity.set_move_velocity(&mut state, facing);
         for event in state.get_events() {
             match event {
                 StateEvent::Jump(impulse) => {
@@ -175,16 +174,16 @@ fn player_input(mut query: Query<(&mut PlayerState, &mut PlayerVelocity)>) {
 }
 
 fn sideswitcher(
-    mut players: Query<(Entity, &Transform, &mut PlayerState), With<Player>>,
+    mut players: Query<(Entity, &Transform, &mut LRDirection), With<Player>>,
     others: Query<(Entity, &Transform), With<Player>>,
 ) {
-    for (entity, transform, mut state) in players.iter_mut() {
+    for (entity, transform, mut facing) in players.iter_mut() {
         for (e, tf) in others.iter() {
             if e == entity {
                 continue;
             }
 
-            state.set_flipped(transform.translation.x > tf.translation.x);
+            facing.set_flipped(transform.translation.x > tf.translation.x);
         }
     }
 }
@@ -233,15 +232,16 @@ fn move_players(mut players: Query<(&mut PlayerVelocity, &mut Transform, &mut Pl
 fn push_players(
     players: Query<Entity, With<Player>>,
     mut query_set: QuerySet<(
-        Query<(&PlayerVelocity, &Transform, &PlayerState)>,
+        Query<(&PlayerVelocity, &Transform, &PlayerState, &LRDirection)>,
         Query<&mut PlayerVelocity>,
     )>,
 ) {
     for entity1 in players.iter() {
         for entity2 in players.iter() {
             if entity1 != entity2 {
-                let (velocity1, transform1, player1) = query_set.q0().get(entity1).unwrap();
-                let (velocity2, transform2, player2) = query_set.q0().get(entity2).unwrap();
+                let (velocity1, transform1, player1, facing1) =
+                    query_set.q0().get(entity1).unwrap();
+                let (velocity2, transform2, player2, _) = query_set.q0().get(entity2).unwrap();
 
                 let future_position1 = transform1.translation + velocity1.get_shift();
                 let future_position2 = transform2.translation + velocity2.get_shift();
@@ -264,7 +264,7 @@ fn push_players(
                             constants::PUSHING_IMPULSE
                                 * if moving_closer {
                                     // Go backwards
-                                    -player1.forward().x.signum()
+                                    -facing1.to_signum()
                                 } else {
                                     // Go to current direction
                                     let val = velocity1.get_total().x;

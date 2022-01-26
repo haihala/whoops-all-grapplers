@@ -1,0 +1,3 @@
+- Item that gives you a parry
+- Similtaneously refering to Daigo and Ken.
+

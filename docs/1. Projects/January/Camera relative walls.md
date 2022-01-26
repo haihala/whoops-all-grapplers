@@ -1,0 +1,1 @@
+Walls so that characters will stay on screen.

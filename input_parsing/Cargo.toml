@@ -12,5 +12,4 @@ bevy-inspector-egui = "0.6.1"
 
 
 moves = { path = "../moves" }
-player_state = { path = "../player_state" }
 types = { path = "../types" }

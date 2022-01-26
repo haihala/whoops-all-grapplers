@@ -7,3 +7,6 @@ List of meta-phases:
 	- Because meter cost and air-ok are on the core move and not in phases, maybe have a function edit the move in the bank instead of these?
 - Hit - If the move has hit, change the property
 - Input - If further input is provided
+
+How to get the information to the move?
+- Move advancer system, do this after [[Player state refactor]]

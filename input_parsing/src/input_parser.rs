@@ -10,8 +10,7 @@ use bevy::{
     utils::{HashMap, Instant},
 };
 
-use player_state::PlayerState;
-use types::{MoveId, StickPosition};
+use types::{LRDirection, MoveId, StickPosition};
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
@@ -54,15 +53,13 @@ impl InputParser {
         self.events.remove(&event);
     }
 
-    fn add_frame(&mut self, diff: Diff, flipped: bool) {
+    fn add_frame(&mut self, diff: Diff, facing: &LRDirection) {
         self.head.apply(diff.clone());
 
-        let relative_diff = if flipped {
-            self.relative_stick = self.head.stick_position.flip();
-            diff.flip()
-        } else {
-            self.relative_stick = self.head.stick_position;
-            diff
+        self.relative_stick = facing.mirror_stick(self.head.stick_position);
+        let relative_diff = Diff {
+            stick_move: diff.stick_move.map(|stick| facing.mirror_stick(stick)),
+            ..diff
         };
 
         self.parse_inputs(&relative_diff);
@@ -99,10 +96,10 @@ impl InputParser {
     }
 }
 
-pub fn parse_input(mut characters: Query<(&mut InputParser, &mut InputReader, &PlayerState)>) {
-    for (mut parser, mut reader, state) in characters.iter_mut() {
+pub fn parse_input(mut characters: Query<(&mut InputParser, &mut InputReader, &LRDirection)>) {
+    for (mut parser, mut reader, facing) in characters.iter_mut() {
         if reader.readable() {
-            parser.add_frame(reader.read().unwrap(), state.flipped());
+            parser.add_frame(reader.read().unwrap(), facing);
         }
         parser.purge_old_events();
     }
@@ -113,7 +110,6 @@ mod test {
     use std::{thread::sleep, time::Duration};
 
     use moves::test::{SECOND_TEST_MOVE, TEST_MOVE};
-    use player_state::PlayerState;
     use types::GameButton;
 
     use crate::{
@@ -275,7 +271,7 @@ mod test {
             world
                 .spawn()
                 .insert(parser)
-                .insert(PlayerState::default())
+                .insert(LRDirection::Right)
                 .insert(InputReader::with_pad(Gamepad(1)));
 
             let mut tester = TestInterface { world, stage };

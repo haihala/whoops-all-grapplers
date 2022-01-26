@@ -1,6 +1,9 @@
 - [ ] Jumps are very high (inconsistently)
+	- [ ] See [[Fix execution order]]
 - [x] Special interpretation is sometimes kinda tight
 - [x] Some inputs are flipped, some aren't
 - [ ] Knockback next to wall can leave a character in the air
+- [ ] Also pressing a button while crouching
+	- [ ] Character extends, is grounded so gravity won't apply them, is now max size, but just in the air.
+	- [ ] [[Player state refactor]] will likely help with this as it can dedicate a system to crouching
 - [ ] Air moves leave a character hanging in the air
-- [ ] 

@@ -4,7 +4,7 @@ use moves::{CancelLevel, Move, Phase, PhaseKind};
 
 use std::fmt::Debug;
 
-use types::{AbsoluteDirection, AttackHeight, HeightWindow, MoveId, StickPosition};
+use types::{AttackHeight, HeightWindow, LRDirection, MoveId, StickPosition};
 
 mod primary_state;
 use primary_state::*;
@@ -44,7 +44,6 @@ impl MoveTracker {
 pub struct PlayerState {
     primary: PrimaryState,
     move_tracker: Option<MoveTracker>,
-    facing: AbsoluteDirection,
     frame: usize,
     events: Vec<(usize, StateEvent)>,
 }
@@ -54,24 +53,12 @@ impl Default for PlayerState {
         Self {
             primary: PrimaryState::Ground(GroundActivity::Standing),
             move_tracker: Default::default(),
-            facing: Default::default(),
             frame: Default::default(),
             events: Default::default(),
         }
     }
 }
 impl PlayerState {
-    pub fn new_flipped(flipped: bool) -> PlayerState {
-        PlayerState {
-            facing: if flipped {
-                AbsoluteDirection::Left
-            } else {
-                AbsoluteDirection::Right
-            },
-            ..Default::default()
-        }
-    }
-
     pub fn tick(&mut self, current_frame: usize) {
         self.frame = current_frame;
 
@@ -102,8 +89,9 @@ impl PlayerState {
                         if self.frame >= launch_frame {
                             self.primary = PrimaryState::Air(AirActivity::Idle);
                             let impulse = match direction {
-                                Some(direction) => direction
-                                    .handle_mirroring(constants::DIAGONAL_JUMP_VECTOR.into()),
+                                Some(direction) => {
+                                    direction.mirror_vec(constants::DIAGONAL_JUMP_VECTOR.into())
+                                }
                                 None => constants::NEUTRAL_JUMP_VECTOR.into(),
                             };
 
@@ -185,21 +173,6 @@ impl PlayerState {
         self.events.retain(|(_, e)| *e != event);
     }
 
-    // Facing
-    pub fn flipped(&self) -> bool {
-        self.facing == AbsoluteDirection::Left
-    }
-    pub fn set_flipped(&mut self, flipped: bool) {
-        if flipped {
-            self.facing = AbsoluteDirection::Left;
-        } else {
-            self.facing = AbsoluteDirection::Right;
-        }
-    }
-    pub fn forward(&self) -> Vec3 {
-        self.facing.to_vec3()
-    }
-
     // Moves
     pub fn start_move(&mut self, id: MoveId, move_data: Move) {
         self.primary = match self.primary {
@@ -234,15 +207,7 @@ impl PlayerState {
     pub fn get_move_mobility(&self) -> Option<Vec3> {
         self.move_tracker
             .as_ref()
-            .map(|tracker| {
-                tracker.get_phase(self.frame).map(|phase| {
-                    if self.flipped() {
-                        Vec3::new(-phase.mobility.x, phase.mobility.y, phase.mobility.z)
-                    } else {
-                        phase.mobility
-                    }
-                })
-            })
+            .map(|tracker| tracker.get_phase(self.frame).map(|phase| phase.mobility))
             .unwrap_or_default()
     }
 
@@ -270,7 +235,7 @@ impl PlayerState {
         }
         self.primary = PrimaryState::Ground(GroundActivity::Standing);
     }
-    pub fn jump(&mut self, direction: Option<AbsoluteDirection>) {
+    pub fn jump(&mut self, direction: Option<LRDirection>) {
         if self.cancel_requirement() > CancelLevel::Jump && !self.in_prejump() {
             return;
         }
@@ -323,14 +288,14 @@ impl PlayerState {
     }
 
     // Walking
-    pub fn walk(&mut self, direction: AbsoluteDirection) {
+    pub fn walk(&mut self, direction: LRDirection) {
         self.unhold_prejump();
         if self.cancel_requirement() > CancelLevel::Walk {
             return;
         }
         self.primary = PrimaryState::Ground(GroundActivity::Walk(self.frame, direction));
     }
-    pub fn get_walk_direction(&self) -> Option<AbsoluteDirection> {
+    pub fn get_walk_direction(&self) -> Option<LRDirection> {
         if let PrimaryState::Ground(GroundActivity::Walk(_, direction)) = self.primary {
             Some(direction)
         } else {

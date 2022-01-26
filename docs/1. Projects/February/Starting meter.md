@@ -1,0 +1,3 @@
+- You can buy a bar at the start of the round.
+- By default you start with an empty bar
+- At the end of the round convert excess meter to money

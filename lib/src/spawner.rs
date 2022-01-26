@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::utils::HashMap;
 
 use player_state::{PlayerState, StateEvent};
-use types::{Hitbox, MoveId};
+use types::{Hitbox, LRDirection, MoveId};
 
 use crate::assets::Colors;
 use crate::clock::{Clock, ROUND_TIME};
@@ -66,13 +66,13 @@ impl Spawner {
         &mut self,
         commands: &mut Commands,
         colors: &Res<Colors>,
-        flipped: bool,
+        facing: &LRDirection,
         parent: Entity,
         parent_position: Vec3,
         frame: usize,
     ) {
         for request in self.spawn_requests.drain(..) {
-            let offset = request.hitbox.get_offset(flipped);
+            let offset = facing.mirror_vec(request.hitbox.offset);
             let translation = if request.attached_to_player {
                 offset
             } else {
@@ -90,7 +90,7 @@ impl Spawner {
                     ..Default::default()
                 })
                 .insert(request.hitbox.to_owned())
-                .insert(ConstantVelocity::new(request.speed, flipped))
+                .insert(ConstantVelocity::new(facing.to_vec3() * request.speed))
                 .id();
 
             if request.attached_to_player {
@@ -149,13 +149,13 @@ pub fn handle_requests(
     mut commands: Commands,
     clock: Res<Clock>,
     colors: Res<Colors>,
-    mut hitboxes: Query<(Entity, &Transform, &mut Spawner, &PlayerState)>,
+    mut hitboxes: Query<(Entity, &Transform, &mut Spawner, &LRDirection)>,
 ) {
-    for (parent, tf, mut hitboxes, state) in hitboxes.iter_mut() {
+    for (parent, tf, mut hitboxes, facing) in hitboxes.iter_mut() {
         hitboxes.handle_requests(
             &mut commands,
             &colors,
-            state.flipped(),
+            facing,
             parent,
             tf.translation,
             clock.frame,

@@ -5,7 +5,7 @@ use input_parsing::{InputParser, InputReader};
 use movement::movement;
 use moves::ryan_bank;
 use player_state::PlayerState;
-use types::{Hurtbox, Player};
+use types::{Hurtbox, LRDirection, Player};
 
 use crate::{
     assets::Colors,
@@ -51,7 +51,7 @@ struct PlayerDefaults {
 }
 
 fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {
-    let state = PlayerState::new_flipped(offset.is_sign_positive());
+    let state = PlayerState::default();
     let bank = ryan_bank(player);
 
     commands
@@ -74,6 +74,7 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
             ..Default::default()
         })
         .insert_bundle(PlayerDefaults::default())
+        .insert(LRDirection::from_flipped(offset.is_sign_positive()))
         .insert(InputParser::load(bank.get_inputs()))
         .insert(bank)
         .insert(player)

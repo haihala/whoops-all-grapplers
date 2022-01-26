@@ -1,5 +1,8 @@
 Jump height inconsistency among others is likely due to the ambiguous system execution order.
 
+[[Player state refactor]] will likely change up the systems a lot, so do this after that
+
+Bevy log:
 ```
 Jan 23 18:10:37.278 INFO bevy_ecs::schedule::stage: Execution order ambiguities detected, you might want to add an explicit dependency relation between some of these systems:
 

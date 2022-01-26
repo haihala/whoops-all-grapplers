@@ -51,13 +51,6 @@ pub struct Diff {
     pub released: Option<HashSet<GameButton>>,
 }
 impl Diff {
-    pub fn flip(mut self) -> Self {
-        if let Some(stick) = self.stick_move {
-            self.stick_move = Some(stick.flip());
-        }
-        self
-    }
-
     pub fn apply(mut self, change: &InputChange) -> Self {
         match change {
             InputChange::Button(button, update) => match update {

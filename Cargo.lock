@@ -1903,7 +1903,6 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "moves",
- "player_state",
  "types",
 ]
 

@@ -9,5 +9,8 @@
 		- state would require parser to know what moves to start up
 	- Put all of them in a plugin that you export
 - Add a system for more dynamic move phase checks.
+	- [[Temporary parser targets]]
+	- Parser head like structure for advancing moves and making the meta decisions (keeping track of relevant info)
+	- Store that in the activity, as it's a part of that and should vanish if the user gets hit
 	- Moves that can trigger in certain states (Rekka)
 - Currently doing a move while crouching will nudge the charcter up a bit, causing issues.

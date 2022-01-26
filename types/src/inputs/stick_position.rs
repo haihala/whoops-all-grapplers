@@ -73,13 +73,6 @@ impl Into<IVec2> for StickPosition {
         }
     }
 }
-impl StickPosition {
-    #[must_use]
-    pub fn flip(self) -> Self {
-        let as_vec: IVec2 = self.into();
-        IVec2::new(-as_vec.x, as_vec.y).into()
-    }
-}
 
 #[cfg(test)]
 mod test {
@@ -92,25 +85,5 @@ mod test {
             let sp2: StickPosition = ivec.into();
             assert!(sp1 == sp2)
         }
-    }
-
-    #[test]
-    fn test_flip_idempotence() {
-        for sp1 in StickPosition::iter() {
-            assert!(sp1 == sp1.flip().flip())
-        }
-    }
-
-    #[test]
-    fn test_flip() {
-        assert!(StickPosition::NW.flip() == StickPosition::NE);
-        assert!(StickPosition::N.flip() == StickPosition::N);
-        assert!(StickPosition::NE.flip() == StickPosition::NW);
-        assert!(StickPosition::W.flip() == StickPosition::E);
-        assert!(StickPosition::Neutral.flip() == StickPosition::Neutral);
-        assert!(StickPosition::E.flip() == StickPosition::W);
-        assert!(StickPosition::SW.flip() == StickPosition::SE);
-        assert!(StickPosition::S.flip() == StickPosition::S);
-        assert!(StickPosition::SE.flip() == StickPosition::SW);
     }
 }

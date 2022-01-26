@@ -51,3 +51,10 @@ Ideas:
 	- More hit stun on the first hit
 	- More damage on the second hit (conversions)
 	- Heighten the tension by increasing the aformentioned as time goes on.
+
+# What no to do
+## V-trigger and v-bar
+- A new player feels like they always die after using it so what's the point
+- It's almost guaranteed to happen every round, making it somewhat samey
+- It's very strong, making comebacks too likely
+- v-bar does nothing unless you get a full bar, meaning most things that give you v-bar are pointless as they don't give you enough for a full bar with a single use.

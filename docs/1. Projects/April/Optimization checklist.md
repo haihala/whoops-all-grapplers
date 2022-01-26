@@ -1,3 +1,4 @@
 - Maybe move parsing could clone less and burrow more
 - Maybe only store index in parser head
 - Movebank from json
+- Type alias for shorter state types

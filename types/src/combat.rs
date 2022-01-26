@@ -16,20 +16,12 @@ impl Default for AttackHeight {
 
 #[derive(Default, Clone, Copy, Debug, Inspectable, PartialEq)]
 pub struct Hitbox {
-    offset: Vec3,
+    pub offset: Vec3,
     pub size: Vec2,
     pub hit: Hit,
     pub owner: Option<Player>,
 }
 impl Hitbox {
-    pub fn get_offset(&self, flipped: bool) -> Vec3 {
-        if flipped {
-            Vec3::new(-self.offset.x, self.offset.y, self.offset.z)
-        } else {
-            self.offset
-        }
-    }
-
     pub fn new(offset: Vec2, size: Vec2, hit: Hit) -> Self {
         Self {
             offset: offset.extend(0.0),

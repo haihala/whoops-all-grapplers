@@ -1,28 +1,70 @@
-use bevy::math::Vec3;
+use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
+use crate::StickPosition;
+
 #[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug)]
-pub enum AbsoluteDirection {
+pub enum LRDirection {
     Right,
     Left,
 }
-impl Default for AbsoluteDirection {
+impl Default for LRDirection {
     fn default() -> Self {
-        AbsoluteDirection::Right
+        LRDirection::Right
     }
 }
-impl AbsoluteDirection {
-    pub fn to_vec3(&self) -> Vec3 {
-        match self {
-            AbsoluteDirection::Right => Vec3::X,
-            AbsoluteDirection::Left => -Vec3::X,
+impl LRDirection {
+    pub fn from_flipped(flipped: bool) -> LRDirection {
+        if flipped {
+            LRDirection::Left
+        } else {
+            LRDirection::Right
         }
     }
 
-    pub fn handle_mirroring(&self, vector: Vec3) -> Vec3 {
+    pub fn set_flipped(&mut self, flipped: bool) {
+        *self = if flipped {
+            LRDirection::Left
+        } else {
+            LRDirection::Right
+        };
+    }
+
+    pub fn to_signum(&self) -> f32 {
         match self {
-            AbsoluteDirection::Right => vector,
-            AbsoluteDirection::Left => Vec3::new(-vector.x, vector.y, vector.z),
+            LRDirection::Right => 1.0,
+            LRDirection::Left => -1.0,
+        }
+    }
+
+    pub fn to_vec3(&self) -> Vec3 {
+        match self {
+            LRDirection::Right => Vec3::X,
+            LRDirection::Left => -Vec3::X,
+        }
+    }
+
+    pub fn mirror_vec(&self, vector: Vec3) -> Vec3 {
+        match self {
+            LRDirection::Right => vector,
+            LRDirection::Left => Vec3::new(-vector.x, vector.y, vector.z),
+        }
+    }
+
+    pub fn mirror_stick(&self, stick: StickPosition) -> StickPosition {
+        let vector: IVec2 = stick.into();
+
+        match self {
+            LRDirection::Right => vector,
+            LRDirection::Left => IVec2::new(-vector.x, vector.y),
+        }
+        .into()
+    }
+
+    pub fn mirror_f32(&self, number: f32) -> f32 {
+        match self {
+            LRDirection::Right => number,
+            LRDirection::Left => -number,
         }
     }
 }
@@ -32,13 +74,24 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_mirroring() {
+    fn test_mirroring_vec() {
         let left = Vec3::X;
         let right = -Vec3::X;
 
-        assert!(AbsoluteDirection::Right.handle_mirroring(left) == left);
-        assert!(AbsoluteDirection::Right.handle_mirroring(right) == right);
-        assert!(AbsoluteDirection::Left.handle_mirroring(left) == right);
-        assert!(AbsoluteDirection::Left.handle_mirroring(right) == left);
+        assert!(LRDirection::Right.mirror_vec(left) == left);
+        assert!(LRDirection::Right.mirror_vec(right) == right);
+        assert!(LRDirection::Left.mirror_vec(left) == right);
+        assert!(LRDirection::Left.mirror_vec(right) == left);
+    }
+
+    #[test]
+    fn test_mirroring_stick() {
+        assert!(LRDirection::Right.mirror_stick(StickPosition::E) == StickPosition::E);
+        assert!(LRDirection::Right.mirror_stick(StickPosition::Neutral) == StickPosition::Neutral);
+        assert!(LRDirection::Right.mirror_stick(StickPosition::W) == StickPosition::W);
+
+        assert!(LRDirection::Left.mirror_stick(StickPosition::E) == StickPosition::W);
+        assert!(LRDirection::Left.mirror_stick(StickPosition::Neutral) == StickPosition::Neutral);
+        assert!(LRDirection::Left.mirror_stick(StickPosition::W) == StickPosition::E);
     }
 }

@@ -54,12 +54,24 @@ impl Move {
     }
 }
 
+#[derive(Debug, Inspectable, Copy, Clone, PartialEq)]
+pub enum MoveMobility {
+    Impulse(Vec3),
+    Perpetual(Vec3),
+    None,
+}
+impl Default for MoveMobility {
+    fn default() -> Self {
+        MoveMobility::None
+    }
+}
+
 #[derive(Debug, Default, Inspectable, Clone, PartialEq)]
 pub struct Phase {
     pub kind: PhaseKind,
     pub duration: usize,
     pub cancel_requirement: CancelLevel,
-    pub mobility: Vec3,
+    pub mobility: MoveMobility,
 }
 
 #[derive(Debug, Inspectable, Clone, PartialEq)]

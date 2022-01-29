@@ -2,7 +2,6 @@
 - [ ] Get rid of the tick function
 - [ ] Make domain specific systems. Performance doesn't matter here
 	- [ ] One for walking
-	- [ ] One for jumping
 	- [ ] One for crouching
 	- [ ] One for move progression and activation
 	- [ ] Put all of them in a plugin that you export

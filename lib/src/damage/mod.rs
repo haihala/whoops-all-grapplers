@@ -102,16 +102,22 @@ pub fn register_hits(
 
                 // Knockback
                 let knockback_impulse = knockback
-                    .map(|knockback_prop| facing.mirror_vec(knockback_prop.get(blocked)))
+                    // Knockback is positive aka away from attacker, so defender must flip it the other way
+                    .map(|knockback_prop| {
+                        facing
+                            .opposite()
+                            .mirror_vec(knockback_prop.get(blocked).extend(0.0))
+                    })
                     .unwrap_or_default();
                 velocity.add_impulse(knockback_impulse);
 
                 // Stun
                 if let Some(stun_prop) = stun {
-                    state.hit(
-                        stun_prop.get(blocked) + clock.frame,
-                        knockback_impulse.y > 0.0,
-                    );
+                    if knockback_impulse.y > 0.0 {
+                        state.launch();
+                    } else {
+                        state.hit(stun_prop.get(blocked) + clock.frame);
+                    }
                 }
 
                 if let Some(pushback_prop) = pushback {

@@ -26,11 +26,23 @@ macro_rules! moves {
 
 // Order matters, moves defined first have priority over later ones
 pub mod test {
-    moves!(1usize, (TEST_MOVE, SECOND_TEST_MOVE));
+    moves!(0usize, (TEST_MOVE, SECOND_TEST_MOVE));
 }
 
 pub mod universal {
-    moves!(1usize, (DASH_FORWARD, DASH_BACK));
+    moves!(
+        1usize,
+        (
+            DASH_FORWARD,
+            DASH_BACK,
+            NEUTRAL_SUPER_JUMP,
+            FORWARD_SUPER_JUMP,
+            BACK_SUPER_JUMP,
+            NEUTRAL_JUMP,
+            FORWARD_JUMP,
+            BACK_JUMP
+        )
+    );
 }
 
 // Defined smallest to largest aka later ones can cancel earlier ones.
@@ -49,9 +61,8 @@ pub enum CancelLevel {
     Hitstun,
     Uncancellable,
 }
-
 impl Default for CancelLevel {
     fn default() -> Self {
-        CancelLevel::Anything
+        CancelLevel::Uncancellable
     }
 }

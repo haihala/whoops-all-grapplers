@@ -2,8 +2,12 @@
 	- [ ] See [[Fix execution order]]
 - [x] Special interpretation is sometimes kinda tight
 - [x] Some inputs are flipped, some aren't
-- [ ] Knockback next to wall can leave a character in the air
+- [x] Knockback next to wall can leave a character in the air
 - [ ] Also pressing a button while crouching
+	- [x] Maybe fixed with physics rework
 	- [ ] Character extends, is grounded so gravity won't apply them, is now max size, but just in the air.
 	- [ ] [[Player state refactor]] will likely help with this as it can dedicate a system to crouching
 - [ ] Air moves leave a character hanging in the air
+- [x] Air moves don't dissapear if it's cancelled by landing
+- [x] Knockback only goes up
+- [ ] Superjump can't hold down (probably a problem with starting moves from a set)

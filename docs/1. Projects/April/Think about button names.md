@@ -7,6 +7,9 @@ Fast:
 - Still means what it does
 - Avoids the problem of l1I
 
-# Item vs ???
+# Item vs Equipment
 Item:
 - Pretty much the same deal as with light
+
+Equipment:
+- Very few downsides

@@ -100,12 +100,13 @@ impl<T: Clone + Copy + PartialEq + Default> From<T> for HitProperty<T> {
 
 pub type Damage = HitProperty<i32>;
 pub type Stun = HitProperty<usize>;
-pub type Knockback = HitProperty<Vec3>;
+pub type Knockback = HitProperty<Vec2>;
 pub type Pushback = HitProperty<Vec3>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]
 pub struct AttackDescriptor {
     // TODO: These could be made inspectable, this is a temporary solution
+    // Bevy-egui-inspector 0.7.1 apparently fixes this
     #[inspectable(ignore)]
     pub damage: Option<Damage>,
     #[inspectable(ignore)]

@@ -1,2 +1,2 @@
 - [ ] Separate crate
-- [ ] Don't turn off gravity when grounded. This will just cause more problems.
+- [x] Don't turn off gravity when grounded. This will just cause more problems.

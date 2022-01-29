@@ -1,8 +1,10 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use player_state::{PlayerState, StateEvent};
-use types::{LRDirection, Player};
+use constants::PLAYER_GRAVITY_PER_FRAME;
+use moves::MoveMobility;
+use player_state::PlayerState;
+use types::{LRDirection, MoveId, Player};
 
 use crate::{
     camera::{WorldCamera, VIEWPORT_WIDTH},
@@ -25,122 +27,103 @@ impl ConstantVelocity {
     }
 }
 
-#[derive(Debug, Inspectable, Clone)]
-enum PlayerVelocityType {
-    Walk,
-    Move,
-    Previous,
+#[derive(Debug, Inspectable, Clone, Default, Copy)]
+pub struct CurrentMove {
+    id: MoveId,
+    base_velocity: Vec3,
 }
-
-#[derive(Debug, Inspectable, Clone)]
+#[derive(Debug, Inspectable, Clone, Default, Copy)]
 pub struct PlayerVelocity {
-    total: Vec3,
-    walk_velocity: f32,
-    dash_velocity: Vec3,
-    impulse_collector: Vec3,
-    used_velocity: PlayerVelocityType,
+    velocity: Vec3,
+    current_move: Option<CurrentMove>,
 }
 
-impl Default for PlayerVelocity {
-    fn default() -> Self {
-        Self {
-            total: Default::default(),
-            walk_velocity: Default::default(),
-            dash_velocity: Default::default(),
-            impulse_collector: Default::default(),
-            used_velocity: PlayerVelocityType::Previous,
-        }
-    }
-}
 impl PlayerVelocity {
-    pub fn get_total(&self) -> Vec3 {
-        match self.used_velocity {
-            PlayerVelocityType::Walk => Vec3::X * self.walk_velocity,
-            PlayerVelocityType::Move => self.dash_velocity,
-            PlayerVelocityType::Previous => self.total,
-        }
-    }
     pub fn get_shift(&self) -> Vec3 {
-        self.get_total() / constants::FPS
+        self.velocity / constants::FPS
     }
     pub fn add_impulse(&mut self, impulse: Vec3) {
-        self.impulse_collector += impulse;
+        self.velocity += impulse;
     }
-    pub fn tick(&mut self, state: &mut PlayerState) {
-        // Set correct velocity mode
-        if state.get_move_mobility().is_some() {
-            self.used_velocity = PlayerVelocityType::Move;
-        } else if state.get_walk_direction().is_some() {
-            self.used_velocity = PlayerVelocityType::Walk;
-        } else {
-            self.used_velocity = PlayerVelocityType::Previous;
-        }
-
-        // Calculate new velocity
-        self.total = match self.used_velocity {
-            PlayerVelocityType::Walk => Vec3::new(self.walk_velocity, 0.0, 0.0),
-            PlayerVelocityType::Move => self.dash_velocity,
-            PlayerVelocityType::Previous => {
-                if state.is_grounded() {
-                    // Drag
-                    Vec3::new(
-                        if self.total.length() > constants::DRAG {
-                            self.total.x.signum() * (self.total.x.abs() - constants::DRAG)
-                        } else {
-                            0.0
-                        },
-                        self.total.y,
-                        0.0,
-                    )
-                } else {
-                    // Gravity
-                    Vec3::new(
-                        self.total.x,
-                        self.total.y - constants::PLAYER_GRAVITY_PER_FRAME,
-                        0.0,
-                    )
-                }
-            }
-        } + self.impulse_collector;
-        self.impulse_collector = Vec3::ZERO;
-    }
-    fn set_move_velocity(&mut self, state: &mut PlayerState, facing: &LRDirection) {
-        self.dash_velocity = state
-            .get_move_mobility()
-            .map(|mobility| facing.mirror_vec(mobility))
-            .unwrap_or(Vec3::ZERO);
-    }
-
-    fn set_walking_velocity(&mut self, direction: Option<LRDirection>) {
-        if let Some(direction) = direction {
-            let acceleration = direction.mirror_f32(constants::PLAYER_ACCELERATION);
-
-            if self.walk_velocity.abs() < constants::MINIMUM_WALK_SPEED
-                || (self.walk_velocity.signum() - acceleration.signum()).abs() < 1.1
-            {
-                // If player is starting to move, or keeps moving in the same direction
-                let proposed_walk_velocity = self.walk_velocity + acceleration;
-
-                self.walk_velocity = proposed_walk_velocity.signum()
-                    * proposed_walk_velocity
-                        .abs()
-                        .clamp(constants::MINIMUM_WALK_SPEED, constants::MAXIMUM_WALK_SPEED)
+    pub fn drag(&mut self) {
+        self.velocity = Vec3::new(
+            if self.velocity.x.abs() > constants::DRAG {
+                self.velocity.x.signum() * (self.velocity.x.abs() - constants::DRAG)
             } else {
-                self.walk_velocity = 0.0;
+                self.current_move = None;
+                0.0
+            },
+            self.velocity.y,
+            0.0,
+        );
+    }
+    fn handle_move_velocity(
+        &mut self,
+        move_id: MoveId,
+        mobility: MoveMobility,
+        facing: &LRDirection,
+    ) {
+        match mobility {
+            MoveMobility::Impulse(amount) => {
+                self.handle_move_velocity_chaining(move_id, facing.mirror_vec(amount), false);
             }
-        } else {
-            self.walk_velocity = 0.0;
+            MoveMobility::Perpetual(amount) => {
+                self.handle_move_velocity_chaining(move_id, facing.mirror_vec(amount), true);
+            }
+            MoveMobility::None => panic!("None MoveMobility in move velocity handling"),
         }
+    }
+    fn handle_move_velocity_chaining(&mut self, id: MoveId, amount: Vec3, perpetual: bool) {
+        let first_move = self.current_move.is_none();
+
+        if first_move {
+            // Move started
+            self.velocity = amount;
+            self.current_move = Some(CurrentMove {
+                id,
+                base_velocity: Vec3::ZERO,
+            });
+        } else {
+            let current_move = self.current_move.unwrap();
+            let move_continues = current_move.id == id;
+
+            if move_continues {
+                if perpetual {
+                    // Continue perpetual motion
+                    self.velocity = current_move.base_velocity + amount;
+                }
+            } else {
+                // Cancel into a new move
+                self.add_impulse(amount);
+
+                self.current_move = Some(CurrentMove {
+                    id,
+                    base_velocity: self.velocity,
+                });
+            }
+        }
+    }
+
+    fn handle_walking_velocity(&mut self, direction: LRDirection) {
+        let proposed_walk_velocity =
+            self.velocity.x + direction.mirror_f32(constants::PLAYER_ACCELERATION);
+
+        self.velocity.x = direction.mirror_f32(
+            proposed_walk_velocity
+                .abs()
+                .clamp(constants::MINIMUM_WALK_SPEED, constants::MAXIMUM_WALK_SPEED),
+        );
+        self.current_move = None;
     }
 
     fn x_collision(&mut self) {
         // Just stop for now, but can be used to implement bounces and whatnot in the future
-        self.total.x = 0.0;
+        self.velocity.x = 0.0;
     }
 
     fn y_collision(&mut self) {
         // Hit the floor
-        self.total.y = 0.0;
+        self.velocity.y = 0.0;
     }
 }
 
@@ -154,25 +137,21 @@ impl Plugin for PhysicsPlugin {
                 .with_system(sideswitcher.system())
                 .with_system(push_players.system())
                 .with_system(move_players.system())
-                .with_system(move_constants.system()),
+                .with_system(move_constants.system())
+                .with_system(player_gravity.system()),
         );
     }
 }
 
-fn player_input(mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &LRDirection)>) {
-    for (mut state, mut velocity, facing) in query.iter_mut() {
-        velocity.set_move_velocity(&mut state, facing);
-        for event in state.get_events() {
-            match event {
-                StateEvent::Jump(impulse) => {
-                    velocity.add_impulse(impulse);
-                    state.consume_event(event);
-                }
-                StateEvent::Null => panic!("Null event from player state"),
-                _ => {}
-            }
+fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &LRDirection)>) {
+    for (state, mut velocity, facing) in query.iter_mut() {
+        if let Some(walk_direction) = state.get_walk_direction() {
+            velocity.handle_walking_velocity(walk_direction);
+        } else if let Some((id, mobility)) = state.get_move_mobility() {
+            velocity.handle_move_velocity(id, mobility, facing);
+        } else if state.is_grounded() {
+            velocity.drag();
         }
-        velocity.set_walking_velocity(state.get_walk_direction());
     }
 }
 
@@ -209,7 +188,12 @@ fn move_constants(
 #[allow(clippy::type_complexity)]
 fn move_players(
     mut queries: QuerySet<(
-        Query<(&mut PlayerVelocity, &mut Transform, &mut PlayerState)>,
+        Query<(
+            &mut PlayerVelocity,
+            &mut Transform,
+            &PlayerState,
+            &LRDirection,
+        )>,
         Query<&Transform, With<WorldCamera>>,
     )>,
 ) {
@@ -220,9 +204,7 @@ fn move_players(
         .unwrap_or_default();
 
     // Handle static collision
-    for (mut velocity, mut transform, mut state) in queries.q0_mut().iter_mut() {
-        velocity.tick(&mut state);
-
+    for (mut velocity, mut transform, state, facing) in queries.q0_mut().iter_mut() {
         let shift = velocity.get_shift();
 
         if let Some(collision) = static_collision(
@@ -230,6 +212,10 @@ fn move_players(
             shift,
             state.get_collider_size(),
             camera_x,
+            *facing,
+            // FIXME: This is supposed to be the opponent's width, but it's a nightmare to get here and a constant (for now)
+            // With bevy 0.6 queries, the movement/collision system should be rewritten to use the correct width.
+            state.get_width(),
         ) {
             transform.translation = collision.legal_position;
             if collision.x_collision {
@@ -238,7 +224,6 @@ fn move_players(
 
             if collision.y_collision {
                 velocity.y_collision();
-                state.land()
             }
         } else {
             transform.translation += shift;
@@ -273,34 +258,49 @@ fn push_players(
                     // Player-player collision is happening
                     let distance = (transform1.translation - transform2.translation).length();
 
-                    if distance > constants::PUSHING_DEAD_ZONE {
-                        let moving_closer =
-                            (future_position1 - future_position2).length() < distance;
+                    let moving_closer = (future_position1 - future_position2).length() < distance;
 
-                        // Don't push when really close, this is to prevent spazzing as directions change
-                        let push_vector = Vec3::new(
-                            constants::PUSHING_IMPULSE
-                                * if moving_closer {
-                                    // Go backwards
-                                    -facing1.to_signum()
-                                } else {
-                                    // Go to current direction
-                                    let val = velocity1.get_total().x;
-                                    if val == 0.0 {
-                                        val
-                                    } else {
-                                        val.signum()
-                                    }
-                                },
-                            0.0,
-                            0.0,
-                        );
+                    // Don't push when really close, this is to prevent spazzing as directions change
+                    let push_vector = Vec3::new(
+                        if moving_closer {
+                            // Go backwards
+                            -facing1.to_signum()
+                        } else {
+                            // Go to current direction
+                            let val = velocity1.velocity.x;
+                            if val == 0.0 {
+                                val
+                            } else {
+                                val.signum()
+                            }
+                        },
+                        0.0,
+                        0.0,
+                    );
 
-                        let mut object = query_set.q1_mut().get_mut(entity1).unwrap();
-                        object.add_impulse(push_vector);
-                    }
+                    let mut object1 = query_set.q1_mut().get_mut(entity1).unwrap();
+                    object1.add_impulse(push_vector);
+                    drop(object1);
+                    let mut object2 = query_set.q1_mut().get_mut(entity2).unwrap();
+                    object2.add_impulse(-push_vector);
                 }
             }
+        }
+    }
+}
+
+fn player_gravity(mut players: Query<(&mut PlayerVelocity, &mut PlayerState, &Transform)>) {
+    for (mut velocity, mut state, tf) in players.iter_mut() {
+        let player_bottom = tf.translation.y - state.get_height() / 2.0;
+        let is_airborne = player_bottom > GROUND_PLANE_HEIGHT;
+
+        if is_airborne {
+            velocity.add_impulse(-Vec3::Y * PLAYER_GRAVITY_PER_FRAME);
+            if state.is_grounded() {
+                state.jump();
+            }
+        } else if !state.is_grounded() {
+            state.land();
         }
     }
 }
@@ -332,6 +332,8 @@ fn static_collision(
     movement: Vec3,
     player_size: Vec2,
     camera_x: f32,
+    extra_padding_side: LRDirection,
+    extra_padding_amount: f32,
 ) -> Option<StaticCollision> {
     let future_position = current_position + movement;
     let relative_ground_plane = GROUND_PLANE_HEIGHT + player_size.y / 2.0;
@@ -344,8 +346,19 @@ fn static_collision(
         future_position.y
     };
 
-    let right_wall = ARENA_WIDTH.min(camera_x + VIEWPORT_WIDTH - CAMERA_EDGE_COLLISION_PADDING);
-    let left_wall = (-ARENA_WIDTH).max(camera_x - VIEWPORT_WIDTH + CAMERA_EDGE_COLLISION_PADDING);
+    let (right_wall, left_wall) = if extra_padding_side.to_flipped() {
+        (
+            ARENA_WIDTH.min(camera_x + VIEWPORT_WIDTH - CAMERA_EDGE_COLLISION_PADDING),
+            (-ARENA_WIDTH).max(camera_x - VIEWPORT_WIDTH + CAMERA_EDGE_COLLISION_PADDING)
+                + extra_padding_amount,
+        )
+    } else {
+        (
+            ARENA_WIDTH.min(camera_x + VIEWPORT_WIDTH - CAMERA_EDGE_COLLISION_PADDING)
+                - extra_padding_amount,
+            (-ARENA_WIDTH).max(camera_x - VIEWPORT_WIDTH + CAMERA_EDGE_COLLISION_PADDING),
+        )
+    };
 
     let (legal_x, x_collision) = if future_position.x > right_wall {
         (right_wall, true)

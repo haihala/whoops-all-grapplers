@@ -10,13 +10,11 @@ pub fn movement(mut query: Query<(&InputParser, &mut PlayerState, &mut Sprite, &
     for (reader, mut state, mut sprite, mut tf) in query.iter_mut() {
         if state.is_grounded() {
             match reader.get_absolute_stick_position() {
-                StickPosition::N => state.jump(None),
-                StickPosition::NW => state.jump(Some(LRDirection::Left)),
-                StickPosition::NE => state.jump(Some(LRDirection::Right)),
                 StickPosition::W => state.walk(LRDirection::Left),
                 StickPosition::E => state.walk(LRDirection::Right),
                 StickPosition::SW | StickPosition::S | StickPosition::SE => state.crouch(),
                 StickPosition::Neutral => state.stand(),
+                _ => {}
             }
 
             let new_size = state.get_collider_size();

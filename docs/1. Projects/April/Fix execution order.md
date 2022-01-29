@@ -2,6 +2,8 @@ Jump height inconsistency among others is likely due to the ambiguous system exe
 
 [[Player state refactor]] will likely change up the systems a lot, so do this after that
 
+There is a bug with 1f moves occasionally not counting for mobility, this is probably fixed wit the ordering
+
 Bevy log:
 ```
 Jan 23 18:10:37.278 INFO bevy_ecs::schedule::stage: Execution order ambiguities detected, you might want to add an explicit dependency relation between some of these systems:

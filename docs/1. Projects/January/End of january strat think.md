@@ -1,0 +1,15 @@
+- What to do in February
+	- Shop
+	- Items
+- What is a priority
+	- Bevy upgrade
+		- Get that query for permutations 
+	- Deterministic execution order
+	- Collision / State refactoring
+- How to organize todo
+	- One file with links to files that acts as a timetable
+	- Many tasks, created when there is more data than a name
+	- Store tasks in three folders
+		- Ongoing
+		- Backlog
+		- (Done in archive)

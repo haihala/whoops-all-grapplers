@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 use types::{AttackDescriptor, AttackHeight, GrabDescription, Hitbox, Lifetime};
 
-use crate::{move_bank::MoveBank, moves, universal, CancelLevel, Move, Phase, PhaseKind};
+use crate::{
+    move_bank::MoveBank, moves, universal, CancelLevel, Move, MoveMobility, Phase, PhaseKind,
+};
 
 // Dashing
 const DASH_START_DURATION_SECONDS: f32 = 0.1;
@@ -29,54 +31,104 @@ moves!(
     )
 );
 
+fn jump(input: &'static str, impulse: impl Into<Vec3>) -> Move {
+    Move {
+        input,
+        cancel_level: CancelLevel::Jump,
+        ground_ok: true,
+        phases: vec![
+            Phase {
+                kind: PhaseKind::Animation,
+                duration: 5,
+                mobility: MoveMobility::Impulse(impulse.into()),
+                ..Default::default()
+            },
+            Phase {
+                kind: PhaseKind::Animation,
+                duration: 5,
+                ..Default::default()
+            },
+        ],
+        ..Default::default()
+    }
+}
+
+fn dash(input: &'static str, start_speed: f32, recovery_speed: f32) -> Move {
+    Move {
+        input,
+        cancel_level: CancelLevel::Dash,
+        ground_ok: true,
+        phases: vec![
+            Phase {
+                kind: PhaseKind::Animation,
+                duration: DASH_START_FRAMES,
+                mobility: MoveMobility::Perpetual(Vec3::X * start_speed),
+                ..Default::default()
+            },
+            Phase {
+                kind: PhaseKind::Animation,
+                duration: DASH_RECOVERY_FRAMES,
+                cancel_requirement: CancelLevel::LightNormal,
+                mobility: MoveMobility::Perpetual(Vec3::X * recovery_speed),
+            },
+        ],
+        ..Default::default()
+    }
+}
 pub fn ryan_bank() -> MoveBank {
     MoveBank::new(
         vec![
             (
+                universal::BACK_JUMP,
+                jump(
+                    "7",
+                    (-constants::DIAGONAL_JUMP_X, constants::DIAGONAL_JUMP_Y, 0.0),
+                ),
+            ),
+            (
+                universal::NEUTRAL_JUMP,
+                jump("8", (0.0, constants::NEUTRAL_JUMP_Y, 0.0)),
+            ),
+            (
+                universal::FORWARD_JUMP,
+                jump(
+                    "9",
+                    (constants::DIAGONAL_JUMP_X, constants::DIAGONAL_JUMP_Y, 0.0),
+                ),
+            ),
+            (
+                universal::BACK_SUPER_JUMP,
+                jump(
+                    "[123]7",
+                    (
+                        -constants::DIAGONAL_SUPERJUMP_X,
+                        constants::DIAGONAL_SUPERJUMP_Y,
+                        0.0,
+                    ),
+                ),
+            ),
+            (
+                universal::NEUTRAL_SUPER_JUMP,
+                jump("[123]8", (0.0, constants::NEUTRAL_SUPERJUMP_Y, 0.0)),
+            ),
+            (
+                universal::FORWARD_SUPER_JUMP,
+                jump(
+                    "[123]9",
+                    (
+                        constants::DIAGONAL_SUPERJUMP_X,
+                        constants::DIAGONAL_SUPERJUMP_Y,
+                        0.0,
+                    ),
+                ),
+            ),
+            (
                 universal::DASH_FORWARD,
-                Move {
-                    input: "656",
-                    cancel_level: CancelLevel::Dash,
-                    ground_ok: true,
-                    phases: vec![
-                        Phase {
-                            kind: PhaseKind::Animation,
-                            duration: DASH_START_FRAMES,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::X * DASH_START_SPEED,
-                        },
-                        Phase {
-                            kind: PhaseKind::Animation,
-                            duration: DASH_RECOVERY_FRAMES,
-                            cancel_requirement: CancelLevel::LightNormal,
-                            mobility: Vec3::X * DASH_RECOVERY_SPEED,
-                        },
-                    ],
-                    ..Default::default()
-                },
+                dash("656", DASH_START_SPEED, DASH_RECOVERY_SPEED),
             ),
             (
                 universal::DASH_BACK,
-                Move {
-                    input: "454",
-                    cancel_level: CancelLevel::Dash,
-                    ground_ok: true,
-                    phases: vec![
-                        Phase {
-                            kind: PhaseKind::Animation,
-                            duration: DASH_START_FRAMES,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::new(-DASH_START_SPEED, 0.0, 0.0),
-                        },
-                        Phase {
-                            kind: PhaseKind::Animation,
-                            duration: DASH_RECOVERY_FRAMES,
-                            cancel_requirement: CancelLevel::LightNormal,
-                            mobility: Vec3::new(-DASH_RECOVERY_SPEED, 0.0, 0.0),
-                        },
-                    ],
-                    ..Default::default()
-                },
+                dash("454", -DASH_START_SPEED, -DASH_RECOVERY_SPEED),
             ),
             (
                 PUNCH,
@@ -88,8 +140,7 @@ pub fn ryan_bank() -> MoveBank {
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 10,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                         Phase {
                             kind: PhaseKind::Attack(AttackDescriptor {
@@ -99,14 +150,13 @@ pub fn ryan_bank() -> MoveBank {
                                 ..Default::default()
                             }),
                             duration: 10,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 10,
                             cancel_requirement: CancelLevel::LightSpecial,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                     ],
                     ..Default::default()
@@ -122,8 +172,8 @@ pub fn ryan_bank() -> MoveBank {
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 10,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::new(1.0, 0.0, 0.0),
+                            mobility: MoveMobility::Perpetual(Vec3::new(1.0, 0.0, 0.0)),
+                            ..Default::default()
                         },
                         Phase {
                             kind: PhaseKind::Attack(AttackDescriptor {
@@ -132,14 +182,14 @@ pub fn ryan_bank() -> MoveBank {
                                 ..Default::default()
                             }),
                             duration: 20,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::new(5.0, 0.0, 0.0),
+                            mobility: MoveMobility::Perpetual(Vec3::new(5.0, 0.0, 0.0)),
+                            ..Default::default()
                         },
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 20,
                             cancel_requirement: CancelLevel::LightSpecial,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                     ],
                     ..Default::default()
@@ -155,8 +205,7 @@ pub fn ryan_bank() -> MoveBank {
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 30,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                         Phase {
                             kind: PhaseKind::Attack(AttackDescriptor {
@@ -166,14 +215,13 @@ pub fn ryan_bank() -> MoveBank {
                                 ..Default::default()
                             }),
                             duration: 4,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 10,
                             cancel_requirement: CancelLevel::HeavyNormal,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                     ],
                     ..Default::default()
@@ -190,8 +238,7 @@ pub fn ryan_bank() -> MoveBank {
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 30,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                         Phase {
                             kind: PhaseKind::Attack(AttackDescriptor {
@@ -201,14 +248,13 @@ pub fn ryan_bank() -> MoveBank {
                                 ..Default::default()
                             }),
                             duration: 4,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 10,
                             cancel_requirement: CancelLevel::Jump,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                     ],
                     ..Default::default()
@@ -224,26 +270,24 @@ pub fn ryan_bank() -> MoveBank {
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 10,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                         Phase {
                             kind: PhaseKind::Attack(AttackDescriptor {
-                                hitbox: Hitbox::new(Vec2::new(0.4, -1.2), Vec2::new(0.2, 0.3)),
-                                knockback: Some(Vec3::new(2.0, 2.0, 0.0).into()),
+                                hitbox: Hitbox::new(Vec2::new(0.5, -1.2), Vec2::new(0.6, 0.3)),
+                                knockback: Some(Vec2::new(2.0, 2.0).into()),
                                 fixed_height: Some(AttackHeight::High),
                                 attached_to_player: true,
                                 ..Default::default()
                             }),
                             duration: 10,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 10,
                             cancel_requirement: CancelLevel::LightSpecial,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                     ],
                     ..Default::default()
@@ -259,8 +303,7 @@ pub fn ryan_bank() -> MoveBank {
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 1,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                         Phase {
                             kind: PhaseKind::Grab(GrabDescription {
@@ -270,14 +313,12 @@ pub fn ryan_bank() -> MoveBank {
                                 ..Default::default()
                             }),
                             duration: 1,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                         Phase {
                             kind: PhaseKind::Animation,
                             duration: 10,
-                            cancel_requirement: CancelLevel::Uncancellable,
-                            mobility: Vec3::ZERO,
+                            ..Default::default()
                         },
                     ],
                     ..Default::default()

@@ -201,7 +201,6 @@ pub fn despawn_on_phase_change(
             if matches!(event, StateEvent::PhaseChange) {
                 let ids = spawner.drain(|event| matches!(event.time, DespawnTime::StateChange));
                 spawner.despawn(&mut commands, ids);
-
                 state.consume_event(event);
             }
         }

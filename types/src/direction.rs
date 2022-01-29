@@ -14,6 +14,13 @@ impl Default for LRDirection {
     }
 }
 impl LRDirection {
+    pub fn opposite(&self) -> LRDirection {
+        match self {
+            LRDirection::Right => LRDirection::Left,
+            LRDirection::Left => LRDirection::Right,
+        }
+    }
+
     pub fn from_flipped(flipped: bool) -> LRDirection {
         if flipped {
             LRDirection::Left
@@ -28,6 +35,13 @@ impl LRDirection {
         } else {
             LRDirection::Right
         };
+    }
+
+    pub fn to_flipped(&self) -> bool {
+        match self {
+            LRDirection::Right => false,
+            LRDirection::Left => true,
+        }
     }
 
     pub fn to_signum(&self) -> f32 {

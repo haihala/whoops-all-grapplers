@@ -121,10 +121,7 @@ pub fn register_hits(
                 }
 
                 if let Some(pushback_prop) = pushback {
-                    pushbacks.insert(
-                        pct.owner.other(),
-                        facing.mirror_vec(pushback_prop.get(blocked)),
-                    );
+                    pushbacks.insert(pct.owner, facing.mirror_vec(pushback_prop.get(blocked)));
                 }
 
                 // Despawn entities on hit

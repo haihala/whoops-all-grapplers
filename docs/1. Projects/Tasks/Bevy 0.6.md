@@ -3,6 +3,9 @@
 - `NotShadowReceiver` on Background and [Sprite Ergonomics](https://bevyengine.org/news/bevy-0-6/#sprite-ergonomics)
 - [iter() for mutable Queries](https://bevyengine.org/news/bevy-0-6/#iter-for-mutable-queries)
 - [Query::iter_combinations](https://bevyengine.org/news/bevy-0-6/#query-iter-combinations)
+	- Collision/Movement
+	- Check for any place where the same query is iterated multiple times
+- Check for things where bevy 0.6 is commented
 - [Hierarchy Convenience Functions](https://bevyengine.org/news/bevy-0-6/#hierarchy-convenience-functions)
 - [Directional vectors](https://bevyengine.org/news/bevy-0-6/#friendly-directional-vectors)
 - Rust 2021

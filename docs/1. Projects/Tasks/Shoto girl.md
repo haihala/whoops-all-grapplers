@@ -1,0 +1,11 @@
+- Needs a name (obviously three letters)
+- The aim is to make a reckless character so that the player feels like they ought to be a gorilla.
+- She has:
+	- A lot of unsafe shit she has to cancel into unsafe shit.
+	- Bad pokes
+	- Fuckload of damage
+	- Armor moves
+	- A symmetrical fireball back and forwards
+		- qcf = fireball with heavy pushback
+		- qcb = a jet boosted tackle
+- Peekoo voice?

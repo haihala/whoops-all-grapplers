@@ -1,4 +1,4 @@
-- [ ] Acquire currency
+- [ ] Acquire currency (see [[Bonuses]])
 - [ ] Buy menu
 	- [ ] Menu input parsing (get raw events from input parser)
 - [ ] Items are sorted into tiers

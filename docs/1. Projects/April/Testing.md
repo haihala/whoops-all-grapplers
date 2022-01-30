@@ -1,3 +1,0 @@
-- Write tests to the point where a list of inputs goes in and then you can make assertions on the world. 
-- https://lib.rs/crates/mock_instant instead of sleep
-- Generic system for input parsing, reader for tests

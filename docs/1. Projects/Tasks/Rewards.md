@@ -16,6 +16,10 @@ Meter is for technically interesting stuff. If you want to use the ez tools, you
 See [[Gi of the old masters]]
 
 # Fans
+- **Maybe you can cash out on combo damage by taunting to gain money**
+
+Fans are maybe too complicated, just reward money directly.
+
 In addition to of rewarding money, you gain an lose fans. At the end of the round you get money based on fans.
 
 In general, Heels have a lot more ways to gain fans but also lose fans passively.

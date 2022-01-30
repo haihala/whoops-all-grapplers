@@ -292,7 +292,7 @@ impl PlayerState {
         }
     }
     fn can_block_now(&self) -> bool {
-        self.cancel_requirement() < CancelLevel::PreJump && self.is_grounded()
+        self.cancel_requirement() < CancelLevel::LightNormal && self.is_grounded()
     }
     fn low_block_threshold(&self) -> f32 {
         self.get_height() * PLAYER_LOW_BLOCK_THRESHOLD_RATIO

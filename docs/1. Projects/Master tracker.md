@@ -13,7 +13,6 @@
 - [[Recovery and knockdown]]
 
 ## Easy nibbles
-- [[Think about button names]]
 - [[Input repeat out of parsing]]
 - [[Optimization tracker#Workflow]]
 - [[Optimization tracker#Move data]]

@@ -156,7 +156,11 @@ impl PlayerState {
     pub fn cancel_requirement(&self) -> CancelLevel {
         if let Some(tracker) = &self.move_tracker {
             if let Some(phase) = tracker.get_phase(self.frame) {
-                return phase.cancel_requirement;
+                return if phase.cancellable {
+                    tracker.move_data.cancel_level
+                } else {
+                    CancelLevel::Uncancellable
+                };
             }
         }
         match self.primary {

@@ -62,6 +62,6 @@ pub enum CancelLevel {
 }
 impl Default for CancelLevel {
     fn default() -> Self {
-        CancelLevel::Uncancellable
+        CancelLevel::Anything
     }
 }

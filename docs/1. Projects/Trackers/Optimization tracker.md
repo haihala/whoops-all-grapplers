@@ -3,9 +3,9 @@
 - Maybe only store index in parser head
 
 # Move data
-- Simple bool cancellable to phases and get cancel level from the move's cancel requirement.
-- System that checks when adding moves that the same key is not used many times
-	- Maybe change the keys to an enum while at it
+- [x] Simple bool cancellable to phases and get cancel level from the move's cancel requirement.
+- [x] System that checks when adding moves that the same key is not used many times
+- Change the keys to an enum
 
 # Testing
 - Write an integration testing system

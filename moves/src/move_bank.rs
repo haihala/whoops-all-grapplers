@@ -70,7 +70,7 @@ impl Default for MoveMobility {
 pub struct Phase {
     pub kind: PhaseKind,
     pub duration: usize,
-    pub cancel_requirement: CancelLevel,
+    pub cancellable: bool,
     pub mobility: MoveMobility,
 }
 

@@ -47,7 +47,7 @@ fn move_to_activate(
                 action.air_ok
             }
         })
-        .filter(|(_, action)| action.cancel_level >= cancel_requirement)
+        .filter(|(_, action)| action.cancel_level > cancel_requirement)
         .filter(|(_, action)| meter.can_afford(action.meter_cost))
         .min_by(|(id1, _), (id2, _)| id1.cmp(id2))
 }

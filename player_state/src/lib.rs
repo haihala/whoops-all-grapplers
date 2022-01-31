@@ -270,7 +270,7 @@ impl PlayerState {
 
     pub fn blocked(
         &self,
-        fixed_height: Option<&AttackHeight>,
+        fixed_height: Option<AttackHeight>,
         height_window: HeightWindow,
         stick: StickPosition,
     ) -> bool {
@@ -282,11 +282,11 @@ impl PlayerState {
         let blocking_low = stick == StickPosition::SE;
 
         let height = fixed_height.unwrap_or(if self.low_block_threshold() > height_window.top {
-            &AttackHeight::Low
+            AttackHeight::Low
         } else if self.high_block_threshold() > height_window.bottom {
-            &AttackHeight::High
+            AttackHeight::High
         } else {
-            &AttackHeight::Mid
+            AttackHeight::Mid
         });
 
         match height {

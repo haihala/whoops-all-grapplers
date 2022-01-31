@@ -1,15 +1,11 @@
 [package]
 name = "input_parsing"
 version = "0.1.0"
-authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
 bevy = "0.5.0"
 bevy-inspector-egui = "0.6.1"
 
-
-moves = { path = "../moves" }
 types = { path = "../types" }

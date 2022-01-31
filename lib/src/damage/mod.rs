@@ -3,8 +3,7 @@ use input_parsing::InputParser;
 use moves::CancelLevel;
 use player_state::{PlayerState, StateEvent};
 use types::{
-    AttackHeight, Damage, GrabDescription, Grabable, HeightWindow, Hurtbox, Knockback, LRDirection,
-    Player, PlayerCollisionTrigger, Pushback, Stun,
+    GrabDescription, Grabable, HeightWindow, Hurtbox, LRDirection, Player, PlayerCollisionEffect,
 };
 
 mod health;
@@ -30,17 +29,7 @@ impl Plugin for DamagePlugin {
 pub fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,
-    mut hitboxes: Query<(
-        Entity,
-        &PlayerCollisionTrigger,
-        &GlobalTransform,
-        &Sprite,
-        Option<&Damage>,
-        Option<&Stun>,
-        Option<&Knockback>,
-        Option<&Pushback>,
-        Option<&AttackHeight>,
-    )>,
+    mut hitboxes: Query<(Entity, &PlayerCollisionEffect, &GlobalTransform, &Sprite)>,
     mut hurtboxes: Query<(
         &Hurtbox,
         &Sprite,
@@ -57,9 +46,7 @@ pub fn register_hits(
     // TODO: When migrated to bevy 0.6, use the permutations tool
     let mut pushbacks: HashMap<Player, Vec3> = vec![].into_iter().collect();
 
-    for (entity, pct, tf1, hitbox_sprite, damage, stun, knockback, pushback, fixed_height) in
-        hitboxes.iter_mut()
-    {
+    for (entity, effect, tf1, hitbox_sprite) in hitboxes.iter_mut() {
         for (
             hurtbox,
             hurtbox_sprite,
@@ -73,7 +60,7 @@ pub fn register_hits(
             mut spawner,
         ) in hurtboxes.iter_mut()
         {
-            if pct.owner == *defending_player {
+            if effect.owner == *defending_player {
                 // You can't hit yourself
                 continue;
             }
@@ -90,29 +77,26 @@ pub fn register_hits(
                 let bottom = tf1.translation.y - hitbox_sprite.size.y;
 
                 let blocked = state.blocked(
-                    fixed_height,
+                    effect.fixed_height,
                     HeightWindow { top, bottom },
                     parser.get_relative_stick_position(),
                 );
 
                 // Damage
-                if let Some(damage_prop) = damage {
+                if let Some(damage_prop) = effect.damage {
                     health.apply_damage(damage_prop.get(blocked));
                 }
 
                 // Knockback
-                let knockback_impulse = knockback
+                let knockback_impulse = effect
+                    .knockback
                     // Knockback is positive aka away from attacker, so defender must flip it the other way
-                    .map(|knockback_prop| {
-                        facing
-                            .opposite()
-                            .mirror_vec(knockback_prop.get(blocked).extend(0.0))
-                    })
+                    .map(|knockback_prop| facing.opposite().mirror_vec(knockback_prop.get(blocked)))
                     .unwrap_or_default();
                 velocity.add_impulse(knockback_impulse);
 
                 // Stun
-                if let Some(stun_prop) = stun {
+                if let Some(stun_prop) = effect.stun {
                     if knockback_impulse.y > 0.0 {
                         state.launch();
                     } else {
@@ -120,8 +104,8 @@ pub fn register_hits(
                     }
                 }
 
-                if let Some(pushback_prop) = pushback {
-                    pushbacks.insert(pct.owner, facing.mirror_vec(pushback_prop.get(blocked)));
+                if let Some(pushback_prop) = effect.pushback {
+                    pushbacks.insert(effect.owner, facing.mirror_vec(pushback_prop.get(blocked)));
                 }
 
                 // Despawn entities on hit

@@ -1,5 +1,6 @@
-[workspace]
 
+[workspace]
+resolver = "2"
 members = [
     "constants",
     "input_parsing",
@@ -9,3 +10,8 @@ members = [
     "player_state",
     "types",
 ]
+
+[profile.dev]
+debug = 1
+lto = "off"
+incremental = true

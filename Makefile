@@ -16,4 +16,10 @@ clippy:
 fmt:
 	cargo fmt --all -- --check
 
-check: build test clippy fmt
+udeps:
+	cargo udeps
+
+check: test clippy fmt udeps
+
+install:
+	cargo install cargo-udeps

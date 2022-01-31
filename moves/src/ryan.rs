@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use types::{AttackDescriptor, AttackHeight, GrabDescription, Hitbox, Lifetime};
+use types::{AttackHeight, GrabDescription, Hitbox, Lifetime, SpawnDescriptor};
 
 use crate::{
     move_bank::MoveBank, moves, universal, CancelLevel, Move, MoveMobility, Phase, PhaseKind,
@@ -143,7 +143,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         ..Default::default()
                     },
                     Phase {
-                        kind: PhaseKind::Attack(AttackDescriptor {
+                        kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox::new(Vec2::new(1.0, 0.5), Vec2::new(0.2, 0.3)),
                             attached_to_player: true,
                             damage: Some(20.into()),
@@ -176,7 +176,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         ..Default::default()
                     },
                     Phase {
-                        kind: PhaseKind::Attack(AttackDescriptor {
+                        kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(1.0, 1.0)),
                             attached_to_player: true,
                             ..Default::default()
@@ -208,7 +208,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         ..Default::default()
                     },
                     Phase {
-                        kind: PhaseKind::Attack(AttackDescriptor {
+                        kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
                             speed: Some(1.0 * Vec3::X),
                             lifetime: Lifetime::Forever,
@@ -241,7 +241,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         ..Default::default()
                     },
                     Phase {
-                        kind: PhaseKind::Attack(AttackDescriptor {
+                        kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.7, 0.7)),
                             speed: Some(2.0 * Vec3::X),
                             lifetime: Lifetime::Forever,
@@ -273,9 +273,9 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         ..Default::default()
                     },
                     Phase {
-                        kind: PhaseKind::Attack(AttackDescriptor {
+                        kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox::new(Vec2::new(0.5, -1.2), Vec2::new(0.6, 0.3)),
-                            knockback: Some(Vec2::new(2.0, 2.0).into()),
+                            knockback: Some(Vec3::new(2.0, 2.0, 0.0).into()),
                             fixed_height: Some(AttackHeight::High),
                             attached_to_player: true,
                             ..Default::default()

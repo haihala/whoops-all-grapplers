@@ -59,10 +59,6 @@ impl Default for Lifetime {
     }
 }
 
-pub struct PlayerCollisionTrigger {
-    pub owner: Player,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct HitProperty<PropType: Clone + Copy + PartialEq + Default> {
     pub on_hit: PropType,
@@ -100,11 +96,39 @@ impl<T: Clone + Copy + PartialEq + Default> From<T> for HitProperty<T> {
 
 pub type Damage = HitProperty<i32>;
 pub type Stun = HitProperty<usize>;
-pub type Knockback = HitProperty<Vec2>;
+pub type Knockback = HitProperty<Vec3>;
 pub type Pushback = HitProperty<Vec3>;
 
+#[derive(Debug, Clone, Copy, PartialEq, Inspectable)]
+pub struct PlayerCollisionEffect {
+    pub owner: Player,
+
+    pub fixed_height: Option<AttackHeight>,
+    #[inspectable(ignore)]
+    pub damage: Option<Damage>,
+    #[inspectable(ignore)]
+    pub stun: Option<Stun>,
+    #[inspectable(ignore)]
+    pub knockback: Option<Knockback>,
+    #[inspectable(ignore)]
+    pub pushback: Option<Pushback>,
+}
+
+impl Default for PlayerCollisionEffect {
+    fn default() -> Self {
+        Self {
+            owner: Player::One,
+            fixed_height: Default::default(),
+            damage: Default::default(),
+            stun: Default::default(),
+            knockback: Default::default(),
+            pushback: Default::default(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]
-pub struct AttackDescriptor {
+pub struct SpawnDescriptor {
     // TODO: These could be made inspectable, this is a temporary solution
     // Bevy-egui-inspector 0.7.1 apparently fixes this
     #[inspectable(ignore)]

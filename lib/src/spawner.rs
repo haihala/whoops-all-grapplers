@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::utils::HashMap;
 
 use player_state::{PlayerState, StateEvent};
-use types::{AttackDescriptor, LRDirection, Lifetime, MoveId, Player, PlayerCollisionTrigger};
+use types::{LRDirection, Lifetime, MoveId, Player, PlayerCollisionEffect, SpawnDescriptor};
 
 use crate::assets::Colors;
 use crate::clock::Clock;
@@ -45,7 +45,7 @@ impl Spawner {
     fn spawn_attack(
         &mut self,
         id: MoveId,
-        descriptor: AttackDescriptor,
+        descriptor: SpawnDescriptor,
         commands: &mut Commands,
         colors: &Res<Colors>,
         frame: usize,
@@ -72,24 +72,17 @@ impl Spawner {
         });
 
         // Components used when collision happens
-        builder.insert(PlayerCollisionTrigger { owner: player });
-        if let Some(damage) = descriptor.damage {
-            builder.insert(damage);
-        }
-        if let Some(stun) = descriptor.stun {
-            builder.insert(stun);
-        }
-        if let Some(knockback) = descriptor.knockback {
-            builder.insert(knockback);
-        }
-        if let Some(pushback) = descriptor.pushback {
-            builder.insert(pushback);
-        }
+        builder.insert(PlayerCollisionEffect {
+            owner: player,
+            fixed_height: descriptor.fixed_height,
+            damage: descriptor.damage,
+            stun: descriptor.stun,
+            knockback: descriptor.knockback,
+            pushback: descriptor.pushback,
+        });
+
         if let Some(speed) = descriptor.speed {
             builder.insert(ConstantVelocity::new(facing.to_vec3() * speed));
-        }
-        if let Some(fixed_height) = descriptor.fixed_height {
-            builder.insert(fixed_height);
         }
 
         // Housekeeping

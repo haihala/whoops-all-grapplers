@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_inspector_egui::Inspectable;
 
-use types::{AttackDescriptor, GrabDescription, MoveId};
+use types::{GrabDescription, MoveId, SpawnDescriptor};
 
 use crate::CancelLevel;
 
@@ -78,7 +78,7 @@ pub struct Phase {
 pub enum PhaseKind {
     Animation,
     Grab(GrabDescription),
-    Attack(AttackDescriptor),
+    Attack(SpawnDescriptor),
 }
 impl Default for PhaseKind {
     fn default() -> Self {

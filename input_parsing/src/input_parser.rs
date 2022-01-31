@@ -113,8 +113,10 @@ pub fn parse_input(mut characters: Query<(&mut InputParser, &mut InputReader, &L
 mod test {
     use std::{thread::sleep, time::Duration};
 
-    use moves::test::{SECOND_TEST_MOVE, TEST_MOVE};
     use types::GameButton;
+
+    const TEST_MOVE: MoveId = 1;
+    const SECOND_TEST_MOVE: MoveId = 2;
 
     use crate::{
         helper_types::{ButtonUpdate, InputChange},

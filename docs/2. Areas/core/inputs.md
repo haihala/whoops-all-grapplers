@@ -1,11 +1,10 @@
 # Inputs
 symbol - mapping on xbox - name
 
-- `f` - X - Fast attack
-- `h` - B - Heavy
-- `w` - Y - Wrestling
-	- Grab and gimmicks
-- `i` - A - Item
+- `f` - A - Fast attack
+- `s` - B - Heavy
+- `g` - Y - Grab
+- `e` - X - Equipment
 	- [[item]]
 
 Maybe a dash macro at some point, maybe a taunt, some demo replay buttons.
@@ -24,7 +23,7 @@ Motion inputs can create frustrations due to:
 - Not realizing some mechanical problems are decision making problems
   - Using a DP when a 2HP would do in SF can in tight situations be the wrong call,
     - Inputting takes time, evening out the faster startup of the DP
-      - L/M/H/ DP: 3/4/5 frames vs C.HP 6
+      - L/M/H DP: 3/4/5 frames vs C.HP 6
       - It takes a minimum of 3 frames to input a DP and doing it that fast is not really physically doable
 
 So motion inputs have uses, but they also have several pain points, thus limit motion inputs per character. Characters have a numeric score of mechanical difficulty, based on the following factors:

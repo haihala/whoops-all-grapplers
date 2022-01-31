@@ -125,20 +125,20 @@ mod test {
 
     #[test]
     fn hadouken_recognized() {
-        let mut interface = TestInterface::with_input("236l");
+        let mut interface = TestInterface::with_input("236f");
 
         interface.add_stick_and_tick(StickPosition::S);
         interface.add_stick_and_tick(StickPosition::SE);
         interface.add_stick_and_tick(StickPosition::E);
         interface.assert_no_events();
 
-        interface.add_button_and_tick(GameButton::Light);
+        interface.add_button_and_tick(GameButton::Fast);
         interface.assert_test_event_is_present();
     }
 
     #[test]
     fn inputs_expire() {
-        let mut interface = TestInterface::with_input("236l");
+        let mut interface = TestInterface::with_input("236f");
 
         interface.add_stick_and_tick(StickPosition::S);
         interface.add_stick_and_tick(StickPosition::SE);
@@ -147,13 +147,13 @@ mod test {
 
         interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
 
-        interface.add_button_and_tick(GameButton::Light);
+        interface.add_button_and_tick(GameButton::Fast);
         interface.assert_no_events();
     }
 
     #[test]
     fn sonic_boom_recognized() {
-        let mut interface = TestInterface::with_input("c46l");
+        let mut interface = TestInterface::with_input("c46f");
 
         interface.add_stick_and_tick(StickPosition::W);
         interface.sleep(CHARGE_TIME);
@@ -161,13 +161,13 @@ mod test {
         interface.add_stick_and_tick(StickPosition::E);
         interface.assert_no_events();
 
-        interface.add_button_and_tick(GameButton::Light);
+        interface.add_button_and_tick(GameButton::Fast);
         interface.assert_test_event_is_present();
     }
 
     #[test]
     fn sonic_boom_needs_charge() {
-        let mut interface = TestInterface::with_input("c46l");
+        let mut interface = TestInterface::with_input("c46f");
 
         interface.add_stick_and_tick(StickPosition::W);
         interface.tick();
@@ -175,16 +175,16 @@ mod test {
         interface.add_stick_and_tick(StickPosition::E);
         interface.assert_no_events();
 
-        interface.add_button_and_tick(GameButton::Light);
+        interface.add_button_and_tick(GameButton::Fast);
         interface.assert_no_events();
     }
 
     #[test]
     fn normal_recognized_and_events_repeat_and_clear() {
-        let mut interface = TestInterface::with_input("l");
+        let mut interface = TestInterface::with_input("f");
 
         interface.assert_no_events();
-        interface.add_button_and_tick(GameButton::Light);
+        interface.add_button_and_tick(GameButton::Fast);
         interface.assert_test_event_is_present();
 
         // Check that the event is still in (repeat works)
@@ -198,54 +198,54 @@ mod test {
 
     #[test]
     fn command_normal_recognized() {
-        let mut interface = TestInterface::with_input("2l");
+        let mut interface = TestInterface::with_input("2f");
 
         interface.add_stick_and_tick(StickPosition::S);
         interface.assert_no_events();
-        interface.add_button_and_tick(GameButton::Light);
+        interface.add_button_and_tick(GameButton::Fast);
         interface.assert_test_event_is_present();
     }
 
     #[test]
     fn slow_command_normal_recognized() {
-        let mut interface = TestInterface::with_input("2l");
+        let mut interface = TestInterface::with_input("2f");
 
         interface.add_stick_and_tick(StickPosition::S);
         interface.assert_no_events();
 
         interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
 
-        interface.add_button_and_tick(GameButton::Light);
+        interface.add_button_and_tick(GameButton::Fast);
         interface.assert_test_event_is_present();
     }
 
     #[test]
     fn multibutton_normal_recognized() {
-        let mut interface = TestInterface::with_input("[lh]");
+        let mut interface = TestInterface::with_input("[fs]");
 
-        interface.add_button_and_tick(GameButton::Light);
+        interface.add_button_and_tick(GameButton::Fast);
         interface.assert_no_events();
-        interface.add_button_and_tick(GameButton::Heavy);
+        interface.add_button_and_tick(GameButton::Strong);
         interface.assert_test_event_is_present();
     }
 
     #[test]
     fn multibutton_normal_recognized_despite_order() {
-        let mut interface = TestInterface::with_input("[lh]");
+        let mut interface = TestInterface::with_input("[fs]");
 
-        interface.add_button_and_tick(GameButton::Heavy);
+        interface.add_button_and_tick(GameButton::Strong);
         interface.assert_no_events();
-        interface.add_button_and_tick(GameButton::Light);
+        interface.add_button_and_tick(GameButton::Fast);
         interface.assert_test_event_is_present();
     }
 
     #[test]
     fn multiple_events() {
-        let mut interface = TestInterface::with_inputs("2l", "l");
+        let mut interface = TestInterface::with_inputs("2f", "f");
 
         interface.add_stick_and_tick(StickPosition::S);
         interface.assert_no_events();
-        interface.add_button_and_tick(GameButton::Light);
+        interface.add_button_and_tick(GameButton::Fast);
         interface.assert_both_test_events_are_present();
     }
 

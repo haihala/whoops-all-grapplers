@@ -10,13 +10,17 @@
 		- [[Drugs]]
 		- [[Gi of the old masters]]
 		- [[Gun]]
-- [[Input repeat out of parsing]]
 - [[Recovery and knockdown]]
+
+## Easy nibbles
+- [[Think about button names]]
+- [[Input repeat out of parsing]]
+- [[Optimization tracker#Workflow]]
+- [[Optimization tracker#Move data]]
 
 ## Not a priority
 - [[3D model]]
 	- [[Animations]]
-- [[Code quality improvements]]
 - [[Counter hits]]
 - [[Ending rounds]]
 - [[Netplay]]
@@ -24,8 +28,12 @@
 - [[Rewards]]
 - [[Simple training mode]]
 - [[Shoto girl]]
-- [[Think about button names]]
-- [[Workflow optimization]]
+
+# Other trackers
+![[Bug tracker]]
+
+![[Optimization tracker]]
+![[MVP]]
 
 # Overarching plan
 - [ ] [[MVP]] (Not a rushed one, but one that is maintainable)

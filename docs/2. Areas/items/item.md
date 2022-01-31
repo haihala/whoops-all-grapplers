@@ -4,7 +4,7 @@ You can buy items that make your character better between rounds. Money is earne
 
 - Some items are character unique
 - Some are passive, some go into one of the per input active slots
-	- (`4i`, `5i`, `623i`, etc)
+	- (`4e`, `5e`, `623e`, etc)
 	- Some things sharing slots means you sometimes have to pick
 		- Balance mechanism, albeit probably smart to avoid changing too often
 

@@ -133,7 +133,7 @@ pub fn ryan_bank() -> MoveBank {
             (
                 PUNCH,
                 Move {
-                    input: "l",
+                    input: "f",
                     cancel_level: CancelLevel::LightNormal,
                     ground_ok: true,
                     phases: vec![
@@ -165,7 +165,7 @@ pub fn ryan_bank() -> MoveBank {
             (
                 COMMAND_PUNCH,
                 Move {
-                    input: "6l",
+                    input: "6f",
                     cancel_level: CancelLevel::LightNormal,
                     ground_ok: true,
                     phases: vec![
@@ -198,7 +198,7 @@ pub fn ryan_bank() -> MoveBank {
             (
                 HADOUKEN,
                 Move {
-                    input: "236l",
+                    input: "236f",
                     cancel_level: CancelLevel::LightSpecial,
                     ground_ok: true,
                     phases: vec![
@@ -230,7 +230,7 @@ pub fn ryan_bank() -> MoveBank {
             (
                 HEAVY_HADOUKEN,
                 Move {
-                    input: "236h",
+                    input: "236s",
                     cancel_level: CancelLevel::HeavySpecial,
                     meter_cost: 10,
                     ground_ok: true,
@@ -263,7 +263,7 @@ pub fn ryan_bank() -> MoveBank {
             (
                 AIR_PUNCH,
                 Move {
-                    input: "l",
+                    input: "f",
                     cancel_level: CancelLevel::LightNormal,
                     air_ok: true,
                     phases: vec![

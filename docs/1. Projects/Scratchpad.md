@@ -6,3 +6,4 @@
 - Just put all moves in a massive enum
 	- They already basically are, except in a ghetto way.
 	- Can you easily make parser generic and have a unique enum for all characters to avoid possible ordering issues
+- Turning system should only work when the characters are on the ground

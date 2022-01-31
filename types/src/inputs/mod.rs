@@ -6,6 +6,8 @@ pub use stick_position::StickPosition;
 /// The name 'Button' is in prelude
 pub enum GameButton {
     Grab,
-    Heavy,
-    Light,
+    Strong,
+    Fast,
+    Equipment,
+    Taunt,
 }

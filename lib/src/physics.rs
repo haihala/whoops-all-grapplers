@@ -117,6 +117,15 @@ impl PlayerVelocity {
         self.current_move = None;
     }
 
+    fn handle_collisions(&mut self, clamped_position: &ClampedPosition) {
+        if clamped_position.touching_wall() {
+            self.x_collision();
+        }
+        if clamped_position.touching_floor {
+            self.y_collision();
+        }
+    }
+
     fn x_collision(&mut self) {
         // Just stop for now, but can be used to implement bounces and whatnot in the future
         self.velocity.x = 0.0;
@@ -209,21 +218,11 @@ fn move_players(
             arena_rect,
         );
 
-        let mut new_position1 = clamped_position1.position;
-        let mut new_position2 = clamped_position2.position;
+        tf1.translation = clamped_position1.position;
+        tf2.translation = clamped_position2.position;
 
-        if clamped_position1.touching_wall() {
-            velocity1.x_collision();
-        }
-        if clamped_position1.touching_floor {
-            velocity1.y_collision();
-        }
-        if clamped_position2.touching_wall() {
-            velocity2.x_collision();
-        }
-        if clamped_position2.touching_floor {
-            velocity2.y_collision();
-        }
+        velocity1.handle_collisions(&clamped_position1);
+        velocity2.handle_collisions(&clamped_position2);
 
         if let Some(push_force) = push_force(
             clamped_position1.position,
@@ -238,25 +237,20 @@ fn move_players(
                 "Both players are blocked by walls somehow"
             );
 
-            let (pushing1, pushing2) = if can_move1 && can_move2 {
+            if can_move1 && can_move2 {
                 // Both can move
-                (Vec3::X * push_force / 2.0, -Vec3::X * push_force / 2.0)
+                tf1.translation += Vec3::X * push_force / 2.0;
+                tf2.translation -= Vec3::X * push_force / 2.0;
             } else if can_move1 {
                 // 1 can move, 2 cannot
                 velocity1.x_collision();
-                (Vec3::X * push_force, Vec3::ZERO)
+                tf1.translation += Vec3::X * push_force;
             } else {
                 // 2 can move, 1 cannot
                 velocity2.x_collision();
-                (Vec3::ZERO, -Vec3::X * push_force)
-            };
-
-            new_position1 += pushing1;
-            new_position2 += pushing2;
+                tf2.translation -= Vec3::X * push_force;
+            }
         }
-
-        tf1.translation = new_position1;
-        tf2.translation = new_position2;
     }
 }
 

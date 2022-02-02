@@ -1,7 +1,7 @@
 # Backlog
 ## High priority
-- [[Fix execution order]]
 - [[Player state refactor]]
+- [[Fix execution order]]
 
 ## Low priority
 - [[Menus]]

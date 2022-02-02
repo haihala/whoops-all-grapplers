@@ -1,15 +1,11 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use player_state::{PlayerState, StateEvent};
-
-use crate::meter::Meter;
+use time::{Clock, GameState, RoundResult};
+use types::Player;
 
 #[derive(Inspectable, Component, Clone, Copy)]
 pub struct Health {
-    // For rendering purposes, max health=1 and store only the ratio.
-    // Different characters ought to have a scalar scale for incoming damage
-    // This won't be communicated to the player.
     ratio: f32,
     value: i32,
     max: i32,
@@ -38,15 +34,35 @@ impl Health {
     }
 }
 
-pub fn refill_meter(mut query: Query<(&mut Meter, &mut PlayerState)>) {
-    for (mut meter, mut state) in query.iter_mut() {
-        if let Some(free_event) = state
-            .get_events()
-            .iter()
-            .find(|event| matches!(event, StateEvent::Recovery))
-        {
-            state.consume_event(*free_event);
-            meter.flush_combo();
-        }
+pub fn check_dead(
+    mut commands: Commands,
+    clock: Res<Clock>,
+    query: Query<(&Health, &Player)>,
+    mut state: ResMut<State<GameState>>,
+) {
+    let living_players: Vec<Player> = query
+        .iter()
+        .filter_map(|(health, player)| {
+            if health.value > 0 {
+                Some(player.to_owned())
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    if living_players.len() != 2 || clock.time_out() {
+        commands.insert_resource(if living_players.len() == 1 {
+            RoundResult {
+                winner: Some(living_players[0]),
+            }
+        } else {
+            RoundResult { winner: None }
+        });
+
+        // FIXME: This gave an error while I was fixing other stuff, may or may not actually be broken, likely related to round ending by time if it is.
+        // thread 'Compute Task Pool (0)' panicked at 'called `Result::unwrap()` on an `Err` value: AlreadyInState', lib\src\damage\health.rs:63:41
+        // note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        state.set(GameState::PostRound).unwrap();
     }
 }

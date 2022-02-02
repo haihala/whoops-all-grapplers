@@ -1,15 +1,3 @@
-# Ticking
-- [ ] Get rid of the tick function
-- [ ] Make domain specific systems. Performance doesn't matter here
-	- [ ] One for walking
-	- [ ] One for crouching
-	- [ ] One for move progression and activation
-	- [ ] Put all of them in a plugin that you export
-- [ ] Remove indirectness (events) from creating attacks
-	- [ ] If you have to leave events, make a fuse like mechanism that doesn't require manually consuming events
-- [ ] Metaphases to moves
-
-# Metaphases
 - How to handle canceling on a whiff
 	- If the move has hit, go into a cancellable phase, if not, fall back to a non-cancellable one.
 
@@ -26,7 +14,3 @@ List of meta-phases:
 - [ ] Parser head like structure for advancing moves and making the meta decisions (keeping track of relevant info)
 	- [ ] Store that in the activity, as it's a part of that and should vanish if the user gets hit
 	- [ ] Make sure to restore normal moveset
-
-# Other misc concerns
-- [ ] Currently doing a move while crouching will nudge the charcter up a bit, causing issues.
-	- Caused by the size change in crouching system probably

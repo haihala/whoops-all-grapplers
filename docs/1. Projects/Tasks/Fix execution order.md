@@ -1,8 +1,10 @@
-Jump height inconsistency among others is likely due to the ambiguous system execution order.
-
 [[Player state refactor]] will likely change up the systems a lot, so do this after that
 
-There is a bug with 1f moves occasionally not counting for mobility, this is probably fixed wit the ordering
+Can you make a system set automatically execute in a deterministic order?
+
+- Check that crouching doesn't spazz
+- Jump height inconsistency among others is likely due to the ambiguous system execution order.
+- There is a bug with 1f moves occasionally not counting for mobility, this is probably fixed wit the ordering
 
 Bevy log:
 ```

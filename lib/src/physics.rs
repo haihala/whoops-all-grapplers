@@ -2,13 +2,14 @@ use bevy::{prelude::*, sprite};
 use bevy_inspector_egui::Inspectable;
 
 use constants::PLAYER_GRAVITY_PER_FRAME;
-use moves::MoveMobility;
+use moves::{MoveBank, MoveMobility};
 use player_state::PlayerState;
+use time::run_max_once_per_combat_frame;
 use types::{LRDirection, MoveId, Player};
 
 use crate::{
     camera::{WorldCamera, VIEWPORT_HALFWIDTH},
-    clock::run_max_once_per_combat_frame,
+    spawner::Spawner,
 };
 
 pub const GROUND_PLANE_HEIGHT: f32 = -0.4;
@@ -71,7 +72,6 @@ impl PlayerVelocity {
             MoveMobility::Perpetual(amount) => {
                 self.handle_move_velocity_chaining(move_id, facing.mirror_vec(amount), true);
             }
-            MoveMobility::None => panic!("None MoveMobility in move velocity handling"),
         }
     }
     fn handle_move_velocity_chaining(&mut self, id: MoveId, amount: Vec3, perpetual: bool) {
@@ -152,12 +152,18 @@ impl Plugin for PhysicsPlugin {
     }
 }
 
-fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &LRDirection)>) {
-    for (state, mut velocity, facing) in query.iter_mut() {
-        if let Some(walk_direction) = state.get_walk_direction() {
+fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &MoveBank, &LRDirection)>) {
+    for (state, mut velocity, bank, facing) in query.iter_mut() {
+        if let Some(move_state) = state.get_move_state() {
+            if let Some(mobility) = bank
+                .get(move_state.move_id)
+                .get_phase(move_state.phase_index)
+                .mobility
+            {
+                velocity.handle_move_velocity(move_state.move_id, mobility, facing);
+            }
+        } else if let Some(walk_direction) = state.get_walk_direction() {
             velocity.handle_walking_velocity(walk_direction);
-        } else if let Some((id, mobility)) = state.get_move_mobility() {
-            velocity.handle_move_velocity(id, mobility, facing);
         } else if state.is_grounded() {
             velocity.drag();
         }
@@ -254,8 +260,16 @@ fn move_players(
     }
 }
 
-fn player_gravity(mut players: Query<(&mut PlayerVelocity, &mut PlayerState, &Transform)>) {
-    for (mut velocity, mut state, tf) in players.iter_mut() {
+fn player_gravity(
+    mut commands: Commands,
+    mut players: Query<(
+        &mut PlayerVelocity,
+        &mut PlayerState,
+        &mut Spawner,
+        &Transform,
+    )>,
+) {
+    for (mut velocity, mut state, mut spawner, tf) in players.iter_mut() {
         let player_bottom = tf.translation.y - state.get_height() / 2.0;
         let is_airborne = player_bottom > GROUND_PLANE_HEIGHT;
 
@@ -266,6 +280,7 @@ fn player_gravity(mut players: Query<(&mut PlayerVelocity, &mut PlayerState, &Tr
             }
         } else if !state.is_grounded() {
             state.land();
+            spawner.despawn_on_phase_change(&mut commands);
         }
     }
 }

@@ -1,21 +1,17 @@
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 
-use player_state::{PlayerState, StateEvent};
+use time::{Clock, GameState};
 use types::{LRDirection, Lifetime, MoveId, OnHitEffect, Player, SpawnDescriptor};
 
 use crate::assets::Colors;
-use crate::clock::Clock;
-use crate::game_flow::GameState;
 use crate::physics::ConstantVelocity;
 
 pub struct SpawnerPlugin;
 
 impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(handle_hitbox_events)
-            .add_system(despawn_expired)
-            .add_system(despawn_on_phase_change)
+        app.add_system(despawn_expired)
             .add_system_set(SystemSet::on_exit(GameState::Combat).with_system(despawn_everything));
     }
 }
@@ -40,7 +36,7 @@ pub struct Spawner {
 }
 impl Spawner {
     #[allow(clippy::too_many_arguments)]
-    fn spawn_attack(
+    pub fn spawn_attack(
         &mut self,
         id: MoveId,
         descriptor: SpawnDescriptor,
@@ -138,39 +134,10 @@ impl Spawner {
 
         self.despawn(commands, ids);
     }
-}
 
-pub fn handle_hitbox_events(
-    mut commands: Commands,
-    clock: Res<Clock>,
-    colors: Res<Colors>,
-    mut query: Query<(
-        &mut Spawner,
-        &mut PlayerState,
-        Entity,
-        &LRDirection,
-        &Player,
-        &Transform,
-    )>,
-) {
-    for (mut spawner, mut state, parent, facing, player, parent_tf) in query.iter_mut() {
-        for event in state.get_events() {
-            if let StateEvent::Attack(id, descriptor) = event {
-                spawner.spawn_attack(
-                    id,
-                    descriptor,
-                    &mut commands,
-                    &colors,
-                    clock.frame,
-                    parent,
-                    facing,
-                    *player,
-                    parent_tf.translation,
-                );
-
-                state.consume_event(event);
-            }
-        }
+    pub fn despawn_on_phase_change(&mut self, commands: &mut Commands) {
+        let ids = self.drain(|event| matches!(event.time, DespawnTime::StateChange));
+        self.despawn(commands, ids);
     }
 }
 
@@ -183,21 +150,6 @@ pub fn despawn_expired(
         let ids = spawner.drain_old(clock.frame);
 
         spawner.despawn(&mut commands, ids);
-    }
-}
-
-pub fn despawn_on_phase_change(
-    mut commands: Commands,
-    mut spawners: Query<(&mut Spawner, &mut PlayerState)>,
-) {
-    for (mut spawner, mut state) in spawners.iter_mut() {
-        for event in state.get_events() {
-            if matches!(event, StateEvent::PhaseChange) {
-                let ids = spawner.drain(|event| matches!(event.time, DespawnTime::StateChange));
-                spawner.despawn(&mut commands, ids);
-                state.consume_event(event);
-            }
-        }
     }
 }
 

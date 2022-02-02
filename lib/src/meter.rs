@@ -3,7 +3,6 @@ use bevy_inspector_egui::Inspectable;
 
 #[derive(Inspectable, Component, Clone, Copy)]
 pub struct Meter {
-    // See Health comment
     ratio: f32,
     value: i32,
     max: i32,

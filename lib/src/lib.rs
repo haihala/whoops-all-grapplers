@@ -2,9 +2,7 @@
 mod assets;
 mod camera;
 mod character;
-mod clock;
 mod damage;
-mod game_flow;
 mod inspector;
 mod labels;
 mod meter;
@@ -20,7 +18,6 @@ impl PluginGroup for WAGLib {
         group // Order matters here
             .add(labels::StagePlugin)
             .add(assets::AssetsPlugin)
-            .add(clock::ClockPlugin)
             .add(ui::UIPlugin)
             .add(camera::CustomCameraPlugin)
             .add(character::PlayerPlugin)
@@ -28,6 +25,7 @@ impl PluginGroup for WAGLib {
             .add(inspector::InspectorPlugin)
             .add(physics::PhysicsPlugin)
             .add(spawner::SpawnerPlugin)
-            .add(game_flow::GameFlowPlugin);
+            .add(player_state::PlayerStatePlugin)
+            .add(time::TimePlugin);
     }
 }

@@ -39,9 +39,3 @@ impl Player {
         }
     }
 }
-
-#[derive(Inspectable, Default)]
-pub struct HeightWindow {
-    pub top: f32,
-    pub bottom: f32,
-}

@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 use bevy::{core::FixedTimestep, ecs::schedule::ShouldRun};
 use bevy_inspector_egui::Inspectable;
-use player_state::PlayerState;
 
-use crate::game_flow::GameState;
+mod game_flow;
+pub use game_flow::{GameState, RoundResult};
 
 pub const ROUND_TIME: f32 = 99.0;
 
+/// The component for measuring time in frames
 #[derive(Inspectable, Default)]
 pub struct Clock {
     pub frame: usize,
@@ -22,12 +23,13 @@ impl Clock {
         self.elapsed_time = 0.0;
     }
 }
+/// The component for the round timer
 #[derive(Debug, Component)]
-pub struct Timer;
+pub struct RoundTimer;
 
-pub struct ClockPlugin;
+pub struct TimePlugin;
 
-impl Plugin for ClockPlugin {
+impl Plugin for TimePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(Clock::default())
             .add_system_set_to_stage(
@@ -37,20 +39,29 @@ impl Plugin for ClockPlugin {
                     .with_system(tick),
             )
             .add_system_set(SystemSet::on_update(GameState::Combat).with_system(update_timer))
-            .add_system_set(SystemSet::on_enter(GameState::Combat).with_system(reset_timer));
+            .add_system_set(SystemSet::on_enter(GameState::Combat).with_system(reset_timer))
+            .add_system_set(
+                SystemSet::on_enter(GameState::PostRound).with_system(game_flow::restart_countdown),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameState::PostRound).with_system(game_flow::tick_countdown),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameState::PreRound).with_system(game_flow::tick_countdown),
+            )
+            .add_state(GameState::PreRound)
+            .insert_resource(game_flow::InterFrameCountdown(Timer::from_seconds(
+                3.0, false,
+            )));
     }
 }
 
-fn tick(mut clock: ResMut<Clock>, bevy_clock: Res<Time>, mut query: Query<&mut PlayerState>) {
+fn tick(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
     clock.frame += 1;
     clock.elapsed_time += bevy_clock.delta_seconds();
-
-    for mut state in query.iter_mut() {
-        state.tick(clock.frame);
-    }
 }
 
-fn update_timer(mut query: Query<&mut Text, With<Timer>>, clock: Res<Clock>) {
+fn update_timer(mut query: Query<&mut Text, With<RoundTimer>>, clock: Res<Clock>) {
     query.single_mut().sections[0].value = (ROUND_TIME - clock.elapsed_time).floor().to_string();
 }
 

@@ -40,7 +40,7 @@ fn jump(input: &'static str, impulse: impl Into<Vec3>) -> Move {
             Phase {
                 kind: PhaseKind::Animation,
                 duration: 5,
-                mobility: MoveMobility::Impulse(impulse.into()),
+                mobility: Some(MoveMobility::Impulse(impulse.into())),
                 ..Default::default()
             },
             Phase {
@@ -62,14 +62,14 @@ fn dash(input: &'static str, start_speed: f32, recovery_speed: f32) -> Move {
             Phase {
                 kind: PhaseKind::Animation,
                 duration: DASH_START_FRAMES,
-                mobility: MoveMobility::Perpetual(Vec3::X * start_speed),
+                mobility: Some(MoveMobility::Perpetual(Vec3::X * start_speed)),
                 ..Default::default()
             },
             Phase {
                 kind: PhaseKind::Animation,
                 duration: DASH_RECOVERY_FRAMES,
                 cancellable: true,
-                mobility: MoveMobility::Perpetual(Vec3::X * recovery_speed),
+                mobility: Some(MoveMobility::Perpetual(Vec3::X * recovery_speed)),
             },
         ],
         ..Default::default()
@@ -172,7 +172,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
-                        mobility: MoveMobility::Perpetual(Vec3::new(1.0, 0.0, 0.0)),
+                        mobility: Some(MoveMobility::Perpetual(Vec3::new(1.0, 0.0, 0.0))),
                         ..Default::default()
                     },
                     Phase {
@@ -182,7 +182,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                             ..Default::default()
                         }),
                         duration: 20,
-                        mobility: MoveMobility::Perpetual(Vec3::new(5.0, 0.0, 0.0)),
+                        mobility: Some(MoveMobility::Perpetual(Vec3::new(5.0, 0.0, 0.0))),
                         ..Default::default()
                     },
                     Phase {

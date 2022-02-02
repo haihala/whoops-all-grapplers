@@ -2495,8 +2495,6 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
- "constants",
- "moves",
  "types",
 ]
 
@@ -3013,6 +3011,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "time"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "constants",
+ "types",
+]
+
+[[package]]
 name = "tinyvec"
 version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3385,6 +3393,7 @@ dependencies = [
  "input_parsing",
  "moves",
  "player_state",
+ "time",
  "types",
 ]
 

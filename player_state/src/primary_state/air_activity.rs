@@ -1,10 +1,11 @@
 use bevy_inspector_egui::Inspectable;
-use types::MoveId;
+
+use crate::MoveState;
 
 #[derive(Inspectable, PartialEq, Clone, Copy, Debug)]
 pub enum AirActivity {
     Freefall,
-    Move(MoveId),
+    Move(MoveState),
     Idle,
 }
 

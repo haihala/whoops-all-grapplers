@@ -16,7 +16,6 @@ impl MoveBank {
     }
 
     pub fn get(&self, id: MoveId) -> &Move {
-        assert!(self.moves.contains_key(&id));
         self.moves.get(&id).unwrap()
     }
 
@@ -39,18 +38,20 @@ pub struct Move {
 }
 
 impl Move {
-    pub fn get_phase(&self, start_frame: usize, current_frame: usize) -> Option<&Phase> {
+    pub fn get_phase_index(&self, start_frame: usize, current_frame: usize) -> Option<usize> {
         let mut frames_left = current_frame as i32 - start_frame as i32;
 
-        for phase in self.phases.iter() {
+        for (index, phase) in self.phases.iter().enumerate() {
             frames_left -= phase.duration as i32;
-
             if frames_left < 0 {
-                return Some(phase);
+                return Some(index);
             }
         }
-
         None
+    }
+
+    pub fn get_phase(&self, index: usize) -> Phase {
+        self.phases.get(index).unwrap().to_owned()
     }
 }
 
@@ -58,12 +59,6 @@ impl Move {
 pub enum MoveMobility {
     Impulse(Vec3),
     Perpetual(Vec3),
-    None,
-}
-impl Default for MoveMobility {
-    fn default() -> Self {
-        MoveMobility::None
-    }
 }
 
 #[derive(Debug, Default, Inspectable, Clone, PartialEq)]
@@ -71,7 +66,7 @@ pub struct Phase {
     pub kind: PhaseKind,
     pub duration: usize,
     pub cancellable: bool,
-    pub mobility: MoveMobility,
+    pub mobility: Option<MoveMobility>,
 }
 
 #[derive(Debug, Inspectable, Clone, PartialEq)]

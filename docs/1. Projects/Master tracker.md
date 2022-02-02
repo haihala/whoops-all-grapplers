@@ -1,9 +1,11 @@
 # Backlog
 ## High priority
-- [[Player state refactor]]
 - [[Fix execution order]]
+- [[Metaphases to moves]]
+- [[Solution to query permutations]]
 
 ## Low priority
+- [[Time crate]]
 - [[Menus]]
 	- [[Items]]
 		- [[Drugs]]

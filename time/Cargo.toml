@@ -1,5 +1,5 @@
 [package]
-name = "player_state"
+name = "time"
 version = "0.1.0"
 edition = "2021"
 authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
@@ -8,4 +8,5 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 bevy = "0.6.0"
 bevy-inspector-egui = "0.7.6"
 
+constants = { path = "../constants" }
 types = { path = "../types" }

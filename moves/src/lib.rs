@@ -49,7 +49,6 @@ pub mod universal {
 #[derive(PartialEq, PartialOrd, Debug, Inspectable, Clone, Copy)]
 pub enum CancelLevel {
     Anything,
-    Walk,
     LightNormal,
     LightSpecial,
     HeavyNormal,
@@ -57,7 +56,6 @@ pub enum CancelLevel {
     Jump,
     Dash,
     Grab,
-    Hitstun,
     Uncancellable,
 }
 impl Default for CancelLevel {

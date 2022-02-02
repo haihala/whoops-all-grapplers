@@ -2,10 +2,10 @@ use bevy::prelude::*;
 use bevy_inspector_egui::{InspectableRegistry, WorldInspectorPlugin};
 
 use player_state::PlayerState;
+use time::Clock;
 use types::Player;
 
 use crate::{
-    clock::Clock,
     damage::Health,
     meter::Meter,
     physics::{ConstantVelocity, PlayerVelocity},

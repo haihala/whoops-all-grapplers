@@ -1,14 +1,14 @@
 use bevy::prelude::*;
+
 use input_parsing::InputParser;
-use moves::CancelLevel;
-use player_state::{PlayerState, StateEvent};
-use types::{Grabable, HeightWindow, Hurtbox, LRDirection, OnHitEffect, Player};
+use player_state::PlayerState;
+use time::Clock;
+use types::{Hurtbox, LRDirection, OnHitEffect, Player};
 
 mod health;
 pub use health::Health;
 
 use crate::{
-    clock::Clock,
     meter::Meter,
     physics::{rect_collision, PlayerVelocity},
     spawner::Spawner,
@@ -18,9 +18,7 @@ pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(health::refill_meter)
-            .add_system(register_hits)
-            .add_system(throwing);
+        app.add_system(register_hits).add_system(health::check_dead);
     }
 }
 
@@ -44,6 +42,7 @@ pub fn register_hits(
     )>,
 ) {
     for (effect, tf1, hitbox_sprite) in hitboxes.iter_mut() {
+        // TODO: May have a problem with item_combinations_mut not giving combinations both ways.
         let mut players = hurtboxes.iter_combinations_mut();
         while let Some(
             [(
@@ -86,12 +85,10 @@ pub fn register_hits(
             ) {
                 // Hit has happened
                 // Handle blocking and state transitions here
-                let top = tf1.translation.y + hitbox_sprite.custom_size.unwrap().y;
-                let bottom = tf1.translation.y - hitbox_sprite.custom_size.unwrap().y;
 
                 let blocked = state.blocked(
                     effect.fixed_height,
-                    HeightWindow { top, bottom },
+                    tf1.translation.y + hitbox_sprite.custom_size.unwrap().y,
                     parser.get_relative_stick_position(),
                 );
 
@@ -120,57 +117,13 @@ pub fn register_hits(
                     if knockback_impulse.y > 0.0 {
                         state.launch();
                     } else {
-                        state.hit(stun_prop.get(blocked) + clock.frame);
+                        state.stun(stun_prop.get(blocked) + clock.frame);
                     }
                 }
 
                 // Despawns
                 defender_spawner.despawn_on_hit(&mut commands);
                 attacker_spawner.despawn(&mut commands, vec![effect.id]);
-            }
-        }
-    }
-}
-
-#[allow(clippy::type_complexity)]
-fn throwing(
-    mut query: Query<(
-        // Target
-        &Transform,
-        &mut PlayerState,
-        &Grabable,
-        &InputParser,
-        &mut PlayerVelocity,
-        &mut Health,
-    )>,
-) {
-    let mut players = query.iter_combinations_mut();
-    while let Some(
-        [(tf1, mut state1, _, _, _, _), (tf2, mut state2, throwable, parser, mut velocity, mut health)],
-    ) = players.fetch_next()
-    {
-        for (event, description) in state1.get_events().iter().filter_map(|ev| {
-            let owned = ev.to_owned();
-            if let StateEvent::Grab(description) = owned {
-                Some((owned, description))
-            } else {
-                None
-            }
-        }) {
-            state1.consume_event(event);
-
-            let distance =
-                ((tf1.translation + description.offset.extend(0.0)) - tf2.translation).length();
-            let max_distance = throwable.size + description.range;
-            let in_range = distance <= max_distance;
-
-            let teched =
-                state2.cancel_requirement() < CancelLevel::LightNormal && parser.clear_head();
-
-            if in_range && !teched {
-                state2.throw();
-                velocity.add_impulse(description.impulse);
-                health.apply_damage(description.damage);
             }
         }
     }

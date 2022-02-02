@@ -1,16 +1,18 @@
 mod move_activation;
+mod move_advancement;
 mod movement;
+mod recovery;
+mod size_adjustment;
 
 use input_parsing::{InputParser, InputReader};
-use movement::movement;
 use moves::ryan_bank;
 use player_state::PlayerState;
+use time::GameState;
 use types::{Grabable, Hurtbox, LRDirection, Player};
 
 use crate::{
     assets::Colors,
     damage::Health,
-    game_flow::GameState,
     meter::Meter,
     physics::{PlayerVelocity, GROUND_PLANE_HEIGHT},
     spawner::Spawner,
@@ -29,7 +31,11 @@ impl Plugin for PlayerPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::Combat)
                     .with_system(move_activation::move_activator)
-                    .with_system(movement),
+                    .with_system(move_advancement::move_advancement)
+                    .with_system(size_adjustment::size_adjustment)
+                    .with_system(recovery::stun_recovery)
+                    .with_system(recovery::ground_recovery)
+                    .with_system(movement::movement),
             )
             .add_system_set(SystemSet::on_enter(GameState::Combat).with_system(reset));
     }

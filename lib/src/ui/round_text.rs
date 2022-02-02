@@ -1,6 +1,5 @@
 use bevy::prelude::*;
-
-use crate::game_flow::RoundResult;
+use time::RoundResult;
 
 #[derive(Component)]
 pub struct RoundText;

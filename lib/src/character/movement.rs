@@ -1,34 +1,18 @@
 use bevy::prelude::*;
 
 use input_parsing::InputParser;
-use player_state::{PlayerState, PLAYER_CROUCHING_SHIFT, PLAYER_STANDING_SHIFT};
+use player_state::PlayerState;
 use types::{LRDirection, StickPosition};
 
-pub use moves::universal::{DASH_BACK, DASH_FORWARD};
-
-pub fn movement(mut query: Query<(&InputParser, &mut PlayerState, &mut Sprite, &mut Transform)>) {
-    for (reader, mut state, mut sprite, mut tf) in query.iter_mut() {
-        if state.is_grounded() {
+pub fn movement(mut query: Query<(&InputParser, &mut PlayerState)>) {
+    for (reader, mut state) in query.iter_mut() {
+        if state.is_grounded() && state.get_move_state().is_none() && !state.stunned() {
             match reader.get_absolute_stick_position() {
                 StickPosition::W => state.walk(LRDirection::Left),
                 StickPosition::E => state.walk(LRDirection::Right),
                 StickPosition::SW | StickPosition::S | StickPosition::SE => state.crouch(),
                 StickPosition::Neutral => state.stand(),
                 _ => {}
-            }
-
-            let new_size = state.get_collider_size();
-            let old_size = sprite.custom_size.unwrap();
-
-            if old_size != new_size {
-                if old_size.y > new_size.y {
-                    // Crouching
-                    tf.translation.y += PLAYER_CROUCHING_SHIFT;
-                } else {
-                    // Standing up
-                    tf.translation.y += PLAYER_STANDING_SHIFT;
-                }
-                sprite.custom_size = Some(new_size);
             }
         }
     }

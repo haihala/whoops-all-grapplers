@@ -9,6 +9,7 @@ members = [
     "moves",
     "player_state",
     "types",
+    "time",
 ]
 
 [profile.dev]

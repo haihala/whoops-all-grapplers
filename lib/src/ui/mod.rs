@@ -1,10 +1,9 @@
 use bevy::prelude::*;
+use time::{GameState, RoundTimer, ROUND_TIME};
 use types::Player;
 
 use crate::{
     assets::{Colors, Fonts, Sprites},
-    clock,
-    game_flow::GameState,
     labels::StartupStageLabel,
 };
 
@@ -123,7 +122,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                     timer_wrapper
                         .spawn_bundle(TextBundle {
                             text: Text::with_section(
-                                clock::ROUND_TIME.round().to_string(),
+                                ROUND_TIME.round().to_string(),
                                 TextStyle {
                                     font: fonts.basic.clone(),
                                     font_size: 100.0,
@@ -136,7 +135,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                             ),
                             ..Default::default()
                         })
-                        .insert(clock::Timer);
+                        .insert(RoundTimer);
                 });
             top_bar_wrapper
                 .spawn_bundle(NodeBundle {

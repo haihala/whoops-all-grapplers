@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::utils::HashMap;
 
 use player_state::{PlayerState, StateEvent};
-use types::{LRDirection, Lifetime, MoveId, Player, PlayerCollisionEffect, SpawnDescriptor};
+use types::{LRDirection, Lifetime, MoveId, OnHitEffect, Player, SpawnDescriptor};
 
 use crate::assets::Colors;
 use crate::clock::Clock;
@@ -72,7 +72,7 @@ impl Spawner {
         });
 
         // Components used when collision happens
-        builder.insert(PlayerCollisionEffect {
+        builder.insert(OnHitEffect {
             owner: player,
             fixed_height: descriptor.fixed_height,
             damage: descriptor.damage,

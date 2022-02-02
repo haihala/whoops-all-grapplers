@@ -100,7 +100,7 @@ pub type Knockback = HitProperty<Vec3>;
 pub type Pushback = HitProperty<Vec3>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Inspectable)]
-pub struct PlayerCollisionEffect {
+pub struct OnHitEffect {
     pub owner: Player,
 
     pub fixed_height: Option<AttackHeight>,
@@ -114,7 +114,7 @@ pub struct PlayerCollisionEffect {
     pub pushback: Option<Pushback>,
 }
 
-impl Default for PlayerCollisionEffect {
+impl Default for OnHitEffect {
     fn default() -> Self {
         Self {
             owner: Player::One,

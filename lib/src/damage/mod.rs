@@ -3,7 +3,7 @@ use input_parsing::InputParser;
 use moves::CancelLevel;
 use player_state::{PlayerState, StateEvent};
 use types::{
-    GrabDescription, Grabable, HeightWindow, Hurtbox, LRDirection, Player, PlayerCollisionEffect,
+    GrabDescription, Grabable, HeightWindow, Hurtbox, LRDirection, Player, OnHitEffect,
 };
 
 mod health;
@@ -29,7 +29,7 @@ impl Plugin for DamagePlugin {
 pub fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,
-    mut hitboxes: Query<(Entity, &PlayerCollisionEffect, &GlobalTransform, &Sprite)>,
+    mut hitboxes: Query<(Entity, &OnHitEffect, &GlobalTransform, &Sprite)>,
     mut hurtboxes: Query<(
         &Hurtbox,
         &Sprite,

@@ -23,5 +23,4 @@
 - Toolchain.toml
 
 # Other
-- Type alias for shorter state types
 - Can you use const sin for angles in jumps yet?

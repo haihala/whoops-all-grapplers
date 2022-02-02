@@ -33,38 +33,28 @@ const BOTTOM_CONTAINER_HEIGHT: f32 = 3.0;
 const METER_BAR_WIDTH: f32 = 30.0; // Relative to wrapper
 const METER_BAR_HEIGHT: f32 = 100.0; // Relative to wrapper
 
-const BACKGROUND_POSITION: (f32, f32, f32) = (0.0, 5.0, 0.0);
-const BACKGROUND_SCALE: (f32, f32, f32) = (30.0, 20.0, 1.0);
+const BACKGROUND_POSITION: (f32, f32, f32) = (0.0, 2.0, -0.09);
+const BACKGROUND_SCALE: (f32, f32, f32) = (0.008, 0.008, 1.0);
 
 pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system_to_stage(StartupStageLabel::UI, setup_ui.system())
-            .add_system(bars::update.system())
+    fn build(&self, app: &mut App) {
+        app.add_startup_system_to_stage(StartupStageLabel::UI, setup_ui)
+            .add_system(bars::update)
             .add_system_set(
-                SystemSet::on_enter(GameState::Combat)
-                    .with_system(round_text::round_start.system()),
+                SystemSet::on_enter(GameState::Combat).with_system(round_text::round_start),
             )
             .add_system_set(
-                SystemSet::on_update(GameState::PostRound)
-                    .with_system(round_text::round_over.system()),
+                SystemSet::on_update(GameState::PostRound).with_system(round_text::round_over),
             )
-            .add_startup_system(add_stage.system());
+            .add_startup_system(add_stage);
     }
 }
 
-fn add_stage(mut commands: Commands, sprites: Res<Sprites>, mut meshes: ResMut<Assets<Mesh>>) {
-    // TODO: This could probably be made better with some other mechanism.
-
-    let uvs = vec![[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]];
-
-    let mut mesh = Mesh::from(shape::Quad::new(Vec2::new(1.0, 1.0)));
-    mesh.set_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
-
-    commands.spawn_bundle(PbrBundle {
-        material: sprites.background_image.clone(),
-        mesh: meshes.add(mesh),
+fn add_stage(mut commands: Commands, sprites: Res<Sprites>) {
+    commands.spawn_bundle(SpriteBundle {
+        texture: sprites.background_image.clone(),
         transform: Transform {
             translation: BACKGROUND_POSITION.into(),
             scale: BACKGROUND_SCALE.into(),
@@ -98,7 +88,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                 },
                 ..Default::default()
             },
-            material: colors.transparent.clone(),
+            color: colors.transparent.into(),
             ..Default::default()
         })
         .with_children(|top_bar_wrapper| {
@@ -111,7 +101,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                         ),
                         ..Default::default()
                     },
-                    material: colors.health.clone(),
+                    color: colors.health.into(),
                     ..Default::default()
                 })
                 .insert(HealthBar(Player::One));
@@ -126,7 +116,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                         },
                         ..Default::default()
                     },
-                    material: colors.transparent.clone(),
+                    color: colors.transparent.into(),
                     ..Default::default()
                 })
                 .with_children(|timer_wrapper| {
@@ -157,7 +147,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                         ),
                         ..Default::default()
                     },
-                    material: colors.health.clone(),
+                    color: colors.health.into(),
                     ..Default::default()
                 })
                 .insert(HealthBar(Player::Two));
@@ -181,7 +171,7 @@ fn setup_bottom_bars(commands: &mut Commands, colors: &Colors) {
                 },
                 ..Default::default()
             },
-            material: colors.transparent.clone(),
+            color: colors.transparent.into(),
             ..Default::default()
         })
         .with_children(|parent| {
@@ -194,7 +184,7 @@ fn setup_bottom_bars(commands: &mut Commands, colors: &Colors) {
                         ),
                         ..Default::default()
                     },
-                    material: colors.meter.clone(),
+                    color: colors.meter.into(),
                     ..Default::default()
                 })
                 .insert(MeterBar(Player::One));
@@ -207,7 +197,7 @@ fn setup_bottom_bars(commands: &mut Commands, colors: &Colors) {
                         ),
                         ..Default::default()
                     },
-                    material: colors.meter.clone(),
+                    color: colors.meter.into(),
                     ..Default::default()
                 })
                 .insert(MeterBar(Player::Two));
@@ -228,7 +218,7 @@ fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fonts: &Fonts
                 },
                 ..Default::default()
             },
-            material: colors.transparent.clone(),
+            color: colors.transparent.into(),
             ..Default::default()
         })
         .with_children(|parent| {

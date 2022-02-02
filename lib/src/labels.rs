@@ -9,7 +9,7 @@ pub enum StartupStageLabel {
 pub struct StagePlugin;
 
 impl Plugin for StagePlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app.add_startup_stage_before(
             StartupStage::Startup,
             StartupStageLabel::LoadAssets,

@@ -3,7 +3,7 @@ use bevy_inspector_egui::Inspectable;
 
 use crate::StickPosition;
 
-#[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug)]
+#[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug, Component)]
 pub enum LRDirection {
     Right,
     Left,

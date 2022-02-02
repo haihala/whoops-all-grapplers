@@ -12,13 +12,11 @@ use crate::physics::ConstantVelocity;
 pub struct SpawnerPlugin;
 
 impl Plugin for SpawnerPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_system(handle_hitbox_events.system())
-            .add_system(despawn_expired.system())
-            .add_system(despawn_on_phase_change.system())
-            .add_system_set(
-                SystemSet::on_exit(GameState::Combat).with_system(despawn_everything.system()),
-            );
+    fn build(&self, app: &mut App) {
+        app.add_system(handle_hitbox_events)
+            .add_system(despawn_expired)
+            .add_system(despawn_on_phase_change)
+            .add_system_set(SystemSet::on_exit(GameState::Combat).with_system(despawn_everything));
     }
 }
 
@@ -35,7 +33,7 @@ struct DespawnRequest {
     time: DespawnTime,
 }
 
-#[derive(Default)]
+#[derive(Default, Component)]
 pub struct Spawner {
     spawned: HashMap<MoveId, Entity>,
     despawn_requests: Vec<DespawnRequest>,
@@ -66,14 +64,18 @@ impl Spawner {
                 translation,
                 ..Default::default()
             },
-            material: colors.hurtbox.clone(),
-            sprite: Sprite::new(descriptor.hitbox.size),
+            sprite: Sprite {
+                color: colors.hurtbox,
+                custom_size: Some(descriptor.hitbox.size),
+                ..Default::default()
+            },
             ..Default::default()
         });
 
         // Components used when collision happens
         builder.insert(OnHitEffect {
             owner: player,
+            id,
             fixed_height: descriptor.fixed_height,
             damage: descriptor.damage,
             stun: descriptor.stun,
@@ -102,11 +104,10 @@ impl Spawner {
         });
     }
 
-    fn despawn(&mut self, commands: &mut Commands, ids: Vec<MoveId>) {
+    pub fn despawn(&mut self, commands: &mut Commands, ids: Vec<MoveId>) {
         for id in ids.into_iter() {
-            if let Some(spawned) = self.spawned.get(&id) {
-                commands.entity(*spawned).despawn();
-                self.spawned.remove(&id);
+            if let Some(spawned) = self.spawned.remove(&id) {
+                commands.entity(spawned).despawn_recursive();
             }
         }
     }

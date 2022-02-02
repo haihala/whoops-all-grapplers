@@ -39,7 +39,7 @@ impl MoveTracker {
     }
 }
 
-#[derive(Inspectable, Debug)]
+#[derive(Inspectable, Debug, Component)]
 pub struct PlayerState {
     primary: PrimaryState,
     move_tracker: Option<MoveTracker>,

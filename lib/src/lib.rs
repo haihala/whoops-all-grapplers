@@ -22,7 +22,7 @@ impl PluginGroup for WAGLib {
             .add(assets::AssetsPlugin)
             .add(clock::ClockPlugin)
             .add(ui::UIPlugin)
-            .add(camera::CameraPlugin)
+            .add(camera::CustomCameraPlugin)
             .add(character::PlayerPlugin)
             .add(damage::DamagePlugin)
             .add(inspector::InspectorPlugin)

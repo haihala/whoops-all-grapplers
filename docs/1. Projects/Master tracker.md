@@ -1,6 +1,5 @@
 # Backlog
 ## High priority
-- [[Bevy 0.6]]
 - [[Fix execution order]]
 - [[Player state refactor]]
 

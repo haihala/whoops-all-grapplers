@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite};
 use bevy_inspector_egui::Inspectable;
 
 use constants::PLAYER_GRAVITY_PER_FRAME;
@@ -14,6 +14,7 @@ use crate::{
 pub const GROUND_PLANE_HEIGHT: f32 = -0.4;
 pub const ARENA_WIDTH: f32 = 10.0;
 
+#[derive(Debug, Default, Inspectable, Component)]
 pub struct ConstantVelocity {
     pub shift: Vec3,
     pub speed: Vec3,
@@ -32,7 +33,7 @@ pub struct CurrentMove {
     id: MoveId,
     base_velocity: Vec3,
 }
-#[derive(Debug, Inspectable, Clone, Default, Copy)]
+#[derive(Debug, Inspectable, Clone, Default, Copy, Component)]
 pub struct PlayerVelocity {
     velocity: Vec3,
     current_move: Option<CurrentMove>,
@@ -129,16 +130,15 @@ impl PlayerVelocity {
 
 pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app.add_system_set(
             SystemSet::new()
-                .with_run_criteria(run_max_once_per_combat_frame.system())
-                .with_system(player_input.system())
-                .with_system(sideswitcher.system())
-                .with_system(push_players.system())
-                .with_system(move_players.system())
-                .with_system(move_constants.system())
-                .with_system(player_gravity.system()),
+                .with_run_criteria(run_max_once_per_combat_frame)
+                .with_system(player_input)
+                .with_system(sideswitcher)
+                .with_system(move_players)
+                .with_system(move_constants)
+                .with_system(player_gravity),
         );
     }
 }
@@ -180,7 +180,7 @@ fn move_constants(
 
         // Despawn the thing if it's outside of the arena
         if transform.translation.length() > ARENA_WIDTH + 1.0 {
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
         }
     }
 }
@@ -188,104 +188,75 @@ fn move_constants(
 #[allow(clippy::type_complexity)]
 fn move_players(
     mut queries: QuerySet<(
-        Query<(
-            &mut PlayerVelocity,
-            &mut Transform,
-            &PlayerState,
-            &LRDirection,
-        )>,
-        Query<&Transform, With<WorldCamera>>,
+        QueryState<(&mut PlayerVelocity, &mut Transform, &PlayerState)>,
+        QueryState<&Transform, With<WorldCamera>>,
     )>,
 ) {
-    let camera_x = queries
-        .q1()
-        .single()
-        .map(|camtf| camtf.translation.x)
-        .unwrap_or_default();
+    let arena_rect = legal_position_space(queries.q1().single().translation.x);
 
-    // Handle static collision
-    for (mut velocity, mut transform, state, facing) in queries.q0_mut().iter_mut() {
-        let shift = velocity.get_shift();
+    let mut player_query = queries.q0();
+    if let Some([(mut velocity1, mut tf1, state1), (mut velocity2, mut tf2, state2)]) =
+        player_query.iter_combinations_mut().fetch_next()
+    {
+        let clamped_position1 = clamp_position(
+            tf1.translation + velocity1.get_shift(),
+            state1.get_collider_size(),
+            arena_rect,
+        );
+        let clamped_position2 = clamp_position(
+            tf2.translation + velocity2.get_shift(),
+            state2.get_collider_size(),
+            arena_rect,
+        );
 
-        if let Some(collision) = static_collision(
-            transform.translation,
-            shift,
-            state.get_collider_size(),
-            camera_x,
-            *facing,
-            // FIXME: This is supposed to be the opponent's width, but it's a nightmare to get here and a constant (for now)
-            // With bevy 0.6 queries, the movement/collision system should be rewritten to use the correct width.
-            state.get_width(),
+        let mut new_position1 = clamped_position1.position;
+        let mut new_position2 = clamped_position2.position;
+
+        if clamped_position1.touching_wall() {
+            velocity1.x_collision();
+        }
+        if clamped_position1.touching_floor {
+            velocity1.y_collision();
+        }
+        if clamped_position2.touching_wall() {
+            velocity2.x_collision();
+        }
+        if clamped_position2.touching_floor {
+            velocity2.y_collision();
+        }
+
+        if let Some(push_force) = push_force(
+            clamped_position1.position,
+            state1.get_collider_size(),
+            clamped_position2.position,
+            state2.get_collider_size(),
         ) {
-            transform.translation = collision.legal_position;
-            if collision.x_collision {
-                velocity.x_collision();
-            }
+            let can_move1 = clamped_position1.can_move_horizontally(push_force);
+            let can_move2 = clamped_position2.can_move_horizontally(-push_force);
+            assert!(
+                can_move1 || can_move2,
+                "Both players are blocked by walls somehow"
+            );
 
-            if collision.y_collision {
-                velocity.y_collision();
-            }
-        } else {
-            transform.translation += shift;
+            let (pushing1, pushing2) = if can_move1 && can_move2 {
+                // Both can move
+                (Vec3::X * push_force / 2.0, -Vec3::X * push_force / 2.0)
+            } else if can_move1 {
+                // 1 can move, 2 cannot
+                velocity1.x_collision();
+                (Vec3::X * push_force, Vec3::ZERO)
+            } else {
+                // 2 can move, 1 cannot
+                velocity2.x_collision();
+                (Vec3::ZERO, -Vec3::X * push_force)
+            };
+
+            new_position1 += pushing1;
+            new_position2 += pushing2;
         }
-    }
-}
 
-#[allow(clippy::type_complexity)]
-fn push_players(
-    players: Query<Entity, With<Player>>,
-    mut query_set: QuerySet<(
-        Query<(&PlayerVelocity, &Transform, &PlayerState, &LRDirection)>,
-        Query<&mut PlayerVelocity>,
-    )>,
-) {
-    for entity1 in players.iter() {
-        for entity2 in players.iter() {
-            if entity1 != entity2 {
-                let (velocity1, transform1, player1, facing1) =
-                    query_set.q0().get(entity1).unwrap();
-                let (velocity2, transform2, player2, _) = query_set.q0().get(entity2).unwrap();
-
-                let future_position1 = transform1.translation + velocity1.get_shift();
-                let future_position2 = transform2.translation + velocity2.get_shift();
-
-                if rect_collision(
-                    future_position1,
-                    player1.get_collider_size(),
-                    future_position2,
-                    player2.get_collider_size(),
-                ) {
-                    // Player-player collision is happening
-                    let distance = (transform1.translation - transform2.translation).length();
-
-                    let moving_closer = (future_position1 - future_position2).length() < distance;
-
-                    // Don't push when really close, this is to prevent spazzing as directions change
-                    let push_vector = Vec3::new(
-                        if moving_closer {
-                            // Go backwards
-                            -facing1.to_signum()
-                        } else {
-                            // Go to current direction
-                            let val = velocity1.velocity.x;
-                            if val == 0.0 {
-                                val
-                            } else {
-                                val.signum()
-                            }
-                        },
-                        0.0,
-                        0.0,
-                    );
-
-                    let mut object1 = query_set.q1_mut().get_mut(entity1).unwrap();
-                    object1.add_impulse(push_vector);
-                    drop(object1);
-                    let mut object2 = query_set.q1_mut().get_mut(entity2).unwrap();
-                    object2.add_impulse(-push_vector);
-                }
-            }
-        }
+        tf1.translation = new_position1;
+        tf2.translation = new_position2;
     }
 }
 
@@ -306,86 +277,97 @@ fn player_gravity(mut players: Query<(&mut PlayerVelocity, &mut PlayerState, &Tr
 }
 
 #[derive(Debug)]
-pub struct StaticCollision {
-    legal_position: Vec3, // How much space there is to move
-    x_collision: bool,
-    y_collision: bool,
+struct ClampedPosition {
+    position: Vec3,
+    touching_right_wall: bool,
+    touching_left_wall: bool,
+    touching_floor: bool,
 }
-impl StaticCollision {
-    fn did_collide(&self) -> bool {
-        self.x_collision || self.y_collision
+impl ClampedPosition {
+    fn touching_wall(&self) -> bool {
+        self.touching_left_wall || self.touching_right_wall
     }
 
-    fn wrap(self) -> Option<StaticCollision> {
-        if self.did_collide() {
-            Some(self)
+    fn can_move_horizontally(&self, amount: f32) -> bool {
+        if amount > 0.0 {
+            // Moving right
+            !self.touching_right_wall
         } else {
-            None
+            // Moving left
+            !self.touching_left_wall
         }
     }
 }
 
 const CAMERA_EDGE_COLLISION_PADDING: f32 = 1.0;
 
-fn static_collision(
-    current_position: Vec3,
-    movement: Vec3,
-    player_size: Vec2,
-    camera_x: f32,
-    extra_padding_side: LRDirection,
-    extra_padding_amount: f32,
-) -> Option<StaticCollision> {
-    let future_position = current_position + movement;
-    let relative_ground_plane = GROUND_PLANE_HEIGHT + player_size.y / 2.0;
+fn clamp_position(position: Vec3, size: Vec2, arena_rect: Rect<f32>) -> ClampedPosition {
+    let halfsize = size / 2.0;
 
-    let distance_to_ground = future_position.y - relative_ground_plane;
-    let y_collision = distance_to_ground < 0.0;
-    let legal_y = if y_collision {
-        relative_ground_plane
-    } else {
-        future_position.y
+    let player_rect = Rect {
+        left: position.x - halfsize.x,
+        right: position.x + halfsize.x,
+        bottom: position.y - halfsize.y,
+        top: position.y + halfsize.y,
     };
 
-    let (right_wall, left_wall) = if extra_padding_side.to_flipped() {
-        (
-            ARENA_WIDTH.min(camera_x + VIEWPORT_WIDTH - CAMERA_EDGE_COLLISION_PADDING),
-            (-ARENA_WIDTH).max(camera_x - VIEWPORT_WIDTH + CAMERA_EDGE_COLLISION_PADDING)
-                + extra_padding_amount,
-        )
+    let touching_right_wall = player_rect.right >= arena_rect.right;
+    let touching_left_wall = player_rect.left <= arena_rect.left;
+    let clamped_x = if touching_right_wall {
+        arena_rect.right - halfsize.x
+    } else if touching_left_wall {
+        arena_rect.left + halfsize.x
     } else {
-        (
-            ARENA_WIDTH.min(camera_x + VIEWPORT_WIDTH - CAMERA_EDGE_COLLISION_PADDING)
-                - extra_padding_amount,
-            (-ARENA_WIDTH).max(camera_x - VIEWPORT_WIDTH + CAMERA_EDGE_COLLISION_PADDING),
-        )
+        position.x
     };
 
-    let (legal_x, x_collision) = if future_position.x > right_wall {
-        (right_wall, true)
-    } else if future_position.x < left_wall {
-        (left_wall, true)
+    let touching_floor = player_rect.bottom <= arena_rect.bottom;
+    let clamped_y = if touching_floor {
+        arena_rect.bottom + halfsize.y
     } else {
-        (future_position.x, false)
+        position.y
     };
 
-    StaticCollision {
-        legal_position: Vec3::new(legal_x, legal_y, 0.0),
-        x_collision,
-        y_collision,
+    ClampedPosition {
+        position: Vec3::new(clamped_x, clamped_y, 0.0),
+        touching_right_wall,
+        touching_left_wall,
+        touching_floor,
     }
-    .wrap()
+}
+
+fn legal_position_space(camera_x: f32) -> Rect<f32> {
+    Rect {
+        bottom: GROUND_PLANE_HEIGHT,
+        right: ARENA_WIDTH.min(camera_x + VIEWPORT_WIDTH - CAMERA_EDGE_COLLISION_PADDING),
+        left: (-ARENA_WIDTH).max(camera_x - VIEWPORT_WIDTH + CAMERA_EDGE_COLLISION_PADDING),
+        top: std::f32::INFINITY,
+    }
 }
 
 pub fn rect_collision(a_pos: Vec3, a_size: Vec2, b_pos: Vec3, b_size: Vec2) -> bool {
     // Bevy collide only detects collisions if the edges overlap, most of the time this is good enough
     // But occasionally a collider spawns inside another, in which case we need a check for that.
-    let a_min = a_pos.truncate() - (a_size / 2.0);
-    let a_max = a_pos.truncate() + (a_size / 2.0);
-    let b_min = b_pos.truncate() - (b_size / 2.0);
-    let b_max = b_pos.truncate() + (b_size / 2.0);
+    let a = sprite::Rect {
+        min: a_pos.truncate() - a_size / 2.0,
+        max: a_pos.truncate() + a_size / 2.0,
+    };
+    let b = sprite::Rect {
+        min: b_pos.truncate() - b_size / 2.0,
+        max: b_pos.truncate() + b_size / 2.0,
+    };
 
-    if a_min.x < b_max.x && a_max.x > b_min.x && a_min.y < b_max.y && a_max.y > b_min.y {
-        return true;
+    let x_overlap = a.min.x < b.max.x && a.max.x > b.min.x;
+    let y_overlap = a.min.y < b.max.y && a.max.y > b.min.y;
+    x_overlap && y_overlap
+}
+
+fn push_force(a_pos: Vec3, a_size: Vec2, b_pos: Vec3, b_size: Vec2) -> Option<f32> {
+    if rect_collision(a_pos, a_size, b_pos, b_size) {
+        let clean_distance = (a_size + b_size).x / 2.0;
+        let distance = (a_pos - b_pos).x;
+        Some(distance.signum() * ((clean_distance / distance.abs()) - 1.0))
+    } else {
+        None
     }
-    false
 }

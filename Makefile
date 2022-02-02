@@ -11,7 +11,7 @@ test:
 	cargo test $(release)
 
 clippy:
-	cargo clippy --all
+	cargo clippy --all -- -D warnings
 
 fmt:
 	cargo fmt --all -- --check

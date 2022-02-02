@@ -18,15 +18,17 @@ pub fn movement(mut query: Query<(&InputParser, &mut PlayerState, &mut Sprite, &
             }
 
             let new_size = state.get_collider_size();
-            if sprite.size != new_size {
-                if sprite.size.y > new_size.y {
+            let old_size = sprite.custom_size.unwrap();
+
+            if old_size != new_size {
+                if old_size.y > new_size.y {
                     // Crouching
                     tf.translation.y += PLAYER_CROUCHING_SHIFT;
                 } else {
                     // Standing up
                     tf.translation.y += PLAYER_STANDING_SHIFT;
                 }
-                sprite.size = new_size;
+                sprite.custom_size = Some(new_size);
             }
         }
     }

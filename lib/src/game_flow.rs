@@ -19,21 +19,15 @@ pub struct RoundResult {
 pub struct GameFlowPlugin;
 
 impl Plugin for GameFlowPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_system_set(
-            SystemSet::on_update(GameState::Combat).with_system(check_dead.system()),
-        )
-        .add_system_set(
-            SystemSet::on_enter(GameState::PostRound).with_system(restart_countdown.system()),
-        )
-        .add_system_set(
-            SystemSet::on_update(GameState::PostRound).with_system(tick_countdown.system()),
-        )
-        .add_system_set(
-            SystemSet::on_update(GameState::PreRound).with_system(tick_countdown.system()),
-        )
-        .add_state(GameState::PreRound)
-        .insert_resource(InterFrameCountdown(Timer::from_seconds(3.0, false)));
+    fn build(&self, app: &mut App) {
+        app.add_system_set(SystemSet::on_update(GameState::Combat).with_system(check_dead))
+            .add_system_set(
+                SystemSet::on_enter(GameState::PostRound).with_system(restart_countdown),
+            )
+            .add_system_set(SystemSet::on_update(GameState::PostRound).with_system(tick_countdown))
+            .add_system_set(SystemSet::on_update(GameState::PreRound).with_system(tick_countdown))
+            .add_state(GameState::PreRound)
+            .insert_resource(InterFrameCountdown(Timer::from_seconds(3.0, false)));
     }
 }
 

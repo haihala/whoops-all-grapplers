@@ -1,14 +1,14 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use crate::Player;
+use crate::{MoveId, Player};
 
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, Component)]
 pub struct Hurtbox {
     pub offset: Vec3,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Component)]
 pub struct Grabable {
     pub size: f32,
 }
@@ -59,12 +59,12 @@ impl Default for Lifetime {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
-pub struct HitProperty<PropType: Clone + Copy + PartialEq + Default> {
+#[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]
+pub struct HitProperty<PropType: Clone + Copy + PartialEq + Default + Inspectable> {
     pub on_hit: PropType,
     pub on_block: PropType,
 }
-impl<T: Clone + Copy + PartialEq + Default> HitProperty<T> {
+impl<T: Clone + Copy + PartialEq + Default + Inspectable> HitProperty<T> {
     pub fn new(on_hit: T, on_block: T) -> HitProperty<T> {
         HitProperty { on_hit, on_block }
     }
@@ -77,7 +77,7 @@ impl<T: Clone + Copy + PartialEq + Default> HitProperty<T> {
         }
     }
 }
-impl<T: Clone + Copy + PartialEq + Default> From<(T, T)> for HitProperty<T> {
+impl<T: Clone + Copy + PartialEq + Default + Inspectable> From<(T, T)> for HitProperty<T> {
     fn from(input: (T, T)) -> Self {
         Self {
             on_hit: input.0,
@@ -85,7 +85,7 @@ impl<T: Clone + Copy + PartialEq + Default> From<(T, T)> for HitProperty<T> {
         }
     }
 }
-impl<T: Clone + Copy + PartialEq + Default> From<T> for HitProperty<T> {
+impl<T: Clone + Copy + PartialEq + Default + Inspectable> From<T> for HitProperty<T> {
     fn from(input: T) -> Self {
         Self {
             on_hit: input,
@@ -99,18 +99,15 @@ pub type Stun = HitProperty<usize>;
 pub type Knockback = HitProperty<Vec3>;
 pub type Pushback = HitProperty<Vec3>;
 
-#[derive(Debug, Clone, Copy, PartialEq, Inspectable)]
+#[derive(Debug, Clone, Copy, PartialEq, Inspectable, Component)]
 pub struct OnHitEffect {
     pub owner: Player,
+    pub id: MoveId,
 
     pub fixed_height: Option<AttackHeight>,
-    #[inspectable(ignore)]
     pub damage: Option<Damage>,
-    #[inspectable(ignore)]
     pub stun: Option<Stun>,
-    #[inspectable(ignore)]
     pub knockback: Option<Knockback>,
-    #[inspectable(ignore)]
     pub pushback: Option<Pushback>,
 }
 
@@ -118,6 +115,7 @@ impl Default for OnHitEffect {
     fn default() -> Self {
         Self {
             owner: Player::One,
+            id: Default::default(),
             fixed_height: Default::default(),
             damage: Default::default(),
             stun: Default::default(),
@@ -129,15 +127,9 @@ impl Default for OnHitEffect {
 
 #[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]
 pub struct SpawnDescriptor {
-    // TODO: These could be made inspectable, this is a temporary solution
-    // Bevy-egui-inspector 0.7.1 apparently fixes this
-    #[inspectable(ignore)]
     pub damage: Option<Damage>,
-    #[inspectable(ignore)]
     pub stun: Option<Stun>,
-    #[inspectable(ignore)]
     pub knockback: Option<Knockback>,
-    #[inspectable(ignore)]
     pub pushback: Option<Pushback>,
 
     pub speed: Option<Vec3>,

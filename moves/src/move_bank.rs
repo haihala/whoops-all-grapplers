@@ -5,7 +5,7 @@ use types::{GrabDescription, MoveId, SpawnDescriptor};
 
 use crate::CancelLevel;
 
-/// Component on players
+#[derive(Debug, Default, Component)]
 pub struct MoveBank {
     moves: HashMap<MoveId, Move>,
 }

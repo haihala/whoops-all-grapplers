@@ -22,26 +22,22 @@ impl Clock {
         self.elapsed_time = 0.0;
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Component)]
 pub struct Timer;
 
 pub struct ClockPlugin;
 
 impl Plugin for ClockPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app.insert_resource(Clock::default())
             .add_system_set_to_stage(
                 CoreStage::First,
                 SystemSet::new()
                     .with_run_criteria(FixedTimestep::steps_per_second(constants::FPS as f64))
-                    .with_system(tick.system()),
+                    .with_system(tick),
             )
-            .add_system_set(
-                SystemSet::on_update(GameState::Combat).with_system(update_timer.system()),
-            )
-            .add_system_set(
-                SystemSet::on_enter(GameState::Combat).with_system(reset_timer.system()),
-            );
+            .add_system_set(SystemSet::on_update(GameState::Combat).with_system(update_timer))
+            .add_system_set(SystemSet::on_enter(GameState::Combat).with_system(reset_timer));
     }
 }
 
@@ -55,8 +51,7 @@ fn tick(mut clock: ResMut<Clock>, bevy_clock: Res<Time>, mut query: Query<&mut P
 }
 
 fn update_timer(mut query: Query<&mut Text, With<Timer>>, clock: Res<Clock>) {
-    let mut text = query.single_mut().unwrap();
-    text.sections[0].value = (ROUND_TIME - clock.elapsed_time).floor().to_string();
+    query.single_mut().sections[0].value = (ROUND_TIME - clock.elapsed_time).floor().to_string();
 }
 
 fn reset_timer(mut clock: ResMut<Clock>) {

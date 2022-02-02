@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 use bevy::render::camera::{
-    camera_system, Camera, CameraProjection, DepthCalculation, VisibleEntities,
+    camera_system, Camera, CameraPlugin, CameraProjection, DepthCalculation,
 };
-use bevy::render::render_graph::base::camera::CAMERA_2D;
+use bevy::render::view::VisibleEntities;
+
 use types::Player;
 
+#[derive(Debug, Component)]
 pub struct WorldCamera;
 
 const CAMERA_FAR_DISTANCE: f32 = 10000.0;
@@ -14,11 +16,10 @@ pub const VIEWPORT_WIDTH: f32 = 5.0;
 // Originally from
 // https://bevy-cheatbook.github.io/cookbook/custom-projection.html?highlight=window#custom-camera-projection
 // Edited somewhat
-#[derive(Default)]
+#[derive(Default, Component, Clone, Copy)]
 struct SimpleOrthoProjection {
     viewport_height: f32,
 }
-
 impl CameraProjection for SimpleOrthoProjection {
     fn get_projection_matrix(&self) -> Mat4 {
         Mat4::orthographic_rh(
@@ -38,41 +39,42 @@ impl CameraProjection for SimpleOrthoProjection {
 
     fn depth_calculation(&self) -> DepthCalculation {
         // for 2D (camera doesn't rotate)
-        DepthCalculation::ZDifference
+        // DepthCalculation::ZDifference
 
         // otherwise
-        //DepthCalculation::Distance
+        DepthCalculation::Distance
+    }
+
+    fn far(&self) -> f32 {
+        CAMERA_FAR_DISTANCE
     }
 }
 
-pub struct CameraPlugin;
+pub struct CustomCameraPlugin;
 
-impl Plugin for CameraPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(add_cameras.system())
+impl Plugin for CustomCameraPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_startup_system(add_cameras)
             .add_system_to_stage(
                 CoreStage::PostUpdate,
-                camera_system::<SimpleOrthoProjection>.system(),
+                camera_system::<SimpleOrthoProjection>,
             )
-            .add_system_to_stage(CoreStage::PostUpdate, center_camera.system());
+            .add_system_to_stage(CoreStage::PostUpdate, center_camera);
     }
 }
 
 fn add_cameras(mut commands: Commands) {
-    let camera = Camera {
-        name: Some(CAMERA_2D.to_string()),
-        ..Default::default()
-    };
-    let projection = SimpleOrthoProjection::default();
-
     commands
         .spawn_bundle((
             // position the camera like bevy would do by default for 2D:
             Transform::from_translation(Vec3::new(0.0, CAMERA_HEIGHT, CAMERA_FAR_DISTANCE - 0.1)),
             GlobalTransform::default(),
             VisibleEntities::default(),
-            camera,
-            projection,
+            Camera {
+                name: Some(CameraPlugin::CAMERA_2D.to_string()),
+                ..Default::default()
+            },
+            SimpleOrthoProjection::default(),
         ))
         .insert(WorldCamera);
 
@@ -82,8 +84,8 @@ fn add_cameras(mut commands: Commands) {
 #[allow(clippy::type_complexity)]
 fn center_camera(
     mut queryies: QuerySet<(
-        Query<&Transform, With<Player>>,
-        Query<&mut Transform, With<WorldCamera>>,
+        QueryState<&Transform, With<Player>>,
+        QueryState<&mut Transform, With<WorldCamera>>,
     )>,
 ) {
     if let Some(player_pos_sum) = queryies
@@ -92,8 +94,6 @@ fn center_camera(
         .map(|x| x.translation)
         .reduce(|a, b| a + b)
     {
-        if let Ok(mut transform) = queryies.q1_mut().single_mut() {
-            transform.translation.x = player_pos_sum.x / 2.0; // 2 players
-        }
+        queryies.q1().single_mut().translation.x = player_pos_sum.x / 2.0;
     }
 }

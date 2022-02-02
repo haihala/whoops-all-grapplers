@@ -17,9 +17,9 @@ pub const STICK_DEAD_ZONE: f32 = 0.2;
 pub struct InputParsingPlugin;
 
 impl Plugin for InputParsingPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app.insert_resource(VecDeque::<Gamepad>::default())
-            .add_system(input_reader::update_readers.system().label("collect"))
-            .add_system(input_parser::parse_input.system().after("collect"));
+            .add_system(input_reader::update_readers.label("collect"))
+            .add_system(input_parser::parse_input.after("collect"));
     }
 }

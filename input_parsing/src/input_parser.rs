@@ -14,7 +14,7 @@ use types::{LRDirection, MoveId, StickPosition};
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Component)]
 pub struct InputParser {
     events: HashMap<MoveId, Instant>,
 
@@ -272,7 +272,7 @@ mod test {
             let mut world = World::default();
 
             let mut stage = SystemStage::parallel();
-            stage.add_system(parse_input.system());
+            stage.add_system(parse_input);
 
             world
                 .spawn()

@@ -8,7 +8,7 @@ use crate::{
     STICK_DEAD_ZONE,
 };
 
-#[derive(Default)]
+#[derive(Default, Component)]
 pub struct InputReader {
     pub pad_id: Option<Gamepad>,
     next_read: Vec<InputChange>,

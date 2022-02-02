@@ -1,12 +1,12 @@
 [package]
 name = "player_state"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
-bevy-inspector-egui = "0.6.1"
-bevy = "0.5.0"
+bevy = "0.6.0"
+bevy-inspector-egui = "0.7.6"
 
 constants = { path = "../constants" }
 moves = { path = "../moves" }

@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 
 pub struct Colors {
-    pub transparent: Handle<ColorMaterial>,
-    pub health: Handle<ColorMaterial>,
-    pub meter: Handle<ColorMaterial>,
-    pub hitbox: Handle<ColorMaterial>,
-    pub hurtbox: Handle<ColorMaterial>,
-    pub collision_box: Handle<ColorMaterial>,
+    pub transparent: Color,
+    pub health: Color,
+    pub meter: Color,
+    pub hitbox: Color,
+    pub hurtbox: Color,
+    pub collision_box: Color,
 }
 
 pub struct Fonts {
@@ -14,32 +14,26 @@ pub struct Fonts {
 }
 
 pub struct Sprites {
-    pub background_image: Handle<StandardMaterial>,
+    pub background_image: Handle<Image>,
 }
 pub struct AssetsPlugin;
 
 impl Plugin for AssetsPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system_to_stage(
-            crate::labels::StartupStageLabel::LoadAssets,
-            colors.system(),
-        )
-        .add_startup_system_to_stage(crate::labels::StartupStageLabel::LoadAssets, fonts.system())
-        .add_startup_system_to_stage(
-            crate::labels::StartupStageLabel::LoadAssets,
-            sprites.system(),
-        );
+    fn build(&self, app: &mut App) {
+        app.add_startup_system_to_stage(crate::labels::StartupStageLabel::LoadAssets, colors)
+            .add_startup_system_to_stage(crate::labels::StartupStageLabel::LoadAssets, fonts)
+            .add_startup_system_to_stage(crate::labels::StartupStageLabel::LoadAssets, sprites);
     }
 }
 
-fn colors(mut commands: Commands, mut color_assets: ResMut<Assets<ColorMaterial>>) {
+fn colors(mut commands: Commands) {
     commands.insert_resource(Colors {
-        transparent: color_assets.add(Color::rgba(0.0, 0.0, 0.0, 0.0).into()),
-        health: color_assets.add(Color::rgb(0.9, 0.0, 0.0).into()),
-        meter: color_assets.add(Color::rgb(0.04, 0.5, 0.55).into()),
-        hitbox: color_assets.add(Color::rgb(1.0, 0.0, 0.0).into()),
-        hurtbox: color_assets.add(Color::rgb(0.0, 1.0, 0.0).into()),
-        collision_box: color_assets.add(Color::rgb(0.0, 0.0, 1.0).into()),
+        transparent: Color::rgba(0.0, 0.0, 0.0, 0.0),
+        health: Color::rgb(0.9, 0.0, 0.0),
+        meter: Color::rgb(0.04, 0.5, 0.55),
+        hitbox: Color::rgb(1.0, 0.0, 0.0),
+        hurtbox: Color::rgb(0.0, 1.0, 0.0),
+        collision_box: Color::rgb(0.0, 0.0, 1.0),
     })
 }
 
@@ -49,18 +43,8 @@ fn fonts(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(Fonts { basic })
 }
 
-fn sprites(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut sprite_assets: ResMut<Assets<StandardMaterial>>,
-) {
-    let texture = asset_server.load("CPT-2018-Stage.png");
-
+fn sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(Sprites {
-        background_image: sprite_assets.add(StandardMaterial {
-            base_color_texture: Some(texture),
-            unlit: true,
-            ..Default::default()
-        }),
-    })
+        background_image: asset_server.load("CPT-2018-Stage.png"),
+    });
 }

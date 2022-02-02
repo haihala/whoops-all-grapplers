@@ -24,14 +24,14 @@ const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(setup.system())
+    fn build(&self, app: &mut App) {
+        app.add_startup_system(setup)
             .add_system_set(
                 SystemSet::on_update(GameState::Combat)
-                    .with_system(move_activation::move_activator.system())
-                    .with_system(movement.system()),
+                    .with_system(move_activation::move_activator)
+                    .with_system(movement),
             )
-            .add_system_set(SystemSet::on_enter(GameState::Combat).with_system(reset.system()));
+            .add_system_set(SystemSet::on_enter(GameState::Combat).with_system(reset));
     }
 }
 
@@ -66,10 +66,9 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
                     .into(),
                 ..Default::default()
             },
-            material: colors.collision_box.clone(),
             sprite: Sprite {
-                size: state.get_collider_size(),
-                resize_mode: SpriteResizeMode::Automatic,
+                color: colors.collision_box,
+                custom_size: Some(state.get_collider_size()),
                 ..Default::default()
             },
             ..Default::default()

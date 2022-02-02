@@ -1,16 +1,15 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::prelude::*;
 use input_parsing::InputParser;
 use moves::CancelLevel;
 use player_state::{PlayerState, StateEvent};
-use types::{
-    GrabDescription, Grabable, HeightWindow, Hurtbox, LRDirection, Player, OnHitEffect,
-};
+use types::{Grabable, HeightWindow, Hurtbox, LRDirection, OnHitEffect, Player};
 
 mod health;
 pub use health::Health;
 
 use crate::{
     clock::Clock,
+    meter::Meter,
     physics::{rect_collision, PlayerVelocity},
     spawner::Spawner,
 };
@@ -18,10 +17,10 @@ use crate::{
 pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_system(health::refill_meter.system())
-            .add_system(register_hits.system())
-            .add_system(throwing.system());
+    fn build(&self, app: &mut App) {
+        app.add_system(health::refill_meter)
+            .add_system(register_hits)
+            .add_system(throwing);
     }
 }
 
@@ -29,12 +28,13 @@ impl Plugin for DamagePlugin {
 pub fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,
-    mut hitboxes: Query<(Entity, &OnHitEffect, &GlobalTransform, &Sprite)>,
+    mut hitboxes: Query<(&OnHitEffect, &GlobalTransform, &Sprite)>,
     mut hurtboxes: Query<(
         &Hurtbox,
         &Sprite,
         &GlobalTransform,
         &mut Health,
+        &mut Meter,
         &Player,
         &InputParser,
         &mut PlayerState,
@@ -43,22 +43,35 @@ pub fn register_hits(
         &mut Spawner,
     )>,
 ) {
-    // TODO: When migrated to bevy 0.6, use the permutations tool
-    let mut pushbacks: HashMap<Player, Vec3> = vec![].into_iter().collect();
-
-    for (entity, effect, tf1, hitbox_sprite) in hitboxes.iter_mut() {
-        for (
-            hurtbox,
-            hurtbox_sprite,
-            tf2,
-            mut health,
-            defending_player,
-            parser,
-            mut state,
-            mut velocity,
-            facing,
-            mut spawner,
-        ) in hurtboxes.iter_mut()
+    for (effect, tf1, hitbox_sprite) in hitboxes.iter_mut() {
+        let mut players = hurtboxes.iter_combinations_mut();
+        while let Some(
+            [(
+                hurtbox,
+                hurtbox_sprite,
+                tf2,
+                mut health,
+                _,
+                defending_player,
+                parser,
+                mut state,
+                mut defender_velocity,
+                facing,
+                mut defender_spawner,
+            ), (
+                _,
+                _,
+                _,
+                _,
+                mut attacker_meter,
+                _,
+                _,
+                _,
+                mut attacker_velocity,
+                _,
+                mut attacker_spawner,
+            )],
+        ) = players.fetch_next()
         {
             if effect.owner == *defending_player {
                 // You can't hit yourself
@@ -67,14 +80,14 @@ pub fn register_hits(
 
             if rect_collision(
                 tf2.translation + hurtbox.offset,
-                hurtbox_sprite.size,
+                hurtbox_sprite.custom_size.unwrap(),
                 tf1.translation,
-                hitbox_sprite.size,
+                hitbox_sprite.custom_size.unwrap(),
             ) {
                 // Hit has happened
                 // Handle blocking and state transitions here
-                let top = tf1.translation.y + hitbox_sprite.size.y;
-                let bottom = tf1.translation.y - hitbox_sprite.size.y;
+                let top = tf1.translation.y + hitbox_sprite.custom_size.unwrap().y;
+                let bottom = tf1.translation.y - hitbox_sprite.custom_size.unwrap().y;
 
                 let blocked = state.blocked(
                     effect.fixed_height,
@@ -82,9 +95,11 @@ pub fn register_hits(
                     parser.get_relative_stick_position(),
                 );
 
-                // Damage
+                // Damage and meter gain
                 if let Some(damage_prop) = effect.damage {
-                    health.apply_damage(damage_prop.get(blocked));
+                    let amount = damage_prop.get(blocked);
+                    health.apply_damage(amount);
+                    attacker_meter.add_combo_meter(amount);
                 }
 
                 // Knockback
@@ -93,7 +108,12 @@ pub fn register_hits(
                     // Knockback is positive aka away from attacker, so defender must flip it the other way
                     .map(|knockback_prop| facing.opposite().mirror_vec(knockback_prop.get(blocked)))
                     .unwrap_or_default();
-                velocity.add_impulse(knockback_impulse);
+                defender_velocity.add_impulse(knockback_impulse);
+
+                // Pushback
+                if let Some(pushback_prop) = effect.pushback {
+                    attacker_velocity.add_impulse(facing.mirror_vec(pushback_prop.get(blocked)));
+                }
 
                 // Stun
                 if let Some(stun_prop) = effect.stun {
@@ -104,44 +124,32 @@ pub fn register_hits(
                     }
                 }
 
-                if let Some(pushback_prop) = effect.pushback {
-                    pushbacks.insert(effect.owner, facing.mirror_vec(pushback_prop.get(blocked)));
-                }
-
-                // Despawn entities on hit
-                spawner.despawn_on_hit(&mut commands);
-                commands.entity(entity).despawn()
+                // Despawns
+                defender_spawner.despawn_on_hit(&mut commands);
+                attacker_spawner.despawn(&mut commands, vec![effect.id]);
             }
-        }
-    }
-
-    for (_, _, _, _, player, _, _, mut velocity, _, _) in hurtboxes.iter_mut() {
-        if let Some(pushback_impulse) = pushbacks.get(player) {
-            velocity.add_impulse(pushback_impulse.to_owned());
         }
     }
 }
 
 #[allow(clippy::type_complexity)]
 fn throwing(
-    mut query: QuerySet<(
-        Query<(&Transform, &Player, &mut PlayerState)>, // Thrower
-        Query<(
-            // Target
-            &Transform,
-            &Player,
-            &Grabable,
-            &InputParser,
-            &mut PlayerState,
-            &mut PlayerVelocity,
-            &mut Health,
-        )>,
+    mut query: Query<(
+        // Target
+        &Transform,
+        &mut PlayerState,
+        &Grabable,
+        &InputParser,
+        &mut PlayerVelocity,
+        &mut Health,
     )>,
 ) {
-    let mut throws: HashMap<Player, (GrabDescription, Vec3)> = vec![].into_iter().collect();
-
-    for (tf, player, mut state) in query.q0_mut().iter_mut() {
-        for (event, description) in state.get_events().iter().filter_map(|ev| {
+    let mut players = query.iter_combinations_mut();
+    while let Some(
+        [(tf1, mut state1, _, _, _, _), (tf2, mut state2, throwable, parser, mut velocity, mut health)],
+    ) = players.fetch_next()
+    {
+        for (event, description) in state1.get_events().iter().filter_map(|ev| {
             let owned = ev.to_owned();
             if let StateEvent::Grab(description) = owned {
                 Some((owned, description))
@@ -149,26 +157,18 @@ fn throwing(
                 None
             }
         }) {
-            state.consume_event(event);
-            assert!(throws
-                .insert(player.other(), (description, tf.translation))
-                .is_none()); // If this is not none, it means we had two throw events lined up between frames which is a bug
-        }
-    }
+            state1.consume_event(event);
 
-    for (tf, player, throwable, parser, mut state, mut velocity, mut health) in
-        query.q1_mut().iter_mut()
-    {
-        if let Some((description, origin)) = throws.get(player) {
-            let distance = (*origin - tf.translation).length();
+            let distance =
+                ((tf1.translation + description.offset.extend(0.0)) - tf2.translation).length();
             let max_distance = throwable.size + description.range;
             let in_range = distance <= max_distance;
 
             let teched =
-                state.cancel_requirement() < CancelLevel::LightNormal && parser.clear_head();
+                state2.cancel_requirement() < CancelLevel::LightNormal && parser.clear_head();
 
             if in_range && !teched {
-                state.throw();
+                state2.throw();
                 velocity.add_impulse(description.impulse);
                 health.apply_damage(description.damage);
             }

@@ -7,6 +7,7 @@ pub use direction::*;
 mod inputs;
 pub use inputs::{GameButton, StickPosition};
 
+use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 use std::fmt::{Debug, Display};
 
@@ -19,7 +20,7 @@ use strum_macros::EnumIter;
 
 pub type MoveId = u32;
 
-#[derive(EnumIter, Inspectable, PartialEq, Eq, Clone, Copy, Debug, Hash)]
+#[derive(EnumIter, Inspectable, PartialEq, Eq, Clone, Copy, Debug, Hash, Component)]
 pub enum Player {
     One,
     Two,

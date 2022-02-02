@@ -6,12 +6,15 @@ use bevy::render::view::VisibleEntities;
 
 use types::Player;
 
+use crate::physics::ARENA_WIDTH;
+
 #[derive(Debug, Component)]
 pub struct WorldCamera;
 
 const CAMERA_FAR_DISTANCE: f32 = 10000.0;
 const CAMERA_HEIGHT: f32 = 2.0;
-pub const VIEWPORT_WIDTH: f32 = 5.0;
+pub const VIEWPORT_HALFWIDTH: f32 = 5.0;
+const CAMERA_CLAMP: f32 = ARENA_WIDTH - VIEWPORT_HALFWIDTH;
 
 // Originally from
 // https://bevy-cheatbook.github.io/cookbook/custom-projection.html?highlight=window#custom-camera-projection
@@ -23,8 +26,8 @@ struct SimpleOrthoProjection {
 impl CameraProjection for SimpleOrthoProjection {
     fn get_projection_matrix(&self) -> Mat4 {
         Mat4::orthographic_rh(
-            -VIEWPORT_WIDTH,
-            VIEWPORT_WIDTH,
+            -VIEWPORT_HALFWIDTH,
+            VIEWPORT_HALFWIDTH,
             -self.viewport_height,
             self.viewport_height,
             0.0,
@@ -34,7 +37,7 @@ impl CameraProjection for SimpleOrthoProjection {
 
     // what to do on window resize
     fn update(&mut self, width: f32, height: f32) {
-        self.viewport_height = VIEWPORT_WIDTH * height / width;
+        self.viewport_height = VIEWPORT_HALFWIDTH * height / width;
     }
 
     fn depth_calculation(&self) -> DepthCalculation {
@@ -88,12 +91,11 @@ fn center_camera(
         QueryState<&mut Transform, With<WorldCamera>>,
     )>,
 ) {
-    if let Some(player_pos_sum) = queryies
+    let player_pos_sum = queryies
         .q0()
         .iter()
-        .map(|x| x.translation)
-        .reduce(|a, b| a + b)
-    {
-        queryies.q1().single_mut().translation.x = player_pos_sum.x / 2.0;
-    }
+        .fold(0.0, |acc, tf| acc + tf.translation.x)
+        / 2.0;
+
+    queryies.q1().single_mut().translation.x = player_pos_sum.max(-CAMERA_CLAMP).min(CAMERA_CLAMP);
 }

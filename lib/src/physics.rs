@@ -7,7 +7,7 @@ use player_state::PlayerState;
 use types::{LRDirection, MoveId, Player};
 
 use crate::{
-    camera::{WorldCamera, VIEWPORT_WIDTH},
+    camera::{WorldCamera, VIEWPORT_HALFWIDTH},
     clock::run_max_once_per_combat_frame,
 };
 
@@ -188,7 +188,7 @@ fn move_constants(
         transform.translation += velocity.shift;
 
         // Despawn the thing if it's outside of the arena
-        if transform.translation.length() > ARENA_WIDTH + 1.0 {
+        if transform.translation.length() > ARENA_WIDTH + 10.0 {
             commands.entity(entity).despawn_recursive();
         }
     }
@@ -293,8 +293,6 @@ impl ClampedPosition {
     }
 }
 
-const CAMERA_EDGE_COLLISION_PADDING: f32 = 1.0;
-
 fn clamp_position(position: Vec3, size: Vec2, arena_rect: Rect<f32>) -> ClampedPosition {
     let halfsize = size / 2.0;
 
@@ -330,11 +328,13 @@ fn clamp_position(position: Vec3, size: Vec2, arena_rect: Rect<f32>) -> ClampedP
     }
 }
 
+const CAMERA_EDGE_COLLISION_PADDING: f32 = 0.5;
 fn legal_position_space(camera_x: f32) -> Rect<f32> {
+    // Camera x is clamped in camera moving system, so that camera_x + VIEWPORT_HALFWIDTH = ARENA_WIDTH
     Rect {
         bottom: GROUND_PLANE_HEIGHT,
-        right: ARENA_WIDTH.min(camera_x + VIEWPORT_WIDTH - CAMERA_EDGE_COLLISION_PADDING),
-        left: (-ARENA_WIDTH).max(camera_x - VIEWPORT_WIDTH + CAMERA_EDGE_COLLISION_PADDING),
+        right: camera_x + VIEWPORT_HALFWIDTH - CAMERA_EDGE_COLLISION_PADDING,
+        left: camera_x - VIEWPORT_HALFWIDTH + CAMERA_EDGE_COLLISION_PADDING,
         top: std::f32::INFINITY,
     }
 }

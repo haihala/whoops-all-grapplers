@@ -24,3 +24,4 @@
 
 # Other
 - Can you use const sin for angles in jumps yet?
+- Function that takes a combinations and a callback, calls the callback both ways

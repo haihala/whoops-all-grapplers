@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use types::{AttackHeight, LRDirection, StickPosition};
+use types::{AttackHeight, LRDirection, MoveId, StickPosition};
 
 use crate::{
     primary_state::{AirActivity, GroundActivity, PrimaryState},
@@ -23,11 +23,26 @@ impl Default for PlayerState {
 }
 impl PlayerState {
     // Moves
-    pub fn set_move_state(&mut self, move_state: MoveState) {
+    pub fn start_move(&mut self, move_id: MoveId, start_frame: usize) {
+        let move_state = MoveState {
+            start_frame,
+            move_id,
+            ..Default::default()
+        };
+
         self.primary = match self.primary {
             PrimaryState::Ground(_) => PrimaryState::Ground(GroundActivity::Move(move_state)),
             PrimaryState::Air(_) => PrimaryState::Air(AirActivity::Move(move_state)),
         };
+    }
+    pub fn set_move_phase_index(&mut self, phase_index: usize) {
+        if let PrimaryState::Ground(GroundActivity::Move(ref mut move_state))
+        | PrimaryState::Air(AirActivity::Move(ref mut move_state)) = self.primary
+        {
+            move_state.phase_index = phase_index;
+        } else {
+            panic!("Setting phase index without an active move");
+        }
     }
     pub fn get_move_state(&self) -> Option<MoveState> {
         match self.primary {

@@ -29,12 +29,7 @@ pub fn move_activator(
             state.is_grounded(),
             &meter,
         ) {
-            let move_state = MoveState {
-                start_frame: clock.frame,
-                phase_index: 0,
-                move_id,
-            };
-            state.set_move_state(move_state);
+            state.start_move(move_id, clock.frame);
             meter.pay(move_data.meter_cost);
             reader.consume_event(move_id);
         }

@@ -50,11 +50,11 @@ pub mod universal {
 pub enum CancelLevel {
     Anything,
     LightNormal,
-    LightSpecial,
-    HeavyNormal,
-    HeavySpecial,
-    Jump,
     Dash,
+    Jump,
+    HeavyNormal,
+    LightSpecial,
+    HeavySpecial,
     Grab,
     Uncancellable,
 }

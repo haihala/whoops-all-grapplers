@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use input_parsing::InputParser;
 use moves::{MoveBank, PhaseKind};
-use player_state::{MoveState, PlayerState};
+use player_state::PlayerState;
 use time::Clock;
 use types::{Grabable, LRDirection, Player};
 
@@ -27,96 +27,36 @@ pub fn move_advancement(
     )>,
 ) {
     let mut iter = players.iter_combinations_mut();
-    if let Some(
-        [(
-            mut state1,
-            mut spawner1,
-            bank1,
-            parent1,
-            facing1,
-            player1,
-            tf1,
-            grab_target1,
-            parser1,
-            mut velocity1,
-            mut health1,
-        ), (
-            mut state2,
-            mut spawner2,
-            bank2,
-            parent2,
-            facing2,
-            player2,
-            tf2,
-            grab_target2,
-            parser2,
-            mut velocity2,
-            mut health2,
-        )],
-    ) = iter.fetch_next()
-    {
-        do_the_thing(
-            &mut commands,
-            &clock,
-            &colors,
-            &mut state1,
-            &mut spawner1,
-            bank1,
-            parent1,
-            facing1,
-            *player1,
-            tf1,
-            &mut state2,
-            &mut spawner2,
-            tf2,
-            grab_target2,
-            parser2,
-            &mut velocity2,
-            &mut health2,
-        );
-
-        do_the_thing(
-            &mut commands,
-            &clock,
-            &colors,
-            &mut state2,
-            &mut spawner2,
-            bank2,
-            parent2,
-            facing2,
-            *player2,
-            tf2,
-            &mut state1,
-            &mut spawner1,
-            tf1,
-            grab_target1,
-            parser1,
-            &mut velocity1,
-            &mut health1,
-        );
+    if let Some([mut p1, mut p2]) = iter.fetch_next() {
+        advance_move(&mut commands, &clock, &colors, &mut p1, &mut p2);
+        advance_move(&mut commands, &clock, &colors, &mut p2, &mut p1);
     }
 }
 
-#[allow(clippy::too_many_arguments)]
-fn do_the_thing(
+type ComponentList<'a> = (
+    Mut<'a, PlayerState>,
+    Mut<'a, Spawner>,
+    &'a MoveBank,
+    Entity,
+    &'a LRDirection,
+    &'a Player,
+    &'a Transform,
+    &'a Grabable,
+    &'a InputParser,
+    Mut<'a, PlayerVelocity>,
+    Mut<'a, Health>,
+);
+
+fn advance_move(
     commands: &mut Commands,
     clock: &Clock,
     colors: &Res<Colors>,
-    state1: &mut PlayerState,
-    spawner1: &mut Spawner,
-    bank: &MoveBank,
-    parent: Entity,
-    facing: &LRDirection,
-    player: Player,
-    tf1: &Transform,
-    state2: &mut PlayerState,
-    spawner2: &mut Spawner,
-    tf2: &Transform,
-    grab_target: &Grabable,
-    parser: &InputParser,
-    velocity: &mut PlayerVelocity,
-    health: &mut Health,
+    actor: &mut ComponentList,
+    target: &mut ComponentList,
 ) {
+    let (state1, spawner1, bank, parent, facing, player, tf1, _, _, _, _) = actor;
+    let (state2, spawner2, _, _, _, _, tf2, grab_target, parser, velocity, health) = target;
+
     if let Some(move_state) = state1.get_move_state() {
         let move_data = bank.get(move_state.move_id);
         if let Some(phase_index) = move_data.get_phase_index(move_state.start_frame, clock.frame) {
@@ -131,9 +71,9 @@ fn do_the_thing(
                         commands,
                         colors,
                         clock.frame,
-                        parent,
+                        *parent,
                         facing,
-                        player,
+                        **player,
                         tf1.translation,
                     ),
                     PhaseKind::Grab(descriptor) => {
@@ -154,10 +94,7 @@ fn do_the_thing(
                     PhaseKind::Animation => {}
                 };
                 // Start next phase
-                state1.set_move_state(MoveState {
-                    phase_index,
-                    ..move_state
-                });
+                state1.set_move_phase_index(phase_index);
             }
         } else {
             // Move has ended

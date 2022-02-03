@@ -2,7 +2,6 @@
 ## High priority
 - [[Fix execution order]]
 - [[Metaphases to moves]]
-- [[Solution to query permutations]]
 
 ## Low priority
 - [[Time crate]]

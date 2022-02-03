@@ -6,13 +6,17 @@ use crate::meter::Meter;
 
 pub fn stun_recovery(mut players: Query<(&mut PlayerState, &mut Meter)>, clock: Res<Clock>) {
     let mut iter = players.iter_combinations_mut();
-    // TODO: May have a problem with item_combinations_mut not giving combinations both ways.
-    while let Some([(mut state, _), (_, mut meter)]) = iter.fetch_next() {
-        if let Some(unstun_frame) = state.unstun_frame() {
-            if unstun_frame <= clock.frame {
-                state.recover();
-                meter.flush_combo();
-            }
+    while let Some([(mut state1, mut meter1), (mut state2, mut meter2)]) = iter.fetch_next() {
+        handle_recovery(clock.frame, &mut state1, &mut meter2);
+        handle_recovery(clock.frame, &mut state2, &mut meter1);
+    }
+}
+
+fn handle_recovery(frame: usize, state: &mut PlayerState, meter: &mut Meter) {
+    if let Some(unstun_frame) = state.unstun_frame() {
+        if unstun_frame <= frame {
+            state.recover();
+            meter.flush_combo();
         }
     }
 }

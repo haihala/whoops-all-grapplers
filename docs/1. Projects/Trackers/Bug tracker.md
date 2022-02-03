@@ -1,5 +1,7 @@
 # Still at large
 - [ ] Superjump can't hold down (probably a problem with starting moves from a set)
+- [ ] Landing on top of the other player has a weird pushing interaction (instantly teleports the players)
+- [ ] Game crashes on running out of health because already in state
 
 # Brought in dead or alive
 - [x] Jumps are very high (inconsistently)

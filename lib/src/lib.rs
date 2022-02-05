@@ -4,7 +4,6 @@ mod camera;
 mod character;
 mod damage;
 mod inspector;
-mod labels;
 mod meter;
 mod physics;
 mod spawner;
@@ -16,7 +15,6 @@ pub struct WAGLib;
 impl PluginGroup for WAGLib {
     fn build(&mut self, group: &mut bevy::app::PluginGroupBuilder) {
         group // Order matters here
-            .add(labels::StagePlugin)
             .add(assets::AssetsPlugin)
             .add(ui::UIPlugin)
             .add(camera::CustomCameraPlugin)

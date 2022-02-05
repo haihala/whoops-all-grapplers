@@ -20,9 +20,9 @@ pub struct AssetsPlugin;
 
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system_to_stage(crate::labels::StartupStageLabel::LoadAssets, colors)
-            .add_startup_system_to_stage(crate::labels::StartupStageLabel::LoadAssets, fonts)
-            .add_startup_system_to_stage(crate::labels::StartupStageLabel::LoadAssets, sprites);
+        app.add_startup_system_to_stage(StartupStage::PreStartup, colors)
+            .add_startup_system_to_stage(StartupStage::PreStartup, fonts)
+            .add_startup_system_to_stage(StartupStage::PreStartup, sprites);
     }
 }
 

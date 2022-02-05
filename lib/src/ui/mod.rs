@@ -2,10 +2,7 @@ use bevy::prelude::*;
 use time::{GameState, RoundTimer, ROUND_TIME};
 use types::Player;
 
-use crate::{
-    assets::{Colors, Fonts, Sprites},
-    labels::StartupStageLabel,
-};
+use crate::assets::{Colors, Fonts, Sprites};
 
 mod bars;
 mod round_text;
@@ -39,7 +36,7 @@ pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system_to_stage(StartupStageLabel::UI, setup_ui)
+        app.add_startup_system_to_stage(StartupStage::Startup, setup_ui)
             .add_system(bars::update)
             .add_system_set(
                 SystemSet::on_enter(GameState::Combat).with_system(round_text::round_start),

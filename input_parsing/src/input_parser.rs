@@ -1,6 +1,6 @@
 use crate::{
     helper_types::{Diff, Frame},
-    input_reader::InputReader,
+    input_stream::InputStream,
     motion_input::MotionInput,
     EVENT_REPEAT_PERIOD,
 };
@@ -91,19 +91,14 @@ impl InputParser {
         self.events
             .retain(|_, timestamp| timestamp.elapsed().as_secs_f32() < EVENT_REPEAT_PERIOD)
     }
-
-    #[cfg(test)]
-    fn with_input(id: MoveId, input: &str) -> InputParser {
-        let mut parser = InputParser::default();
-        parser.register_input(id, input.into());
-        parser
-    }
 }
 
-pub fn parse_input(mut characters: Query<(&mut InputParser, &mut InputReader, &LRDirection)>) {
+pub fn parse_input<T: InputStream + Component>(
+    mut characters: Query<(&mut InputParser, &mut T, &LRDirection)>,
+) {
     for (mut parser, mut reader, facing) in characters.iter_mut() {
-        if reader.readable() {
-            parser.add_frame(reader.read().unwrap(), facing);
+        if let Some(diff) = reader.read() {
+            parser.add_frame(diff, facing);
         }
         parser.purge_old_events();
     }
@@ -112,8 +107,10 @@ pub fn parse_input(mut characters: Query<(&mut InputParser, &mut InputReader, &L
 #[cfg(test)]
 mod test {
     use std::{thread::sleep, time::Duration};
-
     use types::GameButton;
+
+    use crate::TestInputBundle;
+    use crate::TestStream;
 
     const TEST_MOVE: MoveId = 1;
     const SECOND_TEST_MOVE: MoveId = 2;
@@ -257,28 +254,23 @@ mod test {
     }
     impl TestInterface {
         fn with_input(input: &str) -> TestInterface {
-            TestInterface::with_parser(InputParser::with_input(TEST_MOVE, input))
+            TestInterface::with_parser(vec![(TEST_MOVE, input)])
         }
 
         fn with_inputs(input: &str, second_input: &str) -> TestInterface {
-            TestInterface::with_parser(InputParser::load(
-                vec![(TEST_MOVE, input), (SECOND_TEST_MOVE, second_input)]
-                    .into_iter()
-                    .collect(),
-            ))
+            TestInterface::with_parser(vec![(TEST_MOVE, input), (SECOND_TEST_MOVE, second_input)])
         }
 
-        fn with_parser(parser: InputParser) -> TestInterface {
+        fn with_parser(moves: Vec<(MoveId, &str)>) -> TestInterface {
             let mut world = World::default();
 
             let mut stage = SystemStage::parallel();
-            stage.add_system(parse_input);
+            stage.add_system(parse_input::<TestStream>);
 
             world
                 .spawn()
-                .insert(parser)
-                .insert(LRDirection::Right)
-                .insert(InputReader::with_pad(Gamepad(1)));
+                .insert_bundle(TestInputBundle::new(moves.into_iter().collect()))
+                .insert(LRDirection::Right);
 
             let mut tester = TestInterface { world, stage };
             tester.tick();
@@ -309,7 +301,7 @@ mod test {
         fn add_input(&mut self, change: InputChange) {
             for mut reader in self
                 .world
-                .query::<&mut InputReader>()
+                .query::<&mut TestStream>()
                 .iter_mut(&mut self.world)
             {
                 reader.push(change);

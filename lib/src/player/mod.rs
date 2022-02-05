@@ -4,7 +4,7 @@ mod movement;
 mod recovery;
 mod size_adjustment;
 
-use input_parsing::{InputParser, InputReader};
+use input_parsing::PadBundle;
 use moves::ryan_bank;
 use player_state::PlayerState;
 use time::GameState;
@@ -89,7 +89,6 @@ fn setup(mut commands: Commands, colors: Res<Colors>) {
 struct PlayerDefaults {
     health: Health,
     meter: Meter,
-    input_reader: InputReader,
     spawner: Spawner,
     hurtbox: Hurtbox,
     grab_target: Grabable,
@@ -119,8 +118,8 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
             ..Default::default()
         })
         .insert_bundle(PlayerDefaults::default())
+        .insert_bundle(PadBundle::new(bank.get_inputs()))
         .insert(LRDirection::from_flipped(offset.is_sign_positive()))
-        .insert(InputParser::load(bank.get_inputs()))
         .insert(bank)
         .insert(player)
         .insert(state);

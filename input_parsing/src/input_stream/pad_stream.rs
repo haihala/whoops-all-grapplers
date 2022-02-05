@@ -8,15 +8,17 @@ use crate::{
     STICK_DEAD_ZONE,
 };
 
+use super::InputStream;
+
 #[derive(Default, Component)]
-pub struct InputReader {
+pub struct PadStream {
     pub pad_id: Option<Gamepad>,
     next_read: Vec<InputChange>,
     stick_position: IVec2,
     stick_position_last_read: StickPosition,
 }
 
-impl InputReader {
+impl PadStream {
     fn update_next_diff_stick(&mut self) {
         let discrete_stick = self.stick_position.into();
         self.next_read.push(InputChange::Stick(discrete_stick));
@@ -66,12 +68,12 @@ impl InputReader {
 
         self.update_next_diff_stick();
     }
+}
 
-    pub fn readable(&self) -> bool {
-        self.pad_id.is_some() && !self.next_read.is_empty()
-    }
-    pub fn read(&mut self) -> Option<Diff> {
-        if self.readable() {
+impl InputStream for PadStream {
+    fn read(&mut self) -> Option<Diff> {
+        let readable = self.pad_id.is_some() && !self.next_read.is_empty();
+        if readable {
             let temp = self.next_read.clone();
             self.next_read.clear();
             let mut diff = temp
@@ -89,25 +91,12 @@ impl InputReader {
             None
         }
     }
-
-    #[cfg(test)]
-    pub fn push(&mut self, change: InputChange) {
-        self.next_read.push(change);
-    }
-
-    #[cfg(test)]
-    pub fn with_pad(pad_id: Gamepad) -> InputReader {
-        InputReader {
-            pad_id: Some(pad_id),
-            ..Default::default()
-        }
-    }
 }
 
-pub fn update_readers(
+pub fn update_pads(
     mut gamepad_events: EventReader<GamepadEvent>,
     mut unused_pads: ResMut<VecDeque<Gamepad>>,
-    mut readers: Query<&mut InputReader>,
+    mut readers: Query<&mut PadStream>,
 ) {
     for GamepadEvent(pad_id, event_type) in gamepad_events.iter() {
         let matching_reader = readers
@@ -134,7 +123,7 @@ pub fn update_readers(
 fn pad_connection(
     pad_id: &Gamepad,
     unused_pads: &mut ResMut<VecDeque<Gamepad>>,
-    readers: &mut Query<&mut InputReader>,
+    readers: &mut Query<&mut PadStream>,
 ) {
     println!("New gamepad connected with ID: {:?}", pad_id);
     let unused_reader = readers.iter_mut().find(|reader| reader.pad_id.is_none());
@@ -147,13 +136,13 @@ fn pad_connection(
     }
 }
 
-fn pad_disconnection(reader: &mut Mut<InputReader>, unused_pads: &mut ResMut<VecDeque<Gamepad>>) {
+fn pad_disconnection(reader: &mut Mut<PadStream>, unused_pads: &mut ResMut<VecDeque<Gamepad>>) {
     println!("Gamepad disconnected with ID: {:?}", reader.pad_id);
 
     reader.pad_id = unused_pads.pop_front();
 }
 
-fn axis_change(reader: &mut Mut<InputReader>, axis: GamepadAxisType, new_value: f32) {
+fn axis_change(reader: &mut Mut<PadStream>, axis: GamepadAxisType, new_value: f32) {
     match axis {
         // Even though DPad axis are on the list, they don't fire
         GamepadAxisType::LeftStickX | GamepadAxisType::RightStickX | GamepadAxisType::DPadX => {
@@ -182,7 +171,7 @@ fn axis_change(reader: &mut Mut<InputReader>, axis: GamepadAxisType, new_value: 
     }
 }
 
-fn button_change(reader: &mut Mut<InputReader>, button: GamepadButtonType, new_value: f32) {
+fn button_change(reader: &mut Mut<PadStream>, button: GamepadButtonType, new_value: f32) {
     // TODO: real button mappings
 
     let update = if new_value > 0.1 {

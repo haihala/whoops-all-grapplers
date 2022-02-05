@@ -20,6 +20,8 @@ use crate::{
 
 use bevy::prelude::*;
 
+use self::move_activation::MoveBuffer;
+
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 
@@ -93,6 +95,7 @@ struct PlayerDefaults {
     hurtbox: Hurtbox,
     grab_target: Grabable,
     player_velocity: PlayerVelocity,
+    move_buffer: MoveBuffer,
 }
 
 fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {

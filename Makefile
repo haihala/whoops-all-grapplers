@@ -17,7 +17,7 @@ fmt:
 	cargo fmt --all -- --check
 
 udeps:
-	cargo udeps
+	cargo udeps --all-targets
 
 check: test clippy fmt udeps
 

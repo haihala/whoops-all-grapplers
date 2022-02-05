@@ -16,7 +16,6 @@ pub use input_stream::TestStream;
 
 const MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS: f32 = 0.2; // In seconds
 const CHARGE_TIME: f32 = 1.0; // In seconds
-const EVENT_REPEAT_PERIOD: f32 = 0.3; // In seconds
 const STICK_DEAD_ZONE: f32 = 0.2;
 
 #[derive(Debug, SystemLabel, Clone, Copy, PartialEq, Eq, Hash)]

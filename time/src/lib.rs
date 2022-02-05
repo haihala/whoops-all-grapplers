@@ -7,6 +7,24 @@ pub use game_flow::{GameState, RoundResult};
 
 pub const ROUND_TIME: f32 = 99.0;
 
+#[cfg(test)]
+mod fake_time {
+    pub fn sleep(dur: std::time::Duration) {
+        mock_instant::MockClock::advance(dur);
+    }
+    pub use mock_instant::Instant;
+}
+#[cfg(test)]
+pub use fake_time::*;
+
+#[cfg(not(test))]
+mod real_time {
+    pub use std::thread::sleep;
+    pub use std::time::Instant;
+}
+#[cfg(not(test))]
+pub use real_time::*;
+
 /// The component for measuring time in frames
 #[derive(Inspectable, Default)]
 pub struct Clock {

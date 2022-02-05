@@ -2,13 +2,9 @@ use crate::{
     helper_types::{Diff, Frame},
     input_stream::InputStream,
     motion_input::MotionInput,
-    EVENT_REPEAT_PERIOD,
 };
 
-use bevy::{
-    prelude::*,
-    utils::{HashMap, Instant},
-};
+use bevy::{prelude::*, utils::HashMap};
 
 use types::{LRDirection, MoveId, StickPosition};
 
@@ -16,7 +12,7 @@ use types::{LRDirection, MoveId, StickPosition};
 /// Main tells this what Actions to send what events from
 #[derive(Debug, Default, Component)]
 pub struct InputParser {
-    events: HashMap<MoveId, Instant>,
+    events: Vec<MoveId>,
 
     registered_inputs: HashMap<MoveId, MotionInput>,
     head: Frame,
@@ -45,12 +41,8 @@ impl InputParser {
         self.relative_stick
     }
 
-    pub fn get_events(&self) -> Vec<MoveId> {
-        self.events.clone().into_iter().map(|(id, _)| id).collect()
-    }
-
-    pub fn consume_event(&mut self, event: MoveId) {
-        self.events.remove(&event);
+    pub fn drain_events(&mut self) -> Vec<MoveId> {
+        self.events.drain(..).collect()
     }
 
     pub fn clear_head(&self) -> bool {
@@ -70,7 +62,6 @@ impl InputParser {
     }
 
     fn parse_inputs(&mut self, diff: &Diff) {
-        let now = Instant::now();
         let frame = Frame {
             stick_position: self.relative_stick,
             ..self.head.clone()
@@ -81,15 +72,10 @@ impl InputParser {
                 input.advance(diff, &frame);
                 if input.is_done() {
                     input.clear();
-                    return Some((*id, now));
+                    return Some(*id);
                 }
                 None
             }));
-    }
-
-    fn purge_old_events(&mut self) {
-        self.events
-            .retain(|_, timestamp| timestamp.elapsed().as_secs_f32() < EVENT_REPEAT_PERIOD)
     }
 }
 
@@ -100,13 +86,13 @@ pub fn parse_input<T: InputStream + Component>(
         if let Some(diff) = reader.read() {
             parser.add_frame(diff, facing);
         }
-        parser.purge_old_events();
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::{thread::sleep, time::Duration};
+    use std::time::Duration;
+    use time::sleep;
     use types::GameButton;
 
     use crate::TestInputBundle;
@@ -179,20 +165,12 @@ mod test {
     }
 
     #[test]
-    fn normal_recognized_and_events_repeat_and_clear() {
+    fn normal_recognized() {
         let mut interface = TestInterface::with_input("f");
 
         interface.assert_no_events();
         interface.add_button_and_tick(GameButton::Fast);
         interface.assert_test_event_is_present();
-
-        // Check that the event is still in (repeat works)
-        interface.multi_tick(3);
-        interface.assert_test_event_is_present();
-
-        // Wait for the event to leave the buffer
-        interface.sleep(EVENT_REPEAT_PERIOD);
-        interface.assert_no_events();
     }
 
     #[test]
@@ -282,12 +260,6 @@ mod test {
             self.stage.run(&mut self.world);
         }
 
-        fn multi_tick(&mut self, frames: usize) {
-            for _ in 0..frames {
-                self.tick();
-            }
-        }
-
         fn add_button_and_tick(&mut self, button: GameButton) {
             self.add_input(InputChange::Button(button, ButtonUpdate::Pressed));
             self.tick();
@@ -330,7 +302,7 @@ mod test {
                 .next()
                 .unwrap();
 
-            assert!(parser.events.contains_key(&id));
+            assert!(parser.events.contains(&id));
         }
 
         fn assert_no_events(&mut self) {

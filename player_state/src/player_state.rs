@@ -94,7 +94,7 @@ impl PlayerState {
             self.primary = PrimaryState::Air(AirActivity::Move(id));
         } else if self.is_grounded() {
             // was grounded doing something else, now in air without a move
-            self.primary = PrimaryState::Air(AirActivity::Freefall);
+            self.primary = PrimaryState::Air(AirActivity::Idle);
         }
     }
     pub fn launch(&mut self) {

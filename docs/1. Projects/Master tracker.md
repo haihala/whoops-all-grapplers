@@ -11,11 +11,14 @@
 		- [[Gi of the old masters]]
 		- [[Gun]]
 - [[Recovery and knockdown]]
+- [[Testing framework]]
+- [[Change detection]]
 
 ## Easy nibbles
 - [[Input repeat out of parsing]]
 - [[Optimization tracker#Workflow]]
 - [[Optimization tracker#Move data]]
+- Can you not export readers? Maybe a function that takes a move bank and returns a bundle.
 
 ## Not a priority
 - [[3D model]]

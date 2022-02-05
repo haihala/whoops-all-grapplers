@@ -1,3 +1,7 @@
+use bevy::prelude::*;
+use std::collections::VecDeque;
+use time::WAGStage;
+
 mod helper_types;
 mod input_parser;
 mod input_reader;
@@ -5,9 +9,6 @@ mod motion_input;
 
 pub use input_parser::InputParser;
 pub use input_reader::InputReader;
-
-use bevy::prelude::*;
-use std::collections::VecDeque;
 
 pub const MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS: f32 = 0.2; // In seconds
 pub const CHARGE_TIME: f32 = 1.0; // In seconds
@@ -19,7 +20,11 @@ pub struct InputParsingPlugin;
 impl Plugin for InputParsingPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(VecDeque::<Gamepad>::default())
-            .add_system(input_reader::update_readers.label("collect"))
-            .add_system(input_parser::parse_input.after("collect"));
+            .add_system_set_to_stage(
+                WAGStage::Inputs,
+                SystemSet::new()
+                    .with_system(input_reader::update_readers.label("collect"))
+                    .with_system(input_parser::parse_input.after("collect")),
+            );
     }
 }

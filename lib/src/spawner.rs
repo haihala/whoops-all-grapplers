@@ -7,12 +7,29 @@ use types::{LRDirection, Lifetime, MoveId, OnHitEffect, Player, SpawnDescriptor}
 use crate::assets::Colors;
 use crate::physics::ConstantVelocity;
 
+#[derive(Debug, SystemLabel, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+enum DespawnSystemLabel {
+    Expired,
+    Everything,
+}
+
 pub struct SpawnerPlugin;
 
 impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(despawn_expired)
-            .add_system_set(SystemSet::on_exit(GameState::Combat).with_system(despawn_everything));
+        app.add_system_set_to_stage(
+            CoreStage::PostUpdate,
+            SystemSet::new()
+                .with_system(despawn_expired.label(DespawnSystemLabel::Expired))
+                .with_system(
+                    despawn_everything
+                        .with_run_criteria(State::on_exit(GameState::Combat))
+                        .label(DespawnSystemLabel::Everything)
+                        // Technically despawning everything after expired is stupid,
+                        // but as of resolving ordering conflicts for a few hours I can't be bothered to do it properly.
+                        .after(DespawnSystemLabel::Expired),
+                ),
+        );
     }
 }
 

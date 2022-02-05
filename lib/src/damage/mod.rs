@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use time::Clock;
+use time::{Clock, WAGStage};
 use types::{Hurtbox, LRDirection, OnHitEffect, Player};
 
 mod health;
@@ -14,11 +14,26 @@ use crate::{
     spawner::Spawner,
 };
 
+#[derive(Debug, SystemLabel, PartialEq, Eq, Hash, Clone, Copy)]
+enum DamageSystemLabel {
+    HitReg,
+    Dead,
+}
+
 pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(register_hits).add_system(health::check_dead);
+        app.add_system_set_to_stage(
+            WAGStage::HitReg,
+            SystemSet::new()
+                .with_system(register_hits.label(DamageSystemLabel::HitReg))
+                .with_system(
+                    health::check_dead
+                        .label(DamageSystemLabel::Dead)
+                        .after(DamageSystemLabel::HitReg),
+                ),
+        );
     }
 }
 

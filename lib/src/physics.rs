@@ -4,7 +4,7 @@ use bevy_inspector_egui::Inspectable;
 use constants::PLAYER_GRAVITY_PER_FRAME;
 use moves::{MoveBank, MoveMobility};
 use player_state::PlayerState;
-use time::run_max_once_per_combat_frame;
+use time::{once_per_combat_frame, WAGStage};
 use types::{LRDirection, MoveId, Player};
 
 use crate::{
@@ -137,17 +137,43 @@ impl PlayerVelocity {
     }
 }
 
+#[derive(Debug, SystemLabel, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+enum PhysicsSystemLabel {
+    SideSwitch,
+    Gravity,
+    Input,
+    MoveConst,
+    MovePlayers,
+}
+
 pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
+        app.add_system_set_to_stage(
+            WAGStage::Physics,
             SystemSet::new()
-                .with_run_criteria(run_max_once_per_combat_frame)
-                .with_system(player_input)
-                .with_system(sideswitcher)
-                .with_system(move_players)
-                .with_system(move_constants)
-                .with_system(player_gravity),
+                .with_run_criteria(once_per_combat_frame)
+                .with_system(sideswitcher.label(PhysicsSystemLabel::SideSwitch))
+                .with_system(
+                    player_gravity
+                        .label(PhysicsSystemLabel::Gravity)
+                        .after(PhysicsSystemLabel::SideSwitch),
+                )
+                .with_system(
+                    player_input
+                        .label(PhysicsSystemLabel::Input)
+                        .after(PhysicsSystemLabel::Gravity),
+                )
+                .with_system(
+                    move_constants
+                        .label(PhysicsSystemLabel::MoveConst)
+                        .after(PhysicsSystemLabel::Input),
+                )
+                .with_system(
+                    move_players
+                        .label(PhysicsSystemLabel::MovePlayers)
+                        .after(PhysicsSystemLabel::MoveConst),
+                ),
         );
     }
 }

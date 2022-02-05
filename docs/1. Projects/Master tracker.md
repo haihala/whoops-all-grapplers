@@ -1,6 +1,5 @@
 # Backlog
 ## High priority
-- [[Fix execution order]]
 - [[Metaphases to moves]]
 
 ## Low priority

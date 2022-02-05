@@ -14,11 +14,11 @@ pub struct RoundResult {
     pub winner: Option<Player>,
 }
 
-pub fn restart_countdown(mut countdown: ResMut<InterFrameCountdown>) {
+pub fn reset_countdown(mut countdown: ResMut<InterFrameCountdown>) {
     countdown.0.reset();
 }
 
-pub fn tick_countdown(
+pub fn update_countdown(
     mut countdown: ResMut<InterFrameCountdown>,
     time: Res<Time>,
     mut state: ResMut<State<GameState>>,

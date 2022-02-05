@@ -5,10 +5,10 @@ use types::Player;
 use crate::assets::{Colors, Fonts, Sprites};
 
 mod bars;
-mod round_text;
+mod text;
 
 use bars::{HealthBar, MeterBar};
-use round_text::RoundText;
+use text::RoundText;
 
 // Top bars
 const TOP_CONTAINER_TOP_PAD: f32 = 0.0;
@@ -32,19 +32,42 @@ const METER_BAR_HEIGHT: f32 = 100.0; // Relative to wrapper
 const BACKGROUND_POSITION: (f32, f32, f32) = (0.0, 2.0, -0.09);
 const BACKGROUND_SCALE: (f32, f32, f32) = (0.008, 0.008, 1.0);
 
+#[derive(Debug, SystemLabel, PartialEq, Eq, Clone, Copy, Hash)]
+enum UISystemLabel {
+    Timer,
+    RoundStart,
+    RoundEnd,
+}
+
 pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system_to_stage(StartupStage::Startup, setup_ui)
-            .add_system(bars::update)
-            .add_system_set(
-                SystemSet::on_enter(GameState::Combat).with_system(round_text::round_start),
-            )
-            .add_system_set(
-                SystemSet::on_update(GameState::PostRound).with_system(round_text::round_over),
-            )
-            .add_startup_system(add_stage);
+        app.add_startup_system_set_to_stage(
+            StartupStage::Startup,
+            SystemSet::new()
+                .with_system(setup_ui)
+                .with_system(add_stage),
+        )
+        .add_system_to_stage(CoreStage::Last, bars::update)
+        .add_system_to_stage(
+            CoreStage::Last,
+            text::update_timer
+                .with_run_criteria(State::on_update(GameState::Combat))
+                .label(UISystemLabel::Timer),
+        )
+        .add_system_to_stage(
+            CoreStage::Last,
+            text::hide_round_text
+                .label(UISystemLabel::RoundStart)
+                .after(UISystemLabel::Timer),
+        )
+        .add_system_to_stage(
+            CoreStage::Last,
+            text::update_round_text
+                .label(UISystemLabel::RoundEnd)
+                .after(UISystemLabel::RoundStart),
+        );
     }
 }
 

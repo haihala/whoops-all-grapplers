@@ -23,21 +23,60 @@ use bevy::prelude::*;
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 
+#[derive(Debug, SystemLabel, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+enum PlayerSystemLabel {
+    Reset,
+    MoveActivator,
+    MoveAdvancer,
+    StunRecovery,
+    GroundRecovery,
+    Movement,
+    SizeAdjustment,
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
+            .add_system(
+                reset
+                    .with_run_criteria(State::on_enter(GameState::Combat))
+                    .label(PlayerSystemLabel::Reset),
+            )
             .add_system_set(
                 SystemSet::on_update(GameState::Combat)
-                    .with_system(move_activation::move_activator)
-                    .with_system(move_advancement::move_advancement)
-                    .with_system(size_adjustment::size_adjustment)
-                    .with_system(recovery::stun_recovery)
-                    .with_system(recovery::ground_recovery)
-                    .with_system(movement::movement),
-            )
-            .add_system_set(SystemSet::on_enter(GameState::Combat).with_system(reset));
+                    .with_system(
+                        move_activation::move_activator
+                            .label(PlayerSystemLabel::MoveActivator)
+                            .after(PlayerSystemLabel::Reset),
+                    )
+                    .with_system(
+                        move_advancement::move_advancement
+                            .label(PlayerSystemLabel::MoveAdvancer)
+                            .after(PlayerSystemLabel::MoveActivator),
+                    )
+                    .with_system(
+                        recovery::stun_recovery
+                            .label(PlayerSystemLabel::StunRecovery)
+                            .after(PlayerSystemLabel::MoveAdvancer),
+                    )
+                    .with_system(
+                        recovery::ground_recovery
+                            .label(PlayerSystemLabel::GroundRecovery)
+                            .after(PlayerSystemLabel::StunRecovery),
+                    )
+                    .with_system(
+                        movement::movement
+                            .label(PlayerSystemLabel::Movement)
+                            .after(PlayerSystemLabel::GroundRecovery),
+                    )
+                    .with_system(
+                        size_adjustment::size_adjustment
+                            .label(PlayerSystemLabel::SizeAdjustment)
+                            .after(PlayerSystemLabel::Movement),
+                    ),
+            );
     }
 }
 

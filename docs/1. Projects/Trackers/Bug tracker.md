@@ -1,9 +1,11 @@
 # Still at large
 - [ ] Superjump can't hold down (probably a problem with starting moves from a set)
 - [ ] Landing on top of the other player has a weird pushing interaction (instantly teleports the players)
-- [ ] Game crashes on running out of health because already in state
+- [ ] Game doesn't restart after a player wins
+- [ ] Doing a move without mobility from a walk will retain walking velocity
 
 # Brought in dead or alive
+- [x] Game crashes on running out of health because already in state
 - [x] Jumps are very high (inconsistently)
 - [x] Special interpretation is sometimes kinda tight
 - [x] Some inputs are flipped, some aren't

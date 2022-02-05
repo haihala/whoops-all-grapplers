@@ -64,7 +64,7 @@ pub struct CustomCameraPlugin;
 impl Plugin for CustomCameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(add_cameras).add_system_set_to_stage(
-            CoreStage::Last,
+            CoreStage::PostUpdate,
             SystemSet::new()
                 .with_system(center_camera.label(CameraSystemLabel::Center))
                 .with_system(

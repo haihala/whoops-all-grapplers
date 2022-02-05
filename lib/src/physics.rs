@@ -180,14 +180,13 @@ impl Plugin for PhysicsPlugin {
 
 fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &MoveBank, &LRDirection)>) {
     for (state, mut velocity, bank, facing) in query.iter_mut() {
-        if let Some(move_state) = state.get_move_state() {
-            if let Some(mobility) = bank
-                .get(move_state.move_id)
+        if let Some(Some((move_id, mobility))) = state.get_move_state().map(|move_state| {
+            bank.get(move_state.move_id)
                 .get_phase(move_state.phase_index)
                 .mobility
-            {
-                velocity.handle_move_velocity(move_state.move_id, mobility, facing);
-            }
+                .map(|mobility| (move_state.move_id, mobility))
+        }) {
+            velocity.handle_move_velocity(move_id, mobility, facing);
         } else if let Some(walk_direction) = state.get_walk_direction() {
             velocity.handle_walking_velocity(walk_direction);
         } else if state.is_grounded() {

@@ -12,11 +12,11 @@ const FRAMES_TO_LIVE_IN_BUFFER: usize = (EVENT_REPEAT_PERIOD * constants::FPS) a
 
 #[derive(Debug, Default, Component)]
 pub struct MoveBuffer {
-    queue: Vec<(usize, Vec<MoveId>)>,
+    buffer: Vec<(usize, MoveId)>,
 }
 impl MoveBuffer {
     fn add_events(&mut self, events: Vec<MoveId>, frame: usize) {
-        self.queue.push((frame, events));
+        self.buffer.extend(events.into_iter().map(|id| (frame, id)));
     }
 
     fn use_move(
@@ -37,9 +37,10 @@ impl MoveBuffer {
             CancelLevel::Anything
         };
 
-        self.flatten()
-            .into_iter()
-            .map(|id| (id, bank.get(id).to_owned()))
+        if let Some((selected_id, move_data)) = self
+            .buffer
+            .iter()
+            .map(|(_, id)| (*id, bank.get(*id).to_owned()))
             .filter(|(_, action)| {
                 if grounded {
                     action.ground_ok
@@ -50,18 +51,16 @@ impl MoveBuffer {
             .filter(|(_, action)| action.cancel_level > cancel_requirement)
             .filter(|(_, action)| meter.can_afford(action.meter_cost))
             .min_by(|(id1, _), (id2, _)| id1.cmp(id2))
-    }
-
-    fn flatten(&self) -> Vec<MoveId> {
-        self.queue
-            .clone()
-            .into_iter()
-            .flat_map(|(_, moves)| moves)
-            .collect()
+        {
+            self.buffer.retain(|(_, id)| selected_id != *id);
+            Some((selected_id, move_data))
+        } else {
+            None
+        }
     }
 
     fn clear_old(&mut self, current_frame: usize) {
-        self.queue
+        self.buffer
             .retain(|(frame, _)| current_frame - frame < FRAMES_TO_LIVE_IN_BUFFER);
     }
 }

@@ -24,6 +24,7 @@ impl PluginGroup for WAGLib {
             .add(inspector::InspectorPlugin)
             .add(physics::PhysicsPlugin)
             .add(spawner::SpawnerPlugin)
+            .add(input_parsing::InputParsingPlugin)
             .add(player_state::PlayerStatePlugin);
     }
 }

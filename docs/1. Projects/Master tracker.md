@@ -9,7 +9,6 @@
 		- [[Gi of the old masters]]
 		- [[Gun]]
 - [[Recovery and knockdown]]
-- [[Testing framework]]
 - [[Change detection]]
 
 ## Easy nibbles
@@ -26,6 +25,7 @@
 - [[Rewards]]
 - [[Simple training mode]]
 - [[Shoto girl]]
+- [[Testing framework v2]]
 
 # Other trackers
 ![[Bug tracker]]

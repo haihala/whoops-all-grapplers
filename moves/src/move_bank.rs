@@ -5,7 +5,7 @@ use types::{GrabDescription, MoveId, SpawnDescriptor};
 
 use crate::CancelLevel;
 
-#[derive(Debug, Default, Component)]
+#[derive(Debug, Default, Component, Clone)]
 pub struct MoveBank {
     moves: HashMap<MoveId, Move>,
 }
@@ -19,7 +19,7 @@ impl MoveBank {
         self.moves.get(&id).unwrap()
     }
 
-    pub fn get_inputs(&self) -> HashMap<MoveId, &str> {
+    pub fn get_inputs(&self) -> HashMap<MoveId, &'static str> {
         self.moves
             .iter()
             .map(|(key, value)| (*key, value.input))

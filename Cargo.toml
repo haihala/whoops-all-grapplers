@@ -4,6 +4,7 @@ resolver = "2"
 members = [
     "constants",
     "input_parsing",
+    "integration_tests",
     "lib",
     "main",
     "moves",

@@ -22,7 +22,6 @@ impl InputStream for TestStream {
                 .next_read
                 .drain(..)
                 .fold(Diff::default(), |diff, change| diff.apply(&change));
-            dbg!(&value);
             Some(value)
         }
     }

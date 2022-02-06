@@ -1,6 +1,8 @@
 use bevy::utils::HashSet;
 use types::{GameButton, StickPosition};
 
+use crate::InputEvent;
+
 #[derive(Clone, PartialEq, Debug, Default)]
 /// Frame is a situation, diff is a change
 pub struct Frame {
@@ -65,6 +67,18 @@ impl Diff {
         self
     }
 
+    pub fn apply_event(mut self, event: InputEvent) -> Self {
+        match event {
+            InputEvent::Point(stick) => self.stick_move = Some(stick),
+            InputEvent::Press(button) => self.pressed = Some(add_or_init(self.pressed, button)),
+            InputEvent::Release(button) => self.released = Some(add_or_init(self.released, button)),
+            InputEvent::MultiPress(_) => panic!("Applying multipress to diff"),
+            InputEvent::Charge => panic!("Applying charge to diff"),
+            InputEvent::Range(_) => panic!("Applying range to diff"),
+        }
+
+        self
+    }
     pub fn pressed_contains(&self, button: &GameButton) -> bool {
         if let Some(pressed) = &self.pressed {
             pressed.contains(button)

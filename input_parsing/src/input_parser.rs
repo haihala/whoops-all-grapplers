@@ -95,8 +95,8 @@ mod test {
     use time::sleep;
     use types::GameButton;
 
-    use crate::TestInputBundle;
-    use crate::TestStream;
+    use crate::testing::TestInputBundle;
+    use crate::testing::TestStream;
 
     const TEST_MOVE: MoveId = 1;
     const SECOND_TEST_MOVE: MoveId = 2;
@@ -232,14 +232,14 @@ mod test {
     }
     impl TestInterface {
         fn with_input(input: &str) -> TestInterface {
-            TestInterface::with_parser(vec![(TEST_MOVE, input)])
+            TestInterface::new(vec![(TEST_MOVE, input)])
         }
 
         fn with_inputs(input: &str, second_input: &str) -> TestInterface {
-            TestInterface::with_parser(vec![(TEST_MOVE, input), (SECOND_TEST_MOVE, second_input)])
+            TestInterface::new(vec![(TEST_MOVE, input), (SECOND_TEST_MOVE, second_input)])
         }
 
-        fn with_parser(moves: Vec<(MoveId, &str)>) -> TestInterface {
+        fn new(moves: Vec<(MoveId, &str)>) -> TestInterface {
             let mut world = World::default();
 
             let mut stage = SystemStage::parallel();

@@ -24,3 +24,11 @@ For stuff like pause and main menus
 	]
 }
 ```
+
+- [ ] Load a temporary "Menu mode" to input parsers where the moves are stuff like "Up", "Down", "Accept" and "Back"
+- [ ] Define a basic main menu
+	- [ ] Container where cursor can move between selection options
+	- [ ] Selecting an option does something
+- [ ] Ignore that menu for dev purposes
+	- [ ] Also maybe shorten pre-round
+- [ ] Dunno about the menu structure given, it doesn't really scale

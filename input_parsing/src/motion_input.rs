@@ -9,7 +9,7 @@ use crate::{
 
 /// Enum used to define move inputs.
 #[derive(Debug, Clone, PartialEq)]
-enum Requirement {
+pub enum InputEvent {
     /// Prefix. Next requirement must be held for some time
     Charge,
     /// Stick must visit a point
@@ -23,24 +23,46 @@ enum Requirement {
     /// Release a button
     Release(GameButton),
 }
+impl From<char> for InputEvent {
+    fn from(ch: char) -> InputEvent {
+        if let Ok(number_token) = ch.to_string().parse::<i32>() {
+            InputEvent::Point(number_token.into())
+        } else {
+            match ch {
+                'c' => InputEvent::Charge,
+                'f' => InputEvent::Press(GameButton::Fast),
+                'F' => InputEvent::Release(GameButton::Fast),
+                's' => InputEvent::Press(GameButton::Strong),
+                'S' => InputEvent::Release(GameButton::Strong),
+                'g' => InputEvent::Press(GameButton::Grab),
+                'G' => InputEvent::Release(GameButton::Grab),
+                'e' => InputEvent::Press(GameButton::Equipment),
+                'E' => InputEvent::Release(GameButton::Equipment),
+                't' => InputEvent::Press(GameButton::Taunt),
+                'T' => InputEvent::Release(GameButton::Taunt),
+                _ => panic!("Invalid character {}", ch),
+            }
+        }
+    }
+}
 
 #[derive(Default, Debug, Clone, PartialEq)]
 struct ParserHead {
     index: usize,
     last_update: Option<Instant>,
     /// None if complete
-    requirement: Option<Requirement>,
+    requirement: Option<InputEvent>,
     charge_started: Option<Instant>,
     multipresses_received: Vec<GameButton>,
 }
 impl ParserHead {
-    fn new_from_diff(requirements: Vec<Requirement>, diff: &Diff) -> ParserHead {
+    fn new_from_diff(requirements: Vec<InputEvent>, diff: &Diff) -> ParserHead {
         let mut new = ParserHead::new(requirements.get(0).cloned());
         new.advance(requirements, diff);
         new
     }
 
-    fn new(requirement: Option<Requirement>) -> ParserHead {
+    fn new(requirement: Option<InputEvent>) -> ParserHead {
         ParserHead {
             requirement,
             ..Default::default()
@@ -59,7 +81,7 @@ impl ParserHead {
             && self.charge_started.is_none()
     }
 
-    fn bump(&mut self, requirement: Option<Requirement>) {
+    fn bump(&mut self, requirement: Option<InputEvent>) {
         *self = ParserHead {
             requirement,
             index: self.index + 1,
@@ -68,7 +90,7 @@ impl ParserHead {
         }
     }
 
-    fn double_bump(&mut self, requirement: Option<Requirement>) {
+    fn double_bump(&mut self, requirement: Option<InputEvent>) {
         *self = ParserHead {
             requirement,
             index: self.index + 2,
@@ -77,7 +99,7 @@ impl ParserHead {
         }
     }
 
-    fn advance(&mut self, requirements: Vec<Requirement>, diff: &Diff) {
+    fn advance(&mut self, requirements: Vec<InputEvent>, diff: &Diff) {
         if self.is_done() {
             return;
         }
@@ -87,7 +109,7 @@ impl ParserHead {
         let next_requirement = self.get_next_requirement(&requirements);
 
         match current_requirement {
-            Requirement::Charge => {
+            InputEvent::Charge => {
                 let now = Instant::now();
                 let requirement_met = self.requirement_met(next_requirement.unwrap(), diff);
 
@@ -118,33 +140,33 @@ impl ParserHead {
         }
     }
 
-    fn get_next_requirement(&self, requirements: &[Requirement]) -> Option<Requirement> {
+    fn get_next_requirement(&self, requirements: &[InputEvent]) -> Option<InputEvent> {
         self.get_requirement_with_offset(requirements, 1)
     }
 
     fn get_requirement_with_offset(
         &self,
-        requirements: &[Requirement],
+        requirements: &[InputEvent],
         offset: usize,
-    ) -> Option<Requirement> {
+    ) -> Option<InputEvent> {
         requirements.get(self.index + offset).cloned()
     }
 
-    fn requirement_met(&mut self, requirement: Requirement, diff: &Diff) -> bool {
+    fn requirement_met(&mut self, requirement: InputEvent, diff: &Diff) -> bool {
         match requirement {
-            Requirement::Charge => {
+            InputEvent::Charge => {
                 panic!(
                     "Charge getting here means there were two consecutive charges in the definition"
                 );
             }
-            Requirement::Point(required_stick) => {
+            InputEvent::Point(required_stick) => {
                 diff.stick_move.is_some() && diff.stick_move.unwrap() == required_stick
             }
-            Requirement::Range(required_sticks) => {
+            InputEvent::Range(required_sticks) => {
                 diff.stick_move.is_some() && required_sticks.contains(&diff.stick_move.unwrap())
             }
-            Requirement::Press(required_button) => diff.pressed_contains(&required_button),
-            Requirement::MultiPress(required_buttons) => {
+            InputEvent::Press(required_button) => diff.pressed_contains(&required_button),
+            InputEvent::MultiPress(required_buttons) => {
                 if let Some(pressed) = diff.pressed.clone() {
                     let mut new_buttons = pressed.into_iter().collect();
                     self.multipresses_received.append(&mut new_buttons);
@@ -161,7 +183,7 @@ impl ParserHead {
                 }
                 false
             }
-            Requirement::Release(required_button) => diff.released_contains(&required_button),
+            InputEvent::Release(required_button) => diff.released_contains(&required_button),
         }
     }
 }
@@ -169,7 +191,7 @@ impl ParserHead {
 #[derive(Default, Debug, Clone)]
 pub struct MotionInput {
     heads: Vec<ParserHead>,
-    requirements: Vec<Requirement>,
+    requirements: Vec<InputEvent>,
 }
 impl MotionInput {
     pub fn clear(&mut self) {
@@ -237,18 +259,18 @@ impl From<&str> for MotionInput {
 
         assert!(!tokens.is_empty(), "No tokens");
 
-        let requirements: Vec<Requirement> = tokens
+        let requirements: Vec<InputEvent> = tokens
             .into_iter()
             .map(|token| {
-                let gts: Vec<Requirement> = token.chars().map(char_to_requirement).collect();
+                let gts: Vec<InputEvent> = token.chars().map(|char| char.into()).collect();
                 if gts.len() == 1 {
                     gts[0].clone()
                 } else {
                     match gts[0] {
-                        Requirement::Point(_) => Requirement::Range(
+                        InputEvent::Point(_) => InputEvent::Range(
                             gts.into_iter()
                                 .map(|requirement| {
-                                    if let Requirement::Point(stick) = requirement {
+                                    if let InputEvent::Point(stick) = requirement {
                                         stick
                                     } else {
                                         panic!("Mismatched requirements")
@@ -256,10 +278,10 @@ impl From<&str> for MotionInput {
                                 })
                                 .collect(),
                         ),
-                        Requirement::Press(_) => Requirement::MultiPress(
+                        InputEvent::Press(_) => InputEvent::MultiPress(
                             gts.into_iter()
                                 .map(|requirement| {
-                                    if let Requirement::Press(button) = requirement {
+                                    if let InputEvent::Press(button) = requirement {
                                         button
                                     } else {
                                         panic!("Mismatched requirements")
@@ -274,34 +296,13 @@ impl From<&str> for MotionInput {
             .collect();
 
         assert!(
-            !matches!(requirements.last(), Some(Requirement::Charge)),
+            !matches!(requirements.last(), Some(InputEvent::Charge)),
             "Last requirement can't be a prefix"
         );
 
         Self {
             requirements,
             ..Default::default()
-        }
-    }
-}
-
-fn char_to_requirement(ch: char) -> Requirement {
-    if let Ok(number_token) = ch.to_string().parse::<i32>() {
-        Requirement::Point(number_token.into())
-    } else {
-        match ch {
-            'c' => Requirement::Charge,
-            'f' => Requirement::Press(GameButton::Fast),
-            'F' => Requirement::Release(GameButton::Fast),
-            's' => Requirement::Press(GameButton::Strong),
-            'S' => Requirement::Release(GameButton::Strong),
-            'g' => Requirement::Press(GameButton::Grab),
-            'G' => Requirement::Release(GameButton::Grab),
-            'e' => Requirement::Press(GameButton::Equipment),
-            'E' => Requirement::Release(GameButton::Equipment),
-            't' => Requirement::Press(GameButton::Taunt),
-            'T' => Requirement::Release(GameButton::Taunt),
-            _ => panic!("Invalid character {}", ch),
         }
     }
 }
@@ -316,10 +317,10 @@ mod test {
         assert_eq!(
             parsed.requirements,
             vec![
-                Requirement::Point(StickPosition::S),
-                Requirement::Point(StickPosition::SE),
-                Requirement::Point(StickPosition::E),
-                Requirement::Press(GameButton::Fast),
+                InputEvent::Point(StickPosition::S),
+                InputEvent::Point(StickPosition::SE),
+                InputEvent::Point(StickPosition::E),
+                InputEvent::Press(GameButton::Fast),
             ]
         )
     }
@@ -330,10 +331,10 @@ mod test {
         assert_eq!(
             parsed.requirements,
             vec![
-                Requirement::Charge,
-                Requirement::Point(StickPosition::W),
-                Requirement::Point(StickPosition::E),
-                Requirement::Press(GameButton::Fast),
+                InputEvent::Charge,
+                InputEvent::Point(StickPosition::W),
+                InputEvent::Point(StickPosition::E),
+                InputEvent::Press(GameButton::Fast),
             ]
         )
     }
@@ -344,10 +345,10 @@ mod test {
         assert_eq!(
             parsed.requirements,
             vec![
-                Requirement::Charge,
-                Requirement::Range(vec![StickPosition::NW, StickPosition::W, StickPosition::SW,]),
-                Requirement::Range(vec![StickPosition::E, StickPosition::SE]),
-                Requirement::Press(GameButton::Fast),
+                InputEvent::Charge,
+                InputEvent::Range(vec![StickPosition::NW, StickPosition::W, StickPosition::SW,]),
+                InputEvent::Range(vec![StickPosition::E, StickPosition::SE]),
+                InputEvent::Press(GameButton::Fast),
             ]
         )
     }
@@ -358,9 +359,9 @@ mod test {
         assert_eq!(
             parsed.requirements,
             vec![
-                Requirement::Charge,
-                Requirement::Press(GameButton::Fast),
-                Requirement::Release(GameButton::Fast),
+                InputEvent::Charge,
+                InputEvent::Press(GameButton::Fast),
+                InputEvent::Release(GameButton::Fast),
             ]
         )
     }

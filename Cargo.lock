@@ -1795,6 +1795,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "integration_tests"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "constants",
+ "input_parsing",
+ "moves",
+ "types",
+ "whoops-all-grapplers-lib",
+]
+
+[[package]]
 name = "io-kit-sys"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3390,7 +3402,6 @@ name = "whoops-all-grapplers"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "input_parsing",
  "whoops-all-grapplers-lib",
 ]
 

@@ -11,8 +11,7 @@ mod motion_input;
 pub use input_parser::InputParser;
 
 use input_stream::PadStream;
-#[cfg(test)]
-pub use input_stream::TestStream;
+pub use motion_input::InputEvent;
 
 const MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS: f32 = 0.2; // In seconds
 const CHARGE_TIME: f32 = 1.0; // In seconds
@@ -56,18 +55,37 @@ impl PadBundle {
     }
 }
 
-#[cfg(test)]
-#[derive(Bundle)]
-pub struct TestInputBundle {
-    reader: TestStream,
-    parser: InputParser,
-}
-#[cfg(test)]
-impl TestInputBundle {
-    pub fn new(inputs: HashMap<MoveId, &str>) -> Self {
-        Self {
-            reader: TestStream::default(),
-            parser: InputParser::load(inputs),
+pub mod testing {
+    use super::*;
+    pub use input_parser::parse_input;
+    pub use input_stream::PreWrittenStream;
+    pub use input_stream::TestStream;
+
+    #[derive(Bundle)]
+    pub struct PreWrittenInputBundle {
+        reader: PreWrittenStream,
+        parser: InputParser,
+    }
+    impl PreWrittenInputBundle {
+        pub fn new(events: Vec<Option<InputEvent>>, inputs: HashMap<MoveId, &str>) -> Self {
+            Self {
+                reader: PreWrittenStream::new(events),
+                parser: InputParser::load(inputs),
+            }
+        }
+    }
+
+    #[derive(Bundle)]
+    pub struct TestInputBundle {
+        reader: TestStream,
+        parser: InputParser,
+    }
+    impl TestInputBundle {
+        pub fn new(inputs: HashMap<MoveId, &str>) -> Self {
+            Self {
+                reader: TestStream::default(),
+                parser: InputParser::load(inputs),
+            }
         }
     }
 }

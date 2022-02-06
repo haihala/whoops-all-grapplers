@@ -4,6 +4,7 @@ mod movement;
 mod recovery;
 mod size_adjustment;
 
+#[cfg(not(test))]
 use input_parsing::PadBundle;
 use moves::ryan_bank;
 use player_state::PlayerState;
@@ -102,30 +103,36 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
     let state = PlayerState::default();
     let bank = ryan_bank();
 
-    commands
-        .spawn_bundle(SpriteBundle {
-            transform: Transform {
-                translation: (
-                    offset,
-                    PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0,
-                    0.0,
-                )
-                    .into(),
-                ..Default::default()
-            },
-            sprite: Sprite {
-                color: colors.collision_box,
-                custom_size: Some(state.get_collider_size()),
-                ..Default::default()
-            },
+    #[cfg(not(test))]
+    let inputs = PadBundle::new(bank.get_inputs());
+
+    let mut spawn_handle = commands.spawn_bundle(SpriteBundle {
+        transform: Transform {
+            translation: (
+                offset,
+                PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0,
+                0.0,
+            )
+                .into(),
             ..Default::default()
-        })
+        },
+        sprite: Sprite {
+            color: colors.collision_box,
+            custom_size: Some(state.get_collider_size()),
+            ..Default::default()
+        },
+        ..Default::default()
+    });
+
+    spawn_handle
         .insert_bundle(PlayerDefaults::default())
-        .insert_bundle(PadBundle::new(bank.get_inputs()))
         .insert(LRDirection::from_flipped(offset.is_sign_positive()))
         .insert(bank)
         .insert(player)
         .insert(state);
+
+    #[cfg(not(test))]
+    spawn_handle.insert_bundle(inputs);
 }
 
 fn reset(

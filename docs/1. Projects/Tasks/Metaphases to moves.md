@@ -8,6 +8,7 @@ List of meta-phases:
 - [ ] Item - If the player has a certain component, change the move
 	- Because meter cost and air-ok are on the core move and not in phases, maybe have a function edit the move in the bank instead of these?
 - [ ] Hit - If the move has hit, change the property
+- [ ] Update - Retain all properties of the previous phase, suplement with a subset?
 - [ ] Input - If further input is provided
 	- [ ] Make input parser able to load temporary stances
 

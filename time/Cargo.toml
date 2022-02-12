@@ -6,7 +6,7 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
 bevy = "0.6.0"
-bevy-inspector-egui = "0.7.6"
+bevy-inspector-egui = "0.8.0"
 mock_instant = { version = "0.2", features = ["sync"] }
 
 constants = { path = "../constants" }

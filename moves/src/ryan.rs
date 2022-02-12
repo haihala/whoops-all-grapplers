@@ -2,7 +2,8 @@ use bevy::prelude::*;
 use types::{AttackHeight, GrabDescription, Hitbox, Lifetime, SpawnDescriptor};
 
 use crate::{
-    move_bank::MoveBank, moves, universal, CancelLevel, Move, MoveMobility, Phase, PhaseKind,
+    move_bank::MoveBank, moves, universal, CancelLevel, Move, MoveCondition, MoveMobility, Phase,
+    PhaseCondition, PhaseKind, PhaseSwitch,
 };
 
 // Dashing
@@ -35,19 +36,21 @@ fn jump(input: &'static str, impulse: impl Into<Vec3>) -> Move {
     Move {
         input,
         cancel_level: CancelLevel::Jump,
-        ground_ok: true,
+        conditions: MoveCondition::GROUND,
         phases: vec![
             Phase {
                 kind: PhaseKind::Animation,
                 duration: 5,
                 mobility: Some(MoveMobility::Impulse(impulse.into())),
                 ..Default::default()
-            },
+            }
+            .into(),
             Phase {
                 kind: PhaseKind::Animation,
                 duration: 5,
                 ..Default::default()
-            },
+            }
+            .into(),
         ],
         ..Default::default()
     }
@@ -57,20 +60,22 @@ fn dash(input: &'static str, start_speed: f32, recovery_speed: f32) -> Move {
     Move {
         input,
         cancel_level: CancelLevel::Dash,
-        ground_ok: true,
+        conditions: MoveCondition::GROUND,
         phases: vec![
             Phase {
                 kind: PhaseKind::Animation,
                 duration: DASH_START_FRAMES,
                 mobility: Some(MoveMobility::Perpetual(Vec3::X * start_speed)),
                 ..Default::default()
-            },
+            }
+            .into(),
             Phase {
                 kind: PhaseKind::Animation,
                 duration: DASH_RECOVERY_FRAMES,
                 cancellable: true,
                 mobility: Some(MoveMobility::Perpetual(Vec3::X * recovery_speed)),
-            },
+            }
+            .into(),
         ],
         ..Default::default()
     }
@@ -135,13 +140,14 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             Move {
                 input: "f",
                 cancel_level: CancelLevel::LightNormal,
-                ground_ok: true,
+                conditions: MoveCondition::GROUND,
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox::new(Vec2::new(1.0, 0.5), Vec2::new(0.2, 0.3)),
@@ -151,13 +157,15 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         }),
                         duration: 10,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         cancellable: true,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                 ],
                 ..Default::default()
             },
@@ -167,14 +175,15 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             Move {
                 input: "6f",
                 cancel_level: CancelLevel::LightNormal,
-                ground_ok: true,
+                conditions: MoveCondition::GROUND,
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         mobility: Some(MoveMobility::Perpetual(Vec3::new(1.0, 0.0, 0.0))),
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(1.0, 1.0)),
@@ -184,12 +193,23 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         duration: 20,
                         mobility: Some(MoveMobility::Perpetual(Vec3::new(5.0, 0.0, 0.0))),
                         ..Default::default()
-                    },
-                    Phase {
-                        kind: PhaseKind::Animation,
-                        duration: 20,
-                        cancellable: true,
-                        ..Default::default()
+                    }
+                    .into(),
+                    PhaseSwitch {
+                        default: Phase {
+                            kind: PhaseKind::Animation,
+                            duration: 60,
+                            ..Default::default()
+                        },
+                        branches: vec![(
+                            PhaseCondition::HIT,
+                            Phase {
+                                kind: PhaseKind::Animation,
+                                duration: 10,
+                                cancellable: true,
+                                ..Default::default()
+                            },
+                        )],
                     },
                 ],
                 ..Default::default()
@@ -200,13 +220,14 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             Move {
                 input: "236f",
                 cancel_level: CancelLevel::LightSpecial,
-                ground_ok: true,
+                conditions: MoveCondition::GROUND,
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 30,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
@@ -216,13 +237,15 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         }),
                         duration: 4,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         cancellable: true,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                 ],
                 ..Default::default()
             },
@@ -233,13 +256,14 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                 input: "236s",
                 cancel_level: CancelLevel::HeavySpecial,
                 meter_cost: 10,
-                ground_ok: true,
+                conditions: MoveCondition::GROUND | MoveCondition::AIR,
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 30,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.7, 0.7)),
@@ -249,13 +273,15 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         }),
                         duration: 4,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         cancellable: true,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                 ],
                 ..Default::default()
             },
@@ -265,13 +291,14 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             Move {
                 input: "f",
                 cancel_level: CancelLevel::LightNormal,
-                air_ok: true,
+                conditions: MoveCondition::AIR,
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox::new(Vec2::new(0.5, -1.2), Vec2::new(0.6, 0.3)),
@@ -282,13 +309,15 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         }),
                         duration: 10,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         cancellable: true,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                 ],
                 ..Default::default()
             },
@@ -298,13 +327,14 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             Move {
                 input: "g",
                 cancel_level: CancelLevel::Grab,
-                ground_ok: true,
+                conditions: MoveCondition::GROUND,
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 1,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Grab(GrabDescription {
                             damage: 40,
@@ -314,12 +344,14 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         }),
                         duration: 1,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         ..Default::default()
-                    },
+                    }
+                    .into(),
                 ],
                 ..Default::default()
             },
@@ -349,22 +381,23 @@ mod test {
 
     #[test]
     fn no_duplicate_inputs() {
-        let mut inputs: HashMap<&'static str, (bool, bool)> = vec![].into_iter().collect();
+        let mut inputs: HashMap<&'static str, (MoveId, MoveCondition)> =
+            vec![].into_iter().collect();
 
-        for (_, move_data) in ryan_moves() {
+        for (id, move_data) in ryan_moves() {
             let input = move_data.input;
 
             if inputs.contains_key(&input) {
-                let (ground_ok, air_ok) = inputs.get(&input).unwrap();
-                if *ground_ok && move_data.ground_ok {
-                    panic!("Input {} has two overlapping uses on the ground", input);
-                }
-                if *air_ok && move_data.air_ok {
-                    panic!("Input {} has two overlapping uses on the air", input);
+                let (other_id, conditions) = inputs.get(&input).unwrap();
+                if conditions.intersects(move_data.conditions) {
+                    panic!(
+                        "Input {} has two overlapping uses on ids {} and {}",
+                        input, id, other_id
+                    );
                 }
             }
 
-            inputs.insert(input, (move_data.ground_ok, move_data.air_ok));
+            inputs.insert(input, (id, move_data.conditions));
         }
     }
 }

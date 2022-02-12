@@ -57,14 +57,16 @@ fn advance_move(
     let (state1, spawner1, bank, parent, facing, player, tf1, _, _, _, _) = actor;
     let (state2, spawner2, _, _, _, _, tf2, grab_target, parser, velocity, health) = target;
 
-    if let Some(move_state) = state1.get_move_state() {
+    if let Some(ref mut move_state) = state1.get_move_state() {
         let move_data = bank.get(move_state.move_id);
-        if let Some(phase_index) = move_data.get_phase_index(move_state.start_frame, clock.frame) {
+        if let Some(phase_index) = move_data.get_phase_index(*move_state, clock.frame) {
             if move_state.phase_index != phase_index {
+                move_state.phase_index = phase_index;
+
                 // Despawn old things
                 spawner1.despawn_on_phase_change(commands);
 
-                match move_data.get_phase(phase_index).kind {
+                match move_data.get_phase(*move_state).kind {
                     PhaseKind::Attack(descriptor) => spawner1.spawn_attack(
                         move_state.move_id,
                         descriptor,

@@ -1,7 +1,7 @@
 use bevy_inspector_egui::Inspectable;
-use types::LRDirection;
 
-use crate::MoveState;
+use moves::MoveState;
+use types::LRDirection;
 
 #[derive(Inspectable, PartialEq, Clone, Copy, Debug)]
 pub enum GroundActivity {

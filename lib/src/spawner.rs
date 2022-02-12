@@ -41,6 +41,7 @@ enum DespawnTime {
     EndOfRound,
 }
 
+#[derive(Debug)]
 struct DespawnRequest {
     id: MoveId,
     time: DespawnTime,

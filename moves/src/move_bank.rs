@@ -1,9 +1,23 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_inspector_egui::Inspectable;
+use bitflags::bitflags;
 
 use types::{GrabDescription, MoveId, SpawnDescriptor};
 
 use crate::CancelLevel;
+
+#[derive(Inspectable, PartialEq, Clone, Copy, Debug, Default)]
+pub struct MoveState {
+    pub start_frame: usize,
+    pub phase_index: usize,
+    pub move_id: MoveId,
+    pub situation: PhaseCondition,
+}
+impl MoveState {
+    pub fn register_hit(&mut self) {
+        self.situation |= PhaseCondition::HIT;
+    }
+}
 
 #[derive(Debug, Default, Component, Clone)]
 pub struct MoveBank {
@@ -27,21 +41,39 @@ impl MoveBank {
     }
 }
 
+bitflags! {
+    #[derive(Default, Inspectable)]
+    pub struct MoveCondition: u32 {
+        const AIR = 1;
+        const GROUND = 2;
+    }
+
+    #[derive(Default, Inspectable)]
+    pub struct PhaseCondition: u32 {
+        const HIT = 1;
+    }
+}
+
 #[derive(Debug, Default, Inspectable, Clone)]
 pub struct Move {
     pub input: &'static str,
     pub cancel_level: CancelLevel,
-    pub phases: Vec<Phase>,
+    pub phases: Vec<PhaseSwitch>,
     pub meter_cost: i32,
-    pub air_ok: bool,
-    pub ground_ok: bool,
+    pub conditions: MoveCondition,
 }
 
 impl Move {
-    pub fn get_phase_index(&self, start_frame: usize, current_frame: usize) -> Option<usize> {
-        let mut frames_left = current_frame as i32 - start_frame as i32;
+    pub fn get_phase_index(&self, state: MoveState, current_frame: usize) -> Option<usize> {
+        // Can be negative, which is why cast before operation
+        let mut frames_left = current_frame as i32 - state.start_frame as i32;
 
-        for (index, phase) in self.phases.iter().enumerate() {
+        for (index, phase) in self
+            .phases
+            .iter()
+            .map(|meta| meta.get(state.situation))
+            .enumerate()
+        {
             frames_left -= phase.duration as i32;
             if frames_left < 0 {
                 return Some(index);
@@ -50,15 +82,42 @@ impl Move {
         None
     }
 
-    pub fn get_phase(&self, index: usize) -> Phase {
-        self.phases.get(index).unwrap().to_owned()
+    pub fn get_phase(&self, state: MoveState) -> Phase {
+        self.phases
+            .get(state.phase_index)
+            .unwrap()
+            .to_owned()
+            .get(state.situation)
     }
 }
 
-#[derive(Debug, Inspectable, Copy, Clone, PartialEq)]
-pub enum MoveMobility {
-    Impulse(Vec3),
-    Perpetual(Vec3),
+#[derive(Debug, Inspectable, Clone)]
+pub struct PhaseSwitch {
+    pub default: Phase,
+    pub branches: Vec<(PhaseCondition, Phase)>, // This way order is maintained
+}
+impl PhaseSwitch {
+    pub fn get(&self, situation: PhaseCondition) -> Phase {
+        for (cond, phase) in &self.branches {
+            if situation.contains(*cond) {
+                return phase.to_owned();
+            }
+        }
+        self.default.to_owned()
+    }
+}
+impl From<Phase> for PhaseSwitch {
+    fn from(phase: Phase) -> Self {
+        PhaseSwitch {
+            default: phase,
+            branches: vec![],
+        }
+    }
+}
+impl Default for PhaseSwitch {
+    fn default() -> Self {
+        Phase::default().into()
+    }
 }
 
 #[derive(Debug, Default, Inspectable, Clone, PartialEq)]
@@ -79,4 +138,10 @@ impl Default for PhaseKind {
     fn default() -> Self {
         PhaseKind::Animation
     }
+}
+
+#[derive(Debug, Inspectable, Copy, Clone, PartialEq)]
+pub enum MoveMobility {
+    Impulse(Vec3),
+    Perpetual(Vec3),
 }

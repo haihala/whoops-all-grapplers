@@ -1,11 +1,12 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
+use moves::MoveState;
 use types::{AttackHeight, LRDirection, MoveId, StickPosition};
 
 use crate::{
     primary_state::{AirActivity, GroundActivity, PrimaryState},
-    MoveState, PLAYER_HIGH_BLOCK_THRESHOLD_RATIO, PLAYER_LOW_BLOCK_THRESHOLD_RATIO,
+    PLAYER_HIGH_BLOCK_THRESHOLD_RATIO, PLAYER_LOW_BLOCK_THRESHOLD_RATIO,
     PLAYER_SPRITE_CROUCHING_HEIGHT, PLAYER_SPRITE_STANDING_HEIGHT, PLAYER_SPRITE_WIDTH,
 };
 
@@ -49,6 +50,13 @@ impl PlayerState {
             PrimaryState::Ground(GroundActivity::Move(move_state))
             | PrimaryState::Air(AirActivity::Move(move_state)) => Some(move_state),
             _ => None,
+        }
+    }
+    pub fn register_hit(&mut self) {
+        if let PrimaryState::Ground(GroundActivity::Move(ref mut move_state))
+        | PrimaryState::Air(AirActivity::Move(ref mut move_state)) = self.primary
+        {
+            move_state.register_hit();
         }
     }
 

@@ -1,7 +1,4 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
-
-use types::MoveId;
 
 mod primary_state;
 
@@ -25,11 +22,4 @@ pub struct PlayerStatePlugin;
 
 impl Plugin for PlayerStatePlugin {
     fn build(&self, _app: &mut App) {}
-}
-
-#[derive(Inspectable, PartialEq, Clone, Copy, Debug, Default)]
-pub struct MoveState {
-    pub start_frame: usize,
-    pub phase_index: usize,
-    pub move_id: MoveId,
 }

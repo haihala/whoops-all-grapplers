@@ -1,6 +1,6 @@
 use bevy_inspector_egui::Inspectable;
 
-use crate::MoveState;
+use moves::MoveState;
 
 #[derive(Inspectable, PartialEq, Clone, Copy, Debug)]
 pub enum AirActivity {

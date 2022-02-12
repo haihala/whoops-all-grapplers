@@ -6,6 +6,6 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
 bevy = "0.6.0"
-bevy-inspector-egui = "0.7.6"
+bevy-inspector-egui = "0.8.0"
 strum = "0.23.0"
 strum_macros = "0.23.1"

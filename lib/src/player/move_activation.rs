@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 
 use input_parsing::InputParser;
-use moves::{CancelLevel, Move, MoveBank};
-use player_state::{MoveState, PlayerState};
+use moves::{CancelLevel, Move, MoveBank, MoveCondition, MoveState};
+use player_state::PlayerState;
 use time::Clock;
 use types::MoveId;
 
-use crate::meter::Meter;
+use crate::{meter::Meter, spawner::Spawner};
 const EVENT_REPEAT_PERIOD: f32 = 0.3; // In seconds
 const FRAMES_TO_LIVE_IN_BUFFER: usize = (EVENT_REPEAT_PERIOD * constants::FPS) as usize;
 
@@ -28,7 +28,7 @@ impl MoveBuffer {
     ) -> Option<(MoveId, Move)> {
         let cancel_requirement = if let Some(move_state) = active_move {
             let move_data = bank.get(move_state.move_id);
-            if move_data.get_phase(move_state.phase_index).cancellable {
+            if move_data.get_phase(move_state).cancellable {
                 move_data.cancel_level
             } else {
                 CancelLevel::Uncancellable
@@ -41,11 +41,11 @@ impl MoveBuffer {
             .buffer
             .iter()
             .map(|(_, id)| (*id, bank.get(*id).to_owned()))
-            .filter(|(_, action)| {
+            .filter(|(_, move_data)| {
                 if grounded {
-                    action.ground_ok
+                    move_data.conditions.contains(MoveCondition::GROUND)
                 } else {
-                    action.air_ok
+                    move_data.conditions.contains(MoveCondition::AIR)
                 }
             })
             .filter(|(_, action)| action.cancel_level > cancel_requirement)
@@ -66,6 +66,7 @@ impl MoveBuffer {
 }
 
 pub fn move_activator(
+    mut commands: Commands,
     clock: Res<Clock>,
     mut query: Query<(
         &mut InputParser,
@@ -73,9 +74,10 @@ pub fn move_activator(
         &mut MoveBuffer,
         &MoveBank,
         &mut Meter,
+        &mut Spawner,
     )>,
 ) {
-    for (mut reader, mut state, mut buffer, bank, mut meter) in query.iter_mut() {
+    for (mut reader, mut state, mut buffer, bank, mut meter, mut spawner) in query.iter_mut() {
         buffer.clear_old(clock.frame);
         buffer.add_events(reader.drain_events(), clock.frame);
 
@@ -86,6 +88,7 @@ pub fn move_activator(
         if let Some((move_id, move_data)) =
             buffer.use_move(bank, state.get_move_state(), state.is_grounded(), &meter)
         {
+            spawner.despawn_on_phase_change(&mut commands);
             state.start_move(move_id, clock.frame);
             meter.pay(move_data.meter_cost);
         }

@@ -182,7 +182,7 @@ fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &MoveBank, 
     for (state, mut velocity, bank, facing) in query.iter_mut() {
         if let Some(Some((move_id, mobility))) = state.get_move_state().map(|move_state| {
             bank.get(move_state.move_id)
-                .get_phase(move_state.phase_index)
+                .get_phase(move_state)
                 .mobility
                 .map(|mobility| (move_state.move_id, mobility))
         }) {

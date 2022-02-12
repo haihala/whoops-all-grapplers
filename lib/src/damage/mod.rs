@@ -107,7 +107,8 @@ fn handle_hit(
     attacker: &mut ComponentList,
     defender: &mut ComponentList,
 ) {
-    let (_, _, _, _, attacker_meter, _, _, _, attacker_velocity, _, attacker_spawner) = attacker;
+    let (_, _, _, _, attacker_meter, _, _, attacker_state, attacker_velocity, _, attacker_spawner) =
+        attacker;
     let (
         hurtbox,
         hurtbox_sprite,
@@ -116,7 +117,7 @@ fn handle_hit(
         _,
         defending_player,
         parser,
-        state,
+        defender_state,
         defender_velocity,
         facing,
         defender_spawner,
@@ -133,10 +134,11 @@ fn handle_hit(
         hitbox_position,
         hitbox_size,
     ) {
+        attacker_state.register_hit();
         // Hit has happened
         // Handle blocking and state transitions here
 
-        let blocked = state.blocked(
+        let blocked = defender_state.blocked(
             effect.fixed_height,
             hitbox_position.y + hitbox_size.y / 2.0,
             parser.get_relative_stick_position(),
@@ -165,9 +167,9 @@ fn handle_hit(
         // Stun
         if let Some(stun_prop) = effect.stun {
             if knockback_impulse.y > 0.0 {
-                state.launch();
+                defender_state.launch();
             } else {
-                state.stun(stun_prop.get(blocked) + frame);
+                defender_state.stun(stun_prop.get(blocked) + frame);
             }
         }
 

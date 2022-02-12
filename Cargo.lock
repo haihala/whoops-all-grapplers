@@ -201,9 +201,9 @@ dependencies = [
 
 [[package]]
 name = "bevy-inspector-egui"
-version = "0.7.6"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "11dd7d83e9335799929aa850b35ff0925360385e21a55f46727189bc07fb0308"
+checksum = "8638b84ac5899fae8b46d7e092bf9632a103174568740d822f15cac1ffa2fd28"
 dependencies = [
  "bevy",
  "bevy-inspector-egui-derive",
@@ -379,9 +379,9 @@ dependencies = [
 
 [[package]]
 name = "bevy_egui"
-version = "0.10.3"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "02074bee344c4aea813a0bbad6332682c81394cca44e3e2b88043adce970c997"
+checksum = "c8631a5b7a74fd53f5017d0251066e60eb8eb3cc4ee944c66e6d4022a3b7c6bc"
 dependencies = [
  "bevy",
  "bytemuck",
@@ -2084,6 +2084,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
+ "bitflags",
  "constants",
  "types",
 ]
@@ -2517,6 +2518,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
+ "moves",
  "types",
 ]
 

@@ -1,13 +1,12 @@
 # Backlog
 ## High priority
-- [[Metaphases to moves]]
-
-## Low priority
 - [[Menus]]
 	- [[Items]]
 		- [[Drugs]]
 		- [[Gi of the old masters]]
 		- [[Gun]]
+
+## Low priority
 - [[Recovery and knockdown]]
 - [[Change detection]]
 
@@ -28,6 +27,8 @@
 - [[Testing framework v2]]
 - Space to pause the game (look at inspector)
 - Generic state based visibility toggler for UI components
+- Think about cancellability + moves having hit
+	- Currently can't cancel rest of active
 
 # Other trackers
 ![[Bug tracker]]

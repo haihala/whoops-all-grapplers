@@ -26,6 +26,8 @@
 - [[Simple training mode]]
 - [[Shoto girl]]
 - [[Testing framework v2]]
+- Space to pause the game (look at inspector)
+- Generic state based visibility toggler for UI components
 
 # Other trackers
 ![[Bug tracker]]

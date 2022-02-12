@@ -10,6 +10,9 @@ build:
 test:
 	cargo test $(release)
 
+integration:
+	cargo test $(release) --ignored
+
 clippy:
 	cargo clippy --all -- -D warnings
 

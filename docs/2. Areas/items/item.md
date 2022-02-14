@@ -1,17 +1,53 @@
-# Basics
-## What
-You can buy items that make your character better between rounds. Money is earned through meter spared and damage dealt.
-
+# Items
 - Some items are character unique
 - Some are passive, some go into one of the per input active slots
 	- (`4e`, `5e`, `623e`, etc)
 	- Some things sharing slots means you sometimes have to pick
-		- Balance mechanism, albeit probably smart to avoid changing too often
 
-## Why
-- Player expression
-- Covering for bad matchups
-- Interesting ways to characterize with character specific items items
+Items should be:
+- Interesting
+- Non-mandatory seeming
+- Complexity increasing
+
+
+Do this with lateral items. here should be an item that kinda solves that problem for every problem, likely several
+
+List of problems:
+- Can't block the mixup
+	- strike-throw
+	- high-low
+	- left-right
+- Zoning
+	- Can't get past
+	- Can't keep at bay
+- Pressure
+	- Can't escape
+	- Can't find an opening
+- Neutral
+	- Can't reach
+	- Can't force whiffs
+- Can't gain resources
+	- Money
+	- Meter
+- Health
+	- Can't kill fast enough
+	- Can't survive their combos
+
+How do you force a mistake
+- Fundimentally, bait and read
+	- Bait them by fainting weakness
+	- Read when they are going to bite
+- Canceling an unsafe move into a more unsafe move
+	- Bait by not doing the cancel
+	- Read when they are going to bite, do the cancel
+	- Cash out
+- Open
+	- Why would someone bite?
+		- Frustration
+		- Desperation
+		- Naivety
+	- Trying to force a mistake can in an of itself be a mistake if the receiving player has an out the attacker isn't aware of.
+		- Items serve two purposes, give outs and create uncertain situations
 
 # Idea dump
 - Balrog vskill 2 (no charge required for a charge move)

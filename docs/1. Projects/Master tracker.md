@@ -16,8 +16,7 @@
 - Extend meter to resources
 	- Bullets go there
 - Split move list into multiple bits so you can more easily reuse phases for switches that only modify bits of a phase
-- https://bevyengine.org/learn/book/getting-started/setup/ fast compiles
-- RunCriteria for specific transitions
+- RunCriteria for specific state transitions
 
 ## Not a priority
 - [[3D model]]

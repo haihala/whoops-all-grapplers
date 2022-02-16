@@ -283,7 +283,6 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                     }
                     .into(),
                 ],
-                ..Default::default()
             },
         ),
         (

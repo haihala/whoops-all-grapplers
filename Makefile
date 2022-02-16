@@ -9,6 +9,9 @@ build:
 	cargo build $(release)
 
 test:
+	cargo nextest run
+
+cargo-test:
 	cargo test $(release)
 
 integration:
@@ -26,4 +29,4 @@ udeps:
 check: test clippy fmt udeps
 
 install:
-	cargo install cargo-udeps
+	cargo install cargo-udeps cargo-nextest

@@ -1,2 +1,4 @@
 [toolchain]
-channel = "nightly"
+# bevy 0.6.0 doesn't compile on the newest nightly toolchain
+# change this to "nightly" when 0.6.1 or 0.7.0 comes out.
+channel = "nightly-2022-01-12"

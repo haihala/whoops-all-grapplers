@@ -1,8 +1,6 @@
 use bevy::utils::HashSet;
 use types::{GameButton, StickPosition};
 
-use crate::InputEvent;
-
 #[derive(Clone, PartialEq, Debug, Default)]
 /// Frame is a situation, diff is a change
 pub struct Frame {
@@ -53,21 +51,7 @@ pub struct Diff {
     pub released: Option<HashSet<GameButton>>,
 }
 impl Diff {
-    pub fn apply(mut self, change: &InputChange) -> Self {
-        match change {
-            InputChange::Button(button, update) => match update {
-                ButtonUpdate::Pressed => self.pressed = Some(add_or_init(self.pressed, *button)),
-                ButtonUpdate::Released => self.released = Some(add_or_init(self.released, *button)),
-            },
-            InputChange::Stick(stick) => {
-                self.stick_move = Some(*stick);
-            }
-        }
-
-        self
-    }
-
-    pub fn apply_event(mut self, event: InputEvent) -> Self {
+    pub fn apply(mut self, event: InputEvent) -> Self {
         match event {
             InputEvent::Point(stick) => self.stick_move = Some(stick),
             InputEvent::Press(button) => self.pressed = Some(add_or_init(self.pressed, button)),
@@ -104,14 +88,41 @@ fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub enum ButtonUpdate {
-    Pressed,
-    Released,
+/// Enum used to define move inputs.
+#[derive(Debug, Clone, PartialEq)]
+pub enum InputEvent {
+    /// Prefix. Next requirement must be held for some time
+    Charge,
+    /// Stick must visit a point
+    Point(StickPosition),
+    /// Stick must visit one of the following points
+    Range(Vec<StickPosition>),
+    /// Press a button
+    Press(GameButton),
+    /// Press all of the following buttons
+    MultiPress(Vec<GameButton>),
+    /// Release a button
+    Release(GameButton),
 }
-
-#[derive(Debug, Clone, Copy)]
-pub enum InputChange {
-    Button(GameButton, ButtonUpdate),
-    Stick(StickPosition),
+impl From<char> for InputEvent {
+    fn from(ch: char) -> InputEvent {
+        if let Ok(number_token) = ch.to_string().parse::<i32>() {
+            InputEvent::Point(number_token.into())
+        } else {
+            match ch {
+                'c' => InputEvent::Charge,
+                'f' => InputEvent::Press(GameButton::Fast),
+                'F' => InputEvent::Release(GameButton::Fast),
+                's' => InputEvent::Press(GameButton::Strong),
+                'S' => InputEvent::Release(GameButton::Strong),
+                'g' => InputEvent::Press(GameButton::Grab),
+                'G' => InputEvent::Release(GameButton::Grab),
+                'e' => InputEvent::Press(GameButton::Equipment),
+                'E' => InputEvent::Release(GameButton::Equipment),
+                't' => InputEvent::Press(GameButton::Taunt),
+                'T' => InputEvent::Release(GameButton::Taunt),
+                _ => panic!("Invalid character {}", ch),
+            }
+        }
+    }
 }

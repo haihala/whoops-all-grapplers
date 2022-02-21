@@ -15,7 +15,6 @@
 - [[Optimization tracker#Move data]]
 - Extend meter to resources
 	- Bullets go there
-- Split move list into multiple bits so you can more easily reuse phases for switches that only modify bits of a phase
 - RunCriteria for specific state transitions
 
 ## Not a priority
@@ -33,6 +32,7 @@
 - Generic state based visibility toggler for UI components
 - Think about cancellability + moves having hit
 	- Currently can't cancel rest of active
+- Split move list into multiple bits so you can more easily reuse phases for switches that only modify bits of a phase
 
 # Other trackers
 ![[Bug tracker]]

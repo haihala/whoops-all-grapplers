@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use types::{GameButton, StickPosition};
 
 use crate::{
-    helper_types::{ButtonUpdate, Diff, InputChange},
+    helper_types::{Diff, InputEvent},
     STICK_DEAD_ZONE,
 };
 
@@ -13,7 +13,7 @@ use super::InputStream;
 #[derive(Default, Component)]
 pub struct PadStream {
     pub pad_id: Option<Gamepad>,
-    next_read: Vec<InputChange>,
+    next_read: Vec<InputEvent>,
     stick_position: IVec2,
     stick_position_last_read: StickPosition,
 }
@@ -21,7 +21,7 @@ pub struct PadStream {
 impl PadStream {
     fn update_next_diff_stick(&mut self) {
         let discrete_stick = self.stick_position.into();
-        self.next_read.push(InputChange::Stick(discrete_stick));
+        self.next_read.push(InputEvent::Point(discrete_stick));
     }
 
     fn update_stick(&mut self, new_x: Option<i32>, new_y: Option<i32>) {
@@ -35,33 +35,34 @@ impl PadStream {
         self.update_next_diff_stick();
     }
 
-    fn update_button(&mut self, button: GameButton, update: ButtonUpdate) {
-        self.next_read.push(InputChange::Button(button, update));
+    fn press_button(&mut self, button: GameButton) {
+        self.next_read.push(InputEvent::Press(button));
     }
 
-    fn update_dpad(&mut self, update: ButtonUpdate, new_x: Option<i32>, new_y: Option<i32>) {
+    fn release_button(&mut self, button: GameButton) {
+        self.next_read.push(InputEvent::Release(button));
+    }
+
+    fn update_dpad(&mut self, pressed: bool, new_x: Option<i32>, new_y: Option<i32>) {
         // Plan was for opposite presses to override, to make hitbox gaming easier
         // So on release we can't just reset to zero, because the other direction may be held
         // Hopefully this works.
-        match update {
-            ButtonUpdate::Pressed => {
-                if let Some(x) = new_x {
-                    self.stick_position.x = x;
-                }
-                if let Some(y) = new_y {
-                    self.stick_position.y = y;
+        if pressed {
+            if let Some(x) = new_x {
+                self.stick_position.x = x;
+            }
+            if let Some(y) = new_y {
+                self.stick_position.y = y;
+            }
+        } else {
+            if let Some(x) = new_x {
+                if self.stick_position.x == x {
+                    self.stick_position.x = 0;
                 }
             }
-            ButtonUpdate::Released => {
-                if let Some(x) = new_x {
-                    if self.stick_position.x == x {
-                        self.stick_position.x = 0;
-                    }
-                }
-                if let Some(y) = new_y {
-                    if self.stick_position.y == y {
-                        self.stick_position.y = 0;
-                    }
+            if let Some(y) = new_y {
+                if self.stick_position.y == y {
+                    self.stick_position.y = 0;
                 }
             }
         }
@@ -78,7 +79,7 @@ impl InputStream for PadStream {
             self.next_read.clear();
             let mut diff = temp
                 .into_iter()
-                .fold(Diff::default(), |acc, new| acc.apply(&new));
+                .fold(Diff::default(), |acc, new| acc.apply(new));
 
             if let Some(new_stick) = diff.stick_move {
                 if new_stick == self.stick_position_last_read {
@@ -174,23 +175,26 @@ fn axis_change(reader: &mut Mut<PadStream>, axis: GamepadAxisType, new_value: f3
 fn button_change(reader: &mut Mut<PadStream>, button: GamepadButtonType, new_value: f32) {
     // TODO: real button mappings
 
-    let update = if new_value > 0.1 {
-        ButtonUpdate::Pressed
-    } else {
-        ButtonUpdate::Released
+    let press = new_value > 0.1;
+    let handle_gamebutton = move |reader: &mut Mut<PadStream>, button: GameButton| {
+        if press {
+            reader.press_button(button)
+        } else {
+            reader.release_button(button)
+        }
     };
 
     match button {
-        GamepadButtonType::South => reader.update_button(GameButton::Fast, update),
-        GamepadButtonType::East => reader.update_button(GameButton::Strong, update),
-        GamepadButtonType::North => reader.update_button(GameButton::Grab, update),
-        GamepadButtonType::West => reader.update_button(GameButton::Equipment, update),
-        GamepadButtonType::LeftTrigger => reader.update_button(GameButton::Taunt, update),
+        GamepadButtonType::South => handle_gamebutton(reader, GameButton::Fast),
+        GamepadButtonType::East => handle_gamebutton(reader, GameButton::Strong),
+        GamepadButtonType::North => handle_gamebutton(reader, GameButton::Grab),
+        GamepadButtonType::West => handle_gamebutton(reader, GameButton::Equipment),
+        GamepadButtonType::LeftTrigger => handle_gamebutton(reader, GameButton::Taunt),
 
-        GamepadButtonType::DPadUp => reader.update_dpad(update, None, Some(1)),
-        GamepadButtonType::DPadDown => reader.update_dpad(update, None, Some(-1)),
-        GamepadButtonType::DPadLeft => reader.update_dpad(update, Some(-1), None),
-        GamepadButtonType::DPadRight => reader.update_dpad(update, Some(1), None),
+        GamepadButtonType::DPadUp => reader.update_dpad(press, None, Some(1)),
+        GamepadButtonType::DPadDown => reader.update_dpad(press, None, Some(-1)),
+        GamepadButtonType::DPadLeft => reader.update_dpad(press, Some(-1), None),
+        GamepadButtonType::DPadRight => reader.update_dpad(press, Some(1), None),
         _ => {}
     }
 }

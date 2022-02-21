@@ -35,29 +35,25 @@ Max tier = round / 2, rounded up
 Min tier = max tier - 2, minimum of 1
 
 # Inventory component
-- [ ] Maintains
-	- [ ] Read-only catalog of [[#Item]]s
-	- [ ] Read-write set of ones the player has
-	- [ ] Player's money
+- [x] Maintains
+	- [x] Read-only catalog of [[#Item]]s
+	- [x] Read-write set of ones the player has
+	- [x] Player's money
 - [ ] Can
 	- [ ] Tell what items the shop can roll
-	- [ ] Warn of circular dependencies
 	- [ ] Tell the system that triggers on exiting shopping what items were recently bought so it can edit health for example
+
+System for modifying things before round starts
+- Health and meter
 
 ## Item
 Knows:
 - Tier
 - Cost
 - is_starter - can this be rolled as a starting item
-- Component to put on the player
-	- For keeping track of stuff
-	- An empty struct for most items
-- ID (Typeid of the component)
+- Enum that maintains state.
 - Optional Phase flag, for if the item affects a move.
 	- Flags for owned items should be set at activation
-- System for modifying things before round starts
-	- Health and meter
-- Prerequisites (List of item IDs)
 
 What items need to be able to do and proposed ways to do them:
 1. Change move phases
@@ -77,10 +73,11 @@ What items need to be able to do and proposed ways to do them:
 
 # Other
 - [ ] Acquire currency (see [[Bonuses]])
-- [ ] Items crate
+- [x] Items crate
 
 # Expansion for the future
 - Selling items
 - Item icons
 - UI v2
 - Move editing, resources, item components, inventory v2
+- Requirements

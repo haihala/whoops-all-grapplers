@@ -8,10 +8,10 @@ mod input_parser;
 mod input_stream;
 mod motion_input;
 
+pub use helper_types::InputEvent;
 pub use input_parser::InputParser;
 
 use input_stream::PadStream;
-pub use motion_input::InputEvent;
 
 const MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS: f32 = 0.2; // In seconds
 const CHARGE_TIME: f32 = 1.0; // In seconds

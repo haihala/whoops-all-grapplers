@@ -5,6 +5,7 @@ members = [
     "constants",
     "input_parsing",
     "integration_tests",
+    "items",
     "lib",
     "main",
     "moves",

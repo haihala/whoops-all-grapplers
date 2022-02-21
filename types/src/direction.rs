@@ -14,7 +14,8 @@ impl Default for LRDirection {
     }
 }
 impl LRDirection {
-    pub fn opposite(&self) -> LRDirection {
+    #[must_use]
+    pub fn opposite(self) -> LRDirection {
         match self {
             LRDirection::Right => LRDirection::Left,
             LRDirection::Left => LRDirection::Right,

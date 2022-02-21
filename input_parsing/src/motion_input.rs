@@ -1,50 +1,11 @@
 use bevy::utils::Instant;
 
-use types::{GameButton, StickPosition};
+use types::GameButton;
 
 use crate::{
-    helper_types::{Diff, Frame},
+    helper_types::{Diff, Frame, InputEvent},
     CHARGE_TIME, MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
 };
-
-/// Enum used to define move inputs.
-#[derive(Debug, Clone, PartialEq)]
-pub enum InputEvent {
-    /// Prefix. Next requirement must be held for some time
-    Charge,
-    /// Stick must visit a point
-    Point(StickPosition),
-    /// Stick must visit one of the following points
-    Range(Vec<StickPosition>),
-    /// Press a button
-    Press(GameButton),
-    /// Press all of the following buttons
-    MultiPress(Vec<GameButton>),
-    /// Release a button
-    Release(GameButton),
-}
-impl From<char> for InputEvent {
-    fn from(ch: char) -> InputEvent {
-        if let Ok(number_token) = ch.to_string().parse::<i32>() {
-            InputEvent::Point(number_token.into())
-        } else {
-            match ch {
-                'c' => InputEvent::Charge,
-                'f' => InputEvent::Press(GameButton::Fast),
-                'F' => InputEvent::Release(GameButton::Fast),
-                's' => InputEvent::Press(GameButton::Strong),
-                'S' => InputEvent::Release(GameButton::Strong),
-                'g' => InputEvent::Press(GameButton::Grab),
-                'G' => InputEvent::Release(GameButton::Grab),
-                'e' => InputEvent::Press(GameButton::Equipment),
-                'E' => InputEvent::Release(GameButton::Equipment),
-                't' => InputEvent::Press(GameButton::Taunt),
-                'T' => InputEvent::Release(GameButton::Taunt),
-                _ => panic!("Invalid character {}", ch),
-            }
-        }
-    }
-}
 
 #[derive(Default, Debug, Clone, PartialEq)]
 struct ParserHead {
@@ -309,6 +270,8 @@ impl From<&str> for MotionInput {
 
 #[cfg(test)]
 mod test {
+    use types::StickPosition;
+
     use super::*;
 
     #[test]

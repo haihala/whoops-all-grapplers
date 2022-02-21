@@ -95,16 +95,14 @@ mod test {
     use time::sleep;
     use types::GameButton;
 
+    use crate::helper_types::InputEvent;
     use crate::testing::TestInputBundle;
     use crate::testing::TestStream;
 
     const TEST_MOVE: MoveId = 1;
     const SECOND_TEST_MOVE: MoveId = 2;
 
-    use crate::{
-        helper_types::{ButtonUpdate, InputChange},
-        CHARGE_TIME, MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
-    };
+    use crate::{CHARGE_TIME, MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS};
 
     use super::*;
 
@@ -261,22 +259,22 @@ mod test {
         }
 
         fn add_button_and_tick(&mut self, button: GameButton) {
-            self.add_input(InputChange::Button(button, ButtonUpdate::Pressed));
+            self.add_input(InputEvent::Press(button));
             self.tick();
         }
 
         fn add_stick_and_tick(&mut self, stick: StickPosition) {
-            self.add_input(InputChange::Stick(stick));
+            self.add_input(InputEvent::Point(stick));
             self.tick();
         }
 
-        fn add_input(&mut self, change: InputChange) {
+        fn add_input(&mut self, change: InputEvent) {
             for mut reader in self
                 .world
                 .query::<&mut TestStream>()
                 .iter_mut(&mut self.world)
             {
-                reader.push(change);
+                reader.push(change.clone());
             }
         }
 

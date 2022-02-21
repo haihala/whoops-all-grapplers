@@ -1,15 +1,15 @@
 use bevy::prelude::Component;
 
 use super::InputStream;
-use crate::helper_types::{Diff, InputChange};
+use crate::helper_types::{Diff, InputEvent};
 
 #[derive(Debug, Component, Default)]
 pub struct TestStream {
-    next_read: Vec<InputChange>,
+    next_read: Vec<InputEvent>,
 }
 impl TestStream {
     #[cfg(test)]
-    pub fn push(&mut self, change: InputChange) {
+    pub fn push(&mut self, change: InputEvent) {
         self.next_read.push(change);
     }
 }
@@ -21,7 +21,7 @@ impl InputStream for TestStream {
             let value = self
                 .next_read
                 .drain(..)
-                .fold(Diff::default(), |diff, change| diff.apply(&change));
+                .fold(Diff::default(), |diff, change| diff.apply(change));
             Some(value)
         }
     }

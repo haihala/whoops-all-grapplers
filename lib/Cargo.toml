@@ -5,8 +5,8 @@ edition = "2021"
 authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
-bevy = "0.6.0"
-bevy-inspector-egui = "0.8.0"
+bevy = "0.6.1"
+bevy-inspector-egui = "0.8.2"
 
 constants = { path = "../constants" }
 input_parsing = { path = "../input_parsing" }

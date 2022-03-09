@@ -39,12 +39,13 @@ Min tier = max tier - 2, minimum of 1
 	- [x] Read-only catalog of [[#Item]]s
 	- [x] Read-write set of ones the player has
 	- [x] Player's money
-- [ ] Can
-	- [ ] Tell what items the shop can roll
-	- [ ] Tell the system that triggers on exiting shopping what items were recently bought so it can edit health for example
+- [x] Can
+	- [x] Tell what items the shop can roll
+	- [x] Tell the system that triggers on exiting shopping what items were recently bought so it can edit health for example
 
 System for modifying things before round starts
 - Health and meter
+- Maybe other resources should be pooled together?
 
 ## Item
 Knows:
@@ -74,6 +75,19 @@ What items need to be able to do and proposed ways to do them:
 # Other
 - [ ] Acquire currency (see [[Bonuses]])
 - [x] Items crate
+
+# Open
+- How to access non-move inputs (parry shouldn't be a move)
+- Should the data for stuff like parry windows be on components somehow?
+	- Mapping in buying system?
+- Proto buying items
+
+# Plan
+1. [x] KB button to buy a gun (copy hadouken)
+2. [x] It works with the item, doesn't work without it
+	1. [x] New moves
+	2. [x] Move condition
+3. MVP UI
 
 # Expansion for the future
 - Selling items

@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use input_parsing::InputParser;
+use items::Inventory;
 use moves::{CancelLevel, Move, MoveBank, MoveCondition, MoveState};
 use player_state::PlayerState;
 use time::Clock;
@@ -75,9 +76,12 @@ pub fn move_activator(
         &MoveBank,
         &mut Meter,
         &mut Spawner,
+        &Inventory,
     )>,
 ) {
-    for (mut reader, mut state, mut buffer, bank, mut meter, mut spawner) in query.iter_mut() {
+    for (mut reader, mut state, mut buffer, bank, mut meter, mut spawner, inventory) in
+        query.iter_mut()
+    {
         buffer.clear_old(clock.frame);
         buffer.add_events(reader.drain_events(), clock.frame);
 
@@ -89,7 +93,7 @@ pub fn move_activator(
             buffer.use_move(bank, state.get_move_state(), state.is_grounded(), &meter)
         {
             spawner.despawn_on_phase_change(&mut commands);
-            state.start_move(move_id, clock.frame);
+            state.start_move(move_id, clock.frame, inventory.phase_flags());
             meter.pay(move_data.meter_cost);
         }
     }

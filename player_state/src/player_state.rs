@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use moves::MoveState;
+use moves::{MoveState, PhaseCondition};
 use types::{AttackHeight, LRDirection, MoveId, StickPosition};
 
 use crate::{
@@ -24,10 +24,11 @@ impl Default for PlayerState {
 }
 impl PlayerState {
     // Moves
-    pub fn start_move(&mut self, move_id: MoveId, start_frame: usize) {
+    pub fn start_move(&mut self, move_id: MoveId, start_frame: usize, situation: PhaseCondition) {
         let move_state = MoveState {
             start_frame,
             move_id,
+            situation,
             ..Default::default()
         };
 

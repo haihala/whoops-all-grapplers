@@ -184,17 +184,31 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         ..Default::default()
                     }
                     .into(),
-                    Phase {
-                        kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(1.0, 1.0)),
-                            attached_to_player: true,
+                    PhaseSwitch {
+                        default: Phase {
+                            kind: PhaseKind::Attack(SpawnDescriptor {
+                                hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.5, 0.5)),
+                                attached_to_player: true,
+                                ..Default::default()
+                            }),
+                            duration: 20,
+                            mobility: Some(MoveMobility::Perpetual(Vec3::new(2.0, 0.0, 0.0))),
                             ..Default::default()
-                        }),
-                        duration: 20,
-                        mobility: Some(MoveMobility::Perpetual(Vec3::new(5.0, 0.0, 0.0))),
-                        ..Default::default()
-                    }
-                    .into(),
+                        },
+                        branches: vec![(
+                            PhaseCondition::DRUGS,
+                            Phase {
+                                kind: PhaseKind::Attack(SpawnDescriptor {
+                                    hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(1.0, 1.0)),
+                                    attached_to_player: true,
+                                    ..Default::default()
+                                }),
+                                duration: 20,
+                                mobility: Some(MoveMobility::Perpetual(Vec3::new(5.0, 0.0, 0.0))),
+                                ..Default::default()
+                            },
+                        )],
+                    },
                     PhaseSwitch {
                         default: Phase {
                             kind: PhaseKind::Animation,

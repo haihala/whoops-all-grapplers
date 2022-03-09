@@ -29,6 +29,10 @@ impl MoveBank {
         MoveBank { moves }
     }
 
+    pub fn register_move(&mut self, id: MoveId, move_data: Move) {
+        self.moves.insert(id, move_data);
+    }
+
     pub fn get(&self, id: MoveId) -> &Move {
         self.moves.get(&id).unwrap()
     }
@@ -51,10 +55,11 @@ bitflags! {
     #[derive(Default, Inspectable)]
     pub struct PhaseCondition: u32 {
         const HIT = 1;
+        const DRUGS = 2;
     }
 }
 
-#[derive(Debug, Default, Inspectable, Clone)]
+#[derive(Debug, Default, Inspectable, Clone, PartialEq)]
 pub struct Move {
     pub input: &'static str,
     pub cancel_level: CancelLevel,
@@ -91,7 +96,7 @@ impl Move {
     }
 }
 
-#[derive(Debug, Inspectable, Clone)]
+#[derive(Debug, Inspectable, Clone, PartialEq)]
 pub struct PhaseSwitch {
     pub default: Phase,
     pub branches: Vec<(PhaseCondition, Phase)>, // This way order is maintained

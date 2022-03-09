@@ -26,12 +26,12 @@ macro_rules! moves {
 
 // Order matters, moves defined first have priority over later ones
 pub mod test {
-    moves!(0usize, (TEST_MOVE, SECOND_TEST_MOVE));
+    moves!(99usize, (TEST_MOVE, SECOND_TEST_MOVE));
 }
 
 pub mod universal {
     moves!(
-        1usize,
+        0usize,
         (
             DASH_FORWARD,
             DASH_BACK,
@@ -45,8 +45,12 @@ pub mod universal {
     );
 }
 
+pub mod equipment {
+    moves!(1usize, (HANDMEDOWNKEN, OTHER));
+}
+
 // Defined smallest to largest aka later ones can cancel earlier ones.
-#[derive(PartialEq, PartialOrd, Debug, Inspectable, Clone, Copy)]
+#[derive(PartialEq, PartialOrd, Debug, Inspectable, Clone, Copy, Eq)]
 pub enum CancelLevel {
     Anything,
     LightNormal,

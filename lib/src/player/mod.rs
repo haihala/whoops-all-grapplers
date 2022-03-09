@@ -4,9 +4,11 @@ mod movement;
 mod recovery;
 mod size_adjustment;
 
+use input_parsing::InputParser;
 #[cfg(not(test))]
 use input_parsing::PadBundle;
-use moves::ryan_bank;
+use items::{ryan_inventory, Inventory};
+use moves::{ryan_bank, MoveBank};
 use player_state::PlayerState;
 use time::GameState;
 use types::{Grabable, Hurtbox, LRDirection, Player};
@@ -35,6 +37,7 @@ enum PlayerSystemLabel {
     GroundRecovery,
     Movement,
     SizeAdjustment,
+    Testing,
 }
 
 pub struct PlayerPlugin;
@@ -78,6 +81,11 @@ impl Plugin for PlayerPlugin {
                         size_adjustment::size_adjustment
                             .label(PlayerSystemLabel::SizeAdjustment)
                             .after(PlayerSystemLabel::Movement),
+                    )
+                    .with_system(
+                        testing
+                            .label(PlayerSystemLabel::Testing)
+                            .after(PlayerSystemLabel::SizeAdjustment),
                     ),
             );
     }
@@ -129,7 +137,8 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(LRDirection::from_flipped(offset.is_sign_positive()))
         .insert(bank)
         .insert(player)
-        .insert(state);
+        .insert(state)
+        .insert(ryan_inventory());
 
     #[cfg(not(test))]
     spawn_handle.insert_bundle(inputs);
@@ -153,5 +162,25 @@ fn reset(
             Player::Two => PLAYER_SPAWN_DISTANCE,
         };
         tf.translation.y = PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0;
+    }
+}
+
+fn testing(
+    keys: Res<Input<KeyCode>>,
+    mut query: Query<(&mut Inventory, &mut MoveBank, &mut InputParser)>,
+) {
+    if keys.just_pressed(KeyCode::Space) {
+        for (mut inventory, mut bank, mut parser) in query.iter_mut() {
+            if inventory.owned.len() == 0 {
+                let item = inventory.roll_shop(1)[0].item.clone();
+                dbg!(&item);
+                inventory.buy(item.clone());
+
+                for (move_id, move_data) in item.new_moves {
+                    parser.register_input(move_id, move_data.input.into());
+                    bank.register_move(move_id, move_data);
+                }
+            }
+        }
     }
 }

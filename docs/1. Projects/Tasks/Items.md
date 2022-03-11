@@ -88,6 +88,7 @@ What items need to be able to do and proposed ways to do them:
 	1. [x] New moves
 	2. [x] Move condition
 3. MVP UI
+4. PhaseConditions needs a more general name, it should be used for 'does the player have this item'
 
 # Expansion for the future
 - Selling items

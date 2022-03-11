@@ -171,7 +171,7 @@ fn testing(
 ) {
     if keys.just_pressed(KeyCode::Space) {
         for (mut inventory, mut bank, mut parser) in query.iter_mut() {
-            if inventory.owned.len() == 0 {
+            if inventory.owned.is_empty() {
                 let item = inventory.roll_shop(1)[0].item.clone();
                 dbg!(&item);
                 inventory.buy(item.clone());

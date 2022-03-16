@@ -51,7 +51,9 @@ pub fn check_dead(
         })
         .collect();
 
-    if living_players.len() != 2 || clock.time_out() {
+    let round_over = living_players.len() != 2 || clock.time_out();
+
+    if *state.current() == GameState::Combat && round_over {
         commands.insert_resource(if living_players.len() == 1 {
             RoundResult {
                 winner: Some(living_players[0]),
@@ -60,9 +62,6 @@ pub fn check_dead(
             RoundResult { winner: None }
         });
 
-        // FIXME: This gave an error while I was fixing other stuff, may or may not actually be broken, likely related to round ending by time if it is.
-        // thread 'Compute Task Pool (0)' panicked at 'called `Result::unwrap()` on an `Err` value: AlreadyInState', lib\src\damage\health.rs:63:41
-        // note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-        state.set(GameState::PostRound).unwrap();
+        state.set(GameState::Shop).unwrap();
     }
 }

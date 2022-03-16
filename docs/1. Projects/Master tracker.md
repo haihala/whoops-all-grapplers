@@ -1,10 +1,10 @@
 # Backlog
 ## High priority
 - [[Menus]]
-	- [[Items]]
-		- [[Drugs]]
-		- [[Gi of the old masters]]
-		- [[Gun]]
+- [[Items]]
+	- [[Drugs]]
+	- [[Gi of the old masters]]
+	- [[Gun]]
 
 ## Low priority
 - [[Recovery and knockdown]]

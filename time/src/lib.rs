@@ -36,7 +36,7 @@ impl Clock {
         self.elapsed_time >= ROUND_TIME - 1.0
     }
 
-    fn reset(&mut self) {
+    pub fn reset(&mut self) {
         self.frame = 0;
         self.elapsed_time = 0.0;
     }
@@ -56,8 +56,6 @@ pub enum WAGStage {
 enum TimeSystemLabel {
     UpdateClock,
     ResetClock,
-    UpdateCountdown,
-    ResetCountdown,
 }
 
 pub struct TimePlugin;
@@ -76,14 +74,14 @@ impl Plugin for TimePlugin {
             SystemStage::parallel(),
         )
         .insert_resource(Clock::default())
-        .add_state_to_stage(CoreStage::Last, GameState::PreRound)
+        .add_state_to_stage(CoreStage::Last, GameState::Shop)
         .add_system_set_to_stage(CoreStage::PostUpdate, State::<GameState>::get_driver())
         .add_system_set_to_stage(CoreStage::Update, State::<GameState>::get_driver())
         .add_system_set_to_stage(CoreStage::PreUpdate, State::<GameState>::get_driver())
         .add_system_set_to_stage(CoreStage::First, State::<GameState>::get_driver())
-        .insert_resource(game_flow::InterFrameCountdown(Timer::from_seconds(
-            3.0, false,
-        )))
+        .add_system_set_to_stage(WAGStage::HitReg, State::<GameState>::get_driver())
+        .add_system_set_to_stage(WAGStage::Inputs, State::<GameState>::get_driver())
+        .add_system_set_to_stage(WAGStage::Physics, State::<GameState>::get_driver())
         .add_system_to_stage(
             CoreStage::First,
             update_clock
@@ -96,20 +94,6 @@ impl Plugin for TimePlugin {
                 .with_run_criteria(State::on_enter(GameState::Combat))
                 .label(TimeSystemLabel::ResetClock)
                 .after(TimeSystemLabel::UpdateClock),
-        )
-        .add_system_to_stage(
-            CoreStage::First,
-            game_flow::update_countdown
-                .with_run_criteria(not_in_combat)
-                .label(TimeSystemLabel::UpdateCountdown)
-                .after(TimeSystemLabel::ResetClock),
-        )
-        .add_system_to_stage(
-            CoreStage::First,
-            game_flow::reset_countdown
-                .with_run_criteria(State::on_enter(GameState::PostRound))
-                .label(TimeSystemLabel::ResetCountdown)
-                .after(TimeSystemLabel::UpdateCountdown),
         );
     }
 }

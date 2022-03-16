@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use time::{Clock, WAGStage};
+use time::{Clock, GameState, WAGStage};
 use types::{Hurtbox, LRDirection, OnHitEffect, Player};
 
 mod health;
@@ -31,7 +31,8 @@ impl Plugin for DamagePlugin {
                 .with_system(
                     health::check_dead
                         .label(DamageSystemLabel::Dead)
-                        .after(DamageSystemLabel::HitReg),
+                        .after(DamageSystemLabel::HitReg)
+                        .with_run_criteria(State::on_update(GameState::Combat)),
                 ),
         );
     }

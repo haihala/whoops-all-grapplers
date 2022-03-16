@@ -61,8 +61,15 @@ impl MoveBuffer {
     }
 
     fn clear_old(&mut self, current_frame: usize) {
-        self.buffer
-            .retain(|(frame, _)| current_frame - frame < FRAMES_TO_LIVE_IN_BUFFER);
+        self.buffer.retain(|(frame, _)| {
+            if current_frame > *frame {
+                // Default case, retain those who are fresh
+                current_frame - frame < FRAMES_TO_LIVE_IN_BUFFER
+            } else {
+                // Round has restarted, clear the buffer
+                false
+            }
+        });
     }
 }
 

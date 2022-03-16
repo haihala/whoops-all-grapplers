@@ -10,7 +10,7 @@ use input_parsing::PadBundle;
 use items::{ryan_inventory, Inventory};
 use moves::{ryan_bank, MoveBank};
 use player_state::PlayerState;
-use time::GameState;
+use time::{Clock, GameState};
 use types::{Grabable, Hurtbox, LRDirection, Player};
 
 use crate::{
@@ -47,7 +47,7 @@ impl Plugin for PlayerPlugin {
         app.add_startup_system(setup)
             .add_system(
                 reset
-                    .with_run_criteria(State::on_enter(GameState::Combat))
+                    .with_run_criteria(State::on_update(GameState::Shop))
                     .label(PlayerSystemLabel::Reset),
             )
             .add_system_set(
@@ -145,6 +145,7 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
 }
 
 fn reset(
+    keys: Res<Input<KeyCode>>,
     mut query: Query<(
         &mut Health,
         &mut Meter,
@@ -152,16 +153,23 @@ fn reset(
         &Player,
         &PlayerState,
     )>,
+    mut state: ResMut<State<GameState>>,
+    mut clock: ResMut<Clock>,
 ) {
-    for (mut health, mut meter, mut tf, player, state) in query.iter_mut() {
-        health.reset();
-        meter.reset();
+    if keys.just_pressed(KeyCode::Return) {
+        state.set(GameState::Combat).unwrap();
+        clock.reset();
 
-        tf.translation.x = match *player {
-            Player::One => -PLAYER_SPAWN_DISTANCE,
-            Player::Two => PLAYER_SPAWN_DISTANCE,
-        };
-        tf.translation.y = PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0;
+        for (mut health, mut meter, mut tf, player, state) in query.iter_mut() {
+            health.reset();
+            meter.reset();
+
+            tf.translation.x = match *player {
+                Player::One => -PLAYER_SPAWN_DISTANCE,
+                Player::Two => PLAYER_SPAWN_DISTANCE,
+            };
+            tf.translation.y = PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0;
+        }
     }
 }
 

@@ -44,6 +44,11 @@ impl TestRunner {
         app.add_system(parse_input::<PreWrittenStream>);
         app.update();
 
+        // Go to combat (skip buy phase)
+        let mut key_input = app.world.get_resource_mut::<Input<KeyCode>>().unwrap();
+        key_input.press(KeyCode::Return);
+        app.update();
+
         let mut p1: Option<Entity> = None;
         let mut p2: Option<Entity> = None;
 
@@ -64,6 +69,7 @@ impl TestRunner {
         app.world
             .entity_mut(p2.unwrap())
             .insert_bundle(spec.p2_bundle());
+
         app.update();
         app
     }

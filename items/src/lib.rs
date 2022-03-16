@@ -5,4 +5,4 @@ mod inventory;
 pub use inventory::*;
 
 mod items;
-pub use items::*;
+pub use crate::items::*;

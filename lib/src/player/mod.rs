@@ -156,7 +156,8 @@ fn reset(
     mut state: ResMut<State<GameState>>,
     mut clock: ResMut<Clock>,
 ) {
-    if keys.just_pressed(KeyCode::Return) {
+    // Just pressed would be better, but it's difficult in tests and the difference is very minor.
+    if keys.pressed(KeyCode::Return) {
         state.set(GameState::Combat).unwrap();
         clock.reset();
 

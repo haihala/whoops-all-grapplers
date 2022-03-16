@@ -14,7 +14,7 @@ fn round_start() {
         "Jump",
         TestSpec::new(
             vec![
-                InputClump::Idle(Duration::from_secs_f32(2.5)), // Because it starts in pre-round
+                InputClump::Idle(Duration::from_secs_f32(0.1)),
                 InputClump::InputStream("8"),
                 InputClump::Idle(Duration::from_secs_f32(0.1)),
             ],

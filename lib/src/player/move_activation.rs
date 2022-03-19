@@ -71,6 +71,10 @@ impl MoveBuffer {
             }
         });
     }
+
+    pub fn clear(&mut self) {
+        *self = MoveBuffer::default();
+    }
 }
 
 pub fn move_activator(

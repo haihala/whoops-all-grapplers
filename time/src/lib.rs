@@ -120,10 +120,11 @@ pub fn once_per_combat_frame(
     clock: Res<Clock>,
     state: Res<State<GameState>>,
 ) -> ShouldRun {
-    if *state.current() == GameState::Combat && *last_frame < clock.frame {
-        *last_frame = clock.frame;
+    let value = if *state.current() == GameState::Combat && *last_frame < clock.frame {
         ShouldRun::Yes
     } else {
         ShouldRun::No
-    }
+    };
+    *last_frame = clock.frame;
+    value
 }

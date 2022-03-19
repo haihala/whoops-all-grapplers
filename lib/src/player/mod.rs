@@ -10,7 +10,7 @@ use input_parsing::PadBundle;
 use items::{ryan_inventory, Inventory};
 use moves::{ryan_bank, MoveBank};
 use player_state::PlayerState;
-use time::{Clock, GameState};
+use time::{Clock, GameState, RoundResult};
 use types::{Grabable, Hurtbox, LRDirection, Player};
 
 use crate::{
@@ -145,31 +145,38 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
 }
 
 fn reset(
+    mut commands: Commands,
     keys: Res<Input<KeyCode>>,
     mut query: Query<(
         &mut Health,
         &mut Meter,
         &mut Transform,
         &Player,
-        &PlayerState,
+        &mut PlayerState,
+        &mut MoveBuffer,
     )>,
-    mut state: ResMut<State<GameState>>,
+    mut game_state: ResMut<State<GameState>>,
     mut clock: ResMut<Clock>,
 ) {
     // Just pressed would be better, but it's difficult in tests and the difference is very minor.
     if keys.pressed(KeyCode::Return) {
-        state.set(GameState::Combat).unwrap();
+        game_state.set(GameState::Combat).unwrap();
         clock.reset();
+        commands.remove_resource::<RoundResult>();
 
-        for (mut health, mut meter, mut tf, player, state) in query.iter_mut() {
+        for (mut health, mut meter, mut tf, player, mut player_state, mut buffer) in
+            query.iter_mut()
+        {
             health.reset();
             meter.reset();
+            player_state.reset();
+            buffer.clear();
 
             tf.translation.x = match *player {
                 Player::One => -PLAYER_SPAWN_DISTANCE,
                 Player::Two => PLAYER_SPAWN_DISTANCE,
             };
-            tf.translation.y = PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0;
+            tf.translation.y = PLAYER_SPAWN_HEIGHT + player_state.get_collider_size().y / 2.0;
         }
     }
 }

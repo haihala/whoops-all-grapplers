@@ -23,6 +23,10 @@ impl Default for PlayerState {
     }
 }
 impl PlayerState {
+    pub fn reset(&mut self) {
+        *self = PlayerState::default();
+    }
+
     // Moves
     pub fn start_move(&mut self, move_id: MoveId, start_frame: usize, situation: PhaseCondition) {
         let move_state = MoveState {

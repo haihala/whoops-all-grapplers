@@ -11,11 +11,8 @@
 - [[Change detection]]
 
 ## Easy nibbles
-- [[Optimization tracker#Workflow]]
-- [[Optimization tracker#Move data]]
 - Extend meter to resources
 	- Bullets go there
-- RunCriteria for specific state transitions
 
 ## Not a priority
 - [[3D model]]
@@ -26,13 +23,15 @@
 - [[Resources between rounds]]
 - [[Rewards]]
 - [[Simple training mode]]
-- [[Shoto girl]]
+- [[Lex]]
 - [[Testing framework v2]]
-- Space to pause the game (look at inspector)
+- [[Move representing]]
+- A way to pause the game (look at inspector)
 - Generic state based visibility toggler for UI components
 - Think about cancellability + moves having hit
 	- Currently can't cancel rest of active
 - Split move list into multiple bits so you can more easily reuse phases for switches that only modify bits of a phase
+- Maybe if player collision used diamond shaped colliders it would be easier to handle sliding off when landing on the other player
 
 # Other trackers
 ![[Bug tracker]]

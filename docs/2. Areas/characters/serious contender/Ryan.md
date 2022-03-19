@@ -1,15 +1,6 @@
 # Ryan
 The entry point. An old grizzled shoto.
 
-|           | Vision | Started | Designed | Implemented | Polished |
-| --------- | ------ | ------- | -------- | ----------- | -------- |
-| Mechanics |        | x       |          |             |          |
-| Items     |        | x       |          |             |          |
-| Moves     |        | x       |          |             |          |
-| Visuals   |        | x       |          |             |          |
-| Audio     |        | x       |          |             |          |
-| Flair     |        | x       |          |             |          |
-
 ## Writeup
 Ryan is a 50-something year old half asian half white dude who has been "doing this for a while". He is an obvious "Loganification" of Ryu.
 

@@ -77,8 +77,6 @@ If a character has a name or more than 3 lines, they need a file of their own. C
 - Back and forth dash canceling
 - "Batman" with many gadgets and gizmos that are single use
 - Proper shoryuken with inverse input that rekka's into downwards shoriyuken (normal input)
-- "Young, brute force shoto"
-  - Instead of a reversal dp, they may have a massive dp that is just hugely negative on block.
 - Rubber arms grappler
 - Goldlewis like glasses, but they give information to the player (maybe show like ghosts of predicted moves from the opponent)
 - Vampire glass cannon (low max health, lifesteal)

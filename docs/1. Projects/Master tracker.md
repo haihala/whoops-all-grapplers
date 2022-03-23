@@ -1,18 +1,24 @@
 # Backlog
-## High priority
+## Clearly a priority but blocked
 - [[Menus]]
-- [[Items]]
-	- [[Drugs]]
-	- [[Gi of the old masters]]
-	- [[Gun]]
+	- Blocked by waiting for new bevy UI (April)
+- [[Gi of the old masters]]
+	- Blocked by [[Simple training mode]]
+- [[Gun]]
+	- Blocked by [[Move representing]]
+
+## High priority
+
 
 ## Low priority
 - [[Recovery and knockdown]]
-- [[Change detection]]
-
-## Easy nibbles
 - Extend meter to resources
 	- Bullets go there
+	- Charge goes there
+	- [[Lex#Heat]] goes there
+
+## Easy nibbles
+
 
 ## Not a priority
 - [[3D model]]
@@ -32,6 +38,7 @@
 	- Currently can't cancel rest of active
 - Split move list into multiple bits so you can more easily reuse phases for switches that only modify bits of a phase
 - Maybe if player collision used diamond shaped colliders it would be easier to handle sliding off when landing on the other player
+- Toasts
 
 # Other trackers
 ![[Bug tracker]]

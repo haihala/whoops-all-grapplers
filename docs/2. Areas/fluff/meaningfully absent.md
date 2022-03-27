@@ -14,7 +14,7 @@ Workaround:
   - Poke bonus (rename): After not landing an unblocked hit for five seconds, your next hit does extra damage.
   - TODO: Separate file
 
-## Running
+## Running / walking split
 Upsides:
 - Go fast
 
@@ -22,9 +22,9 @@ Downsides:
 - You rarely want to go slow, so you just have to jump through extra hoops.
 
 Workaround:
-- Every character is always running.
+- Only one state, animation depends on character
 
-## Counter hit
+## Counter hits
 Upsides:
 - Encourages noobs to use smaller moves
 - Rewards knowing your character and the matchup
@@ -32,9 +32,11 @@ Upsides:
 Downsides:
 - Rich get richer
 - Often happen by accident
+- Sometimes hard to react to and you feel stupid for not reacting to them
 
 Workaround:
 - Try without to go without. If it looks like the game could benefit from counter hits, reconsider
+- Maybe add for a character or into an item
 
 ## Block invincibility on getting up
 Upsides:

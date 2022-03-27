@@ -1,9 +1,10 @@
-- Maybe divide up small tasks I could do after work
 - Taunting is how you cash out combo damage to money
-- Move defining structs to moves crate
-- Store combo meter gain in the meter component.
 - Polish: make parser heads peek one forward and maybe remember that and/or skip requirements
 - Just put all moves in a massive enum
 	- They already basically are, except in a ghetto way.
-	- Can you easily make parser generic and have a unique enum for all characters to avoid possible ordering issues
 - Turning system should only work when the characters are on the ground
+- A method to 'upgrade' moves with complete inputs
+	- quarter+f+s should override quarter+f if it comes in early enough
+- Cumulative hitstun?
+	- Paritally cumulative hitstun?
+	- Attach to an [[item]]?

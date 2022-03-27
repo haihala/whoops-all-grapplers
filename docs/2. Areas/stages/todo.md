@@ -1,4 +1,4 @@
-MVP will have one stage, a dull box
+MVP will have one stage, a dull box similar to a training stage
 
 Ideas for the future:
 - Stage edge variety

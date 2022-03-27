@@ -1,0 +1,1 @@
+A tool to manage build scripts. See `Makefile`

@@ -26,14 +26,14 @@
 	- [x] Throw
 		- [x] Can throw
 		- [x] Yomi counter
-- [ ] One character ([[Ryan]])
+- [ ] One character ([[Lex]])
 	- [ ] 4 normals
 	- [ ] 2 specials
 	- [x] Visuals (Box)
 	- [x] Animations (moving boxes)
 	- [ ] SFX (POC)
 - [ ] Items
-	- [ ] Projectile
+	- [x] Projectile
 	- [ ] Parry
 	- [ ] RC
 	- [ ] Drugs for [[Ryan]]

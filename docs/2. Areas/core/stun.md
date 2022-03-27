@@ -1,1 +1,0 @@
-Hitting a character causes hitstun. Unlike other games, hitstun is cumulative and each move after the first just adds some stun frames. The moves may take more time than they add, meaning sometimes a player is + on hit, but this requires an everextention from the attacker.

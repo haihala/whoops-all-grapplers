@@ -1,34 +1,13 @@
 # Characters
-- MVP will have one character, Final product will have 10
-  - If the amount of characters is known before hand, each one is maybe considered more critically
-
 ## Philosophy
 1. Every character is someone's baby, treat them all with respect
 2. Each character needs a reason to exist.
    1. They serve a player profile that was previously without a character
-   2. They bring something completely new to the genre
-   3. They are an interesting twist on something
+   2. They bring something new to the game
 3. There are bad ideas and there are cursed ideas. Course correct early and often.
 
-## Stages
-Characters are composed of multiple phases. Mechanics, Moves, visuals, audio, and flair. Before a character is done, each of these parts will go through several phases. A character is done when all the parts are done.
-
-Part phases are 'Blank', 'Started', 'Designed', Implemented', and 'Polished'
-
-Each character file ought to have a matrix like this at the start:
-
-|           | Vision | Started | Designed | Implemented | Polished |
-| --------- | ------ | ------- | -------- | ----------- | -------- |
-| Mechanics | x      |         |          |             |          |
-| Moves     | x      |         |          |             |          |
-| Visuals   | x      |         |          |             |          |
-| Audio     | x      |         |          |             |          |
-| Flair     | x      |         |          |             |          |
-
-One X per line, when all lines have an X at polished, the character is done.
-
 ## Idea dump
-If a character has a name or more than 3 lines, they need a file of their own. Copy [[template]] and change the name. Add a page to the excel that holds move importance.
+If a character has a name or more than 3 lines, they need a file of their own. Copy [[template]] and change the name. The idea list below is rarely if ever groomed. They probably should be. Only read if highly motivated.
 
 - Characters have small strings of music attached to some of their combos
 	- Like a few hit combo that sounds like the start of the american national anthem

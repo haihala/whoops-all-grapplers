@@ -29,6 +29,8 @@ Benefits:
 - Switching characters is easier
 
 # Theory: Many of the aformentioned are a result of removing target's agency
+The logic below is convoluted but I stand by it. Only read if highly motivated.
+
 Assertions:
 1. People often don't like touch of death games
 2. Landing multiple hits feels good
@@ -101,9 +103,10 @@ Like in smash, if the defender can have some influence on how knockback affects 
 Maybe limit how often you can do it so it can be more influential.
 - [[meter]] cost
 - Every third hit or something like that.
+- Mini air dash that resets [[bonuses#Opener]] (if you are wrong it costs health)
 
 ## Instant recovery
-See [[cancel#Instant recovery]].
+Something like the burst in anime games. Yes you can't do much while getting comboed, but you can burst which immediately makes for a more dynamic situation.
 
 # Hypothesis 2: Combo scaling is a relic
 Instead of your hits dealing less damage, the longer a combo goes on, add a bonus for the first hit and then keep the damage standard. 
@@ -111,16 +114,13 @@ Instead of your hits dealing less damage, the longer a combo goes on, add a bonu
 Benefits:
 - There is never a case where adding a hit reduces total damage
 - Easy to understand
-- Can condition players with the combo starter fx
 - Getting reset wouldn't suck as badly.
-- Baiting for [[cancel#Instant recovery]] would yield tangible benefits
-
-The last two may seem contradictory, but I'd argue that the primal satisfaction of fx is greater than knowing that you will deal an ambiguous amount more damage.
+	- If there is a notification for the bonus, it would be more obvious
 
 Cons:
 - Wider skill gap
 	- Not inherently bad in the end, but does make matchmaking difficult
 - Infinites are a game ender
 	- They already were, but now they take less time and must be patched out instead of tolerated because 'execution difficulty' or some such bullshit.
-
+	- The game will probably have a few accidental infinites and that's fine. MvC 2 has infinites and it's a great game.
 

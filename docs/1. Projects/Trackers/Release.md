@@ -1,6 +1,6 @@
 - [ ] Four characters:
-	- [ ] (S)punky young woman as a lancer/hero to Ryan
-	- [ ] Old man Ryan
+	- [ ] [[Lex]]
+	- [ ] [[Ryan]]
 	- [ ] CPU as a villain
 	- [ ] Big brain big body
 - [ ] Training mode

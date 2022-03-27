@@ -10,7 +10,3 @@ There is no air blocking.
 - Mid
 - Low
 
-## Parry
-Quickly tapping forwards will parry an incoming attacks. Parrying will negate chip and increase pushback.
-
-You can't block immediately after parrying. You can't parry while in block stun.

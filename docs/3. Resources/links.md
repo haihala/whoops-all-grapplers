@@ -1,9 +1,4 @@
-
 [Github repo](https://github.com/rorawok/whoops-all-grapplers)
-
-[Shortcut](https://app.shortcut.com/bathrobe)
-
-Shortcut and the projects section overlap, but serve subtly different purposes. Clubhouse is meant to track the overall work amount, while projects are meant to be more gradual and focused on what is currently happening.
 
 [Taskboard](https://tasksboard.com/app)
 

@@ -9,3 +9,13 @@
 - Response trials
 	- Player plays vs AI that abuses cheese
 	- Before getting smacked, the game freezes and tells them to think themselves out of the problem
+
+# Audio
+- Valorant kill rising pitch sound on hits
+
+# Visual
+- In game notifications (Solution to confusion with things like why didn't air throw hit the ground)
+	- Chip damage (kills?)
+	- Throw dodge (Jump a ground throw)
+	- Grabbed
+- Instead of a combo counter, show frame advantage

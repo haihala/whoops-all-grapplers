@@ -4,11 +4,12 @@
 	- (`4e`, `5e`, `623e`, etc)
 	- Some things sharing slots means you sometimes have to pick
 
-Items should be:
+A good item should be:
 - Interesting
-- Non-mandatory seeming
 - Complexity increasing
-
+- Non-mandatory
+	- It's fine to have a few items, one of which you'd really kinda need to get in a matchup
+	- Single must have items are not kosher
 
 Do this with lateral items. here should be an item that kinda solves that problem for every problem, likely several
 
@@ -55,6 +56,6 @@ How do you force a mistake
 - Steel toed boots, block one low per round you would've gotten hit by
 - Custom combo like mechanic where yoiu play back your own moves at fractions of speed speed
 - winged shield, gives you a shitty air block and has a flavor text reference to the Bloodborne wooden shield
-- Burst that doesn't have a use restrictive use limitation, but every time you use it a bag of money is thrown to the other player's side
-	- Bursting on left right mix is very efficient
+- Burst that doesn't have a use restrictive use limitation, but every time you use it a bag of money is thrown at the other player
+	- Bag may miss
 	- Limit it so that endgame you don't burst on every hit (maybe if you have enough money you just win by capitalism)

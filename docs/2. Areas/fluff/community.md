@@ -5,7 +5,7 @@ Everything here should stay as is for a while. Not because it's not important, b
 There needs to be a hub where matchmaking can occur and people can talk about stuff.
 
 Todo:
-- Emotes for motions
+- Emotes for motions (establish names for them)
 
 ## Weeklies
 Weekly regional tournaments, the winners of which can be shown in the game. Maybe there is a place where you can see who is the previous winner in each region and how long is their win streak. Maybe have the player with the longest streak there as well. 

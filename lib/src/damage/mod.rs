@@ -9,8 +9,8 @@ mod health;
 pub use health::Health;
 
 use crate::{
-    meter::Meter,
     physics::{rect_collision, PlayerVelocity},
+    resources::Meter,
     spawner::Spawner,
 };
 

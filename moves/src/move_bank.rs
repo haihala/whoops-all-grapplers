@@ -60,11 +60,17 @@ bitflags! {
 }
 
 #[derive(Debug, Default, Inspectable, Clone, PartialEq)]
+pub struct MoveCost {
+    pub meter: i32,
+    pub charge: bool,
+}
+
+#[derive(Debug, Default, Inspectable, Clone, PartialEq)]
 pub struct Move {
     pub input: &'static str,
     pub cancel_level: CancelLevel,
     pub phases: Vec<PhaseSwitch>,
-    pub meter_cost: i32,
+    pub cost: MoveCost,
     pub conditions: MoveCondition,
 }
 

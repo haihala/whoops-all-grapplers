@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
+use super::GameResource;
+
 #[derive(Inspectable, Component, Clone, Copy)]
 pub struct Meter {
     ratio: f32,
@@ -8,7 +10,6 @@ pub struct Meter {
     max: i32,
     combo_meter: i32,
 }
-
 impl Default for Meter {
     fn default() -> Self {
         Self {
@@ -19,21 +20,19 @@ impl Default for Meter {
         }
     }
 }
-impl Meter {
-    pub fn get_ratio(&self) -> f32 {
+impl GameResource<i32> for Meter {
+    fn get_ratio(&self) -> f32 {
         self.ratio
     }
-    pub fn reset(&mut self) {
-        self.value = self.max;
-        self.ratio = 1.0;
-    }
-    pub fn can_afford(&self, amount: i32) -> bool {
+    fn can_afford(&self, amount: i32) -> bool {
         self.value >= amount
     }
-    pub fn pay(&mut self, amount: i32) {
+    fn pay(&mut self, amount: i32) {
         assert!(self.value >= amount, "Meter overdraft");
         self.gain(-amount);
     }
+}
+impl Meter {
     pub fn gain(&mut self, amount: i32) {
         self.value = (self.value + amount).min(self.max);
         self.ratio = self.value as f32 / self.max as f32;

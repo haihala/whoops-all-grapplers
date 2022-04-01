@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use player_state::PlayerState;
 use time::Clock;
 
-use crate::meter::Meter;
+use crate::resources::Meter;
 
 pub fn stun_recovery(mut players: Query<(&mut PlayerState, &mut Meter)>, clock: Res<Clock>) {
     let mut iter = players.iter_combinations_mut();

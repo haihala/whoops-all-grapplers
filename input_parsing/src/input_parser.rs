@@ -45,31 +45,31 @@ impl InputParser {
         self.events.drain(..).collect()
     }
 
-    pub fn clear_head(&self) -> bool {
+    pub fn head_is_clear(&self) -> bool {
         self.head.stick_position == StickPosition::Neutral && self.head.pressed.is_empty()
     }
 
     fn add_frame(&mut self, diff: Diff, facing: &LRDirection) {
-        self.head.apply(diff.clone());
+        // This needs to happen before relative_stick is set to enable inputs that permit holding a direction as the first requirement
+        self.parse_inputs(
+            Diff {
+                stick_move: diff.stick_move.map(|stick| facing.mirror_stick(stick)),
+                ..diff.clone()
+            },
+            Frame {
+                stick_position: self.relative_stick,
+                ..self.head.clone()
+            },
+        );
 
+        self.head.apply(diff);
         self.relative_stick = facing.mirror_stick(self.head.stick_position);
-        let relative_diff = Diff {
-            stick_move: diff.stick_move.map(|stick| facing.mirror_stick(stick)),
-            ..diff
-        };
-
-        self.parse_inputs(&relative_diff);
     }
 
-    fn parse_inputs(&mut self, diff: &Diff) {
-        let frame = Frame {
-            stick_position: self.relative_stick,
-            ..self.head.clone()
-        };
-
+    fn parse_inputs(&mut self, diff: Diff, frame: Frame) {
         self.events
             .extend(self.registered_inputs.iter_mut().filter_map(|(id, input)| {
-                input.advance(diff, &frame);
+                input.advance(&diff, &frame);
                 if input.is_done() {
                     input.clear();
                     return Some(*id);
@@ -102,7 +102,7 @@ mod test {
     const TEST_MOVE: MoveId = 1;
     const SECOND_TEST_MOVE: MoveId = 2;
 
-    use crate::{CHARGE_TIME, MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS};
+    use crate::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS;
 
     use super::*;
 
@@ -129,34 +129,6 @@ mod test {
         interface.assert_no_events();
 
         interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
-
-        interface.add_button_and_tick(GameButton::Fast);
-        interface.assert_no_events();
-    }
-
-    #[test]
-    fn sonic_boom_recognized() {
-        let mut interface = TestInterface::with_input("c46f");
-
-        interface.add_stick_and_tick(StickPosition::W);
-        interface.sleep(CHARGE_TIME);
-
-        interface.add_stick_and_tick(StickPosition::E);
-        interface.assert_no_events();
-
-        interface.add_button_and_tick(GameButton::Fast);
-        interface.assert_test_event_is_present();
-    }
-
-    #[test]
-    fn sonic_boom_needs_charge() {
-        let mut interface = TestInterface::with_input("c46f");
-
-        interface.add_stick_and_tick(StickPosition::W);
-        interface.tick();
-
-        interface.add_stick_and_tick(StickPosition::E);
-        interface.assert_no_events();
 
         interface.add_button_and_tick(GameButton::Fast);
         interface.assert_no_events();
@@ -195,6 +167,19 @@ mod test {
     }
 
     #[test]
+    fn slow_command_motion_recognized() {
+        let mut interface = TestInterface::with_input("28");
+
+        interface.add_stick_and_tick(StickPosition::S);
+        interface.assert_no_events();
+
+        interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
+
+        interface.add_stick_and_tick(StickPosition::N);
+        interface.assert_test_event_is_present();
+    }
+
+    #[test]
     fn multibutton_normal_recognized() {
         let mut interface = TestInterface::with_input("[fs]");
 
@@ -209,6 +194,17 @@ mod test {
         let mut interface = TestInterface::with_input("[fs]");
 
         interface.add_button_and_tick(GameButton::Strong);
+        interface.assert_no_events();
+        interface.add_button_and_tick(GameButton::Fast);
+        interface.assert_test_event_is_present();
+    }
+
+    #[test]
+    fn multidirection_permits_skipping() {
+        let mut interface = TestInterface::with_input("[41]6f");
+
+        interface.add_stick_and_tick(StickPosition::SW);
+        interface.add_stick_and_tick(StickPosition::E);
         interface.assert_no_events();
         interface.add_button_and_tick(GameButton::Fast);
         interface.assert_test_event_is_present();
@@ -300,7 +296,11 @@ mod test {
                 .next()
                 .unwrap();
 
-            assert!(parser.events.contains(&id));
+            assert!(
+                parser.events.contains(&id),
+                "Event {:?} was not present",
+                &id
+            );
         }
 
         fn assert_no_events(&mut self) {

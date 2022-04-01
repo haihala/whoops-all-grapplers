@@ -84,7 +84,7 @@ fn advance_move(
                         let max_distance = grab_target.size + descriptor.range;
                         let in_range = distance <= max_distance;
 
-                        let teched = state2.get_move_state().is_none() && parser.clear_head();
+                        let teched = state2.get_move_state().is_none() && parser.head_is_clear();
 
                         if in_range && !teched {
                             state2.throw();

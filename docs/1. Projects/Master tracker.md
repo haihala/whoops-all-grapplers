@@ -12,10 +12,9 @@
 
 ## Low priority
 - [[Recovery and knockdown]]
-- Extend meter to resources
-	- Bullets go there
-	- Charge goes there
-	- [[Lex#Heat]] goes there
+- Resources trait
+	- Bullets
+	- [[Lex#Heat]]
 
 ## Easy nibbles
 

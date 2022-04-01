@@ -1,3 +1,1 @@
-- [ ] Superjump can't hold down (probably a problem with starting moves from a set)
-	- [ ] This is because the frame that is provided as a basis for parser heads already has the new diff applied to it (stick position overridden)
 - [ ] Landing on top of the other player has a weird pushing interaction (instantly teleports the players)

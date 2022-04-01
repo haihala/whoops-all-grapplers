@@ -1,3 +1,4 @@
+mod charge_accumulator;
 mod move_activation;
 mod move_advancement;
 mod movement;
@@ -16,8 +17,8 @@ use types::{Grabable, Hurtbox, LRDirection, Player};
 use crate::{
     assets::Colors,
     damage::Health,
-    meter::Meter,
     physics::{PlayerVelocity, GROUND_PLANE_HEIGHT},
+    resources::{Charge, GameResource, Meter},
     spawner::Spawner,
 };
 
@@ -37,6 +38,7 @@ enum PlayerSystemLabel {
     GroundRecovery,
     Movement,
     SizeAdjustment,
+    Charge,
     Testing,
 }
 
@@ -83,9 +85,14 @@ impl Plugin for PlayerPlugin {
                             .after(PlayerSystemLabel::Movement),
                     )
                     .with_system(
+                        charge_accumulator::manage_charge
+                            .label(PlayerSystemLabel::Charge)
+                            .after(PlayerSystemLabel::SizeAdjustment),
+                    )
+                    .with_system(
                         testing
                             .label(PlayerSystemLabel::Testing)
-                            .after(PlayerSystemLabel::SizeAdjustment),
+                            .after(PlayerSystemLabel::Charge),
                     ),
             );
     }
@@ -138,7 +145,8 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
         .insert(bank)
         .insert(player)
         .insert(state)
-        .insert(ryan_inventory());
+        .insert(ryan_inventory())
+        .insert(Charge::new(0.75));
 
     #[cfg(not(test))]
     spawn_handle.insert_bundle(inputs);
@@ -150,6 +158,7 @@ fn reset(
     mut query: Query<(
         &mut Health,
         &mut Meter,
+        &mut Charge,
         &mut Transform,
         &Player,
         &mut PlayerState,
@@ -164,11 +173,12 @@ fn reset(
         clock.reset();
         commands.remove_resource::<RoundResult>();
 
-        for (mut health, mut meter, mut tf, player, mut player_state, mut buffer) in
+        for (mut health, mut meter, mut charge, mut tf, player, mut player_state, mut buffer) in
             query.iter_mut()
         {
             health.reset();
             meter.reset();
+            charge.reset();
             player_state.reset();
             buffer.clear();
 

@@ -4,20 +4,30 @@ use types::GameButton;
 
 use crate::{
     helper_types::{Diff, Frame, InputEvent},
-    CHARGE_TIME, MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
+    MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
 };
 
-#[derive(Default, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 struct ParserHead {
     index: usize,
-    last_update: Option<Instant>,
+    last_update: Instant,
     /// None if complete
     requirement: Option<InputEvent>,
-    charge_started: Option<Instant>,
     multipresses_received: Vec<GameButton>,
 }
+
+impl Default for ParserHead {
+    fn default() -> Self {
+        Self {
+            index: Default::default(),
+            last_update: Instant::now(),
+            requirement: Default::default(),
+            multipresses_received: Default::default(),
+        }
+    }
+}
 impl ParserHead {
-    fn new_from_diff(requirements: Vec<InputEvent>, diff: &Diff) -> ParserHead {
+    fn new_from_diff(requirements: &[InputEvent], diff: &Diff) -> ParserHead {
         let mut new = ParserHead::new(requirements.get(0).cloned());
         new.advance(requirements, diff);
         new
@@ -35,116 +45,62 @@ impl ParserHead {
     }
 
     fn expired(&self) -> bool {
-        let now = Instant::now();
-        now.duration_since(self.last_update.unwrap_or(now))
-            .as_secs_f32()
-            > MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
-            && self.charge_started.is_none()
+        let time_from_previous_event = Instant::now()
+            .duration_since(self.last_update)
+            .as_secs_f32();
+
+        time_from_previous_event > MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
     }
 
     fn bump(&mut self, requirement: Option<InputEvent>) {
         *self = ParserHead {
             requirement,
             index: self.index + 1,
-            last_update: Some(Instant::now()),
             ..Default::default()
         }
     }
 
-    fn double_bump(&mut self, requirement: Option<InputEvent>) {
-        *self = ParserHead {
-            requirement,
-            index: self.index + 2,
-            last_update: Some(Instant::now()),
-            ..Default::default()
-        }
-    }
-
-    fn advance(&mut self, requirements: Vec<InputEvent>, diff: &Diff) {
-        if self.is_done() {
-            return;
-        }
-
-        let starting_index = self.index;
-        let current_requirement = self.requirement.clone().unwrap();
-        let next_requirement = self.get_next_requirement(&requirements);
-
-        match current_requirement {
-            InputEvent::Charge => {
-                let now = Instant::now();
-                let requirement_met = self.requirement_met(next_requirement.unwrap(), diff);
-
-                if let Some(charge_start) = self.charge_started {
-                    if now.duration_since(charge_start).as_secs_f32() > CHARGE_TIME {
-                        // Charge is done
-                        let post_charge_requirement =
-                            self.get_requirement_with_offset(&requirements, 2);
-                        self.double_bump(post_charge_requirement);
-                    } else if !requirement_met {
-                        self.charge_started = None;
-                    }
-                } else if requirement_met {
-                    // Start charge
-                    self.charge_started = Some(now);
-                }
-            }
-            _ => {
-                if self.requirement_met(current_requirement, diff) {
-                    self.bump(next_requirement);
-                }
-            }
-        }
-
-        if self.index != starting_index {
-            // A bump has happened, maybe multiple announcements can happen on the same tick.
-            self.advance(requirements, diff);
+    fn advance(&mut self, requirements: &[InputEvent], diff: &Diff) {
+        while !self.is_done() && self.requirement_met(diff) {
+            self.bump(self.get_next_requirement(requirements));
         }
     }
 
     fn get_next_requirement(&self, requirements: &[InputEvent]) -> Option<InputEvent> {
-        self.get_requirement_with_offset(requirements, 1)
+        requirements.get(self.index + 1).cloned()
     }
 
-    fn get_requirement_with_offset(
-        &self,
-        requirements: &[InputEvent],
-        offset: usize,
-    ) -> Option<InputEvent> {
-        requirements.get(self.index + offset).cloned()
-    }
-
-    fn requirement_met(&mut self, requirement: InputEvent, diff: &Diff) -> bool {
-        match requirement {
-            InputEvent::Charge => {
-                panic!(
-                    "Charge getting here means there were two consecutive charges in the definition"
-                );
-            }
-            InputEvent::Point(required_stick) => {
-                diff.stick_move.is_some() && diff.stick_move.unwrap() == required_stick
-            }
-            InputEvent::Range(required_sticks) => {
-                diff.stick_move.is_some() && required_sticks.contains(&diff.stick_move.unwrap())
-            }
-            InputEvent::Press(required_button) => diff.pressed_contains(&required_button),
-            InputEvent::MultiPress(required_buttons) => {
-                if let Some(pressed) = diff.pressed.clone() {
-                    let mut new_buttons = pressed.into_iter().collect();
-                    self.multipresses_received.append(&mut new_buttons);
-
-                    if required_buttons
-                        .into_iter()
-                        .filter(|button| !self.multipresses_received.contains(button))
-                        .peekable()
-                        .peek()
-                        .is_none()
-                    {
-                        return true;
-                    }
+    fn requirement_met(&mut self, diff: &Diff) -> bool {
+        if let Some(requirement) = self.requirement.clone() {
+            match requirement {
+                InputEvent::Point(required_stick) => {
+                    diff.stick_move.is_some() && diff.stick_move.unwrap() == required_stick
                 }
-                false
+                InputEvent::Range(required_sticks) => {
+                    diff.stick_move.is_some() && required_sticks.contains(&diff.stick_move.unwrap())
+                }
+                InputEvent::Press(required_button) => diff.pressed_contains(&required_button),
+                InputEvent::MultiPress(required_buttons) => {
+                    if let Some(pressed) = diff.pressed.clone() {
+                        let mut new_buttons = pressed.into_iter().collect();
+                        self.multipresses_received.append(&mut new_buttons);
+
+                        if required_buttons
+                            .into_iter()
+                            .filter(|button| !self.multipresses_received.contains(button))
+                            .peekable()
+                            .peek()
+                            .is_none()
+                        {
+                            return true;
+                        }
+                    }
+                    false
+                }
+                InputEvent::Release(required_button) => diff.released_contains(&required_button),
             }
-            InputEvent::Release(required_button) => diff.released_contains(&required_button),
+        } else {
+            false
         }
     }
 }
@@ -168,10 +124,17 @@ impl MotionInput {
             return;
         }
 
-        let new_head =
-            ParserHead::new_from_diff(self.requirements.clone(), &frame.diff_from_neutral());
+        let new_head = ParserHead::new_from_diff(&self.requirements, &frame.diff_from_neutral());
 
-        if !self.heads.iter().any(|head| head.index == new_head.index) {
+        if let Some(ref mut existing_head) = self
+            .heads
+            .iter_mut()
+            .find(|head| head.index == new_head.index)
+        {
+            // There is an existing head with the same index
+            existing_head.last_update = Instant::now();
+        } else {
+            // No existing head
             self.heads.push(new_head);
         }
 
@@ -183,7 +146,7 @@ impl MotionInput {
                 if head.expired() {
                     None
                 } else {
-                    head.advance(self.requirements.clone(), diff);
+                    head.advance(&self.requirements, diff);
                     Some(head)
                 }
             })
@@ -256,11 +219,6 @@ impl From<&str> for MotionInput {
             })
             .collect();
 
-        assert!(
-            !matches!(requirements.last(), Some(InputEvent::Charge)),
-            "Last requirement can't be a prefix"
-        );
-
         Self {
             requirements,
             ..Default::default()
@@ -289,43 +247,22 @@ mod test {
     }
 
     #[test]
-    fn simple_sonic_boom() {
-        let parsed: MotionInput = "c46f".into();
-        assert_eq!(
-            parsed.requirements,
-            vec![
-                InputEvent::Charge,
-                InputEvent::Point(StickPosition::W),
-                InputEvent::Point(StickPosition::E),
-                InputEvent::Press(GameButton::Fast),
-            ]
-        )
-    }
+    fn head_advancement() {
+        let motion: MotionInput = "6f".into();
+        let frame = Frame {
+            stick_position: StickPosition::E,
+            ..Default::default()
+        };
 
-    #[test]
-    fn real_sonic_boom() {
-        let parsed: MotionInput = "c[741][63]f".into();
-        assert_eq!(
-            parsed.requirements,
-            vec![
-                InputEvent::Charge,
-                InputEvent::Range(vec![StickPosition::NW, StickPosition::W, StickPosition::SW,]),
-                InputEvent::Range(vec![StickPosition::E, StickPosition::SE]),
-                InputEvent::Press(GameButton::Fast),
-            ]
-        )
-    }
+        let diff = Diff {
+            pressed: Some(vec![GameButton::Fast].into_iter().collect()),
+            ..Default::default()
+        };
 
-    #[test]
-    fn zonk() {
-        let parsed: MotionInput = "cfF".into();
-        assert_eq!(
-            parsed.requirements,
-            vec![
-                InputEvent::Charge,
-                InputEvent::Press(GameButton::Fast),
-                InputEvent::Release(GameButton::Fast),
-            ]
-        )
+        let mut ph = ParserHead::new_from_diff(&motion.requirements, &frame.diff_from_neutral());
+        assert!(ph.index == 1);
+
+        ph.advance(&motion.requirements, &diff);
+        assert!(ph.is_done());
     }
 }

@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use types::{AttackHeight, GrabDescription, Hitbox, Lifetime, SpawnDescriptor};
 
 use crate::{
-    move_bank::MoveBank, moves, universal, CancelLevel, Move, MoveCondition, MoveMobility, Phase,
-    PhaseCondition, PhaseKind, PhaseSwitch,
+    move_bank::MoveBank, moves, universal, CancelLevel, Move, MoveCondition, MoveCost,
+    MoveMobility, Phase, PhaseCondition, PhaseKind, PhaseSwitch,
 };
 
 // Dashing
@@ -24,6 +24,8 @@ moves!(
     2usize,
     (
         GRAB,
+        SONIC_BOOM,
+        BUDGET_BOOM,
         HEAVY_HADOUKEN,
         HADOUKEN,
         AIR_PUNCH,
@@ -230,6 +232,79 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             },
         ),
         (
+            BUDGET_BOOM,
+            Move {
+                input: "[41]6f",
+                cancel_level: CancelLevel::LightSpecial,
+                conditions: MoveCondition::GROUND,
+                phases: vec![
+                    Phase {
+                        kind: PhaseKind::Animation,
+                        duration: 30,
+                        ..Default::default()
+                    }
+                    .into(),
+                    Phase {
+                        kind: PhaseKind::Attack(SpawnDescriptor {
+                            hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
+                            speed: Some(1.0 * Vec3::X),
+                            lifetime: Lifetime::Forever,
+                            ..Default::default()
+                        }),
+                        duration: 4,
+                        ..Default::default()
+                    }
+                    .into(),
+                    Phase {
+                        kind: PhaseKind::Animation,
+                        duration: 10,
+                        cancellable: true,
+                        ..Default::default()
+                    }
+                    .into(),
+                ],
+                ..Default::default()
+            },
+        ),
+        (
+            SONIC_BOOM,
+            Move {
+                input: "[41]6f",
+                cancel_level: CancelLevel::HeavySpecial,
+                cost: MoveCost {
+                    charge: true,
+                    ..Default::default()
+                },
+                conditions: MoveCondition::GROUND,
+                phases: vec![
+                    Phase {
+                        kind: PhaseKind::Animation,
+                        duration: 30,
+                        ..Default::default()
+                    }
+                    .into(),
+                    Phase {
+                        kind: PhaseKind::Attack(SpawnDescriptor {
+                            hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.7, 0.7)),
+                            speed: Some(2.0 * Vec3::X),
+                            lifetime: Lifetime::Forever,
+                            ..Default::default()
+                        }),
+                        duration: 4,
+                        ..Default::default()
+                    }
+                    .into(),
+                    Phase {
+                        kind: PhaseKind::Animation,
+                        duration: 10,
+                        cancellable: true,
+                        ..Default::default()
+                    }
+                    .into(),
+                ],
+            },
+        ),
+        (
             HADOUKEN,
             Move {
                 input: "236f",
@@ -269,7 +344,10 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             Move {
                 input: "236s",
                 cancel_level: CancelLevel::HeavySpecial,
-                meter_cost: 10,
+                cost: MoveCost {
+                    meter: 10,
+                    ..Default::default()
+                },
                 conditions: MoveCondition::GROUND | MoveCondition::AIR,
                 phases: vec![
                     Phase {
@@ -378,7 +456,7 @@ pub fn ryan_bank() -> MoveBank {
 
 #[cfg(test)]
 mod test {
-    use bevy::utils::{HashMap, HashSet};
+    use bevy::utils::HashSet;
 
     use super::*;
 
@@ -389,28 +467,6 @@ mod test {
         for (id, _) in ryan_moves() {
             assert!(!ids.contains(&id), "ID {} was found twice in move list", id);
             ids.insert(id);
-        }
-    }
-
-    #[test]
-    fn no_duplicate_inputs() {
-        let mut inputs: HashMap<&'static str, (MoveId, MoveCondition)> =
-            vec![].into_iter().collect();
-
-        for (id, move_data) in ryan_moves() {
-            let input = move_data.input;
-
-            if inputs.contains_key(&input) {
-                let (other_id, conditions) = inputs.get(&input).unwrap();
-                if conditions.intersects(move_data.conditions) {
-                    panic!(
-                        "Input {} has two overlapping uses on ids {} and {}",
-                        input, id, other_id
-                    );
-                }
-            }
-
-            inputs.insert(input, (id, move_data.conditions));
         }
     }
 }

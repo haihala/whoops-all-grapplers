@@ -57,7 +57,6 @@ impl Diff {
             InputEvent::Press(button) => self.pressed = Some(add_or_init(self.pressed, button)),
             InputEvent::Release(button) => self.released = Some(add_or_init(self.released, button)),
             InputEvent::MultiPress(_) => panic!("Applying multipress to diff"),
-            InputEvent::Charge => panic!("Applying charge to diff"),
             InputEvent::Range(_) => panic!("Applying range to diff"),
         }
 
@@ -91,8 +90,6 @@ fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet
 /// Enum used to define move inputs.
 #[derive(Debug, Clone, PartialEq)]
 pub enum InputEvent {
-    /// Prefix. Next requirement must be held for some time
-    Charge,
     /// Stick must visit a point
     Point(StickPosition),
     /// Stick must visit one of the following points
@@ -110,7 +107,6 @@ impl From<char> for InputEvent {
             InputEvent::Point(number_token.into())
         } else {
             match ch {
-                'c' => InputEvent::Charge,
                 'f' => InputEvent::Press(GameButton::Fast),
                 'F' => InputEvent::Release(GameButton::Fast),
                 's' => InputEvent::Press(GameButton::Strong),

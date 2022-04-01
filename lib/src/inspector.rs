@@ -7,8 +7,8 @@ use types::Player;
 
 use crate::{
     damage::Health,
-    meter::Meter,
     physics::{ConstantVelocity, PlayerVelocity},
+    resources::{Charge, Meter},
 };
 
 pub struct InspectorPlugin;
@@ -23,6 +23,7 @@ impl Plugin for InspectorPlugin {
             .expect("InspectableRegistry not initiated");
 
         registry.register::<Player>();
+        registry.register::<Charge>();
         registry.register::<Meter>();
         registry.register::<Health>();
         registry.register::<PlayerState>();

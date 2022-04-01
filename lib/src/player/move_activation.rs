@@ -7,7 +7,10 @@ use player_state::PlayerState;
 use time::Clock;
 use types::MoveId;
 
-use crate::{meter::Meter, spawner::Spawner};
+use crate::{
+    resources::{Charge, GameResource, Meter},
+    spawner::Spawner,
+};
 const EVENT_REPEAT_PERIOD: f32 = 0.3; // In seconds
 const FRAMES_TO_LIVE_IN_BUFFER: usize = (EVENT_REPEAT_PERIOD * constants::FPS) as usize;
 
@@ -26,6 +29,7 @@ impl MoveBuffer {
         active_move: Option<MoveState>,
         grounded: bool,
         meter: &Meter,
+        charge: Option<&Charge>,
     ) -> Option<(MoveId, Move)> {
         let cancel_requirement = if let Some(move_state) = active_move {
             let move_data = bank.get(move_state.move_id);
@@ -50,7 +54,12 @@ impl MoveBuffer {
                 }
             })
             .filter(|(_, action)| action.cancel_level > cancel_requirement)
-            .filter(|(_, action)| meter.can_afford(action.meter_cost))
+            .filter(|(_, action)| meter.can_afford(action.cost.meter))
+            .filter(|(_, action)| {
+                !action.cost.charge // Either move doesn't require charge
+                    || (charge.is_some() // Or the player can afford it
+                        && charge.unwrap().can_afford(action.cost.charge))
+            })
             .min_by(|(id1, _), (id2, _)| id1.cmp(id2))
         {
             self.buffer.retain(|(_, id)| selected_id != *id);
@@ -77,6 +86,7 @@ impl MoveBuffer {
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub fn move_activator(
     mut commands: Commands,
     clock: Res<Clock>,
@@ -86,12 +96,21 @@ pub fn move_activator(
         &mut MoveBuffer,
         &MoveBank,
         &mut Meter,
+        Option<&mut Charge>,
         &mut Spawner,
         &Inventory,
     )>,
 ) {
-    for (mut reader, mut state, mut buffer, bank, mut meter, mut spawner, inventory) in
-        query.iter_mut()
+    for (
+        mut reader,
+        mut state,
+        mut buffer,
+        bank,
+        mut meter,
+        mut maybe_charge,
+        mut spawner,
+        inventory,
+    ) in query.iter_mut()
     {
         buffer.clear_old(clock.frame);
         buffer.add_events(reader.drain_events(), clock.frame);
@@ -100,12 +119,20 @@ pub fn move_activator(
             continue;
         }
 
-        if let Some((move_id, move_data)) =
-            buffer.use_move(bank, state.get_move_state(), state.is_grounded(), &meter)
-        {
+        if let Some((move_id, move_data)) = buffer.use_move(
+            bank,
+            state.get_move_state(),
+            state.is_grounded(),
+            &meter,
+            maybe_charge.as_deref(),
+        ) {
             spawner.despawn_on_phase_change(&mut commands);
             state.start_move(move_id, clock.frame, inventory.phase_flags());
-            meter.pay(move_data.meter_cost);
+            meter.pay(move_data.cost.meter);
+
+            if let Some(ref mut charge) = maybe_charge {
+                charge.pay(move_data.cost.charge);
+            }
         }
     }
 }

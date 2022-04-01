@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 use types::Player;
 
-use crate::{damage::Health, meter::Meter};
+use crate::{
+    damage::Health,
+    resources::{GameResource, Meter},
+};
 
 use super::{HEALTH_BAR_WIDTH, METER_BAR_WIDTH};
 

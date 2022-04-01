@@ -3,9 +3,9 @@ mod assets;
 mod camera;
 mod damage;
 mod inspector;
-mod meter;
 mod physics;
 mod player;
+mod resources;
 mod spawner;
 mod ui;
 

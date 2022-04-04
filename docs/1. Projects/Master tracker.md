@@ -12,7 +12,7 @@
 
 ## Low priority
 - [[Recovery and knockdown]]
-- Resources trait
+- Resources
 	- Bullets
 	- [[Lex#Heat]]
 

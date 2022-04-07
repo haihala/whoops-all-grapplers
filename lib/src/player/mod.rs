@@ -1,6 +1,7 @@
 mod charge_accumulator;
 mod move_activation;
 mod move_advancement;
+mod move_state_manager;
 mod movement;
 mod recovery;
 mod size_adjustment;
@@ -32,8 +33,9 @@ const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 #[derive(Debug, SystemLabel, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum PlayerSystemLabel {
     Reset,
-    MoveActivator,
+    SetFlags,
     MoveAdvancer,
+    MoveActivator,
     StunRecovery,
     GroundRecovery,
     Movement,
@@ -55,14 +57,19 @@ impl Plugin for PlayerPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::Combat)
                     .with_system(
-                        move_activation::move_activator
-                            .label(PlayerSystemLabel::MoveActivator)
+                        move_state_manager::set_flags
+                            .label(PlayerSystemLabel::SetFlags)
                             .after(PlayerSystemLabel::Reset),
                     )
                     .with_system(
                         move_advancement::move_advancement
                             .label(PlayerSystemLabel::MoveAdvancer)
-                            .after(PlayerSystemLabel::MoveActivator),
+                            .after(PlayerSystemLabel::SetFlags),
+                    )
+                    .with_system(
+                        move_activation::move_activator
+                            .label(PlayerSystemLabel::MoveActivator)
+                            .after(PlayerSystemLabel::MoveAdvancer),
                     )
                     .with_system(
                         recovery::stun_recovery
@@ -199,11 +206,12 @@ fn testing(
         for (mut inventory, mut bank, mut parser) in query.iter_mut() {
             if let Some(shopitem) = inventory.roll_shop(1).first() {
                 let item = shopitem.item.clone();
-                dbg!(&item);
                 inventory.buy(item.clone());
 
                 for (move_id, move_data) in item.new_moves {
-                    parser.register_input(move_id, move_data.input.into());
+                    if let Some(input) = move_data.input {
+                        parser.register_input(move_id, input.into());
+                    }
                     bank.register_move(move_id, move_data);
                 }
             }

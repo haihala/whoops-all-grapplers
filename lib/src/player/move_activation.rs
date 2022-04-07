@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use input_parsing::InputParser;
 use items::Inventory;
-use moves::{CancelLevel, Move, MoveBank, MoveCondition, MoveState};
+use moves::{CancelLevel, Move, MoveBank, MoveStartCondition, MoveState};
 use player_state::PlayerState;
 use time::Clock;
 use types::MoveId;
@@ -17,8 +17,13 @@ const FRAMES_TO_LIVE_IN_BUFFER: usize = (EVENT_REPEAT_PERIOD * constants::FPS) a
 #[derive(Debug, Default, Component)]
 pub struct MoveBuffer {
     buffer: Vec<(usize, MoveId)>,
+    force_start: Option<(MoveId, Move)>,
 }
 impl MoveBuffer {
+    pub fn set_force_starter(&mut self, move_id: MoveId, move_data: Move) {
+        self.force_start = Some((move_id, move_data));
+    }
+
     fn add_events(&mut self, events: Vec<MoveId>, frame: usize) {
         self.buffer.extend(events.into_iter().map(|id| (frame, id)));
     }
@@ -31,9 +36,14 @@ impl MoveBuffer {
         meter: &Meter,
         charge: Option<&Charge>,
     ) -> Option<(MoveId, Move)> {
+        if self.force_start.is_some() {
+            // Early return for the cases when a move has forked
+            return self.force_start.take();
+        }
+
         let cancel_requirement = if let Some(move_state) = active_move {
             let move_data = bank.get(move_state.move_id);
-            if move_data.get_phase(move_state).cancellable {
+            if move_data.get_action(move_state).is_cancellable() {
                 move_data.cancel_level
             } else {
                 CancelLevel::Uncancellable
@@ -48,9 +58,9 @@ impl MoveBuffer {
             .map(|(_, id)| (*id, bank.get(*id).to_owned()))
             .filter(|(_, move_data)| {
                 if grounded {
-                    move_data.conditions.contains(MoveCondition::GROUND)
+                    move_data.conditions.contains(MoveStartCondition::GROUND)
                 } else {
-                    move_data.conditions.contains(MoveCondition::AIR)
+                    move_data.conditions.contains(MoveStartCondition::AIR)
                 }
             })
             .filter(|(_, action)| action.cancel_level > cancel_requirement)

@@ -2471,6 +2471,7 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "moves",
+ "strum",
  "types",
 ]
 

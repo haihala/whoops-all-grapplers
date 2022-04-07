@@ -1,20 +1,18 @@
 use bevy::prelude::*;
-use moves::{Move, PhaseCondition};
+use moves::{Move, MoveFlags};
 use types::MoveId;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Item {
-    pub move_flag: Option<PhaseCondition>,
+    pub move_flag: Option<MoveFlags>,
     pub new_moves: Vec<(MoveId, Move)>,
-    pub item_type: ItemType,
+    pub item_type: Option<ItemType>,
 }
 
 #[derive(Debug, Component, Clone, Copy, PartialEq, Eq)]
 pub enum ItemType {
     Gi(Gi),
     Gun(Gun),
-    Drugs,
-    Handmedownken,
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]

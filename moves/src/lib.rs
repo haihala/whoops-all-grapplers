@@ -46,7 +46,7 @@ pub mod universal {
 }
 
 pub mod equipment {
-    moves!(1usize, (HANDMEDOWNKEN, OTHER));
+    moves!(1usize, (HANDMEDOWNKEN, GUNSHOT, SHOOT));
 }
 
 // Defined smallest to largest aka later ones can cancel earlier ones.

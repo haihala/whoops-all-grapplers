@@ -1,7 +1,9 @@
 mod stick_position;
 pub use stick_position::StickPosition;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+use strum_macros::EnumIter;
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, EnumIter)]
 /// Buttons of the game
 /// The name 'Button' is in prelude
 pub enum GameButton {

@@ -11,8 +11,6 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 use std::fmt::{Debug, Display};
 
-#[allow(unused_imports)]
-use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 // This crate will be as small as possible so that types are where they are used

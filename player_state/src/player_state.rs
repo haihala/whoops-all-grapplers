@@ -1,8 +1,9 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashSet};
 use bevy_inspector_egui::Inspectable;
+use strum::IntoEnumIterator;
 
-use moves::{MoveState, PhaseCondition};
-use types::{AttackHeight, LRDirection, MoveId, StickPosition};
+use moves::{MoveFlags, MoveState};
+use types::{AttackHeight, GameButton, LRDirection, MoveId, StickPosition};
 
 use crate::{
     primary_state::{AirActivity, GroundActivity, PrimaryState},
@@ -27,8 +28,26 @@ impl PlayerState {
         *self = PlayerState::default();
     }
 
+    pub fn set_flags(&mut self, inputs: HashSet<GameButton>) {
+        if let PrimaryState::Ground(GroundActivity::Move(ref mut move_state))
+        | PrimaryState::Air(AirActivity::Move(ref mut move_state)) = self.primary
+        {
+            for input in GameButton::iter() {
+                let flag = match input {
+                    GameButton::Grab => MoveFlags::GRAB_PRESSED,
+                    GameButton::Strong => MoveFlags::STRONG_PRESSED,
+                    GameButton::Fast => MoveFlags::FAST_PRESSED,
+                    GameButton::Equipment => MoveFlags::EQUIPMENT_PRESSED,
+                    GameButton::Taunt => MoveFlags::TAUNT_PRESSED,
+                };
+
+                move_state.situation.set(flag, inputs.contains(&input));
+            }
+        }
+    }
+
     // Moves
-    pub fn start_move(&mut self, move_id: MoveId, start_frame: usize, situation: PhaseCondition) {
+    pub fn start_move(&mut self, move_id: MoveId, start_frame: usize, situation: MoveFlags) {
         let move_state = MoveState {
             start_frame,
             move_id,

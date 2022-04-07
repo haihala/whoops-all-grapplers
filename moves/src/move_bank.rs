@@ -11,11 +11,11 @@ pub struct MoveState {
     pub start_frame: usize,
     pub phase_index: usize,
     pub move_id: MoveId,
-    pub situation: PhaseCondition,
+    pub situation: MoveFlags,
 }
 impl MoveState {
     pub fn register_hit(&mut self) {
-        self.situation |= PhaseCondition::HIT;
+        self.situation |= MoveFlags::HIT;
     }
 }
 
@@ -40,22 +40,27 @@ impl MoveBank {
     pub fn get_inputs(&self) -> HashMap<MoveId, &'static str> {
         self.moves
             .iter()
-            .map(|(key, value)| (*key, value.input))
+            .filter_map(|(key, move_data)| move_data.input.map(|input| (*key, input)))
             .collect()
     }
 }
 
 bitflags! {
     #[derive(Default, Inspectable)]
-    pub struct MoveCondition: u32 {
-        const AIR = 1;
-        const GROUND = 2;
+    pub struct MoveStartCondition: u32 {
+        const AIR = 0b00000001;
+        const GROUND = 0b00000010;
     }
 
     #[derive(Default, Inspectable)]
-    pub struct PhaseCondition: u32 {
-        const HIT = 1;
-        const DRUGS = 2;
+    pub struct MoveFlags: u32 {
+        const HIT = 0b00000001;
+        const DRUGS = 0b00000010;
+        const GRAB_PRESSED = 0b00000100;
+        const FAST_PRESSED = 0b00001000;
+        const STRONG_PRESSED = 0b00010000;
+        const TAUNT_PRESSED = 0b00100000;
+        const EQUIPMENT_PRESSED = 0b01000000;
     }
 }
 
@@ -67,15 +72,15 @@ pub struct MoveCost {
 
 #[derive(Debug, Default, Inspectable, Clone, PartialEq)]
 pub struct Move {
-    pub input: &'static str,
+    pub input: Option<&'static str>,
     pub cancel_level: CancelLevel,
-    pub phases: Vec<PhaseSwitch>,
+    pub phases: Vec<ConditionResolver>,
     pub cost: MoveCost,
-    pub conditions: MoveCondition,
+    pub conditions: MoveStartCondition,
 }
 
 impl Move {
-    pub fn get_phase_index(&self, state: MoveState, current_frame: usize) -> Option<usize> {
+    pub fn get_action_index(&self, state: MoveState, current_frame: usize) -> Option<usize> {
         // Can be negative, which is why cast before operation
         let mut frames_left = current_frame as i32 - state.start_frame as i32;
 
@@ -85,15 +90,20 @@ impl Move {
             .map(|meta| meta.get(state.situation))
             .enumerate()
         {
-            frames_left -= phase.duration as i32;
-            if frames_left < 0 {
+            if let Some(duration) = phase.get_duration() {
+                frames_left -= duration as i32;
+                if frames_left < 0 {
+                    return Some(index);
+                }
+            } else {
+                // Current instruction is a move, it should be returned despite the time.
                 return Some(index);
             }
         }
         None
     }
 
-    pub fn get_phase(&self, state: MoveState) -> Phase {
+    pub fn get_action(&self, state: MoveState) -> MoveAction {
         self.phases
             .get(state.phase_index)
             .unwrap()
@@ -103,12 +113,12 @@ impl Move {
 }
 
 #[derive(Debug, Inspectable, Clone, PartialEq)]
-pub struct PhaseSwitch {
-    pub default: Phase,
-    pub branches: Vec<(PhaseCondition, Phase)>, // This way order is maintained
+pub struct ConditionResolver {
+    pub default: MoveAction,
+    pub branches: Vec<(MoveFlags, MoveAction)>, // This way order is maintained
 }
-impl PhaseSwitch {
-    pub fn get(&self, situation: PhaseCondition) -> Phase {
+impl ConditionResolver {
+    pub fn get(&self, situation: MoveFlags) -> MoveAction {
         for (cond, phase) in &self.branches {
             if situation.contains(*cond) {
                 return phase.to_owned();
@@ -117,17 +127,68 @@ impl PhaseSwitch {
         self.default.to_owned()
     }
 }
-impl From<Phase> for PhaseSwitch {
+impl From<Phase> for ConditionResolver {
     fn from(phase: Phase) -> Self {
-        PhaseSwitch {
-            default: phase,
+        ConditionResolver {
+            default: phase.into(),
             branches: vec![],
         }
     }
 }
-impl Default for PhaseSwitch {
+impl From<MoveId> for ConditionResolver {
+    fn from(id: MoveId) -> Self {
+        ConditionResolver {
+            default: id.into(),
+            branches: vec![],
+        }
+    }
+}
+impl Default for ConditionResolver {
     fn default() -> Self {
         Phase::default().into()
+    }
+}
+
+#[derive(Debug, Inspectable, Clone, PartialEq)]
+pub enum MoveAction {
+    Move(MoveId),
+    Phase(Phase),
+}
+impl Default for MoveAction {
+    fn default() -> Self {
+        panic!("This should never be called, exists to satisfy Inspectable");
+    }
+}
+impl From<MoveId> for MoveAction {
+    fn from(id: MoveId) -> Self {
+        MoveAction::Move(id)
+    }
+}
+impl From<Phase> for MoveAction {
+    fn from(phase_data: Phase) -> Self {
+        MoveAction::Phase(phase_data)
+    }
+}
+impl MoveAction {
+    fn get_duration(&self) -> Option<usize> {
+        match self {
+            MoveAction::Move(_) => None,
+            MoveAction::Phase(phase_data) => Some(phase_data.duration),
+        }
+    }
+
+    pub fn is_cancellable(&self) -> bool {
+        match self {
+            MoveAction::Move(_) => false,
+            MoveAction::Phase(phase_data) => phase_data.cancellable,
+        }
+    }
+
+    pub fn get_mobility(&self) -> Option<MoveMobility> {
+        match self {
+            MoveAction::Move(_) => None,
+            MoveAction::Phase(phase_data) => phase_data.mobility,
+        }
     }
 }
 

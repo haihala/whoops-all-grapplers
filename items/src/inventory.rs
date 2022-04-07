@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use moves::PhaseCondition;
+use moves::MoveFlags;
 
 use crate::Item;
 
@@ -37,12 +37,12 @@ impl Inventory {
         self.bought.drain(..).collect()
     }
 
-    pub fn phase_flags(&self) -> PhaseCondition {
+    pub fn phase_flags(&self) -> MoveFlags {
         self.owned
             .iter()
             .filter_map(|item| item.move_flag)
             .reduce(|acc, new| acc | new)
-            .unwrap_or(PhaseCondition::empty())
+            .unwrap_or(MoveFlags::empty())
     }
 }
 

@@ -4,9 +4,12 @@ use crate::{
     motion_input::MotionInput,
 };
 
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{
+    prelude::*,
+    utils::{HashMap, HashSet},
+};
 
-use types::{LRDirection, MoveId, StickPosition};
+use types::{GameButton, LRDirection, MoveId, StickPosition};
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
@@ -31,6 +34,10 @@ impl InputParser {
 
     pub fn register_input(&mut self, id: MoveId, input: MotionInput) {
         self.registered_inputs.insert(id, input);
+    }
+
+    pub fn get_pressed(&self) -> HashSet<GameButton> {
+        self.head.pressed.clone()
     }
 
     pub fn get_absolute_stick_position(&self) -> StickPosition {

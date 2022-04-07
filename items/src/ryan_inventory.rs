@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use moves::{equipment, CancelLevel, Move, MoveCondition, Phase, PhaseCondition, PhaseKind};
+use moves::{
+    equipment, CancelLevel, ConditionResolver, Move, MoveCost, MoveFlags, MoveStartCondition,
+    Phase, PhaseKind,
+};
 use types::{Hitbox, Lifetime, SpawnDescriptor};
 
 use crate::{Gi, Gun, Inventory, Item, ItemType, ShopItem};
@@ -12,9 +15,8 @@ pub fn ryan_inventory() -> Inventory {
             tier: 1,
             is_starter: false,
             item: Item {
-                move_flag: Some(PhaseCondition::DRUGS),
-                new_moves: vec![],
-                item_type: ItemType::Drugs,
+                move_flag: Some(MoveFlags::DRUGS),
+                ..Default::default()
             },
         },
         ShopItem {
@@ -22,13 +24,12 @@ pub fn ryan_inventory() -> Inventory {
             tier: 0,
             is_starter: true,
             item: Item {
-                move_flag: None,
                 new_moves: vec![(
                     equipment::HANDMEDOWNKEN,
                     Move {
-                        input: "236e",
+                        input: Some("236e"),
                         cancel_level: CancelLevel::LightSpecial,
-                        conditions: MoveCondition::GROUND,
+                        conditions: MoveStartCondition::GROUND,
                         phases: vec![
                             Phase {
                                 kind: PhaseKind::Animation,
@@ -58,7 +59,7 @@ pub fn ryan_inventory() -> Inventory {
                         ..Default::default()
                     },
                 )],
-                item_type: ItemType::Handmedownken,
+                ..Default::default()
             },
         },
         ShopItem {
@@ -66,9 +67,8 @@ pub fn ryan_inventory() -> Inventory {
             tier: 2,
             is_starter: true,
             item: Item {
-                move_flag: None,
-                new_moves: vec![],
-                item_type: ItemType::Gi(Gi::default()),
+                item_type: Some(ItemType::Gi(Gi::default())),
+                ..Default::default()
             },
         },
         ShopItem {
@@ -76,9 +76,74 @@ pub fn ryan_inventory() -> Inventory {
             tier: 2,
             is_starter: true,
             item: Item {
-                move_flag: None,
-                new_moves: vec![], // TODO Gunshot is a move?
-                item_type: ItemType::Gun(Gun::default()),
+                item_type: Some(ItemType::Gun(Gun::default())),
+                new_moves: vec![
+                    (
+                        equipment::GUNSHOT, // Single shot, the repeating bit
+                        Move {
+                            cancel_level: CancelLevel::LightNormal,
+                            conditions: MoveStartCondition::GROUND,
+                            cost: MoveCost {
+                                // TODO bullets go here
+                                ..Default::default()
+                            },
+                            phases: vec![
+                                Phase {
+                                    kind: PhaseKind::Animation,
+                                    duration: 10,
+                                    ..Default::default()
+                                }
+                                .into(),
+                                Phase {
+                                    duration: 20,
+                                    kind: PhaseKind::Attack(SpawnDescriptor {
+                                        hitbox: Hitbox::new(
+                                            Vec2::new(0.5, 0.5),
+                                            Vec2::new(0.3, 0.2),
+                                        ),
+                                        speed: Some(10.0 * Vec3::X),
+                                        lifetime: Lifetime::Forever,
+                                        ..Default::default()
+                                    }),
+                                    ..Default::default()
+                                }
+                                .into(),
+                                ConditionResolver {
+                                    default: Phase {
+                                        kind: PhaseKind::Animation,
+                                        duration: 30,
+                                        ..Default::default()
+                                    }
+                                    .into(),
+                                    branches: vec![(
+                                        MoveFlags::EQUIPMENT_PRESSED,
+                                        equipment::GUNSHOT.into(),
+                                    )],
+                                },
+                            ],
+                            ..Default::default()
+                        },
+                    ),
+                    (
+                        equipment::SHOOT,
+                        Move {
+                            input: Some("e"),
+                            cancel_level: CancelLevel::LightNormal,
+                            conditions: MoveStartCondition::GROUND,
+                            phases: vec![
+                                Phase {
+                                    kind: PhaseKind::Animation,
+                                    duration: 30,
+                                    ..Default::default()
+                                }
+                                .into(),
+                                equipment::GUNSHOT.into(),
+                            ],
+                            ..Default::default()
+                        },
+                    ),
+                ],
+                ..Default::default()
             },
         },
     ])

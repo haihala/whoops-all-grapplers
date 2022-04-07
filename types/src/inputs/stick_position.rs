@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 
 use std::fmt::Debug;
-#[allow(unused_imports)]
-use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 #[derive(EnumIter, Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -77,6 +75,7 @@ impl Into<IVec2> for StickPosition {
 #[cfg(test)]
 mod test {
     use super::*;
+    use strum::IntoEnumIterator;
 
     #[test]
     fn test_ivec_stickposition_conversions() {

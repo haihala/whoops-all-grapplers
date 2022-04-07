@@ -98,6 +98,8 @@ impl Plugin for TimePlugin {
     }
 }
 
+// This is a false positive
+#[allow(clippy::only_used_in_recursion)]
 fn update_clock(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
     clock.frame += 1;
     clock.elapsed_time += bevy_clock.delta_seconds();

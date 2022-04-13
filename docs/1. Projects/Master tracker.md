@@ -12,14 +12,15 @@
 ## High priority
 - Combine item/character specific mechanics into a single component.
 	- Ammo for [[Gun]] for example
-	- Maybe phaseswitches could consider resources as well, [[Drugs]] could be a resource
+	- Maybe phaseswitches could consider resources as well
+		- Buffs like [[Drugs]] could be a special non-consumable resource
 
 ## Low priority
 - [[Recovery and knockdown]]
 - Constants to an env (both command line and file) parser so it doesn't change on recompile.
 
 ## Easy nibbles
-- Item moves to moves crate, just store ids in items.
+- Merge item and shopitem
 
 ## Not a priority
 - [[3D model]]
@@ -43,7 +44,6 @@
 - Attributes like startup reduction and stun increase to and from inventory
 - Negative edge works weird (long press will give button on both edges because head is first used to parse. Construct custom head with only the old stick.)
 - In move advancement, check if action changed not if index changed (this allows recursion or long recovery that can be cancelled into recursion)
-- Merge item and shopitem
 
 # Other trackers
 ![[Bug tracker]]

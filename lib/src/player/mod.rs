@@ -10,7 +10,7 @@ use input_parsing::InputParser;
 #[cfg(not(test))]
 use input_parsing::PadBundle;
 use items::{ryan_inventory, Inventory};
-use moves::{ryan_bank, Grabable, Hurtbox, MoveBank};
+use moves::{get_equipment_move, ryan_bank, Grabable, Hurtbox, MoveBank};
 use player_state::PlayerState;
 use time::{Clock, GameState, RoundResult};
 use types::{LRDirection, Player};
@@ -208,7 +208,8 @@ fn testing(
                 let item = shopitem.item.clone();
                 inventory.buy(item.clone());
 
-                for (move_id, move_data) in item.new_moves {
+                for move_id in item.new_moves {
+                    let move_data = get_equipment_move(move_id);
                     if let Some(input) = move_data.input {
                         parser.register_input(move_id, input.into());
                     }

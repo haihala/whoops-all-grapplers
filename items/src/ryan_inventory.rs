@@ -1,9 +1,4 @@
-use bevy::prelude::*;
-
-use moves::{
-    CancelLevel, ConditionResolver, Hitbox, Lifetime, Move, MoveCost, MoveFlags, MoveId,
-    MoveStartCondition, Phase, PhaseKind, SpawnDescriptor,
-};
+use moves::{MoveFlags, MoveId};
 
 use crate::{Gi, Gun, Inventory, Item, ItemType, ShopItem};
 
@@ -23,41 +18,7 @@ pub fn ryan_inventory() -> Inventory {
             tier: 0,
             is_starter: true,
             item: Item {
-                new_moves: vec![(
-                    MoveId::HandMeDownKen,
-                    Move {
-                        input: Some("236e"),
-                        cancel_level: CancelLevel::LightSpecial,
-                        conditions: MoveStartCondition::GROUND,
-                        phases: vec![
-                            Phase {
-                                kind: PhaseKind::Animation,
-                                duration: 30,
-                                ..Default::default()
-                            }
-                            .into(),
-                            Phase {
-                                kind: PhaseKind::Attack(SpawnDescriptor {
-                                    hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
-                                    speed: Some(1.0 * Vec3::X),
-                                    lifetime: Lifetime::Forever,
-                                    ..Default::default()
-                                }),
-                                duration: 4,
-                                ..Default::default()
-                            }
-                            .into(),
-                            Phase {
-                                kind: PhaseKind::Animation,
-                                duration: 10,
-                                cancellable: true,
-                                ..Default::default()
-                            }
-                            .into(),
-                        ],
-                        ..Default::default()
-                    },
-                )],
+                new_moves: vec![MoveId::HandMeDownKen],
                 ..Default::default()
             },
         },
@@ -76,72 +37,7 @@ pub fn ryan_inventory() -> Inventory {
             is_starter: true,
             item: Item {
                 item_type: Some(ItemType::Gun(Gun::default())),
-                new_moves: vec![
-                    (
-                        MoveId::Gunshot, // Single shot, the repeating bit
-                        Move {
-                            cancel_level: CancelLevel::LightNormal,
-                            conditions: MoveStartCondition::GROUND,
-                            cost: MoveCost {
-                                // TODO bullets go here
-                                ..Default::default()
-                            },
-                            phases: vec![
-                                Phase {
-                                    kind: PhaseKind::Animation,
-                                    duration: 10,
-                                    ..Default::default()
-                                }
-                                .into(),
-                                Phase {
-                                    duration: 20,
-                                    kind: PhaseKind::Attack(SpawnDescriptor {
-                                        hitbox: Hitbox::new(
-                                            Vec2::new(0.5, 0.5),
-                                            Vec2::new(0.3, 0.2),
-                                        ),
-                                        speed: Some(10.0 * Vec3::X),
-                                        lifetime: Lifetime::Forever,
-                                        ..Default::default()
-                                    }),
-                                    ..Default::default()
-                                }
-                                .into(),
-                                ConditionResolver {
-                                    default: Phase {
-                                        kind: PhaseKind::Animation,
-                                        duration: 30,
-                                        ..Default::default()
-                                    }
-                                    .into(),
-                                    branches: vec![(
-                                        MoveFlags::EQUIPMENT_PRESSED,
-                                        MoveId::Gunshot.into(),
-                                    )],
-                                },
-                            ],
-                            ..Default::default()
-                        },
-                    ),
-                    (
-                        MoveId::Shoot,
-                        Move {
-                            input: Some("e"),
-                            cancel_level: CancelLevel::LightNormal,
-                            conditions: MoveStartCondition::GROUND,
-                            phases: vec![
-                                Phase {
-                                    kind: PhaseKind::Animation,
-                                    duration: 30,
-                                    ..Default::default()
-                                }
-                                .into(),
-                                MoveId::Gunshot.into(),
-                            ],
-                            ..Default::default()
-                        },
-                    ),
-                ],
+                new_moves: vec![MoveId::Gunshot, MoveId::Shoot],
                 ..Default::default()
             },
         },

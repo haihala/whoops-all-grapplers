@@ -1,10 +1,10 @@
 use bevy::prelude::*;
-use moves::{Move, MoveFlags, MoveId};
+use moves::{MoveFlags, MoveId};
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Item {
     pub move_flag: Option<MoveFlags>,
-    pub new_moves: Vec<(MoveId, Move)>,
+    pub new_moves: Vec<MoveId>,
     pub item_type: Option<ItemType>,
 }
 

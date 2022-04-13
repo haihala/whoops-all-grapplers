@@ -2,6 +2,9 @@ use bevy_inspector_egui::Inspectable;
 
 mod ryan;
 pub use ryan::*;
+mod equipment;
+pub use equipment::*;
+
 mod move_bank;
 pub use move_bank::*;
 mod move_parts;

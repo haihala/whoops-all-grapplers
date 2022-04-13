@@ -4,19 +4,23 @@
 	- Blocked by waiting for new bevy UI (April)
 - [[Gi of the old masters]]
 	- Blocked by [[Simple training mode]]
-
-## High priority
 - [[Gun]]
 	- Mechanism for item specific resources
 	- Maybe think about item specific flags as well
 	- Could the flags just be a vec of enums or something?
 
+## High priority
+- Combine item/character specific mechanics into a single component.
+	- Ammo for [[Gun]] for example
+	- Maybe phaseswitches could consider resources as well, [[Drugs]] could be a resource
+
 ## Low priority
 - [[Recovery and knockdown]]
-- Combine item/character specific mechanics into a single component.
+- Constants to an env (both command line and file) parser so it doesn't change on recompile.
 
 ## Easy nibbles
-
+- Nested enum for moveids
+- Item moves to moves crate, just store ids in items.
 
 ## Not a priority
 - [[3D model]]

@@ -42,6 +42,7 @@ All specials force not blocking aka have forward inputs and no back inputs
 ### Overhead
 - Upside down forward quarter + `f` / `s` / `fs` (Ground only)
 - Ground only
+- Needs an item
 - Has armor until recovery starts
 - Very fast overhead strike
 - `f` - Keeps Lex grounded

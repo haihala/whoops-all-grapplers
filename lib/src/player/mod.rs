@@ -10,10 +10,10 @@ use input_parsing::InputParser;
 #[cfg(not(test))]
 use input_parsing::PadBundle;
 use items::{ryan_inventory, Inventory};
-use moves::{ryan_bank, MoveBank};
+use moves::{ryan_bank, Grabable, Hurtbox, MoveBank};
 use player_state::PlayerState;
 use time::{Clock, GameState, RoundResult};
-use types::{Grabable, Hurtbox, LRDirection, Player};
+use types::{LRDirection, Player};
 
 use crate::{
     assets::Colors,

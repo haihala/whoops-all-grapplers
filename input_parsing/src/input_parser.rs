@@ -9,7 +9,9 @@ use bevy::{
     utils::{HashMap, HashSet},
 };
 
-use types::{GameButton, LRDirection, MoveId, StickPosition};
+use types::{GameButton, LRDirection, StickPosition};
+
+use moves::MoveId;
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
@@ -105,9 +107,6 @@ mod test {
     use crate::helper_types::InputEvent;
     use crate::testing::TestInputBundle;
     use crate::testing::TestStream;
-
-    const TEST_MOVE: MoveId = 1;
-    const SECOND_TEST_MOVE: MoveId = 2;
 
     use crate::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS;
 
@@ -233,11 +232,14 @@ mod test {
     }
     impl TestInterface {
         fn with_input(input: &str) -> TestInterface {
-            TestInterface::new(vec![(TEST_MOVE, input)])
+            TestInterface::new(vec![(MoveId::TestMove, input)])
         }
 
         fn with_inputs(input: &str, second_input: &str) -> TestInterface {
-            TestInterface::new(vec![(TEST_MOVE, input), (SECOND_TEST_MOVE, second_input)])
+            TestInterface::new(vec![
+                (MoveId::TestMove, input),
+                (MoveId::SecondTestMove, second_input),
+            ])
         }
 
         fn new(moves: Vec<(MoveId, &str)>) -> TestInterface {
@@ -287,12 +289,12 @@ mod test {
         }
 
         fn assert_test_event_is_present(&mut self) {
-            self.assert_event_is_present(TEST_MOVE);
+            self.assert_event_is_present(MoveId::TestMove);
         }
 
         fn assert_both_test_events_are_present(&mut self) {
-            self.assert_event_is_present(TEST_MOVE);
-            self.assert_event_is_present(SECOND_TEST_MOVE);
+            self.assert_event_is_present(MoveId::TestMove);
+            self.assert_event_is_present(MoveId::SecondTestMove);
         }
 
         fn assert_event_is_present(&mut self, id: MoveId) {

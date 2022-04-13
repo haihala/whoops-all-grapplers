@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 use input_parsing::InputParser;
-use moves::{MoveBank, PhaseKind};
+use moves::{Grabable, MoveBank, PhaseKind};
 use player_state::PlayerState;
 use time::Clock;
-use types::{Grabable, LRDirection, Player};
+use types::{LRDirection, Player};
 
 use crate::{assets::Colors, damage::Health, physics::PlayerVelocity, spawner::Spawner};
 

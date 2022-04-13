@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 
+use moves::{Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
 use time::{Clock, GameState};
-use types::{LRDirection, Lifetime, MoveId, OnHitEffect, Player, SpawnDescriptor};
+use types::{LRDirection, Player};
 
 use crate::assets::Colors;
 use crate::physics::ConstantVelocity;

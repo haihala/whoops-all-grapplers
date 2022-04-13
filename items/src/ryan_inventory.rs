@@ -1,10 +1,9 @@
 use bevy::prelude::*;
 
 use moves::{
-    equipment, CancelLevel, ConditionResolver, Move, MoveCost, MoveFlags, MoveStartCondition,
-    Phase, PhaseKind,
+    CancelLevel, ConditionResolver, Hitbox, Lifetime, Move, MoveCost, MoveFlags, MoveId,
+    MoveStartCondition, Phase, PhaseKind, SpawnDescriptor,
 };
-use types::{Hitbox, Lifetime, SpawnDescriptor};
 
 use crate::{Gi, Gun, Inventory, Item, ItemType, ShopItem};
 
@@ -25,7 +24,7 @@ pub fn ryan_inventory() -> Inventory {
             is_starter: true,
             item: Item {
                 new_moves: vec![(
-                    equipment::HANDMEDOWNKEN,
+                    MoveId::HandMeDownKen,
                     Move {
                         input: Some("236e"),
                         cancel_level: CancelLevel::LightSpecial,
@@ -79,7 +78,7 @@ pub fn ryan_inventory() -> Inventory {
                 item_type: Some(ItemType::Gun(Gun::default())),
                 new_moves: vec![
                     (
-                        equipment::GUNSHOT, // Single shot, the repeating bit
+                        MoveId::Gunshot, // Single shot, the repeating bit
                         Move {
                             cancel_level: CancelLevel::LightNormal,
                             conditions: MoveStartCondition::GROUND,
@@ -117,7 +116,7 @@ pub fn ryan_inventory() -> Inventory {
                                     .into(),
                                     branches: vec![(
                                         MoveFlags::EQUIPMENT_PRESSED,
-                                        equipment::GUNSHOT.into(),
+                                        MoveId::Gunshot.into(),
                                     )],
                                 },
                             ],
@@ -125,7 +124,7 @@ pub fn ryan_inventory() -> Inventory {
                         },
                     ),
                     (
-                        equipment::SHOOT,
+                        MoveId::Shoot,
                         Move {
                             input: Some("e"),
                             cancel_level: CancelLevel::LightNormal,
@@ -137,7 +136,7 @@ pub fn ryan_inventory() -> Inventory {
                                     ..Default::default()
                                 }
                                 .into(),
-                                equipment::GUNSHOT.into(),
+                                MoveId::Gunshot.into(),
                             ],
                             ..Default::default()
                         },

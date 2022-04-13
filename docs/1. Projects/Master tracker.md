@@ -19,7 +19,6 @@
 - Constants to an env (both command line and file) parser so it doesn't change on recompile.
 
 ## Easy nibbles
-- Nested enum for moveids
 - Item moves to moves crate, just store ids in items.
 
 ## Not a priority

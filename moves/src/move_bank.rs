@@ -2,9 +2,7 @@ use bevy::{prelude::*, utils::HashMap};
 use bevy_inspector_egui::Inspectable;
 use bitflags::bitflags;
 
-use types::{GrabDescription, MoveId, SpawnDescriptor};
-
-use crate::CancelLevel;
+use crate::{CancelLevel, MoveAction, MoveId, Phase};
 
 #[derive(Inspectable, PartialEq, Clone, Copy, Debug, Default)]
 pub struct MoveState {
@@ -147,73 +145,4 @@ impl Default for ConditionResolver {
     fn default() -> Self {
         Phase::default().into()
     }
-}
-
-#[derive(Debug, Inspectable, Clone, PartialEq)]
-pub enum MoveAction {
-    Move(MoveId),
-    Phase(Phase),
-}
-impl Default for MoveAction {
-    fn default() -> Self {
-        panic!("This should never be called, exists to satisfy Inspectable");
-    }
-}
-impl From<MoveId> for MoveAction {
-    fn from(id: MoveId) -> Self {
-        MoveAction::Move(id)
-    }
-}
-impl From<Phase> for MoveAction {
-    fn from(phase_data: Phase) -> Self {
-        MoveAction::Phase(phase_data)
-    }
-}
-impl MoveAction {
-    fn get_duration(&self) -> Option<usize> {
-        match self {
-            MoveAction::Move(_) => None,
-            MoveAction::Phase(phase_data) => Some(phase_data.duration),
-        }
-    }
-
-    pub fn is_cancellable(&self) -> bool {
-        match self {
-            MoveAction::Move(_) => false,
-            MoveAction::Phase(phase_data) => phase_data.cancellable,
-        }
-    }
-
-    pub fn get_mobility(&self) -> Option<MoveMobility> {
-        match self {
-            MoveAction::Move(_) => None,
-            MoveAction::Phase(phase_data) => phase_data.mobility,
-        }
-    }
-}
-
-#[derive(Debug, Default, Inspectable, Clone, PartialEq)]
-pub struct Phase {
-    pub kind: PhaseKind,
-    pub duration: usize,
-    pub cancellable: bool,
-    pub mobility: Option<MoveMobility>,
-}
-
-#[derive(Debug, Inspectable, Clone, PartialEq)]
-pub enum PhaseKind {
-    Animation,
-    Grab(GrabDescription),
-    Attack(SpawnDescriptor),
-}
-impl Default for PhaseKind {
-    fn default() -> Self {
-        PhaseKind::Animation
-    }
-}
-
-#[derive(Debug, Inspectable, Copy, Clone, PartialEq)]
-pub enum MoveMobility {
-    Impulse(Vec3),
-    Perpetual(Vec3),
 }

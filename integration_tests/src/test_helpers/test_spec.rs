@@ -2,8 +2,7 @@ use std::time::Duration;
 
 use bevy::utils::HashMap;
 use input_parsing::{testing::PreWrittenInputBundle, InputEvent};
-use moves::ryan_bank;
-use types::MoveId;
+use moves::{ryan_bank, MoveId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InputClump {

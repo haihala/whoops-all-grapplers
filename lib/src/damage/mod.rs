@@ -1,9 +1,10 @@
 use bevy::prelude::*;
 
 use input_parsing::InputParser;
+use moves::{Hurtbox, OnHitEffect};
 use player_state::PlayerState;
 use time::{Clock, GameState, WAGStage};
-use types::{Hurtbox, LRDirection, OnHitEffect, Player};
+use types::{LRDirection, Player};
 
 mod health;
 pub use health::Health;

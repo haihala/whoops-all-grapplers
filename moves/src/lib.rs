@@ -4,49 +4,47 @@ mod ryan;
 pub use ryan::*;
 mod move_bank;
 pub use move_bank::*;
+mod move_parts;
+pub use move_parts::*;
 
-/// Creates a unique MoveId for each listed identifier provided the offset is unique
-#[macro_export]
-macro_rules! moves {
-    ($offset:expr, ($move_name:ident, $($tail:ident),+)) => {    // Entry point
-        use types::MoveId;
+#[derive(Inspectable, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub enum MoveId {
+    Default, // Some default value required by the default trait.
 
-        moves!(0usize, $offset, ($move_name, $($tail),*));  // Calls the next one
-    };
+    // Universal
+    DashForward,
+    DashBack,
+    NeutralSuperJump,
+    ForwardSuperJump,
+    BackSuperJump,
+    NeutralJump,
+    ForwardJump,
+    BackJump,
 
-    ($idx:expr, $offset:expr, ($move_name:ident, $($tail:ident),+)) => {
-        pub const $move_name: MoveId = ($idx+($offset*1000)) as MoveId;
-        moves!($idx + 1usize, $offset, ($($tail),*));   // Recursively calls itself
-    };
+    // Equipment
+    HandMeDownKen,
+    Gunshot,
+    Shoot,
 
-    ($idx:expr, $offset:expr, ($move_name:ident)) => {  // Last of recursion
-        pub const $move_name: MoveId = ($idx+($offset*1000)) as MoveId;
-    };
+    // Test moves
+    TestMove,
+    SecondTestMove,
+
+    // Ryan moves
+    Grab,
+    SonicBoom,
+    BudgetBoom,
+    HeavyHadouken,
+    Hadouken,
+    AirPunch,
+    CommandPunch,
+    Punch,
 }
 
-// Order matters, moves defined first have priority over later ones
-pub mod test {
-    moves!(99usize, (TEST_MOVE, SECOND_TEST_MOVE));
-}
-
-pub mod universal {
-    moves!(
-        0usize,
-        (
-            DASH_FORWARD,
-            DASH_BACK,
-            NEUTRAL_SUPER_JUMP,
-            FORWARD_SUPER_JUMP,
-            BACK_SUPER_JUMP,
-            NEUTRAL_JUMP,
-            FORWARD_JUMP,
-            BACK_JUMP
-        )
-    );
-}
-
-pub mod equipment {
-    moves!(1usize, (HANDMEDOWNKEN, GUNSHOT, SHOOT));
+impl Default for MoveId {
+    fn default() -> Self {
+        Self::Default
+    }
 }
 
 // Defined smallest to largest aka later ones can cancel earlier ones.

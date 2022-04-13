@@ -1,6 +1,5 @@
 use bevy::prelude::*;
-use moves::{Move, MoveFlags};
-use types::MoveId;
+use moves::{Move, MoveFlags, MoveId};
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Item {

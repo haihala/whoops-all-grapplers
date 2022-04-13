@@ -1,6 +1,3 @@
-mod combat;
-pub use combat::*;
-
 mod direction;
 pub use direction::*;
 
@@ -15,8 +12,6 @@ use strum_macros::EnumIter;
 
 // This crate will be as small as possible so that types are where they are used
 // It's meant for common universal types to circumvent circular dependencies.
-
-pub type MoveId = u32;
 
 #[derive(EnumIter, Inspectable, PartialEq, Eq, Clone, Copy, Debug, Hash, Component)]
 pub enum Player {

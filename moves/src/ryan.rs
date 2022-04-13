@@ -1,9 +1,9 @@
 use bevy::prelude::*;
-use types::{AttackHeight, GrabDescription, Hitbox, Lifetime, SpawnDescriptor};
 
 use crate::{
-    move_bank::MoveBank, moves, universal, CancelLevel, ConditionResolver, Move, MoveCost,
-    MoveFlags, MoveMobility, MoveStartCondition, Phase, PhaseKind,
+    move_bank::MoveBank, AttackHeight, CancelLevel, ConditionResolver, GrabDescription, Hitbox,
+    Lifetime, Move, MoveCost, MoveFlags, MoveId, MoveMobility, MoveStartCondition, Phase,
+    PhaseKind, SpawnDescriptor,
 };
 
 // Dashing
@@ -19,20 +19,6 @@ const DASH_START_SPEED: f32 = SHIFT_DURING_DASH_START / DASH_START_DURATION_SECO
 const DASH_RECOVERY_SPEED: f32 = SHIFT_DURING_DASH_RECOVERY / DASH_RECOVERY_DURATION_SECONDS;
 const DASH_START_FRAMES: usize = (DASH_START_DURATION_SECONDS * constants::FPS) as usize;
 const DASH_RECOVERY_FRAMES: usize = (DASH_RECOVERY_DURATION_SECONDS * constants::FPS) as usize;
-
-moves!(
-    2usize,
-    (
-        GRAB,
-        SONIC_BOOM,
-        BUDGET_BOOM,
-        HEAVY_HADOUKEN,
-        HADOUKEN,
-        AIR_PUNCH,
-        COMMAND_PUNCH,
-        PUNCH
-    )
-);
 
 fn jump(input: &'static str, impulse: impl Into<Vec3>) -> Move {
     Move {
@@ -86,25 +72,25 @@ fn dash(input: &'static str, start_speed: f32, recovery_speed: f32) -> Move {
 fn ryan_moves() -> Vec<(MoveId, Move)> {
     vec![
         (
-            universal::BACK_JUMP,
+            MoveId::BackJump,
             jump(
                 "7",
                 (-constants::DIAGONAL_JUMP_X, constants::DIAGONAL_JUMP_Y, 0.0),
             ),
         ),
         (
-            universal::NEUTRAL_JUMP,
+            MoveId::NeutralJump,
             jump("8", (0.0, constants::NEUTRAL_JUMP_Y, 0.0)),
         ),
         (
-            universal::FORWARD_JUMP,
+            MoveId::ForwardJump,
             jump(
                 "9",
                 (constants::DIAGONAL_JUMP_X, constants::DIAGONAL_JUMP_Y, 0.0),
             ),
         ),
         (
-            universal::BACK_SUPER_JUMP,
+            MoveId::BackSuperJump,
             jump(
                 "[123]7",
                 (
@@ -115,11 +101,11 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             ),
         ),
         (
-            universal::NEUTRAL_SUPER_JUMP,
+            MoveId::NeutralSuperJump,
             jump("[123]8", (0.0, constants::NEUTRAL_SUPERJUMP_Y, 0.0)),
         ),
         (
-            universal::FORWARD_SUPER_JUMP,
+            MoveId::ForwardSuperJump,
             jump(
                 "[123]9",
                 (
@@ -130,15 +116,15 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             ),
         ),
         (
-            universal::DASH_FORWARD,
+            MoveId::DashForward,
             dash("656", DASH_START_SPEED, DASH_RECOVERY_SPEED),
         ),
         (
-            universal::DASH_BACK,
+            MoveId::DashBack,
             dash("454", -DASH_START_SPEED, -DASH_RECOVERY_SPEED),
         ),
         (
-            PUNCH,
+            MoveId::Punch,
             Move {
                 input: Some("f"),
                 cancel_level: CancelLevel::LightNormal,
@@ -173,7 +159,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             },
         ),
         (
-            COMMAND_PUNCH,
+            MoveId::CommandPunch,
             Move {
                 input: Some("6f"),
                 cancel_level: CancelLevel::LightNormal,
@@ -236,7 +222,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             },
         ),
         (
-            BUDGET_BOOM,
+            MoveId::BudgetBoom,
             Move {
                 input: Some("[41]6f"),
                 cancel_level: CancelLevel::LightSpecial,
@@ -271,7 +257,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             },
         ),
         (
-            SONIC_BOOM,
+            MoveId::SonicBoom,
             Move {
                 input: Some("[41]6f"),
                 cancel_level: CancelLevel::HeavySpecial,
@@ -309,7 +295,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             },
         ),
         (
-            HADOUKEN,
+            MoveId::Hadouken,
             Move {
                 input: Some("236f"),
                 cancel_level: CancelLevel::LightSpecial,
@@ -344,7 +330,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             },
         ),
         (
-            HEAVY_HADOUKEN,
+            MoveId::HeavyHadouken,
             Move {
                 input: Some("236s"),
                 cancel_level: CancelLevel::HeavySpecial,
@@ -382,7 +368,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             },
         ),
         (
-            AIR_PUNCH,
+            MoveId::AirPunch,
             Move {
                 input: Some("f"),
                 cancel_level: CancelLevel::LightNormal,
@@ -418,7 +404,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             },
         ),
         (
-            GRAB,
+            MoveId::Grab,
             Move {
                 input: Some("g"),
                 cancel_level: CancelLevel::Grab,
@@ -469,7 +455,11 @@ mod test {
         let mut ids: HashSet<MoveId> = vec![].into_iter().collect();
 
         for (id, _) in ryan_moves() {
-            assert!(!ids.contains(&id), "ID {} was found twice in move list", id);
+            assert!(
+                !ids.contains(&id),
+                "ID {:?} was found twice in move list",
+                id
+            );
             ids.insert(id);
         }
     }

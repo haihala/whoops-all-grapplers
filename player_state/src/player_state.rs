@@ -2,8 +2,8 @@ use bevy::{prelude::*, utils::HashSet};
 use bevy_inspector_egui::Inspectable;
 use strum::IntoEnumIterator;
 
-use moves::{MoveFlags, MoveState};
-use types::{AttackHeight, GameButton, LRDirection, MoveId, StickPosition};
+use moves::{AttackHeight, MoveFlags, MoveId, MoveState};
+use types::{GameButton, LRDirection, StickPosition};
 
 use crate::{
     primary_state::{AirActivity, GroundActivity, PrimaryState},

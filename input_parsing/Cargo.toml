@@ -8,5 +8,6 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 bevy = "0.6.1"
 bevy-inspector-egui = "0.8.2"
 
-types = { path = "../types" }
+moves = { path = "../moves" }
 time = { path = "../time" }
+types = { path = "../types" }

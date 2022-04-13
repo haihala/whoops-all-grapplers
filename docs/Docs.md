@@ -1,3 +1,25 @@
+# Development
+## Setup
+Not tested on mac
+
+1. Install rust tools using rustup
+2. Install make
+3. Install additional graphics dev libraries (only on linux)
+4. Install clang and lld (only for linux) for faster linking
+5. Install visual studio 2019 windows sdk (only for windows)
+6. `make install` - Installs dev dependencies like udeps and nextest
+7. `make run`
+
+Having a controller is highly recommended. Currently game starts in pre-round, press enter on the keyboard to start the round. The controller should be picked up and start moving one of the characters on the screen.
+
+## Best practices
+- Read through the makefile, it's not long and contains a lot of useful tools
+- Add a git hook that runs `make check` before pushing
+- For design ideology, see [[philosophy]]
+
+## Test
+Tests are divided into unit and integration tests. Unit tests are scattered around and ran with `make test` using nextest (a tool to run tests for separate crates in parallel). Integration tests live in their own crate and are ignored by default. The system for integration tests could use some more work and they are quite barebones at the moment. Ran integration tests with  `make integration`.
+
 # Tech used
 ## Code
 Code is written in [[Rust]] using the [[Bevy]] game engine.
@@ -21,23 +43,3 @@ Rust specific tooling:
 
 ## Docs
 Written with [[Obsidian]], mounting the docs folder, format is close to [[PARA]], but not an exact match.
-
-# Development
-## Setup
-Not tested on mac
-
-1. Install rust tools using rustup
-2. Install additional graphics dev libraries (only on linux)
-3. Install clang and lld (only for linux) for faster linking
-4. `make install` - Installs dependencies like udeps and nextest
-5. `make run`
-
-Having a controller is highly recommended. Currently game starts in pre-round, press enter on the keyboard to start the round. The controller should be picked up and start moving one of the characters on the screen.
-
-## Best practices
-- Read through the makefile, it's not long and contains a lot of useful tools
-- Add a git hook that runs `make check` before pushing
-- For design ideology, see [[philosophy]]
-
-## Test
-Tests are divided into unit and integration tests. Unit tests are scattered around and ran with `make test` using nextest (a tool to run tests for separate crates in parallel). Integration tests live in their own crate and are ignored by default. The system for integration tests could use some more work and they are quite barebones at the moment. Ran integration tests with  `make integration`.

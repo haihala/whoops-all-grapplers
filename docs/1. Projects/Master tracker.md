@@ -20,7 +20,6 @@
 - Constants to an env (both command line and file) parser so it doesn't change on recompile.
 
 ## Easy nibbles
-- Merge item and shopitem
 
 ## Not a priority
 - [[3D model]]

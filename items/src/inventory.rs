@@ -1,7 +1,5 @@
 use bevy::prelude::*;
-use moves::MoveFlags;
-
-use crate::Item;
+use moves::{MoveFlags, MoveId};
 
 #[derive(Debug, Default, Component)]
 pub struct Inventory {
@@ -9,21 +7,22 @@ pub struct Inventory {
     pub money: usize,
     pub owned: Vec<Item>,
     pub bought: Vec<Item>,
-    pub shop_items: Vec<ShopItem>,
+    pub shop_items: Vec<Item>,
 }
 impl Inventory {
-    pub fn new(shop_items: Vec<ShopItem>) -> Self {
+    pub fn new(shop_items: Vec<Item>) -> Self {
         Self {
             shop_items,
             ..Default::default()
         }
     }
 
-    pub fn roll_shop(&self, max_amount: usize) -> Vec<&ShopItem> {
+    pub fn roll_shop(&self, max_amount: usize) -> Vec<Item> {
         self.shop_items
             .iter()
-            .filter(|si| !self.owned.contains(&si.item))
+            .filter(|item| !self.owned.contains(item))
             .take(max_amount)
+            .map(|item| item.to_owned())
             .collect()
         // TODO random selection that doesn't break rollback
     }
@@ -46,10 +45,11 @@ impl Inventory {
     }
 }
 
-#[derive(Debug)]
-pub struct ShopItem {
+#[derive(Debug, Default, Clone, PartialEq, PartialOrd)]
+pub struct Item {
     pub tier: usize,
     pub cost: usize,
     pub is_starter: bool,
-    pub item: Item,
+    pub move_flag: Option<MoveFlags>,
+    pub new_moves: Vec<MoveId>,
 }

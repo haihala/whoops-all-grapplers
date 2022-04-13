@@ -204,11 +204,10 @@ fn testing(
 ) {
     if keys.just_pressed(KeyCode::Space) {
         for (mut inventory, mut bank, mut parser) in query.iter_mut() {
-            if let Some(shopitem) = inventory.roll_shop(1).first() {
-                let item = shopitem.item.clone();
+            if let Some(item) = inventory.roll_shop(1).first() {
                 inventory.buy(item.clone());
 
-                for move_id in item.new_moves {
+                for move_id in item.new_moves.iter().cloned() {
                     let move_data = get_equipment_move(move_id);
                     if let Some(input) = move_data.input {
                         parser.register_input(move_id, input.into());

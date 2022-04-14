@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use bevy::utils::HashMap;
 
+use bevy::utils::HashMap;
 use kits::{Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
 use time::{Clock, GameState};
 use types::{LRDirection, Owner, Player};
@@ -38,14 +38,14 @@ enum DespawnTime {
 
 #[derive(Debug)]
 struct DespawnRequest {
-    id: MoveId,
+    entity: Entity,
     time: DespawnTime,
 }
 
 #[derive(Default, Component)]
 pub struct Spawner {
     queue: Vec<(MoveId, SpawnDescriptor)>,
-    spawned: HashMap<MoveId, Entity>,
+    spawned: HashMap<Entity, MoveId>,
     despawn_requests: Vec<DespawnRequest>,
 }
 impl Spawner {
@@ -82,6 +82,9 @@ impl Spawner {
             ..default()
         });
 
+        // Housekeeping
+        let new_hitbox = builder.id();
+
         // Components used when collision happens
         builder.insert(OnHitEffect {
             id,
@@ -97,14 +100,12 @@ impl Spawner {
             builder.insert(ConstantVelocity::new(facing.to_vec3() * speed));
         }
 
-        // Housekeeping
-        let new_hitbox = builder.id();
         if descriptor.attached_to_player {
             commands.entity(parent).push_children(&[new_hitbox]);
         }
-        self.spawned.insert(id, new_hitbox);
+        self.spawned.insert(new_hitbox, id);
         self.despawn_requests.push(DespawnRequest {
-            id,
+            entity: new_hitbox,
             time: match descriptor.lifetime {
                 Lifetime::Phase => DespawnTime::StateChange,
                 Lifetime::UntilHit => DespawnTime::OnHit,
@@ -114,22 +115,23 @@ impl Spawner {
         });
     }
 
-    pub fn despawn(&mut self, commands: &mut Commands, ids: Vec<MoveId>) {
+    pub fn despawn(&mut self, commands: &mut Commands, ids: Vec<Entity>) {
         for id in ids.into_iter() {
-            if let Some(spawned) = self.spawned.remove(&id) {
-                commands.entity(spawned).despawn_recursive();
+            if self.spawned.remove(&id).is_some() {
+                commands.entity(id).despawn_recursive();
             }
+            self.despawn_requests.retain(|request| request.entity != id);
         }
     }
 
-    fn drain(&mut self, predicate: impl Fn(&mut DespawnRequest) -> bool) -> Vec<MoveId> {
+    fn drain(&mut self, predicate: impl Fn(&mut DespawnRequest) -> bool) -> Vec<Entity> {
         self.despawn_requests
             .drain_filter(predicate)
-            .map(|event| event.id)
+            .map(|event| event.entity)
             .collect()
     }
 
-    fn drain_old(&mut self, frame: usize) -> Vec<MoveId> {
+    fn drain_old(&mut self, frame: usize) -> Vec<Entity> {
         self.drain(|event| {
             if let DespawnTime::Frame(despawn_frame) = event.time {
                 despawn_frame <= frame
@@ -151,6 +153,22 @@ impl Spawner {
 
     pub fn despawn_on_phase_change(&mut self, commands: &mut Commands) {
         let ids = self.drain(|event| matches!(event.time, DespawnTime::StateChange));
+        self.despawn(commands, ids);
+    }
+
+    pub fn despawn_for_move(&mut self, commands: &mut Commands, move_id: MoveId) {
+        let ids = self
+            .spawned
+            .iter()
+            .filter_map(|(entity, id)| {
+                if *id == move_id {
+                    Some(entity.to_owned())
+                } else {
+                    None
+                }
+            })
+            .collect();
+
         self.despawn(commands, ids);
     }
 
@@ -196,7 +214,11 @@ pub fn despawn_expired(
 
 pub fn despawn_everything(mut commands: Commands, mut spawners: Query<&mut Spawner>) {
     for mut spawner in spawners.iter_mut() {
-        let ids = spawner.spawned.drain().map(|(id, _)| id).collect();
+        let ids = spawner
+            .spawned
+            .drain()
+            .map(|(entity, _move_id)| entity)
+            .collect();
         spawner.despawn(&mut commands, ids);
     }
 }

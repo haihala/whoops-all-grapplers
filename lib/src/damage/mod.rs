@@ -158,7 +158,7 @@ fn handle_hit(
 
         // Despawns
         defender.spawner.despawn_on_hit(commands);
-        attacker.spawner.despawn(commands, vec![effect.id]);
+        attacker.spawner.despawn_for_move(commands, effect.id);
     }
 }
 

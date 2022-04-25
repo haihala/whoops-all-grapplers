@@ -1,0 +1,5 @@
+- Centralize resources in one component for easier reference
+	- Health
+	- Meter
+	- Ammo for gun
+	- Charge

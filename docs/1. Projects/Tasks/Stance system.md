@@ -1,0 +1,3 @@
+- Another type of move phase
+- After [[Phaseswitch rework]], some moves could maybe only start in certain stances
+- Have a stance enum similar to MoveId

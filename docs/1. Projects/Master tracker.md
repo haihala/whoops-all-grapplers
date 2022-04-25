@@ -1,25 +1,29 @@
 # Backlog
 ## Clearly a priority but blocked
 - [[Menus]]
-	- Blocked by waiting for new bevy UI (April)
+	- Waiting for new bevy UI (April)
 - [[Gi of the old masters]]
-	- Blocked by [[Simple training mode]]
+	- [[Simple training mode]] would make testing a lot easier
+	- [[Merge items and moves into kits]]
+	- [[Non-standard input actions]]
 - [[Gun]]
-	- Mechanism for item specific resources
-	- Maybe think about item specific flags as well
-	- Could the flags just be a vec of enums or something?
+	- [[Resources component]]
+	- [[Merge items and moves into kits]]
 
 ## High priority
-- Combine item/character specific mechanics into a single component.
-	- Ammo for [[Gun]] for example
-	- Maybe phaseswitches could consider resources as well
-		- Buffs like [[Drugs]] could be a special non-consumable resource
+- [[Phaseswitch rework]]
+- [[Resources component]]
+- [[Merge items and moves into kits]]
 
 ## Low priority
 - [[Recovery and knockdown]]
 - Constants to an env (both command line and file) parser so it doesn't change on recompile.
+- [[Stance system]]
 
 ## Easy nibbles
+- Change how move starting works so that the first phase goes through the same system as the other phases
+	- This would fix the bug where the first phase hitboxes etc are ignored
+	- If it becomes difficult, could add a 1-frame animation as the first phase automatically.
 
 ## Not a priority
 - [[3D model]]

@@ -1,0 +1,13 @@
+- One struct for situation (MoveState)
+	- Resource situation
+	- Items owned
+	- Conditions based on PlayerState
+		- In air
+		- Stunned
+	- What move/phase is ongoing
+- One struct for conditions
+	- A bunch of optional fields
+	- Used for phase switches and move starting
+	- Benefits of this
+		- Dynamic values for things like charge
+		- Ergonomics of bitflags

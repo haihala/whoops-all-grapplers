@@ -16,6 +16,7 @@
 - [[Merge items and moves into kits]]
 
 ## Low priority
+- [[Bevy 0.7]]
 - [[Recovery and knockdown]]
 - Constants to an env (both command line and file) parser so it doesn't change on recompile.
 - [[Stance system]]
@@ -39,7 +40,7 @@
 	- Heat
 - [[Testing framework v2]]
 - A way to pause the game (look at inspector)
-- Generic state based visibility toggler for UI components
+- Generic state based visibility toggler for UI components (there is a component for visibility)
 - Think about cancellability + moves having hit
 	- Currently can't cancel rest of active
 - Maybe if player collision used diamond shaped colliders it would be easier to handle sliding off when landing on the other player

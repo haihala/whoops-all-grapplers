@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use super::GameResource;
-
-#[derive(Inspectable, Component, Clone, Copy)]
+#[derive(Inspectable, Component, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Charge {
     /// Last tick charge was updated (keep track of when to decay)
     pub last_update: usize,
@@ -18,40 +16,24 @@ impl Default for Charge {
         Self {
             last_update: 0,
             progress: 0,
-            full_progress: (1.0 * constants::FPS) as usize,
+            full_progress: (0.75 * constants::FPS) as usize,
         }
     }
 }
-impl GameResource<bool> for Charge {
-    fn can_afford(&self, amount: bool) -> bool {
+impl Charge {
+    pub fn can_afford(&self, amount: bool) -> bool {
         self.is_charged() && amount
     }
 
-    fn pay(&mut self, amount: bool) {
+    pub fn pay(&mut self, amount: bool) {
         if amount {
             assert!(self.is_charged());
             self.reset();
         }
     }
 
-    fn get_ratio(&self) -> f32 {
-        if self.is_charged() {
-            1.0
-        } else {
-            self.progress as f32 / self.full_progress as f32
-        }
-    }
-
-    fn reset(&mut self) {
+    pub fn reset(&mut self) {
         self.progress = 0;
-    }
-}
-impl Charge {
-    pub fn new(full_charge_seconds: f32) -> Self {
-        Charge {
-            full_progress: (full_charge_seconds * constants::FPS) as usize,
-            ..Default::default()
-        }
     }
 
     pub fn is_charged(&self) -> bool {

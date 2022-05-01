@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::{InspectableRegistry, WorldInspectorPlugin};
 
+use kits::Resources;
 use player_state::PlayerState;
 use time::Clock;
 use types::Player;
@@ -8,7 +9,6 @@ use types::Player;
 use crate::{
     damage::Health,
     physics::{ConstantVelocity, PlayerVelocity},
-    resources::{Charge, Meter},
 };
 
 pub struct InspectorPlugin;
@@ -23,8 +23,7 @@ impl Plugin for InspectorPlugin {
             .expect("InspectableRegistry not initiated");
 
         registry.register::<Player>();
-        registry.register::<Charge>();
-        registry.register::<Meter>();
+        registry.register::<Resources>();
         registry.register::<Health>();
         registry.register::<PlayerState>();
         registry.register::<Clock>();

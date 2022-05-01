@@ -11,7 +11,7 @@ use bevy::{
 
 use types::{GameButton, LRDirection, StickPosition};
 
-use moves::MoveId;
+use kits::MoveId;
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from

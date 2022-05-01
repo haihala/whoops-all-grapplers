@@ -1,10 +1,8 @@
 use bevy::prelude::*;
+use kits::Resources;
 use types::Player;
 
-use crate::{
-    damage::Health,
-    resources::{GameResource, Meter},
-};
+use crate::damage::Health;
 
 use super::{HEALTH_BAR_WIDTH, METER_BAR_WIDTH};
 
@@ -19,9 +17,9 @@ pub fn update(
         QueryState<(&mut Style, &HealthBar)>,
         QueryState<(&mut Style, &MeterBar)>,
     )>,
-    players: Query<(&Player, &Health, &Meter)>,
+    players: Query<(&Player, &Health, &Resources)>,
 ) {
-    for (player, health, meter) in players.iter() {
+    for (player, health, resources) in players.iter() {
         for (mut style, bar) in bars.q0().iter_mut() {
             if *player == bar.0 {
                 style.size.width = Val::Percent(health.get_ratio() * HEALTH_BAR_WIDTH);
@@ -29,7 +27,7 @@ pub fn update(
         }
         for (mut style, bar) in bars.q1().iter_mut() {
             if *player == bar.0 {
-                style.size.width = Val::Percent(meter.get_ratio() * METER_BAR_WIDTH);
+                style.size.width = Val::Percent(resources.meter.get_ratio() * METER_BAR_WIDTH);
             }
         }
     }

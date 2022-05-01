@@ -10,8 +10,7 @@ bevy-inspector-egui = "0.8.2"
 
 constants = { path = "../constants" }
 input_parsing = { path = "../input_parsing" }
-items = { path = "../items" }
-moves = { path = "../moves" }
+kits = { path = "../kits" }
 player_state = { path = "../player_state" }
 types = { path = "../types" }
 time = { path = "../time" }

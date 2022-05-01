@@ -1,14 +1,14 @@
 use bevy::prelude::*;
 use input_parsing::InputParser;
+use kits::Resources;
 use time::Clock;
-
-use crate::resources::{Charge, GameResource};
 
 const CHARGE_EXPIRATION_TIME: f32 = 0.2;
 const CHARGE_EXPIRATION_FRAMES: usize = (CHARGE_EXPIRATION_TIME * constants::FPS) as usize;
 
-pub fn manage_charge(mut query: Query<(&mut Charge, &InputParser)>, clock: Res<Clock>) {
-    for (mut charge, parser) in query.iter_mut() {
+pub fn manage_charge(mut query: Query<(&mut Resources, &InputParser)>, clock: Res<Clock>) {
+    for (mut resources, parser) in query.iter_mut() {
+        let charge = &mut resources.charge;
         let stick: IVec2 = parser.get_relative_stick_position().into();
         let holding_down = stick.y == -1;
         let holding_back = stick.x == -1;

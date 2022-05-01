@@ -1,10 +1,15 @@
 use bevy::prelude::*;
 
 use crate::{
-    move_bank::MoveBank, AttackHeight, CancelLevel, ConditionResolver, GrabDescription, Hitbox,
-    Lifetime, Move, MoveCost, MoveFlags, MoveId, MoveMobility, MoveStartCondition, Phase,
-    PhaseKind, SpawnDescriptor,
+    AttackHeight, Branch, CancelLevel, Cost, GrabDescription, Hitbox, Item, ItemId, Lifetime, Move,
+    MoveId, MoveMobility, Phase, PhaseKind, Requirements, SpawnDescriptor,
 };
+
+use super::{dash, get_equipment_move, jump, Kit};
+
+pub fn ryan_kit() -> Kit {
+    Kit::new(ryan_moves(), ryan_items())
+}
 
 // Dashing
 const DASH_START_DURATION_SECONDS: f32 = 0.1;
@@ -20,56 +25,25 @@ const DASH_RECOVERY_SPEED: f32 = SHIFT_DURING_DASH_RECOVERY / DASH_RECOVERY_DURA
 const DASH_START_FRAMES: usize = (DASH_START_DURATION_SECONDS * constants::FPS) as usize;
 const DASH_RECOVERY_FRAMES: usize = (DASH_RECOVERY_DURATION_SECONDS * constants::FPS) as usize;
 
-fn jump(input: &'static str, impulse: impl Into<Vec3>) -> Move {
-    Move {
-        input: Some(input),
-        cancel_level: CancelLevel::Jump,
-        conditions: MoveStartCondition::GROUND,
-        phases: vec![
-            Phase {
-                kind: PhaseKind::Animation,
-                duration: 5,
-                mobility: Some(MoveMobility::Impulse(impulse.into())),
-                ..Default::default()
-            }
-            .into(),
-            Phase {
-                kind: PhaseKind::Animation,
-                duration: 5,
-                ..Default::default()
-            }
-            .into(),
-        ],
-        ..Default::default()
-    }
-}
-
-fn dash(input: &'static str, start_speed: f32, recovery_speed: f32) -> Move {
-    Move {
-        input: Some(input),
-        cancel_level: CancelLevel::Dash,
-        conditions: MoveStartCondition::GROUND,
-        phases: vec![
-            Phase {
-                kind: PhaseKind::Animation,
-                duration: DASH_START_FRAMES,
-                mobility: Some(MoveMobility::Perpetual(Vec3::X * start_speed)),
-                ..Default::default()
-            }
-            .into(),
-            Phase {
-                kind: PhaseKind::Animation,
-                duration: DASH_RECOVERY_FRAMES,
-                cancellable: true,
-                mobility: Some(MoveMobility::Perpetual(Vec3::X * recovery_speed)),
-            }
-            .into(),
-        ],
-        ..Default::default()
-    }
-}
-
 fn ryan_moves() -> Vec<(MoveId, Move)> {
+    // Technically this is a slight performance loss, but
+    // having all the components formated like this is more readable
+    vec![]
+        .into_iter()
+        .chain(items().into_iter())
+        .chain(movement().into_iter())
+        .chain(attacks().into_iter())
+        .collect()
+}
+
+fn items() -> Vec<(MoveId, Move)> {
+    vec![MoveId::HandMeDownKen, MoveId::Gunshot, MoveId::Shoot]
+        .into_iter()
+        .map(|id| (id, get_equipment_move(id)))
+        .collect()
+}
+
+fn movement() -> Vec<(MoveId, Move)> {
     vec![
         (
             MoveId::BackJump,
@@ -117,18 +91,38 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
         ),
         (
             MoveId::DashForward,
-            dash("656", DASH_START_SPEED, DASH_RECOVERY_SPEED),
+            dash(
+                "656",
+                DASH_START_SPEED,
+                DASH_RECOVERY_SPEED,
+                DASH_START_FRAMES,
+                DASH_RECOVERY_FRAMES,
+            ),
         ),
         (
             MoveId::DashBack,
-            dash("454", -DASH_START_SPEED, -DASH_RECOVERY_SPEED),
+            dash(
+                "454",
+                -DASH_START_SPEED,
+                -DASH_RECOVERY_SPEED,
+                DASH_START_FRAMES,
+                DASH_RECOVERY_FRAMES,
+            ),
         ),
+    ]
+}
+
+fn attacks() -> Vec<(MoveId, Move)> {
+    vec![
         (
             MoveId::Punch,
             Move {
                 input: Some("f"),
-                cancel_level: CancelLevel::LightNormal,
-                conditions: MoveStartCondition::GROUND,
+                requirements: Requirements {
+                    grounded: Some(true),
+                    cancel_level: Some(CancelLevel::LightNormal),
+                    ..Default::default()
+                },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
@@ -155,15 +149,17 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                     }
                     .into(),
                 ],
-                ..Default::default()
             },
         ),
         (
             MoveId::CommandPunch,
             Move {
                 input: Some("6f"),
-                cancel_level: CancelLevel::LightNormal,
-                conditions: MoveStartCondition::GROUND,
+                requirements: Requirements {
+                    grounded: Some(true),
+                    cancel_level: Some(CancelLevel::LightNormal),
+                    ..Default::default()
+                },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
@@ -172,7 +168,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         ..Default::default()
                     }
                     .into(),
-                    ConditionResolver {
+                    Branch {
                         default: Phase {
                             kind: PhaseKind::Attack(SpawnDescriptor {
                                 hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.5, 0.5)),
@@ -185,7 +181,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         }
                         .into(),
                         branches: vec![(
-                            MoveFlags::DRUGS,
+                            Requirements::has_hit(),
                             Phase {
                                 kind: PhaseKind::Attack(SpawnDescriptor {
                                     hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(1.0, 1.0)),
@@ -199,7 +195,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                             .into(),
                         )],
                     },
-                    ConditionResolver {
+                    Branch {
                         default: Phase {
                             kind: PhaseKind::Animation,
                             duration: 60,
@@ -207,7 +203,7 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         }
                         .into(),
                         branches: vec![(
-                            MoveFlags::HIT,
+                            Requirements::has_hit(),
                             Phase {
                                 kind: PhaseKind::Animation,
                                 duration: 10,
@@ -218,15 +214,17 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                         )],
                     },
                 ],
-                ..Default::default()
             },
         ),
         (
             MoveId::BudgetBoom,
             Move {
                 input: Some("[41]6f"),
-                cancel_level: CancelLevel::LightSpecial,
-                conditions: MoveStartCondition::GROUND,
+                requirements: Requirements {
+                    grounded: Some(true),
+                    cancel_level: Some(CancelLevel::LightSpecial),
+                    ..Default::default()
+                },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
@@ -253,19 +251,21 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                     }
                     .into(),
                 ],
-                ..Default::default()
             },
         ),
         (
             MoveId::SonicBoom,
             Move {
                 input: Some("[41]6f"),
-                cancel_level: CancelLevel::HeavySpecial,
-                cost: MoveCost {
-                    charge: true,
+                requirements: Requirements {
+                    cancel_level: Some(CancelLevel::HeavySpecial),
+                    cost: Some(Cost {
+                        charge: true,
+                        ..Default::default()
+                    }),
+                    grounded: Some(true),
                     ..Default::default()
                 },
-                conditions: MoveStartCondition::GROUND,
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
@@ -298,8 +298,11 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             MoveId::Hadouken,
             Move {
                 input: Some("236f"),
-                cancel_level: CancelLevel::LightSpecial,
-                conditions: MoveStartCondition::GROUND,
+                requirements: Requirements {
+                    grounded: Some(true),
+                    cancel_level: Some(CancelLevel::LightSpecial),
+                    ..Default::default()
+                },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
@@ -326,19 +329,20 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                     }
                     .into(),
                 ],
-                ..Default::default()
             },
         ),
         (
             MoveId::HeavyHadouken,
             Move {
                 input: Some("236s"),
-                cancel_level: CancelLevel::HeavySpecial,
-                cost: MoveCost {
-                    meter: 10,
+                requirements: Requirements {
+                    cancel_level: Some(CancelLevel::HeavySpecial),
+                    cost: Some(Cost {
+                        meter: 10,
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
-                conditions: MoveStartCondition::GROUND | MoveStartCondition::AIR,
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
@@ -371,8 +375,11 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
             MoveId::AirPunch,
             Move {
                 input: Some("f"),
-                cancel_level: CancelLevel::LightNormal,
-                conditions: MoveStartCondition::AIR,
+                requirements: Requirements {
+                    cancel_level: Some(CancelLevel::LightNormal),
+                    grounded: Some(false),
+                    ..Default::default()
+                },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
@@ -400,15 +407,17 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                     }
                     .into(),
                 ],
-                ..Default::default()
             },
         ),
         (
             MoveId::Grab,
             Move {
                 input: Some("g"),
-                cancel_level: CancelLevel::Grab,
-                conditions: MoveStartCondition::GROUND,
+                requirements: Requirements {
+                    cancel_level: Some(CancelLevel::Grab),
+                    grounded: Some(true),
+                    ..Default::default()
+                },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
@@ -434,14 +443,46 @@ fn ryan_moves() -> Vec<(MoveId, Move)> {
                     }
                     .into(),
                 ],
-                ..Default::default()
             },
         ),
     ]
 }
 
-pub fn ryan_bank() -> MoveBank {
-    MoveBank::new(ryan_moves().into_iter().collect())
+fn ryan_items() -> Vec<(ItemId, Item)> {
+    vec![
+        (
+            ItemId::Drugs,
+            Item {
+                cost: 100,
+                tier: 1,
+                is_starter: false,
+            },
+        ),
+        (
+            ItemId::HandMeDownKen,
+            Item {
+                cost: 0,
+                tier: 0,
+                is_starter: true,
+            },
+        ),
+        (
+            ItemId::Gi,
+            Item {
+                cost: 100,
+                tier: 2,
+                is_starter: true,
+            },
+        ),
+        (
+            ItemId::Gun,
+            Item {
+                cost: 100,
+                tier: 2,
+                is_starter: true,
+            },
+        ),
+    ]
 }
 
 #[cfg(test)]

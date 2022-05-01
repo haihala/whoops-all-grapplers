@@ -2,7 +2,7 @@ use bevy::{prelude::*, sprite};
 use bevy_inspector_egui::Inspectable;
 
 use constants::PLAYER_GRAVITY_PER_FRAME;
-use moves::{MoveBank, MoveId, MoveMobility};
+use kits::{Kit, MoveId, MoveMobility};
 use player_state::PlayerState;
 use time::{once_per_combat_frame, WAGStage};
 use types::{LRDirection, Player};
@@ -178,10 +178,10 @@ impl Plugin for PhysicsPlugin {
     }
 }
 
-fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &MoveBank, &LRDirection)>) {
-    for (state, mut velocity, bank, facing) in query.iter_mut() {
+fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &Kit, &LRDirection)>) {
+    for (state, mut velocity, kit, facing) in query.iter_mut() {
         if let Some(Some((move_id, mobility))) = state.get_move_state().map(|move_state| {
-            bank.get(move_state.move_id)
+            kit.get_move(move_state.move_id)
                 .get_action(move_state)
                 .get_mobility()
                 .map(|mobility| (move_state.move_id, mobility))

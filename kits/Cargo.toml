@@ -1,5 +1,5 @@
 [package]
-name = "items"
+name = "kits"
 version = "0.1.0"
 edition = "2021"
 authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
@@ -8,5 +8,5 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 bevy = "0.6.1"
 bevy-inspector-egui = "0.8.2"
 
-moves = { path = "../moves" }
+constants = { path = "../constants" }
 types = { path = "../types" }

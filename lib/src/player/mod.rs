@@ -1,16 +1,13 @@
 mod charge_accumulator;
 mod move_activation;
 mod move_advancement;
-mod move_state_manager;
 mod movement;
 mod recovery;
 mod size_adjustment;
 
-use input_parsing::InputParser;
 #[cfg(not(test))]
 use input_parsing::PadBundle;
-use items::{ryan_inventory, Inventory};
-use moves::{get_equipment_move, ryan_bank, Grabable, Hurtbox, MoveBank};
+use kits::{ryan_kit, Grabable, Hurtbox, Inventory, Kit, Resources};
 use player_state::PlayerState;
 use time::{Clock, GameState, RoundResult};
 use types::{LRDirection, Player};
@@ -19,7 +16,6 @@ use crate::{
     assets::Colors,
     damage::Health,
     physics::{PlayerVelocity, GROUND_PLANE_HEIGHT},
-    resources::{Charge, GameResource, Meter},
     spawner::Spawner,
 };
 
@@ -33,7 +29,6 @@ const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 #[derive(Debug, SystemLabel, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum PlayerSystemLabel {
     Reset,
-    SetFlags,
     MoveAdvancer,
     MoveActivator,
     StunRecovery,
@@ -57,14 +52,9 @@ impl Plugin for PlayerPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::Combat)
                     .with_system(
-                        move_state_manager::set_flags
-                            .label(PlayerSystemLabel::SetFlags)
-                            .after(PlayerSystemLabel::Reset),
-                    )
-                    .with_system(
                         move_advancement::move_advancement
                             .label(PlayerSystemLabel::MoveAdvancer)
-                            .after(PlayerSystemLabel::SetFlags),
+                            .after(PlayerSystemLabel::Reset),
                     )
                     .with_system(
                         move_activation::move_activator
@@ -113,7 +103,8 @@ fn setup(mut commands: Commands, colors: Res<Colors>) {
 #[derive(Bundle, Default)]
 struct PlayerDefaults {
     health: Health,
-    meter: Meter,
+    resources: Resources,
+    inventory: Inventory,
     spawner: Spawner,
     hurtbox: Hurtbox,
     grab_target: Grabable,
@@ -123,10 +114,10 @@ struct PlayerDefaults {
 
 fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {
     let state = PlayerState::default();
-    let bank = ryan_bank();
+    let kit = ryan_kit();
 
     #[cfg(not(test))]
-    let inputs = PadBundle::new(bank.get_inputs());
+    let inputs = PadBundle::new(kit.get_inputs());
 
     let mut spawn_handle = commands.spawn_bundle(SpriteBundle {
         transform: Transform {
@@ -149,11 +140,9 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
     spawn_handle
         .insert_bundle(PlayerDefaults::default())
         .insert(LRDirection::from_flipped(offset.is_sign_positive()))
-        .insert(bank)
+        .insert(kit)
         .insert(player)
-        .insert(state)
-        .insert(ryan_inventory())
-        .insert(Charge::new(0.75));
+        .insert(state);
 
     #[cfg(not(test))]
     spawn_handle.insert_bundle(inputs);
@@ -164,8 +153,7 @@ fn reset(
     keys: Res<Input<KeyCode>>,
     mut query: Query<(
         &mut Health,
-        &mut Meter,
-        &mut Charge,
+        &mut Resources,
         &mut Transform,
         &Player,
         &mut PlayerState,
@@ -180,12 +168,11 @@ fn reset(
         clock.reset();
         commands.remove_resource::<RoundResult>();
 
-        for (mut health, mut meter, mut charge, mut tf, player, mut player_state, mut buffer) in
+        for (mut health, mut resources, mut tf, player, mut player_state, mut buffer) in
             query.iter_mut()
         {
             health.reset();
-            meter.reset();
-            charge.reset();
+            resources.reset();
             player_state.reset();
             buffer.clear();
 
@@ -198,22 +185,11 @@ fn reset(
     }
 }
 
-fn testing(
-    keys: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Inventory, &mut MoveBank, &mut InputParser)>,
-) {
+fn testing(keys: Res<Input<KeyCode>>, mut query: Query<(&mut Inventory, &Kit)>) {
     if keys.just_pressed(KeyCode::Space) {
-        for (mut inventory, mut bank, mut parser) in query.iter_mut() {
-            if let Some(item) = inventory.roll_shop(1).first() {
-                inventory.buy(item.clone());
-
-                for move_id in item.new_moves.iter().cloned() {
-                    let move_data = get_equipment_move(move_id);
-                    if let Some(input) = move_data.input {
-                        parser.register_input(move_id, input.into());
-                    }
-                    bank.register_move(move_id, move_data);
-                }
+        for (mut inventory, kit) in query.iter_mut() {
+            if let Some((id, _)) = kit.roll_items(1, &inventory).first() {
+                inventory.buy(*id);
             }
         }
     }

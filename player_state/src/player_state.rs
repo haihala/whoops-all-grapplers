@@ -1,9 +1,8 @@
-use bevy::{prelude::*, utils::HashSet};
+use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use strum::IntoEnumIterator;
 
-use moves::{AttackHeight, MoveFlags, MoveId, MoveState};
-use types::{GameButton, LRDirection, StickPosition};
+use kits::{AttackHeight, MoveSituation};
+use types::{LRDirection, StickPosition};
 
 use crate::{
     primary_state::{AirActivity, GroundActivity, PrimaryState},
@@ -28,36 +27,11 @@ impl PlayerState {
         *self = PlayerState::default();
     }
 
-    pub fn set_flags(&mut self, inputs: HashSet<GameButton>) {
-        if let PrimaryState::Ground(GroundActivity::Move(ref mut move_state))
-        | PrimaryState::Air(AirActivity::Move(ref mut move_state)) = self.primary
-        {
-            for input in GameButton::iter() {
-                let flag = match input {
-                    GameButton::Grab => MoveFlags::GRAB_PRESSED,
-                    GameButton::Strong => MoveFlags::STRONG_PRESSED,
-                    GameButton::Fast => MoveFlags::FAST_PRESSED,
-                    GameButton::Equipment => MoveFlags::EQUIPMENT_PRESSED,
-                    GameButton::Taunt => MoveFlags::TAUNT_PRESSED,
-                };
-
-                move_state.situation.set(flag, inputs.contains(&input));
-            }
-        }
-    }
-
     // Moves
-    pub fn start_move(&mut self, move_id: MoveId, start_frame: usize, situation: MoveFlags) {
-        let move_state = MoveState {
-            start_frame,
-            move_id,
-            situation,
-            ..Default::default()
-        };
-
+    pub fn start_move(&mut self, situation: MoveSituation) {
         self.primary = match self.primary {
-            PrimaryState::Ground(_) => PrimaryState::Ground(GroundActivity::Move(move_state)),
-            PrimaryState::Air(_) => PrimaryState::Air(AirActivity::Move(move_state)),
+            PrimaryState::Ground(_) => PrimaryState::Ground(GroundActivity::Move(situation)),
+            PrimaryState::Air(_) => PrimaryState::Air(AirActivity::Move(situation)),
         };
     }
     pub fn set_move_phase_index(&mut self, phase_index: usize) {
@@ -69,18 +43,27 @@ impl PlayerState {
             panic!("Setting phase index without an active move");
         }
     }
-    pub fn get_move_state(&self) -> Option<MoveState> {
+    pub fn get_move_state(&self) -> Option<&MoveSituation> {
         match self.primary {
-            PrimaryState::Ground(GroundActivity::Move(move_state))
-            | PrimaryState::Air(AirActivity::Move(move_state)) => Some(move_state),
+            PrimaryState::Ground(GroundActivity::Move(ref situation))
+            | PrimaryState::Air(AirActivity::Move(ref situation)) => Some(situation),
             _ => None,
         }
     }
+
+    pub fn get_move_state_mut(&mut self) -> Option<&mut MoveSituation> {
+        match self.primary {
+            PrimaryState::Ground(GroundActivity::Move(ref mut situation))
+            | PrimaryState::Air(AirActivity::Move(ref mut situation)) => Some(situation),
+            _ => None,
+        }
+    }
+
     pub fn register_hit(&mut self) {
-        if let PrimaryState::Ground(GroundActivity::Move(ref mut move_state))
-        | PrimaryState::Air(AirActivity::Move(ref mut move_state)) = self.primary
+        if let PrimaryState::Ground(GroundActivity::Move(ref mut situation))
+        | PrimaryState::Air(AirActivity::Move(ref mut situation)) = self.primary
         {
-            move_state.register_hit();
+            situation.hit_registered = true;
         }
     }
 
@@ -122,8 +105,8 @@ impl PlayerState {
 
     // Jumping
     pub fn jump(&mut self) {
-        if let PrimaryState::Ground(GroundActivity::Move(id)) = self.primary {
-            self.primary = PrimaryState::Air(AirActivity::Move(id));
+        if let PrimaryState::Ground(GroundActivity::Move(situation)) = self.primary.to_owned() {
+            self.primary = PrimaryState::Air(AirActivity::Move(situation));
         } else if self.is_grounded() {
             // was grounded doing something else, now in air without a move
             self.primary = PrimaryState::Air(AirActivity::Idle);

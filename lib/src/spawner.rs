@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 
-use moves::{Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
+use kits::{Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
 use time::{Clock, GameState};
 use types::{LRDirection, Player};
 
@@ -9,7 +9,8 @@ use crate::assets::Colors;
 use crate::physics::ConstantVelocity;
 
 #[derive(Debug, SystemLabel, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-enum DespawnSystemLabel {
+enum SpawnerSystemLabel {
+    Create,
     Expired,
     Everything,
 }
@@ -21,14 +22,19 @@ impl Plugin for SpawnerPlugin {
         app.add_system_set_to_stage(
             CoreStage::PostUpdate,
             SystemSet::new()
-                .with_system(despawn_expired.label(DespawnSystemLabel::Expired))
+                .with_system(spawn_new.label(SpawnerSystemLabel::Create))
+                .with_system(
+                    despawn_expired
+                        .label(SpawnerSystemLabel::Expired)
+                        .after(SpawnerSystemLabel::Create),
+                )
                 .with_system(
                     despawn_everything
                         .with_run_criteria(State::on_exit(GameState::Combat))
-                        .label(DespawnSystemLabel::Everything)
+                        .label(SpawnerSystemLabel::Everything)
                         // Technically despawning everything after expired is stupid,
                         // but as of resolving ordering conflicts for a few hours I can't be bothered to do it properly.
-                        .after(DespawnSystemLabel::Expired),
+                        .after(SpawnerSystemLabel::Expired),
                 ),
         );
     }
@@ -50,6 +56,8 @@ struct DespawnRequest {
 
 #[derive(Default, Component)]
 pub struct Spawner {
+    queue: Vec<(MoveId, SpawnDescriptor)>,
+
     spawned: HashMap<MoveId, Entity>,
     despawn_requests: Vec<DespawnRequest>,
 }
@@ -157,6 +165,33 @@ impl Spawner {
     pub fn despawn_on_phase_change(&mut self, commands: &mut Commands) {
         let ids = self.drain(|event| matches!(event.time, DespawnTime::StateChange));
         self.despawn(commands, ids);
+    }
+
+    pub fn add_to_queue(&mut self, id: MoveId, object: SpawnDescriptor) {
+        self.queue.push((id, object));
+    }
+}
+
+pub fn spawn_new(
+    mut commands: Commands,
+    clock: Res<Clock>,
+    colors: Res<Colors>,
+    mut query: Query<(&mut Spawner, Entity, &LRDirection, &Player, &Transform)>,
+) {
+    for (mut spawner, parent, facing, player, transform) in query.iter_mut() {
+        for (move_id, spawn_descriptor) in spawner.queue.drain(..).collect::<Vec<_>>().into_iter() {
+            spawner.spawn_attack(
+                move_id,
+                spawn_descriptor,
+                &mut commands,
+                &colors,
+                clock.frame,
+                parent,
+                facing,
+                *player,
+                transform.translation,
+            );
+        }
     }
 }
 

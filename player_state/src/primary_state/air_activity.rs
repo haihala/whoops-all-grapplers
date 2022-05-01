@@ -1,11 +1,11 @@
 use bevy_inspector_egui::Inspectable;
 
-use moves::MoveState;
+use kits::MoveSituation;
 
-#[derive(Inspectable, PartialEq, Clone, Copy, Debug)]
+#[derive(Inspectable, PartialEq, Clone, Debug)]
 pub enum AirActivity {
     Freefall,
-    Move(MoveState),
+    Move(MoveSituation),
     Idle,
 }
 

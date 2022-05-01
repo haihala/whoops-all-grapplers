@@ -78,14 +78,18 @@ pub struct Hurtbox {
     pub offset: Vec3,
 }
 
-#[derive(Clone, Copy, Component)]
+#[derive(Clone, Component)]
 pub struct Grabable {
     pub size: f32,
+    pub queue: Vec<GrabDescription>,
 }
 
 impl Default for Grabable {
     fn default() -> Self {
-        Self { size: 0.5 }
+        Self {
+            size: 0.5,
+            queue: vec![],
+        }
     }
 }
 

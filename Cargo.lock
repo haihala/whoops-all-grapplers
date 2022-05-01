@@ -1732,7 +1732,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
- "moves",
+ "kits",
  "time",
  "types",
 ]
@@ -1756,7 +1756,7 @@ dependencies = [
  "bevy",
  "constants",
  "input_parsing",
- "moves",
+ "kits",
  "time",
  "types",
  "whoops-all-grapplers-lib",
@@ -1770,16 +1770,6 @@ checksum = "f21dcc74995dd4cd090b147e79789f8d65959cbfb5f0b118002db869ea3bd0a0"
 dependencies = [
  "core-foundation-sys 0.6.2",
  "mach 0.2.3",
-]
-
-[[package]]
-name = "items"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy-inspector-egui",
- "moves",
- "types",
 ]
 
 [[package]]
@@ -1834,6 +1824,16 @@ checksum = "8c2352bd1d0bceb871cb9d40f24360c8133c11d7486b68b5381c1dd1a32015e3"
 dependencies = [
  "libc",
  "libloading",
+]
+
+[[package]]
+name = "kits"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "constants",
+ "types",
 ]
 
 [[package]]
@@ -2051,17 +2051,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "717e29a243b81f8130e31e24e04fb151b04a44b5a7d05370935f7d937e9de06d"
 dependencies = [
  "once_cell",
-]
-
-[[package]]
-name = "moves"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy-inspector-egui",
- "bitflags",
- "constants",
- "types",
 ]
 
 [[package]]
@@ -2471,7 +2460,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
- "moves",
+ "kits",
  "strum",
  "types",
 ]
@@ -3360,8 +3349,7 @@ dependencies = [
  "bevy-inspector-egui",
  "constants",
  "input_parsing",
- "items",
- "moves",
+ "kits",
  "player_state",
  "time",
  "types",

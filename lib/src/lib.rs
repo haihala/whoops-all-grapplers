@@ -5,7 +5,6 @@ mod damage;
 mod inspector;
 mod physics;
 mod player;
-mod resources;
 mod spawner;
 mod ui;
 

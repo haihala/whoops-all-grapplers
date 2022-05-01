@@ -1,12 +1,12 @@
 use bevy_inspector_egui::Inspectable;
 
-use moves::MoveState;
+use kits::MoveSituation;
 use types::LRDirection;
 
-#[derive(Inspectable, PartialEq, Clone, Copy, Debug)]
+#[derive(Inspectable, PartialEq, Clone, Debug)]
 pub enum GroundActivity {
     Stun(usize),
-    Move(MoveState),
+    Move(MoveSituation),
     Walk(LRDirection),
     Crouching,
     Standing,

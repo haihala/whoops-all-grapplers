@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::utils::HashMap;
 use input_parsing::{testing::PreWrittenInputBundle, InputEvent};
-use moves::{ryan_bank, MoveId};
+use kits::{ryan_kit, MoveId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InputClump {
@@ -19,8 +19,8 @@ pub struct TestSpec {
 }
 impl TestSpec {
     pub fn new(p1_events: Vec<InputClump>, p2_events: Vec<InputClump>) -> Self {
-        let bank = ryan_bank();
-        let inputs = bank.get_inputs();
+        let kit = ryan_kit();
+        let inputs = kit.get_inputs();
         Self {
             p1_events: Self::flatten_events(p1_events),
             p1_inputs: inputs.clone(),

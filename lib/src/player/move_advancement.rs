@@ -1,114 +1,76 @@
 use bevy::prelude::*;
 use input_parsing::InputParser;
-use moves::{Grabable, MoveBank, PhaseKind};
+use kits::{Grabable, Kit, Move, MoveAction, MoveSituation, PhaseKind};
 use player_state::PlayerState;
 use time::Clock;
-use types::{LRDirection, Player};
 
-use crate::{assets::Colors, damage::Health, physics::PlayerVelocity, spawner::Spawner};
+use crate::spawner::Spawner;
 
 use super::move_activation::MoveBuffer;
 
 #[allow(clippy::type_complexity)]
 pub fn move_advancement(
     mut commands: Commands,
-    colors: Res<Colors>,
     clock: Res<Clock>,
     mut players: Query<(
         &mut PlayerState,
         &mut Spawner,
-        &MoveBank,
-        Entity,
-        &LRDirection,
-        &Player,
+        &Kit,
         &Transform,
-        &Grabable,
+        &mut Grabable,
         &InputParser,
-        &mut PlayerVelocity,
-        &mut Health,
         &mut MoveBuffer,
     )>,
 ) {
     let mut iter = players.iter_combinations_mut();
     if let Some([mut p1, mut p2]) = iter.fetch_next() {
-        advance_move(&mut commands, &clock, &colors, &mut p1, &mut p2);
-        advance_move(&mut commands, &clock, &colors, &mut p2, &mut p1);
+        advance_move(&mut commands, &clock, &mut p1, &mut p2);
+        advance_move(&mut commands, &clock, &mut p2, &mut p1);
     }
 }
 
+// Bevy 0.7 has a better solution for these
 type ComponentList<'a> = (
     Mut<'a, PlayerState>,
     Mut<'a, Spawner>,
-    &'a MoveBank,
-    Entity,
-    &'a LRDirection,
-    &'a Player,
+    &'a Kit,
     &'a Transform,
-    &'a Grabable,
+    Mut<'a, Grabable>,
     &'a InputParser,
-    Mut<'a, PlayerVelocity>,
-    Mut<'a, Health>,
     Mut<'a, MoveBuffer>,
 );
 
 fn advance_move(
     commands: &mut Commands,
     clock: &Clock,
-    colors: &Res<Colors>,
     actor: &mut ComponentList,
     target: &mut ComponentList,
 ) {
-    let (state1, spawner1, bank, parent, facing, player, tf1, _, _, _, _, buffer) = actor;
-    let (state2, spawner2, _, _, _, _, tf2, grab_target, parser, velocity, health, _) = target;
+    let (state1, spawner1, kit, tf1, _, _, buffer) = actor;
+    let (state2, _, _, tf2, grab_target, parser, _) = target;
 
-    if let Some(ref mut move_state) = state1.get_move_state() {
-        let move_data = bank.get(move_state.move_id);
-        if let Some(phase_index) = move_data.get_action_index(*move_state, clock.frame) {
+    if let Some(move_state) = state1.get_move_state_mut() {
+        let move_data = kit.get_move(move_state.move_id);
+        if let Some(phase_index) = move_data.get_action_index(move_state, clock.frame as i32) {
             if move_state.phase_index != phase_index {
                 move_state.phase_index = phase_index;
 
                 // Despawn old things
                 spawner1.despawn_on_phase_change(commands);
 
-                match move_data.get_action(*move_state) {
-                    moves::MoveAction::Move(move_id) => {
-                        // The move has branched or recursed
-                        buffer.set_force_starter(move_id, bank.get(move_id).to_owned());
-                        // TODO: Some buffer clearing here?
-                    }
-                    moves::MoveAction::Phase(phase_data) => {
-                        match phase_data.kind {
-                            PhaseKind::Attack(descriptor) => spawner1.spawn_attack(
-                                move_state.move_id,
-                                descriptor,
-                                commands,
-                                colors,
-                                clock.frame,
-                                *parent,
-                                facing,
-                                **player,
-                                tf1.translation,
-                            ),
-                            PhaseKind::Grab(descriptor) => {
-                                let grab_origin = tf1.translation + descriptor.offset.extend(0.0);
-                                let distance = (grab_origin - tf2.translation).length();
-                                let max_distance = grab_target.size + descriptor.range;
-                                let in_range = distance <= max_distance;
+                handle_new_phase(
+                    move_data,
+                    move_state,
+                    buffer,
+                    kit,
+                    spawner1,
+                    tf1.translation.to_owned(),
+                    tf2.translation.to_owned(),
+                    grab_target,
+                    parser,
+                    state2,
+                );
 
-                                let teched =
-                                    state2.get_move_state().is_none() && parser.head_is_clear();
-
-                                if in_range && !teched {
-                                    state2.throw();
-                                    spawner2.despawn_on_hit(commands);
-                                    velocity.add_impulse(descriptor.impulse);
-                                    health.apply_damage(descriptor.damage);
-                                }
-                            }
-                            PhaseKind::Animation => {}
-                        };
-                    }
-                };
                 // Start next phase
                 state1.set_move_phase_index(phase_index);
             }
@@ -118,4 +80,48 @@ fn advance_move(
             state1.recover();
         }
     }
+}
+
+// Fix this in Bevy 0.7
+#[allow(clippy::too_many_arguments)]
+fn handle_new_phase(
+    move_data: Move,
+    move_state: &MoveSituation,
+    attacker_buffer: &mut MoveBuffer,
+    kit: &Kit,
+    attacker_spawner: &mut Spawner,
+    attacker_position: Vec3,
+    defender_position: Vec3,
+    grab_target: &mut Grabable,
+    defender_parser: &InputParser,
+    defender_spawner: &mut PlayerState,
+) {
+    match move_data.get_action(move_state) {
+        MoveAction::Move(move_id) => {
+            // The move has branched or recursed
+            attacker_buffer.set_force_starter(move_id, kit.get_move(move_id));
+            // TODO: Some buffer clearing here?
+        }
+        MoveAction::Phase(phase_data) => {
+            match phase_data.kind {
+                PhaseKind::Attack(descriptor) => {
+                    attacker_spawner.add_to_queue(move_state.move_id, descriptor)
+                }
+                PhaseKind::Grab(descriptor) => {
+                    let grab_origin = attacker_position + descriptor.offset.extend(0.0);
+                    let distance = (grab_origin - defender_position).length();
+                    let max_distance = grab_target.size + descriptor.range;
+                    let in_range = distance <= max_distance;
+
+                    let teched = defender_spawner.get_move_state().is_none()
+                        && defender_parser.head_is_clear();
+
+                    if in_range && !teched {
+                        grab_target.queue.push(descriptor);
+                    }
+                }
+                PhaseKind::Animation => {}
+            };
+        }
+    };
 }

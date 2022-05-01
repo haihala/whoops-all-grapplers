@@ -1,8 +1,9 @@
 use bevy::prelude::*;
+use types::GameButton;
 
 use crate::{
-    CancelLevel, ConditionResolver, Hitbox, Lifetime, Move, MoveCost, MoveFlags, MoveId,
-    MoveStartCondition, Phase, PhaseKind, SpawnDescriptor,
+    Branch, CancelLevel, Cost, Hitbox, Lifetime, Move, MoveId, Phase, PhaseKind, Requirements,
+    SpawnDescriptor,
 };
 
 pub fn get_equipment_move(id: MoveId) -> Move {
@@ -17,8 +18,11 @@ pub fn get_equipment_move(id: MoveId) -> Move {
 fn get_handmedownken() -> Move {
     Move {
         input: Some("236e"),
-        cancel_level: CancelLevel::LightSpecial,
-        conditions: MoveStartCondition::GROUND,
+        requirements: Requirements {
+            grounded: Some(true),
+            cancel_level: Some(CancelLevel::LightSpecial),
+            ..Default::default()
+        },
         phases: vec![
             Phase {
                 kind: PhaseKind::Animation,
@@ -45,17 +49,20 @@ fn get_handmedownken() -> Move {
             }
             .into(),
         ],
-        ..Default::default()
     }
 }
 
 fn get_gunshot() -> Move {
     // Single shot, the repeating bit
     Move {
-        cancel_level: CancelLevel::LightNormal,
-        conditions: MoveStartCondition::GROUND,
-        cost: MoveCost {
-            // TODO bullets go here
+        input: None,
+        requirements: Requirements {
+            grounded: Some(true),
+            cancel_level: Some(CancelLevel::LightNormal),
+            cost: Some(Cost {
+                // TODO bullets go here
+                ..Default::default()
+            }),
             ..Default::default()
         },
         phases: vec![
@@ -76,25 +83,33 @@ fn get_gunshot() -> Move {
                 ..Default::default()
             }
             .into(),
-            ConditionResolver {
+            Branch {
                 default: Phase {
                     kind: PhaseKind::Animation,
                     duration: 30,
                     ..Default::default()
                 }
                 .into(),
-                branches: vec![(MoveFlags::EQUIPMENT_PRESSED, MoveId::Gunshot.into())],
+                branches: vec![(
+                    Requirements {
+                        buttons_held: Some(vec![GameButton::Equipment]),
+                        ..Default::default()
+                    },
+                    MoveId::Gunshot.into(),
+                )],
             },
         ],
-        ..Default::default()
     }
 }
 
 fn get_shot() -> Move {
     Move {
         input: Some("e"),
-        cancel_level: CancelLevel::LightNormal,
-        conditions: MoveStartCondition::GROUND,
+        requirements: Requirements {
+            grounded: Some(true),
+            cancel_level: Some(CancelLevel::LightNormal),
+            ..Default::default()
+        },
         phases: vec![
             Phase {
                 kind: PhaseKind::Animation,
@@ -104,6 +119,5 @@ fn get_shot() -> Move {
             .into(),
             MoveId::Gunshot.into(),
         ],
-        ..Default::default()
     }
 }

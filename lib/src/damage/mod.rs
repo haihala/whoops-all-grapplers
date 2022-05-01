@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use input_parsing::InputParser;
-use moves::{Hurtbox, OnHitEffect};
+use kits::{Grabable, Hurtbox, OnHitEffect, Resources};
 use player_state::PlayerState;
 use time::{Clock, GameState, WAGStage};
 use types::{LRDirection, Player};
@@ -11,13 +11,13 @@ pub use health::Health;
 
 use crate::{
     physics::{rect_collision, PlayerVelocity},
-    resources::Meter,
     spawner::Spawner,
 };
 
 #[derive(Debug, SystemLabel, PartialEq, Eq, Hash, Clone, Copy)]
 enum DamageSystemLabel {
     HitReg,
+    Grab,
     Dead,
 }
 
@@ -30,9 +30,14 @@ impl Plugin for DamagePlugin {
             SystemSet::new()
                 .with_system(register_hits.label(DamageSystemLabel::HitReg))
                 .with_system(
+                    handle_grabs
+                        .label(DamageSystemLabel::Grab)
+                        .after(DamageSystemLabel::HitReg),
+                )
+                .with_system(
                     health::check_dead
                         .label(DamageSystemLabel::Dead)
-                        .after(DamageSystemLabel::HitReg)
+                        .after(DamageSystemLabel::Grab)
                         .with_run_criteria(State::on_update(GameState::Combat)),
                 ),
         );
@@ -49,7 +54,7 @@ pub fn register_hits(
         &Sprite,
         &Transform,
         &mut Health,
-        &mut Meter,
+        &mut Resources,
         &Player,
         &InputParser,
         &mut PlayerState,
@@ -91,7 +96,7 @@ type ComponentList<'a> = (
     &'a Sprite,
     &'a Transform,
     Mut<'a, Health>,
-    Mut<'a, Meter>,
+    Mut<'a, Resources>,
     &'a Player,
     &'a InputParser,
     Mut<'a, PlayerState>,
@@ -109,8 +114,19 @@ fn handle_hit(
     attacker: &mut ComponentList,
     defender: &mut ComponentList,
 ) {
-    let (_, _, _, _, attacker_meter, _, _, attacker_state, attacker_velocity, _, attacker_spawner) =
-        attacker;
+    let (
+        _,
+        _,
+        _,
+        _,
+        attacker_resources,
+        _,
+        _,
+        attacker_state,
+        attacker_velocity,
+        _,
+        attacker_spawner,
+    ) = attacker;
     let (
         hurtbox,
         hurtbox_sprite,
@@ -150,7 +166,7 @@ fn handle_hit(
         if let Some(damage_prop) = effect.damage {
             let amount = damage_prop.get(blocked);
             health.apply_damage(amount);
-            attacker_meter.add_combo_meter(amount);
+            attacker_resources.meter.add_combo_meter(amount);
         }
 
         // Knockback
@@ -178,5 +194,25 @@ fn handle_hit(
         // Despawns
         defender_spawner.despawn_on_hit(commands);
         attacker_spawner.despawn(commands, vec![effect.id]);
+    }
+}
+
+fn handle_grabs(
+    mut commands: Commands,
+    mut query: Query<(
+        &mut Grabable,
+        &mut PlayerState,
+        &mut Spawner,
+        &mut PlayerVelocity,
+        &mut Health,
+    )>,
+) {
+    for (mut grab_target, mut state, mut spawner, mut velocity, mut health) in query.iter_mut() {
+        for descriptor in grab_target.queue.drain(..).collect::<Vec<_>>().into_iter() {
+            state.throw();
+            spawner.despawn_on_hit(&mut commands);
+            velocity.add_impulse(descriptor.impulse);
+            health.apply_damage(descriptor.damage);
+        }
     }
 }

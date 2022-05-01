@@ -11,9 +11,6 @@
 	- [[Merge items and moves into kits]]
 
 ## High priority
-- [[Phaseswitch rework]]
-- [[Resources component]]
-- [[Merge items and moves into kits]]
 
 ## Low priority
 - [[Bevy 0.7]]
@@ -22,6 +19,8 @@
 - [[Stance system]]
 
 ## Easy nibbles
+- Change move advancement to set values in components (like spawner and grabbable) and have other systems pick up on the values
+	- This is to avoid uber long argument lists.
 - Change how move starting works so that the first phase goes through the same system as the other phases
 	- This would fix the bug where the first phase hitboxes etc are ignored
 	- If it becomes difficult, could add a 1-frame animation as the first phase automatically.

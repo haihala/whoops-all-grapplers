@@ -4,13 +4,10 @@
 	- Waiting for new bevy UI (April)
 - [[Gi of the old masters]]
 	- [[Simple training mode]] would make testing a lot easier
-	- [[Merge items and moves into kits]]
 	- [[Non-standard input actions]]
-- [[Gun]]
-	- [[Resources component]]
-	- [[Merge items and moves into kits]]
 
 ## High priority
+- [[Gun]]
 
 ## Low priority
 - [[Bevy 0.7]]
@@ -19,11 +16,12 @@
 - [[Stance system]]
 
 ## Easy nibbles
-- Change move advancement to set values in components (like spawner and grabbable) and have other systems pick up on the values
-	- This is to avoid uber long argument lists.
 - Change how move starting works so that the first phase goes through the same system as the other phases
 	- This would fix the bug where the first phase hitboxes etc are ignored
 	- If it becomes difficult, could add a 1-frame animation as the first phase automatically.
+- Instead of pure phase index, use a combination of index, branch coordinates to determine where the execution of a move is at.
+	- This allows to have a window to transition into another action instead of just at action boundary
+	- e.g. user can tap gunshot while already shooting and the second shot comes immediately and not after a delay. Holding would still be possible.
 
 ## Not a priority
 - [[3D model]]
@@ -46,7 +44,6 @@
 - Toasts
 - Attributes like startup reduction and stun increase to and from inventory
 - Negative edge works weird (long press will give button on both edges because head is first used to parse. Construct custom head with only the old stick.)
-- In move advancement, check if action changed not if index changed (this allows recursion or long recovery that can be cancelled into recursion)
 
 # Other trackers
 ![[Bug tracker]]

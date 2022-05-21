@@ -1,5 +1,3 @@
-- [ ] Make a model for Ryan
-	- [ ] Skeleton
-	- [ ] Mesh
-	- [ ] Colors
-- Maybe Pvl circles has someone who can do a bit of pro-bono
+- Steal a character
+- Make it visible
+- Lighting to not look like ass

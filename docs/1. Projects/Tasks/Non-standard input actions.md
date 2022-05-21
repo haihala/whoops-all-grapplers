@@ -1,2 +1,0 @@
-- Mostly for [[Gi of the old masters]]
-- A way to have an input do something besides starting a move

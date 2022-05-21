@@ -4,5 +4,3 @@
 - Shot with 5e
 - Can be shot multiple times with one drawing
 
-# TODO:
-- Add resource for bullets

@@ -166,9 +166,7 @@ fn axis_change(reader: &mut Mut<PadStream>, axis: GamepadAxisType, new_value: f3
                 }),
             )
         }
-        // No clue what these are
-        GamepadAxisType::LeftZ => todo!(),
-        GamepadAxisType::RightZ => todo!(),
+        _ => {}
     }
 }
 

@@ -52,7 +52,7 @@ fn advance_move(
     let (state2, _, _, tf2, grab_target, defender_parser, _, _) = target;
 
     if let Some(move_state) = state1.get_move_state_mut() {
-        move_state.buttons_held = attacker_parser.get_pressed().clone();
+        move_state.buttons_held = attacker_parser.get_pressed();
 
         let move_data = kit.get_move(move_state.move_id);
         if let Some(phase_index) = move_data.get_action_index(move_state, clock.frame as i32) {
@@ -103,10 +103,10 @@ fn handle_new_phase(
     defender_spawner: &mut PlayerState,
 ) {
     if let Some((action, requirements)) = move_data.get_action(move_state) {
-        requirements.map(|req| {
+        if let Some(req) = requirements {
             move_state.resources.pay(req.cost.to_owned());
-            attacker_resources.pay(req.cost.to_owned());
-        });
+            attacker_resources.pay(req.cost);
+        };
 
         match action {
             MoveAction::Move(move_id) => {

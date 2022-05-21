@@ -20,7 +20,7 @@ impl Move {
         for (index, phase) in self
             .phases
             .iter()
-            .map(|resolver| resolver.get(situation))
+            .map(|resolver| resolver.get(situation).0)
             .enumerate()
         {
             if let Some(duration) = phase.get_duration() {
@@ -36,12 +36,13 @@ impl Move {
         None
     }
 
-    pub fn get_action(&self, situation: &MoveSituation) -> MoveAction {
-        self.phases
-            .get(situation.phase_index)
-            .unwrap()
-            .to_owned()
-            .get(situation)
+    pub fn get_action(
+        &self,
+        situation: &MoveSituation,
+    ) -> Option<(MoveAction, Option<Requirements>)> {
+        let switch = self.phases.get(situation.phase_index)?.to_owned();
+
+        Some(switch.get(situation))
     }
 }
 
@@ -51,13 +52,13 @@ pub struct Branch {
     pub branches: Vec<(Requirements, MoveAction)>, // This way order is maintained
 }
 impl Branch {
-    pub fn get(&self, situation: &MoveSituation) -> MoveAction {
+    pub fn get(&self, situation: &MoveSituation) -> (MoveAction, Option<Requirements>) {
         for (requirements, phase) in &self.branches {
             if situation.fulfills(requirements) {
-                return phase.to_owned();
+                return (phase.to_owned(), Some(requirements.to_owned()));
             }
         }
-        self.default.to_owned()
+        (self.default.to_owned(), None)
     }
 }
 impl From<Phase> for Branch {

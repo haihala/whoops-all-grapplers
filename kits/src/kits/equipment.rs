@@ -72,17 +72,34 @@ fn get_gunshot() -> Move {
                 ..Default::default()
             }
             .into(),
-            Phase {
-                duration: 20,
-                kind: PhaseKind::Attack(SpawnDescriptor {
-                    hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
-                    speed: Some(10.0 * Vec3::X),
-                    lifetime: Lifetime::Forever,
+            Branch {
+                default: Phase {
+                    kind: PhaseKind::Animation,
+                    duration: 30,
                     ..Default::default()
-                }),
-                ..Default::default()
-            }
-            .into(),
+                }
+                .into(),
+                branches: vec![(
+                    Requirements {
+                        cost: Some(Cost {
+                            bullet: true,
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    },
+                    Phase {
+                        duration: 20,
+                        kind: PhaseKind::Attack(SpawnDescriptor {
+                            hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
+                            speed: Some(10.0 * Vec3::X),
+                            lifetime: Lifetime::Forever,
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }
+                    .into(),
+                )],
+            },
             Branch {
                 default: Phase {
                     kind: PhaseKind::Animation,

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use input_parsing::InputParser;
-use kits::{Grabable, Kit, Move, MoveAction, MoveSituation, PhaseKind};
+use kits::{Grabable, Kit, Move, MoveAction, MoveSituation, PhaseKind, Resources};
 use player_state::PlayerState;
 use time::Clock;
 
@@ -20,6 +20,7 @@ pub fn move_advancement(
         &mut Grabable,
         &InputParser,
         &mut MoveBuffer,
+        &mut Resources,
     )>,
 ) {
     let mut iter = players.iter_combinations_mut();
@@ -38,6 +39,7 @@ type ComponentList<'a> = (
     Mut<'a, Grabable>,
     &'a InputParser,
     Mut<'a, MoveBuffer>,
+    Mut<'a, Resources>,
 );
 
 fn advance_move(
@@ -46,10 +48,12 @@ fn advance_move(
     actor: &mut ComponentList,
     target: &mut ComponentList,
 ) {
-    let (state1, spawner1, kit, tf1, _, _, buffer) = actor;
-    let (state2, _, _, tf2, grab_target, parser, _) = target;
+    let (state1, spawner1, kit, tf1, _, attacker_parser, buffer, attacker_resources) = actor;
+    let (state2, _, _, tf2, grab_target, defender_parser, _, _) = target;
 
     if let Some(move_state) = state1.get_move_state_mut() {
+        move_state.buttons_held = attacker_parser.get_pressed().clone();
+
         let move_data = kit.get_move(move_state.move_id);
         if let Some(phase_index) = move_data.get_action_index(move_state, clock.frame as i32) {
             if move_state.phase_index != phase_index {
@@ -61,13 +65,14 @@ fn advance_move(
                 handle_new_phase(
                     move_data,
                     move_state,
+                    attacker_resources,
                     buffer,
                     kit,
                     spawner1,
                     tf1.translation.to_owned(),
                     tf2.translation.to_owned(),
                     grab_target,
-                    parser,
+                    defender_parser,
                     state2,
                 );
 
@@ -86,7 +91,8 @@ fn advance_move(
 #[allow(clippy::too_many_arguments)]
 fn handle_new_phase(
     move_data: Move,
-    move_state: &MoveSituation,
+    move_state: &mut MoveSituation,
+    attacker_resources: &mut Resources,
     attacker_buffer: &mut MoveBuffer,
     kit: &Kit,
     attacker_spawner: &mut Spawner,
@@ -96,32 +102,39 @@ fn handle_new_phase(
     defender_parser: &InputParser,
     defender_spawner: &mut PlayerState,
 ) {
-    match move_data.get_action(move_state) {
-        MoveAction::Move(move_id) => {
-            // The move has branched or recursed
-            attacker_buffer.set_force_starter(move_id, kit.get_move(move_id));
-            // TODO: Some buffer clearing here?
-        }
-        MoveAction::Phase(phase_data) => {
-            match phase_data.kind {
-                PhaseKind::Attack(descriptor) => {
-                    attacker_spawner.add_to_queue(move_state.move_id, descriptor)
-                }
-                PhaseKind::Grab(descriptor) => {
-                    let grab_origin = attacker_position + descriptor.offset.extend(0.0);
-                    let distance = (grab_origin - defender_position).length();
-                    let max_distance = grab_target.size + descriptor.range;
-                    let in_range = distance <= max_distance;
+    if let Some((action, requirements)) = move_data.get_action(move_state) {
+        requirements.map(|req| {
+            move_state.resources.pay(req.cost.to_owned());
+            attacker_resources.pay(req.cost.to_owned());
+        });
 
-                    let teched = defender_spawner.get_move_state().is_none()
-                        && defender_parser.head_is_clear();
-
-                    if in_range && !teched {
-                        grab_target.queue.push(descriptor);
+        match action {
+            MoveAction::Move(move_id) => {
+                // The move has branched or recursed
+                attacker_buffer.set_force_starter(move_id, kit.get_move(move_id));
+                // TODO: Some buffer clearing here?
+            }
+            MoveAction::Phase(phase_data) => {
+                match phase_data.kind {
+                    PhaseKind::Attack(descriptor) => {
+                        attacker_spawner.add_to_queue(move_state.move_id, descriptor)
                     }
-                }
-                PhaseKind::Animation => {}
-            };
+                    PhaseKind::Grab(descriptor) => {
+                        let grab_origin = attacker_position + descriptor.offset.extend(0.0);
+                        let distance = (grab_origin - defender_position).length();
+                        let max_distance = grab_target.size + descriptor.range;
+                        let in_range = distance <= max_distance;
+
+                        let teched = defender_spawner.get_move_state().is_none()
+                            && defender_parser.head_is_clear();
+
+                        if in_range && !teched {
+                            grab_target.queue.push(descriptor);
+                        }
+                    }
+                    PhaseKind::Animation => {}
+                };
+            }
         }
-    };
+    }
 }

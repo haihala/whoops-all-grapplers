@@ -21,22 +21,16 @@ impl Default for Charge {
     }
 }
 impl Charge {
-    pub fn can_afford(&self, amount: bool) -> bool {
-        self.is_charged() && amount
+    pub fn is_charged(&self) -> bool {
+        self.progress >= self.full_progress
     }
 
-    pub fn pay(&mut self, amount: bool) {
-        if amount {
-            assert!(self.is_charged());
-            self.reset();
-        }
+    pub fn consume_charge(&mut self) {
+        assert!(self.is_charged());
+        self.reset();
     }
 
     pub fn reset(&mut self) {
         self.progress = 0;
-    }
-
-    pub fn is_charged(&self) -> bool {
-        self.progress >= self.full_progress
     }
 }

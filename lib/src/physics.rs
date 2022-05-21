@@ -183,6 +183,8 @@ fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &Kit, &LRDi
         if let Some(Some((move_id, mobility))) = state.get_move_state().map(|move_state| {
             kit.get_move(move_state.move_id)
                 .get_action(move_state)
+                .unwrap()
+                .0
                 .get_mobility()
                 .map(|mobility| (move_state.move_id, mobility))
         }) {

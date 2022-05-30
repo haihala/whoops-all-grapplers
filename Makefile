@@ -29,4 +29,4 @@ udeps:
 check: test clippy fmt udeps
 
 install:
-	cargo install cargo-udeps cargo-nextest
+	cargo install cargo-udeps cargo-nextest cargo-clippy

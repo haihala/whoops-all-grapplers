@@ -29,4 +29,5 @@ udeps:
 check: test clippy fmt udeps
 
 install:
-	cargo install cargo-udeps cargo-nextest cargo-clippy
+	cargo install cargo-udeps cargo-nextest
+	rustup component add clippy

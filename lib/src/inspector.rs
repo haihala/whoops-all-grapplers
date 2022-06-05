@@ -19,8 +19,7 @@ impl Plugin for InspectorPlugin {
             .add_plugin(WorldInspectorPlugin::new())
             .insert_resource(InspectableRegistry::default())
             .world
-            .get_resource_mut::<InspectableRegistry>()
-            .expect("InspectableRegistry not initiated");
+            .resource_mut::<InspectableRegistry>();
 
         registry.register::<Player>();
         registry.register::<Resources>();

@@ -30,7 +30,7 @@ impl InputParser {
                 .into_iter()
                 .map(|(id, definition)| (id, definition.into()))
                 .collect(),
-            ..Default::default()
+            ..default()
         }
     }
 

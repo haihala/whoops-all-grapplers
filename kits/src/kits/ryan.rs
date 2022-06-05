@@ -121,13 +121,13 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 requirements: Requirements {
                     grounded: Some(true),
                     cancel_level: Some(CancelLevel::LightNormal),
-                    ..Default::default()
+                    ..default()
                 },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
@@ -135,17 +135,17 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             hitbox: Hitbox::new(Vec2::new(1.0, 0.5), Vec2::new(0.2, 0.3)),
                             attached_to_player: true,
                             damage: Some(20.into()),
-                            ..Default::default()
+                            ..default()
                         }),
                         duration: 10,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         cancellable: true,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                 ],
@@ -158,14 +158,14 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 requirements: Requirements {
                     grounded: Some(true),
                     cancel_level: Some(CancelLevel::LightNormal),
-                    ..Default::default()
+                    ..default()
                 },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         mobility: Some(MoveMobility::Perpetual(Vec3::new(1.0, 0.0, 0.0))),
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Branch {
@@ -173,11 +173,11 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             kind: PhaseKind::Attack(SpawnDescriptor {
                                 hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.5, 0.5)),
                                 attached_to_player: true,
-                                ..Default::default()
+                                ..default()
                             }),
                             duration: 20,
                             mobility: Some(MoveMobility::Perpetual(Vec3::new(2.0, 0.0, 0.0))),
-                            ..Default::default()
+                            ..default()
                         }
                         .into(),
                         branches: vec![(
@@ -186,11 +186,11 @@ fn attacks() -> Vec<(MoveId, Move)> {
                                 kind: PhaseKind::Attack(SpawnDescriptor {
                                     hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(1.0, 1.0)),
                                     attached_to_player: true,
-                                    ..Default::default()
+                                    ..default()
                                 }),
                                 duration: 20,
                                 mobility: Some(MoveMobility::Perpetual(Vec3::new(5.0, 0.0, 0.0))),
-                                ..Default::default()
+                                ..default()
                             }
                             .into(),
                         )],
@@ -199,7 +199,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                         default: Phase {
                             kind: PhaseKind::Animation,
                             duration: 60,
-                            ..Default::default()
+                            ..default()
                         }
                         .into(),
                         branches: vec![(
@@ -208,7 +208,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                                 kind: PhaseKind::Animation,
                                 duration: 10,
                                 cancellable: true,
-                                ..Default::default()
+                                ..default()
                             }
                             .into(),
                         )],
@@ -223,13 +223,13 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 requirements: Requirements {
                     grounded: Some(true),
                     cancel_level: Some(CancelLevel::LightSpecial),
-                    ..Default::default()
+                    ..default()
                 },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 30,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
@@ -237,17 +237,17 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
                             speed: Some(1.0 * Vec3::X),
                             lifetime: Lifetime::Forever,
-                            ..Default::default()
+                            ..default()
                         }),
                         duration: 4,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         cancellable: true,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                 ],
@@ -261,16 +261,16 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     cancel_level: Some(CancelLevel::HeavySpecial),
                     cost: Some(Cost {
                         charge: true,
-                        ..Default::default()
+                        ..default()
                     }),
                     grounded: Some(true),
-                    ..Default::default()
+                    ..default()
                 },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 30,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
@@ -278,17 +278,17 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.7, 0.7)),
                             speed: Some(2.0 * Vec3::X),
                             lifetime: Lifetime::Forever,
-                            ..Default::default()
+                            ..default()
                         }),
                         duration: 4,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         cancellable: true,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                 ],
@@ -301,13 +301,13 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 requirements: Requirements {
                     grounded: Some(true),
                     cancel_level: Some(CancelLevel::LightSpecial),
-                    ..Default::default()
+                    ..default()
                 },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 30,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
@@ -315,17 +315,17 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
                             speed: Some(1.0 * Vec3::X),
                             lifetime: Lifetime::Forever,
-                            ..Default::default()
+                            ..default()
                         }),
                         duration: 4,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         cancellable: true,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                 ],
@@ -339,15 +339,15 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     cancel_level: Some(CancelLevel::HeavySpecial),
                     cost: Some(Cost {
                         meter: 10,
-                        ..Default::default()
+                        ..default()
                     }),
-                    ..Default::default()
+                    ..default()
                 },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 30,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
@@ -355,17 +355,17 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.7, 0.7)),
                             speed: Some(2.0 * Vec3::X),
                             lifetime: Lifetime::Forever,
-                            ..Default::default()
+                            ..default()
                         }),
                         duration: 4,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         cancellable: true,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                 ],
@@ -378,13 +378,13 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 requirements: Requirements {
                     cancel_level: Some(CancelLevel::LightNormal),
                     grounded: Some(false),
-                    ..Default::default()
+                    ..default()
                 },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
@@ -393,17 +393,17 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             knockback: Some(Vec3::new(2.0, 2.0, 0.0).into()),
                             fixed_height: Some(AttackHeight::High),
                             attached_to_player: true,
-                            ..Default::default()
+                            ..default()
                         }),
                         duration: 10,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
                         cancellable: true,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                 ],
@@ -416,13 +416,13 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 requirements: Requirements {
                     cancel_level: Some(CancelLevel::Grab),
                     grounded: Some(true),
-                    ..Default::default()
+                    ..default()
                 },
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 1,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
@@ -430,16 +430,16 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             damage: 40,
                             impulse: Vec3::Y * 2.0,
                             range: 1.0,
-                            ..Default::default()
+                            ..default()
                         }),
                         duration: 1,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                     Phase {
                         kind: PhaseKind::Animation,
                         duration: 10,
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                 ],

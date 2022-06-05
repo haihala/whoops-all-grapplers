@@ -4,14 +4,22 @@ pub use direction::*;
 mod inputs;
 pub use inputs::{GameButton, StickPosition};
 
-use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 use std::fmt::{Debug, Display};
-
 use strum_macros::EnumIter;
+
+use bevy::prelude::*;
 
 // This crate will be as small as possible so that types are where they are used
 // It's meant for common universal types to circumvent circular dependencies.
+
+pub struct Players {
+    pub one: Entity,
+    pub two: Entity,
+}
+
+#[derive(Component, Deref, DerefMut)]
+pub struct Owner(pub Player);
 
 #[derive(EnumIter, Inspectable, PartialEq, Eq, Clone, Copy, Debug, Hash, Component)]
 pub enum Player {

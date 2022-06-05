@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
-bevy = "0.6.1"
+bevy = "0.7.0"
 
 whoops-all-grapplers-lib = { path = "../lib" }
 

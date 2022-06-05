@@ -3,17 +3,10 @@ use bevy::utils::HashMap;
 
 use kits::{Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
 use time::{Clock, GameState};
-use types::{LRDirection, Player};
+use types::{LRDirection, Owner, Player};
 
 use crate::assets::Colors;
 use crate::physics::ConstantVelocity;
-
-#[derive(Debug, SystemLabel, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-enum SpawnerSystemLabel {
-    Create,
-    Expired,
-    Everything,
-}
 
 pub struct SpawnerPlugin;
 
@@ -22,19 +15,14 @@ impl Plugin for SpawnerPlugin {
         app.add_system_set_to_stage(
             CoreStage::PostUpdate,
             SystemSet::new()
-                .with_system(spawn_new.label(SpawnerSystemLabel::Create))
-                .with_system(
-                    despawn_expired
-                        .label(SpawnerSystemLabel::Expired)
-                        .after(SpawnerSystemLabel::Create),
-                )
+                .with_system(spawn_new)
+                .with_system(despawn_expired.after(spawn_new))
                 .with_system(
                     despawn_everything
                         .with_run_criteria(State::on_exit(GameState::Combat))
-                        .label(SpawnerSystemLabel::Everything)
                         // Technically despawning everything after expired is stupid,
                         // but as of resolving ordering conflicts for a few hours I can't be bothered to do it properly.
-                        .after(SpawnerSystemLabel::Expired),
+                        .after(despawn_expired),
                 ),
         );
     }
@@ -57,7 +45,6 @@ struct DespawnRequest {
 #[derive(Default, Component)]
 pub struct Spawner {
     queue: Vec<(MoveId, SpawnDescriptor)>,
-
     spawned: HashMap<MoveId, Entity>,
     despawn_requests: Vec<DespawnRequest>,
 }
@@ -85,19 +72,18 @@ impl Spawner {
         let mut builder = commands.spawn_bundle(SpriteBundle {
             transform: Transform {
                 translation,
-                ..Default::default()
+                ..default()
             },
             sprite: Sprite {
                 color: colors.hurtbox,
                 custom_size: Some(descriptor.hitbox.size),
-                ..Default::default()
+                ..default()
             },
-            ..Default::default()
+            ..default()
         });
 
         // Components used when collision happens
         builder.insert(OnHitEffect {
-            owner: player,
             id,
             fixed_height: descriptor.fixed_height,
             damage: descriptor.damage,
@@ -105,6 +91,7 @@ impl Spawner {
             knockback: descriptor.knockback,
             pushback: descriptor.pushback,
         });
+        builder.insert(Owner(player));
 
         if let Some(speed) = descriptor.speed {
             builder.insert(ConstantVelocity::new(facing.to_vec3() * speed));

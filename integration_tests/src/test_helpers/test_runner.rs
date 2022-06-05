@@ -13,7 +13,7 @@ use super::{AppWrapper, TestSpec};
 /// A framework that runs through a list of specs from a common starting position.
 pub struct TestRunner {
     // TODO: Starting scenario
-// TODO: Several tests per runner
+    // TODO: Several tests per runner
 }
 impl TestRunner {
     /// Setup the game env for a test case
@@ -45,7 +45,7 @@ impl TestRunner {
         app.update();
 
         // Go to combat (skip buy phase)
-        let mut key_input = app.world.get_resource_mut::<Input<KeyCode>>().unwrap();
+        let mut key_input = app.world.resource_mut::<Input<KeyCode>>();
         key_input.press(KeyCode::Return);
         app.update();
 

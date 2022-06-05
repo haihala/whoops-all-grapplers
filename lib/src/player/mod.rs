@@ -10,7 +10,7 @@ use input_parsing::PadBundle;
 use kits::{ryan_kit, Grabable, Hurtbox, Inventory, Kit, Resources};
 use player_state::PlayerState;
 use time::{Clock, GameState, RoundResult};
-use types::{LRDirection, Player};
+use types::{LRDirection, Player, Players};
 
 use crate::{
     assets::Colors,
@@ -19,85 +19,44 @@ use crate::{
     spawner::Spawner,
 };
 
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::Anchor};
 
 use self::move_activation::MoveBuffer;
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 
-#[derive(Debug, SystemLabel, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-enum PlayerSystemLabel {
-    Reset,
-    MoveAdvancer,
-    MoveActivator,
-    StunRecovery,
-    GroundRecovery,
-    Movement,
-    SizeAdjustment,
-    Charge,
-    Testing,
-}
-
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
-            .add_system(
-                reset
-                    .with_run_criteria(State::on_update(GameState::Shop))
-                    .label(PlayerSystemLabel::Reset),
-            )
+            .add_system(reset.with_run_criteria(State::on_update(GameState::Shop)))
             .add_system_set(
                 SystemSet::on_update(GameState::Combat)
+                    .with_system(move_advancement::move_advancement.after(reset))
                     .with_system(
-                        move_advancement::move_advancement
-                            .label(PlayerSystemLabel::MoveAdvancer)
-                            .after(PlayerSystemLabel::Reset),
+                        move_activation::move_activator.after(move_advancement::move_advancement),
                     )
+                    .with_system(recovery::stun_recovery.after(move_activation::move_activator))
+                    .with_system(recovery::ground_recovery.after(recovery::stun_recovery))
+                    .with_system(movement::movement.after(recovery::ground_recovery))
+                    .with_system(size_adjustment::size_adjustment.after(movement::movement))
                     .with_system(
-                        move_activation::move_activator
-                            .label(PlayerSystemLabel::MoveActivator)
-                            .after(PlayerSystemLabel::MoveAdvancer),
+                        charge_accumulator::manage_charge.after(size_adjustment::size_adjustment),
                     )
-                    .with_system(
-                        recovery::stun_recovery
-                            .label(PlayerSystemLabel::StunRecovery)
-                            .after(PlayerSystemLabel::MoveAdvancer),
-                    )
-                    .with_system(
-                        recovery::ground_recovery
-                            .label(PlayerSystemLabel::GroundRecovery)
-                            .after(PlayerSystemLabel::StunRecovery),
-                    )
-                    .with_system(
-                        movement::movement
-                            .label(PlayerSystemLabel::Movement)
-                            .after(PlayerSystemLabel::GroundRecovery),
-                    )
-                    .with_system(
-                        size_adjustment::size_adjustment
-                            .label(PlayerSystemLabel::SizeAdjustment)
-                            .after(PlayerSystemLabel::Movement),
-                    )
-                    .with_system(
-                        charge_accumulator::manage_charge
-                            .label(PlayerSystemLabel::Charge)
-                            .after(PlayerSystemLabel::SizeAdjustment),
-                    )
-                    .with_system(
-                        testing
-                            .label(PlayerSystemLabel::Testing)
-                            .after(PlayerSystemLabel::Charge),
-                    ),
+                    .with_system(testing.after(charge_accumulator::manage_charge)),
             );
     }
 }
 
 fn setup(mut commands: Commands, colors: Res<Colors>) {
-    spawn_player(&mut commands, &colors, -PLAYER_SPAWN_DISTANCE, Player::One);
-    spawn_player(&mut commands, &colors, PLAYER_SPAWN_DISTANCE, Player::Two);
+    let players = Players {
+        one: spawn_player(&mut commands, &colors, -PLAYER_SPAWN_DISTANCE, Player::One),
+        two: spawn_player(&mut commands, &colors, PLAYER_SPAWN_DISTANCE, Player::Two),
+    };
+
+    commands.insert_resource(players);
 }
 
 #[derive(Bundle, Default)]
@@ -112,7 +71,12 @@ struct PlayerDefaults {
     move_buffer: MoveBuffer,
 }
 
-fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, player: Player) {
+fn spawn_player(
+    commands: &mut Commands,
+    colors: &Res<Colors>,
+    offset: f32,
+    player: Player,
+) -> Entity {
     let state = PlayerState::default();
     let kit = ryan_kit();
 
@@ -127,14 +91,15 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
                 0.0,
             )
                 .into(),
-            ..Default::default()
+            ..default()
         },
         sprite: Sprite {
             color: colors.collision_box,
             custom_size: Some(state.get_collider_size()),
-            ..Default::default()
+            anchor: Anchor::BottomCenter,
+            ..default()
         },
-        ..Default::default()
+        ..default()
     });
 
     spawn_handle
@@ -146,6 +111,8 @@ fn spawn_player(commands: &mut Commands, colors: &Res<Colors>, offset: f32, play
 
     #[cfg(not(test))]
     spawn_handle.insert_bundle(inputs);
+
+    spawn_handle.id()
 }
 
 fn reset(

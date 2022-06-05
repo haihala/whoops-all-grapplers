@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use types::Player;
 
 use crate::MoveId;
 
@@ -107,7 +106,7 @@ impl Hitbox {
     }
 }
 
-#[derive(Clone, Copy, Debug, Inspectable, PartialEq)]
+#[derive(Clone, Copy, Debug, Inspectable, Eq, PartialEq)]
 pub enum AttackHeight {
     Low,
     Mid,
@@ -175,8 +174,7 @@ pub type Pushback = HitProperty<Vec3>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Inspectable, Component)]
 pub struct OnHitEffect {
-    pub owner: Player,
-    pub id: MoveId,
+    pub id: MoveId, // Needed so we can despawn the hitbox when a hit is registered
 
     pub fixed_height: Option<AttackHeight>,
     pub damage: Option<Damage>,
@@ -188,13 +186,12 @@ pub struct OnHitEffect {
 impl Default for OnHitEffect {
     fn default() -> Self {
         Self {
-            owner: Player::One,
-            id: Default::default(),
-            fixed_height: Default::default(),
-            damage: Default::default(),
-            stun: Default::default(),
-            knockback: Default::default(),
-            pushback: Default::default(),
+            id: default(),
+            fixed_height: default(),
+            damage: default(),
+            stun: default(),
+            knockback: default(),
+            pushback: default(),
         }
     }
 }

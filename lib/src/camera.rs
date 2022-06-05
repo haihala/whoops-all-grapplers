@@ -1,14 +1,12 @@
 use bevy::prelude::*;
-use bevy::render::camera::{
-    camera_system, Camera, CameraPlugin, CameraProjection, DepthCalculation,
-};
+use bevy::render::camera::{camera_system, Camera, Camera2d, CameraProjection, DepthCalculation};
+use bevy::render::primitives::Frustum;
 use bevy::render::view::VisibleEntities;
-
 use types::Player;
 
 use crate::physics::ARENA_WIDTH;
 
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Default)]
 pub struct WorldCamera;
 
 const CAMERA_FAR_DISTANCE: f32 = 10000.0;
@@ -53,12 +51,6 @@ impl CameraProjection for SimpleOrthoProjection {
     }
 }
 
-#[derive(Debug, SystemLabel, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-enum CameraSystemLabel {
-    Center,
-    Camera,
-}
-
 pub struct CustomCameraPlugin;
 
 impl Plugin for CustomCameraPlugin {
@@ -66,46 +58,55 @@ impl Plugin for CustomCameraPlugin {
         app.add_startup_system(add_cameras).add_system_set_to_stage(
             CoreStage::PostUpdate,
             SystemSet::new()
-                .with_system(center_camera.label(CameraSystemLabel::Center))
-                .with_system(
-                    camera_system::<SimpleOrthoProjection>
-                        .label(CameraSystemLabel::Camera)
-                        .after(CameraSystemLabel::Center),
-                ),
+                .with_system(center_camera)
+                .with_system(camera_system::<SimpleOrthoProjection>.after(center_camera)),
         );
     }
 }
 
 fn add_cameras(mut commands: Commands) {
-    commands
-        .spawn_bundle((
-            // position the camera like bevy would do by default for 2D:
-            Transform::from_translation(Vec3::new(0.0, CAMERA_HEIGHT, CAMERA_FAR_DISTANCE - 0.1)),
-            GlobalTransform::default(),
-            VisibleEntities::default(),
-            Camera {
-                name: Some(CameraPlugin::CAMERA_2D.to_string()),
-                ..Default::default()
-            },
-            SimpleOrthoProjection::default(),
-        ))
-        .insert(WorldCamera);
+    let projection = SimpleOrthoProjection::default();
+    let camera = Camera {
+        near: 0.0,
+        far: CAMERA_FAR_DISTANCE,
+        ..default()
+    };
+    // position the camera like bevy would do by default for 2D:
+    let transform = Transform::from_xyz(0.0, CAMERA_HEIGHT, CAMERA_FAR_DISTANCE - 0.1);
+    // frustum construction code copied from Bevy
+    let view_projection = projection.get_projection_matrix() * transform.compute_matrix().inverse();
+    let frustum = Frustum::from_view_projection(
+        &view_projection,
+        &transform.translation,
+        &transform.back(),
+        CAMERA_FAR_DISTANCE,
+    );
 
+    commands.spawn_bundle((
+        camera,
+        projection,
+        frustum,
+        VisibleEntities::default(),
+        transform,
+        GlobalTransform::default(),
+        Camera2d,
+        WorldCamera,
+    ));
     commands.spawn_bundle(UiCameraBundle::default());
 }
 
 #[allow(clippy::type_complexity)]
 fn center_camera(
-    mut queryies: QuerySet<(
-        QueryState<&Transform, With<Player>>,
-        QueryState<&mut Transform, With<WorldCamera>>,
+    mut queryies: ParamSet<(
+        Query<&Transform, With<Player>>,
+        Query<&mut Transform, With<WorldCamera>>,
     )>,
 ) {
     let player_pos_sum = queryies
-        .q0()
+        .p0()
         .iter()
         .fold(0.0, |acc, tf| acc + tf.translation.x)
         / 2.0;
 
-    queryies.q1().single_mut().translation.x = player_pos_sum.max(-CAMERA_CLAMP).min(CAMERA_CLAMP);
+    queryies.p1().single_mut().translation.x = player_pos_sum.max(-CAMERA_CLAMP).min(CAMERA_CLAMP);
 }

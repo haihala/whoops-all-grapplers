@@ -2,7 +2,7 @@ use super::ItemId;
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-#[derive(Debug, Default, Component, PartialEq, Inspectable, Clone)]
+#[derive(Debug, Default, Component, Eq, PartialEq, Inspectable, Clone)]
 pub struct Inventory {
     pub tier: usize,
     pub money: usize,

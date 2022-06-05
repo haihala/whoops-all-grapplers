@@ -16,12 +16,6 @@ use input_stream::PadStream;
 const MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS: f32 = 0.2; // In seconds
 const STICK_DEAD_ZONE: f32 = 0.2;
 
-#[derive(Debug, SystemLabel, Clone, Copy, PartialEq, Eq, Hash)]
-enum InputSystemLabel {
-    Collect,
-    Parse,
-}
-
 pub struct InputParsingPlugin;
 
 impl Plugin for InputParsingPlugin {
@@ -30,11 +24,9 @@ impl Plugin for InputParsingPlugin {
             .add_system_set_to_stage(
                 WAGStage::Inputs,
                 SystemSet::new()
-                    .with_system(input_stream::update_pads.label(InputSystemLabel::Collect))
+                    .with_system(input_stream::update_pads)
                     .with_system(
-                        input_parser::parse_input::<PadStream>
-                            .label(InputSystemLabel::Parse)
-                            .after(InputSystemLabel::Collect),
+                        input_parser::parse_input::<PadStream>.after(input_stream::update_pads),
                     ),
             );
     }

@@ -1,7 +1,8 @@
+use bevy::prelude::*;
 use bevy::utils::HashSet;
 use types::{GameButton, StickPosition};
 
-#[derive(Clone, PartialEq, Debug, Default)]
+#[derive(Clone, Eq, PartialEq, Debug, Default)]
 /// Frame is a situation, diff is a change
 pub struct Frame {
     pub stick_position: StickPosition,
@@ -38,7 +39,7 @@ impl Frame {
         Diff {
             stick_move,
             pressed,
-            ..Default::default()
+            ..default()
         }
     }
 }
@@ -88,7 +89,7 @@ fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet
 }
 
 /// Enum used to define move inputs.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum InputEvent {
     /// Stick must visit a point
     Point(StickPosition),

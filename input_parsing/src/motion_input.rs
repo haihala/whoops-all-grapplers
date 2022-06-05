@@ -1,3 +1,4 @@
+use bevy::prelude::*;
 use bevy::utils::Instant;
 
 use types::GameButton;
@@ -7,7 +8,7 @@ use crate::{
     MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
 };
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 struct ParserHead {
     index: usize,
     last_update: Instant,
@@ -19,10 +20,10 @@ struct ParserHead {
 impl Default for ParserHead {
     fn default() -> Self {
         Self {
-            index: Default::default(),
+            index: default(),
             last_update: Instant::now(),
-            requirement: Default::default(),
-            multipresses_received: Default::default(),
+            requirement: default(),
+            multipresses_received: default(),
         }
     }
 }
@@ -36,7 +37,7 @@ impl ParserHead {
     fn new(requirement: Option<InputEvent>) -> ParserHead {
         ParserHead {
             requirement,
-            ..Default::default()
+            ..default()
         }
     }
 
@@ -56,7 +57,7 @@ impl ParserHead {
         *self = ParserHead {
             requirement,
             index: self.index + 1,
-            ..Default::default()
+            ..default()
         }
     }
 
@@ -221,7 +222,7 @@ impl From<&str> for MotionInput {
 
         Self {
             requirements,
-            ..Default::default()
+            ..default()
         }
     }
 }
@@ -251,12 +252,12 @@ mod test {
         let motion: MotionInput = "6f".into();
         let frame = Frame {
             stick_position: StickPosition::E,
-            ..Default::default()
+            ..default()
         };
 
         let diff = Diff {
             pressed: Some(vec![GameButton::Fast].into_iter().collect()),
-            ..Default::default()
+            ..default()
         };
 
         let mut ph = ParserHead::new_from_diff(&motion.requirements, &frame.diff_from_neutral());

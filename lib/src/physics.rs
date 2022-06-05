@@ -12,7 +12,7 @@ use crate::{
     spawner::Spawner,
 };
 
-pub const GROUND_PLANE_HEIGHT: f32 = -0.4;
+pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
 pub const ARENA_WIDTH: f32 = 10.0;
 
 #[derive(Debug, Default, Inspectable, Component)]
@@ -137,15 +137,6 @@ impl PlayerVelocity {
     }
 }
 
-#[derive(Debug, SystemLabel, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-enum PhysicsSystemLabel {
-    SideSwitch,
-    Gravity,
-    Input,
-    MoveConst,
-    MovePlayers,
-}
-
 pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
@@ -153,27 +144,11 @@ impl Plugin for PhysicsPlugin {
             WAGStage::Physics,
             SystemSet::new()
                 .with_run_criteria(once_per_combat_frame)
-                .with_system(sideswitcher.label(PhysicsSystemLabel::SideSwitch))
-                .with_system(
-                    player_gravity
-                        .label(PhysicsSystemLabel::Gravity)
-                        .after(PhysicsSystemLabel::SideSwitch),
-                )
-                .with_system(
-                    player_input
-                        .label(PhysicsSystemLabel::Input)
-                        .after(PhysicsSystemLabel::Gravity),
-                )
-                .with_system(
-                    move_constants
-                        .label(PhysicsSystemLabel::MoveConst)
-                        .after(PhysicsSystemLabel::Input),
-                )
-                .with_system(
-                    move_players
-                        .label(PhysicsSystemLabel::MovePlayers)
-                        .after(PhysicsSystemLabel::MoveConst),
-                ),
+                .with_system(sideswitcher)
+                .with_system(player_gravity.after(sideswitcher))
+                .with_system(player_input.after(player_gravity))
+                .with_system(move_constants.after(player_input))
+                .with_system(move_players.after(move_constants)),
         );
     }
 }
@@ -229,14 +204,14 @@ fn move_constants(
 
 #[allow(clippy::type_complexity)]
 fn move_players(
-    mut queries: QuerySet<(
-        QueryState<(&mut PlayerVelocity, &mut Transform, &PlayerState)>,
-        QueryState<&Transform, With<WorldCamera>>,
+    mut queries: ParamSet<(
+        Query<(&mut PlayerVelocity, &mut Transform, &PlayerState)>,
+        Query<&Transform, With<WorldCamera>>,
     )>,
 ) {
-    let arena_rect = legal_position_space(queries.q1().single().translation.x);
+    let arena_rect = legal_position_space(queries.p1().single().translation.x);
 
-    let mut player_query = queries.q0();
+    let mut player_query = queries.p0();
     if let Some([(mut velocity1, mut tf1, state1), (mut velocity2, mut tf2, state2)]) =
         player_query.iter_combinations_mut().fetch_next()
     {
@@ -297,8 +272,7 @@ fn player_gravity(
     )>,
 ) {
     for (mut velocity, mut state, mut spawner, tf) in players.iter_mut() {
-        let player_bottom = tf.translation.y - state.get_height() / 2.0;
-        let is_airborne = player_bottom > GROUND_PLANE_HEIGHT;
+        let is_airborne = tf.translation.y > GROUND_PLANE_HEIGHT;
 
         if is_airborne {
             velocity.add_impulse(-Vec3::Y * PLAYER_GRAVITY_PER_FRAME);
@@ -341,8 +315,8 @@ fn clamp_position(position: Vec3, size: Vec2, arena_rect: Rect<f32>) -> ClampedP
     let player_rect = Rect {
         left: position.x - halfsize.x,
         right: position.x + halfsize.x,
-        bottom: position.y - halfsize.y,
-        top: position.y + halfsize.y,
+        bottom: position.y,
+        top: position.y + size.y,
     };
 
     let touching_right_wall = player_rect.right >= arena_rect.right;
@@ -357,7 +331,7 @@ fn clamp_position(position: Vec3, size: Vec2, arena_rect: Rect<f32>) -> ClampedP
 
     let touching_floor = player_rect.bottom <= arena_rect.bottom;
     let clamped_y = if touching_floor {
-        arena_rect.bottom + halfsize.y
+        arena_rect.bottom
     } else {
         position.y
     };

@@ -21,13 +21,13 @@ fn get_handmedownken() -> Move {
         requirements: Requirements {
             grounded: Some(true),
             cancel_level: Some(CancelLevel::LightSpecial),
-            ..Default::default()
+            ..default()
         },
         phases: vec![
             Phase {
                 kind: PhaseKind::Animation,
                 duration: 30,
-                ..Default::default()
+                ..default()
             }
             .into(),
             Phase {
@@ -35,17 +35,17 @@ fn get_handmedownken() -> Move {
                     hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
                     speed: Some(1.0 * Vec3::X),
                     lifetime: Lifetime::Forever,
-                    ..Default::default()
+                    ..default()
                 }),
                 duration: 4,
-                ..Default::default()
+                ..default()
             }
             .into(),
             Phase {
                 kind: PhaseKind::Animation,
                 duration: 10,
                 cancellable: true,
-                ..Default::default()
+                ..default()
             }
             .into(),
         ],
@@ -61,31 +61,31 @@ fn get_gunshot() -> Move {
             cancel_level: Some(CancelLevel::LightNormal),
             cost: Some(Cost {
                 // TODO bullets go here
-                ..Default::default()
+                ..default()
             }),
-            ..Default::default()
+            ..default()
         },
         phases: vec![
             Phase {
                 kind: PhaseKind::Animation,
                 duration: 10,
-                ..Default::default()
+                ..default()
             }
             .into(),
             Branch {
                 default: Phase {
                     kind: PhaseKind::Animation,
                     duration: 30,
-                    ..Default::default()
+                    ..default()
                 }
                 .into(),
                 branches: vec![(
                     Requirements {
                         cost: Some(Cost {
                             bullet: true,
-                            ..Default::default()
+                            ..default()
                         }),
-                        ..Default::default()
+                        ..default()
                     },
                     Phase {
                         duration: 20,
@@ -93,9 +93,9 @@ fn get_gunshot() -> Move {
                             hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
                             speed: Some(10.0 * Vec3::X),
                             lifetime: Lifetime::Forever,
-                            ..Default::default()
+                            ..default()
                         }),
-                        ..Default::default()
+                        ..default()
                     }
                     .into(),
                 )],
@@ -104,13 +104,13 @@ fn get_gunshot() -> Move {
                 default: Phase {
                     kind: PhaseKind::Animation,
                     duration: 30,
-                    ..Default::default()
+                    ..default()
                 }
                 .into(),
                 branches: vec![(
                     Requirements {
                         buttons_held: Some(vec![GameButton::Equipment]),
-                        ..Default::default()
+                        ..default()
                     },
                     MoveId::Gunshot.into(),
                 )],
@@ -125,13 +125,13 @@ fn get_shot() -> Move {
         requirements: Requirements {
             grounded: Some(true),
             cancel_level: Some(CancelLevel::LightNormal),
-            ..Default::default()
+            ..default()
         },
         phases: vec![
             Phase {
                 kind: PhaseKind::Animation,
                 duration: 30,
-                ..Default::default()
+                ..default()
             }
             .into(),
             MoveId::Gunshot.into(),

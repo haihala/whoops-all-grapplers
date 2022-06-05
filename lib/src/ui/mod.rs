@@ -34,13 +34,6 @@ const BACKGROUND_SCALE: (f32, f32, f32) = (0.008, 0.008, 1.0);
 
 const TRANSPARENT: Color = Color::rgba(0.0, 0.0, 0.0, 0.0);
 
-#[derive(Debug, SystemLabel, PartialEq, Eq, Clone, Copy, Hash)]
-enum UISystemLabel {
-    Timer,
-    RoundStart,
-    RoundEnd,
-}
-
 pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
@@ -54,21 +47,15 @@ impl Plugin for UIPlugin {
         .add_system_to_stage(CoreStage::Last, bars::update)
         .add_system_to_stage(
             CoreStage::Last,
-            text::update_timer
-                .with_run_criteria(State::on_update(GameState::Combat))
-                .label(UISystemLabel::Timer),
+            text::update_timer.with_run_criteria(State::on_update(GameState::Combat)),
         )
         .add_system_to_stage(
             CoreStage::Last,
-            text::hide_round_text
-                .label(UISystemLabel::RoundStart)
-                .after(UISystemLabel::Timer),
+            text::hide_round_text.after(text::update_timer),
         )
         .add_system_to_stage(
             CoreStage::Last,
-            text::update_round_text
-                .label(UISystemLabel::RoundEnd)
-                .after(UISystemLabel::RoundStart),
+            text::update_round_text.after(text::hide_round_text),
         );
     }
 }
@@ -79,10 +66,10 @@ fn add_stage(mut commands: Commands, sprites: Res<Sprites>) {
         transform: Transform {
             translation: BACKGROUND_POSITION.into(),
             scale: BACKGROUND_SCALE.into(),
-            ..Default::default()
+            ..default()
         },
 
-        ..Default::default()
+        ..default()
     });
 }
 
@@ -105,12 +92,12 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                 position: Rect {
                     top: Val::Percent(TOP_CONTAINER_TOP_PAD),
                     left: Val::Percent(TOP_CONTAINER_SIDE_PAD),
-                    ..Default::default()
+                    ..default()
                 },
-                ..Default::default()
+                ..default()
             },
             color: TRANSPARENT.into(),
-            ..Default::default()
+            ..default()
         })
         .with_children(|top_bar_wrapper| {
             top_bar_wrapper
@@ -120,10 +107,10 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                             Val::Percent(HEALTH_BAR_WIDTH),
                             Val::Percent(HEALTH_BAR_HEIGHT),
                         ),
-                        ..Default::default()
+                        ..default()
                     },
                     color: colors.health.into(),
-                    ..Default::default()
+                    ..default()
                 })
                 .insert(HealthBar(Player::One));
             top_bar_wrapper
@@ -133,12 +120,12 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                         size: Size::new(Val::Percent(TIMER_WIDTH), Val::Percent(100.0)),
                         position: Rect {
                             top: Val::Percent(TIMER_TOP_PADDING),
-                            ..Default::default()
+                            ..default()
                         },
-                        ..Default::default()
+                        ..default()
                     },
                     color: TRANSPARENT.into(),
-                    ..Default::default()
+                    ..default()
                 })
                 .with_children(|timer_wrapper| {
                     timer_wrapper
@@ -155,7 +142,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                                     vertical: VerticalAlign::Center,
                                 },
                             ),
-                            ..Default::default()
+                            ..default()
                         })
                         .insert(RoundTimer);
                 });
@@ -166,10 +153,10 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                             Val::Percent(HEALTH_BAR_WIDTH),
                             Val::Percent(HEALTH_BAR_HEIGHT),
                         ),
-                        ..Default::default()
+                        ..default()
                     },
                     color: colors.health.into(),
-                    ..Default::default()
+                    ..default()
                 })
                 .insert(HealthBar(Player::Two));
         });
@@ -189,12 +176,12 @@ fn setup_bottom_bars(commands: &mut Commands, colors: &Colors) {
                 position: Rect {
                     bottom: Val::Percent(BOTTOM_CONTAINER_BOTTOM_PAD),
                     left: Val::Percent(BOTTOM_CONTAINER_SIDE_PAD),
-                    ..Default::default()
+                    ..default()
                 },
-                ..Default::default()
+                ..default()
             },
             color: TRANSPARENT.into(),
-            ..Default::default()
+            ..default()
         })
         .with_children(|parent| {
             meter_bars(parent, colors);
@@ -232,30 +219,30 @@ fn resource_bars(
                 position_type: PositionType::Relative,
                 justify_content: JustifyContent::SpaceBetween,
                 size: Size::new(Val::Percent(100.0), Val::Percent(RESOURCE_BAR_HEIGHT)),
-                ..Default::default()
+                ..default()
             },
             color: TRANSPARENT.into(),
-            ..Default::default()
+            ..default()
         })
         .with_children(|parent| {
             parent
                 .spawn_bundle(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Percent(RESOURCE_BAR_WIDTH), Val::Percent(100.0)),
-                        ..Default::default()
+                        ..default()
                     },
                     color,
-                    ..Default::default()
+                    ..default()
                 })
                 .insert(component_p1);
             parent
                 .spawn_bundle(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Percent(RESOURCE_BAR_WIDTH), Val::Percent(100.0)),
-                        ..Default::default()
+                        ..default()
                     },
                     color,
-                    ..Default::default()
+                    ..default()
                 })
                 .insert(component_p2);
         });
@@ -271,12 +258,12 @@ fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fonts: &Fonts
                 position: Rect {
                     top: Val::Percent(40.0),
                     left: Val::Px(0.0),
-                    ..Default::default()
+                    ..default()
                 },
-                ..Default::default()
+                ..default()
             },
             color: TRANSPARENT.into(),
-            ..Default::default()
+            ..default()
         })
         .with_children(|parent| {
             parent
@@ -290,10 +277,10 @@ fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fonts: &Fonts
                         },
                         TextAlignment {
                             horizontal: HorizontalAlign::Center,
-                            ..Default::default()
+                            ..default()
                         },
                     ),
-                    ..Default::default()
+                    ..default()
                 })
                 .insert(RoundText);
         });

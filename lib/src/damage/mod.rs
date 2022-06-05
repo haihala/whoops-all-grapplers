@@ -4,7 +4,7 @@ use input_parsing::InputParser;
 use kits::{Grabable, Hurtbox, OnHitEffect, Resources};
 use player_state::PlayerState;
 use time::{Clock, GameState, WAGStage};
-use types::{LRDirection, Player};
+use types::{LRDirection, Owner, Player};
 
 mod health;
 pub use health::Health;
@@ -14,13 +14,6 @@ use crate::{
     spawner::Spawner,
 };
 
-#[derive(Debug, SystemLabel, PartialEq, Eq, Hash, Clone, Copy)]
-enum DamageSystemLabel {
-    HitReg,
-    Grab,
-    Dead,
-}
-
 pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
@@ -28,16 +21,11 @@ impl Plugin for DamagePlugin {
         app.add_system_set_to_stage(
             WAGStage::HitReg,
             SystemSet::new()
-                .with_system(register_hits.label(DamageSystemLabel::HitReg))
-                .with_system(
-                    handle_grabs
-                        .label(DamageSystemLabel::Grab)
-                        .after(DamageSystemLabel::HitReg),
-                )
+                .with_system(register_hits)
+                .with_system(handle_grabs.after(register_hits))
                 .with_system(
                     health::check_dead
-                        .label(DamageSystemLabel::Dead)
-                        .after(DamageSystemLabel::Grab)
+                        .after(handle_grabs)
                         .with_run_criteria(State::on_update(GameState::Combat)),
                 ),
         );
@@ -48,7 +36,7 @@ impl Plugin for DamagePlugin {
 pub fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,
-    mut hitboxes: Query<(&OnHitEffect, &GlobalTransform, &Sprite)>,
+    mut hitboxes: Query<(&Owner, &OnHitEffect, &GlobalTransform, &Sprite)>,
     mut hurtboxes: Query<(
         &Hurtbox,
         &Sprite,
@@ -63,7 +51,7 @@ pub fn register_hits(
         &mut Spawner,
     )>,
 ) {
-    for (effect, hitbox_tf, hitbox_sprite) in hitboxes.iter_mut() {
+    for (owner, effect, hitbox_tf, hitbox_sprite) in hitboxes.iter_mut() {
         let hitbox_position = hitbox_tf.translation;
         let hitbox_size = hitbox_sprite.custom_size.unwrap();
 
@@ -73,6 +61,7 @@ pub fn register_hits(
                 &mut commands,
                 clock.frame,
                 effect,
+                owner,
                 hitbox_position,
                 hitbox_size,
                 &mut p1,
@@ -82,6 +71,7 @@ pub fn register_hits(
                 &mut commands,
                 clock.frame,
                 effect,
+                owner,
                 hitbox_position,
                 hitbox_size,
                 &mut p2,
@@ -111,6 +101,7 @@ fn handle_hit(
     commands: &mut Commands,
     frame: usize,
     effect: &OnHitEffect,
+    owner: &Owner,
     hitbox_position: Vec3,
     hitbox_size: Vec2,
     attacker: &mut ComponentList,
@@ -143,7 +134,7 @@ fn handle_hit(
         defender_spawner,
     ) = defender;
 
-    if effect.owner == **defending_player {
+    if owner.0 == **defending_player {
         // You can't hit yourself
         return;
     }

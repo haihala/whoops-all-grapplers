@@ -1,3 +1,4 @@
+use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 use types::GameButton;
 
@@ -83,7 +84,7 @@ impl Default for Branch {
     }
 }
 
-#[derive(Debug, Default, Inspectable, Clone, PartialEq)]
+#[derive(Debug, Default, Inspectable, Clone, Eq, PartialEq)]
 pub struct Requirements {
     pub has_hit: Option<bool>,
     pub cost: Option<Cost>,
@@ -96,7 +97,7 @@ impl Requirements {
     pub fn has_hit() -> Requirements {
         Requirements {
             has_hit: Some(true),
-            ..Default::default()
+            ..default()
         }
     }
 }

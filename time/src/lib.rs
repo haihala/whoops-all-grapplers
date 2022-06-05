@@ -52,12 +52,6 @@ pub enum WAGStage {
     HitReg,
 }
 
-#[derive(Debug, SystemLabel, Hash, PartialEq, Eq, Clone, Copy)]
-enum TimeSystemLabel {
-    UpdateClock,
-    ResetClock,
-}
-
 pub struct TimePlugin;
 
 impl Plugin for TimePlugin {
@@ -84,16 +78,13 @@ impl Plugin for TimePlugin {
         .add_system_set_to_stage(WAGStage::Physics, State::<GameState>::get_driver())
         .add_system_to_stage(
             CoreStage::First,
-            update_clock
-                .with_run_criteria(FixedTimestep::steps_per_second(constants::FPS as f64))
-                .label(TimeSystemLabel::UpdateClock),
+            update_clock.with_run_criteria(FixedTimestep::steps_per_second(constants::FPS as f64)),
         )
         .add_system_to_stage(
             CoreStage::First,
             reset_clock
                 .with_run_criteria(State::on_enter(GameState::Combat))
-                .label(TimeSystemLabel::ResetClock)
-                .after(TimeSystemLabel::UpdateClock),
+                .after(update_clock),
         );
     }
 }

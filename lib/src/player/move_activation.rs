@@ -92,7 +92,7 @@ pub fn move_activator(
                 inventory: inventory.clone(),
                 buttons_held: reader.get_pressed().clone(),
                 grounded: state.is_grounded(),
-                ..Default::default()
+                ..default()
             });
 
         if let Some((move_id, move_data)) = buffer.use_move(kit, &situation) {

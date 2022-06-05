@@ -1,12 +1,14 @@
 use bevy::prelude::*;
 
 pub struct Colors {
-    pub transparent: Color,
     pub health: Color,
     pub meter: Color,
+    pub charge_default: Color,
+    pub charge_full: Color,
     pub hitbox: Color,
     pub hurtbox: Color,
     pub collision_box: Color,
+    pub text: Color,
 }
 
 pub struct Fonts {
@@ -28,12 +30,14 @@ impl Plugin for AssetsPlugin {
 
 fn colors(mut commands: Commands) {
     commands.insert_resource(Colors {
-        transparent: Color::rgba(0.0, 0.0, 0.0, 0.0),
         health: Color::rgb(0.9, 0.0, 0.0),
         meter: Color::rgb(0.04, 0.5, 0.55),
+        charge_default: Color::rgb(0.05, 0.4, 0.55),
+        charge_full: Color::rgb(0.9, 0.1, 0.3),
         hitbox: Color::rgb(1.0, 0.0, 0.0),
         hurtbox: Color::rgb(0.0, 1.0, 0.0),
         collision_box: Color::rgb(0.0, 0.0, 1.0),
+        text: Color::WHITE,
     })
 }
 

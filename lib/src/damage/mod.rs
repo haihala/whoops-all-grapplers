@@ -105,6 +105,8 @@ type ComponentList<'a> = (
     Mut<'a, Spawner>,
 );
 
+// Bevy 0.7 will fix
+#[allow(clippy::too_many_arguments)]
 fn handle_hit(
     commands: &mut Commands,
     frame: usize,

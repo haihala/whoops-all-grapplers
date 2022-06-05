@@ -33,4 +33,7 @@ impl Charge {
     pub fn reset(&mut self) {
         self.progress = 0;
     }
+    pub fn get_ratio(&self) -> f32 {
+        (self.progress as f32 / self.full_progress as f32).min(1.0)
+    }
 }

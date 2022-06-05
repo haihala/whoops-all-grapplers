@@ -7,7 +7,7 @@ use crate::assets::{Colors, Fonts, Sprites};
 mod bars;
 mod text;
 
-use bars::{HealthBar, MeterBar};
+use bars::{ChargeBar, HealthBar, MeterBar};
 use text::RoundText;
 
 // Top bars
@@ -24,13 +24,15 @@ const HEALTH_BAR_HEIGHT: f32 = 50.0; // Relative to wrapper
 // Bottom bars
 const BOTTOM_CONTAINER_BOTTOM_PAD: f32 = 3.0;
 const BOTTOM_CONTAINER_SIDE_PAD: f32 = 3.0;
-const BOTTOM_CONTAINER_WIDTH: f32 = 100.0 - 2.0 * BOTTOM_CONTAINER_SIDE_PAD;
-const BOTTOM_CONTAINER_HEIGHT: f32 = 3.0;
-const METER_BAR_WIDTH: f32 = 30.0; // Relative to wrapper
-const METER_BAR_HEIGHT: f32 = 100.0; // Relative to wrapper
+const BOTTOM_CONTAINER_WIDTH: f32 = 100.0 - 2.0 * BOTTOM_CONTAINER_SIDE_PAD; // Relative to screen
+const BOTTOM_CONTAINER_HEIGHT: f32 = 10.0; // Relative to screen
+const RESOURCE_BAR_WIDTH: f32 = 30.0; // Relative to wrapper
+const RESOURCE_BAR_HEIGHT: f32 = 45.0; // Relative to wrapper (BOTTOM_CONTAINER_HEIGHT)
 
 const BACKGROUND_POSITION: (f32, f32, f32) = (0.0, 2.0, -0.09);
 const BACKGROUND_SCALE: (f32, f32, f32) = (0.008, 0.008, 1.0);
+
+const TRANSPARENT: Color = Color::rgba(0.0, 0.0, 0.0, 0.0);
 
 #[derive(Debug, SystemLabel, PartialEq, Eq, Clone, Copy, Hash)]
 enum UISystemLabel {
@@ -107,7 +109,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                 },
                 ..Default::default()
             },
-            color: colors.transparent.into(),
+            color: TRANSPARENT.into(),
             ..Default::default()
         })
         .with_children(|top_bar_wrapper| {
@@ -135,7 +137,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                         },
                         ..Default::default()
                     },
-                    color: colors.transparent.into(),
+                    color: TRANSPARENT.into(),
                     ..Default::default()
                 })
                 .with_children(|timer_wrapper| {
@@ -177,7 +179,8 @@ fn setup_bottom_bars(commands: &mut Commands, colors: &Colors) {
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
-                position_type: PositionType::Absolute,
+                display: Display::Flex,
+                flex_direction: FlexDirection::Column,
                 justify_content: JustifyContent::SpaceBetween,
                 size: Size::new(
                     Val::Percent(BOTTOM_CONTAINER_WIDTH),
@@ -190,36 +193,71 @@ fn setup_bottom_bars(commands: &mut Commands, colors: &Colors) {
                 },
                 ..Default::default()
             },
-            color: colors.transparent.into(),
+            color: TRANSPARENT.into(),
+            ..Default::default()
+        })
+        .with_children(|parent| {
+            meter_bars(parent, colors);
+            charge_bars(parent, colors);
+        });
+}
+
+fn meter_bars(parent: &mut ChildBuilder, colors: &Colors) {
+    resource_bars(
+        parent,
+        colors.meter.into(),
+        MeterBar(Player::One),
+        MeterBar(Player::Two),
+    );
+}
+
+fn charge_bars(parent: &mut ChildBuilder, colors: &Colors) {
+    resource_bars(
+        parent,
+        colors.charge_default.into(),
+        ChargeBar(Player::One),
+        ChargeBar(Player::Two),
+    );
+}
+
+fn resource_bars(
+    parent: &mut ChildBuilder,
+    color: UiColor,
+    component_p1: impl Component,
+    component_p2: impl Component,
+) {
+    parent
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                position_type: PositionType::Relative,
+                justify_content: JustifyContent::SpaceBetween,
+                size: Size::new(Val::Percent(100.0), Val::Percent(RESOURCE_BAR_HEIGHT)),
+                ..Default::default()
+            },
+            color: TRANSPARENT.into(),
             ..Default::default()
         })
         .with_children(|parent| {
             parent
                 .spawn_bundle(NodeBundle {
                     style: Style {
-                        size: Size::new(
-                            Val::Percent(METER_BAR_WIDTH),
-                            Val::Percent(METER_BAR_HEIGHT),
-                        ),
+                        size: Size::new(Val::Percent(RESOURCE_BAR_WIDTH), Val::Percent(100.0)),
                         ..Default::default()
                     },
-                    color: colors.meter.into(),
+                    color,
                     ..Default::default()
                 })
-                .insert(MeterBar(Player::One));
+                .insert(component_p1);
             parent
                 .spawn_bundle(NodeBundle {
                     style: Style {
-                        size: Size::new(
-                            Val::Percent(METER_BAR_WIDTH),
-                            Val::Percent(METER_BAR_HEIGHT),
-                        ),
+                        size: Size::new(Val::Percent(RESOURCE_BAR_WIDTH), Val::Percent(100.0)),
                         ..Default::default()
                     },
-                    color: colors.meter.into(),
+                    color,
                     ..Default::default()
                 })
-                .insert(MeterBar(Player::Two));
+                .insert(component_p2);
         });
 }
 
@@ -237,7 +275,7 @@ fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fonts: &Fonts
                 },
                 ..Default::default()
             },
-            color: colors.transparent.into(),
+            color: TRANSPARENT.into(),
             ..Default::default()
         })
         .with_children(|parent| {
@@ -248,7 +286,7 @@ fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fonts: &Fonts
                         TextStyle {
                             font: fonts.basic.clone(),
                             font_size: 100.0,
-                            color: Color::WHITE,
+                            color: colors.text,
                         },
                         TextAlignment {
                             horizontal: HorizontalAlign::Center,

@@ -8,12 +8,12 @@ https://bevyengine.org/learn/book/migration-guides/0.6-0.7/
 - [x] `..Default::default()` -> `..default()` (in prelude)
 - [x] [System ordering](https://bevyengine.org/news/bevy-0-7/#ergonomic-system-ordering) (auto labels)
 	- Nearly came after seeing the results of this holy shit it makes stuff neat
-- [ ] [Accessing many items in a query](https://bevyengine.org/news/bevy-0-7/#query-many)
+- [x] [Accessing many items in a query](https://bevyengine.org/news/bevy-0-7/#query-many)
 	- Think about using a global lookup resource for players instead of having a player component on the entities like in the first example
 - [x] [See if we can use the newtype pattern more](https://bevyengine.org/news/bevy-0-7/#deref-derefmut-derives)
 	- Timers?
 	- Owners for hitboxes
-- [ ] [Custom world queryies](https://bevyengine.org/news/bevy-0-7/#worldquery-derives)
+- [x] [Custom world queryies](https://bevyengine.org/news/bevy-0-7/#worldquery-derives)
 	- Collision and move advancement come to mind
 - [x] [World::get_resource -> World::resource](https://bevyengine.org/news/bevy-0-7/#world-resource)
 	- Old variant is still there, but new doesn't need unwrapping

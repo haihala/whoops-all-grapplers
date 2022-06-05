@@ -59,10 +59,6 @@ fn get_gunshot() -> Move {
         requirements: Requirements {
             grounded: Some(true),
             cancel_level: Some(CancelLevel::LightNormal),
-            cost: Some(Cost {
-                // TODO bullets go here
-                ..default()
-            }),
             ..default()
         },
         phases: vec![

@@ -1,16 +1,19 @@
-use bevy::prelude::*;
+use bevy::{
+    ecs::query::{Fetch, WorldQuery},
+    prelude::*,
+};
 
 use input_parsing::InputParser;
 use kits::{Grabable, Hurtbox, OnHitEffect, Resources};
 use player_state::PlayerState;
 use time::{Clock, GameState, WAGStage};
-use types::{LRDirection, Owner, Player};
+use types::{LRDirection, Owner, Player, Players};
 
 mod health;
 pub use health::Health;
 
 use crate::{
-    physics::{rect_collision, PlayerVelocity},
+    physics::{hybrid_vec_rect_collision, PlayerVelocity},
     spawner::Spawner,
 };
 
@@ -32,38 +35,45 @@ impl Plugin for DamagePlugin {
     }
 }
 
-#[allow(clippy::type_complexity)]
+#[derive(WorldQuery)]
+#[world_query(mutable)]
+pub struct PlayerQuery<'a> {
+    hurtbox: &'a Hurtbox,
+    sprite: &'a Sprite,
+    tf: &'a Transform,
+    health: &'a mut Health,
+    resources: &'a mut Resources,
+    player: &'a Player,
+    parser: &'a InputParser,
+    state: &'a mut PlayerState,
+    velocity: &'a mut PlayerVelocity,
+    facing: &'a LRDirection,
+    spawner: &'a mut Spawner,
+}
+
 pub fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,
     mut hitboxes: Query<(&Owner, &OnHitEffect, &GlobalTransform, &Sprite)>,
-    mut hurtboxes: Query<(
-        &Hurtbox,
-        &Sprite,
-        &Transform,
-        &mut Health,
-        &mut Resources,
-        &Player,
-        &InputParser,
-        &mut PlayerState,
-        &mut PlayerVelocity,
-        &LRDirection,
-        &mut Spawner,
-    )>,
+    mut hurtboxes: Query<PlayerQuery>,
+    players: Res<Players>,
 ) {
     for (owner, effect, hitbox_tf, hitbox_sprite) in hitboxes.iter_mut() {
         let hitbox_position = hitbox_tf.translation;
         let hitbox_size = hitbox_sprite.custom_size.unwrap();
 
-        let mut players = hurtboxes.iter_combinations_mut();
-        if let Some([mut p1, mut p2]) = players.fetch_next() {
+        if let Ok([mut p1, mut p2]) = hurtboxes.get_many_mut([players.one, players.two]) {
+            let hitbox = bevy::sprite::Rect {
+                min: hitbox_position.truncate() - hitbox_size / 2.0,
+                max: hitbox_position.truncate() + hitbox_size / 2.0,
+            };
+
             handle_hit(
                 &mut commands,
                 clock.frame,
                 effect,
                 owner,
-                hitbox_position,
-                hitbox_size,
+                hitbox,
                 &mut p1,
                 &mut p2,
             );
@@ -72,8 +82,7 @@ pub fn register_hits(
                 clock.frame,
                 effect,
                 owner,
-                hitbox_position,
-                hitbox_size,
+                hitbox,
                 &mut p2,
                 &mut p1,
             );
@@ -81,112 +90,75 @@ pub fn register_hits(
     }
 }
 
-type ComponentList<'a> = (
-    &'a Hurtbox,
-    &'a Sprite,
-    &'a Transform,
-    Mut<'a, Health>,
-    Mut<'a, Resources>,
-    &'a Player,
-    &'a InputParser,
-    Mut<'a, PlayerState>,
-    Mut<'a, PlayerVelocity>,
-    &'a LRDirection,
-    Mut<'a, Spawner>,
-);
-
-// Bevy 0.7 will fix
-#[allow(clippy::too_many_arguments)]
 fn handle_hit(
     commands: &mut Commands,
     frame: usize,
     effect: &OnHitEffect,
     owner: &Owner,
-    hitbox_position: Vec3,
-    hitbox_size: Vec2,
-    attacker: &mut ComponentList,
-    defender: &mut ComponentList,
+    hitbox: bevy::sprite::Rect,
+    attacker: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
+    defender: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {
-    let (
-        _,
-        _,
-        _,
-        _,
-        attacker_resources,
-        _,
-        _,
-        attacker_state,
-        attacker_velocity,
-        _,
-        attacker_spawner,
-    ) = attacker;
-    let (
-        hurtbox,
-        hurtbox_sprite,
-        defender_tf,
-        health,
-        _,
-        defending_player,
-        parser,
-        defender_state,
-        defender_velocity,
-        facing,
-        defender_spawner,
-    ) = defender;
-
-    if owner.0 == **defending_player {
+    if owner.0 == *defender.player {
         // You can't hit yourself
         return;
     }
 
-    if rect_collision(
-        defender_tf.translation + hurtbox.offset,
-        hurtbox_sprite.custom_size.unwrap(),
-        hitbox_position,
-        hitbox_size,
+    if hybrid_vec_rect_collision(
+        defender.tf.translation + defender.hurtbox.offset,
+        defender.sprite.custom_size.unwrap(),
+        hitbox,
     ) {
-        attacker_state.register_hit();
+        attacker.state.register_hit();
         // Hit has happened
         // Handle blocking and state transitions here
 
-        let blocked = defender_state.blocked(
+        let blocked = defender.state.blocked(
             effect.fixed_height,
-            hitbox_position.y + hitbox_size.y / 2.0,
-            parser.get_relative_stick_position(),
+            hitbox.min.y,
+            defender.parser.get_relative_stick_position(),
         );
 
         // Damage and meter gain
         if let Some(damage_prop) = effect.damage {
             let amount = damage_prop.get(blocked);
-            health.apply_damage(amount);
-            attacker_resources.meter.add_combo_meter(amount);
+            defender.health.apply_damage(amount);
+            attacker.resources.meter.add_combo_meter(amount);
         }
 
         // Knockback
         let knockback_impulse = effect
             .knockback
             // Knockback is positive aka away from attacker, so defender must flip it the other way
-            .map(|knockback_prop| facing.opposite().mirror_vec(knockback_prop.get(blocked)))
+            .map(|knockback_prop| {
+                defender
+                    .facing
+                    .opposite()
+                    .mirror_vec(knockback_prop.get(blocked))
+            })
             .unwrap_or_default();
-        defender_velocity.add_impulse(knockback_impulse);
+        defender.velocity.add_impulse(knockback_impulse);
 
         // Pushback
         if let Some(pushback_prop) = effect.pushback {
-            attacker_velocity.add_impulse(facing.mirror_vec(pushback_prop.get(blocked)));
+            attacker
+                .velocity
+                // More intuitive to think of it from the defenders perspective
+                .add_impulse(defender.facing.mirror_vec(pushback_prop.get(blocked)));
         }
 
         // Stun
         if let Some(stun_prop) = effect.stun {
             if knockback_impulse.y > 0.0 {
-                defender_state.launch();
+                defender.state.launch();
             } else {
-                defender_state.stun(stun_prop.get(blocked) + frame);
+                defender.state.stun(stun_prop.get(blocked) + frame);
             }
         }
 
         // Despawns
-        defender_spawner.despawn_on_hit(commands);
-        attacker_spawner.despawn(commands, vec![effect.id]);
+        defender.spawner.despawn_on_hit(commands);
+        attacker.spawner.despawn(commands, vec![effect.id]);
     }
 }
 

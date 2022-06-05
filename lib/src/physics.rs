@@ -355,7 +355,7 @@ fn legal_position_space(camera_x: f32) -> Rect<f32> {
     }
 }
 
-pub fn rect_collision(a_pos: Vec3, a_size: Vec2, b_pos: Vec3, b_size: Vec2) -> bool {
+pub fn vec_rect_collision(a_pos: Vec3, a_size: Vec2, b_pos: Vec3, b_size: Vec2) -> bool {
     // Bevy collide only detects collisions if the edges overlap, most of the time this is good enough
     // But occasionally a collider spawns inside another, in which case we need a check for that.
     let a = sprite::Rect {
@@ -367,13 +367,26 @@ pub fn rect_collision(a_pos: Vec3, a_size: Vec2, b_pos: Vec3, b_size: Vec2) -> b
         max: b_pos.truncate() + b_size / 2.0,
     };
 
+    rect_collision(a, b)
+}
+
+pub fn hybrid_vec_rect_collision(a_pos: Vec3, a_size: Vec2, b: sprite::Rect) -> bool {
+    let a = sprite::Rect {
+        min: a_pos.truncate() - a_size / 2.0,
+        max: a_pos.truncate() + a_size / 2.0,
+    };
+
+    rect_collision(a, b)
+}
+
+pub fn rect_collision(a: sprite::Rect, b: sprite::Rect) -> bool {
     let x_overlap = a.min.x < b.max.x && a.max.x > b.min.x;
     let y_overlap = a.min.y < b.max.y && a.max.y > b.min.y;
     x_overlap && y_overlap
 }
 
 fn push_force(a_pos: Vec3, a_size: Vec2, b_pos: Vec3, b_size: Vec2) -> Option<f32> {
-    if rect_collision(a_pos, a_size, b_pos, b_size) {
+    if vec_rect_collision(a_pos, a_size, b_pos, b_size) {
         let clean_distance = (a_size + b_size).x / 2.0;
         let distance = (a_pos - b_pos).x;
         Some(distance.signum() * ((clean_distance / distance.abs()) - 1.0))

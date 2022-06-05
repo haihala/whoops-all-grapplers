@@ -9,7 +9,6 @@
 ## High priority
 
 ## Low priority
-- [[Bevy 0.7]]
 - [[Recovery and knockdown]]
 - Constants to an env (both command line and file) parser so it doesn't change on recompile.
 - [[Move progress cleanup]]

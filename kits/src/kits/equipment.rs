@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use types::GameButton;
 
 use crate::{
-    Branch, CancelLevel, Cost, Hitbox, Lifetime, Move, MoveId, Phase, PhaseKind, Requirements,
-    SpawnDescriptor,
+    Branch, CancelLevel, Cost, Hitbox, ItemId, Lifetime, Move, MoveId, Phase, PhaseKind,
+    Requirements, SpawnDescriptor,
 };
 
 pub fn get_equipment_move(id: MoveId) -> Move {
@@ -19,6 +19,7 @@ fn get_handmedownken() -> Move {
     Move {
         input: Some("236e"),
         requirements: Requirements {
+            items: Some(vec![ItemId::HandMeDownKen]),
             grounded: Some(true),
             cancel_level: Some(CancelLevel::LightSpecial),
             ..default()
@@ -119,6 +120,7 @@ fn get_shot() -> Move {
     Move {
         input: Some("e"),
         requirements: Requirements {
+            items: Some(vec![ItemId::HandMeDownKen]),
             grounded: Some(true),
             cancel_level: Some(CancelLevel::LightNormal),
             ..default()

@@ -156,7 +156,7 @@ fn testing(keys: Res<Input<KeyCode>>, mut query: Query<(&mut Inventory, &Kit)>) 
     if keys.just_pressed(KeyCode::Space) {
         for (mut inventory, kit) in query.iter_mut() {
             if let Some((id, _)) = kit.roll_items(1, &inventory).first() {
-                inventory.buy(*id);
+                inventory.add_item(*id);
             }
         }
     }

@@ -40,6 +40,8 @@ impl ParrotStream {
             }
             ParrotMode::Noop => {
                 dbg!("Starting recording.");
+                self.buffer = vec![];
+                self.buffer_index = 0;
                 ParrotMode::Listening
             }
         }

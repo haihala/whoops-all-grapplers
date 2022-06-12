@@ -1,4 +1,4 @@
-- [ ] Have a character
-- [ ] Make it visible
-- [ ] Lighting to not look like ass
+- [x] Have a character
+- [x] Make it visible
+- [x] Lighting to not look like ass
 - [ ] Have it be on top of the player sprites

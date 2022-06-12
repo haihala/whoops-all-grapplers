@@ -13,13 +13,13 @@ use time::{Clock, GameState, RoundResult};
 use types::{LRDirection, Player, Players};
 
 use crate::{
-    assets::Colors,
+    assets::{Colors, Models},
     damage::Health,
     physics::{PlayerVelocity, GROUND_PLANE_HEIGHT},
     spawner::Spawner,
 };
 
-use bevy::{prelude::*, sprite::Anchor};
+use bevy::{gltf::Gltf, prelude::*, sprite::Anchor};
 
 use self::move_activation::MoveBuffer;
 
@@ -152,12 +152,41 @@ fn reset(
     }
 }
 
-fn testing(keys: Res<Input<KeyCode>>, mut query: Query<(&mut Inventory, &Kit)>) {
+#[allow(clippy::too_many_arguments)]
+fn testing(
+    mut commands: Commands,
+    models: Res<Models>,
+    assets_gltf: Res<Assets<Gltf>>,
+    keys: Res<Input<KeyCode>>,
+    mut query: Query<(&mut Inventory, &Kit)>,
+    mut spawned: Local<bool>,
+    mut idle: Local<bool>,
+    mut obj_query: Query<&mut AnimationPlayer>,
+) {
     // B for Buy
     if keys.just_pressed(KeyCode::B) {
         for (mut inventory, kit) in query.iter_mut() {
             if let Some((id, _)) = kit.roll_items(1, &inventory).first() {
                 inventory.add_item(*id);
+            }
+        }
+    }
+
+    if let Some(gltf) = assets_gltf.get(&models.ryan) {
+        if !*spawned {
+            commands.spawn_scene(gltf.scenes[0].clone());
+            commands.insert_resource(AmbientLight {
+                brightness: 1.0,
+                ..default()
+            });
+            *spawned = true;
+        }
+
+        if !*idle {
+            for mut player in obj_query.iter_mut() {
+                player.play(gltf.named_animations["Idle"].clone());
+                player.repeat();
+                *idle = true;
             }
         }
     }

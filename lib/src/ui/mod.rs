@@ -29,9 +29,6 @@ const BOTTOM_CONTAINER_HEIGHT: f32 = 10.0; // Relative to screen
 const RESOURCE_BAR_WIDTH: f32 = 30.0; // Relative to wrapper
 const RESOURCE_BAR_HEIGHT: f32 = 45.0; // Relative to wrapper (BOTTOM_CONTAINER_HEIGHT)
 
-const BACKGROUND_POSITION: (f32, f32, f32) = (0.0, 2.0, -0.09);
-const BACKGROUND_SCALE: (f32, f32, f32) = (0.008, 0.008, 1.0);
-
 const TRANSPARENT: Color = Color::rgba(0.0, 0.0, 0.0, 0.0);
 
 pub struct UIPlugin;
@@ -64,11 +61,10 @@ fn add_stage(mut commands: Commands, sprites: Res<Sprites>) {
     commands.spawn_bundle(SpriteBundle {
         texture: sprites.background_image.clone(),
         transform: Transform {
-            translation: BACKGROUND_POSITION.into(),
-            scale: BACKGROUND_SCALE.into(),
+            translation: (0.0, 2.0, -0.09).into(),
+            scale: (0.008, 0.008, 1.0).into(),
             ..default()
         },
-
         ..default()
     });
 }

@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{gltf::Gltf, prelude::*};
 
 pub struct Colors {
     pub health: Color,
@@ -18,13 +18,18 @@ pub struct Fonts {
 pub struct Sprites {
     pub background_image: Handle<Image>,
 }
+
+pub struct Models {
+    pub ryan: Handle<Gltf>,
+}
 pub struct AssetsPlugin;
 
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system_to_stage(StartupStage::PreStartup, colors)
             .add_startup_system_to_stage(StartupStage::PreStartup, fonts)
-            .add_startup_system_to_stage(StartupStage::PreStartup, sprites);
+            .add_startup_system_to_stage(StartupStage::PreStartup, sprites)
+            .add_startup_system_to_stage(StartupStage::PreStartup, models);
     }
 }
 
@@ -50,5 +55,11 @@ fn fonts(mut commands: Commands, asset_server: Res<AssetServer>) {
 fn sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(Sprites {
         background_image: asset_server.load("CPT-2018-Stage.png"),
+    });
+}
+
+fn models(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.insert_resource(Models {
+        ryan: asset_server.load("dummy-character.glb"),
     });
 }

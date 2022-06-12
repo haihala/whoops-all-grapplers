@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use bevy::render::camera::{camera_system, Camera, Camera2d, CameraProjection, DepthCalculation};
+use bevy::render::camera::{
+    camera_system, Camera, Camera2d, Camera3d, CameraProjection, DepthCalculation,
+};
 use bevy::render::primitives::Frustum;
 use bevy::render::view::VisibleEntities;
 use types::Player;
@@ -89,9 +91,11 @@ fn add_cameras(mut commands: Commands) {
         VisibleEntities::default(),
         transform,
         GlobalTransform::default(),
+        Camera3d,
         Camera2d,
         WorldCamera,
     ));
+
     commands.spawn_bundle(UiCameraBundle::default());
 }
 

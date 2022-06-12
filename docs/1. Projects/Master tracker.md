@@ -7,11 +7,14 @@
 	- [[Move progress cleanup]]
 
 ## High priority
+- [[3D model]]
+- Clash parry (Hitboxes negate each other before registering hits)
 
 ## Low priority
 - [[Recovery and knockdown]]
 - Constants to an env (both command line and file) parser so it doesn't change on recompile.
 - [[Move progress cleanup]]
+- [[Animations]]
 
 ## Easy nibbles
 - Instead of pure phase index, use a combination of index, branch coordinates to determine where the execution of a move is at.
@@ -19,8 +22,6 @@
 	- e.g. user can tap gunshot while already shooting and the second shot comes immediately and not after a delay. Holding would still be possible.
 
 ## Not a priority
-- [[3D model]]
-	- [[Animations]]
 - [[Counter hits]]
 - [[Ending rounds]]
 - [[Netplay]]

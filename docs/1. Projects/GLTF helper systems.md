@@ -7,6 +7,6 @@
 	- [ ] Ensures an animation is always playing
 
 # Model loading
-- [ ] Enum for different models
-	- [ ] Ensure on load that all models are present and load correctly
-- [ ] Spawning based on ModelRequest or similar
+- [x] Enum for different models
+	- [x] Ensure on load that all models are present and load correctly
+- [x] Spawning based on ModelRequest or similar

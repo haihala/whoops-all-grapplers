@@ -14,7 +14,7 @@ use time::{Clock, GameState, RoundResult};
 use types::{LRDirection, Player, Players};
 
 use crate::{
-    assets::{Colors, ModelRequest, Models},
+    assets::{Colors, Model, ModelRequest},
     damage::Health,
     physics::{PlayerVelocity, GROUND_PLANE_HEIGHT},
     spawner::Spawner,
@@ -54,22 +54,10 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn setup(mut commands: Commands, colors: Res<Colors>, models: Res<Models>) {
+fn setup(mut commands: Commands, colors: Res<Colors>) {
     let players = Players {
-        one: spawn_player(
-            &mut commands,
-            &colors,
-            &models,
-            -PLAYER_SPAWN_DISTANCE,
-            Player::One,
-        ),
-        two: spawn_player(
-            &mut commands,
-            &colors,
-            &models,
-            PLAYER_SPAWN_DISTANCE,
-            Player::Two,
-        ),
+        one: spawn_player(&mut commands, &colors, -PLAYER_SPAWN_DISTANCE, Player::One),
+        two: spawn_player(&mut commands, &colors, PLAYER_SPAWN_DISTANCE, Player::Two),
     };
 
     commands.insert_resource(players);
@@ -90,7 +78,6 @@ struct PlayerDefaults {
 fn spawn_player(
     commands: &mut Commands,
     colors: &Res<Colors>,
-    models: &Res<Models>,
     offset: f32,
     player: Player,
 ) -> Entity {
@@ -133,7 +120,7 @@ fn spawn_player(
         parent
             .spawn_bundle(TransformBundle::default())
             .insert(ModelRequest {
-                model: models.ryan.clone(),
+                model: Model::Dummy,
                 animation: Some(("Idle", true)),
             })
             .insert(PlayerModel(player));

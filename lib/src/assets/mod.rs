@@ -1,11 +1,11 @@
-use bevy::{gltf::Gltf, prelude::*};
+use bevy::prelude::*;
 
 mod animations;
 mod loaders;
 mod models;
 
 pub use animations::AnimationRequest;
-pub use models::ModelRequest;
+pub use models::{Model, ModelRequest, Models};
 
 pub struct Colors {
     pub health: Color,
@@ -24,10 +24,6 @@ pub struct Fonts {
 
 pub struct Sprites {
     pub background_image: Handle<Image>,
-}
-
-pub struct Models {
-    pub ryan: Handle<Gltf>,
 }
 
 pub struct AssetsPlugin;

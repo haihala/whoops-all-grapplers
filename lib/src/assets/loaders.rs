@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::{Colors, Fonts, Models, Sprites};
+use super::{Colors, Fonts, Model, Models, Sprites};
 
 pub fn colors(mut commands: Commands) {
     commands.insert_resource(Colors {
@@ -28,7 +28,9 @@ pub fn sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 pub fn models(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(Models {
-        ryan: asset_server.load("dummy-character.glb"),
-    });
+    commands.insert_resource(Models(
+        vec![(Model::Dummy, asset_server.load("dummy-character.glb"))]
+            .into_iter()
+            .collect(),
+    ));
 }

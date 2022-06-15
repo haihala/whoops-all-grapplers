@@ -1,6 +1,3 @@
 - Change how move starting works so that the first phase goes through the same system as the other phases
 	- This would fix the bug where the first phase hitboxes etc are ignored
 	- If it becomes difficult, could add a 1-frame animation as the first phase automatically.
-- Add a special case `MoveAction` that has a switch for `MoveId`
-	- For [[Gi of the old masters]] parry window opening
-	- For entering [[Stance system]]

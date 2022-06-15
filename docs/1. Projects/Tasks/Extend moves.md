@@ -1,0 +1,3 @@
+- Add a special case `MoveAction` that has a switch for `MoveId`
+	- For [[Gi of the old masters]] parry window opening
+	- For entering [[Stance system]]

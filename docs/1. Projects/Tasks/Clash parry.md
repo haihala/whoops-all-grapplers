@@ -1,0 +1,3 @@
+- Hitboxes negate each other before registering hits
+- You can 'parry' a hit with another hit
+	- Parrying with faster hits leaves you at an advantage because you recover first

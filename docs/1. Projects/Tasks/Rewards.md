@@ -13,7 +13,7 @@ Meter is for technically interesting stuff. If you want to use the ez tools, you
 - Very small amount relative to other things
 
 ## Parry
-See [[Gi of the old masters]]
+[[Clash parry]], maybe [[Gi of the old masters]] later
 
 # Fans
 - **Maybe you can cash out on combo damage by taunting to gain money**

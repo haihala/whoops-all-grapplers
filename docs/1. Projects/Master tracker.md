@@ -1,24 +1,19 @@
 # Backlog
-## Clearly a priority but blocked
-- [[Menus]]
-	- Waiting for new bevy UI (April)
-- [[Gi of the old masters]]
-	- [[Simple training mode]] would make testing a lot easier
-	- [[Move progress cleanup]]
-
 ## High priority
-- Clash parry (Hitboxes negate each other before registering hits)
+- [[Clash parry]]
+- [[Move progress cleanup]]
 
 ## Low priority
 - [[Recovery and knockdown]]
 - Constants to an env (both command line and file) parser so it doesn't change on recompile.
-- [[Move progress cleanup]]
 - [[Animations]]
+- [[Menus]]
 
 ## Easy nibbles
 - Instead of pure phase index, use a combination of index, branch coordinates to determine where the execution of a move is at.
 	- This allows to have a window to transition into another action instead of just at action boundary
 	- e.g. user can tap gunshot while already shooting and the second shot comes immediately and not after a delay. Holding would still be possible.
+- Player model gets clipped into the background near the corners
 
 ## Not a priority
 - [[Counter hits]]
@@ -40,6 +35,7 @@
 - Attributes like startup reduction and stun increase to and from inventory
 - Negative edge works weird (long press will give button on both edges because head is first used to parse. Construct custom head with only the old stick.)
 - [[Stance system]]
+- [[Extend moves]]
 
 # Other trackers
 ![[Bug tracker]]

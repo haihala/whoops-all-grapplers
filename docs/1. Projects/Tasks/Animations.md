@@ -4,23 +4,17 @@ Keep it simple.
 	- No duplicate get hit animations
 	- No animations for items that may exist at some point
 
-- [ ] Figure out what tools to use for animation
-- [ ] Make animations (blender?)
-	- [ ] "This is missing an animation" (meta animation)
+- [x] Figure out what tools to use for animation
+- Make animations (blender?)
 	- [ ] Idle
 		- [ ] Air
 		- [ ] Ground
-	- [ ] Jump
-	- [ ] Walk forwards
-	- [ ] Walk back
-	- [ ] Punch
-	- [ ] Alt Punch
-	- [ ] Fireball
-	- [ ] Hitstun
-	- [ ] Freefall
-	- [ ] Uppercut
-	- [ ] Gun
-	- [ ] Power pose for generic items 
-	- [ ] Parry
-
-- [ ] Make animations play
+	- [ ] Jump (One animation for all jumps)
+	- [ ] Walk
+		- [ ] Forwards
+		- [ ] Back
+	- [ ] Hitstun (on the ground, reeling)
+	- [ ] Freefall (horizontal)
+	- [ ] Individual moves
+- [x] Make animations play
+- [ ] Make a humaine API for handling animations

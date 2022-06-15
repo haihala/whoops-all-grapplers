@@ -1,42 +1,74 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
+
+#[derive(Deref, DerefMut)]
+pub struct Animations(pub HashMap<&'static str, Handle<AnimationClip>>);
 
 #[derive(Debug, Component)]
-pub struct AnimationRequest {
-    pub animation: Handle<AnimationClip>,
-    pub looping: bool,
+pub struct AnimationHelper {
+    pub player_entity: Entity,
+    pub current: &'static str,
+    next: Option<&'static str>,
 }
 
-pub fn animation_starter(
-    mut commands: Commands,
-    requests: Query<(Entity, &AnimationRequest)>,
-    children: Query<&Children>,
-    mut players: Query<&mut AnimationPlayer>,
-) {
-    for (master, request) in requests.iter() {
-        let mut player = find_player(master, &children, &mut players).unwrap();
-        player.play(request.animation.clone());
-        if request.looping {
-            player.repeat();
+impl AnimationHelper {
+    fn new(player_entity: Entity) -> AnimationHelper {
+        AnimationHelper {
+            player_entity,
+            current: "",
+            next: None,
         }
-
-        commands.entity(master).remove::<AnimationRequest>();
+    }
+    pub fn play(&mut self, new: &'static str) {
+        self.next = if new != self.current { Some(new) } else { None }
     }
 }
 
-fn find_player<'a>(
+pub fn update_animation(
+    animations: Res<Animations>,
+    mut main: Query<&mut AnimationHelper>,
+    mut players: Query<&mut AnimationPlayer>,
+) {
+    for mut helper in main.iter_mut() {
+        if let Some(next) = helper.next {
+            let mut player = players.get_mut(helper.player_entity).unwrap();
+            let asset = animations[next].clone();
+            player.play(asset).repeat();
+            helper.current = next;
+        }
+    }
+}
+
+#[derive(Debug, Component)]
+pub struct AnimationHelperSetup;
+
+pub fn setup_helpers(
+    mut commands: Commands,
+    to_setup: Query<(Entity, &AnimationHelperSetup)>,
+    children: Query<&Children>,
+    players: Query<&AnimationPlayer>,
+) {
+    for (entity, _) in to_setup.iter() {
+        if let Some(player_entity) = find_animation_player_entity(entity, &children, &players) {
+            let mut e = commands.entity(entity);
+            e.remove::<AnimationHelperSetup>();
+            e.insert(AnimationHelper::new(player_entity));
+        }
+    }
+}
+
+fn find_animation_player_entity(
     parent: Entity,
     children: &Query<&Children>,
-    players: &'a mut Query<&mut AnimationPlayer>,
-) -> Option<Mut<'a, AnimationPlayer>> {
-    // NGL this shit makes me want to puke, but it ought to safely and recursively find an AnimationPlayer under a parent if one exists
+    players: &Query<&AnimationPlayer>,
+) -> Option<Entity> {
     if let Ok(candidates) = children.get(parent) {
         let mut next_candidates: Vec<Entity> = candidates.iter().map(|e| e.to_owned()).collect();
         while !next_candidates.is_empty() {
             for candidate in next_candidates.drain(..).collect::<Vec<Entity>>() {
                 if players.get(candidate).is_ok() {
-                    return Some(players.get_mut(candidate).unwrap());
-                } else {
-                    next_candidates.extend(children.get(candidate).unwrap().iter());
+                    return Some(candidate);
+                } else if let Ok(new) = children.get(candidate) {
+                    next_candidates.extend(new.iter());
                 }
             }
         }

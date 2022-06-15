@@ -4,7 +4,7 @@ mod animations;
 mod loaders;
 mod models;
 
-pub use animations::AnimationRequest;
+pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
 pub use models::{Model, ModelRequest, Models};
 
 pub struct Colors {
@@ -34,7 +34,9 @@ impl Plugin for AssetsPlugin {
             .add_startup_system_to_stage(StartupStage::PreStartup, loaders::fonts)
             .add_startup_system_to_stage(StartupStage::PreStartup, loaders::sprites)
             .add_startup_system_to_stage(StartupStage::PreStartup, loaders::models)
+            .add_startup_system_to_stage(StartupStage::PreStartup, loaders::animations)
             .add_system(models::model_spawner)
-            .add_system(animations::animation_starter);
+            .add_system(animations::setup_helpers)
+            .add_system(animations::update_animation);
     }
 }

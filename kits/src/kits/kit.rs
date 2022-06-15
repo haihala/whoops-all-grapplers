@@ -7,13 +7,19 @@ use crate::{Inventory, Item, ItemId, Move, MoveId};
 pub struct Kit {
     moves: HashMap<MoveId, Move>,
     items: HashMap<ItemId, Item>,
+    pub idle_animation: &'static str,
 }
 impl Kit {
     pub(crate) fn new(moves: Vec<(MoveId, Move)>, items: Vec<(ItemId, Item)>) -> Kit {
         Kit {
             moves: moves.into_iter().collect(),
             items: items.into_iter().collect(),
+            idle_animation: "dummy-character.glb#Animation0",
         }
+    }
+
+    pub fn get_animations(&self) -> Vec<&'static str> {
+        vec![self.idle_animation]
     }
 
     pub fn get_move(&self, id: MoveId) -> Move {

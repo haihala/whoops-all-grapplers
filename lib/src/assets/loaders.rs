@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::{Colors, Fonts, Model, Models, Sprites};
+use super::{Animations, Colors, Fonts, Model, Models, Sprites};
 
 pub fn colors(mut commands: Commands) {
     commands.insert_resource(Colors {
@@ -31,6 +31,21 @@ pub fn models(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(Models(
         vec![(Model::Dummy, asset_server.load("dummy-character.glb"))]
             .into_iter()
+            .collect(),
+    ));
+}
+
+pub fn animations(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let mut collector = vec![];
+
+    for kit in kits::all_kits() {
+        collector.append(&mut kit.get_animations());
+    }
+
+    commands.insert_resource(Animations(
+        collector
+            .into_iter()
+            .map(|key| (key, asset_server.load(key)))
             .collect(),
     ));
 }

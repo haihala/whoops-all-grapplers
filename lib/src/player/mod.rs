@@ -5,6 +5,7 @@ mod move_advancement;
 mod movement;
 mod recovery;
 mod size_adjustment;
+mod update_animation;
 
 #[cfg(not(test))]
 use input_parsing::PadBundle;
@@ -14,7 +15,7 @@ use time::{Clock, GameState, RoundResult};
 use types::{LRDirection, Player, Players};
 
 use crate::{
-    assets::{Colors, Model, ModelRequest},
+    assets::{AnimationHelperSetup, Colors, Model, ModelRequest},
     damage::Health,
     physics::{PlayerVelocity, GROUND_PLANE_HEIGHT},
     spawner::Spawner,
@@ -49,7 +50,10 @@ impl Plugin for PlayerPlugin {
                     .with_system(
                         model_flipper::model_flipper.after(charge_accumulator::manage_charge),
                     )
-                    .with_system(testing.after(model_flipper::model_flipper)),
+                    .with_system(
+                        update_animation::update_animation.after(model_flipper::model_flipper),
+                    )
+                    .with_system(testing.after(update_animation::update_animation)),
             );
     }
 }
@@ -108,6 +112,7 @@ fn spawn_player(
 
     spawn_handle
         .insert_bundle(PlayerDefaults::default())
+        .insert(AnimationHelperSetup)
         .insert(LRDirection::from_flipped(offset.is_sign_positive()))
         .insert(kit)
         .insert(player)
@@ -119,10 +124,7 @@ fn spawn_player(
     spawn_handle.with_children(|parent| {
         parent
             .spawn_bundle(TransformBundle::default())
-            .insert(ModelRequest {
-                model: Model::Dummy,
-                animation: Some(("Idle", true)),
-            })
+            .insert(ModelRequest(Model::Dummy))
             .insert(PlayerModel(player));
     });
 

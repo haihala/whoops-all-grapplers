@@ -1,6 +1,5 @@
 # Backlog
 ## High priority
-- [[GLTF helper systems]]
 - [[Clash parry]]
 - [[Move progress cleanup]]
 

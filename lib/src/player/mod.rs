@@ -1,4 +1,5 @@
 mod charge_accumulator;
+mod model_flipper;
 mod move_activation;
 mod move_advancement;
 mod movement;
@@ -13,15 +14,15 @@ use time::{Clock, GameState, RoundResult};
 use types::{LRDirection, Player, Players};
 
 use crate::{
-    assets::{Colors, Models},
+    assets::{Colors, ModelRequest, Models},
     damage::Health,
     physics::{PlayerVelocity, GROUND_PLANE_HEIGHT},
     spawner::Spawner,
 };
 
-use bevy::{gltf::Gltf, prelude::*, sprite::Anchor};
+use bevy::{prelude::*, sprite::Anchor};
 
-use self::move_activation::MoveBuffer;
+use self::{model_flipper::PlayerModel, move_activation::MoveBuffer};
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
@@ -45,15 +46,30 @@ impl Plugin for PlayerPlugin {
                     .with_system(
                         charge_accumulator::manage_charge.after(size_adjustment::size_adjustment),
                     )
-                    .with_system(testing.after(charge_accumulator::manage_charge)),
+                    .with_system(
+                        model_flipper::model_flipper.after(charge_accumulator::manage_charge),
+                    )
+                    .with_system(testing.after(model_flipper::model_flipper)),
             );
     }
 }
 
-fn setup(mut commands: Commands, colors: Res<Colors>) {
+fn setup(mut commands: Commands, colors: Res<Colors>, models: Res<Models>) {
     let players = Players {
-        one: spawn_player(&mut commands, &colors, -PLAYER_SPAWN_DISTANCE, Player::One),
-        two: spawn_player(&mut commands, &colors, PLAYER_SPAWN_DISTANCE, Player::Two),
+        one: spawn_player(
+            &mut commands,
+            &colors,
+            &models,
+            -PLAYER_SPAWN_DISTANCE,
+            Player::One,
+        ),
+        two: spawn_player(
+            &mut commands,
+            &colors,
+            &models,
+            PLAYER_SPAWN_DISTANCE,
+            Player::Two,
+        ),
     };
 
     commands.insert_resource(players);
@@ -74,6 +90,7 @@ struct PlayerDefaults {
 fn spawn_player(
     commands: &mut Commands,
     colors: &Res<Colors>,
+    models: &Res<Models>,
     offset: f32,
     player: Player,
 ) -> Entity {
@@ -111,6 +128,16 @@ fn spawn_player(
 
     #[cfg(not(test))]
     spawn_handle.insert_bundle(inputs);
+
+    spawn_handle.with_children(|parent| {
+        parent
+            .spawn_bundle(TransformBundle::default())
+            .insert(ModelRequest {
+                model: models.ryan.clone(),
+                animation: Some(("Idle", true)),
+            })
+            .insert(PlayerModel(player));
+    });
 
     spawn_handle.id()
 }
@@ -153,40 +180,12 @@ fn reset(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn testing(
-    mut commands: Commands,
-    models: Res<Models>,
-    assets_gltf: Res<Assets<Gltf>>,
-    keys: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Inventory, &Kit)>,
-    mut spawned: Local<bool>,
-    mut idle: Local<bool>,
-    mut obj_query: Query<&mut AnimationPlayer>,
-) {
+fn testing(keys: Res<Input<KeyCode>>, mut query: Query<(&mut Inventory, &Kit)>) {
     // B for Buy
     if keys.just_pressed(KeyCode::B) {
         for (mut inventory, kit) in query.iter_mut() {
             if let Some((id, _)) = kit.roll_items(1, &inventory).first() {
                 inventory.add_item(*id);
-            }
-        }
-    }
-
-    if let Some(gltf) = assets_gltf.get(&models.ryan) {
-        if !*spawned {
-            commands.spawn_scene(gltf.scenes[0].clone());
-            commands.insert_resource(AmbientLight {
-                brightness: 1.0,
-                ..default()
-            });
-            *spawned = true;
-        }
-
-        if !*idle {
-            for mut player in obj_query.iter_mut() {
-                player.play(gltf.named_animations["Idle"].clone());
-                player.repeat();
-                *idle = true;
             }
         }
     }

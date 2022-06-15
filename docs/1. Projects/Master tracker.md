@@ -7,7 +7,6 @@
 	- [[Move progress cleanup]]
 
 ## High priority
-- [[3D model]]
 - Clash parry (Hitboxes negate each other before registering hits)
 
 ## Low priority

@@ -3,6 +3,7 @@ mod assets;
 mod camera;
 mod damage;
 mod inspector;
+mod light;
 mod physics;
 mod player;
 mod spawner;
@@ -24,6 +25,7 @@ impl PluginGroup for WAGLib {
             .add(physics::PhysicsPlugin)
             .add(spawner::SpawnerPlugin)
             .add(input_parsing::InputParsingPlugin)
+            .add(light::LightPlugin)
             .add(player_state::PlayerStatePlugin);
     }
 }

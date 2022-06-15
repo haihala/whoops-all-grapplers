@@ -1,7 +1,0 @@
-- [x] Have a character
-- [x] Make it visible
-- [x] Lighting to not look like ass
-- [x] Fix background image
-- [ ] Models as part of players
-	- [ ] Child entity with a tag component
-	- [ ] Rotation according to facing.

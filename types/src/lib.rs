@@ -17,6 +17,14 @@ pub struct Players {
     pub one: Entity,
     pub two: Entity,
 }
+impl Players {
+    pub fn get(&self, player: Player) -> Entity {
+        match player {
+            Player::One => self.one,
+            Player::Two => self.two,
+        }
+    }
+}
 
 #[derive(Component, Deref, DerefMut)]
 pub struct Owner(pub Player);

@@ -84,7 +84,7 @@ fn add_stage(
 
     // textured quad - normal
     commands.spawn_bundle(PbrBundle {
-        mesh: quad_handle.clone(),
+        mesh: quad_handle,
         material: material_handle,
         transform: Transform {
             translation: Vec3::new(0.0, 2.0, 5.0),

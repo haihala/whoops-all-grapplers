@@ -128,14 +128,13 @@ fn find_player<'a>(
 ) -> Option<Mut<'a, AnimationPlayer>> {
     // NGL this shit makes me want to puke, but it ought to safely and recursively find an AnimationPlayer under a parent if one exists
     if let Ok(candidates) = children.get(parent) {
-        let mut next_candidates: Vec<Entity> =
-            candidates.into_iter().map(|e| e.to_owned()).collect();
+        let mut next_candidates: Vec<Entity> = candidates.iter().map(|e| e.to_owned()).collect();
         while !next_candidates.is_empty() {
             for candidate in next_candidates.drain(..).collect::<Vec<Entity>>() {
                 if players.get(candidate).is_ok() {
                     return Some(players.get_mut(candidate).unwrap());
                 } else {
-                    next_candidates.extend(children.get(candidate).unwrap().into_iter());
+                    next_candidates.extend(children.get(candidate).unwrap().iter());
                 }
             }
         }

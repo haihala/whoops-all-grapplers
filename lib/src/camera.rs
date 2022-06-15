@@ -74,7 +74,7 @@ fn add_cameras(mut commands: Commands) {
         ..default()
     };
     // position the camera like bevy would do by default for 2D:
-    let transform = Transform::from_xyz(0.0, CAMERA_HEIGHT, CAMERA_FAR_DISTANCE - 0.1);
+    let transform = Transform::from_xyz(0.0, CAMERA_HEIGHT, CAMERA_FAR_DISTANCE / 2.0);
     // frustum construction code copied from Bevy
     let view_projection = projection.get_projection_matrix() * transform.compute_matrix().inverse();
     let frustum = Frustum::from_view_projection(

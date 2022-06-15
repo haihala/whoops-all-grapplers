@@ -57,12 +57,37 @@ impl Plugin for UIPlugin {
     }
 }
 
-fn add_stage(mut commands: Commands, sprites: Res<Sprites>) {
-    commands.spawn_bundle(SpriteBundle {
-        texture: sprites.background_image.clone(),
+fn add_stage(
+    mut commands: Commands,
+    sprites: Res<Sprites>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    // As it is in Bevy 0.7, you can't put 3d assets on top of 2d sprites
+    // Because of this, use a quad for a background.
+
+    // create a new quad mesh. this is what we will apply the texture to
+    let quad_width = 16.0;
+    let quad_height = quad_width * 9.0 / 16.0;
+    let quad_handle = meshes.add(Mesh::from(shape::Quad::new(Vec2::new(
+        quad_width,
+        quad_height,
+    ))));
+
+    // this material renders the texture normally
+    let material_handle = materials.add(StandardMaterial {
+        base_color_texture: Some(sprites.background_image.clone()),
+        alpha_mode: AlphaMode::Blend,
+        unlit: true,
+        ..default()
+    });
+
+    // textured quad - normal
+    commands.spawn_bundle(PbrBundle {
+        mesh: quad_handle.clone(),
+        material: material_handle,
         transform: Transform {
-            translation: (0.0, 2.0, -0.09).into(),
-            scale: (0.008, 0.008, 1.0).into(),
+            translation: Vec3::new(0.0, 2.0, 5.0),
             ..default()
         },
         ..default()

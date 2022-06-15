@@ -1,3 +1,5 @@
+Depends on [[GLTF helper systems]]
+
 Keep it simple. 
 - Assess, learn and investigate while doing.
 - Don't add animations that are not certain to be used
@@ -17,4 +19,4 @@ Keep it simple.
 	- [ ] Freefall (horizontal)
 	- [ ] Individual moves
 - [x] Make animations play
-- [ ] Make a humaine API for handling animations
+

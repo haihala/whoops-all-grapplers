@@ -1,5 +1,9 @@
 # Backlog
 ## High priority
+- Reorganizing
+	- Move testing system to it's own module
+	- Make model flipping always run, not just when in main state
+- Mirror models with negative scaling instead of rotating
 - [[Clash parry]]
 - [[Move progress cleanup]]
 

@@ -34,6 +34,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
             .add_system(reset.with_run_criteria(State::on_update(GameState::Shop)))
+            .add_system(model_flipper::model_flipper)
             .add_system_set(
                 SystemSet::on_update(GameState::Combat)
                     .with_system(move_advancement::move_advancement.after(reset))
@@ -48,10 +49,7 @@ impl Plugin for PlayerPlugin {
                         charge_accumulator::manage_charge.after(size_adjustment::size_adjustment),
                     )
                     .with_system(
-                        model_flipper::model_flipper.after(charge_accumulator::manage_charge),
-                    )
-                    .with_system(
-                        update_animation::update_animation.after(model_flipper::model_flipper),
+                        update_animation::update_animation.after(charge_accumulator::manage_charge),
                     )
                     .with_system(testing.after(update_animation::update_animation)),
             );

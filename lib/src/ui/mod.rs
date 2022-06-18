@@ -87,7 +87,7 @@ fn add_stage(
         mesh: quad_handle,
         material: material_handle,
         transform: Transform {
-            translation: Vec3::new(0.0, 2.0, 5.0),
+            translation: Vec3::new(0.0, 2.0, -5.0),
             ..default()
         },
         ..default()

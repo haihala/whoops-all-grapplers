@@ -7,7 +7,6 @@ use crate::physics::ARENA_WIDTH;
 #[derive(Debug, Component, Default)]
 pub struct WorldCamera;
 
-const CAMERA_HEIGHT: f32 = 2.0;
 pub const VIEWPORT_HALFWIDTH: f32 = 5.0; // This isn't strictly true anymore, however it's still close enough
 const CAMERA_CLAMP: f32 = ARENA_WIDTH - VIEWPORT_HALFWIDTH;
 
@@ -23,9 +22,9 @@ impl Plugin for CustomCameraPlugin {
 fn add_cameras(mut commands: Commands) {
     commands
         .spawn_bundle(OrthographicCameraBundle {
-            transform: Transform::from_xyz(0.0, CAMERA_HEIGHT, 10.0),
+            transform: Transform::from_xyz(0.0, 2.0, 10.0),
             orthographic_projection: OrthographicProjection {
-                scaling_mode: ScalingMode::FixedVertical,
+                scaling_mode: ScalingMode::FixedHorizontal,
                 scale: 3.5,
                 ..default()
             },

@@ -7,12 +7,13 @@ use input_parsing::InputParser;
 use kits::{Grabable, Hurtbox, OnHitEffect, Resources};
 use player_state::PlayerState;
 use time::{Clock, GameState, WAGStage};
-use types::{LRDirection, Owner, Player, Players};
+use types::{LRDirection, Owner, Player, Players, SoundEffect};
 
 mod health;
 pub use health::Health;
 
 use crate::{
+    assets::Sounds,
     physics::{hybrid_vec_rect_collision, PlayerVelocity},
     spawner::Spawner,
 };
@@ -54,6 +55,8 @@ pub struct PlayerQuery<'a> {
 pub fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,
+    sounds: Res<Sounds>,
+    audio: Res<Audio>,
     mut hitboxes: Query<(&Owner, &OnHitEffect, &GlobalTransform, &Sprite)>,
     mut hurtboxes: Query<PlayerQuery>,
     players: Res<Players>,
@@ -71,6 +74,8 @@ pub fn register_hits(
             handle_hit(
                 &mut commands,
                 clock.frame,
+                &sounds,
+                &audio,
                 effect,
                 owner,
                 hitbox,
@@ -80,6 +85,8 @@ pub fn register_hits(
             handle_hit(
                 &mut commands,
                 clock.frame,
+                &sounds,
+                &audio,
                 effect,
                 owner,
                 hitbox,
@@ -93,6 +100,8 @@ pub fn register_hits(
 fn handle_hit(
     commands: &mut Commands,
     frame: usize,
+    sounds: &Res<Sounds>,
+    audio: &Res<Audio>,
     effect: &OnHitEffect,
     owner: &Owner,
     hitbox: bevy::sprite::Rect,
@@ -154,6 +163,13 @@ fn handle_hit(
             } else {
                 defender.state.stun(stun_prop.get(blocked) + frame);
             }
+        }
+
+        // Sound effect
+        if blocked {
+            audio.play(sounds.get(SoundEffect::Block));
+        } else {
+            audio.play(sounds.get(SoundEffect::Hit));
         }
 
         // Despawns

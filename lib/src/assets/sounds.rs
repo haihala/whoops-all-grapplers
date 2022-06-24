@@ -19,7 +19,18 @@ impl Sounds {
 }
 
 pub fn get_sound_paths() -> HashMap<SoundEffect, Vec<&'static str>> {
-    return vec![(SoundEffect::Whoosh, vec!["sound_effects/whoosh.ogg"])]
-        .into_iter()
-        .collect();
+    return vec![
+        (SoundEffect::Whoosh, vec!["sound_effects/whoosh.ogg"]),
+        (SoundEffect::Block, vec!["sound_effects/block.ogg"]),
+        (
+            SoundEffect::Hit,
+            vec![
+                "sound_effects/hit1.ogg",
+                "sound_effects/hit2.ogg",
+                "sound_effects/hit3.ogg",
+            ],
+        ),
+    ]
+    .into_iter()
+    .collect();
 }

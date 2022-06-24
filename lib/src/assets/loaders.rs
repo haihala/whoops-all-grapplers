@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use super::{Animations, Colors, Fonts, Model, Models, Sprites};
+use super::{
+    sounds::{get_sound_paths, Sounds},
+    Animations, Colors, Fonts, Model, Models, Sprites,
+};
 
 pub fn colors(mut commands: Commands) {
     commands.insert_resource(Colors {
@@ -48,4 +51,21 @@ pub fn animations(mut commands: Commands, asset_server: Res<AssetServer>) {
             .map(|key| (key, asset_server.load(key)))
             .collect(),
     ));
+}
+
+pub fn sounds(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.insert_resource(Sounds::new(
+        get_sound_paths()
+            .into_iter()
+            .map(|(id, paths)| {
+                (
+                    id,
+                    paths
+                        .into_iter()
+                        .map(|path| asset_server.load(path))
+                        .collect(),
+                )
+            })
+            .collect(),
+    ))
 }

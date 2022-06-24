@@ -1,6 +1,9 @@
 mod direction;
 pub use direction::*;
 
+mod effects;
+pub use effects::SoundEffect;
+
 mod inputs;
 pub use inputs::{GameButton, StickPosition};
 

@@ -3,9 +3,11 @@ use bevy::prelude::*;
 mod animations;
 mod loaders;
 mod models;
+mod sounds;
 
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
 pub use models::{Model, ModelRequest, Models};
+pub use sounds::Sounds;
 
 pub struct Colors {
     pub health: Color,
@@ -35,6 +37,7 @@ impl Plugin for AssetsPlugin {
             .add_startup_system_to_stage(StartupStage::PreStartup, loaders::sprites)
             .add_startup_system_to_stage(StartupStage::PreStartup, loaders::models)
             .add_startup_system_to_stage(StartupStage::PreStartup, loaders::animations)
+            .add_startup_system_to_stage(StartupStage::PreStartup, loaders::sounds)
             .add_system(models::model_spawner)
             .add_system(animations::setup_helpers)
             .add_system(animations::update_animation);

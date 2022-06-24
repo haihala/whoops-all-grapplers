@@ -70,7 +70,7 @@ pub fn register_hits(
         };
 
         if let Ok([mut p1, mut p2]) = hurtboxes.get_many_mut([players.one, players.two]) {
-            let (defender, attacker) = if owner.0 == Player::One {
+            let (attacker, defender) = if owner.0 == Player::One {
                 (&mut p1, &mut p2)
             } else {
                 (&mut p2, &mut p1)

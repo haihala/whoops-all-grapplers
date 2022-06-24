@@ -64,11 +64,16 @@ pub fn register_hits(
     for (owner, effect, hitbox_tf, hitbox_sprite) in hitboxes.iter_mut() {
         let hitbox_position = hitbox_tf.translation;
         let hitbox_size = hitbox_sprite.custom_size.unwrap();
+        let hitbox = bevy::sprite::Rect {
+            min: hitbox_position.truncate() - hitbox_size / 2.0,
+            max: hitbox_position.truncate() + hitbox_size / 2.0,
+        };
 
         if let Ok([mut p1, mut p2]) = hurtboxes.get_many_mut([players.one, players.two]) {
-            let hitbox = bevy::sprite::Rect {
-                min: hitbox_position.truncate() - hitbox_size / 2.0,
-                max: hitbox_position.truncate() + hitbox_size / 2.0,
+            let (defender, attacker) = if owner.0 == Player::One {
+                (&mut p1, &mut p2)
+            } else {
+                (&mut p2, &mut p1)
             };
 
             handle_hit(
@@ -77,42 +82,25 @@ pub fn register_hits(
                 &sounds,
                 &audio,
                 effect,
-                owner,
                 hitbox,
-                &mut p1,
-                &mut p2,
-            );
-            handle_hit(
-                &mut commands,
-                clock.frame,
-                &sounds,
-                &audio,
-                effect,
-                owner,
-                hitbox,
-                &mut p2,
-                &mut p1,
+                attacker,
+                defender,
             );
         }
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn handle_hit(
     commands: &mut Commands,
     frame: usize,
     sounds: &Res<Sounds>,
     audio: &Res<Audio>,
     effect: &OnHitEffect,
-    owner: &Owner,
     hitbox: bevy::sprite::Rect,
     attacker: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
     defender: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {
-    if owner.0 == *defender.player {
-        // You can't hit yourself
-        return;
-    }
-
     if hybrid_vec_rect_collision(
         defender.tf.translation + defender.hurtbox.offset,
         defender.sprite.custom_size.unwrap(),
@@ -166,11 +154,11 @@ fn handle_hit(
         }
 
         // Sound effect
-        if blocked {
-            audio.play(sounds.get(SoundEffect::Block));
+        audio.play(sounds.get(if blocked {
+            SoundEffect::Block
         } else {
-            audio.play(sounds.get(SoundEffect::Hit));
-        }
+            SoundEffect::Hit
+        }));
 
         // Despawns
         defender.spawner.despawn_on_hit(commands);

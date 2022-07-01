@@ -36,8 +36,7 @@ pub struct PlayerQuery<'a> {
 pub fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,
-    sounds: Res<Sounds>,
-    audio: Res<Audio>,
+    mut sounds: ResMut<Sounds>,
     mut hitboxes: Query<(&Owner, &OnHitEffect, &GlobalTransform, &Sprite)>,
     mut hurtboxes: Query<PlayerQuery>,
     players: Res<Players>,
@@ -60,8 +59,7 @@ pub fn register_hits(
             handle_hit(
                 &mut commands,
                 clock.frame,
-                &sounds,
-                &audio,
+                &mut sounds,
                 effect,
                 hitbox,
                 attacker,
@@ -75,8 +73,7 @@ pub fn register_hits(
 fn handle_hit(
     commands: &mut Commands,
     frame: usize,
-    sounds: &Res<Sounds>,
-    audio: &Res<Audio>,
+    sounds: &mut ResMut<Sounds>,
     effect: &OnHitEffect,
     hitbox: bevy::sprite::Rect,
     attacker: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
@@ -135,11 +132,11 @@ fn handle_hit(
         }
 
         // Sound effect
-        audio.play(sounds.get(if blocked {
+        sounds.play(if blocked {
             SoundEffect::Block
         } else {
             SoundEffect::Hit
-        }));
+        });
 
         // Despawns
         defender.spawner.despawn_on_hit(commands);

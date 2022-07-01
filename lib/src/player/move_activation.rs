@@ -64,8 +64,7 @@ impl MoveBuffer {
 #[allow(clippy::type_complexity)]
 pub fn move_activator(
     mut commands: Commands,
-    audio: Res<Audio>,
-    sounds: Res<Sounds>,
+    mut sounds: ResMut<Sounds>,
     clock: Res<Clock>,
     mut query: Query<(
         &mut InputParser,
@@ -108,7 +107,7 @@ pub fn move_activator(
             resources.pay(move_data.requirements.cost);
             spawner.despawn_on_phase_change(&mut commands);
             state.start_move(situation);
-            audio.play(sounds.get(SoundEffect::Whoosh));
+            sounds.play(SoundEffect::Whoosh);
         }
     }
 }

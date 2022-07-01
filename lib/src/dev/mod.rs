@@ -36,8 +36,7 @@ impl Plugin for DevPlugin {
 fn test_system(
     keys: Res<Input<KeyCode>>,
     mut query: Query<(&mut Inventory, &Kit)>,
-    audio: Res<Audio>,
-    sounds: Res<Sounds>,
+    mut sounds: ResMut<Sounds>,
 ) {
     // B for Buy
     if keys.just_pressed(KeyCode::B) {
@@ -48,6 +47,6 @@ fn test_system(
         }
     } else if keys.just_pressed(KeyCode::S) {
         dbg!("Playing");
-        audio.play(sounds.get(SoundEffect::Whoosh));
+        sounds.play(SoundEffect::Whoosh)
     }
 }

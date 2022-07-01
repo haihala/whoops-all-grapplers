@@ -6,15 +6,26 @@ use types::SoundEffect;
 
 pub struct Sounds {
     handles: HashMap<SoundEffect, Vec<Handle<AudioSource>>>,
+    queue: Vec<Handle<AudioSource>>,
 }
 impl Sounds {
     pub fn new(handles: HashMap<SoundEffect, Vec<Handle<AudioSource>>>) -> Sounds {
-        Sounds { handles }
+        Sounds {
+            handles,
+            queue: vec![],
+        }
     }
 
-    pub fn get(&self, key: SoundEffect) -> Handle<AudioSource> {
+    pub fn play(&mut self, key: SoundEffect) {
         let clips = self.handles.get(&key).unwrap();
-        clips[rand::thread_rng().gen_range(0..clips.len())].clone()
+        let clip = clips[rand::thread_rng().gen_range(0..clips.len())].clone();
+        self.queue.push(clip);
+    }
+}
+
+pub fn play_queued(mut sounds: ResMut<Sounds>, audio: Res<Audio>) {
+    for clip in sounds.queue.drain(..) {
+        audio.play(clip);
     }
 }
 

@@ -40,6 +40,7 @@ impl Plugin for AssetsPlugin {
             .add_startup_system_to_stage(StartupStage::PreStartup, loaders::sounds)
             .add_system(models::model_spawner)
             .add_system(animations::setup_helpers)
-            .add_system(animations::update_animation);
+            .add_system(animations::update_animation)
+            .add_system(sounds::play_queued);
     }
 }

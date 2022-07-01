@@ -4,8 +4,9 @@ use input_parsing::InputParser;
 use kits::{Inventory, Kit, Move, MoveId, MoveSituation, Resources};
 use player_state::PlayerState;
 use time::Clock;
+use types::SoundEffect;
 
-use crate::spawner::Spawner;
+use crate::{assets::Sounds, spawner::Spawner};
 const EVENT_REPEAT_PERIOD: f32 = 0.3; // In seconds
 const FRAMES_TO_LIVE_IN_BUFFER: usize = (EVENT_REPEAT_PERIOD * constants::FPS) as usize;
 
@@ -63,6 +64,8 @@ impl MoveBuffer {
 #[allow(clippy::type_complexity)]
 pub fn move_activator(
     mut commands: Commands,
+    audio: Res<Audio>,
+    sounds: Res<Sounds>,
     clock: Res<Clock>,
     mut query: Query<(
         &mut InputParser,
@@ -105,6 +108,7 @@ pub fn move_activator(
             resources.pay(move_data.requirements.cost);
             spawner.despawn_on_phase_change(&mut commands);
             state.start_move(situation);
+            audio.play(sounds.get(SoundEffect::Whoosh));
         }
     }
 }

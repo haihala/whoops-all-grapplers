@@ -125,12 +125,6 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 },
                 phases: vec![
                     Phase {
-                        kind: PhaseKind::Animation,
-                        duration: 10,
-                        ..default()
-                    }
-                    .into(),
-                    Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox::new(Vec2::new(1.0, 0.5), Vec2::new(0.2, 0.3)),
                             attached_to_player: true,

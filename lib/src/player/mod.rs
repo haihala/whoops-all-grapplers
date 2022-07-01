@@ -7,9 +7,10 @@ mod recovery;
 mod size_adjustment;
 mod update_animation;
 
+use input_parsing::InputParser;
 #[cfg(not(test))]
 use input_parsing::PadBundle;
-use kits::{ryan_kit, Grabable, Hurtbox, Inventory, Resources};
+use kits::{ryan_kit, Grabable, Hurtbox, Inventory, Kit, Resources};
 use player_state::PlayerState;
 use time::{Clock, GameState, RoundResult};
 use types::{LRDirection, Player, Players};
@@ -21,12 +22,26 @@ use crate::{
     spawner::Spawner,
 };
 
-use bevy::{prelude::*, sprite::Anchor};
+use bevy::{ecs::query::WorldQuery, prelude::*, sprite::Anchor};
 
 use self::{model_flipper::PlayerModel, move_activation::MoveBuffer};
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
+
+#[derive(WorldQuery)]
+#[world_query(mutable)]
+struct PlayerQuery<'a> {
+    state: &'a mut PlayerState,
+    spawner: &'a mut Spawner,
+    kit: &'a Kit,
+    tf: &'a Transform,
+    grabbable: &'a mut Grabable,
+    buffer: &'a mut MoveBuffer,
+    resources: &'a mut Resources,
+    inventory: &'a mut Inventory,
+    input_parser: &'a mut InputParser,
+}
 
 pub struct PlayerPlugin;
 

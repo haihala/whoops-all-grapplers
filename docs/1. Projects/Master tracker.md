@@ -1,7 +1,6 @@
 # Backlog
 ## High priority
 - [[Clash parry]]
-- [[Move progress cleanup]]
 
 ## Low priority
 - [[Recovery and knockdown]]

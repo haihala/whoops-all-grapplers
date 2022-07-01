@@ -1,12 +1,15 @@
-use bevy::prelude::*;
+use bevy::{
+    ecs::query::{Fetch, WorldQuery},
+    prelude::*,
+};
 
-use input_parsing::InputParser;
-use kits::{Inventory, Kit, Move, MoveId, MoveSituation, Resources};
-use player_state::PlayerState;
+use kits::{Kit, Move, MoveId, MoveSituation};
 use time::Clock;
-use types::SoundEffect;
+use types::{Players, SoundEffect};
 
-use crate::{assets::Sounds, spawner::Spawner};
+use crate::assets::Sounds;
+
+use super::{move_advancement::activate_phase, PlayerQuery};
 const EVENT_REPEAT_PERIOD: f32 = 0.3; // In seconds
 const FRAMES_TO_LIVE_IN_BUFFER: usize = (EVENT_REPEAT_PERIOD * constants::FPS) as usize;
 
@@ -62,52 +65,57 @@ impl MoveBuffer {
 }
 
 #[allow(clippy::type_complexity)]
-pub fn move_activator(
+pub(super) fn move_activator(
     mut commands: Commands,
     mut sounds: ResMut<Sounds>,
+    players: Res<Players>,
     clock: Res<Clock>,
-    mut query: Query<(
-        &mut InputParser,
-        &mut PlayerState,
-        &mut MoveBuffer,
-        &Kit,
-        &mut Resources,
-        &Inventory,
-        &mut Spawner,
-    )>,
+    mut query: Query<PlayerQuery>,
 ) {
-    for (mut reader, mut state, mut buffer, kit, mut resources, inventory, mut spawner) in
-        query.iter_mut()
-    {
-        buffer.clear_old(clock.frame);
-        buffer.add_events(reader.drain_events(), clock.frame);
+    if let Ok([mut p1, mut p2]) = query.get_many_mut([players.one, players.two]) {
+        activate_move(&mut commands, &mut sounds, &clock, &mut p1, &mut p2);
+        activate_move(&mut commands, &mut sounds, &clock, &mut p2, &mut p1);
+    }
+}
 
-        if state.stunned() {
-            continue;
-        }
+fn activate_move(
+    commands: &mut Commands,
+    sounds: &mut ResMut<Sounds>,
+    clock: &Res<Clock>,
+    actor: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
+    target: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
+) {
+    actor.buffer.clear_old(clock.frame);
+    actor
+        .buffer
+        .add_events(actor.input_parser.drain_events(), clock.frame);
 
-        let mut situation = state
-            .get_move_state()
-            .map(|state| state.to_owned())
-            .unwrap_or(MoveSituation {
-                resources: *resources,
-                inventory: inventory.clone(),
-                buttons_held: reader.get_pressed().clone(),
-                grounded: state.is_grounded(),
-                ..default()
-            });
+    if actor.state.stunned() {
+        return;
+    }
 
-        if let Some((move_id, move_data)) = buffer.use_move(kit, &situation) {
-            situation.move_id = move_id;
-            situation.start_frame = clock.frame as i32;
-            situation.resources.pay(move_data.requirements.cost.clone());
-            situation.hit_registered = false;
-            situation.cancel_level = move_data.requirements.cancel_level.unwrap();
+    let mut situation = actor
+        .state
+        .get_move_state()
+        .map(|state| state.to_owned())
+        .unwrap_or(MoveSituation {
+            resources: *actor.resources,
+            inventory: actor.inventory.clone(),
+            buttons_held: actor.input_parser.get_pressed(),
+            grounded: actor.state.is_grounded(),
+            ..default()
+        });
 
-            resources.pay(move_data.requirements.cost);
-            spawner.despawn_on_phase_change(&mut commands);
-            state.start_move(situation);
-            sounds.play(SoundEffect::Whoosh);
-        }
+    if let Some((move_id, move_data)) = actor.buffer.use_move(actor.kit, &situation) {
+        situation.move_id = move_id;
+        situation.start_frame = clock.frame as i32;
+        situation.resources.pay(move_data.requirements.cost.clone());
+        situation.hit_registered = false;
+        situation.cancel_level = move_data.requirements.cancel_level.unwrap();
+
+        actor.resources.pay(move_data.requirements.cost);
+        actor.state.start_move(situation);
+        sounds.play(SoundEffect::Whoosh);
+        activate_phase(commands, 0, actor, target);
     }
 }

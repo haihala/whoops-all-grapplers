@@ -2,7 +2,6 @@
 ## High priority
 - [[Clash parry]]
 - Move block height rework
-- Charge on back, not just down-back
 
 ## Low priority
 - [[Recovery and knockdown]]

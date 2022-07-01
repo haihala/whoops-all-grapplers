@@ -181,8 +181,8 @@ impl PlayerState {
             return false;
         }
 
-        let blocking_high = stick == StickPosition::E;
-        let blocking_low = stick == StickPosition::SE;
+        let blocking_high = stick == StickPosition::W;
+        let blocking_low = stick == StickPosition::SW;
 
         let height = fixed_height.unwrap_or(if attack_height > self.high_block_threshold() {
             AttackHeight::High

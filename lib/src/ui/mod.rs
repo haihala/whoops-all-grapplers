@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use time::{GameState, RoundTimer, ROUND_TIME};
 use types::Player;
 
-use crate::assets::{Colors, Fonts, Sprites};
+use crate::assets::{Colors, Fonts};
 
 mod bars;
 mod text;
@@ -35,63 +35,17 @@ pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system_set_to_stage(
-            StartupStage::Startup,
+        app.add_startup_system(setup_ui).add_system_set_to_stage(
+            CoreStage::Last,
             SystemSet::new()
-                .with_system(setup_ui)
-                .with_system(add_stage),
-        )
-        .add_system_to_stage(CoreStage::Last, bars::update)
-        .add_system_to_stage(
-            CoreStage::Last,
-            text::update_timer.with_run_criteria(State::on_update(GameState::Combat)),
-        )
-        .add_system_to_stage(
-            CoreStage::Last,
-            text::hide_round_text.after(text::update_timer),
-        )
-        .add_system_to_stage(
-            CoreStage::Last,
-            text::update_round_text.after(text::hide_round_text),
+                .with_system(bars::update)
+                .with_system(
+                    text::update_timer.with_run_criteria(State::on_update(GameState::Combat)),
+                )
+                .with_system(text::hide_round_text.after(text::update_timer))
+                .with_system(text::update_round_text.after(text::hide_round_text)),
         );
     }
-}
-
-fn add_stage(
-    mut commands: Commands,
-    sprites: Res<Sprites>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    // As it is in Bevy 0.7, you can't put 3d assets on top of 2d sprites
-    // Because of this, use a quad for a background.
-
-    // create a new quad mesh. this is what we will apply the texture to
-    let quad_width = 16.0;
-    let quad_height = quad_width * 9.0 / 16.0;
-    let quad_handle = meshes.add(Mesh::from(shape::Quad::new(Vec2::new(
-        quad_width,
-        quad_height,
-    ))));
-
-    // this material renders the texture normally
-    let material_handle = materials.add(StandardMaterial {
-        base_color_texture: Some(sprites.background_image.clone()),
-        alpha_mode: AlphaMode::Blend,
-        unlit: true,
-        ..default()
-    });
-
-    // textured quad - normal
-    commands.spawn_bundle(PbrBundle {
-        mesh: quad_handle,
-        material: material_handle,
-        transform: Transform {
-            translation: Vec3::new(0.0, 2.0, -5.0),
-            ..default()
-        },
-        ..default()
-    });
 }
 
 fn setup_ui(mut commands: Commands, colors: Res<Colors>, fonts: Res<Fonts>) {

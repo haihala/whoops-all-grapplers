@@ -3,10 +3,10 @@ mod assets;
 mod camera;
 mod damage;
 mod dev;
-mod light;
 mod physics;
 mod player;
 mod spawner;
+mod stage;
 mod ui;
 
 use bevy::prelude::*;
@@ -25,7 +25,7 @@ impl PluginGroup for WAGLib {
             .add(physics::PhysicsPlugin)
             .add(spawner::SpawnerPlugin)
             .add(input_parsing::InputParsingPlugin)
-            .add(light::LightPlugin)
+            .add(stage::StagePlugin)
             .add(player_state::PlayerStatePlugin);
     }
 }

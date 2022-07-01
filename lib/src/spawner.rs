@@ -63,15 +63,17 @@ impl Spawner {
         parent_position: Vec3,
     ) {
         let offset = facing.mirror_vec(descriptor.hitbox.offset);
-        let translation = if descriptor.attached_to_player {
+        let absolute_position = parent_position + offset;
+        let transform = Transform::from_translation(if descriptor.attached_to_player {
             offset
         } else {
-            parent_position + offset
-        };
+            absolute_position
+        });
 
         let mut builder = commands.spawn_bundle(SpriteBundle {
-            transform: Transform {
-                translation,
+            transform,
+            global_transform: GlobalTransform {
+                translation: absolute_position,
                 ..default()
             },
             sprite: Sprite {

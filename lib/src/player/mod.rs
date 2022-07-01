@@ -9,13 +9,13 @@ mod update_animation;
 
 #[cfg(not(test))]
 use input_parsing::PadBundle;
-use kits::{ryan_kit, Grabable, Hurtbox, Inventory, Kit, Resources};
+use kits::{ryan_kit, Grabable, Hurtbox, Inventory, Resources};
 use player_state::PlayerState;
 use time::{Clock, GameState, RoundResult};
-use types::{LRDirection, Player, Players, SoundEffect};
+use types::{LRDirection, Player, Players};
 
 use crate::{
-    assets::{AnimationHelperSetup, Colors, Model, ModelRequest, Sounds},
+    assets::{AnimationHelperSetup, Colors, Model, ModelRequest},
     damage::Health,
     physics::{PlayerVelocity, GROUND_PLANE_HEIGHT},
     spawner::Spawner,
@@ -50,8 +50,7 @@ impl Plugin for PlayerPlugin {
                     )
                     .with_system(
                         update_animation::update_animation.after(charge_accumulator::manage_charge),
-                    )
-                    .with_system(testing.after(update_animation::update_animation)),
+                    ),
             );
     }
 }
@@ -163,24 +162,5 @@ fn reset(
             };
             tf.translation.y = PLAYER_SPAWN_HEIGHT + player_state.get_collider_size().y / 2.0;
         }
-    }
-}
-
-fn testing(
-    keys: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Inventory, &Kit)>,
-    audio: Res<Audio>,
-    sounds: Res<Sounds>,
-) {
-    // B for Buy
-    if keys.just_pressed(KeyCode::B) {
-        for (mut inventory, kit) in query.iter_mut() {
-            if let Some((id, _)) = kit.roll_items(1, &inventory).first() {
-                inventory.add_item(*id);
-            }
-        }
-    } else if keys.just_pressed(KeyCode::S) {
-        dbg!("Playing");
-        audio.play(sounds.get(SoundEffect::Whoosh));
     }
 }

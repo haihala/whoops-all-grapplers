@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 use bevy::utils::Instant;
 
-use types::GameButton;
+use types::{GameButton, StickPosition};
 
 use crate::{
-    helper_types::{Diff, Frame, InputEvent},
+    helper_types::{Diff, InputEvent},
     MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
 };
 
@@ -28,9 +28,15 @@ impl Default for ParserHead {
     }
 }
 impl ParserHead {
-    fn new_from_diff(requirements: &[InputEvent], diff: &Diff) -> ParserHead {
+    fn from_old_stick(requirements: &[InputEvent], old_stick: StickPosition) -> ParserHead {
         let mut new = ParserHead::new(requirements.get(0).cloned());
-        new.advance(requirements, diff);
+        new.advance(
+            requirements,
+            &Diff {
+                stick_move: Some(old_stick),
+                ..default()
+            },
+        );
         new
     }
 
@@ -120,12 +126,12 @@ impl MotionInput {
         self.heads.iter().any(|head| head.requirement.is_none())
     }
 
-    pub fn advance(&mut self, diff: &Diff, frame: &Frame) {
+    pub fn advance(&mut self, diff: &Diff, old_stick: StickPosition) {
         if self.is_done() {
             return;
         }
 
-        let new_head = ParserHead::new_from_diff(&self.requirements, &frame.diff_from_neutral());
+        let new_head = ParserHead::from_old_stick(&self.requirements, old_stick);
 
         if let Some(ref mut existing_head) = self
             .heads
@@ -250,17 +256,13 @@ mod test {
     #[test]
     fn head_advancement() {
         let motion: MotionInput = "6f".into();
-        let frame = Frame {
-            stick_position: StickPosition::E,
-            ..default()
-        };
 
         let diff = Diff {
             pressed: Some(vec![GameButton::Fast].into_iter().collect()),
             ..default()
         };
 
-        let mut ph = ParserHead::new_from_diff(&motion.requirements, &frame.diff_from_neutral());
+        let mut ph = ParserHead::from_old_stick(&motion.requirements, StickPosition::E);
         assert!(ph.index == 1);
 
         ph.advance(&motion.requirements, &diff);

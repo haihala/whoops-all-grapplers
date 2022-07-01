@@ -20,7 +20,6 @@
 - [[Netplay]]
 - [[Resources between rounds]]
 - [[Rewards]]
-- [[Simple training mode]]
 - [[Lex]]
 	- Split movelist generation function
 	- Heat
@@ -32,7 +31,6 @@
 - Maybe if player collision used diamond shaped colliders it would be easier to handle sliding off when landing on the other player
 - Toasts
 - Attributes like startup reduction and stun increase to and from inventory
-- Negative edge works weird (long press will give button on both edges because head is first used to parse. Construct custom head with only the old stick.)
 - [[Stance system]]
 - [[Extend moves]]
 

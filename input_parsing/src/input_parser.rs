@@ -65,20 +65,17 @@ impl InputParser {
                 stick_move: diff.stick_move.map(|stick| facing.mirror_stick(stick)),
                 ..diff.clone()
             },
-            Frame {
-                stick_position: self.relative_stick,
-                ..self.head.clone()
-            },
+            self.relative_stick,
         );
 
         self.head.apply(diff);
         self.relative_stick = facing.mirror_stick(self.head.stick_position);
     }
 
-    fn parse_inputs(&mut self, diff: Diff, frame: Frame) {
+    fn parse_inputs(&mut self, diff: Diff, old_stick: StickPosition) {
         self.events
             .extend(self.registered_inputs.iter_mut().filter_map(|(id, input)| {
-                input.advance(&diff, &frame);
+                input.advance(&diff, old_stick);
                 if input.is_done() {
                     input.clear();
                     return Some(*id);

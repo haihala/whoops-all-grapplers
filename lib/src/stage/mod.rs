@@ -23,7 +23,7 @@ fn add_stage(
     // Because of this, use a quad for a background.
 
     // create a new quad mesh. this is what we will apply the texture to
-    let quad_width = 16.0;
+    let quad_width = 20.0;
     let quad_height = quad_width * 9.0 / 16.0;
     let quad_handle = meshes.add(Mesh::from(shape::Quad::new(Vec2::new(
         quad_width,
@@ -43,7 +43,7 @@ fn add_stage(
         mesh: quad_handle,
         material: material_handle,
         transform: Transform {
-            translation: Vec3::new(0.0, 2.0, -5.0),
+            translation: Vec3::new(0.0, 2.4, -5.0),
             ..default()
         },
         ..default()

@@ -7,7 +7,7 @@ use crate::physics::ARENA_WIDTH;
 #[derive(Debug, Component, Default)]
 pub struct WorldCamera;
 
-pub const VIEWPORT_HALFWIDTH: f32 = 5.0; // This isn't strictly true anymore, however it's still close enough
+pub const VIEWPORT_HALFWIDTH: f32 = 4.0; // This is used to control stage border relative to the camera
 const CAMERA_CLAMP: f32 = ARENA_WIDTH - VIEWPORT_HALFWIDTH;
 
 pub struct CustomCameraPlugin;
@@ -22,10 +22,10 @@ impl Plugin for CustomCameraPlugin {
 fn add_cameras(mut commands: Commands) {
     commands
         .spawn_bundle(OrthographicCameraBundle {
-            transform: Transform::from_xyz(0.0, 2.0, 10.0),
+            transform: Transform::from_xyz(0.0, 1.5, 10.0),
             orthographic_projection: OrthographicProjection {
                 scaling_mode: ScalingMode::FixedHorizontal,
-                scale: 3.5,
+                scale: 4.0,
                 ..default()
             },
             ..OrthographicCameraBundle::new_3d()

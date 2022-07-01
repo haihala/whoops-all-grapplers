@@ -13,7 +13,6 @@
 - Instead of pure phase index, use a combination of index, branch coordinates to determine where the execution of a move is at.
 	- This allows to have a window to transition into another action instead of just at action boundary
 	- e.g. user can tap gunshot while already shooting and the second shot comes immediately and not after a delay. Holding would still be possible.
-- Player model gets clipped into the background near the corners
 
 ## Not a priority
 - [[Counter hits]]

@@ -15,6 +15,7 @@ pub struct WAGLib;
 impl PluginGroup for WAGLib {
     fn build(&mut self, group: &mut bevy::app::PluginGroupBuilder) {
         group // Order matters here, loaded in the defined order
+            .add(bevy_hanabi::HanabiPlugin)
             .add(time::TimePlugin) // Has to be first, since it defines labels for ordering other systems
             .add(assets::AssetsPlugin) // Has to be before those assets are used
             .add(ui::UIPlugin)

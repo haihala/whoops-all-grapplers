@@ -6,6 +6,7 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
 bevy = {version="0.7.0", features=["mp3"]}
+bevy_hanabi = "0.2"
 bevy-inspector-egui = "0.11.0"
 rand = "0.8.5"
 

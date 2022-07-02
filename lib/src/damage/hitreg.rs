@@ -7,10 +7,10 @@ use input_parsing::InputParser;
 use kits::{Grabable, Hurtbox, OnHitEffect, Resources};
 use player_state::PlayerState;
 use time::Clock;
-use types::{LRDirection, Owner, Player, Players, SoundEffect};
+use types::{LRDirection, Owner, Player, Players, SoundEffect, VisualEffect};
 
 use crate::{
-    assets::Sounds,
+    assets::{ParticleRequest, Particles, Sounds},
     physics::{hybrid_vec_rect_collision, PlayerVelocity},
     spawner::Spawner,
 };
@@ -37,6 +37,7 @@ pub fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,
     mut sounds: ResMut<Sounds>,
+    mut particles: ResMut<Particles>,
     mut hitboxes: Query<(&Owner, &OnHitEffect, &GlobalTransform, &Sprite)>,
     mut hurtboxes: Query<PlayerQuery>,
     players: Res<Players>,
@@ -60,6 +61,7 @@ pub fn register_hits(
                 &mut commands,
                 clock.frame,
                 &mut sounds,
+                &mut particles,
                 effect,
                 hitbox,
                 attacker,
@@ -74,6 +76,7 @@ fn handle_hit(
     commands: &mut Commands,
     frame: usize,
     sounds: &mut ResMut<Sounds>,
+    particles: &mut ResMut<Particles>,
     effect: &OnHitEffect,
     hitbox: bevy::sprite::Rect,
     attacker: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
@@ -136,6 +139,23 @@ fn handle_hit(
             SoundEffect::Block
         } else {
             SoundEffect::Hit
+        });
+
+        // Visual effect
+        let hitbox_center = (
+            (hitbox.max.x + hitbox.min.x) / 2.0,
+            (hitbox.max.y + hitbox.min.y) / 2.0,
+            0.0,
+        )
+            .into();
+        particles.spawn(ParticleRequest {
+            effect: if blocked {
+                VisualEffect::Block
+            } else {
+                VisualEffect::Hit
+            },
+            // TODO: This can be refined more
+            position: hitbox_center,
         });
 
         // Despawns

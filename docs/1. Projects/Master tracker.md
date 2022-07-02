@@ -8,11 +8,13 @@
 - Constants to an env (both command line and file) parser so it doesn't change on recompile.
 - [[Animations]]
 - [[Menus]]
+- back and forth dashing has mad speed for some reason
 
 ## Easy nibbles
 - Instead of pure phase index, use a combination of index, branch coordinates to determine where the execution of a move is at.
 	- This allows to have a window to transition into another action instead of just at action boundary
 	- e.g. user can tap gunshot while already shooting and the second shot comes immediately and not after a delay. Holding would still be possible.
+- Timer font is weird in full screen relative to health bars
 
 ## Not a priority
 - [[Counter hits]]

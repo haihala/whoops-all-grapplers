@@ -4,3 +4,9 @@ pub enum SoundEffect {
     Block,
     Hit,
 }
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum VisualEffect {
+    Block,
+    Hit,
+}

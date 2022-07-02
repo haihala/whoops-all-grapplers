@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::utils::HashMap;
+use types::StickPosition;
 
 use crate::{Inventory, Item, ItemId, Move, MoveId};
 
@@ -12,6 +13,7 @@ pub struct Kit {
     pub high_block_height: f32,
     pub standing_size: Vec2,
     pub crouching_size: Vec2,
+    pub charge_directions: Vec<StickPosition>,
 }
 
 impl Default for Kit {
@@ -24,6 +26,12 @@ impl Default for Kit {
             high_block_height: 1.2,
             standing_size: Vec2::new(0.7, 1.8),
             crouching_size: Vec2::new(0.7, 1.3),
+            charge_directions: vec![
+                StickPosition::SE,
+                StickPosition::S,
+                StickPosition::SW,
+                StickPosition::W,
+            ],
         }
     }
 }

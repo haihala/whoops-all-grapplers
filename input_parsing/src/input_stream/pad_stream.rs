@@ -8,7 +8,7 @@ use crate::{
     STICK_DEAD_ZONE,
 };
 
-use super::InputStream;
+use super::{InputStream, ParrotStream};
 
 #[derive(Default, Component)]
 pub struct PadStream {
@@ -97,25 +97,26 @@ impl InputStream for PadStream {
 pub fn update_pads(
     mut gamepad_events: EventReader<GamepadEvent>,
     mut unused_pads: ResMut<VecDeque<Gamepad>>,
-    mut readers: Query<&mut PadStream>,
+    mut readers: Query<(&mut PadStream, &mut ParrotStream)>,
 ) {
     for GamepadEvent(pad_id, event_type) in gamepad_events.iter() {
-        let matching_reader = readers
+        let matching_components = readers
             .iter_mut()
-            .find(|reader| reader.pad_id.is_some() && reader.pad_id.unwrap() == *pad_id);
+            .find(|(reader, _)| reader.pad_id.is_some() && reader.pad_id.unwrap() == *pad_id);
 
         match event_type {
             GamepadEventType::Connected => {
                 pad_connection(pad_id, &mut unused_pads, &mut readers);
             }
             GamepadEventType::Disconnected => {
-                pad_disconnection(&mut matching_reader.unwrap(), &mut unused_pads);
+                pad_disconnection(&mut matching_components.unwrap().0, &mut unused_pads);
             }
             GamepadEventType::AxisChanged(axis, new_value) => {
-                axis_change(&mut matching_reader.unwrap(), *axis, *new_value);
+                axis_change(&mut matching_components.unwrap().0, *axis, *new_value);
             }
             GamepadEventType::ButtonChanged(button, new_value) => {
-                button_change(&mut matching_reader.unwrap(), *button, *new_value);
+                let (mut reader, mut parrot) = matching_components.unwrap();
+                button_change(&mut reader, &mut parrot, *button, *new_value);
             }
         };
     }
@@ -124,12 +125,14 @@ pub fn update_pads(
 fn pad_connection(
     pad_id: &Gamepad,
     unused_pads: &mut ResMut<VecDeque<Gamepad>>,
-    readers: &mut Query<&mut PadStream>,
+    readers: &mut Query<(&mut PadStream, &mut ParrotStream)>,
 ) {
     println!("New gamepad connected with ID: {:?}", pad_id);
-    let unused_reader = readers.iter_mut().find(|reader| reader.pad_id.is_none());
+    let unused_reader = readers
+        .iter_mut()
+        .find(|(reader, _)| reader.pad_id.is_none());
 
-    if let Some(mut reader) = unused_reader {
+    if let Some((mut reader, _)) = unused_reader {
         // There is a free character
         reader.pad_id = Some(*pad_id);
     } else {
@@ -170,7 +173,12 @@ fn axis_change(reader: &mut Mut<PadStream>, axis: GamepadAxisType, new_value: f3
     }
 }
 
-fn button_change(reader: &mut Mut<PadStream>, button: GamepadButtonType, new_value: f32) {
+fn button_change(
+    reader: &mut Mut<PadStream>,
+    parrot: &mut Mut<ParrotStream>,
+    button: GamepadButtonType,
+    new_value: f32,
+) {
     // TODO: real button mappings
 
     let press = new_value > 0.1;
@@ -193,6 +201,12 @@ fn button_change(reader: &mut Mut<PadStream>, button: GamepadButtonType, new_val
         GamepadButtonType::DPadDown => reader.update_dpad(press, None, Some(-1)),
         GamepadButtonType::DPadLeft => reader.update_dpad(press, Some(-1), None),
         GamepadButtonType::DPadRight => reader.update_dpad(press, Some(1), None),
+
+        GamepadButtonType::Select => {
+            if press {
+                parrot.cycle()
+            }
+        }
         _ => {}
     }
 }

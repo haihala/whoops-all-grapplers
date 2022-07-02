@@ -28,7 +28,7 @@ impl ParrotStream {
         self.buffer.push(input);
     }
 
-    fn cycle(&mut self) {
+    pub fn cycle(&mut self) {
         self.mode = match self.mode {
             ParrotMode::Listening => {
                 dbg!("Starting playback.");
@@ -59,20 +59,13 @@ impl InputStream for ParrotStream {
     }
 }
 
-pub fn update_parrots<T: InputStream + Component>(
-    keys: Res<Input<KeyCode>>,
-    mut readers: Query<(&mut ParrotStream, &mut T)>,
-) {
+pub fn update_parrots<T: InputStream + Component>(mut readers: Query<(&mut ParrotStream, &mut T)>) {
     for (mut parrot, mut stream) in readers.iter_mut() {
         if parrot.mode == ParrotMode::Listening {
             parrot.listen(stream.read());
         } else if parrot.mode == ParrotMode::Repeating {
             // This is to prevent user input while parrot is parroting
             stream.read();
-        }
-
-        if keys.just_pressed(KeyCode::Space) {
-            parrot.cycle();
         }
     }
 }

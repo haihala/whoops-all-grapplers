@@ -202,27 +202,31 @@ fn move_constants(
     }
 }
 
+// TODO: This could use a worldquery
 #[allow(clippy::type_complexity)]
 fn move_players(
     mut queries: ParamSet<(
-        Query<(&mut PlayerVelocity, &mut Transform, &PlayerState)>,
+        Query<(&mut PlayerVelocity, &mut Transform, &PlayerState, &Kit)>,
         Query<&Transform, With<WorldCamera>>,
     )>,
 ) {
     let arena_rect = legal_position_space(queries.p1().single().translation.x);
 
     let mut player_query = queries.p0();
-    if let Some([(mut velocity1, mut tf1, state1), (mut velocity2, mut tf2, state2)]) =
+    if let Some([(mut velocity1, mut tf1, state1, kit1), (mut velocity2, mut tf2, state2, kit2)]) =
         player_query.iter_combinations_mut().fetch_next()
     {
+        let collider_size1 = kit1.get_size(state1.is_crouching());
+        let collider_size2 = kit2.get_size(state2.is_crouching());
+
         let clamped_position1 = clamp_position(
             tf1.translation + velocity1.get_shift(),
-            state1.get_collider_size(),
+            collider_size1,
             arena_rect,
         );
         let clamped_position2 = clamp_position(
             tf2.translation + velocity2.get_shift(),
-            state2.get_collider_size(),
+            collider_size2,
             arena_rect,
         );
 
@@ -234,9 +238,9 @@ fn move_players(
 
         if let Some(push_force) = push_force(
             clamped_position1.position,
-            state1.get_collider_size(),
+            collider_size1,
             clamped_position2.position,
-            state2.get_collider_size(),
+            collider_size2,
         ) {
             let can_move1 = clamped_position1.can_move_horizontally(push_force);
             let can_move2 = clamped_position2.can_move_horizontally(-push_force);

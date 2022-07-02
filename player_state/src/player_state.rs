@@ -4,11 +4,7 @@ use bevy_inspector_egui::Inspectable;
 use kits::{AttackHeight, MoveSituation};
 use types::{LRDirection, StickPosition};
 
-use crate::{
-    primary_state::{AirActivity, GroundActivity, PrimaryState},
-    PLAYER_HIGH_BLOCK_THRESHOLD_RATIO, PLAYER_LOW_BLOCK_THRESHOLD_RATIO,
-    PLAYER_SPRITE_CROUCHING_HEIGHT, PLAYER_SPRITE_STANDING_HEIGHT, PLAYER_SPRITE_WIDTH,
-};
+use crate::primary_state::{AirActivity, GroundActivity, PrimaryState};
 
 #[derive(Inspectable, Debug, Component)]
 pub struct PlayerState {
@@ -151,30 +147,13 @@ impl PlayerState {
             PrimaryState::Ground(GroundActivity::Crouching)
         )
     }
-    pub fn get_height(&self) -> f32 {
-        if matches!(self.primary, PrimaryState::Air(AirActivity::Freefall)) {
-            PLAYER_SPRITE_WIDTH
-        } else if self.is_crouching() {
-            PLAYER_SPRITE_CROUCHING_HEIGHT
-        } else {
-            PLAYER_SPRITE_STANDING_HEIGHT
-        }
-    }
-    pub fn get_width(&self) -> f32 {
-        if matches!(self.primary, PrimaryState::Air(AirActivity::Freefall)) {
-            PLAYER_SPRITE_STANDING_HEIGHT
-        } else {
-            PLAYER_SPRITE_WIDTH
-        }
-    }
-    pub fn get_collider_size(&self) -> Vec2 {
-        Vec2::new(self.get_width(), self.get_height())
-    }
 
     pub fn blocked(
         &self,
         fixed_height: Option<AttackHeight>,
-        attack_height: f32,
+        hitbox: bevy::sprite::Rect,
+        low_threshold: f32,
+        high_threshold: f32,
         stick: StickPosition,
     ) -> bool {
         if !self.can_block_now() {
@@ -184,9 +163,9 @@ impl PlayerState {
         let blocking_high = stick == StickPosition::W;
         let blocking_low = stick == StickPosition::SW;
 
-        let height = fixed_height.unwrap_or(if attack_height > self.high_block_threshold() {
+        let height = fixed_height.unwrap_or(if hitbox.min.y > high_threshold {
             AttackHeight::High
-        } else if attack_height > self.low_block_threshold() {
+        } else if hitbox.max.y > low_threshold {
             AttackHeight::Mid
         } else {
             AttackHeight::Low
@@ -200,11 +179,5 @@ impl PlayerState {
     }
     fn can_block_now(&self) -> bool {
         self.get_move_state().is_none() && self.is_grounded()
-    }
-    fn low_block_threshold(&self) -> f32 {
-        self.get_height() * PLAYER_LOW_BLOCK_THRESHOLD_RATIO
-    }
-    fn high_block_threshold(&self) -> f32 {
-        self.get_height() * PLAYER_HIGH_BLOCK_THRESHOLD_RATIO
     }
 }

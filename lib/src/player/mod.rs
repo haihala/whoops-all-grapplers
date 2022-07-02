@@ -85,7 +85,6 @@ struct PlayerDefaults {
     resources: Resources,
     inventory: Inventory,
     spawner: Spawner,
-    hurtbox: Hurtbox,
     grab_target: Grabable,
     player_velocity: PlayerVelocity,
     move_buffer: MoveBuffer,
@@ -100,22 +99,19 @@ fn spawn_player(
     let state = PlayerState::default();
     let kit = ryan_kit();
 
+    let player_height_offset = kit.standing_size.y / 2.0;
+
     #[cfg(not(test))]
     let inputs = PadBundle::new(kit.get_inputs());
 
     let mut spawn_handle = commands.spawn_bundle(SpriteBundle {
         transform: Transform {
-            translation: (
-                offset,
-                PLAYER_SPAWN_HEIGHT + state.get_collider_size().y / 2.0,
-                0.0,
-            )
-                .into(),
+            translation: (offset, PLAYER_SPAWN_HEIGHT, 0.0).into(),
             ..default()
         },
         sprite: Sprite {
             color: colors.collision_box,
-            custom_size: Some(state.get_collider_size()),
+            custom_size: Some(kit.standing_size),
             anchor: Anchor::BottomCenter,
             ..default()
         },
@@ -126,6 +122,9 @@ fn spawn_player(
         .insert_bundle(PlayerDefaults::default())
         .insert(AnimationHelperSetup)
         .insert(LRDirection::from_flipped(offset.is_sign_positive()))
+        .insert(Hurtbox {
+            offset: Vec3::Y * player_height_offset,
+        })
         .insert(kit)
         .insert(player)
         .insert(state);
@@ -171,11 +170,14 @@ fn reset(
             player_state.reset();
             buffer.clear();
 
-            tf.translation.x = match *player {
-                Player::One => -PLAYER_SPAWN_DISTANCE,
-                Player::Two => PLAYER_SPAWN_DISTANCE,
-            };
-            tf.translation.y = PLAYER_SPAWN_HEIGHT + player_state.get_collider_size().y / 2.0;
+            tf.translation = Vec3::new(
+                match *player {
+                    Player::One => -PLAYER_SPAWN_DISTANCE,
+                    Player::Two => PLAYER_SPAWN_DISTANCE,
+                },
+                PLAYER_SPAWN_HEIGHT,
+                0.0,
+            );
         }
     }
 }

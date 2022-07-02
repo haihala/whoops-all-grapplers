@@ -10,3 +10,4 @@
 - [x] Enum for different models
 	- [x] Ensure on load that all models are present and load correctly
 - [x] Spawning based on ModelRequest or similar
+- [ ] Could it be closer to how sfx/vfx works? (enum in types)

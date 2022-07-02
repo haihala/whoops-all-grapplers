@@ -31,7 +31,7 @@
 	- [ ] 2 specials
 	- [x] Visuals (Box)
 	- [x] Animations (moving boxes)
-	- [ ] SFX (POC)
+	- [x] SFX (POC)
 - [ ] Items
 	- [x] Projectile
 	- [ ] Parry

@@ -1,0 +1,4 @@
+- Maybe if player collision used diamond shaped colliders it would be easier to handle sliding off when landing on the other player
+- back and forth dashing has mad speed for some reason
+- Landing on top of the other player has a weird pushing interaction (instantly teleports the players)
+- Use worldqueries like elsewhere

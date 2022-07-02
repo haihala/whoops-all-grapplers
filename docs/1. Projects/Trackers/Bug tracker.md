@@ -1,3 +1,0 @@
-- Landing on top of the other player has a weird pushing interaction (instantly teleports the players)
-- Multiple projectiles from the same move don't despawn correctly on hit.
-- Moves need startup to work correctly

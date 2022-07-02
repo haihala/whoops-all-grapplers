@@ -1,14 +1,14 @@
 # Backlog
 ## High priority
 - [[Clash parry]]
-- Move block height rework
+- [[Physics rework 2]]
+- [[GLTF helper systems]]
 
 ## Low priority
 - [[Recovery and knockdown]]
 - Constants to an env (both command line and file) parser so it doesn't change on recompile.
 - [[Animations]]
 - [[Menus]]
-- back and forth dashing has mad speed for some reason
 
 ## Easy nibbles
 - Instead of pure phase index, use a combination of index, branch coordinates to determine where the execution of a move is at.
@@ -30,7 +30,6 @@
 - Generic state based visibility toggler for UI components (there is a component for visibility)
 - Think about cancellability + moves having hit
 	- Currently can't cancel rest of active
-- Maybe if player collision used diamond shaped colliders it would be easier to handle sliding off when landing on the other player
 - Toasts
 - Attributes like startup reduction and stun increase to and from inventory
 - [[Stance system]]

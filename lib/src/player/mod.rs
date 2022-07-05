@@ -18,7 +18,7 @@ use types::{Area, LRDirection, Player, Players};
 use crate::{
     assets::{AnimationHelperSetup, Colors, Model, ModelRequest},
     damage::Health,
-    physics::{PlayerVelocity, GROUND_PLANE_HEIGHT},
+    physics::{PlayerVelocity, PushBox, GROUND_PLANE_HEIGHT},
     spawner::Spawner,
 };
 
@@ -118,14 +118,14 @@ fn spawn_player(
         ..default()
     });
 
+    let player_area = Area::from_center_size(Vec2::Y * player_height_offset, kit.standing_size);
+
     spawn_handle
         .insert_bundle(PlayerDefaults::default())
         .insert(AnimationHelperSetup)
         .insert(LRDirection::from_flipped(offset.is_sign_positive()))
-        .insert(Hurtbox(Area::from_center_size(
-            Vec2::Y * player_height_offset,
-            kit.standing_size,
-        )))
+        .insert(Hurtbox(player_area))
+        .insert(PushBox(player_area))
         .insert(kit)
         .insert(player)
         .insert(state);

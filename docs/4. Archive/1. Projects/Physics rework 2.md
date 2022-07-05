@@ -23,3 +23,6 @@ Order of operations:
 # QOL
 - Use worldqueries like elsewhere
 - Calculate side flips only if players are grounded
+
+# Next up
+- Visual stutter when pushing

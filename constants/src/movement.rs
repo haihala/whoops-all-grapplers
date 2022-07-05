@@ -1,16 +1,3 @@
-// Basic ground movement
-pub const MINIMUM_WALK_SPEED: f32 = 3.0;
-pub const MAXIMUM_WALK_SPEED: f32 = 4.0;
-const ACCELERATION_TIME: f32 = 1.0;
-
-const ACCELERATION_DELTA: f32 = MAXIMUM_WALK_SPEED - MINIMUM_WALK_SPEED;
-pub const PLAYER_ACCELERATION: f32 = ACCELERATION_DELTA / ACCELERATION_TIME / crate::FPS;
-
-// Drag
-const DECELERATION_TIME: f32 = 0.3;
-
-pub const DRAG: f32 = MAXIMUM_WALK_SPEED / DECELERATION_TIME / crate::FPS;
-
 // Jumping
 // How high should a neutral jump be
 const PLAYER_JUMP_HEIGHT: f32 = 2.0;

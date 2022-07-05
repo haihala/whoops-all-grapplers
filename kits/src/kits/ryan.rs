@@ -13,18 +13,8 @@ pub fn ryan_kit() -> Kit {
 }
 
 // Dashing
-const DASH_START_DURATION_SECONDS: f32 = 0.1;
-const DASH_RECOVERY_DURATION_SECONDS: f32 = 0.2;
-const DASH_DISTANCE: f32 = 3.0;
-const DASH_START_DISTANCE_FRACTION: f32 = 0.5;
-
-const SHIFT_DURING_DASH_START: f32 = DASH_DISTANCE * DASH_START_DISTANCE_FRACTION;
-const SHIFT_DURING_DASH_RECOVERY: f32 = DASH_DISTANCE * (1.0 - DASH_START_DISTANCE_FRACTION);
-
-const DASH_START_SPEED: f32 = SHIFT_DURING_DASH_START / DASH_START_DURATION_SECONDS;
-const DASH_RECOVERY_SPEED: f32 = SHIFT_DURING_DASH_RECOVERY / DASH_RECOVERY_DURATION_SECONDS;
-const DASH_START_FRAMES: usize = (DASH_START_DURATION_SECONDS * constants::FPS) as usize;
-const DASH_RECOVERY_FRAMES: usize = (DASH_RECOVERY_DURATION_SECONDS * constants::FPS) as usize;
+const DASH_DURATION: usize = (0.5 * constants::FPS) as usize;
+const DASH_IMPULSE: f32 = 10.0;
 
 fn ryan_moves() -> Vec<(MoveId, Move)> {
     // Technically this is a slight performance loss, but
@@ -92,24 +82,9 @@ fn movement() -> Vec<(MoveId, Move)> {
         ),
         (
             MoveId::DashForward,
-            dash(
-                "656",
-                DASH_START_SPEED,
-                DASH_RECOVERY_SPEED,
-                DASH_START_FRAMES,
-                DASH_RECOVERY_FRAMES,
-            ),
+            dash("656", DASH_DURATION, DASH_IMPULSE),
         ),
-        (
-            MoveId::DashBack,
-            dash(
-                "454",
-                -DASH_START_SPEED,
-                -DASH_RECOVERY_SPEED,
-                DASH_START_FRAMES,
-                DASH_RECOVERY_FRAMES,
-            ),
-        ),
+        (MoveId::DashBack, dash("454", DASH_DURATION, -DASH_IMPULSE)),
     ]
 }
 

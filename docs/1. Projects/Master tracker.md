@@ -1,7 +1,6 @@
 # Backlog
 ## High priority
 - [[Clash parry]]
-- [[Physics rework 2]]
 - [[GLTF helper systems]]
 
 ## Low priority
@@ -15,6 +14,8 @@
 	- This allows to have a window to transition into another action instead of just at action boundary
 	- e.g. user can tap gunshot while already shooting and the second shot comes immediately and not after a delay. Holding would still be possible.
 - Timer font is weird in full screen relative to health bars
+- Moves may not cancel into themselves.
+- Pushing causes mild visual stutter
 
 ## Not a priority
 - [[Counter hits]]

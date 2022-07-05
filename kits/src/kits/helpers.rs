@@ -27,13 +27,7 @@ pub fn jump(input: &'static str, impulse: impl Into<Vec3>) -> Move {
     }
 }
 
-pub fn dash(
-    input: &'static str,
-    start_speed: f32,
-    recovery_speed: f32,
-    start_duration: usize,
-    recovery_duration: usize,
-) -> Move {
+pub fn dash(input: &'static str, duration: usize, impulse: f32) -> Move {
     Move {
         input: Some(input),
         requirements: Requirements {
@@ -41,21 +35,12 @@ pub fn dash(
             grounded: Some(true),
             ..default()
         },
-        phases: vec![
-            Phase {
-                kind: PhaseKind::Animation,
-                duration: start_duration,
-                mobility: Some(MoveMobility::Perpetual(Vec3::X * start_speed)),
-                ..default()
-            }
-            .into(),
-            Phase {
-                kind: PhaseKind::Animation,
-                duration: recovery_duration,
-                cancellable: true,
-                mobility: Some(MoveMobility::Perpetual(Vec3::X * recovery_speed)),
-            }
-            .into(),
-        ],
+        phases: vec![Phase {
+            duration,
+            kind: PhaseKind::Animation,
+            mobility: Some(MoveMobility::Impulse(Vec3::X * impulse)),
+            cancellable: true,
+        }
+        .into()],
     }
 }

@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
+use types::Area;
+
 use crate::MoveId;
 
 #[derive(Debug, Inspectable, Clone, PartialEq)]
@@ -72,10 +74,8 @@ pub enum MoveMobility {
     Perpetual(Vec3),
 }
 
-#[derive(Clone, Copy, Default, Component)]
-pub struct Hurtbox {
-    pub offset: Vec3,
-}
+#[derive(Clone, Copy, Default, Component, DerefMut, Deref)]
+pub struct Hurtbox(pub Area);
 
 #[derive(Clone, Component)]
 pub struct Grabable {
@@ -92,19 +92,8 @@ impl Default for Grabable {
     }
 }
 
-#[derive(Default, Clone, Copy, Debug, Inspectable, PartialEq)]
-pub struct Hitbox {
-    pub offset: Vec3,
-    pub size: Vec2,
-}
-impl Hitbox {
-    pub fn new(offset: Vec2, size: Vec2) -> Self {
-        Self {
-            offset: offset.extend(0.0),
-            size,
-        }
-    }
-}
+#[derive(Default, Clone, Copy, Deref, DerefMut, Debug, Component, Inspectable, PartialEq)]
+pub struct Hitbox(pub Area);
 
 #[derive(Clone, Copy, Debug, Inspectable, Eq, PartialEq)]
 pub enum AttackHeight {

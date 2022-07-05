@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use types::Area;
 
 use crate::{
     AttackHeight, Branch, CancelLevel, Cost, GrabDescription, Hitbox, Item, ItemId, Lifetime, Move,
@@ -126,7 +127,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox::new(Vec2::new(1.0, 0.2), Vec2::new(0.2, 0.2)),
+                            hitbox: Hitbox(Area::new(1.0, 0.2, 0.2, 0.2)),
                             attached_to_player: true,
                             damage: Some(20.into()),
                             ..default()
@@ -165,7 +166,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     Branch {
                         default: Phase {
                             kind: PhaseKind::Attack(SpawnDescriptor {
-                                hitbox: Hitbox::new(Vec2::new(0.5, 1.5), Vec2::new(0.5, 0.5)),
+                                hitbox: Hitbox(Area::new(0.5, 1.5, 0.5, 0.5)),
                                 attached_to_player: true,
                                 ..default()
                             }),
@@ -178,7 +179,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             Requirements::has_hit(),
                             Phase {
                                 kind: PhaseKind::Attack(SpawnDescriptor {
-                                    hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(1.0, 1.0)),
+                                    hitbox: Hitbox(Area::new(0.5, 0.5, 1.0, 1.0)),
                                     attached_to_player: true,
                                     ..default()
                                 }),
@@ -228,7 +229,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
+                            hitbox: Hitbox(Area::new(0.5, 0.5, 0.3, 0.2)),
                             speed: Some(1.0 * Vec3::X),
                             lifetime: Lifetime::Forever,
                             ..default()
@@ -269,7 +270,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.7, 0.7)),
+                            hitbox: Hitbox(Area::new(0.5, 0.5, 0.7, 0.7)),
                             speed: Some(2.0 * Vec3::X),
                             lifetime: Lifetime::Forever,
                             ..default()
@@ -306,7 +307,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
+                            hitbox: Hitbox(Area::new(0.5, 0.5, 0.3, 0.2)),
                             speed: Some(1.0 * Vec3::X),
                             lifetime: Lifetime::Forever,
                             ..default()
@@ -346,7 +347,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.7, 0.7)),
+                            hitbox: Hitbox(Area::new(0.5, 0.5, 0.7, 0.7)),
                             speed: Some(2.0 * Vec3::X),
                             lifetime: Lifetime::Forever,
                             ..default()
@@ -383,7 +384,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox::new(Vec2::new(0.5, 0.0), Vec2::new(0.6, 0.3)),
+                            hitbox: Hitbox(Area::new(0.5, 0.0, 0.6, 0.3)),
                             knockback: Some(Vec3::new(2.0, 2.0, 0.0).into()),
                             fixed_height: Some(AttackHeight::High),
                             attached_to_player: true,

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use types::GameButton;
+use types::{Area, GameButton};
 
 use crate::{
     Branch, CancelLevel, Cost, Hitbox, ItemId, Lifetime, Move, MoveId, Phase, PhaseKind,
@@ -33,7 +33,7 @@ fn get_handmedownken() -> Move {
             .into(),
             Phase {
                 kind: PhaseKind::Attack(SpawnDescriptor {
-                    hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
+                    hitbox: Hitbox(Area::new(0.5, 0.5, 0.3, 0.2)),
                     speed: Some(1.0 * Vec3::X),
                     lifetime: Lifetime::Forever,
                     ..default()
@@ -87,7 +87,7 @@ fn get_gunshot() -> Move {
                     Phase {
                         duration: 20,
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox::new(Vec2::new(0.5, 0.5), Vec2::new(0.3, 0.2)),
+                            hitbox: Hitbox(Area::new(0.5, 0.5, 0.3, 0.2)),
                             speed: Some(10.0 * Vec3::X),
                             lifetime: Lifetime::Forever,
                             ..default()

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use kits::{AttackHeight, MoveSituation};
-use types::{LRDirection, StickPosition};
+use types::{Area, LRDirection, StickPosition};
 
 use crate::primary_state::{AirActivity, GroundActivity, PrimaryState};
 
@@ -151,7 +151,7 @@ impl PlayerState {
     pub fn blocked(
         &self,
         fixed_height: Option<AttackHeight>,
-        hitbox: bevy::sprite::Rect,
+        hitbox: Area,
         low_threshold: f32,
         high_threshold: f32,
         stick: StickPosition,
@@ -163,9 +163,9 @@ impl PlayerState {
         let blocking_high = stick == StickPosition::W;
         let blocking_low = stick == StickPosition::SW;
 
-        let height = fixed_height.unwrap_or(if hitbox.min.y > high_threshold {
+        let height = fixed_height.unwrap_or(if hitbox.bottom() > high_threshold {
             AttackHeight::High
-        } else if hitbox.max.y > low_threshold {
+        } else if hitbox.top() > low_threshold {
             AttackHeight::Mid
         } else {
             AttackHeight::Low

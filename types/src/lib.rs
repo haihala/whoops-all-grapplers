@@ -1,5 +1,8 @@
+mod area;
+pub use area::Area;
+
 mod direction;
-pub use direction::*;
+pub use direction::LRDirection;
 
 mod effects;
 pub use effects::{SoundEffect, VisualEffect};

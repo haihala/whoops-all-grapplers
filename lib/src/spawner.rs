@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 
 use bevy::utils::HashMap;
-use kits::{Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
+use kits::{Hitbox, Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
 use time::{Clock, GameState};
-use types::{LRDirection, Owner, Player};
+use types::{Area, LRDirection, Owner, Player};
 
 use crate::assets::Colors;
 use crate::physics::ConstantVelocity;
@@ -62,7 +62,7 @@ impl Spawner {
         player: Player,
         parent_position: Vec3,
     ) {
-        let offset = facing.mirror_vec(descriptor.hitbox.offset);
+        let offset = facing.mirror_vec(descriptor.hitbox.center().extend(0.0));
         let absolute_position = parent_position + offset;
         let transform = Transform::from_translation(if descriptor.attached_to_player {
             offset
@@ -78,7 +78,7 @@ impl Spawner {
             },
             sprite: Sprite {
                 color: colors.hurtbox,
-                custom_size: Some(descriptor.hitbox.size),
+                custom_size: Some(descriptor.hitbox.size()),
                 ..default()
             },
             ..default()
@@ -96,7 +96,12 @@ impl Spawner {
             knockback: descriptor.knockback,
             pushback: descriptor.pushback,
         });
-        builder.insert(Owner(player));
+        builder
+            .insert(Owner(player))
+            .insert(Hitbox(Area::from_center_size(
+                Vec2::ZERO, // Position is set into the object directly
+                descriptor.hitbox.size(),
+            )));
 
         if let Some(speed) = descriptor.speed {
             builder.insert(ConstantVelocity::new(facing.to_vec3() * speed));

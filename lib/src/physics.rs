@@ -374,15 +374,6 @@ pub fn vec_rect_collision(a_pos: Vec3, a_size: Vec2, b_pos: Vec3, b_size: Vec2) 
     rect_collision(a, b)
 }
 
-pub fn hybrid_vec_rect_collision(a_pos: Vec3, a_size: Vec2, b: sprite::Rect) -> bool {
-    let a = sprite::Rect {
-        min: a_pos.truncate() - a_size / 2.0,
-        max: a_pos.truncate() + a_size / 2.0,
-    };
-
-    rect_collision(a, b)
-}
-
 pub fn rect_collision(a: sprite::Rect, b: sprite::Rect) -> bool {
     let x_overlap = a.min.x < b.max.x && a.max.x > b.min.x;
     let y_overlap = a.min.y < b.max.y && a.max.y > b.min.y;

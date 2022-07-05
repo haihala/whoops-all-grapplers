@@ -4,14 +4,14 @@ use bevy::{
 };
 
 use input_parsing::InputParser;
-use kits::{Grabable, Hurtbox, Kit, OnHitEffect, Resources};
+use kits::{Grabable, Hitbox, Hurtbox, Kit, OnHitEffect, Resources};
 use player_state::PlayerState;
 use time::Clock;
-use types::{LRDirection, Owner, Player, Players, SoundEffect, VisualEffect};
+use types::{Area, LRDirection, Owner, Player, Players, SoundEffect, VisualEffect};
 
 use crate::{
     assets::{ParticleRequest, Particles, Sounds},
-    physics::{hybrid_vec_rect_collision, PlayerVelocity},
+    physics::PlayerVelocity,
     spawner::Spawner,
 };
 
@@ -39,18 +39,11 @@ pub fn register_hits(
     clock: Res<Clock>,
     mut sounds: ResMut<Sounds>,
     mut particles: ResMut<Particles>,
-    mut hitboxes: Query<(&Owner, &OnHitEffect, &GlobalTransform, &Sprite)>,
+    mut hitboxes: Query<(&Owner, &OnHitEffect, &GlobalTransform, &Hitbox)>,
     mut hurtboxes: Query<PlayerQuery>,
     players: Res<Players>,
 ) {
-    for (owner, effect, hitbox_tf, hitbox_sprite) in hitboxes.iter_mut() {
-        let hitbox_position = hitbox_tf.translation;
-        let hitbox_size = hitbox_sprite.custom_size.unwrap();
-        let hitbox = bevy::sprite::Rect {
-            min: hitbox_position.truncate() - hitbox_size / 2.0,
-            max: hitbox_position.truncate() + hitbox_size / 2.0,
-        };
-
+    for (owner, effect, hitbox_tf, hitbox) in hitboxes.iter_mut() {
         if let Ok([mut p1, mut p2]) = hurtboxes.get_many_mut([players.one, players.two]) {
             let (attacker, defender) = if owner.0 == Player::One {
                 (&mut p1, &mut p2)
@@ -64,7 +57,7 @@ pub fn register_hits(
                 &mut sounds,
                 &mut particles,
                 effect,
-                hitbox,
+                hitbox.with_offset(hitbox_tf.translation.truncate()),
                 attacker,
                 defender,
             );
@@ -79,18 +72,18 @@ fn handle_hit(
     sounds: &mut ResMut<Sounds>,
     particles: &mut ResMut<Particles>,
     effect: &OnHitEffect,
-    hitbox: bevy::sprite::Rect,
+    hitbox: Area,
     attacker: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
     defender: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {
-    if hybrid_vec_rect_collision(
-        defender.tf.translation + defender.hurtbox.offset,
-        defender.sprite.custom_size.unwrap(),
-        hitbox,
-    ) {
-        attacker.state.register_hit();
+    if let Some(overlap) = dbg!(defender
+        .hurtbox
+        .with_offset(defender.tf.translation.truncate()))
+    .intersection(&dbg!(hitbox))
+    {
         // Hit has happened
         // Handle blocking and state transitions here
+        attacker.state.register_hit();
 
         let blocked = defender.state.blocked(
             effect.fixed_height,
@@ -145,12 +138,6 @@ fn handle_hit(
         });
 
         // Visual effect
-        let hitbox_center = (
-            (hitbox.max.x + hitbox.min.x) / 2.0,
-            (hitbox.max.y + hitbox.min.y) / 2.0,
-            0.0,
-        )
-            .into();
         particles.spawn(ParticleRequest {
             effect: if blocked {
                 VisualEffect::Block
@@ -158,7 +145,7 @@ fn handle_hit(
                 VisualEffect::Hit
             },
             // TODO: This can be refined more
-            position: hitbox_center,
+            position: overlap.center().extend(0.0),
         });
 
         // Despawns

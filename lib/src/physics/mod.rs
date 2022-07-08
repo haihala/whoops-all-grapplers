@@ -165,8 +165,7 @@ fn push_players(mut query: Query<PlayerMovingQuery>, players: Res<Players>) {
                 // This was originally +=, still seems like it ought to be, but this works now
                 p.tf.translation -= Vec3::X
                     * p.facing.mirror_f32(
-                        ((common_shift - (average_collider_width / 2.0)) / 2.0)
-                            .min(overlap.width()),
+                        (common_shift - (average_collider_width / 2.0)).min(overlap.width()) / 2.0,
                     );
             }
         } else {

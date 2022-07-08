@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy::utils::HashMap;
 use kits::{Hitbox, Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
 use time::{Clock, GameState};
-use types::{Area, LRDirection, Owner, Player};
+use types::{Area, Facing, Owner, Player};
 
 use crate::assets::Colors;
 use crate::physics::ConstantVelocity;
@@ -58,7 +58,7 @@ impl Spawner {
         colors: &Res<Colors>,
         frame: usize,
         parent: Entity,
-        facing: &LRDirection,
+        facing: &Facing,
         player: Player,
         parent_position: Vec3,
     ) {
@@ -188,7 +188,7 @@ pub fn spawn_new(
     mut commands: Commands,
     clock: Res<Clock>,
     colors: Res<Colors>,
-    mut query: Query<(&mut Spawner, Entity, &LRDirection, &Player, &Transform)>,
+    mut query: Query<(&mut Spawner, Entity, &Facing, &Player, &Transform)>,
 ) {
     for (mut spawner, parent, facing, player, transform) in query.iter_mut() {
         for (move_id, spawn_descriptor) in spawner.queue.drain(..).collect::<Vec<_>>().into_iter() {

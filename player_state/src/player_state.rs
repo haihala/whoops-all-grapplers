@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use kits::{AttackHeight, MoveSituation};
-use types::{Area, LRDirection, StickPosition};
+use types::{Area, Facing, StickPosition};
 
 use crate::primary_state::{AirActivity, GroundActivity, PrimaryState};
 
@@ -124,10 +124,10 @@ impl PlayerState {
     }
 
     // Walking
-    pub fn walk(&mut self, direction: LRDirection) {
+    pub fn walk(&mut self, direction: Facing) {
         self.primary = PrimaryState::Ground(GroundActivity::Walk(direction));
     }
-    pub fn get_walk_direction(&self) -> Option<LRDirection> {
+    pub fn get_walk_direction(&self) -> Option<Facing> {
         if let PrimaryState::Ground(GroundActivity::Walk(direction)) = self.primary {
             Some(direction)
         } else {

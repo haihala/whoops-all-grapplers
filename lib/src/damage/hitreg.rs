@@ -7,7 +7,7 @@ use input_parsing::InputParser;
 use kits::{Grabable, Hitbox, Hurtbox, Kit, OnHitEffect, Resources};
 use player_state::PlayerState;
 use time::Clock;
-use types::{Area, LRDirection, Owner, Player, Players, SoundEffect, VisualEffect};
+use types::{Area, Facing, Owner, Player, Players, SoundEffect, VisualEffect};
 
 use crate::{
     assets::{ParticleRequest, Particles, Sounds},
@@ -30,7 +30,7 @@ pub struct PlayerQuery<'a> {
     parser: &'a InputParser,
     state: &'a mut PlayerState,
     velocity: &'a mut PlayerVelocity,
-    facing: &'a LRDirection,
+    facing: &'a Facing,
     spawner: &'a mut Spawner,
 }
 

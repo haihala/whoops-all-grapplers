@@ -8,7 +8,7 @@ use constants::PLAYER_GRAVITY_PER_FRAME;
 use kits::Kit;
 use player_state::PlayerState;
 use time::{once_per_combat_frame, WAGStage};
-use types::{Area, LRDirection, Players};
+use types::{Area, Facing, Players};
 
 use crate::{
     camera::{WorldCamera, VIEWPORT_HALFWIDTH},
@@ -58,7 +58,7 @@ impl Plugin for PhysicsPlugin {
 struct SideswitcherQuery<'a> {
     tf: &'a Transform,
     state: &'a PlayerState,
-    direction: &'a mut LRDirection,
+    direction: &'a mut Facing,
 }
 fn sideswitcher(players: Res<Players>, mut query: Query<SideswitcherQuery>) {
     if let Ok([mut p1, mut p2]) = query.get_many_mut([players.one, players.two]) {
@@ -95,7 +95,7 @@ fn player_gravity(
     }
 }
 
-fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &Kit, &LRDirection)>) {
+fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &Kit, &Facing)>) {
     for (state, mut velocity, kit, facing) in query.iter_mut() {
         if let Some((move_id, start_frame, mobility)) =
             state.get_move_state().and_then(|move_state| {
@@ -131,7 +131,7 @@ struct PlayerMovingQuery<'a> {
     state: &'a PlayerState,
     velocity: &'a mut PlayerVelocity,
     push_box: &'a PushBox,
-    facing: &'a LRDirection,
+    facing: &'a Facing,
 }
 
 fn move_players(mut query: Query<PlayerMovingQuery>) {

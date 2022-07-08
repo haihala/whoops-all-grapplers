@@ -13,7 +13,7 @@ use input_parsing::PadBundle;
 use kits::{ryan_kit, Grabable, Hurtbox, Inventory, Kit, Resources};
 use player_state::PlayerState;
 use time::{Clock, GameState, RoundResult};
-use types::{Area, LRDirection, Player, Players};
+use types::{Area, Facing, Player, Players};
 
 use crate::{
     assets::{AnimationHelperSetup, Colors, Model, ModelRequest},
@@ -123,7 +123,7 @@ fn spawn_player(
     spawn_handle
         .insert_bundle(PlayerDefaults::default())
         .insert(AnimationHelperSetup)
-        .insert(LRDirection::from_flipped(offset.is_sign_positive()))
+        .insert(Facing::from_flipped(offset.is_sign_positive()))
         .insert(Hurtbox(player_area))
         .insert(PushBox(player_area))
         .insert(kit)

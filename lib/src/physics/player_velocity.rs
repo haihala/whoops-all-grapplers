@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use kits::{MoveId, MoveMobility};
-use types::LRDirection;
+use types::Facing;
 
 #[derive(Debug, Inspectable, Clone, Default, Copy)]
 pub struct CurrentMove {
@@ -52,7 +52,7 @@ impl PlayerVelocity {
         move_id: MoveId,
         start_frame: i32,
         mobility: MoveMobility,
-        facing: &LRDirection,
+        facing: &Facing,
     ) {
         let (amount, perpetual) = match mobility {
             MoveMobility::Impulse(amount) => (amount, false),
@@ -96,7 +96,7 @@ impl PlayerVelocity {
         }
     }
 
-    pub(super) fn handle_walking_velocity(&mut self, direction: LRDirection) {
+    pub(super) fn handle_walking_velocity(&mut self, direction: Facing) {
         let proposed_walk_velocity = self.velocity.x + direction.mirror_f32(PLAYER_ACCELERATION);
 
         self.velocity.x = direction.mirror_f32(

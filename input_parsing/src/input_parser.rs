@@ -9,7 +9,7 @@ use bevy::{
     utils::{HashMap, HashSet},
 };
 
-use types::{GameButton, LRDirection, StickPosition};
+use types::{Facing, GameButton, StickPosition};
 
 use kits::MoveId;
 
@@ -58,7 +58,7 @@ impl InputParser {
         self.head.stick_position == StickPosition::Neutral && self.head.pressed.is_empty()
     }
 
-    fn add_frame(&mut self, diff: Diff, facing: &LRDirection) {
+    fn add_frame(&mut self, diff: Diff, facing: &Facing) {
         // This needs to happen before relative_stick is set to enable inputs that permit holding a direction as the first requirement
         self.parse_inputs(
             Diff {
@@ -86,7 +86,7 @@ impl InputParser {
 }
 
 pub fn parse_input<T: InputStream + Component>(
-    mut characters: Query<(&mut InputParser, &mut T, &LRDirection)>,
+    mut characters: Query<(&mut InputParser, &mut T, &Facing)>,
 ) {
     for (mut parser, mut reader, facing) in characters.iter_mut() {
         if let Some(diff) = reader.read() {
@@ -248,7 +248,7 @@ mod test {
             world
                 .spawn()
                 .insert_bundle(TestInputBundle::new(moves.into_iter().collect()))
-                .insert(LRDirection::Right);
+                .insert(Facing::Right);
 
             let mut tester = TestInterface { world, stage };
             tester.tick();

@@ -161,13 +161,17 @@ pub fn handle_grabs(
         &mut Spawner,
         &mut PlayerVelocity,
         &mut Health,
+        &Facing,
     )>,
 ) {
-    for (mut grab_target, mut state, mut spawner, mut velocity, mut health) in query.iter_mut() {
+    for (mut grab_target, mut state, mut spawner, mut velocity, mut health, &facing) in
+        query.iter_mut()
+    {
         for descriptor in grab_target.queue.drain(..).collect::<Vec<_>>().into_iter() {
             state.throw();
             spawner.despawn_on_hit(&mut commands);
-            velocity.add_impulse(descriptor.impulse);
+            // Facing is from the one being thrown, but we want to write the vector from the attacker's perspective
+            velocity.add_impulse(facing.opposite().mirror_vec(descriptor.impulse));
             health.apply_damage(descriptor.damage);
         }
     }

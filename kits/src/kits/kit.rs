@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::utils::HashMap;
-use types::StickPosition;
+use types::{Area, StickPosition};
 
 use crate::{Inventory, Item, ItemId, Move, MoveId};
 
@@ -11,8 +11,10 @@ pub struct Kit {
     pub idle_animation: &'static str,
     pub low_block_height: f32,
     pub high_block_height: f32,
-    pub standing_size: Vec2,
-    pub crouching_size: Vec2,
+    pub standing_hurtbox: Area,
+    pub crouching_hurtbox: Area,
+    pub standing_pushbox: Area,
+    pub crouching_pushbox: Area,
     pub charge_directions: Vec<StickPosition>,
 }
 
@@ -24,14 +26,17 @@ impl Default for Kit {
             idle_animation: Default::default(),
             low_block_height: 0.5,
             high_block_height: 1.2,
-            standing_size: Vec2::new(0.7, 1.8),
-            crouching_size: Vec2::new(0.7, 1.3),
             charge_directions: vec![
                 StickPosition::SE,
                 StickPosition::S,
                 StickPosition::SW,
                 StickPosition::W,
             ],
+            // TODO: Make theses a part of the constructor:
+            standing_hurtbox: Area::from_center_size(Vec2::Y * 0.9, Vec2::new(0.5, 1.8)),
+            crouching_hurtbox: Area::from_center_size(Vec2::Y * 0.6, Vec2::new(0.5, 1.2)),
+            standing_pushbox: Area::from_center_size(Vec2::Y * 0.9, Vec2::new(0.5, 1.8)),
+            crouching_pushbox: Area::from_center_size(Vec2::Y * 0.6, Vec2::new(0.5, 1.2)),
         }
     }
 }
@@ -53,11 +58,19 @@ impl Kit {
         self.moves.get(&id).unwrap().to_owned()
     }
 
-    pub fn get_size(&self, crouching: bool) -> Vec2 {
+    pub fn get_pushbox(&self, crouching: bool) -> Area {
         if crouching {
-            self.crouching_size
+            self.crouching_pushbox
         } else {
-            self.standing_size
+            self.standing_pushbox
+        }
+    }
+
+    pub fn get_hurtbox(&self, crouching: bool) -> Area {
+        if crouching {
+            self.crouching_hurtbox
+        } else {
+            self.standing_hurtbox
         }
     }
 

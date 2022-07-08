@@ -22,7 +22,6 @@ use super::Health;
 pub struct PlayerQuery<'a> {
     kit: &'a Kit,
     hurtbox: &'a Hurtbox,
-    sprite: &'a Sprite,
     tf: &'a Transform,
     health: &'a mut Health,
     resources: &'a mut Resources,

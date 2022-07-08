@@ -74,7 +74,7 @@ pub enum MoveMobility {
     Perpetual(Vec3),
 }
 
-#[derive(Clone, Copy, Default, Component, DerefMut, Deref)]
+#[derive(Debug, Clone, Copy, Default, Component, DerefMut, Deref, Inspectable)]
 pub struct Hurtbox(pub Area);
 
 #[derive(Clone, Component)]

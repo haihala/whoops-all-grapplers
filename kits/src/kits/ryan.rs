@@ -102,7 +102,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox(Area::new(1.0, 0.2, 0.2, 0.2)),
+                            hitbox: Hitbox(Area::new(1.0, 0.2, 0.3, 0.2)),
                             attached_to_player: true,
                             damage: Some(20.into()),
                             ..default()

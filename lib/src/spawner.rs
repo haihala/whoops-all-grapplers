@@ -5,7 +5,6 @@ use kits::{Hitbox, Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
 use time::{Clock, GameState};
 use types::{Area, Facing, Owner, Player};
 
-use crate::assets::Colors;
 use crate::physics::ConstantVelocity;
 
 pub struct SpawnerPlugin;
@@ -55,7 +54,6 @@ impl Spawner {
         id: MoveId,
         descriptor: SpawnDescriptor,
         commands: &mut Commands,
-        colors: &Res<Colors>,
         frame: usize,
         parent: Entity,
         facing: &Facing,
@@ -70,33 +68,27 @@ impl Spawner {
             absolute_position
         });
 
-        let mut builder = commands.spawn_bundle(SpriteBundle {
-            transform,
-            global_transform: GlobalTransform {
+        let mut builder = commands.spawn_bundle(TransformBundle {
+            local: transform,
+            global: GlobalTransform {
                 translation: absolute_position,
                 ..default()
             },
-            sprite: Sprite {
-                color: colors.hurtbox,
-                custom_size: Some(descriptor.hitbox.size()),
-                ..default()
-            },
-            ..default()
         });
 
         // Housekeeping
         let new_hitbox = builder.id();
 
         // Components used when collision happens
-        builder.insert(OnHitEffect {
-            id,
-            fixed_height: descriptor.fixed_height,
-            damage: descriptor.damage,
-            stun: descriptor.stun,
-            knockback: descriptor.knockback,
-            pushback: descriptor.pushback,
-        });
         builder
+            .insert(OnHitEffect {
+                id,
+                fixed_height: descriptor.fixed_height,
+                damage: descriptor.damage,
+                stun: descriptor.stun,
+                knockback: descriptor.knockback,
+                pushback: descriptor.pushback,
+            })
             .insert(Owner(player))
             .insert(Hitbox(Area::from_center_size(
                 Vec2::ZERO, // Position is set into the object directly
@@ -187,7 +179,6 @@ impl Spawner {
 pub fn spawn_new(
     mut commands: Commands,
     clock: Res<Clock>,
-    colors: Res<Colors>,
     mut query: Query<(&mut Spawner, Entity, &Facing, &Player, &Transform)>,
 ) {
     for (mut spawner, parent, facing, player, transform) in query.iter_mut() {
@@ -196,7 +187,6 @@ pub fn spawn_new(
                 move_id,
                 spawn_descriptor,
                 &mut commands,
-                &colors,
                 clock.frame,
                 parent,
                 facing,

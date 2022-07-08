@@ -33,7 +33,7 @@ impl ConstantVelocity {
 }
 
 #[derive(Debug, Default, Inspectable, Component, Deref, DerefMut)]
-pub struct PushBox(pub Area);
+pub struct Pushbox(pub Area);
 
 pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
@@ -130,7 +130,7 @@ struct PlayerMovingQuery<'a> {
     tf: &'a mut Transform,
     state: &'a PlayerState,
     velocity: &'a mut PlayerVelocity,
-    push_box: &'a PushBox,
+    push_box: &'a Pushbox,
     facing: &'a Facing,
 }
 

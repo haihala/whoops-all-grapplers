@@ -18,7 +18,7 @@ pub struct Colors {
     pub charge_full: Color,
     pub hitbox: Color,
     pub hurtbox: Color,
-    pub collision_box: Color,
+    pub pushbox: Color,
     pub text: Color,
 }
 

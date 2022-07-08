@@ -13,16 +13,16 @@ use input_parsing::PadBundle;
 use kits::{ryan_kit, Grabable, Hurtbox, Inventory, Kit, Resources};
 use player_state::PlayerState;
 use time::{Clock, GameState, RoundResult};
-use types::{Area, Facing, Player, Players};
+use types::{Facing, Player, Players};
 
 use crate::{
-    assets::{AnimationHelperSetup, Colors, Model, ModelRequest},
+    assets::{AnimationHelperSetup, Model, ModelRequest},
     damage::Health,
-    physics::{PlayerVelocity, PushBox, GROUND_PLANE_HEIGHT},
+    physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
     spawner::Spawner,
 };
 
-use bevy::{ecs::query::WorldQuery, prelude::*, sprite::Anchor};
+use bevy::{ecs::query::WorldQuery, prelude::*};
 
 use self::{model_flipper::PlayerModel, move_activation::MoveBuffer};
 
@@ -70,10 +70,10 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn setup(mut commands: Commands, colors: Res<Colors>) {
+fn setup(mut commands: Commands) {
     let players = Players {
-        one: spawn_player(&mut commands, &colors, -PLAYER_SPAWN_DISTANCE, Player::One),
-        two: spawn_player(&mut commands, &colors, PLAYER_SPAWN_DISTANCE, Player::Two),
+        one: spawn_player(&mut commands, -PLAYER_SPAWN_DISTANCE, Player::One),
+        two: spawn_player(&mut commands, PLAYER_SPAWN_DISTANCE, Player::Two),
     };
 
     commands.insert_resource(players);
@@ -90,42 +90,24 @@ struct PlayerDefaults {
     move_buffer: MoveBuffer,
 }
 
-fn spawn_player(
-    commands: &mut Commands,
-    colors: &Res<Colors>,
-    offset: f32,
-    player: Player,
-) -> Entity {
+fn spawn_player(commands: &mut Commands, offset: f32, player: Player) -> Entity {
     let state = PlayerState::default();
     let kit = ryan_kit();
-
-    let player_height_offset = kit.standing_size.y / 2.0;
 
     #[cfg(not(test))]
     let inputs = PadBundle::new(kit.get_inputs());
 
-    let mut spawn_handle = commands.spawn_bundle(SpriteBundle {
-        transform: Transform {
-            translation: (offset, PLAYER_SPAWN_HEIGHT, 0.0).into(),
-            ..default()
-        },
-        sprite: Sprite {
-            color: colors.collision_box,
-            custom_size: Some(kit.standing_size),
-            anchor: Anchor::BottomCenter,
-            ..default()
-        },
+    let mut spawn_handle = commands.spawn_bundle(TransformBundle {
+        local: Transform::from_translation((offset, PLAYER_SPAWN_HEIGHT, 0.0).into()),
         ..default()
     });
-
-    let player_area = Area::from_center_size(Vec2::Y * player_height_offset, kit.standing_size);
 
     spawn_handle
         .insert_bundle(PlayerDefaults::default())
         .insert(AnimationHelperSetup)
         .insert(Facing::from_flipped(offset.is_sign_positive()))
-        .insert(Hurtbox(player_area))
-        .insert(PushBox(player_area))
+        .insert(Hurtbox(kit.get_hurtbox(false)))
+        .insert(Pushbox(kit.get_pushbox(false)))
         .insert(kit)
         .insert(player)
         .insert(state);

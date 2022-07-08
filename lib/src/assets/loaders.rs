@@ -13,9 +13,9 @@ pub fn colors(mut commands: Commands) {
         meter: Color::rgb(0.04, 0.5, 0.55),
         charge_default: Color::rgb(0.05, 0.4, 0.55),
         charge_full: Color::rgb(0.9, 0.1, 0.3),
-        hitbox: Color::rgb(1.0, 0.0, 0.0),
-        hurtbox: Color::rgb(0.0, 1.0, 0.0),
-        collision_box: Color::rgba(0.0, 0.0, 1.0, 0.5),
+        hitbox: Color::rgba(1.0, 0.0, 0.0, 0.5),
+        hurtbox: Color::rgba(0.0, 1.0, 0.0, 0.5),
+        pushbox: Color::rgba(0.0, 0.0, 1.0, 0.5),
         text: Color::WHITE,
     })
 }

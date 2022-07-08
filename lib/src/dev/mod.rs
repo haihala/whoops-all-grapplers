@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::{InspectableRegistry, WorldInspectorPlugin};
 
-use kits::{Inventory, Kit, Resources};
+use kits::{Hitbox, Hurtbox, Inventory, Kit, Resources};
 use player_state::PlayerState;
 use time::Clock;
 use types::{Player, SoundEffect};
@@ -9,8 +9,10 @@ use types::{Player, SoundEffect};
 use crate::{
     assets::Sounds,
     damage::Health,
-    physics::{ConstantVelocity, PlayerVelocity},
+    physics::{ConstantVelocity, PlayerVelocity, Pushbox},
 };
+
+mod box_visualization;
 
 pub struct DevPlugin;
 
@@ -20,6 +22,8 @@ impl Plugin for DevPlugin {
             .add_plugin(WorldInspectorPlugin::new())
             .insert_resource(InspectableRegistry::default())
             .add_system(test_system)
+            .add_system(box_visualization::spawn_boxes.after(test_system))
+            .add_system(box_visualization::size_adjustment.after(box_visualization::spawn_boxes))
             .world
             .resource_mut::<InspectableRegistry>();
 
@@ -30,6 +34,9 @@ impl Plugin for DevPlugin {
         registry.register::<Clock>();
         registry.register::<PlayerVelocity>();
         registry.register::<ConstantVelocity>();
+        registry.register::<Pushbox>();
+        registry.register::<Hurtbox>();
+        registry.register::<Hitbox>();
     }
 }
 

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::utils::HashMap;
-use types::{Area, StickPosition};
+use types::{Animation, Area, DummyAnimation, Model, StickPosition};
 
 use crate::{Inventory, Item, ItemId, Move, MoveId};
 
@@ -8,7 +8,8 @@ use crate::{Inventory, Item, ItemId, Move, MoveId};
 pub struct Kit {
     moves: HashMap<MoveId, Move>,
     items: HashMap<ItemId, Item>,
-    pub idle_animation: &'static str,
+    pub model: Model,
+    pub idle_animation: Animation,
     pub low_block_height: f32,
     pub high_block_height: f32,
     pub standing_hurtbox: Area,
@@ -23,7 +24,8 @@ impl Default for Kit {
         Self {
             moves: Default::default(),
             items: Default::default(),
-            idle_animation: Default::default(),
+            model: Model::Dummy,
+            idle_animation: Animation::Dummy(DummyAnimation::Idle),
             low_block_height: 0.5,
             high_block_height: 1.2,
             charge_directions: vec![
@@ -45,13 +47,8 @@ impl Kit {
         Kit {
             moves: moves.into_iter().collect(),
             items: items.into_iter().collect(),
-            idle_animation: "dummy-character.glb#Animation0",
             ..default()
         }
-    }
-
-    pub fn get_animations(&self) -> Vec<&'static str> {
-        vec![self.idle_animation]
     }
 
     pub fn get_move(&self, id: MoveId) -> Move {

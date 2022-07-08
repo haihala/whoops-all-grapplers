@@ -1,24 +1,25 @@
 use bevy::{prelude::*, utils::HashMap};
+use types::{Animation, DummyAnimation};
 
 #[derive(Deref, DerefMut)]
-pub struct Animations(pub HashMap<&'static str, Handle<AnimationClip>>);
+pub struct Animations(pub HashMap<Animation, Handle<AnimationClip>>);
 
 #[derive(Debug, Component)]
 pub struct AnimationHelper {
     pub player_entity: Entity,
-    pub current: &'static str,
-    next: Option<&'static str>,
+    pub current: Animation,
+    next: Option<Animation>,
 }
 
 impl AnimationHelper {
     fn new(player_entity: Entity) -> AnimationHelper {
         AnimationHelper {
             player_entity,
-            current: "",
+            current: Animation::TPose,
             next: None,
         }
     }
-    pub fn play(&mut self, new: &'static str) {
+    pub fn play(&mut self, new: Animation) {
         self.next = if new != self.current { Some(new) } else { None }
     }
 }
@@ -31,7 +32,7 @@ pub fn update_animation(
     for mut helper in main.iter_mut() {
         if let Some(next) = helper.next {
             let mut player = players.get_mut(helper.player_entity).unwrap();
-            let asset = animations[next].clone();
+            let asset = animations[&next].clone();
             player.play(asset).repeat();
             helper.current = next;
         }
@@ -74,4 +75,13 @@ fn find_animation_player_entity(
         }
     }
     None
+}
+
+pub(super) fn animation_paths() -> HashMap<Animation, &'static str> {
+    vec![(
+        Animation::Dummy(DummyAnimation::Idle),
+        "dummy-character.glb#Animation0",
+    )]
+    .into_iter()
+    .collect()
 }

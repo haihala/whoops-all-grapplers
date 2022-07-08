@@ -13,10 +13,10 @@ use input_parsing::PadBundle;
 use kits::{ryan_kit, Grabable, Hurtbox, Inventory, Kit, Resources};
 use player_state::PlayerState;
 use time::{Clock, GameState, RoundResult};
-use types::{Facing, Player, Players};
+use types::{Facing, Model, Player, Players};
 
 use crate::{
-    assets::{AnimationHelperSetup, Model, ModelRequest},
+    assets::{AnimationHelperSetup, ModelRequest},
     damage::Health,
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
     spawner::Spawner,

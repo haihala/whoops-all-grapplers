@@ -3,8 +3,10 @@ use bevy_hanabi::*;
 use types::VisualEffect;
 
 use super::{
+    animations::animation_paths,
+    models::model_paths,
     sounds::{get_sound_paths, Sounds},
-    Animations, Colors, Fonts, Model, Models, Particles, Sprites,
+    Animations, Colors, Fonts, Models, Particles, Sprites,
 };
 
 pub fn colors(mut commands: Commands) {
@@ -34,23 +36,18 @@ pub fn sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 pub fn models(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(Models(
-        vec![(Model::Dummy, asset_server.load("dummy-character.glb"))]
+        model_paths()
             .into_iter()
+            .map(|(key, path)| (key, asset_server.load(path)))
             .collect(),
     ));
 }
 
 pub fn animations(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let mut collector = vec![];
-
-    for kit in kits::all_kits() {
-        collector.append(&mut kit.get_animations());
-    }
-
     commands.insert_resource(Animations(
-        collector
+        animation_paths()
             .into_iter()
-            .map(|key| (key, asset_server.load(key)))
+            .map(|(key, path)| (key, asset_server.load(path)))
             .collect(),
     ));
 }

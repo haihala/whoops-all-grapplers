@@ -1,9 +1,5 @@
 use bevy::{gltf::Gltf, prelude::*, utils::HashMap};
-
-#[derive(Debug, Component, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum Model {
-    Dummy,
-}
+use types::Model;
 
 #[derive(Debug, Deref, DerefMut)]
 pub struct Models(pub HashMap<Model, Handle<Gltf>>);
@@ -30,4 +26,10 @@ pub fn model_spawner(
             e.remove::<ModelRequest>(); // Prevent multiple spawns by removing the spawn request
         }
     }
+}
+
+pub(super) fn model_paths() -> HashMap<Model, &'static str> {
+    vec![(Model::Dummy, "dummy-character.glb")]
+        .into_iter()
+        .collect()
 }

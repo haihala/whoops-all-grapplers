@@ -4,6 +4,9 @@ pub use area::Area;
 mod facing;
 pub use facing::Facing;
 
+mod gltf;
+pub use gltf::{Animation, DummyAnimation, Model};
+
 mod effects;
 pub use effects::{SoundEffect, VisualEffect};
 

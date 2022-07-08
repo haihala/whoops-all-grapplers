@@ -7,7 +7,7 @@ mod particles;
 mod sounds;
 
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
-pub use models::{Model, ModelRequest, Models};
+pub use models::{ModelRequest, Models};
 pub use particles::{ParticleRequest, Particles};
 pub use sounds::Sounds;
 

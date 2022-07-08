@@ -1,7 +1,9 @@
 # Backlog
+## Blocked
+- [[GLTF helper systems]] - Needs [[Animations]]
+
 ## High priority
 - [[Clash parry]]
-- [[GLTF helper systems]]
 
 ## Low priority
 - [[Recovery and knockdown]]

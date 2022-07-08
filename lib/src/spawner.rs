@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use bevy::utils::HashMap;
-use characters::{Hitbox, Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
+use characters::{HitTracker, Hitbox, Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
 use time::{Clock, GameState};
 use types::{Area, Facing, Owner, Player};
 
@@ -89,6 +89,7 @@ impl Spawner {
                 knockback: descriptor.knockback,
                 pushback: descriptor.pushback,
             })
+            .insert(HitTracker::new(descriptor.hits))
             .insert(Owner(player))
             .insert(Hitbox(Area::from_center_size(
                 Vec2::ZERO, // Position is set into the object directly

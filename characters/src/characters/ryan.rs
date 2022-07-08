@@ -103,8 +103,6 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox(Area::new(1.0, 1.2, 0.3, 0.2)),
-                            damage: Some(10.into()),
-                            stun: Some(15.into()),
                             ..default()
                         }),
                         duration: 10,
@@ -141,7 +139,6 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox(Area::new(0.5, 1.5, 0.5, 0.5)),
-                            damage: Some(15.into()),
                             ..default()
                         }),
                         duration: 20,
@@ -191,7 +188,6 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
                             speed: 5.0 * Vec3::X,
                             lifetime: Lifetime::Frames((constants::FPS * 0.25) as usize),
-                            damage: Some(15.into()),
                             attached_to_player: false,
                             ..default()
                         }),
@@ -234,7 +230,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             hitbox: Hitbox(Area::new(0.5, 1.2, 0.4, 0.3)),
                             speed: 6.0 * Vec3::X,
                             lifetime: Lifetime::Forever,
-                            damage: Some(20.into()),
+                            damage: (20, 3).into(),
                             attached_to_player: false,
                             ..default()
                         }),
@@ -273,7 +269,6 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
                             speed: 4.0 * Vec3::X,
                             lifetime: Lifetime::Forever,
-                            damage: Some(15.into()),
                             attached_to_player: false,
                             ..default()
                         }),
@@ -315,7 +310,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             hitbox: Hitbox(Area::new(0.5, 1.0, 0.4, 0.5)),
                             speed: 5.0 * Vec3::X,
                             lifetime: Lifetime::Forever,
-                            damage: Some(20.into()),
+                            hits: 2,
                             attached_to_player: false,
                             ..default()
                         }),
@@ -353,7 +348,6 @@ fn attacks() -> Vec<(MoveId, Move)> {
                         kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox(Area::new(0.5, 0.1, 0.3, 0.5)),
                             fixed_height: Some(AttackHeight::High),
-                            damage: Some(10.into()),
                             ..default()
                         }),
                         duration: 10,

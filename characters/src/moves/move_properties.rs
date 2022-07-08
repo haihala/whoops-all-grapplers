@@ -166,10 +166,10 @@ pub struct OnHitEffect {
     pub id: MoveId, // Needed so we can despawn the hitbox when a hit is registered
 
     pub fixed_height: Option<AttackHeight>,
-    pub damage: Option<Damage>,
-    pub stun: Option<Stun>,
-    pub knockback: Option<Knockback>,
-    pub pushback: Option<Pushback>,
+    pub damage: Damage,
+    pub stun: Stun,
+    pub knockback: Knockback,
+    pub pushback: Pushback,
 }
 
 impl Default for OnHitEffect {
@@ -185,12 +185,32 @@ impl Default for OnHitEffect {
     }
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Inspectable, Component)]
+pub struct HitTracker {
+    pub hits: usize,
+    pub last_hit_frame: Option<usize>,
+}
+impl HitTracker {
+    pub fn new(hits: usize) -> Self {
+        Self { hits, ..default() }
+    }
+}
+impl Default for HitTracker {
+    fn default() -> Self {
+        Self {
+            hits: 1,
+            last_hit_frame: None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Inspectable)]
 pub struct SpawnDescriptor {
-    pub damage: Option<Damage>,
-    pub stun: Option<Stun>,
-    pub knockback: Option<Knockback>,
-    pub pushback: Option<Pushback>,
+    pub damage: Damage,
+    pub stun: Stun,
+    pub hits: usize,
+    pub knockback: Knockback,
+    pub pushback: Pushback,
 
     /// Hitbox is moved at this constant speed
     pub speed: Vec3,
@@ -203,15 +223,16 @@ pub struct SpawnDescriptor {
 impl Default for SpawnDescriptor {
     fn default() -> Self {
         Self {
-            damage: Some((10, 1).into()),
-            stun: Some((15, 5).into()),
+            damage: (10, 1).into(),
+            stun: (15, 5).into(),
             speed: Vec3::ZERO,
+            hits: 1,
             hitbox: Hitbox(Area::new(1.0, 1.2, 0.2, 0.2)),
             fixed_height: None,
             lifetime: Lifetime::default(),
             attached_to_player: true,
-            knockback: Some((Vec3::X * 2.0, Vec3::X * 1.0).into()),
-            pushback: Some((Vec3::X * 1.0, Vec3::X * 0.5).into()),
+            knockback: (Vec3::X * 2.0, Vec3::X * 1.0).into(),
+            pushback: (Vec3::X * 1.0, Vec3::X * 0.5).into(),
         }
     }
 }

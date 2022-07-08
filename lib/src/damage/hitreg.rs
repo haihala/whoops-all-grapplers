@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use characters::{Character, Grabable, Hitbox, Hurtbox, OnHitEffect, Resources};
+use characters::{Character, Grabable, HitTracker, Hitbox, Hurtbox, OnHitEffect, Resources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use time::Clock;
@@ -38,11 +38,17 @@ pub fn register_hits(
     clock: Res<Clock>,
     mut sounds: ResMut<Sounds>,
     mut particles: ResMut<Particles>,
-    mut hitboxes: Query<(&Owner, &OnHitEffect, &GlobalTransform, &Hitbox)>,
+    mut hitboxes: Query<(
+        &Owner,
+        &OnHitEffect,
+        &GlobalTransform,
+        &Hitbox,
+        &mut HitTracker,
+    )>,
     mut hurtboxes: Query<PlayerQuery>,
     players: Res<Players>,
 ) {
-    for (owner, effect, hitbox_tf, hitbox) in hitboxes.iter_mut() {
+    for (owner, effect, hitbox_tf, hitbox, mut hit_tracker) in hitboxes.iter_mut() {
         if let Ok([mut p1, mut p2]) = hurtboxes.get_many_mut([players.one, players.two]) {
             let (attacker, defender) = if owner.0 == Player::One {
                 (&mut p1, &mut p2)
@@ -56,6 +62,7 @@ pub fn register_hits(
                 &mut sounds,
                 &mut particles,
                 effect,
+                &mut hit_tracker,
                 hitbox.with_offset(hitbox_tf.translation.truncate()),
                 attacker,
                 defender,
@@ -64,6 +71,8 @@ pub fn register_hits(
     }
 }
 
+const FRAMES_BETWEEN_HITS: usize = 10;
+
 #[allow(clippy::too_many_arguments)]
 fn handle_hit(
     commands: &mut Commands,
@@ -71,10 +80,17 @@ fn handle_hit(
     sounds: &mut ResMut<Sounds>,
     particles: &mut ResMut<Particles>,
     effect: &OnHitEffect,
+    hit_tracker: &mut HitTracker,
     hitbox: Area,
     attacker: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
     defender: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {
+    if let Some(last_hit_frame) = hit_tracker.last_hit_frame {
+        if last_hit_frame + FRAMES_BETWEEN_HITS > frame {
+            return;
+        }
+    }
+
     if let Some(overlap) = defender
         .hurtbox
         .with_offset(defender.tf.translation.truncate())
@@ -93,40 +109,29 @@ fn handle_hit(
         );
 
         // Damage and meter gain
-        if let Some(damage_prop) = effect.damage {
-            let amount = damage_prop.get(blocked);
-            defender.health.apply_damage(amount);
-            attacker.resources.meter.add_combo_meter(amount);
-        }
+        let amount = effect.damage.get(blocked);
+        defender.health.apply_damage(amount);
+        attacker.resources.meter.add_combo_meter(amount);
 
         // Knockback
-        let knockback_impulse = effect
-            .knockback
-            // Knockback is positive aka away from attacker, so defender must flip it the other way
-            .map(|knockback_prop| {
-                defender
-                    .facing
-                    .opposite()
-                    .mirror_vec(knockback_prop.get(blocked))
-            })
-            .unwrap_or_default();
+        let knockback_impulse = attacker.facing.mirror_vec(effect.knockback.get(blocked));
         defender.velocity.add_impulse(knockback_impulse);
 
         // Pushback
-        if let Some(pushback_prop) = effect.pushback {
-            attacker
-                .velocity
-                // More intuitive to think of it from the defenders perspective
-                .add_impulse(defender.facing.mirror_vec(pushback_prop.get(blocked)));
-        }
+        attacker
+            .velocity
+            // More intuitive to think of it from the defenders perspective
+            .add_impulse(
+                defender
+                    .facing
+                    .mirror_vec(defender.facing.mirror_vec(effect.pushback.get(blocked))),
+            );
 
         // Stun
-        if let Some(stun_prop) = effect.stun {
-            if knockback_impulse.y > 0.0 {
-                defender.state.launch();
-            } else {
-                defender.state.stun(stun_prop.get(blocked) + frame);
-            }
+        if knockback_impulse.y > 0.0 {
+            defender.state.launch();
+        } else {
+            defender.state.stun(effect.stun.get(blocked) + frame);
         }
 
         // Sound effect
@@ -147,9 +152,15 @@ fn handle_hit(
             position: overlap.center().extend(0.0),
         });
 
+        hit_tracker.last_hit_frame = Some(frame);
+
         // Despawns
-        defender.spawner.despawn_on_hit(commands);
-        attacker.spawner.despawn_for_move(commands, effect.id);
+        if hit_tracker.hits <= 1 {
+            defender.spawner.despawn_on_hit(commands);
+            attacker.spawner.despawn_for_move(commands, effect.id);
+        } else {
+            hit_tracker.hits -= 1;
+        }
     }
 }
 

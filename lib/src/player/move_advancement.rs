@@ -90,7 +90,7 @@ pub(super) fn activate_phase(
                             let teched = target.state.get_move_state().is_none()
                                 && target.input_parser.head_is_clear();
 
-                            if in_range && !teched {
+                            if dbg!(in_range) && dbg!(!teched) {
                                 target.grabbable.queue.push(descriptor);
                             }
                         }

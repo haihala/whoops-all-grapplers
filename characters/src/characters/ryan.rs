@@ -102,9 +102,9 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox(Area::new(1.0, 0.2, 0.3, 0.2)),
-                            attached_to_player: true,
-                            damage: Some(20.into()),
+                            hitbox: Hitbox(Area::new(1.0, 1.2, 0.3, 0.2)),
+                            damage: Some(10.into()),
+                            stun: Some(15.into()),
                             ..default()
                         }),
                         duration: 10,
@@ -138,33 +138,17 @@ fn attacks() -> Vec<(MoveId, Move)> {
                         ..default()
                     }
                     .into(),
-                    Branch {
-                        default: Phase {
-                            kind: PhaseKind::Attack(SpawnDescriptor {
-                                hitbox: Hitbox(Area::new(0.5, 1.5, 0.5, 0.5)),
-                                attached_to_player: true,
-                                ..default()
-                            }),
-                            duration: 20,
-                            mobility: Some(MoveMobility::Perpetual(Vec3::new(2.0, 0.0, 0.0))),
+                    Phase {
+                        kind: PhaseKind::Attack(SpawnDescriptor {
+                            hitbox: Hitbox(Area::new(0.5, 1.5, 0.5, 0.5)),
+                            damage: Some(15.into()),
                             ..default()
-                        }
-                        .into(),
-                        branches: vec![(
-                            Requirements::has_hit(),
-                            Phase {
-                                kind: PhaseKind::Attack(SpawnDescriptor {
-                                    hitbox: Hitbox(Area::new(0.5, 0.5, 1.0, 1.0)),
-                                    attached_to_player: true,
-                                    ..default()
-                                }),
-                                duration: 20,
-                                mobility: Some(MoveMobility::Perpetual(Vec3::new(5.0, 0.0, 0.0))),
-                                ..default()
-                            }
-                            .into(),
-                        )],
-                    },
+                        }),
+                        duration: 20,
+                        mobility: Some(MoveMobility::Perpetual(Vec3::new(2.0, 0.0, 0.0))),
+                        ..default()
+                    }
+                    .into(),
                     Branch {
                         default: Phase {
                             kind: PhaseKind::Animation,
@@ -176,7 +160,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             Requirements::has_hit(),
                             Phase {
                                 kind: PhaseKind::Animation,
-                                duration: 10,
+                                duration: 1,
                                 cancellable: true,
                                 ..default()
                             }
@@ -198,15 +182,17 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
-                        duration: 30,
+                        duration: 10,
                         ..default()
                     }
                     .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox(Area::new(0.5, 0.5, 0.3, 0.2)),
-                            speed: Some(1.0 * Vec3::X),
-                            lifetime: Lifetime::Forever,
+                            hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
+                            speed: 5.0 * Vec3::X,
+                            lifetime: Lifetime::Frames((constants::FPS * 0.25) as usize),
+                            damage: Some(15.into()),
+                            attached_to_player: false,
                             ..default()
                         }),
                         duration: 4,
@@ -215,7 +201,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     .into(),
                     Phase {
                         kind: PhaseKind::Animation,
-                        duration: 10,
+                        duration: 5,
                         cancellable: true,
                         ..default()
                     }
@@ -239,15 +225,17 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
-                        duration: 30,
+                        duration: 10,
                         ..default()
                     }
                     .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox(Area::new(0.5, 0.5, 0.7, 0.7)),
-                            speed: Some(2.0 * Vec3::X),
+                            hitbox: Hitbox(Area::new(0.5, 1.2, 0.4, 0.3)),
+                            speed: 6.0 * Vec3::X,
                             lifetime: Lifetime::Forever,
+                            damage: Some(20.into()),
+                            attached_to_player: false,
                             ..default()
                         }),
                         duration: 4,
@@ -256,7 +244,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     .into(),
                     Phase {
                         kind: PhaseKind::Animation,
-                        duration: 10,
+                        duration: 5,
                         cancellable: true,
                         ..default()
                     }
@@ -282,9 +270,11 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox(Area::new(0.5, 0.5, 0.3, 0.2)),
-                            speed: Some(1.0 * Vec3::X),
+                            hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
+                            speed: 4.0 * Vec3::X,
                             lifetime: Lifetime::Forever,
+                            damage: Some(15.into()),
+                            attached_to_player: false,
                             ..default()
                         }),
                         duration: 4,
@@ -293,7 +283,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     .into(),
                     Phase {
                         kind: PhaseKind::Animation,
-                        duration: 10,
+                        duration: 30,
                         cancellable: true,
                         ..default()
                     }
@@ -308,7 +298,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 requirements: Requirements {
                     cancel_level: Some(CancelLevel::HeavySpecial),
                     cost: Some(Cost {
-                        meter: 10,
+                        meter: 30,
                         ..default()
                     }),
                     ..default()
@@ -322,9 +312,11 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox(Area::new(0.5, 0.5, 0.7, 0.7)),
-                            speed: Some(2.0 * Vec3::X),
+                            hitbox: Hitbox(Area::new(0.5, 1.0, 0.4, 0.5)),
+                            speed: 5.0 * Vec3::X,
                             lifetime: Lifetime::Forever,
+                            damage: Some(20.into()),
+                            attached_to_player: false,
                             ..default()
                         }),
                         duration: 4,
@@ -333,7 +325,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                     .into(),
                     Phase {
                         kind: PhaseKind::Animation,
-                        duration: 10,
+                        duration: 20,
                         cancellable: true,
                         ..default()
                     }
@@ -353,16 +345,15 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
-                        duration: 10,
+                        duration: 5,
                         ..default()
                     }
                     .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox(Area::new(0.5, 0.0, 0.6, 0.3)),
-                            knockback: Some(Vec3::new(2.0, 2.0, 0.0).into()),
+                            hitbox: Hitbox(Area::new(0.5, 0.1, 0.3, 0.5)),
                             fixed_height: Some(AttackHeight::High),
-                            attached_to_player: true,
+                            damage: Some(10.into()),
                             ..default()
                         }),
                         duration: 10,
@@ -391,24 +382,16 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Animation,
-                        duration: 1,
+                        duration: 5,
                         ..default()
                     }
                     .into(),
                     Phase {
                         kind: PhaseKind::Grab(GrabDescription {
-                            damage: 40,
-                            impulse: Vec3::Y * 2.0,
-                            range: 1.0,
+                            damage: 25,
                             ..default()
                         }),
-                        duration: 1,
-                        ..default()
-                    }
-                    .into(),
-                    Phase {
-                        kind: PhaseKind::Animation,
-                        duration: 10,
+                        duration: 40,
                         ..default()
                     }
                     .into(),

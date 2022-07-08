@@ -93,11 +93,8 @@ impl Spawner {
             .insert(Hitbox(Area::from_center_size(
                 Vec2::ZERO, // Position is set into the object directly
                 descriptor.hitbox.size(),
-            )));
-
-        if let Some(speed) = descriptor.speed {
-            builder.insert(ConstantVelocity::new(facing.to_vec3() * speed));
-        }
+            )))
+            .insert(ConstantVelocity::new(facing.mirror_vec(descriptor.speed)));
 
         if descriptor.attached_to_player {
             commands.entity(parent).push_children(&[new_hitbox]);

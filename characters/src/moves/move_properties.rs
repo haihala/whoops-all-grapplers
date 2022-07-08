@@ -185,25 +185,53 @@ impl Default for OnHitEffect {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]
+#[derive(Debug, Clone, Copy, PartialEq, Inspectable)]
 pub struct SpawnDescriptor {
     pub damage: Option<Damage>,
     pub stun: Option<Stun>,
     pub knockback: Option<Knockback>,
     pub pushback: Option<Pushback>,
 
-    pub speed: Option<Vec3>,
+    /// Hitbox is moved at this constant speed
+    pub speed: Vec3,
     pub hitbox: Hitbox,
     pub fixed_height: Option<AttackHeight>,
     pub lifetime: Lifetime,
     pub attached_to_player: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]
+impl Default for SpawnDescriptor {
+    fn default() -> Self {
+        Self {
+            damage: Some((10, 1).into()),
+            stun: Some((15, 5).into()),
+            speed: Vec3::ZERO,
+            hitbox: Hitbox(Area::new(1.0, 1.2, 0.2, 0.2)),
+            fixed_height: None,
+            lifetime: Lifetime::default(),
+            attached_to_player: true,
+            knockback: Some((Vec3::X * 2.0, Vec3::X * 1.0).into()),
+            pushback: Some((Vec3::X * 1.0, Vec3::X * 0.5).into()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Inspectable)]
 pub struct GrabDescription {
     pub damage: i32,
     pub impulse: Vec3,
 
     pub range: f32,
     pub offset: Vec2,
+}
+
+impl Default for GrabDescription {
+    fn default() -> Self {
+        Self {
+            damage: 10,
+            impulse: Vec3::new(2.0, 5.0, 0.0),
+            range: 1.0,
+            offset: Vec2::ZERO,
+        }
+    }
 }

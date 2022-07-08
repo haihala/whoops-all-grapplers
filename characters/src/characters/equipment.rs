@@ -33,8 +33,8 @@ fn get_handmedownken() -> Move {
             .into(),
             Phase {
                 kind: PhaseKind::Attack(SpawnDescriptor {
-                    hitbox: Hitbox(Area::new(0.5, 0.5, 0.3, 0.2)),
-                    speed: Some(1.0 * Vec3::X),
+                    hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
+                    speed: 3.0 * Vec3::X,
                     lifetime: Lifetime::Forever,
                     ..default()
                 }),
@@ -87,8 +87,8 @@ fn get_gunshot() -> Move {
                     Phase {
                         duration: 20,
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox(Area::new(0.5, 0.5, 0.3, 0.2)),
-                            speed: Some(10.0 * Vec3::X),
+                            hitbox: Hitbox(Area::new(0.5, 1.2, 0.1, 0.1)),
+                            speed: 8.0 * Vec3::X,
                             lifetime: Lifetime::Forever,
                             ..default()
                         }),

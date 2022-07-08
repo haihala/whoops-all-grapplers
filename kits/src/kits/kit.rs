@@ -37,8 +37,8 @@ impl Default for Kit {
             // TODO: Make theses a part of the constructor:
             standing_hurtbox: Area::from_center_size(Vec2::Y * 0.9, Vec2::new(0.5, 1.8)),
             crouching_hurtbox: Area::from_center_size(Vec2::Y * 0.6, Vec2::new(0.5, 1.2)),
-            standing_pushbox: Area::from_center_size(Vec2::Y * 0.9, Vec2::new(0.5, 1.8)),
-            crouching_pushbox: Area::from_center_size(Vec2::Y * 0.6, Vec2::new(0.5, 1.2)),
+            standing_pushbox: Area::from_center_size(Vec2::Y * 0.7, Vec2::new(0.4, 1.4)),
+            crouching_pushbox: Area::from_center_size(Vec2::Y * 0.5, Vec2::new(0.4, 1.0)),
         }
     }
 }

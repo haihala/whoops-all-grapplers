@@ -57,13 +57,12 @@ impl Plugin for PhysicsPlugin {
 #[world_query(mutable)]
 struct SideswitcherQuery<'a> {
     tf: &'a Transform,
-    state: &'a PlayerState,
     direction: &'a mut Facing,
 }
 fn sideswitcher(players: Res<Players>, mut query: Query<SideswitcherQuery>) {
     if let Ok([mut p1, mut p2]) = query.get_many_mut([players.one, players.two]) {
-        if p1.state.is_grounded() && p2.state.is_grounded() {
-            let p1_flipped = p1.tf.translation.x > p2.tf.translation.x;
+        let p1_flipped = p1.tf.translation.x > p2.tf.translation.x;
+        if p1.direction.to_flipped() != p1_flipped {
             p1.direction.set_flipped(p1_flipped);
             p2.direction.set_flipped(!p1_flipped);
         }
@@ -238,11 +237,18 @@ fn clamp_players(
         }
     }
 }
+
+const WALL_SLOPE: f32 = 0.01;
+
 fn get_x_clamp(collider: Area, left_border: f32, right_border: f32) -> Option<f32> {
-    if collider.left() < left_border {
-        Some(left_border - collider.left())
-    } else if collider.right() > right_border {
-        Some(right_border - collider.right())
+    // Borders are a tad diagonal to permit jumping over someone into the corner
+    let left_target = left_border - collider.bottom() * WALL_SLOPE;
+    let right_target = right_border + collider.bottom() * WALL_SLOPE;
+
+    if collider.left() < left_target {
+        Some(left_target - collider.left())
+    } else if collider.right() > right_target {
+        Some(right_target - collider.right())
     } else {
         None
     }

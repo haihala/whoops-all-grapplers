@@ -55,6 +55,13 @@ impl Facing {
         }
     }
 
+    pub fn mirror_f32(&self, number: f32) -> f32 {
+        match self {
+            Facing::Right => number,
+            Facing::Left => -number,
+        }
+    }
+
     pub fn mirror_vec(&self, vector: Vec3) -> Vec3 {
         match self {
             Facing::Right => vector,
@@ -71,18 +78,25 @@ impl Facing {
         }
         .into()
     }
-
-    pub fn mirror_f32(&self, number: f32) -> f32 {
-        match self {
-            Facing::Right => number,
-            Facing::Left => -number,
-        }
-    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_opposite() {
+        assert!(Facing::Right.opposite() == Facing::Left);
+        assert!(Facing::Left.opposite() == Facing::Right);
+    }
+
+    #[test]
+    fn test_mirroring_f32() {
+        assert!(Facing::Right.mirror_f32(10.0) == 10.0);
+        assert!(Facing::Right.mirror_f32(-10.0) == -10.0);
+        assert!(Facing::Left.mirror_f32(10.0) == -10.0);
+        assert!(Facing::Left.mirror_f32(-10.0) == 10.0);
+    }
 
     #[test]
     fn test_mirroring_vec() {

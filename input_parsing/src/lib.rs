@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::HashMap};
-use kits::MoveId;
+use characters::MoveId;
 use std::collections::VecDeque;
 use time::WAGStage;
 

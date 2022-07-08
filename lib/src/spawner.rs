@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use bevy::utils::HashMap;
-use kits::{Hitbox, Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
+use characters::{Hitbox, Lifetime, MoveId, OnHitEffect, SpawnDescriptor};
 use time::{Clock, GameState};
 use types::{Area, Facing, Owner, Player};
 

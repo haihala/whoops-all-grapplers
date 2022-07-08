@@ -4,8 +4,8 @@ pub use player_velocity::PlayerVelocity;
 use bevy::{ecs::query::WorldQuery, prelude::*};
 use bevy_inspector_egui::Inspectable;
 
+use characters::Character;
 use constants::PLAYER_GRAVITY_PER_FRAME;
-use kits::Kit;
 use player_state::PlayerState;
 use time::{once_per_combat_frame, WAGStage};
 use types::{Area, Facing, Players};
@@ -94,12 +94,13 @@ fn player_gravity(
     }
 }
 
-fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &Kit, &Facing)>) {
-    for (state, mut velocity, kit, facing) in query.iter_mut() {
+fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &Character, &Facing)>) {
+    for (state, mut velocity, character, facing) in query.iter_mut() {
         if let Some((move_id, start_frame, mobility)) =
             state.get_move_state().and_then(|move_state| {
                 // Some if a move is happening
-                kit.get_move(move_state.move_id)
+                character
+                    .get_move(move_state.move_id)
                     .get_action(move_state)
                     .unwrap()
                     .0
@@ -125,7 +126,7 @@ fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &Kit, &Faci
 #[derive(WorldQuery)]
 #[world_query(mutable)]
 struct PlayerMovingQuery<'a> {
-    kit: &'a Kit,
+    character: &'a Character,
     tf: &'a mut Transform,
     state: &'a PlayerState,
     velocity: &'a mut PlayerVelocity,

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use kits::{MoveId, MoveMobility};
+use characters::{MoveId, MoveMobility};
 use types::Facing;
 
 #[derive(Debug, Inspectable, Clone, Default, Copy)]

@@ -1,6 +1,6 @@
 use bevy_inspector_egui::Inspectable;
 
-use kits::MoveSituation;
+use characters::MoveSituation;
 use types::Facing;
 
 #[derive(Inspectable, PartialEq, Clone, Debug)]

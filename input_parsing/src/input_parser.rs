@@ -11,7 +11,7 @@ use bevy::{
 
 use types::{Facing, GameButton, StickPosition};
 
-use kits::MoveId;
+use characters::MoveId;
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from

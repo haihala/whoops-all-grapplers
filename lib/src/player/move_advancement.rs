@@ -2,7 +2,7 @@ use bevy::{
     ecs::query::{Fetch, WorldQuery},
     prelude::*,
 };
-use kits::{MoveAction, PhaseKind};
+use characters::{MoveAction, PhaseKind};
 use time::Clock;
 use types::Players;
 
@@ -30,7 +30,7 @@ fn advance_move(
     if let Some(move_state) = actor.state.get_move_state_mut() {
         move_state.buttons_held = actor.input_parser.get_pressed();
 
-        let move_data = actor.kit.get_move(move_state.move_id);
+        let move_data = actor.character.get_move(move_state.move_id);
         if let Some(phase_index) = move_data.get_action_index(move_state, clock.frame as i32) {
             if move_state.phase_index != phase_index {
                 index_to_activate = Some(phase_index);
@@ -54,7 +54,7 @@ pub(super) fn activate_phase(
     target: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {
     if let Some(move_state) = actor.state.get_move_state_mut() {
-        let move_data = actor.kit.get_move(move_state.move_id);
+        let move_data = actor.character.get_move(move_state.move_id);
 
         // Despawn old things
         actor.spawner.despawn_on_phase_change(commands);
@@ -73,7 +73,7 @@ pub(super) fn activate_phase(
                     // The move has branched or recursed
                     actor
                         .buffer
-                        .set_force_starter(move_id, actor.kit.get_move(move_id));
+                        .set_force_starter(move_id, actor.character.get_move(move_id));
                     // TODO: Some buffer clearing here?
                 }
                 MoveAction::Phase(phase_data) => {

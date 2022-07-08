@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use kits::{Kit, Move, MoveId, MoveSituation};
+use characters::{Character, Move, MoveId, MoveSituation};
 use time::Clock;
 use types::{Players, SoundEffect};
 
@@ -27,7 +27,11 @@ impl MoveBuffer {
         self.buffer.extend(events.into_iter().map(|id| (frame, id)));
     }
 
-    fn use_move(&mut self, kit: &Kit, situation: &MoveSituation) -> Option<(MoveId, Move)> {
+    fn use_move(
+        &mut self,
+        character: &Character,
+        situation: &MoveSituation,
+    ) -> Option<(MoveId, Move)> {
         if self.force_start.is_some() {
             // Early return for the cases when a move has forked
             return self.force_start.take();
@@ -36,7 +40,7 @@ impl MoveBuffer {
         if let Some((selected_id, move_data)) = self
             .buffer
             .iter()
-            .map(|(_, id)| (*id, kit.get_move(*id)))
+            .map(|(_, id)| (*id, character.get_move(*id)))
             .filter(|(_, move_data)| situation.fulfills(&move_data.requirements))
             .min_by(|(id1, _), (id2, _)| id1.cmp(id2))
         {
@@ -106,7 +110,7 @@ fn activate_move(
             ..default()
         });
 
-    if let Some((move_id, move_data)) = actor.buffer.use_move(actor.kit, &situation) {
+    if let Some((move_id, move_data)) = actor.buffer.use_move(actor.character, &situation) {
         situation.move_id = move_id;
         situation.start_frame = clock.frame as i32;
         situation.resources.pay(move_data.requirements.cost.clone());

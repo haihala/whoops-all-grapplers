@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use kits::{Hitbox, Hurtbox};
+use characters::{Hitbox, Hurtbox};
 
 use crate::{assets::Colors, physics::Pushbox};
 

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::{InspectableRegistry, WorldInspectorPlugin};
 
-use kits::{Hitbox, Hurtbox, Inventory, Kit, Resources};
+use characters::{Character, Hitbox, Hurtbox, Inventory, Resources};
 use player_state::PlayerState;
 use time::Clock;
 use types::{Player, SoundEffect};
@@ -42,13 +42,13 @@ impl Plugin for DevPlugin {
 
 fn test_system(
     keys: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Inventory, &Kit)>,
+    mut query: Query<(&mut Inventory, &Character)>,
     mut sounds: ResMut<Sounds>,
 ) {
     // B for Buy
     if keys.just_pressed(KeyCode::B) {
-        for (mut inventory, kit) in query.iter_mut() {
-            if let Some((id, _)) = kit.roll_items(1, &inventory).first() {
+        for (mut inventory, character) in query.iter_mut() {
+            if let Some((id, _)) = character.roll_items(1, &inventory).first() {
                 inventory.add_item(*id);
             }
         }

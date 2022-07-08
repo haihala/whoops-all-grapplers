@@ -989,6 +989,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd16c4719339c4530435d38e511904438d07cce7950afa3718a84ac36c10e89e"
 
 [[package]]
+name = "characters"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "constants",
+ "types",
+]
+
+[[package]]
 name = "clang-sys"
 version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1849,7 +1859,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
- "kits",
+ "characters",
  "time",
  "types",
 ]
@@ -1871,9 +1881,9 @@ name = "integration_tests"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "characters",
  "constants",
  "input_parsing",
- "kits",
  "time",
  "types",
  "whoops-all-grapplers-lib",
@@ -1947,16 +1957,6 @@ checksum = "8c2352bd1d0bceb871cb9d40f24360c8133c11d7486b68b5381c1dd1a32015e3"
 dependencies = [
  "libc",
  "libloading",
-]
-
-[[package]]
-name = "kits"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy-inspector-egui",
- "constants",
- "types",
 ]
 
 [[package]]
@@ -2661,7 +2661,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
- "kits",
+ "characters",
  "strum",
  "types",
 ]
@@ -3629,9 +3629,9 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "bevy_hanabi",
+ "characters",
  "constants",
  "input_parsing",
- "kits",
  "player_state",
  "rand",
  "time",

@@ -3,8 +3,8 @@ use bevy::{
     prelude::*,
 };
 
+use characters::{Character, Grabable, Hitbox, Hurtbox, OnHitEffect, Resources};
 use input_parsing::InputParser;
-use kits::{Grabable, Hitbox, Hurtbox, Kit, OnHitEffect, Resources};
 use player_state::PlayerState;
 use time::Clock;
 use types::{Area, Facing, Owner, Player, Players, SoundEffect, VisualEffect};
@@ -20,7 +20,7 @@ use super::Health;
 #[derive(WorldQuery)]
 #[world_query(mutable)]
 pub struct PlayerQuery<'a> {
-    kit: &'a Kit,
+    character: &'a Character,
     hurtbox: &'a Hurtbox,
     tf: &'a Transform,
     health: &'a mut Health,
@@ -87,8 +87,8 @@ fn handle_hit(
         let blocked = defender.state.blocked(
             effect.fixed_height,
             hitbox,
-            defender.kit.low_block_height,
-            defender.kit.high_block_height,
+            defender.character.low_block_height,
+            defender.character.high_block_height,
             defender.parser.get_relative_stick_position(),
         );
 

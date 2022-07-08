@@ -6,10 +6,10 @@ use crate::{
     MoveId, MoveMobility, Phase, PhaseKind, Requirements, SpawnDescriptor,
 };
 
-use super::{dash, get_equipment_move, jump, Kit};
+use super::{dash, get_equipment_move, jump, Character};
 
-pub fn ryan_kit() -> Kit {
-    Kit::new(ryan_moves(), ryan_items())
+pub fn ryan() -> Character {
+    Character::new(ryan_moves(), ryan_items())
 }
 
 // Dashing

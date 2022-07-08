@@ -9,7 +9,7 @@ bevy = "0.7.0"
 
 constants = { path = "../constants" }
 input_parsing = { path = "../input_parsing" }
-kits = { path = "../kits" }
+characters = { path = "../characters" }
 whoops-all-grapplers-lib = { path = "../lib" }
 types = { path = "../types" }
 time = { path = "../time" }

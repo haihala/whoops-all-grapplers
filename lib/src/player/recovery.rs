@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use kits::Resources;
+use characters::Resources;
 use player_state::PlayerState;
 use time::Clock;
 

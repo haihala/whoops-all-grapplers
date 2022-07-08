@@ -5,7 +5,7 @@ use types::{Animation, Area, DummyAnimation, Model, StickPosition};
 use crate::{Inventory, Item, ItemId, Move, MoveId};
 
 #[derive(Debug, Component, Clone)]
-pub struct Kit {
+pub struct Character {
     moves: HashMap<MoveId, Move>,
     items: HashMap<ItemId, Item>,
     pub model: Model,
@@ -19,7 +19,7 @@ pub struct Kit {
     pub charge_directions: Vec<StickPosition>,
 }
 
-impl Default for Kit {
+impl Default for Character {
     fn default() -> Self {
         Self {
             moves: Default::default(),
@@ -42,9 +42,9 @@ impl Default for Kit {
         }
     }
 }
-impl Kit {
-    pub(crate) fn new(moves: Vec<(MoveId, Move)>, items: Vec<(ItemId, Item)>) -> Kit {
-        Kit {
+impl Character {
+    pub(crate) fn new(moves: Vec<(MoveId, Move)>, items: Vec<(ItemId, Item)>) -> Character {
+        Character {
             moves: moves.into_iter().collect(),
             items: items.into_iter().collect(),
             ..default()

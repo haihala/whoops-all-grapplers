@@ -7,10 +7,10 @@ mod recovery;
 mod size_adjustment;
 mod update_animation;
 
+use characters::{ryan, Character, Grabable, Hurtbox, Inventory, Resources};
 use input_parsing::InputParser;
 #[cfg(not(test))]
 use input_parsing::PadBundle;
-use kits::{ryan_kit, Grabable, Hurtbox, Inventory, Kit, Resources};
 use player_state::PlayerState;
 use time::{Clock, GameState, RoundResult};
 use types::{Facing, Model, Player, Players};
@@ -34,7 +34,7 @@ const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 struct PlayerQuery<'a> {
     state: &'a mut PlayerState,
     spawner: &'a mut Spawner,
-    kit: &'a Kit,
+    character: &'a Character,
     tf: &'a Transform,
     grabbable: &'a mut Grabable,
     buffer: &'a mut MoveBuffer,
@@ -92,10 +92,10 @@ struct PlayerDefaults {
 
 fn spawn_player(commands: &mut Commands, offset: f32, player: Player) -> Entity {
     let state = PlayerState::default();
-    let kit = ryan_kit();
+    let character = ryan();
 
     #[cfg(not(test))]
-    let inputs = PadBundle::new(kit.get_inputs());
+    let inputs = PadBundle::new(character.get_inputs());
 
     let mut spawn_handle = commands.spawn_bundle(TransformBundle {
         local: Transform::from_translation((offset, PLAYER_SPAWN_HEIGHT, 0.0).into()),
@@ -107,9 +107,9 @@ fn spawn_player(commands: &mut Commands, offset: f32, player: Player) -> Entity 
         .insert(Name::new(format!("Player {}", player)))
         .insert(AnimationHelperSetup)
         .insert(Facing::from_flipped(offset.is_sign_positive()))
-        .insert(Hurtbox(kit.get_hurtbox(false)))
-        .insert(Pushbox(kit.get_pushbox(false)))
-        .insert(kit)
+        .insert(Hurtbox(character.get_hurtbox(false)))
+        .insert(Pushbox(character.get_pushbox(false)))
+        .insert(character)
         .insert(player)
         .insert(state);
 

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use kits::{AttackHeight, MoveSituation};
+use characters::{AttackHeight, MoveSituation};
 use types::{Area, Facing, StickPosition};
 
 use crate::primary_state::{AirActivity, GroundActivity, PrimaryState};

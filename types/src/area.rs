@@ -167,10 +167,6 @@ mod test {
         let sides = Area::from_sides(4.0, 0.0, -0.5, 2.5);
         let centersize = Area::from_center_size(Vec2::new(1.0, 2.0), Vec2::new(3.0, 4.0));
 
-        dbg!(new);
-        dbg!(sides);
-        dbg!(centersize);
-
         assert!(new == sides);
         assert!(new == centersize);
         assert!(sides == centersize);

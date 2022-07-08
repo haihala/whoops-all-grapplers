@@ -76,10 +76,10 @@ fn handle_hit(
     attacker: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
     defender: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {
-    if let Some(overlap) = dbg!(defender
+    if let Some(overlap) = defender
         .hurtbox
-        .with_offset(defender.tf.translation.truncate()))
-    .intersection(&dbg!(hitbox))
+        .with_offset(defender.tf.translation.truncate())
+        .intersection(&hitbox)
     {
         // Hit has happened
         // Handle blocking and state transitions here

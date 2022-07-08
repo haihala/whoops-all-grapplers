@@ -152,5 +152,6 @@ fn particle_explosion(
 
     commands
         .spawn_bundle(ParticleEffectBundle::new(effect).with_spawner(spawner))
+        .insert(Name::new(format!("Particle system '{}'", name)))
         .id()
 }

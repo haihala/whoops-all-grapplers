@@ -39,13 +39,15 @@ fn add_stage(
     });
 
     // textured quad - normal
-    commands.spawn_bundle(PbrBundle {
-        mesh: quad_handle,
-        material: material_handle,
-        transform: Transform {
-            translation: Vec3::new(0.0, 2.4, -5.0),
+    commands
+        .spawn_bundle(PbrBundle {
+            mesh: quad_handle,
+            material: material_handle,
+            transform: Transform {
+                translation: Vec3::new(0.0, 2.4, -5.0),
+                ..default()
+            },
             ..default()
-        },
-        ..default()
-    });
+        })
+        .insert(Name::new("Background quad"));
 }

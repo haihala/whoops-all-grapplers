@@ -104,6 +104,7 @@ fn spawn_player(commands: &mut Commands, offset: f32, player: Player) -> Entity 
 
     spawn_handle
         .insert_bundle(PlayerDefaults::default())
+        .insert(Name::new(format!("Player {}", player)))
         .insert(AnimationHelperSetup)
         .insert(Facing::from_flipped(offset.is_sign_positive()))
         .insert(Hurtbox(kit.get_hurtbox(false)))

@@ -74,6 +74,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
             color: TRANSPARENT.into(),
             ..default()
         })
+        .insert(Name::new("Top bar"))
         .with_children(|top_bar_wrapper| {
             top_bar_wrapper
                 .spawn_bundle(NodeBundle {
@@ -158,6 +159,7 @@ fn setup_bottom_bars(commands: &mut Commands, colors: &Colors) {
             color: TRANSPARENT.into(),
             ..default()
         })
+        .insert(Name::new("Top bar"))
         .with_children(|parent| {
             meter_bars(parent, colors);
             charge_bars(parent, colors);
@@ -240,6 +242,7 @@ fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fonts: &Fonts
             color: TRANSPARENT.into(),
             ..default()
         })
+        .insert(Name::new("Round info text"))
         .with_children(|parent| {
             parent
                 .spawn_bundle(TextBundle {

@@ -23,9 +23,11 @@ impl Sounds {
     }
 }
 
-pub fn play_queued(mut sounds: ResMut<Sounds>, audio: Res<Audio>) {
-    for clip in sounds.queue.drain(..) {
-        audio.play(clip);
+pub fn play_queued(mut sounds: ResMut<Sounds>, audio: Option<Res<Audio>>) {
+    if let Some(audio) = audio {
+        for clip in sounds.queue.drain(..) {
+            audio.play(clip);
+        }
     }
 }
 

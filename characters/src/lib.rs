@@ -7,7 +7,7 @@ use items::{Item, ItemId};
 use moves::{Branch, GrabDescription, Phase, Requirements};
 use resources::Cost;
 
-pub use characters::{ryan, Character};
+pub use self::characters::{ryan, Character};
 pub use items::Inventory;
 pub use moves::{
     AttackHeight, CancelLevel, Grabable, HitTracker, Hitbox, Hurtbox, Lifetime, Move, MoveAction,

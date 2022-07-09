@@ -10,6 +10,9 @@ mod stage;
 mod ui;
 
 use bevy::prelude::*;
+
+// So it can be disabled in integration tests
+pub use dev::DevPlugin;
 // Only thing exported out of this crate
 pub struct WAGLib;
 impl PluginGroup for WAGLib {
@@ -22,7 +25,7 @@ impl PluginGroup for WAGLib {
             .add(camera::CustomCameraPlugin)
             .add(player::PlayerPlugin)
             .add(damage::DamagePlugin)
-            .add(dev::DevPlugin)
+            .add(DevPlugin)
             .add(physics::PhysicsPlugin)
             .add(spawner::SpawnerPlugin)
             .add(input_parsing::InputParsingPlugin)

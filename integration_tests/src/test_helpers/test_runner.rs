@@ -3,10 +3,11 @@ use std::{
     time::{Duration, Instant},
 };
 
-use bevy::{prelude::*, winit::WinitPlugin};
+use bevy::{app::ScheduleRunnerSettings, asset::AssetPlugin, input::InputPlugin, prelude::*};
+use bevy_hanabi::HanabiPlugin;
 use input_parsing::testing::{parse_input, PreWrittenStream};
 use types::Player;
-use whoops_all_grapplers_lib::WAGLib;
+use whoops_all_grapplers_lib::{DevPlugin, WAGLib};
 
 use super::{AppWrapper, TestSpec};
 
@@ -35,18 +36,25 @@ impl TestRunner {
     /// Setup the game env for a test case
     fn setup(&self, spec: TestSpec) -> App {
         let mut app = App::new();
-        app.add_plugins_with(DefaultPlugins, |group| {
-            group.disable::<WinitPlugin>();
+        app.add_plugins(MinimalPlugins);
+        app.insert_resource(ScheduleRunnerSettings {
+            run_mode: bevy::app::RunMode::Loop { wait: None },
+        });
+        app.add_plugin(AssetPlugin::default());
+        app.add_plugin(InputPlugin::default());
 
+        app.add_plugins_with(WAGLib, |group| {
+            group.disable::<HanabiPlugin>();
+            group.disable::<DevPlugin>();
             group
         });
-        app.add_plugins(WAGLib);
         app.add_system(parse_input::<PreWrittenStream>);
         app.update();
 
         // Go to combat (skip buy phase)
-        let mut key_input = app.world.resource_mut::<Input<KeyCode>>();
-        key_input.press(KeyCode::Return);
+        app.world
+            .resource_mut::<Input<KeyCode>>()
+            .press(KeyCode::Return);
         app.update();
 
         let mut p1: Option<Entity> = None;

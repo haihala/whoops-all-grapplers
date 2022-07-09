@@ -6,6 +6,7 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
 bevy = "0.7.0"
+bevy_hanabi = "0.2"
 
 constants = { path = "../constants" }
 input_parsing = { path = "../input_parsing" }

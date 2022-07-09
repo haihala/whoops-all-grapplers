@@ -33,15 +33,17 @@ impl Particles {
 
 pub fn handle_requests(
     mut transforms: Query<(&mut ParticleEffect, &mut Transform)>,
-    mut particles: ResMut<Particles>,
+    particles: Option<ResMut<Particles>>,
 ) {
-    for ParticleRequest { effect, position } in
-        particles.queue.drain(..).collect::<Vec<_>>().into_iter()
-    {
-        let emitter = particles.get(effect);
-        if let Ok((mut effect, mut tf)) = transforms.get_mut(emitter) {
-            tf.translation = position;
-            effect.maybe_spawner().unwrap().reset();
+    if let Some(mut particles) = particles {
+        for ParticleRequest { effect, position } in
+            particles.queue.drain(..).collect::<Vec<_>>().into_iter()
+        {
+            let emitter = particles.get(effect);
+            if let Ok((mut effect, mut tf)) = transforms.get_mut(emitter) {
+                tf.translation = position;
+                effect.maybe_spawner().unwrap().reset();
+            }
         }
     }
 }

@@ -69,20 +69,23 @@ pub fn sounds(mut commands: Commands, asset_server: Res<AssetServer>) {
     ))
 }
 
-pub fn particles(mut commands: Commands, mut effects: ResMut<Assets<EffectAsset>>) {
-    let particles = Particles::new(
-        vec![
-            (
-                VisualEffect::Block,
-                block_entity(&mut commands, &mut effects),
-            ),
-            (VisualEffect::Hit, hit_entity(&mut commands, &mut effects)),
-        ]
-        .into_iter()
-        .collect(),
-    );
+// Typed like this so it can be ignored in unit tests
+pub fn particles(mut commands: Commands, effects: Option<ResMut<Assets<EffectAsset>>>) {
+    if let Some(mut effects) = effects {
+        let particles = Particles::new(
+            vec![
+                (
+                    VisualEffect::Block,
+                    block_entity(&mut commands, &mut effects),
+                ),
+                (VisualEffect::Hit, hit_entity(&mut commands, &mut effects)),
+            ]
+            .into_iter()
+            .collect(),
+        );
 
-    commands.insert_resource(particles);
+        commands.insert_resource(particles);
+    }
 }
 
 fn block_entity(commands: &mut Commands, effects: &mut ResMut<Assets<EffectAsset>>) -> Entity {

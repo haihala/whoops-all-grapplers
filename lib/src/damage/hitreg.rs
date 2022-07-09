@@ -36,8 +36,8 @@ pub struct PlayerQuery<'a> {
 pub fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,
-    mut sounds: ResMut<Sounds>,
-    mut particles: ResMut<Particles>,
+    mut sounds: Option<ResMut<Sounds>>,
+    mut particles: Option<ResMut<Particles>>,
     mut hitboxes: Query<(
         &Owner,
         &OnHitEffect,
@@ -77,8 +77,8 @@ const FRAMES_BETWEEN_HITS: usize = 10;
 fn handle_hit(
     commands: &mut Commands,
     frame: usize,
-    sounds: &mut ResMut<Sounds>,
-    particles: &mut ResMut<Particles>,
+    sounds: &mut Option<ResMut<Sounds>>,
+    particles: &mut Option<ResMut<Particles>>,
     effect: &OnHitEffect,
     hit_tracker: &mut HitTracker,
     hitbox: Area,
@@ -135,22 +135,26 @@ fn handle_hit(
         }
 
         // Sound effect
-        sounds.play(if blocked {
-            SoundEffect::Block
-        } else {
-            SoundEffect::Hit
-        });
+        if let Some(ref mut sounds) = sounds {
+            sounds.play(if blocked {
+                SoundEffect::Block
+            } else {
+                SoundEffect::Hit
+            });
+        }
 
         // Visual effect
-        particles.spawn(ParticleRequest {
-            effect: if blocked {
-                VisualEffect::Block
-            } else {
-                VisualEffect::Hit
-            },
-            // TODO: This can be refined more
-            position: overlap.center().extend(0.0),
-        });
+        if let Some(ref mut particles) = particles {
+            particles.spawn(ParticleRequest {
+                effect: if blocked {
+                    VisualEffect::Block
+                } else {
+                    VisualEffect::Hit
+                },
+                // TODO: This can be refined more
+                position: overlap.center().extend(0.0),
+            });
+        }
 
         hit_tracker.last_hit_frame = Some(frame);
 

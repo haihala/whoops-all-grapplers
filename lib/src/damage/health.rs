@@ -6,22 +6,20 @@ use types::Player;
 
 #[derive(Inspectable, Component, Clone, Copy)]
 pub struct Health {
-    ratio: f32,
     value: i32,
     max: i32,
 }
 impl Default for Health {
     fn default() -> Self {
         Self {
-            ratio: 1.0,
             value: 100,
             max: 100,
         }
     }
 }
 impl Health {
-    pub fn get_ratio(&self) -> f32 {
-        self.ratio
+    pub fn get_percentage(&self) -> f32 {
+        (self.value as f32 / self.max as f32) * 100.0
     }
 
     pub fn reset(&mut self) {
@@ -30,7 +28,6 @@ impl Health {
 
     pub fn apply_damage(&mut self, amount: i32) {
         self.value -= amount;
-        self.ratio = self.value as f32 / self.max as f32;
     }
 }
 

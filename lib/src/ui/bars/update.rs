@@ -4,14 +4,7 @@ use types::Player;
 
 use crate::{assets::Colors, damage::Health};
 
-use super::RESOURCE_BAR_WIDTH;
-
-#[derive(Debug, Component)]
-pub struct MeterBar(pub Player);
-#[derive(Debug, Component)]
-pub struct HealthBar(pub Player);
-#[derive(Debug, Component)]
-pub struct ChargeBar(pub Player);
+use super::{ChargeBar, HealthBar, MeterBar};
 
 #[allow(clippy::type_complexity)]
 pub fn update(
@@ -26,17 +19,17 @@ pub fn update(
     for (player, health, resources) in players.iter() {
         for (mut style, bar) in bars.p0().iter_mut() {
             if *player == bar.0 {
-                style.size.width = Val::Percent(health.get_ratio() * 100.0);
+                style.size.width = Val::Percent(health.get_percentage());
             }
         }
         for (mut style, bar) in bars.p1().iter_mut() {
             if *player == bar.0 {
-                style.size.width = Val::Percent(resources.meter.get_ratio() * RESOURCE_BAR_WIDTH);
+                style.size.width = Val::Percent(resources.meter.get_percentage());
             }
         }
         for (mut style, mut color, bar) in bars.p2().iter_mut() {
             if *player == bar.0 {
-                style.size.width = Val::Percent(resources.charge.get_ratio() * RESOURCE_BAR_WIDTH);
+                style.size.width = Val::Percent(resources.charge.get_percentage());
                 *color = if resources.charge.is_charged() {
                     colors.charge_full.into()
                 } else {

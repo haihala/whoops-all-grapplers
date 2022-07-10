@@ -3,7 +3,7 @@ use bevy_inspector_egui::Inspectable;
 use characters::MoveSituation;
 use types::Facing;
 
-#[derive(Inspectable, PartialEq, Clone, Debug)]
+#[derive(Inspectable, Eq, PartialEq, Clone, Debug)]
 pub enum GroundActivity {
     Stun(usize),
     Move(MoveSituation),

@@ -6,7 +6,7 @@ mod ground_activity;
 pub use air_activity::AirActivity;
 pub use ground_activity::GroundActivity;
 
-#[derive(Inspectable, PartialEq, Clone, Debug)]
+#[derive(Inspectable, Eq, PartialEq, Clone, Debug)]
 pub enum PrimaryState {
     Air(AirActivity),
     Ground(GroundActivity),

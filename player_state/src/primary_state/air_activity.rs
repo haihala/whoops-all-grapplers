@@ -2,7 +2,7 @@ use bevy_inspector_egui::Inspectable;
 
 use characters::MoveSituation;
 
-#[derive(Inspectable, PartialEq, Clone, Debug)]
+#[derive(Inspectable, Eq, PartialEq, Clone, Debug)]
 pub enum AirActivity {
     Freefall,
     Move(MoveSituation),

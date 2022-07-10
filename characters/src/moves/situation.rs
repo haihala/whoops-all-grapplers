@@ -7,7 +7,7 @@ use crate::{CancelLevel, Inventory, Resources};
 use super::{MoveId, Requirements};
 
 /// Situation is supposed to contain everything needed to deduce the next phase of a move
-#[derive(Inspectable, PartialEq, Debug, Component, Clone, Default)]
+#[derive(Inspectable, Eq, PartialEq, Debug, Component, Clone, Default)]
 pub struct MoveSituation {
     // Owned
     pub start_frame: i32,

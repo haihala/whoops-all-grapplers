@@ -4,7 +4,7 @@ use types::Player;
 
 use crate::{assets::Colors, damage::Health};
 
-use super::{HEALTH_BAR_WIDTH, RESOURCE_BAR_WIDTH};
+use super::RESOURCE_BAR_WIDTH;
 
 #[derive(Debug, Component)]
 pub struct MeterBar(pub Player);
@@ -26,7 +26,7 @@ pub fn update(
     for (player, health, resources) in players.iter() {
         for (mut style, bar) in bars.p0().iter_mut() {
             if *player == bar.0 {
-                style.size.width = Val::Percent(health.get_ratio() * HEALTH_BAR_WIDTH);
+                style.size.width = Val::Percent(health.get_ratio() * 100.0);
             }
         }
         for (mut style, bar) in bars.p1().iter_mut() {

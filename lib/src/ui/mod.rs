@@ -79,16 +79,28 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
             top_bar_wrapper
                 .spawn_bundle(NodeBundle {
                     style: Style {
+                        flex_direction: FlexDirection::RowReverse,
                         size: Size::new(
                             Val::Percent(HEALTH_BAR_WIDTH),
                             Val::Percent(HEALTH_BAR_HEIGHT),
                         ),
                         ..default()
                     },
-                    color: colors.health.into(),
+                    color: TRANSPARENT.into(),
                     ..default()
                 })
-                .insert(HealthBar(Player::One));
+                .with_children(|health_bar_wrapper| {
+                    health_bar_wrapper
+                        .spawn_bundle(NodeBundle {
+                            style: Style {
+                                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                ..default()
+                            },
+                            color: colors.health.into(),
+                            ..default()
+                        })
+                        .insert(HealthBar(Player::One));
+                });
             top_bar_wrapper
                 .spawn_bundle(NodeBundle {
                     style: Style {
@@ -131,10 +143,21 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                         ),
                         ..default()
                     },
-                    color: colors.health.into(),
+                    color: TRANSPARENT.into(),
                     ..default()
                 })
-                .insert(HealthBar(Player::Two));
+                .with_children(|health_bar_wrapper| {
+                    health_bar_wrapper
+                        .spawn_bundle(NodeBundle {
+                            style: Style {
+                                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                ..default()
+                            },
+                            color: colors.health.into(),
+                            ..default()
+                        })
+                        .insert(HealthBar(Player::Two));
+                });
         });
 }
 

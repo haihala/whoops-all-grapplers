@@ -11,6 +11,13 @@ use super::{
 
 pub fn colors(mut commands: Commands) {
     commands.insert_resource(Colors {
+        notification_background: Color::Rgba {
+            red: 1.0,
+            green: 1.0,
+            blue: 1.0,
+            alpha: 0.3,
+        },
+        notification_text: Color::BLACK,
         health: Color::rgb(0.9, 0.0, 0.0),
         meter: Color::rgb(0.04, 0.5, 0.55),
         charge_default: Color::rgb(0.05, 0.4, 0.55),

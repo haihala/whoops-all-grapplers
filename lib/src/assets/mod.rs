@@ -12,6 +12,8 @@ pub use particles::{ParticleRequest, Particles};
 pub use sounds::Sounds;
 
 pub struct Colors {
+    pub notification_text: Color,
+    pub notification_background: Color,
     pub health: Color,
     pub meter: Color,
     pub charge_default: Color,

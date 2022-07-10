@@ -6,6 +6,8 @@ use characters::{MoveAction, PhaseKind};
 use time::Clock;
 use types::Players;
 
+use crate::ui::Notifications;
+
 use super::PlayerQuery;
 
 pub(super) fn move_advancement(
@@ -13,16 +15,18 @@ pub(super) fn move_advancement(
     clock: Res<Clock>,
     mut query: Query<PlayerQuery>,
     players: Res<Players>,
+    mut notifications: ResMut<Notifications>,
 ) {
     if let Ok([mut p1, mut p2]) = query.get_many_mut([players.one, players.two]) {
-        advance_move(&mut commands, &clock, &mut p1, &mut p2);
-        advance_move(&mut commands, &clock, &mut p2, &mut p1);
+        advance_move(&mut commands, &clock, &mut notifications, &mut p1, &mut p2);
+        advance_move(&mut commands, &clock, &mut notifications, &mut p2, &mut p1);
     }
 }
 
 fn advance_move(
     commands: &mut Commands,
     clock: &Clock,
+    notifications: &mut ResMut<Notifications>,
     actor: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
     target: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {
@@ -43,13 +47,14 @@ fn advance_move(
     }
     if let Some(phase_index) = index_to_activate {
         // Avoid simultaneous burrows and to make interface manageable
-        activate_phase(commands, phase_index, actor, target);
+        activate_phase(commands, phase_index, notifications, actor, target);
     }
 }
 
 pub(super) fn activate_phase(
     commands: &mut Commands,
     phase_index: usize,
+    notifications: &mut ResMut<Notifications>,
     actor: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
     target: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {
@@ -90,7 +95,9 @@ pub(super) fn activate_phase(
                             let teched = target.state.get_move_state().is_none()
                                 && target.input_parser.head_is_clear();
 
-                            if dbg!(in_range) && dbg!(!teched) {
+                            if teched {
+                                notifications.add(target.player.to_owned(), "Teched!");
+                            } else if in_range {
                                 target.grabbable.queue.push(descriptor);
                             }
                         }

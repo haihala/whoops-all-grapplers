@@ -1,3 +1,4 @@
+mod notifications;
 use bevy::prelude::*;
 use time::GameState;
 use types::Player;
@@ -9,9 +10,11 @@ mod text;
 mod utils;
 
 use bars::{spawn_charge_bars, spawn_health_bar, spawn_meter_bars};
+use notifications::setup_toasts;
+use text::{setup_round_info_text, spawn_timer};
 use utils::*;
 
-use self::text::{setup_round_info_text, spawn_timer};
+pub use notifications::Notifications;
 
 // Top bars
 const TOP_CONTAINER_TOP_PAD: f32 = 0.0;
@@ -33,6 +36,7 @@ impl Plugin for UIPlugin {
             CoreStage::Last,
             SystemSet::new()
                 .with_system(bars::update)
+                .with_system(notifications::update)
                 .with_system(
                     text::update_timer.with_run_criteria(State::on_update(GameState::Combat)),
                 )
@@ -46,6 +50,7 @@ fn setup_ui(mut commands: Commands, colors: Res<Colors>, fonts: Res<Fonts>) {
     setup_top_bars(&mut commands, &colors, &fonts);
     setup_bottom_bars(&mut commands, &colors);
     setup_round_info_text(&mut commands, &colors, &fonts);
+    setup_toasts(&mut commands);
 }
 
 fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {

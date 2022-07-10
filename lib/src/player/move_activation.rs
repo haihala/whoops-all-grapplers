@@ -7,7 +7,7 @@ use characters::{Character, Move, MoveId, MoveSituation};
 use time::Clock;
 use types::{Players, SoundEffect};
 
-use crate::assets::Sounds;
+use crate::{assets::Sounds, ui::Notifications};
 
 use super::{move_advancement::activate_phase, PlayerQuery};
 const EVENT_REPEAT_PERIOD: f32 = 0.3; // In seconds
@@ -74,11 +74,26 @@ pub(super) fn move_activator(
     mut sounds: ResMut<Sounds>,
     players: Res<Players>,
     clock: Res<Clock>,
+    mut notifications: ResMut<Notifications>,
     mut query: Query<PlayerQuery>,
 ) {
     if let Ok([mut p1, mut p2]) = query.get_many_mut([players.one, players.two]) {
-        activate_move(&mut commands, &mut sounds, &clock, &mut p1, &mut p2);
-        activate_move(&mut commands, &mut sounds, &clock, &mut p2, &mut p1);
+        activate_move(
+            &mut commands,
+            &mut sounds,
+            &clock,
+            &mut notifications,
+            &mut p1,
+            &mut p2,
+        );
+        activate_move(
+            &mut commands,
+            &mut sounds,
+            &clock,
+            &mut notifications,
+            &mut p2,
+            &mut p1,
+        );
     }
 }
 
@@ -86,6 +101,7 @@ fn activate_move(
     commands: &mut Commands,
     sounds: &mut ResMut<Sounds>,
     clock: &Res<Clock>,
+    notifications: &mut ResMut<Notifications>,
     actor: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
     target: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {
@@ -120,6 +136,6 @@ fn activate_move(
         actor.resources.pay(move_data.requirements.cost);
         actor.state.start_move(situation);
         sounds.play(SoundEffect::Whoosh);
-        activate_phase(commands, 0, actor, target);
+        activate_phase(commands, 0, notifications, actor, target);
     }
 }

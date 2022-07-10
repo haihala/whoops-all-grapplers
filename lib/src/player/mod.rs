@@ -41,6 +41,7 @@ struct PlayerQuery<'a> {
     resources: &'a mut Resources,
     inventory: &'a mut Inventory,
     input_parser: &'a mut InputParser,
+    player: &'a Player,
 }
 
 pub struct PlayerPlugin;

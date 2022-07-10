@@ -102,7 +102,36 @@ fn attacks() -> Vec<(MoveId, Move)> {
                 phases: vec![
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox(Area::new(1.0, 1.2, 0.3, 0.2)),
+                            hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
+                            ..default()
+                        }),
+                        duration: 10,
+                        ..default()
+                    }
+                    .into(),
+                    Phase {
+                        kind: PhaseKind::Animation,
+                        duration: 10,
+                        cancellable: true,
+                        ..default()
+                    }
+                    .into(),
+                ],
+            },
+        ),
+        (
+            MoveId::Low,
+            Move {
+                input: Some("[123]f"),
+                requirements: Requirements {
+                    grounded: Some(true),
+                    cancel_level: Some(CancelLevel::LightNormal),
+                    ..default()
+                },
+                phases: vec![
+                    Phase {
+                        kind: PhaseKind::Attack(SpawnDescriptor {
+                            hitbox: Hitbox(Area::new(0.5, 0.2, 0.3, 0.2)),
                             ..default()
                         }),
                         duration: 10,

@@ -30,6 +30,7 @@ pub enum MoveId {
     HeavyHadouken,
     Hadouken,
     AirPunch,
+    Low,
     CommandPunch,
     Punch,
 }

@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 use time::{RoundTimer, ROUND_TIME};
 
-use super::utils::{div, div_style, FULL};
+use crate::ui::utils::{div, div_style, FULL};
 
 pub const TIMER_WIDTH: f32 = 10.0;
 const TIMER_TOP_PADDING: f32 = 2.0;
 
-pub(super) fn spawn_timer(parent: &mut ChildBuilder, font: Handle<Font>) {
+pub fn spawn_timer(parent: &mut ChildBuilder, font: Handle<Font>) {
     parent
         .spawn_bundle(NodeBundle {
             style: Style {

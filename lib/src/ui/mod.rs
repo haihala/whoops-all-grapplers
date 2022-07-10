@@ -6,13 +6,12 @@ use crate::assets::{Colors, Fonts};
 
 mod bars;
 mod text;
-mod timer;
 mod utils;
 
 use bars::{spawn_charge_bars, spawn_health_bar, spawn_meter_bars};
 use utils::*;
 
-use self::{text::setup_round_info_text, timer::spawn_timer};
+use self::text::{setup_round_info_text, spawn_timer};
 
 // Top bars
 const TOP_CONTAINER_TOP_PAD: f32 = 0.0;

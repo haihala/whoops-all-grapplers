@@ -3,6 +3,9 @@ use time::{Clock, GameState, RoundResult, RoundTimer, ROUND_TIME};
 
 use crate::assets::{Colors, Fonts};
 
+mod timer;
+pub use timer::{spawn_timer, TIMER_WIDTH};
+
 use super::utils::{div, div_style, FULL};
 
 #[derive(Component)]

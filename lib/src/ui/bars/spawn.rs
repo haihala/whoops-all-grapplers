@@ -4,7 +4,7 @@ use types::Player;
 use crate::{
     assets::Colors,
     ui::{
-        timer::TIMER_WIDTH,
+        text::TIMER_WIDTH,
         utils::{div, div_style},
         FULL, TRANSPARENT,
     },

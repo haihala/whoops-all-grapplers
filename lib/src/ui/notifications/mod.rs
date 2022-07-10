@@ -32,9 +32,9 @@ impl Notifications {
     }
 }
 
-pub fn setup_toasts(mut commands: &mut Commands) {
-    let p1_container = create_notification_container(&mut commands, Player::One);
-    let p2_container = create_notification_container(&mut commands, Player::Two);
+pub fn setup_toasts(commands: &mut Commands) {
+    let p1_container = create_notification_container(commands, Player::One);
+    let p2_container = create_notification_container(commands, Player::Two);
 
     commands.insert_resource(Notifications {
         spawned: vec![],

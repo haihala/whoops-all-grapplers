@@ -87,14 +87,14 @@ pub(super) fn clash_parry(
             for (mut tracker, entity, owner) in
                 [(tracker1, entity1, owner1), (tracker2, entity2, owner2)]
             {
-                tracker.hits -= 1;
-                tracker.last_hit_frame = Some(clock.frame);
-
-                if tracker.hits <= 0 {
+                if tracker.hits <= 1 {
                     owners
                         .get_mut(players.get(**owner))
                         .unwrap()
                         .despawn(&mut commands, entity);
+                } else {
+                    tracker.hits -= 1;
+                    tracker.last_hit_frame = Some(clock.frame);
                 }
             }
         }

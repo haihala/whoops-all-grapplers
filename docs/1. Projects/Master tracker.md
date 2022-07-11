@@ -3,6 +3,8 @@
 - [[GLTF helper systems]] - Needs [[Animations]]
 
 ## High priority
+- [[PlayerState refactor 2]]
+- [[Combo structure]]
 
 ## Low priority
 - [[Recovery and knockdown]]
@@ -34,6 +36,7 @@
 - Attributes like startup reduction and stun increase to and from inventory
 - [[Stance system]]
 - [[Extend moves]]
+- Clean up mess caused by fixing unit tests
 
 # Other trackers
 ![[Bug tracker]]

@@ -1,3 +1,4 @@
 - Add a special case `MoveAction` that has a switch for `MoveId`
 	- For [[Gi of the old masters]] parry window opening
 	- For entering [[Stance system]]
+- `MoveBuilder` or similar that could make constructing moves a bit less cumbersome. There is some repetition currently and properties that aren't obviously linked when you look at the code but do affect each other.

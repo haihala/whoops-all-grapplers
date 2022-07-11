@@ -83,9 +83,7 @@ pub(super) fn activate_phase(
                 }
                 MoveAction::Phase(phase_data) => {
                     match phase_data.kind {
-                        PhaseKind::Attack(descriptor) => {
-                            actor.spawner.add_to_queue(move_state.move_id, descriptor)
-                        }
+                        PhaseKind::Attack(descriptor) => actor.spawner.add_to_queue(descriptor),
                         PhaseKind::Grab(descriptor) => {
                             let grab_origin = actor.tf.translation + descriptor.offset.extend(0.0);
                             let distance = (grab_origin - target.tf.translation).length();

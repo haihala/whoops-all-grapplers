@@ -39,6 +39,7 @@ pub fn register_hits(
     mut sounds: Option<ResMut<Sounds>>,
     mut particles: Option<ResMut<Particles>>,
     mut hitboxes: Query<(
+        Entity,
         &Owner,
         &OnHitEffect,
         &GlobalTransform,
@@ -48,7 +49,7 @@ pub fn register_hits(
     mut hurtboxes: Query<PlayerQuery>,
     players: Res<Players>,
 ) {
-    for (owner, effect, hitbox_tf, hitbox, mut hit_tracker) in hitboxes.iter_mut() {
+    for (entity, owner, effect, hitbox_tf, hitbox, mut hit_tracker) in hitboxes.iter_mut() {
         if let Ok([mut p1, mut p2]) = hurtboxes.get_many_mut([players.one, players.two]) {
             let (attacker, defender) = if owner.0 == Player::One {
                 (&mut p1, &mut p2)
@@ -64,6 +65,7 @@ pub fn register_hits(
                 effect,
                 &mut hit_tracker,
                 hitbox.with_offset(hitbox_tf.translation.truncate()),
+                entity,
                 attacker,
                 defender,
             );
@@ -82,6 +84,7 @@ fn handle_hit(
     effect: &OnHitEffect,
     hit_tracker: &mut HitTracker,
     hitbox: Area,
+    hitbox_entity: Entity,
     attacker: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
     defender: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {
@@ -158,10 +161,13 @@ fn handle_hit(
 
         hit_tracker.last_hit_frame = Some(frame);
 
+        if !blocked {
+            defender.spawner.despawn_on_hit(commands);
+        }
+
         // Despawns
         if hit_tracker.hits <= 1 {
-            defender.spawner.despawn_on_hit(commands);
-            attacker.spawner.despawn_for_move(commands, effect.id);
+            attacker.spawner.despawn(commands, hitbox_entity);
         } else {
             hit_tracker.hits -= 1;
         }

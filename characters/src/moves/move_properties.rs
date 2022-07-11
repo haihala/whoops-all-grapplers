@@ -163,8 +163,6 @@ pub type Pushback = HitProperty<Vec3>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Inspectable, Component)]
 pub struct OnHitEffect {
-    pub id: MoveId, // Needed so we can despawn the hitbox when a hit is registered
-
     pub fixed_height: Option<AttackHeight>,
     pub damage: Damage,
     pub stun: Stun,
@@ -175,7 +173,6 @@ pub struct OnHitEffect {
 impl Default for OnHitEffect {
     fn default() -> Self {
         Self {
-            id: default(),
             fixed_height: default(),
             damage: default(),
             stun: default(),

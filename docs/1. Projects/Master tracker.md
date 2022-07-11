@@ -3,7 +3,6 @@
 - [[GLTF helper systems]] - Needs [[Animations]]
 
 ## High priority
-- [[Clash parry]]
 
 ## Low priority
 - [[Recovery and knockdown]]
@@ -17,7 +16,6 @@
 	- e.g. user can tap gunshot while already shooting and the second shot comes immediately and not after a delay. Holding would still be possible.
 - Timer font is weird in full screen relative to health bars
 - Moves may not cancel into themselves.
-- Pushing causes mild visual stutter
 
 ## Not a priority
 - [[Counter hits]]
@@ -33,7 +31,6 @@
 - Generic state based visibility toggler for UI components (there is a component for visibility)
 - Think about cancellability + moves having hit
 	- Currently can't cancel rest of active
-- Toasts
 - Attributes like startup reduction and stun increase to and from inventory
 - [[Stance system]]
 - [[Extend moves]]

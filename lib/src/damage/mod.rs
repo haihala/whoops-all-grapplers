@@ -19,7 +19,8 @@ impl Plugin for DamagePlugin {
             SystemSet::new()
                 .with_system(hitboxes::spawn_new)
                 .with_system(hitboxes::despawn_expired.after(hitboxes::spawn_new))
-                .with_system(hitreg::register_hits.after(hitboxes::despawn_expired))
+                .with_system(hitreg::clash_parry.after(hitboxes::despawn_expired))
+                .with_system(hitreg::register_hits.after(hitreg::clash_parry))
                 .with_system(hitreg::handle_grabs.after(hitreg::register_hits))
                 .with_system(
                     health::check_dead

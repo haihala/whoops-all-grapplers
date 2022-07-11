@@ -32,7 +32,76 @@ pub struct PlayerQuery<'a> {
     spawner: &'a mut HitboxSpawner,
 }
 
-pub fn register_hits(
+pub(super) fn clash_parry(
+    mut commands: Commands,
+    clock: Res<Clock>,
+    mut sounds: Option<ResMut<Sounds>>,
+    mut particles: Option<ResMut<Particles>>,
+    mut hitboxes: Query<(Entity, &Owner, &GlobalTransform, &Hitbox, &mut HitTracker)>,
+    mut owners: Query<&mut HitboxSpawner>,
+    players: Res<Players>,
+) {
+    let mut iter = hitboxes.iter_combinations_mut();
+    while let Some(
+        [(entity1, owner1, gtf1, hitbox1, tracker1), (entity2, owner2, gtf2, hitbox2, tracker2)],
+    ) = iter.fetch_next()
+    {
+        if **owner1 == **owner2 {
+            // Can't clash with your own boxes
+            continue;
+        }
+
+        // TODO: Prettify
+        if let Some(last_hit_frame) = tracker1.last_hit_frame {
+            if last_hit_frame + FRAMES_BETWEEN_HITS > clock.frame {
+                continue;
+            }
+        }
+        if let Some(last_hit_frame) = tracker2.last_hit_frame {
+            if last_hit_frame + FRAMES_BETWEEN_HITS > clock.frame {
+                continue;
+            }
+        }
+
+        if let Some(overlap) = hitbox1
+            .with_offset(gtf1.translation.truncate())
+            .intersection(&hitbox2.with_offset(gtf2.translation.truncate()))
+        {
+            // Hitboxes collide
+
+            // Sound effect
+            if let Some(ref mut sounds) = sounds {
+                sounds.play(SoundEffect::Clash);
+            }
+
+            // Visual effect
+            if let Some(ref mut particles) = particles {
+                particles.spawn(ParticleRequest {
+                    effect: VisualEffect::Clash,
+                    // TODO: This can be refined more
+                    position: overlap.center().extend(0.0),
+                });
+            }
+
+            // Despawn projectiles
+            for (mut tracker, entity, owner) in
+                [(tracker1, entity1, owner1), (tracker2, entity2, owner2)]
+            {
+                tracker.hits -= 1;
+                tracker.last_hit_frame = Some(clock.frame);
+
+                if tracker.hits <= 0 {
+                    owners
+                        .get_mut(players.get(**owner))
+                        .unwrap()
+                        .despawn(&mut commands, entity);
+                }
+            }
+        }
+    }
+}
+
+pub(super) fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,
     mut sounds: Option<ResMut<Sounds>>,
@@ -173,7 +242,7 @@ fn handle_hit(
     }
 }
 
-pub fn handle_grabs(
+pub(super) fn handle_grabs(
     mut commands: Commands,
     mut query: Query<(
         &mut Grabable,

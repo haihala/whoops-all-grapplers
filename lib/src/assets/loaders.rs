@@ -86,6 +86,10 @@ pub fn particles(mut commands: Commands, effects: Option<ResMut<Assets<EffectAss
                     block_entity(&mut commands, &mut effects),
                 ),
                 (VisualEffect::Hit, hit_entity(&mut commands, &mut effects)),
+                (
+                    VisualEffect::Clash,
+                    clash_entity(&mut commands, &mut effects),
+                ),
             ]
             .into_iter()
             .collect(),
@@ -103,6 +107,7 @@ fn block_entity(commands: &mut Commands, effects: &mut ResMut<Assets<EffectAsset
         Gradient::constant(Vec4::new(0.1, 0.2, 1.0, 1.0)),
         vanishing_size_gradient(Vec2::new(0.1, 0.1), 0.1),
         2.0,
+        50.0,
     )
 }
 
@@ -114,6 +119,19 @@ fn hit_entity(commands: &mut Commands, effects: &mut ResMut<Assets<EffectAsset>>
         Gradient::constant(Vec4::new(1.0, 0.7, 0.0, 1.0)),
         vanishing_size_gradient(Vec2::new(0.1, 0.1), 0.2),
         3.0,
+        100.0,
+    )
+}
+
+fn clash_entity(commands: &mut Commands, effects: &mut ResMut<Assets<EffectAsset>>) -> Entity {
+    particle_explosion(
+        commands,
+        effects,
+        "clash",
+        Gradient::constant(Vec4::new(0.2, 0.3, 0.5, 1.0)),
+        vanishing_size_gradient(Vec2::new(0.1, 0.1), 0.1),
+        8.0,
+        30.0,
     )
 }
 
@@ -131,8 +149,9 @@ fn particle_explosion(
     color_gradient: Gradient<Vec4>,
     size_gradient: Gradient<Vec2>,
     speed: f32,
+    amount: f32,
 ) -> Entity {
-    let spawner = Spawner::once(100.0.into(), false);
+    let spawner = Spawner::once(amount.into(), false);
     let effect = effects.add(
         EffectAsset {
             name: name.into(),

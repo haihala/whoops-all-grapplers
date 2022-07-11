@@ -16,7 +16,7 @@ impl Players {
     }
 }
 
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Owner(pub Player);
 
 #[derive(EnumIter, Inspectable, PartialEq, Eq, Clone, Copy, Debug, Hash, Component)]

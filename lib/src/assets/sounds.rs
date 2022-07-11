@@ -43,6 +43,10 @@ pub fn get_sound_paths() -> HashMap<SoundEffect, Vec<&'static str>> {
                 "sound_effects/hit3.ogg",
             ],
         ),
+        (
+            SoundEffect::Clash,
+            vec!["sound_effects/clink1.ogg", "sound_effects/clink2.ogg"],
+        ),
     ]
     .into_iter()
     .collect()

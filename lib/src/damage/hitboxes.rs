@@ -1,30 +1,10 @@
 use bevy::prelude::*;
 
 use characters::{HitTracker, Hitbox, Lifetime, OnHitEffect, SpawnDescriptor};
-use time::{Clock, GameState};
+use time::Clock;
 use types::{Area, Facing, Owner, Player};
 
 use crate::physics::ConstantVelocity;
-
-pub struct SpawnerPlugin;
-
-impl Plugin for SpawnerPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_system_set_to_stage(
-            CoreStage::PostUpdate,
-            SystemSet::new()
-                .with_system(spawn_new)
-                .with_system(despawn_expired.after(spawn_new))
-                .with_system(
-                    despawn_everything
-                        .with_run_criteria(State::on_exit(GameState::Combat))
-                        // Technically despawning everything after expired is stupid,
-                        // but as of resolving ordering conflicts for a few hours I can't be bothered to do it properly.
-                        .after(despawn_expired),
-                ),
-        );
-    }
-}
 
 #[derive(Debug, Clone, Copy)]
 enum DespawnTime {
@@ -144,7 +124,7 @@ impl HitboxSpawner {
     }
 }
 
-pub fn spawn_new(
+pub(super) fn spawn_new(
     mut commands: Commands,
     clock: Res<Clock>,
     mut query: Query<(&mut HitboxSpawner, Entity, &Facing, &Player, &Transform)>,
@@ -164,7 +144,7 @@ pub fn spawn_new(
     }
 }
 
-pub fn despawn_expired(
+pub(super) fn despawn_expired(
     mut commands: Commands,
     clock: Res<Clock>,
     mut spawners: Query<&mut HitboxSpawner>,
@@ -180,7 +160,7 @@ pub fn despawn_expired(
     }
 }
 
-pub fn despawn_everything(mut commands: Commands, mut spawners: Query<&mut HitboxSpawner>) {
+pub(super) fn despawn_everything(mut commands: Commands, mut spawners: Query<&mut HitboxSpawner>) {
     for mut spawner in spawners.iter_mut() {
         spawner.despawn_matching(&mut commands, |_| true);
     }

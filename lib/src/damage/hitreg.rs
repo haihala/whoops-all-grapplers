@@ -11,11 +11,10 @@ use types::{Area, Facing, Owner, Player, Players, SoundEffect, VisualEffect};
 
 use crate::{
     assets::{ParticleRequest, Particles, Sounds},
-    hitbox_spawner::HitboxSpawner,
     physics::PlayerVelocity,
 };
 
-use super::Health;
+use super::{Health, HitboxSpawner};
 
 #[derive(WorldQuery)]
 #[world_query(mutable)]

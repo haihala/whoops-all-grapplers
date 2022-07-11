@@ -3,7 +3,6 @@ mod assets;
 mod camera;
 mod damage;
 mod dev;
-mod hitbox_spawner;
 mod physics;
 mod player;
 mod stage;
@@ -27,7 +26,6 @@ impl PluginGroup for WAGLib {
             .add(damage::DamagePlugin)
             .add(DevPlugin)
             .add(physics::PhysicsPlugin)
-            .add(hitbox_spawner::SpawnerPlugin)
             .add(input_parsing::InputParsingPlugin)
             .add(stage::StagePlugin)
             .add(player_state::PlayerStatePlugin);

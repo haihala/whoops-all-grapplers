@@ -12,7 +12,7 @@ use types::{Area, Facing, Players};
 
 use crate::{
     camera::{WorldCamera, VIEWPORT_HALFWIDTH},
-    hitbox_spawner::HitboxSpawner,
+    damage::HitboxSpawner,
 };
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;

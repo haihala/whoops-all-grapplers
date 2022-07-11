@@ -17,8 +17,7 @@ use types::{Facing, Model, Player, Players};
 
 use crate::{
     assets::{AnimationHelperSetup, ModelRequest},
-    damage::Health,
-    hitbox_spawner::HitboxSpawner,
+    damage::{Health, HitboxSpawner},
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
 

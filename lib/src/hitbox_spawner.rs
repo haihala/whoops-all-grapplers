@@ -41,11 +41,11 @@ struct DespawnRequest {
 }
 
 #[derive(Default, Component)]
-pub struct Spawner {
+pub struct HitboxSpawner {
     queue: Vec<SpawnDescriptor>,
     despawn_requests: Vec<DespawnRequest>,
 }
-impl Spawner {
+impl HitboxSpawner {
     #[allow(clippy::too_many_arguments)]
     pub fn spawn_attack(
         &mut self,
@@ -147,7 +147,7 @@ impl Spawner {
 pub fn spawn_new(
     mut commands: Commands,
     clock: Res<Clock>,
-    mut query: Query<(&mut Spawner, Entity, &Facing, &Player, &Transform)>,
+    mut query: Query<(&mut HitboxSpawner, Entity, &Facing, &Player, &Transform)>,
 ) {
     for (mut spawner, parent, facing, player, transform) in query.iter_mut() {
         for spawn_descriptor in spawner.queue.drain(..).collect::<Vec<_>>().into_iter() {
@@ -167,7 +167,7 @@ pub fn spawn_new(
 pub fn despawn_expired(
     mut commands: Commands,
     clock: Res<Clock>,
-    mut spawners: Query<&mut Spawner>,
+    mut spawners: Query<&mut HitboxSpawner>,
 ) {
     for mut spawner in spawners.iter_mut() {
         spawner.despawn_matching(&mut commands, |event| {
@@ -180,7 +180,7 @@ pub fn despawn_expired(
     }
 }
 
-pub fn despawn_everything(mut commands: Commands, mut spawners: Query<&mut Spawner>) {
+pub fn despawn_everything(mut commands: Commands, mut spawners: Query<&mut HitboxSpawner>) {
     for mut spawner in spawners.iter_mut() {
         spawner.despawn_matching(&mut commands, |_| true);
     }

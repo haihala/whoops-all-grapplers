@@ -12,7 +12,7 @@ use types::{Area, Facing, Players};
 
 use crate::{
     camera::{WorldCamera, VIEWPORT_HALFWIDTH},
-    spawner::Spawner,
+    hitbox_spawner::HitboxSpawner,
 };
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
@@ -74,7 +74,7 @@ fn player_gravity(
     mut players: Query<(
         &mut PlayerVelocity,
         &mut PlayerState,
-        &mut Spawner,
+        &mut HitboxSpawner,
         &Transform,
     )>,
 ) {

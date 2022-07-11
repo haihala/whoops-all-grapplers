@@ -11,8 +11,8 @@ use types::{Area, Facing, Owner, Player, Players, SoundEffect, VisualEffect};
 
 use crate::{
     assets::{ParticleRequest, Particles, Sounds},
+    hitbox_spawner::HitboxSpawner,
     physics::PlayerVelocity,
-    spawner::Spawner,
 };
 
 use super::Health;
@@ -30,7 +30,7 @@ pub struct PlayerQuery<'a> {
     state: &'a mut PlayerState,
     velocity: &'a mut PlayerVelocity,
     facing: &'a Facing,
-    spawner: &'a mut Spawner,
+    spawner: &'a mut HitboxSpawner,
 }
 
 pub fn register_hits(
@@ -179,7 +179,7 @@ pub fn handle_grabs(
     mut query: Query<(
         &mut Grabable,
         &mut PlayerState,
-        &mut Spawner,
+        &mut HitboxSpawner,
         &mut PlayerVelocity,
         &mut Health,
         &Facing,

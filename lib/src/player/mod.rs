@@ -18,8 +18,8 @@ use types::{Facing, Model, Player, Players};
 use crate::{
     assets::{AnimationHelperSetup, ModelRequest},
     damage::Health,
+    hitbox_spawner::HitboxSpawner,
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
-    spawner::Spawner,
 };
 
 use bevy::{ecs::query::WorldQuery, prelude::*};
@@ -33,7 +33,7 @@ const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 #[world_query(mutable)]
 struct PlayerQuery<'a> {
     state: &'a mut PlayerState,
-    spawner: &'a mut Spawner,
+    spawner: &'a mut HitboxSpawner,
     character: &'a Character,
     tf: &'a Transform,
     grabbable: &'a mut Grabable,
@@ -85,7 +85,7 @@ struct PlayerDefaults {
     health: Health,
     resources: Resources,
     inventory: Inventory,
-    spawner: Spawner,
+    spawner: HitboxSpawner,
     grab_target: Grabable,
     player_velocity: PlayerVelocity,
     move_buffer: MoveBuffer,

@@ -2,9 +2,9 @@ use bevy::{prelude::*, utils::HashSet};
 use bevy_inspector_egui::Inspectable;
 use types::GameButton;
 
-use crate::{CancelLevel, Inventory, Resources};
+use crate::{Inventory, Resources};
 
-use super::{MoveId, Requirements};
+use super::{MoveId, MoveType, Requirements};
 
 /// Situation is supposed to contain everything needed to deduce the next phase of a move
 #[derive(Inspectable, Eq, PartialEq, Debug, Component, Clone, Default)]
@@ -14,6 +14,8 @@ pub struct MoveSituation {
     pub phase_index: usize,
     pub move_id: MoveId,
     pub hit_registered: bool,
+    pub move_type: Option<MoveType>,
+    pub cancellable: bool,
 
     // Other components
     // Clone into this whenever initialized or changed
@@ -22,10 +24,9 @@ pub struct MoveSituation {
     #[inspectable(ignore)]
     pub buttons_held: HashSet<GameButton>,
     pub grounded: bool,
-    pub cancel_level: CancelLevel,
 }
 impl MoveSituation {
-    pub fn fulfills(&self, requirements: &Requirements) -> bool {
+    pub fn fulfills(&self, requirements: &Requirements, next_move_type: Option<MoveType>) -> bool {
         if let Some(hit_requirement) = requirements.has_hit {
             if hit_requirement != self.hit_registered {
                 return false;
@@ -60,8 +61,12 @@ impl MoveSituation {
             return false;
         }
 
-        if let Some(cancel_level) = requirements.cancel_level {
-            if self.cancel_level >= cancel_level {
+        if let (Some(move_type), Some(nmt)) = (self.move_type, next_move_type) {
+            // Prevent canceling normals into normals and specials into specials by default
+            // Allow canceling anything if bar is spent
+            if !self.cancellable
+                || move_type >= nmt && requirements.cost.unwrap_or_default().meter == 0
+            {
                 return false;
             }
         }

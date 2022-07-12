@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use types::Area;
 
 use crate::{
-    AttackHeight, Branch, CancelLevel, Cost, GrabDescription, Hitbox, Item, ItemId, Lifetime, Move,
-    MoveId, MoveMobility, Phase, PhaseKind, Requirements, SpawnDescriptor,
+    moves::MoveType, AttackHeight, Branch, Cost, GrabDescription, Hitbox, Item, ItemId, Lifetime,
+    Move, MoveId, MoveMobility, Phase, PhaseKind, Requirements, SpawnDescriptor,
 };
 
 use super::{dash, get_equipment_move, jump, Character};
@@ -94,12 +94,18 @@ fn attacks() -> Vec<(MoveId, Move)> {
             MoveId::Punch,
             Move {
                 input: Some("f"),
+                move_type: MoveType::Normal,
                 requirements: Requirements {
                     grounded: Some(true),
-                    cancel_level: Some(CancelLevel::LightNormal),
                     ..default()
                 },
                 phases: vec![
+                    Phase {
+                        kind: PhaseKind::Animation,
+                        duration: 5,
+                        ..default()
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
@@ -123,12 +129,18 @@ fn attacks() -> Vec<(MoveId, Move)> {
             MoveId::Low,
             Move {
                 input: Some("[123]f"),
+                move_type: MoveType::Normal,
                 requirements: Requirements {
                     grounded: Some(true),
-                    cancel_level: Some(CancelLevel::LightNormal),
                     ..default()
                 },
                 phases: vec![
+                    Phase {
+                        kind: PhaseKind::Animation,
+                        duration: 5,
+                        ..default()
+                    }
+                    .into(),
                     Phase {
                         kind: PhaseKind::Attack(SpawnDescriptor {
                             hitbox: Hitbox(Area::new(0.5, 0.2, 0.3, 0.2)),
@@ -152,9 +164,9 @@ fn attacks() -> Vec<(MoveId, Move)> {
             MoveId::CommandPunch,
             Move {
                 input: Some("6f"),
+                move_type: MoveType::Normal,
                 requirements: Requirements {
                     grounded: Some(true),
-                    cancel_level: Some(CancelLevel::LightNormal),
                     ..default()
                 },
                 phases: vec![
@@ -200,9 +212,9 @@ fn attacks() -> Vec<(MoveId, Move)> {
             MoveId::BudgetBoom,
             Move {
                 input: Some("[41]6f"),
+                move_type: MoveType::Special,
                 requirements: Requirements {
                     grounded: Some(true),
-                    cancel_level: Some(CancelLevel::LightSpecial),
                     ..default()
                 },
                 phases: vec![
@@ -238,8 +250,8 @@ fn attacks() -> Vec<(MoveId, Move)> {
             MoveId::SonicBoom,
             Move {
                 input: Some("[41]6f"),
+                move_type: MoveType::Special,
                 requirements: Requirements {
-                    cancel_level: Some(CancelLevel::HeavySpecial),
                     cost: Some(Cost {
                         charge: true,
                         ..default()
@@ -281,9 +293,9 @@ fn attacks() -> Vec<(MoveId, Move)> {
             MoveId::Hadouken,
             Move {
                 input: Some("236f"),
+                move_type: MoveType::Special,
                 requirements: Requirements {
                     grounded: Some(true),
-                    cancel_level: Some(CancelLevel::LightSpecial),
                     ..default()
                 },
                 phases: vec![
@@ -302,6 +314,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             ..default()
                         }),
                         duration: 4,
+                        cancellable: true,
                         ..default()
                     }
                     .into(),
@@ -319,8 +332,8 @@ fn attacks() -> Vec<(MoveId, Move)> {
             MoveId::HeavyHadouken,
             Move {
                 input: Some("236s"),
+                move_type: MoveType::Special,
                 requirements: Requirements {
-                    cancel_level: Some(CancelLevel::HeavySpecial),
                     cost: Some(Cost {
                         meter: 30,
                         ..default()
@@ -344,6 +357,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
                             ..default()
                         }),
                         duration: 4,
+                        cancellable: true,
                         ..default()
                     }
                     .into(),
@@ -361,8 +375,8 @@ fn attacks() -> Vec<(MoveId, Move)> {
             MoveId::AirPunch,
             Move {
                 input: Some("f"),
+                move_type: MoveType::Normal,
                 requirements: Requirements {
-                    cancel_level: Some(CancelLevel::LightNormal),
                     grounded: Some(false),
                     ..default()
                 },
@@ -397,8 +411,8 @@ fn attacks() -> Vec<(MoveId, Move)> {
             MoveId::Grab,
             Move {
                 input: Some("g"),
+                move_type: MoveType::Normal,
                 requirements: Requirements {
-                    cancel_level: Some(CancelLevel::Grab),
                     grounded: Some(true),
                     ..default()
                 },

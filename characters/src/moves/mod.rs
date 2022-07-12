@@ -9,21 +9,13 @@ pub use move_data::{Branch, Move, Requirements};
 mod move_properties;
 pub use move_properties::*;
 
-// Defined smallest to largest aka later ones can cancel earlier ones.
 #[derive(PartialEq, PartialOrd, Debug, Inspectable, Clone, Copy, Eq)]
-pub enum CancelLevel {
-    Anything,
-    LightNormal,
-    Dash,
-    Jump,
-    HeavyNormal,
-    LightSpecial,
-    HeavySpecial,
-    Grab,
-    Uncancellable,
+pub enum MoveType {
+    Normal,
+    Special,
 }
-impl Default for CancelLevel {
+impl Default for MoveType {
     fn default() -> Self {
-        CancelLevel::Anything
+        MoveType::Normal
     }
 }

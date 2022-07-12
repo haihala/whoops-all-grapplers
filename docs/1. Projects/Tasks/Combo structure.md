@@ -42,4 +42,4 @@ Notes:
 - [ ] Award meter based on accuracy
 	- [ ] Like in OSU
 	- [ ] Perfect / Good / Nothing
-- [ ] Change cancelling to the pondered system
+- [x] Change cancelling to the pondered system

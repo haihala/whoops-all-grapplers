@@ -4,11 +4,12 @@ use types::GameButton;
 
 use crate::{Cost, ItemId};
 
-use super::{CancelLevel, MoveAction, MoveId, MoveSituation, Phase};
+use super::{MoveAction, MoveId, MoveSituation, MoveType, Phase};
 
 #[derive(Debug, Default, Inspectable, Clone, PartialEq)]
 pub struct Move {
     pub input: Option<&'static str>,
+    pub move_type: MoveType,
     pub phases: Vec<Branch>,
     pub requirements: Requirements,
 }
@@ -55,7 +56,7 @@ pub struct Branch {
 impl Branch {
     pub fn get(&self, situation: &MoveSituation) -> (MoveAction, Option<Requirements>) {
         for (requirements, phase) in &self.branches {
-            if situation.fulfills(requirements) {
+            if situation.fulfills(requirements, None) {
                 return (phase.to_owned(), Some(requirements.to_owned()));
             }
         }
@@ -91,7 +92,6 @@ pub struct Requirements {
     pub items: Option<Vec<ItemId>>,
     pub buttons_held: Option<Vec<GameButton>>,
     pub grounded: Option<bool>,
-    pub cancel_level: Option<CancelLevel>,
 }
 impl Requirements {
     pub fn has_hit() -> Requirements {

@@ -1,12 +1,12 @@
-use crate::{CancelLevel, Move, MoveMobility, Phase, PhaseKind, Requirements};
+use crate::{moves::MoveType, Move, MoveMobility, Phase, PhaseKind, Requirements};
 use bevy::prelude::*;
 
 pub fn jump(input: &'static str, impulse: impl Into<Vec3>) -> Move {
     Move {
         input: Some(input),
+        move_type: MoveType::Normal,
         requirements: Requirements {
             grounded: Some(true),
-            cancel_level: Some(CancelLevel::Jump),
             ..default()
         },
         phases: vec![
@@ -30,8 +30,8 @@ pub fn jump(input: &'static str, impulse: impl Into<Vec3>) -> Move {
 pub fn dash(input: &'static str, duration: usize, impulse: f32) -> Move {
     Move {
         input: Some(input),
+        move_type: MoveType::Special,
         requirements: Requirements {
-            cancel_level: Some(CancelLevel::Dash),
             grounded: Some(true),
             ..default()
         },

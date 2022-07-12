@@ -10,7 +10,7 @@ use resources::Cost;
 pub use self::characters::{dummy, Character};
 pub use items::Inventory;
 pub use moves::{
-    AttackHeight, CancelLevel, Grabable, HitTracker, Hitbox, Hurtbox, Lifetime, Move, MoveAction,
-    MoveId, MoveMobility, MoveSituation, OnHitEffect, PhaseKind, SpawnDescriptor,
+    AttackHeight, Grabable, HitTracker, Hitbox, Hurtbox, Lifetime, Move, MoveAction, MoveId,
+    MoveMobility, MoveSituation, OnHitEffect, PhaseKind, SpawnDescriptor,
 };
 pub use resources::Resources;

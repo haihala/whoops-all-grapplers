@@ -82,6 +82,8 @@ pub(super) fn activate_phase(
                     // TODO: Some buffer clearing here?
                 }
                 MoveAction::Phase(phase_data) => {
+                    move_state.cancellable = dbg!(phase_data.cancellable);
+
                     match phase_data.kind {
                         PhaseKind::Attack(descriptor) => actor.spawner.add_to_queue(descriptor),
                         PhaseKind::Grab(descriptor) => {

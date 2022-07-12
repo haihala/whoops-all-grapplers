@@ -32,16 +32,13 @@ impl MoveBuffer {
         character: &Character,
         situation: &MoveSituation,
     ) -> Option<(MoveId, Move)> {
-        if self.force_start.is_some() {
-            // Early return for the cases when a move has forked
-            return self.force_start.take();
-        }
-
         if let Some((selected_id, move_data)) = self
             .buffer
             .iter()
             .map(|(_, id)| (*id, character.get_move(*id)))
-            .filter(|(_, move_data)| situation.fulfills(&move_data.requirements))
+            .filter(|(_, move_data)| {
+                situation.fulfills(&move_data.requirements, Some(move_data.move_type))
+            })
             .min_by(|(id1, _), (id2, _)| id1.cmp(id2))
         {
             self.buffer.retain(|(_, id)| selected_id != *id);
@@ -114,28 +111,42 @@ fn activate_move(
         return;
     }
 
-    let mut situation = actor
-        .state
-        .get_move_state()
-        .map(|state| state.to_owned())
-        .unwrap_or(MoveSituation {
-            resources: *actor.resources,
-            inventory: actor.inventory.clone(),
-            buttons_held: actor.input_parser.get_pressed(),
-            grounded: actor.state.is_grounded(),
+    let force_start = if actor.buffer.force_start.is_some() {
+        actor.buffer.force_start.take()
+    } else {
+        None
+    };
+
+    // As a move is either happening or not happening, one of the 'or' options will always be Some if the user has a move they are trying to get out
+    if let Some((move_id, move_data)) = force_start.or_else(|| {
+        actor
+            .state
+            .get_move_state()
+            .map(|state| state.to_owned())
+            .or_else(|| {
+                Some(MoveSituation {
+                    // Construct a pseudo-situation. This is one that represents the current state without a move.
+                    // Some of the fields like start frame will be off, but those aren't relevant for move activation
+                    resources: actor.resources.to_owned(),
+                    inventory: actor.inventory.to_owned(),
+                    buttons_held: actor.input_parser.get_pressed(),
+                    grounded: actor.state.is_grounded(),
+                    ..default()
+                })
+            })
+            .and_then(|situation| actor.buffer.use_move(actor.character, &situation))
+    }) {
+        dbg!(move_id);
+        actor.resources.pay(move_data.requirements.cost);
+        sounds.play(SoundEffect::Whoosh);
+        actor.state.start_move(MoveSituation {
+            move_id,
+            move_type: Some(move_data.move_type),
+            start_frame: clock.frame as i32,
+            resources: actor.resources.to_owned(),
+            inventory: actor.inventory.to_owned(),
             ..default()
         });
-
-    if let Some((move_id, move_data)) = actor.buffer.use_move(actor.character, &situation) {
-        situation.move_id = move_id;
-        situation.start_frame = clock.frame as i32;
-        situation.resources.pay(move_data.requirements.cost.clone());
-        situation.hit_registered = false;
-        situation.cancel_level = move_data.requirements.cancel_level.unwrap();
-
-        actor.resources.pay(move_data.requirements.cost);
-        actor.state.start_move(situation);
-        sounds.play(SoundEffect::Whoosh);
         activate_phase(commands, 0, notifications, actor, target);
     }
 }

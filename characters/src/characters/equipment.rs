@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use types::{Area, GameButton};
 
 use crate::{
-    Branch, CancelLevel, Cost, Hitbox, ItemId, Lifetime, Move, MoveId, Phase, PhaseKind,
+    moves::MoveType, Branch, Cost, Hitbox, ItemId, Lifetime, Move, MoveId, Phase, PhaseKind,
     Requirements, SpawnDescriptor,
 };
 
@@ -18,10 +18,10 @@ pub fn get_equipment_move(id: MoveId) -> Move {
 fn get_handmedownken() -> Move {
     Move {
         input: Some("236e"),
+        move_type: MoveType::Special,
         requirements: Requirements {
             items: Some(vec![ItemId::HandMeDownKen]),
             grounded: Some(true),
-            cancel_level: Some(CancelLevel::LightSpecial),
             ..default()
         },
         phases: vec![
@@ -57,9 +57,9 @@ fn get_gunshot() -> Move {
     // Single shot, the repeating bit
     Move {
         input: None,
+        move_type: MoveType::Normal,
         requirements: Requirements {
             grounded: Some(true),
-            cancel_level: Some(CancelLevel::LightNormal),
             ..default()
         },
         phases: vec![
@@ -119,10 +119,10 @@ fn get_gunshot() -> Move {
 fn get_shot() -> Move {
     Move {
         input: Some("e"),
+        move_type: MoveType::Normal,
         requirements: Requirements {
             items: Some(vec![ItemId::HandMeDownKen]),
             grounded: Some(true),
-            cancel_level: Some(CancelLevel::LightNormal),
             ..default()
         },
         phases: vec![

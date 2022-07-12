@@ -5,17 +5,25 @@
 	- -> Minimal cases lead to the smallests spreadsheets -> least exceptions
 - Meaningful distinctions
 	- normal/special
-	- EX or no
+	- Amount of bar used
 	- Projectile/attack/throw/movement
 		- Projectile/attack/throw should be on the same level
 		- Dash canceling should be a thing, at least after upgrades
 		- Jump canceling is a bit weird
 	- Button
 		- Equipment button makes it not obvious if a button is supposed to be "heavier" or "faster"
-- Longest obvious cancel chain: normal->special->ex
-	- Without items, jumps are normals and dashes are specials
-	- After an item, forward dash gains ex canced properties (FADC)
-		- Will use meter if needed
+
+Boils down to two rules
+1. Normals cancel into specials
+2. Moves cancel into ones with a higher bar consumption
+
+Those two rules will mean that (eventually), normal, special, ex, super is completely sensible and logical.
+
+Notes:
+- Without items, jumps are normals and dashes are specials
+- After an item, forward dash can use a bar (FADC)
+	- Will use meter if needed
+
 
 ## EX moves
 - Ex moves could be cancelled into anything
@@ -27,10 +35,11 @@
 	- fs variants of special moves are items
 
 # Objectives
-- Autocorrect
-	- Too early
-	- Too late
-- Award meter based on accuracy
-	- Like in OSU
-	- Perfect / Good / Nothing
-- Change cancelling to the pondered system
+- [ ] Autocorrect
+	- [ ] Too early
+	- [ ] Too late
+		- [ ] EX
+- [ ] Award meter based on accuracy
+	- [ ] Like in OSU
+	- [ ] Perfect / Good / Nothing
+- [ ] Change cancelling to the pondered system

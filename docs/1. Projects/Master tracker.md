@@ -16,6 +16,11 @@
 	- Maybe you could specify a base phase and a function that transforms that based on the situation
 	- This could make it so you don't need a global store for all stats and representing phases that get influence by multiple items easier.
 	- Move away from switches for nearly identical phases
+- Add toasts explaining why you got hit
+	- Recovering
+	- Low
+	- Overhead
+	- Simply not blocking
 
 ## Easy nibbles
 - Make parrot echo inputs while recording

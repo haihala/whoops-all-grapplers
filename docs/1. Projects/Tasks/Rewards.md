@@ -1,3 +1,5 @@
+13/7/2022 note: Wow does this need a recheck. Dropped in to say that meter bar should have 4-5 segments. Meter is gained in smaller chunks but always spent in whole segments. Items could grant more segments and secondary bars.
+
 Characters are heels or faces and gain meter / fans / money for different things
 
 # Meter

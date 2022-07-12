@@ -1,10 +1,8 @@
 # Ryan
-The entry point. An old grizzled shoto.
+The entry point. An old grizzled veteran.
 
 ## Writeup
 Ryan is a 50-something year old half asian half white dude who has been "doing this for a while". He is an obvious "Loganification" of Ryu.
-
-He doesn't leap during a shoryuken, his fireballs are small, but ultimately he trusts his technique which he has honed throughout the years.
 
 ## Mechanics
 ### Frail

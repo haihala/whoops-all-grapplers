@@ -1,16 +1,20 @@
 # Backlog
 ## Blocked
 - [[GLTF helper systems]] - Needs [[Animations]]
+- [[Animations]] - Needs [[Ryan kit]]
+- [[Ryan kit]] - Needs [[Combo structure]] (EX moves and new cancel levels)
 
 ## High priority
 - [[Combo structure]]
+- [[Ryan kit]]
 
 ## Low priority
 - [[Recovery and knockdown]]
 - Constants to an env (both command line and file) parser so it doesn't change on recompile.
-- [[Animations]]
 - [[Menus]]
-- [[Ryan kit]]
+- Could there be a property generic that evaluates into a value based on a FnOnce that takes an inventory
+	- This could make it so you don't need a global store for all stats and representing phases that get influence by multiple items easier.
+	- Move away from switches for nearly identical phases
 
 ## Easy nibbles
 - Instead of pure phase index, use a combination of index, branch coordinates to determine where the execution of a move is at.

@@ -23,6 +23,8 @@
 	- Considering how meter works it ought to be fine.
 - Current parser system is a bit troublesome with ex
 	- If buttons come in one frame apart, the game will go ahead with the non-ex version if it can
+- Maybe initially you only have f/s/g and s is ex-lite
+	- fs variants of special moves are items
 
 # Objectives
 - Autocorrect

@@ -3,7 +3,6 @@
 - [[GLTF helper systems]] - Needs [[Animations]]
 
 ## High priority
-- [[PlayerState refactor 2]]
 - [[Combo structure]]
 
 ## Low priority

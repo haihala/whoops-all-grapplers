@@ -4,29 +4,41 @@ use characters::MoveSituation;
 use types::Facing;
 
 #[derive(Inspectable, Eq, PartialEq, Clone, Debug)]
-pub enum AirActivity {
+pub enum AirState {
     Freefall,
     Move(MoveSituation),
     Idle,
 }
 
-impl Default for AirActivity {
+impl Default for AirState {
     fn default() -> Self {
-        AirActivity::Idle
+        AirState::Idle
     }
 }
 
 #[derive(Inspectable, Eq, PartialEq, Clone, Debug)]
-pub enum GroundActivity {
+pub enum StandState {
     Stun(usize),
     Move(MoveSituation),
     Walk(Facing),
-    Crouching,
-    Standing,
+    Idle,
 }
 
-impl Default for GroundActivity {
+impl Default for StandState {
     fn default() -> Self {
-        GroundActivity::Standing
+        StandState::Idle
+    }
+}
+
+#[derive(Inspectable, Eq, PartialEq, Clone, Debug)]
+pub enum CrouchState {
+    Stun(usize),
+    Move(MoveSituation),
+    Idle,
+}
+
+impl Default for CrouchState {
+    fn default() -> Self {
+        CrouchState::Idle
     }
 }

@@ -6,9 +6,16 @@
 - Meaningful distinctions
 	- normal/special
 	- EX or no
+	- Projectile/attack/throw/movement
+		- Projectile/attack/throw should be on the same level
+		- Dash canceling should be a thing, at least after upgrades
+		- Jump canceling is a bit weird
 	- Button
 		- Equipment button makes it not obvious if a button is supposed to be "heavier" or "faster"
 - Longest obvious cancel chain: normal->special->ex
+	- Without items, jumps are normals and dashes are specials
+	- After an item, forward dash gains ex canced properties (FADC)
+		- Will use meter if needed
 
 ## EX moves
 - Ex moves could be cancelled into anything

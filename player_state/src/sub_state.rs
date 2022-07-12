@@ -4,6 +4,19 @@ use characters::MoveSituation;
 use types::Facing;
 
 #[derive(Inspectable, Eq, PartialEq, Clone, Debug)]
+pub enum AirActivity {
+    Freefall,
+    Move(MoveSituation),
+    Idle,
+}
+
+impl Default for AirActivity {
+    fn default() -> Self {
+        AirActivity::Idle
+    }
+}
+
+#[derive(Inspectable, Eq, PartialEq, Clone, Debug)]
 pub enum GroundActivity {
     Stun(usize),
     Move(MoveSituation),

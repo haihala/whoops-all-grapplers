@@ -4,18 +4,17 @@ use bevy_inspector_egui::Inspectable;
 use characters::{AttackHeight, MoveSituation};
 use types::{Area, Facing, StickPosition};
 
-use crate::primary_state::{AirActivity, GroundActivity, PrimaryState};
+use crate::sub_state::{AirActivity, GroundActivity};
 
 #[derive(Inspectable, Debug, Component)]
-pub struct PlayerState {
-    primary: PrimaryState,
+pub enum PlayerState {
+    Air(AirActivity),
+    Ground(GroundActivity),
 }
 
 impl Default for PlayerState {
     fn default() -> Self {
-        Self {
-            primary: PrimaryState::Ground(GroundActivity::Standing),
-        }
+        Self::Ground(GroundActivity::Standing)
     }
 }
 impl PlayerState {
@@ -25,39 +24,29 @@ impl PlayerState {
 
     // Moves
     pub fn start_move(&mut self, situation: MoveSituation) {
-        self.primary = match self.primary {
-            PrimaryState::Ground(_) => PrimaryState::Ground(GroundActivity::Move(situation)),
-            PrimaryState::Air(_) => PrimaryState::Air(AirActivity::Move(situation)),
+        *self = match self {
+            Self::Ground(_) => Self::Ground(GroundActivity::Move(situation)),
+            Self::Air(_) => Self::Air(AirActivity::Move(situation)),
         };
     }
-    pub fn set_move_phase_index(&mut self, phase_index: usize) {
-        if let PrimaryState::Ground(GroundActivity::Move(ref mut move_state))
-        | PrimaryState::Air(AirActivity::Move(ref mut move_state)) = self.primary
-        {
-            move_state.phase_index = phase_index;
-        } else {
-            panic!("Setting phase index without an active move");
-        }
-    }
     pub fn get_move_state(&self) -> Option<&MoveSituation> {
-        match self.primary {
-            PrimaryState::Ground(GroundActivity::Move(ref situation))
-            | PrimaryState::Air(AirActivity::Move(ref situation)) => Some(situation),
+        match self {
+            Self::Ground(GroundActivity::Move(ref situation))
+            | Self::Air(AirActivity::Move(ref situation)) => Some(situation),
             _ => None,
         }
     }
-
     pub fn get_move_state_mut(&mut self) -> Option<&mut MoveSituation> {
-        match self.primary {
-            PrimaryState::Ground(GroundActivity::Move(ref mut situation))
-            | PrimaryState::Air(AirActivity::Move(ref mut situation)) => Some(situation),
+        match self {
+            Self::Ground(GroundActivity::Move(ref mut situation))
+            | Self::Air(AirActivity::Move(ref mut situation)) => Some(situation),
             _ => None,
         }
     }
 
     pub fn register_hit(&mut self) {
-        if let PrimaryState::Ground(GroundActivity::Move(ref mut situation))
-        | PrimaryState::Air(AirActivity::Move(ref mut situation)) = self.primary
+        if let Self::Ground(GroundActivity::Move(ref mut situation))
+        | Self::Air(AirActivity::Move(ref mut situation)) = self
         {
             situation.hit_registered = true;
         }
@@ -65,87 +54,83 @@ impl PlayerState {
 
     // Stun
     pub fn stun(&mut self, recovery_frame: usize) {
-        match self.primary {
-            PrimaryState::Ground(_) => {
-                self.primary = PrimaryState::Ground(GroundActivity::Stun(recovery_frame));
+        match self {
+            Self::Ground(_) => {
+                *self = Self::Ground(GroundActivity::Stun(recovery_frame));
             }
-            PrimaryState::Air(_) => {
-                self.primary = PrimaryState::Air(AirActivity::Freefall);
+            Self::Air(_) => {
+                *self = Self::Air(AirActivity::Freefall);
             }
         }
     }
     pub fn throw(&mut self) {
-        self.primary = PrimaryState::Air(AirActivity::Freefall);
+        *self = Self::Air(AirActivity::Freefall);
     }
     pub fn recover(&mut self) {
         if self.is_grounded() {
-            self.primary = PrimaryState::Ground(GroundActivity::Standing);
+            *self = Self::Ground(GroundActivity::Standing);
         } else {
-            self.primary = PrimaryState::Air(AirActivity::Idle);
+            *self = Self::Air(AirActivity::Idle);
         }
     }
     pub fn unstun_frame(&self) -> Option<usize> {
-        if let PrimaryState::Ground(GroundActivity::Stun(frame)) = self.primary {
-            Some(frame)
+        if let Self::Ground(GroundActivity::Stun(frame)) = self {
+            Some(frame.to_owned())
         } else {
             None
         }
     }
     pub fn stunned(&self) -> bool {
         matches!(
-            self.primary,
-            PrimaryState::Ground(GroundActivity::Stun(_))
-                | PrimaryState::Air(AirActivity::Freefall)
+            self,
+            Self::Ground(GroundActivity::Stun(_)) | Self::Air(AirActivity::Freefall)
         )
     }
 
     // Jumping
     pub fn jump(&mut self) {
-        if let PrimaryState::Ground(GroundActivity::Move(situation)) = self.primary.to_owned() {
-            self.primary = PrimaryState::Air(AirActivity::Move(situation));
+        if let Self::Ground(GroundActivity::Move(situation)) = self {
+            *self = Self::Air(AirActivity::Move(situation.to_owned()));
         } else if self.is_grounded() {
             // was grounded doing something else, now in air without a move
-            self.primary = PrimaryState::Air(AirActivity::Idle);
+            *self = Self::Air(AirActivity::Idle);
         }
     }
     pub fn launch(&mut self) {
-        self.primary = PrimaryState::Air(AirActivity::Freefall);
+        *self = Self::Air(AirActivity::Freefall);
     }
     pub fn land(&mut self) {
-        if matches!(self.primary, PrimaryState::Air(AirActivity::Freefall)) {
+        if matches!(self, Self::Air(AirActivity::Freefall)) {
             // TODO: Better handling of what happens on landing
             // Recovery?
             // Put the player in a groundactivity otg or something and pick up on that in a recovery system
         }
-        self.primary = PrimaryState::Ground(GroundActivity::Standing);
+        *self = Self::Ground(GroundActivity::Standing);
     }
     pub fn is_grounded(&self) -> bool {
-        matches!(self.primary, PrimaryState::Ground(_))
+        matches!(self, Self::Ground(_))
     }
 
     // Walking
     pub fn walk(&mut self, direction: Facing) {
-        self.primary = PrimaryState::Ground(GroundActivity::Walk(direction));
+        *self = Self::Ground(GroundActivity::Walk(direction));
     }
     pub fn get_walk_direction(&self) -> Option<Facing> {
-        if let PrimaryState::Ground(GroundActivity::Walk(direction)) = self.primary {
-            Some(direction)
+        if let Self::Ground(GroundActivity::Walk(direction)) = self {
+            Some(direction.to_owned())
         } else {
             None
         }
     }
 
     pub fn crouch(&mut self) {
-        self.primary = PrimaryState::Ground(GroundActivity::Crouching);
+        *self = Self::Ground(GroundActivity::Crouching);
     }
     pub fn stand(&mut self) {
-        self.primary = PrimaryState::Ground(GroundActivity::Standing);
+        *self = Self::Ground(GroundActivity::Standing);
     }
     pub fn is_crouching(&self) -> bool {
-        matches!(
-            self.primary,
-            PrimaryState::Ground(GroundActivity::Crouching)
-        )
+        matches!(self, Self::Ground(GroundActivity::Crouching))
     }
 
     pub fn blocked(

@@ -27,7 +27,6 @@ impl PluginGroup for WAGLib {
             .add(DevPlugin)
             .add(physics::PhysicsPlugin)
             .add(input_parsing::InputParsingPlugin)
-            .add(stage::StagePlugin)
-            .add(player_state::PlayerStatePlugin);
+            .add(stage::StagePlugin);
     }
 }

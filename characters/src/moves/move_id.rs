@@ -23,7 +23,7 @@ pub enum MoveId {
     TestMove,
     SecondTestMove,
 
-    // Ryan moves
+    // Dummy moves
     Grab,
     SonicBoom,
     BudgetBoom,

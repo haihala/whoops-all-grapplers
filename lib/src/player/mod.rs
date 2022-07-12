@@ -7,7 +7,7 @@ mod recovery;
 mod size_adjustment;
 mod update_animation;
 
-use characters::{ryan, Character, Grabable, Hurtbox, Inventory, Resources};
+use characters::{dummy, Character, Grabable, Hurtbox, Inventory, Resources};
 use input_parsing::InputParser;
 #[cfg(not(test))]
 use input_parsing::PadBundle;
@@ -92,7 +92,7 @@ struct PlayerDefaults {
 
 fn spawn_player(commands: &mut Commands, offset: f32, player: Player) -> Entity {
     let state = PlayerState::default();
-    let character = ryan();
+    let character = dummy();
 
     #[cfg(not(test))]
     let inputs = PadBundle::new(character.get_inputs());

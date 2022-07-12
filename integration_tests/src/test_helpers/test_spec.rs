@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::utils::HashMap;
-use characters::{ryan, MoveId};
+use characters::{dummy, MoveId};
 use input_parsing::{testing::PreWrittenInputBundle, InputEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -19,7 +19,7 @@ pub struct TestSpec {
 }
 impl TestSpec {
     pub fn new(p1_events: Vec<InputClump>, p2_events: Vec<InputClump>) -> Self {
-        let character = ryan();
+        let character = dummy();
         let inputs = character.get_inputs();
         Self {
             p1_events: Self::flatten_events(p1_events),

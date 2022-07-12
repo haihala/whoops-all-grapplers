@@ -8,15 +8,15 @@ use crate::{
 
 use super::{dash, get_equipment_move, jump, Character};
 
-pub fn ryan() -> Character {
-    Character::new(ryan_moves(), ryan_items())
+pub fn dummy() -> Character {
+    Character::new(dummy_moves(), dummy_items())
 }
 
 // Dashing
 const DASH_DURATION: usize = (0.5 * constants::FPS) as usize;
 const DASH_IMPULSE: f32 = 10.0;
 
-fn ryan_moves() -> Vec<(MoveId, Move)> {
+fn dummy_moves() -> Vec<(MoveId, Move)> {
     // Technically this is a slight performance loss, but
     // having all the components formated like this is more readable
     vec![]
@@ -424,7 +424,7 @@ fn attacks() -> Vec<(MoveId, Move)> {
     ]
 }
 
-fn ryan_items() -> Vec<(ItemId, Item)> {
+fn dummy_items() -> Vec<(ItemId, Item)> {
     vec![
         (
             ItemId::Drugs,
@@ -471,7 +471,7 @@ mod test {
     fn no_duplicate_move_ids() {
         let mut ids: HashSet<MoveId> = vec![].into_iter().collect();
 
-        for (id, _) in ryan_moves() {
+        for (id, _) in dummy_moves() {
             assert!(
                 !ids.contains(&id),
                 "ID {:?} was found twice in move list",

@@ -1,10 +1,10 @@
 mod character;
+mod dummy;
 mod equipment;
 mod helpers;
-mod ryan;
 
 pub use character::Character;
-pub use ryan::ryan;
+pub use dummy::dummy;
 
 use equipment::get_equipment_move;
 use helpers::{dash, jump};

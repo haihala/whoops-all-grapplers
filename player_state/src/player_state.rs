@@ -7,15 +7,22 @@ use types::{Area, Facing, StickPosition};
 use crate::sub_state::{AirState, CrouchState, StandState};
 
 #[derive(Inspectable, Debug, Component, Clone)]
-pub enum PlayerState {
+enum MainState {
     Air(AirState),
     Stand(StandState),
     Crouch(CrouchState),
 }
 
+#[derive(Inspectable, Debug, Component, Clone)]
+pub struct PlayerState {
+    main: MainState,
+}
+
 impl Default for PlayerState {
     fn default() -> Self {
-        Self::Stand(StandState::default())
+        Self {
+            main: MainState::Stand(StandState::default()),
+        }
     }
 }
 impl PlayerState {
@@ -25,25 +32,25 @@ impl PlayerState {
 
     // Moves
     pub fn start_move(&mut self, situation: MoveSituation) {
-        *self = match self {
-            Self::Stand(_) => Self::Stand(StandState::Move(situation)),
-            Self::Crouch(_) => Self::Crouch(CrouchState::Move(situation)),
-            Self::Air(_) => Self::Air(AirState::Move(situation)),
+        self.main = match self.main {
+            MainState::Stand(_) => MainState::Stand(StandState::Move(situation)),
+            MainState::Crouch(_) => MainState::Crouch(CrouchState::Move(situation)),
+            MainState::Air(_) => MainState::Air(AirState::Move(situation)),
         };
     }
     pub fn get_move_state(&self) -> Option<&MoveSituation> {
-        match self {
-            Self::Stand(StandState::Move(ref situation))
-            | Self::Crouch(CrouchState::Move(ref situation))
-            | Self::Air(AirState::Move(ref situation)) => Some(situation),
+        match self.main {
+            MainState::Stand(StandState::Move(ref situation))
+            | MainState::Crouch(CrouchState::Move(ref situation))
+            | MainState::Air(AirState::Move(ref situation)) => Some(situation),
             _ => None,
         }
     }
     pub fn get_move_state_mut(&mut self) -> Option<&mut MoveSituation> {
-        match self {
-            Self::Stand(StandState::Move(ref mut situation))
-            | Self::Crouch(CrouchState::Move(ref mut situation))
-            | Self::Air(AirState::Move(ref mut situation)) => Some(situation),
+        match self.main {
+            MainState::Stand(StandState::Move(ref mut situation))
+            | MainState::Crouch(CrouchState::Move(ref mut situation))
+            | MainState::Air(AirState::Move(ref mut situation)) => Some(situation),
             _ => None,
         }
     }
@@ -56,71 +63,72 @@ impl PlayerState {
 
     // Stun
     pub fn stun(&mut self, recovery_frame: usize) {
-        *self = match self {
-            Self::Stand(_) => Self::Stand(StandState::Stun(recovery_frame)),
-            Self::Crouch(_) => Self::Crouch(CrouchState::Stun(recovery_frame)),
-            Self::Air(_) => Self::Air(AirState::Freefall),
+        self.main = match self.main {
+            MainState::Stand(_) => MainState::Stand(StandState::Stun(recovery_frame)),
+            MainState::Crouch(_) => MainState::Crouch(CrouchState::Stun(recovery_frame)),
+            MainState::Air(_) => MainState::Air(AirState::Freefall),
         }
     }
     pub fn throw(&mut self) {
-        *self = Self::Air(AirState::Freefall);
+        self.main = MainState::Air(AirState::Freefall);
     }
     pub fn recover(&mut self) {
-        *self = match self {
-            Self::Stand(_) => Self::Stand(StandState::Idle),
-            Self::Crouch(_) => Self::Crouch(CrouchState::Idle),
-            Self::Air(_) => Self::Air(AirState::Idle),
+        self.main = match self.main {
+            MainState::Stand(_) => MainState::Stand(StandState::Idle),
+            MainState::Crouch(_) => MainState::Crouch(CrouchState::Idle),
+            MainState::Air(_) => MainState::Air(AirState::Idle),
         }
     }
     pub fn unstun_frame(&self) -> Option<usize> {
-        match self {
-            Self::Stand(StandState::Stun(frame)) | Self::Crouch(CrouchState::Stun(frame)) => {
-                Some(frame.to_owned())
-            }
+        match self.main {
+            MainState::Stand(StandState::Stun(frame))
+            | MainState::Crouch(CrouchState::Stun(frame)) => Some(frame.to_owned()),
             _ => None,
         }
     }
     pub fn stunned(&self) -> bool {
         matches!(
-            self,
-            Self::Stand(StandState::Stun(_))
-                | Self::Crouch(CrouchState::Stun(_))
-                | Self::Air(AirState::Freefall)
+            self.main,
+            MainState::Stand(StandState::Stun(_))
+                | MainState::Crouch(CrouchState::Stun(_))
+                | MainState::Air(AirState::Freefall)
         )
     }
 
     // Jumping
     pub fn jump(&mut self) {
-        match self {
-            Self::Stand(StandState::Move(situation))
-            | Self::Crouch(CrouchState::Move(situation)) => {
-                *self = Self::Air(AirState::Move(situation.to_owned()))
+        match self.main.clone() {
+            MainState::Stand(StandState::Move(situation))
+            | MainState::Crouch(CrouchState::Move(situation)) => {
+                self.main = MainState::Air(AirState::Move(situation))
             }
-            Self::Crouch(_) | Self::Stand(_) => *self = Self::Air(AirState::Idle),
+            MainState::Crouch(_) | MainState::Stand(_) => {
+                self.main = MainState::Air(AirState::Idle)
+            }
             _ => {}
         };
     }
     pub fn launch(&mut self) {
-        *self = Self::Air(AirState::Freefall);
+        self.main = MainState::Air(AirState::Freefall);
     }
     pub fn land(&mut self) {
-        if matches!(self, Self::Air(AirState::Freefall)) {
+        if matches!(self.main, MainState::Air(AirState::Freefall)) {
             // TODO: Better handling of what happens on landing
             // Recovery?
             // Put the player in a groundactivity otg or something and pick up on that in a recovery system
         }
-        *self = Self::Crouch(CrouchState::Idle);
+        self.main = MainState::Crouch(CrouchState::Idle);
     }
     pub fn is_grounded(&self) -> bool {
-        matches!(self, Self::Stand(_) | Self::Crouch(_))
+        matches!(self.main, MainState::Stand(_) | MainState::Crouch(_))
     }
 
     // Walking
     pub fn walk(&mut self, direction: Facing) {
-        *self = Self::Stand(StandState::Walk(direction));
+        self.main = MainState::Stand(StandState::Walk(direction));
     }
     pub fn get_walk_direction(&self) -> Option<Facing> {
-        if let Self::Stand(StandState::Walk(direction)) = self {
+        if let MainState::Stand(StandState::Walk(direction)) = self.main {
             Some(direction.to_owned())
         } else {
             None
@@ -128,13 +136,13 @@ impl PlayerState {
     }
 
     pub fn crouch(&mut self) {
-        *self = Self::Crouch(CrouchState::Idle);
+        self.main = MainState::Crouch(CrouchState::Idle);
     }
     pub fn stand(&mut self) {
-        *self = Self::Stand(StandState::Idle);
+        self.main = MainState::Stand(StandState::Idle);
     }
     pub fn is_crouching(&self) -> bool {
-        matches!(self, Self::Crouch(_))
+        matches!(self.main, MainState::Crouch(_))
     }
 
     pub fn blocked(

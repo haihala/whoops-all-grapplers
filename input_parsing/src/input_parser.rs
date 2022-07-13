@@ -83,6 +83,10 @@ impl InputParser {
                 None
             }));
     }
+
+    pub fn clear(&mut self) {
+        self.events.clear();
+    }
 }
 
 pub fn parse_input<T: InputStream + Component>(

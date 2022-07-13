@@ -12,7 +12,7 @@ use input_parsing::InputParser;
 #[cfg(not(test))]
 use input_parsing::PadBundle;
 use player_state::PlayerState;
-use time::{Clock, GameState, RoundResult};
+use time::{once_per_combat_frame, Clock, GameState, RoundResult};
 use types::{Facing, Model, Player, Players};
 
 use crate::{
@@ -51,7 +51,8 @@ impl Plugin for PlayerPlugin {
             .add_system(reset.with_run_criteria(State::on_update(GameState::Shop)))
             .add_system(model_flipper::model_flipper)
             .add_system_set(
-                SystemSet::on_update(GameState::Combat)
+                SystemSet::new()
+                    .with_run_criteria(once_per_combat_frame)
                     .with_system(move_advancement::move_advancement.after(reset))
                     .with_system(
                         move_activation::move_activator.after(move_advancement::move_advancement),
@@ -136,6 +137,7 @@ fn reset(
         &Player,
         &mut PlayerState,
         &mut MoveBuffer,
+        &mut InputParser,
     )>,
     mut game_state: ResMut<State<GameState>>,
     mut clock: ResMut<Clock>,
@@ -146,13 +148,14 @@ fn reset(
         clock.reset();
         commands.remove_resource::<RoundResult>();
 
-        for (mut health, mut resources, mut tf, player, mut player_state, mut buffer) in
+        for (mut health, mut resources, mut tf, player, mut player_state, mut buffer, mut parser) in
             query.iter_mut()
         {
             health.reset();
             resources.reset();
             player_state.reset();
             buffer.clear();
+            parser.clear();
 
             tf.translation = Vec3::new(
                 match *player {

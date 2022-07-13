@@ -11,7 +11,7 @@ use crate::{assets::Sounds, ui::Notifications};
 
 use super::{move_advancement::activate_phase, PlayerQuery};
 
-const FORWARDS_AUTOCORRECT: usize = (0.2 * constants::FPS) as usize;
+const AUTOCORRECT: usize = (0.2 * constants::FPS) as usize;
 
 // +- frames. 0 is frame perfect, 1 means +-1 aka 3 frame window
 const PERFECT_TIMING_DELTA: usize = 1;
@@ -20,7 +20,7 @@ const GOOD_TIMING_DELTA: usize = 5;
 #[derive(Debug, Default, Component)]
 pub struct MoveBuffer {
     buffer: Vec<(usize, MoveId)>,
-    force_start: Option<(MoveId, Move, Option<usize>)>,
+    force_start: Option<(MoveId, Move, Option<i32>)>,
 }
 impl MoveBuffer {
     pub fn set_force_starter(&mut self, move_id: MoveId, move_data: Move) {
@@ -35,7 +35,7 @@ impl MoveBuffer {
         &mut self,
         character: &Character,
         situation: &MoveSituation,
-    ) -> Option<(MoveId, Move, Option<usize>)> {
+    ) -> Option<(MoveId, Move, Option<i32>)> {
         if let Some((selected_id, move_data, frame)) = self
             .buffer
             .iter()
@@ -46,7 +46,7 @@ impl MoveBuffer {
             .min_by(|(id1, _, _), (id2, _, _)| id1.cmp(id2))
         {
             self.buffer.retain(|(_, id)| selected_id != *id);
-            Some((selected_id, move_data, Some(frame)))
+            Some((selected_id, move_data, Some(frame as i32)))
         } else {
             None
         }
@@ -56,7 +56,7 @@ impl MoveBuffer {
         self.buffer.retain(|(frame, _)| {
             if current_frame > *frame {
                 // Default case, retain those who are fresh
-                current_frame - frame < FORWARDS_AUTOCORRECT
+                current_frame - frame < AUTOCORRECT
             } else {
                 // Round has restarted, clear the buffer
                 false
@@ -121,12 +121,12 @@ fn activate_move(
         None
     };
 
+    let ongoing_move_situation = actor.state.get_move_state().map(|state| state.to_owned());
+
     // As a move is either happening or not happening, one of the 'or' options will always be Some if the user has a move they are trying to get out
     if let Some((move_id, move_data, stored_frame)) = force_start.or_else(|| {
-        actor
-            .state
-            .get_move_state()
-            .map(|state| state.to_owned())
+        ongoing_move_situation
+            .clone()
             .or_else(|| {
                 Some(MoveSituation {
                     // Construct a pseudo-situation. This is one that represents the current state without a move.
@@ -140,39 +140,50 @@ fn activate_move(
             })
             .and_then(|situation| actor.buffer.use_move(actor.character, &situation))
     }) {
-        // TODO: Only award meter if in a combo, as link detection is not yet possible, this is not done
-        if let Some(frame) = stored_frame {
-            // Not a forced start
-            // Make a toast
-            let frame_diff = clock.frame as i32 - frame as i32;
-            let (notification_content, meter_gain) = get_combo_notification(frame_diff);
+        let start_frame = if let Some(earliest_activation_frame) = actor
+            .state
+            .free_since
+            .filter(|free_since| *free_since as usize + AUTOCORRECT >= clock.frame)
+            .or_else(|| ongoing_move_situation.and_then(|sit| sit.cancellable_since))
+        {
+            if let Some(frame) = stored_frame {
+                // Not a forced start
+                // Make a toast
+                let frame_diff = earliest_activation_frame as i32 - frame;
+                let (notification_content, meter_gain) = get_combo_notification(frame_diff);
 
-            notifications.add(*actor.player, notification_content);
-            actor.resources.meter.gain(meter_gain);
-        }
+                notifications.add(*actor.player, notification_content);
+                actor.resources.meter.gain(meter_gain);
+            }
+            earliest_activation_frame
+        } else {
+            clock.frame
+        } as i32;
 
         actor.resources.pay(move_data.requirements.cost);
         sounds.play(SoundEffect::Whoosh);
         actor.state.start_move(MoveSituation {
             move_id,
+            start_frame,
+            cost: move_data.requirements.cost,
             move_type: Some(move_data.move_type),
-            start_frame: clock.frame as i32,
             resources: actor.resources.to_owned(),
             inventory: actor.inventory.to_owned(),
             ..default()
         });
-        activate_phase(commands, 0, notifications, actor, target);
+        activate_phase(commands, 0, clock.frame, notifications, actor, target);
     }
 }
 
 const MIDDLE_LEN: usize = 1 + 2 * PERFECT_TIMING_DELTA;
 const EDGE_LEN: usize = GOOD_TIMING_DELTA - PERFECT_TIMING_DELTA;
-const BUFFER_LEN: usize = FORWARDS_AUTOCORRECT - EDGE_LEN;
+const BUFFER_LEN: usize = AUTOCORRECT - EDGE_LEN;
 
 const METER_GAIN_ON_PERFECT: i32 = 30;
 const METER_GAIN_ON_GOOD: i32 = 10;
 
 fn get_combo_notification(frame_diff: i32) -> (String, i32) {
+    // TODO: This could use a cleanup
     let mut middle = "-".repeat(MIDDLE_LEN);
     let mut good_left_edge = "-".repeat(EDGE_LEN);
     let mut good_right_edge = good_left_edge.clone();
@@ -188,7 +199,7 @@ fn get_combo_notification(frame_diff: i32) -> (String, i32) {
         ("Perfect", METER_GAIN_ON_PERFECT)
     } else if abs_diff <= GOOD_TIMING_DELTA {
         // Good timing
-        let index = abs_diff - PERFECT_TIMING_DELTA;
+        let index = (abs_diff - PERFECT_TIMING_DELTA).min(EDGE_LEN - 1);
         if frame_diff > 0 {
             good_left_edge.replace_range(EDGE_LEN - index..EDGE_LEN - index + 1, "x");
         } else {
@@ -197,7 +208,7 @@ fn get_combo_notification(frame_diff: i32) -> (String, i32) {
 
         ("Good", METER_GAIN_ON_GOOD)
     } else {
-        let index = abs_diff - GOOD_TIMING_DELTA;
+        let index = (abs_diff - GOOD_TIMING_DELTA).min(BUFFER_LEN - 1);
         if frame_diff > 0 {
             buffer_left_edge.replace_range(BUFFER_LEN - index..BUFFER_LEN - index + 1, "x");
             ("Early", 0)

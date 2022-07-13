@@ -42,18 +42,26 @@ fn advance_move(
         } else {
             // Move has ended
             actor.spawner.despawn_on_phase_change(commands);
-            actor.state.recover();
+            actor.state.recover(clock.frame);
         }
     }
     if let Some(phase_index) = index_to_activate {
         // Avoid simultaneous burrows and to make interface manageable
-        activate_phase(commands, phase_index, notifications, actor, target);
+        activate_phase(
+            commands,
+            phase_index,
+            clock.frame,
+            notifications,
+            actor,
+            target,
+        );
     }
 }
 
 pub(super) fn activate_phase(
     commands: &mut Commands,
     phase_index: usize,
+    frame: usize,
     notifications: &mut ResMut<Notifications>,
     actor: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
     target: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
@@ -83,6 +91,12 @@ pub(super) fn activate_phase(
                 }
                 MoveAction::Phase(phase_data) => {
                     move_state.cancellable = phase_data.cancellable;
+                    if move_state.cancellable_since.is_none() && phase_data.cancellable {
+                        // Move just became cancellable
+                        move_state.cancellable_since = Some(frame);
+                    } else if !phase_data.cancellable {
+                        move_state.cancellable_since = None;
+                    }
 
                     match phase_data.kind {
                         PhaseKind::Attack(descriptor) => actor.spawner.add_to_queue(descriptor),

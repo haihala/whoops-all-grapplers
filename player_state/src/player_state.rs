@@ -16,12 +16,14 @@ enum MainState {
 #[derive(Inspectable, Debug, Component, Clone)]
 pub struct PlayerState {
     main: MainState,
+    pub free_since: Option<usize>,
 }
 
 impl Default for PlayerState {
     fn default() -> Self {
         Self {
             main: MainState::Stand(StandState::default()),
+            free_since: None,
         }
     }
 }
@@ -37,6 +39,7 @@ impl PlayerState {
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Move(situation)),
             MainState::Air(_) => MainState::Air(AirState::Move(situation)),
         };
+        self.free_since = None;
     }
     pub fn get_move_state(&self) -> Option<&MoveSituation> {
         match self.main {
@@ -67,17 +70,20 @@ impl PlayerState {
             MainState::Stand(_) => MainState::Stand(StandState::Stun(recovery_frame)),
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Stun(recovery_frame)),
             MainState::Air(_) => MainState::Air(AirState::Freefall),
-        }
+        };
+        self.free_since = None;
     }
     pub fn throw(&mut self) {
         self.main = MainState::Air(AirState::Freefall);
+        self.free_since = None;
     }
-    pub fn recover(&mut self) {
+    pub fn recover(&mut self, frame: usize) {
         self.main = match self.main {
             MainState::Stand(_) => MainState::Stand(StandState::Idle),
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Idle),
             MainState::Air(_) => MainState::Air(AirState::Idle),
-        }
+        };
+        self.free_since = Some(frame);
     }
     pub fn unstun_frame(&self) -> Option<usize> {
         match self.main {
@@ -110,6 +116,7 @@ impl PlayerState {
     }
     pub fn launch(&mut self) {
         self.main = MainState::Air(AirState::Freefall);
+        self.free_since = None;
     }
     pub fn land(&mut self) {
         if matches!(self.main, MainState::Air(AirState::Freefall)) {

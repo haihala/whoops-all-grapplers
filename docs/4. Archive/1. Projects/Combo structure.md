@@ -35,15 +35,14 @@ Notes:
 	- fs variants of special moves are items
 
 # Objectives
-- [ ] Autocorrect
+- [x] Autocorrect
 	- [x] Too early
-	- [ ] Too late
-		- [ ] Modify state to contain a field for since when has the player been free to act
-		- [ ] EX
-			- [ ] Add a field for stuff like "autocorrect_for" to moves
-			- [ ] If a move with that field is inputted and one of the listed moves is ongoing, substitute it with the listed version
+	- [x] Too late
+		- [x] Modify state to contain a field for since when has the player been free to act
 - [x] Award meter based on accuracy
 	- [x] Like in OSU
 	- [x] Perfect / Good / Nothing
-- [ ] No meter for neutral hits
+- [x] No meter for neutral hits
 - [x] Change cancelling to the pondered system
+
+Separate EX to it's own story: [[EX move frame perfection]]

@@ -14,7 +14,7 @@ pub fn stun_recovery(mut players: Query<(&mut PlayerState, &mut Resources)>, clo
 fn handle_recovery(frame: usize, state: &mut PlayerState, resources: &mut Resources) {
     if let Some(unstun_frame) = state.unstun_frame() {
         if unstun_frame <= frame {
-            state.recover();
+            state.recover(frame);
             resources.meter.flush_combo();
         }
     }

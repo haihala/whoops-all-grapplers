@@ -2,10 +2,8 @@
 ## Blocked
 - [[GLTF helper systems]] - Needs [[Animations]]
 - [[Animations]] - Needs [[Ryan kit]]
-- [[Ryan kit]] - Needs [[Combo structure]] (EX moves and new cancel levels)
 
 ## High priority
-- [[Combo structure]]
 - [[Ryan kit]]
 
 ## Low priority
@@ -21,6 +19,7 @@
 	- Low
 	- Overhead
 	- Simply not blocking
+- [[EX move frame perfection]]
 
 ## Easy nibbles
 - Make parrot echo inputs while recording

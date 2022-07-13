@@ -2,7 +2,7 @@ use bevy::{prelude::*, utils::HashSet};
 use bevy_inspector_egui::Inspectable;
 use types::GameButton;
 
-use crate::{Inventory, Resources};
+use crate::{resources::Cost, Inventory, Resources};
 
 use super::{MoveId, MoveType, Requirements};
 
@@ -16,9 +16,11 @@ pub struct MoveSituation {
     pub hit_registered: bool,
     pub move_type: Option<MoveType>,
     pub cancellable: bool,
+    pub cancellable_since: Option<usize>,
 
     // Other components
     // Clone into this whenever initialized or changed
+    pub cost: Option<Cost>,
     pub resources: Resources,
     pub inventory: Inventory,
     #[inspectable(ignore)]
@@ -62,10 +64,15 @@ impl MoveSituation {
         }
 
         if let (Some(move_type), Some(nmt)) = (self.move_type, next_move_type) {
+            if !self.cancellable {
+                return false;
+            }
+
             // Prevent canceling normals into normals and specials into specials by default
-            // Allow canceling anything if bar is spent
-            if !self.cancellable
-                || move_type >= nmt && requirements.cost.unwrap_or_default().meter == 0
+            // Allow canceling anything if more bar is spent
+            if move_type >= nmt
+                && requirements.cost.unwrap_or_default().meter
+                    <= self.cost.unwrap_or_default().meter
             {
                 return false;
             }

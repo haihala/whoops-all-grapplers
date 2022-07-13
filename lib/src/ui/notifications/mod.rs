@@ -15,12 +15,12 @@ struct Notification {
 #[derive(Debug)]
 pub struct Notifications {
     spawned: Vec<Notification>,
-    requests: Vec<(Player, &'static str)>,
+    requests: Vec<(Player, String)>,
     p1_container: Entity,
     p2_container: Entity,
 }
 impl Notifications {
-    pub fn add(&mut self, player: Player, content: &'static str) {
+    pub fn add(&mut self, player: Player, content: String) {
         self.requests.push((player, content));
     }
 
@@ -47,7 +47,7 @@ pub fn setup_toasts(commands: &mut Commands) {
 fn create_notification_container(commands: &mut Commands, side: Player) -> Entity {
     let top_margin = 15.0;
     let top = Val::Percent(top_margin);
-    let size = Size::new(Val::Percent(15.0), Val::Percent(100.0 - top_margin));
+    let size = Size::new(Val::Percent(20.0), Val::Percent(100.0 - top_margin));
     let position = match side {
         Player::One => Rect {
             left: Val::Px(0.0),
@@ -114,7 +114,7 @@ fn spawn_notification(
     font: Handle<Font>,
     bg_color: Color,
     text_color: Color,
-    content: &'static str,
+    content: String,
 ) -> Entity {
     parent
         .spawn_bundle(NodeBundle {
@@ -130,7 +130,7 @@ fn spawn_notification(
         .with_children(|container| {
             container.spawn_bundle(TextBundle {
                 text: Text::with_section(
-                    content.to_string(),
+                    content,
                     TextStyle {
                         font,
                         font_size: 18.0,

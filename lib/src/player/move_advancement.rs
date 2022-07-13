@@ -82,7 +82,7 @@ pub(super) fn activate_phase(
                     // TODO: Some buffer clearing here?
                 }
                 MoveAction::Phase(phase_data) => {
-                    move_state.cancellable = dbg!(phase_data.cancellable);
+                    move_state.cancellable = phase_data.cancellable;
 
                     match phase_data.kind {
                         PhaseKind::Attack(descriptor) => actor.spawner.add_to_queue(descriptor),
@@ -96,7 +96,7 @@ pub(super) fn activate_phase(
                                 && target.input_parser.head_is_clear();
 
                             if teched {
-                                notifications.add(target.player.to_owned(), "Teched!");
+                                notifications.add(target.player.to_owned(), "Teched!".into());
                             } else if in_range {
                                 target.grabbable.queue.push(descriptor);
                             }

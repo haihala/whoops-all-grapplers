@@ -48,6 +48,7 @@
 - [[Stance system]]
 - [[Extend moves]]
 - Clean up mess caused by fixing unit tests
+- Figure out how to get rid of panics while despawning hitboxes
 
 # Other trackers
 ![[Bug tracker]]

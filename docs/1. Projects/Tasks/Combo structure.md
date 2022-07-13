@@ -36,10 +36,14 @@ Notes:
 
 # Objectives
 - [ ] Autocorrect
-	- [ ] Too early
+	- [x] Too early
 	- [ ] Too late
+		- [ ] Modify state to contain a field for since when has the player been free to act
 		- [ ] EX
-- [ ] Award meter based on accuracy
-	- [ ] Like in OSU
-	- [ ] Perfect / Good / Nothing
+			- [ ] Add a field for stuff like "autocorrect_for" to moves
+			- [ ] If a move with that field is inputted and one of the listed moves is ongoing, substitute it with the listed version
+- [x] Award meter based on accuracy
+	- [x] Like in OSU
+	- [x] Perfect / Good / Nothing
+- [ ] No meter for neutral hits
 - [x] Change cancelling to the pondered system

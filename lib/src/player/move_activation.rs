@@ -10,17 +10,21 @@ use types::{Players, SoundEffect};
 use crate::{assets::Sounds, ui::Notifications};
 
 use super::{move_advancement::activate_phase, PlayerQuery};
-const EVENT_REPEAT_PERIOD: f32 = 0.3; // In seconds
-const FRAMES_TO_LIVE_IN_BUFFER: usize = (EVENT_REPEAT_PERIOD * constants::FPS) as usize;
+
+const FORWARDS_AUTOCORRECT: usize = (0.2 * constants::FPS) as usize;
+
+// +- frames. 0 is frame perfect, 1 means +-1 aka 3 frame window
+const PERFECT_TIMING_DELTA: usize = 1;
+const GOOD_TIMING_DELTA: usize = 5;
 
 #[derive(Debug, Default, Component)]
 pub struct MoveBuffer {
     buffer: Vec<(usize, MoveId)>,
-    force_start: Option<(MoveId, Move)>,
+    force_start: Option<(MoveId, Move, Option<usize>)>,
 }
 impl MoveBuffer {
     pub fn set_force_starter(&mut self, move_id: MoveId, move_data: Move) {
-        self.force_start = Some((move_id, move_data));
+        self.force_start = Some((move_id, move_data, None));
     }
 
     fn add_events(&mut self, events: Vec<MoveId>, frame: usize) {
@@ -31,18 +35,18 @@ impl MoveBuffer {
         &mut self,
         character: &Character,
         situation: &MoveSituation,
-    ) -> Option<(MoveId, Move)> {
-        if let Some((selected_id, move_data)) = self
+    ) -> Option<(MoveId, Move, Option<usize>)> {
+        if let Some((selected_id, move_data, frame)) = self
             .buffer
             .iter()
-            .map(|(_, id)| (*id, character.get_move(*id)))
-            .filter(|(_, move_data)| {
+            .map(|(frame, id)| (*id, character.get_move(*id), *frame))
+            .filter(|(_, move_data, _)| {
                 situation.fulfills(&move_data.requirements, Some(move_data.move_type))
             })
-            .min_by(|(id1, _), (id2, _)| id1.cmp(id2))
+            .min_by(|(id1, _, _), (id2, _, _)| id1.cmp(id2))
         {
             self.buffer.retain(|(_, id)| selected_id != *id);
-            Some((selected_id, move_data))
+            Some((selected_id, move_data, Some(frame)))
         } else {
             None
         }
@@ -52,7 +56,7 @@ impl MoveBuffer {
         self.buffer.retain(|(frame, _)| {
             if current_frame > *frame {
                 // Default case, retain those who are fresh
-                current_frame - frame < FRAMES_TO_LIVE_IN_BUFFER
+                current_frame - frame < FORWARDS_AUTOCORRECT
             } else {
                 // Round has restarted, clear the buffer
                 false
@@ -118,7 +122,7 @@ fn activate_move(
     };
 
     // As a move is either happening or not happening, one of the 'or' options will always be Some if the user has a move they are trying to get out
-    if let Some((move_id, move_data)) = force_start.or_else(|| {
+    if let Some((move_id, move_data, stored_frame)) = force_start.or_else(|| {
         actor
             .state
             .get_move_state()
@@ -136,7 +140,17 @@ fn activate_move(
             })
             .and_then(|situation| actor.buffer.use_move(actor.character, &situation))
     }) {
-        dbg!(move_id);
+        // TODO: Only award meter if in a combo, as link detection is not yet possible, this is not done
+        if let Some(frame) = stored_frame {
+            // Not a forced start
+            // Make a toast
+            let frame_diff = clock.frame as i32 - frame as i32;
+            let (notification_content, meter_gain) = get_combo_notification(frame_diff);
+
+            notifications.add(*actor.player, notification_content);
+            actor.resources.meter.gain(meter_gain);
+        }
+
         actor.resources.pay(move_data.requirements.cost);
         sounds.play(SoundEffect::Whoosh);
         actor.state.start_move(MoveSituation {
@@ -149,4 +163,55 @@ fn activate_move(
         });
         activate_phase(commands, 0, notifications, actor, target);
     }
+}
+
+const MIDDLE_LEN: usize = 1 + 2 * PERFECT_TIMING_DELTA;
+const EDGE_LEN: usize = GOOD_TIMING_DELTA - PERFECT_TIMING_DELTA;
+const BUFFER_LEN: usize = FORWARDS_AUTOCORRECT - EDGE_LEN;
+
+const METER_GAIN_ON_PERFECT: i32 = 30;
+const METER_GAIN_ON_GOOD: i32 = 10;
+
+fn get_combo_notification(frame_diff: i32) -> (String, i32) {
+    let mut middle = "-".repeat(MIDDLE_LEN);
+    let mut good_left_edge = "-".repeat(EDGE_LEN);
+    let mut good_right_edge = good_left_edge.clone();
+    let mut buffer_left_edge = "-".repeat(BUFFER_LEN);
+    let mut buffer_right_edge = buffer_left_edge.clone();
+
+    let abs_diff = frame_diff.abs() as usize;
+    let (word, gain) = if abs_diff <= PERFECT_TIMING_DELTA {
+        // Perfect timing
+        let bound = (frame_diff + 1) as usize;
+        middle.replace_range(bound..bound + 1, "x");
+
+        ("Perfect", METER_GAIN_ON_PERFECT)
+    } else if abs_diff <= GOOD_TIMING_DELTA {
+        // Good timing
+        let index = abs_diff - PERFECT_TIMING_DELTA;
+        if frame_diff > 0 {
+            good_left_edge.replace_range(EDGE_LEN - index..EDGE_LEN - index + 1, "x");
+        } else {
+            good_right_edge.replace_range(index..index + 1, "x");
+        }
+
+        ("Good", METER_GAIN_ON_GOOD)
+    } else {
+        let index = abs_diff - GOOD_TIMING_DELTA;
+        if frame_diff > 0 {
+            buffer_left_edge.replace_range(BUFFER_LEN - index..BUFFER_LEN - index + 1, "x");
+            ("Early", 0)
+        } else {
+            buffer_right_edge.replace_range(index..index + 1, "x");
+            ("Late", 0)
+        }
+    };
+
+    (
+        format!(
+            "{}: {}[{}[{}]{}]{}",
+            word, buffer_left_edge, good_left_edge, middle, good_right_edge, buffer_right_edge
+        ),
+        gain,
+    )
 }

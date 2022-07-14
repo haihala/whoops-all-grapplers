@@ -17,16 +17,20 @@ impl Sounds {
     }
 
     pub fn play(&mut self, key: SoundEffect) {
-        let clips = self.handles.get(&key).unwrap();
-        let clip = clips[rand::thread_rng().gen_range(0..clips.len())].clone();
-        self.queue.push(clip);
+        if let Some(clips) = self.handles.get(&key) {
+            let clip = clips[rand::thread_rng().gen_range(0..clips.len())].clone();
+            self.queue.push(clip);
+        }
     }
 }
 
 pub fn play_queued(mut sounds: ResMut<Sounds>, audio: Option<Res<Audio>>) {
-    if let Some(audio) = audio {
-        for clip in sounds.queue.drain(..) {
-            audio.play(clip);
+    // audio is not present in unit tests
+    // This way the sound system behaves the same despite this.
+    let clips = sounds.queue.drain(..);
+    if let Some(player) = audio {
+        for clip in clips {
+            player.play(clip);
         }
     }
 }

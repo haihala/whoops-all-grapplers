@@ -9,13 +9,13 @@ build:
 	cargo build $(release)
 
 test:
-	cargo nextest run
+	cargo nextest run --workspace --exclude integration_tests
 
 cargo-test:
 	cargo test $(release)
 
 integration:
-	cargo test $(release) -- --ignored
+	cargo test $(release) -p integration_tests
 
 clippy:
 	cargo clippy --all -- -D warnings

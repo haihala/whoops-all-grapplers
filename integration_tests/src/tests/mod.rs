@@ -6,7 +6,6 @@ use types::Player;
 use crate::test_helpers::{InputClump, TestRunner, TestSpec};
 
 #[test]
-#[ignore]
 fn round_start() {
     let mut test_runner = TestRunner::new();
 

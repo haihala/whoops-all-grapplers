@@ -8,9 +8,7 @@ mod size_adjustment;
 mod update_animation;
 
 use characters::{dummy, Character, Grabable, Hurtbox, Inventory, Resources};
-use input_parsing::InputParser;
-#[cfg(not(test))]
-use input_parsing::PadBundle;
+use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use time::{once_per_combat_frame, Clock, GameState, RoundResult};
 use types::{Facing, Model, Player, Players};
@@ -95,9 +93,6 @@ fn spawn_player(commands: &mut Commands, offset: f32, player: Player) -> Entity 
     let state = PlayerState::default();
     let character = dummy();
 
-    #[cfg(not(test))]
-    let inputs = PadBundle::new(character.get_inputs());
-
     let mut spawn_handle = commands.spawn_bundle(TransformBundle {
         local: Transform::from_translation((offset, PLAYER_SPAWN_HEIGHT, 0.0).into()),
         ..default()
@@ -105,6 +100,7 @@ fn spawn_player(commands: &mut Commands, offset: f32, player: Player) -> Entity 
 
     spawn_handle
         .insert_bundle(PlayerDefaults::default())
+        .insert_bundle(PadBundle::new(character.get_inputs()))
         .insert(Name::new(format!("Player {}", player)))
         .insert(AnimationHelperSetup)
         .insert(Facing::from_flipped(offset.is_sign_positive()))
@@ -113,9 +109,6 @@ fn spawn_player(commands: &mut Commands, offset: f32, player: Player) -> Entity 
         .insert(character)
         .insert(player)
         .insert(state);
-
-    #[cfg(not(test))]
-    spawn_handle.insert_bundle(inputs);
 
     spawn_handle.with_children(|parent| {
         parent

@@ -35,8 +35,8 @@ pub struct PlayerQuery<'a> {
 pub(super) fn clash_parry(
     mut commands: Commands,
     clock: Res<Clock>,
-    mut sounds: Option<ResMut<Sounds>>,
-    mut particles: Option<ResMut<Particles>>,
+    mut sounds: ResMut<Sounds>,
+    mut particles: ResMut<Particles>,
     mut hitboxes: Query<(Entity, &Owner, &GlobalTransform, &Hitbox, &mut HitTracker)>,
     mut owners: Query<&mut HitboxSpawner>,
     players: Res<Players>,
@@ -68,20 +68,12 @@ pub(super) fn clash_parry(
             .intersection(&hitbox2.with_offset(gtf2.translation.truncate()))
         {
             // Hitboxes collide
-
-            // Sound effect
-            if let Some(ref mut sounds) = sounds {
-                sounds.play(SoundEffect::Clash);
-            }
-
-            // Visual effect
-            if let Some(ref mut particles) = particles {
-                particles.spawn(ParticleRequest {
-                    effect: VisualEffect::Clash,
-                    // TODO: This can be refined more
-                    position: overlap.center().extend(0.0),
-                });
-            }
+            sounds.play(SoundEffect::Clash);
+            particles.spawn(ParticleRequest {
+                effect: VisualEffect::Clash,
+                // TODO: This can be refined more
+                position: overlap.center().extend(0.0),
+            });
 
             // Despawn projectiles
             for (mut tracker, entity, owner) in
@@ -104,8 +96,8 @@ pub(super) fn clash_parry(
 pub(super) fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,
-    mut sounds: Option<ResMut<Sounds>>,
-    mut particles: Option<ResMut<Particles>>,
+    mut sounds: ResMut<Sounds>,
+    mut particles: ResMut<Particles>,
     mut hitboxes: Query<(
         Entity,
         &Owner,
@@ -147,8 +139,8 @@ const FRAMES_BETWEEN_HITS: usize = 10;
 fn handle_hit(
     commands: &mut Commands,
     frame: usize,
-    sounds: &mut Option<ResMut<Sounds>>,
-    particles: &mut Option<ResMut<Particles>>,
+    sounds: &mut ResMut<Sounds>,
+    particles: &mut ResMut<Particles>,
     effect: &OnHitEffect,
     hit_tracker: &mut HitTracker,
     hitbox: Area,
@@ -206,26 +198,22 @@ fn handle_hit(
         }
 
         // Sound effect
-        if let Some(ref mut sounds) = sounds {
-            sounds.play(if blocked {
-                SoundEffect::Block
-            } else {
-                SoundEffect::Hit
-            });
-        }
+        sounds.play(if blocked {
+            SoundEffect::Block
+        } else {
+            SoundEffect::Hit
+        });
 
         // Visual effect
-        if let Some(ref mut particles) = particles {
-            particles.spawn(ParticleRequest {
-                effect: if blocked {
-                    VisualEffect::Block
-                } else {
-                    VisualEffect::Hit
-                },
-                // TODO: This can be refined more
-                position: overlap.center().extend(0.0),
-            });
-        }
+        particles.spawn(ParticleRequest {
+            effect: if blocked {
+                VisualEffect::Block
+            } else {
+                VisualEffect::Hit
+            },
+            // TODO: This can be refined more
+            position: overlap.center().extend(0.0),
+        });
 
         hit_tracker.last_hit_frame = Some(frame);
 

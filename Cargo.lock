@@ -2211,15 +2211,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mock_instant"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "717e29a243b81f8130e31e24e04fb151b04a44b5a7d05370935f7d937e9de06d"
-dependencies = [
- "once_cell",
-]
-
-[[package]]
 name = "naga"
 version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3208,7 +3199,6 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "constants",
- "mock_instant",
  "types",
 ]
 

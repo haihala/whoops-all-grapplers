@@ -101,15 +101,15 @@ pub fn parse_input<T: InputStream + Component>(
 
 #[cfg(test)]
 mod test {
+    use std::thread::sleep;
     use std::time::Duration;
-    use time::sleep;
     use types::GameButton;
 
-    use crate::helper_types::InputEvent;
-    use crate::testing::TestInputBundle;
-    use crate::testing::TestStream;
-
-    use crate::MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS;
+    use crate::{
+        helper_types::InputEvent,
+        testing::{TestInputBundle, TestStream},
+        MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
+    };
 
     use super::*;
 

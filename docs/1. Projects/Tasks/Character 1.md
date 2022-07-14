@@ -1,4 +1,4 @@
-See [[Ryan]]
+See [[Ryan]] and [[Lex]] for ideas
 
 # Normals
 - 5f Jab
@@ -11,10 +11,15 @@ See [[Ryan]]
 	- launcher anti-air
 - 4s Guile backhand
 - air s is an Alex stomp
-- 4g backthrow that switches sides
 - 5g normal throw
-- 2g sweep
-	- like normal throw but more range and easily jumpable
+	- Main function is to win over space
+	- Can't really combo off of it, but it will yeet the opponent a good way back
+- 4g backthrow
+	- Switches sides
+	- Reuse 5g animation
+- 2g Dudley sweep
+	- Easily jumpable and a bit particular with the range
+	- Can combo after it if hits
 - air g is an airgrab that makes you go down with the target
 
 # Specials

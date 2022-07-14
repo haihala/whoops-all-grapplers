@@ -1,10 +1,10 @@
 # Backlog
 ## Blocked
 - [[GLTF helper systems]] - Needs [[Animations]]
-- [[Animations]] - Needs [[Ryan kit]]
+- [[Animations]] - Needs [[Character 1]]
 
 ## High priority
-- [[Ryan kit]]
+- [[Character 1]]
 
 ## Low priority
 - [[Recovery and knockdown]]

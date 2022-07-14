@@ -1,4 +1,5 @@
 use bevy::{ecs::query::WorldQuery, prelude::*};
+use types::Players;
 
 pub struct AppWrapper {
     app: App,
@@ -13,6 +14,13 @@ impl AppWrapper {
     }
     pub fn world(&self) -> &World {
         &self.app.world
+    }
+    pub fn get_players(&self) -> (Entity, Entity) {
+        let players = self.world().resource::<Players>();
+        let p1 = players.one;
+        let p2 = players.two;
+        drop(players);
+        (p1, p2)
     }
 
     // TODO: Functions to make querying the world a little less painful.

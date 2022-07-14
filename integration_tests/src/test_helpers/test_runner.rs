@@ -6,7 +6,7 @@ use std::{
 use bevy::{app::ScheduleRunnerSettings, asset::AssetPlugin, input::InputPlugin, prelude::*};
 use bevy_hanabi::HanabiPlugin;
 use input_parsing::testing::{parse_input, PreWrittenStream};
-use types::Player;
+use types::Players;
 use whoops_all_grapplers_lib::{DevPlugin, WAGLib};
 
 use super::{AppWrapper, TestSpec};
@@ -25,7 +25,7 @@ impl TestRunner {
 
     /// Run a spec, return the world
     pub fn run(&mut self, case_name: &str, spec: TestSpec) -> AppWrapper {
-        let ticks = spec.len();
+        let ticks = spec.len;
         println!("Starting test case '{}' ({} ticks)", case_name, ticks);
 
         let mut app = self.setup(spec);
@@ -57,26 +57,13 @@ impl TestRunner {
             .press(KeyCode::Return);
         app.update();
 
-        let mut p1: Option<Entity> = None;
-        let mut p2: Option<Entity> = None;
+        let players = app.world.resource::<Players>();
+        let p1 = players.one;
+        let p2 = players.two;
+        drop(players); // Needs to drop because couldn't figure out how to get the Players resource without by value.
 
-        for (entity, player) in app.world.query::<(Entity, &Player)>().iter(&app.world) {
-            match player {
-                Player::One => {
-                    p1 = Some(entity);
-                }
-                Player::Two => {
-                    p2 = Some(entity);
-                }
-            }
-        }
-
-        app.world
-            .entity_mut(p1.unwrap())
-            .insert_bundle(spec.p1_bundle());
-        app.world
-            .entity_mut(p2.unwrap())
-            .insert_bundle(spec.p2_bundle());
+        app.world.entity_mut(p1).insert_bundle(spec.p1_bundle);
+        app.world.entity_mut(p2).insert_bundle(spec.p2_bundle);
 
         app.update();
         app

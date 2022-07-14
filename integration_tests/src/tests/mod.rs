@@ -1,7 +1,5 @@
-use std::time::Duration;
-
 use bevy::prelude::*;
-use types::Player;
+use std::time::Duration;
 
 use crate::test_helpers::{InputClump, TestRunner, TestSpec};
 
@@ -21,17 +19,20 @@ fn round_start() {
         ),
     );
 
-    let mut p1_height = None;
-    let mut p2_height = None;
-    for (player, tf) in wrapper
-        .query::<(&Player, &Transform)>()
-        .iter(wrapper.world())
-    {
-        match player {
-            Player::One => p1_height = Some(tf.translation.y),
-            Player::Two => p2_height = Some(tf.translation.y),
-        }
-    }
-    assert!(p1_height.is_some() && p2_height.is_some());
-    assert!(p1_height.unwrap() > p2_height.unwrap());
+    let (p1, p2) = wrapper.get_players();
+
+    let p1_height = wrapper
+        .query::<&Transform>()
+        .get(wrapper.world(), p1)
+        .unwrap()
+        .translation
+        .y;
+    let p2_height = wrapper
+        .query::<&Transform>()
+        .get(wrapper.world(), p2)
+        .unwrap()
+        .translation
+        .y;
+
+    assert!(p1_height > p2_height);
 }

@@ -1,7 +1,6 @@
 use std::time::Duration;
 
-use bevy::utils::HashMap;
-use characters::{dummy, MoveId};
+use characters::dummy;
 use input_parsing::{testing::PreWrittenInputBundle, InputEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -12,32 +11,24 @@ pub enum InputClump {
 }
 
 pub struct TestSpec {
-    p1_events: Vec<Option<InputEvent>>,
-    p1_inputs: HashMap<MoveId, &'static str>,
-    p2_events: Vec<Option<InputEvent>>,
-    p2_inputs: HashMap<MoveId, &'static str>,
+    pub p1_bundle: PreWrittenInputBundle,
+    pub p2_bundle: PreWrittenInputBundle,
+    pub len: usize,
 }
 impl TestSpec {
-    pub fn new(p1_events: Vec<InputClump>, p2_events: Vec<InputClump>) -> Self {
+    pub fn new(p1: Vec<InputClump>, p2: Vec<InputClump>) -> Self {
         let character = dummy();
+        let p1_events = Self::flatten_events(p1);
+        let p2_events = Self::flatten_events(p2);
         let inputs = character.get_inputs();
+
         Self {
-            p1_events: Self::flatten_events(p1_events),
-            p1_inputs: inputs.clone(),
-            p2_events: Self::flatten_events(p2_events),
-            p2_inputs: inputs.clone(),
+            len: p1_events.len().max(p2_events.len()),
+            p1_bundle: PreWrittenInputBundle::new(p1_events, inputs.clone()),
+            p2_bundle: PreWrittenInputBundle::new(p2_events, inputs.clone()),
         }
     }
 
-    pub fn len(&self) -> usize {
-        self.p1_events.len().max(self.p2_events.len())
-    }
-    pub fn p1_bundle(&self) -> PreWrittenInputBundle {
-        PreWrittenInputBundle::new(self.p1_events.to_owned(), self.p1_inputs.to_owned())
-    }
-    pub fn p2_bundle(&self) -> PreWrittenInputBundle {
-        PreWrittenInputBundle::new(self.p2_events.to_owned(), self.p2_inputs.to_owned())
-    }
     fn flatten_events(events: Vec<InputClump>) -> Vec<Option<InputEvent>> {
         events
             .into_iter()

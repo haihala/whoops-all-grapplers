@@ -6,3 +6,6 @@
 
 # VSCode
 .vscode
+
+# Blender autosaves
+.blend1

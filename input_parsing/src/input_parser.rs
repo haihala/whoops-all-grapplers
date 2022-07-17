@@ -1,13 +1,12 @@
+use std::collections::{HashMap, HashSet};
+
 use crate::{
     helper_types::{Diff, Frame},
     input_stream::InputStream,
     motion_input::MotionInput,
 };
 
-use bevy::{
-    prelude::*,
-    utils::{HashMap, HashSet},
-};
+use bevy::prelude::*;
 
 use types::{Facing, GameButton, StickPosition};
 

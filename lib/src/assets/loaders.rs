@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 use bevy_hanabi::*;
+use map_macro::map;
+
 use types::VisualEffect;
 
 use super::{
@@ -93,7 +95,7 @@ pub fn particles(mut commands: Commands, effects: Option<ResMut<Assets<EffectAss
         .into_iter()
         .collect()
     } else {
-        vec![].into_iter().collect()
+        map! {}
     });
     commands.insert_resource(resource);
 }

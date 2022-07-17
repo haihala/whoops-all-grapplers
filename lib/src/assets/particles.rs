@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use bevy::utils::HashMap;
 use bevy_hanabi::ParticleEffect;
+use std::collections::HashMap;
 
 use types::VisualEffect;
 

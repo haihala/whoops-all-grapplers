@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use map_macro::set;
 use types::{Area, GameButton};
 
 use crate::{
@@ -6,21 +7,12 @@ use crate::{
     Requirements, SpawnDescriptor,
 };
 
-pub fn get_equipment_move(id: MoveId) -> Move {
-    match id {
-        MoveId::HandMeDownKen => get_handmedownken(),
-        MoveId::Gunshot => get_gunshot(),
-        MoveId::Shoot => get_shot(),
-        _ => panic!("Requesting an equipment move that is not defined"),
-    }
-}
-
-fn get_handmedownken() -> Move {
+pub(crate) fn get_handmedownken() -> Move {
     Move {
         input: Some("236e"),
         move_type: MoveType::Special,
         requirements: Requirements {
-            items: Some(vec![ItemId::HandMeDownKen]),
+            items: Some(set! {ItemId::HandMeDownKen}),
             grounded: Some(true),
             ..default()
         },
@@ -53,7 +45,7 @@ fn get_handmedownken() -> Move {
     }
 }
 
-fn get_gunshot() -> Move {
+pub(crate) fn get_gunshot() -> Move {
     // Single shot, the repeating bit
     Move {
         input: None,
@@ -106,7 +98,7 @@ fn get_gunshot() -> Move {
                 .into(),
                 branches: vec![(
                     Requirements {
-                        buttons_held: Some(vec![GameButton::Equipment]),
+                        buttons_held: Some(set! {GameButton::Equipment }),
                         ..default()
                     },
                     MoveId::Gunshot.into(),
@@ -116,12 +108,12 @@ fn get_gunshot() -> Move {
     }
 }
 
-fn get_shot() -> Move {
+pub(crate) fn get_shot() -> Move {
     Move {
         input: Some("e"),
         move_type: MoveType::Normal,
         requirements: Requirements {
-            items: Some(vec![ItemId::HandMeDownKen]),
+            items: Some(set! {ItemId::HandMeDownKen}),
             grounded: Some(true),
             ..default()
         },

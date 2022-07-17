@@ -235,6 +235,7 @@ impl From<&str> for MotionInput {
 
 #[cfg(test)]
 mod test {
+    use map_macro::set;
     use types::StickPosition;
 
     use super::*;
@@ -258,7 +259,7 @@ mod test {
         let motion: MotionInput = "6f".into();
 
         let diff = Diff {
-            pressed: Some(vec![GameButton::Fast].into_iter().collect()),
+            pressed: Some(set! {GameButton::Fast}),
             ..default()
         };
 

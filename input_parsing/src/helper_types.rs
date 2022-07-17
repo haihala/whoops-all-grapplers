@@ -1,4 +1,6 @@
-use bevy::utils::HashSet;
+use map_macro::set;
+use std::collections::HashSet;
+
 use types::{GameButton, StickPosition};
 
 #[derive(Clone, Eq, PartialEq, Debug, Default)]
@@ -63,7 +65,7 @@ fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet
         pressed.insert(button);
         pressed
     } else {
-        vec![button].into_iter().collect()
+        set! {button}
     }
 }
 

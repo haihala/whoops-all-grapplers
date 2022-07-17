@@ -1,7 +1,7 @@
 use crate::{moves::MoveType, Move, MoveMobility, Phase, PhaseKind, Requirements};
 use bevy::prelude::*;
 
-pub fn jump(input: &'static str, impulse: impl Into<Vec3>) -> Move {
+pub fn jump(input: &'static str, impulse: Vec2) -> Move {
     Move {
         input: Some(input),
         move_type: MoveType::Normal,
@@ -13,7 +13,7 @@ pub fn jump(input: &'static str, impulse: impl Into<Vec3>) -> Move {
             Phase {
                 kind: PhaseKind::Animation,
                 duration: 5,
-                mobility: Some(MoveMobility::Impulse(impulse.into())),
+                mobility: Some(MoveMobility::Impulse(impulse.extend(0.0))),
                 ..default()
             }
             .into(),

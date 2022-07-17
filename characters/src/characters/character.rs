@@ -1,5 +1,6 @@
+use std::collections::HashMap;
+
 use bevy::prelude::*;
-use bevy::utils::HashMap;
 use types::{Animation, Area, DummyAnimation, Model, StickPosition};
 
 use crate::{Inventory, Item, ItemId, Move, MoveId};
@@ -43,10 +44,10 @@ impl Default for Character {
     }
 }
 impl Character {
-    pub(crate) fn new(moves: Vec<(MoveId, Move)>, items: Vec<(ItemId, Item)>) -> Character {
+    pub(crate) fn new(moves: HashMap<MoveId, Move>, items: HashMap<ItemId, Item>) -> Character {
         Character {
-            moves: moves.into_iter().collect(),
-            items: items.into_iter().collect(),
+            moves,
+            items,
             ..default()
         }
     }

@@ -1,6 +1,6 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::prelude::*;
 use characters::MoveId;
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 use time::WAGStage;
 
 mod helper_types;

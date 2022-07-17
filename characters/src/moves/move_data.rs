@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 use types::GameButton;
@@ -84,8 +86,10 @@ impl From<MoveId> for Branch {
 pub struct Requirements {
     pub has_hit: Option<bool>,
     pub cost: Option<Cost>,
-    pub items: Option<Vec<ItemId>>,
-    pub buttons_held: Option<Vec<GameButton>>,
+    #[inspectable(ignore)]
+    pub items: Option<HashSet<ItemId>>,
+    #[inspectable(ignore)]
+    pub buttons_held: Option<HashSet<GameButton>>,
     pub grounded: Option<bool>,
 }
 impl Requirements {

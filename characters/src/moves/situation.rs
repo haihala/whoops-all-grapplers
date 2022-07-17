@@ -1,4 +1,6 @@
-use bevy::{prelude::*, utils::HashSet};
+use std::collections::HashSet;
+
+use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 use types::GameButton;
 
@@ -42,19 +44,13 @@ impl MoveSituation {
         }
 
         if let Some(required_buttons) = requirements.buttons_held.clone() {
-            if !required_buttons
-                .iter()
-                .all(|button| self.buttons_held.contains(button))
-            {
+            if !required_buttons.is_subset(&self.buttons_held) {
                 return false;
             }
         }
 
         if let Some(required_items) = requirements.items.clone() {
-            if !required_items
-                .iter()
-                .all(|item| self.inventory.contains(item))
-            {
+            if !required_items.is_subset(&self.inventory.items) {
                 return false;
             }
         }

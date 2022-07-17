@@ -9,13 +9,9 @@ pub use move_data::{Branch, Move, Requirements};
 mod move_properties;
 pub use move_properties::*;
 
-#[derive(PartialEq, PartialOrd, Debug, Inspectable, Clone, Copy, Eq)]
+#[derive(PartialEq, PartialOrd, Debug, Inspectable, Clone, Copy, Eq, Default)]
 pub enum MoveType {
+    #[default]
     Normal,
     Special,
-}
-impl Default for MoveType {
-    fn default() -> Self {
-        MoveType::Normal
-    }
 }

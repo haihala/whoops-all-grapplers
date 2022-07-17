@@ -4,10 +4,11 @@ pub use stick_position::StickPosition;
 
 use strum_macros::EnumIter;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, EnumIter, Inspectable)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, EnumIter, Inspectable, Default)]
 /// Buttons of the game
 /// The name 'Button' is in prelude
 pub enum GameButton {
+    #[default]
     Default, // To satisfy Inspectable
 
     Grab,
@@ -15,9 +16,4 @@ pub enum GameButton {
     Fast,
     Equipment,
     Taunt,
-}
-impl Default for GameButton {
-    fn default() -> Self {
-        GameButton::Default
-    }
 }

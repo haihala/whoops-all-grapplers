@@ -3,16 +3,13 @@ use bevy_inspector_egui::Inspectable;
 
 use crate::StickPosition;
 
-#[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug, Component)]
+#[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug, Component, Default)]
 pub enum Facing {
+    #[default]
     Right,
     Left,
 }
-impl Default for Facing {
-    fn default() -> Self {
-        Facing::Right
-    }
-}
+
 impl Facing {
     #[must_use]
     pub fn opposite(self) -> Facing {

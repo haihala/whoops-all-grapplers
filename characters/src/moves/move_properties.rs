@@ -12,7 +12,7 @@ pub enum MoveAction {
 }
 impl Default for MoveAction {
     fn default() -> Self {
-        panic!("This should never be called, exists to satisfy Inspectable");
+        Self::Phase(Phase::default())
     }
 }
 impl From<MoveId> for MoveAction {
@@ -56,16 +56,12 @@ pub struct Phase {
     pub mobility: Option<MoveMobility>,
 }
 
-#[derive(Debug, Inspectable, Clone, PartialEq)]
+#[derive(Debug, Inspectable, Clone, PartialEq, Default)]
 pub enum PhaseKind {
+    #[default]
     Animation,
     Grab(GrabDescription),
     Attack(SpawnDescriptor),
-}
-impl Default for PhaseKind {
-    fn default() -> Self {
-        PhaseKind::Animation
-    }
 }
 
 #[derive(Debug, Inspectable, Copy, Clone, PartialEq)]
@@ -95,30 +91,21 @@ impl Default for Grabable {
 #[derive(Default, Clone, Copy, Deref, DerefMut, Debug, Component, Inspectable, PartialEq)]
 pub struct Hitbox(pub Area);
 
-#[derive(Clone, Copy, Debug, Inspectable, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Inspectable, Eq, PartialEq, Default)]
 pub enum AttackHeight {
     Low,
+    #[default]
     Mid,
     High,
 }
-impl Default for AttackHeight {
-    fn default() -> Self {
-        AttackHeight::Mid
-    }
-}
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Inspectable)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Inspectable, Default)]
 pub enum Lifetime {
+    #[default]
     Phase,
     UntilHit,
     Frames(usize),
     Forever,
-}
-
-impl Default for Lifetime {
-    fn default() -> Self {
-        Lifetime::Phase
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]
@@ -161,25 +148,13 @@ pub type Stun = HitProperty<usize>;
 pub type Knockback = HitProperty<Vec3>;
 pub type Pushback = HitProperty<Vec3>;
 
-#[derive(Debug, Clone, Copy, PartialEq, Inspectable, Component)]
+#[derive(Debug, Clone, Copy, PartialEq, Inspectable, Component, Default)]
 pub struct OnHitEffect {
     pub fixed_height: Option<AttackHeight>,
     pub damage: Damage,
     pub stun: Stun,
     pub knockback: Knockback,
     pub pushback: Pushback,
-}
-
-impl Default for OnHitEffect {
-    fn default() -> Self {
-        Self {
-            fixed_height: default(),
-            damage: default(),
-            stun: default(),
-            knockback: default(),
-            pushback: default(),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Inspectable, Component)]

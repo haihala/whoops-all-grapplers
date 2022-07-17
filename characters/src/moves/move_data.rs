@@ -48,7 +48,7 @@ impl Move {
     }
 }
 
-#[derive(Debug, Inspectable, Clone, PartialEq)]
+#[derive(Debug, Inspectable, Clone, PartialEq, Default)]
 pub struct Branch {
     pub default: MoveAction,
     pub branches: Vec<(Requirements, MoveAction)>, // This way order is maintained
@@ -77,11 +77,6 @@ impl From<MoveId> for Branch {
             default: id.into(),
             branches: vec![],
         }
-    }
-}
-impl Default for Branch {
-    fn default() -> Self {
-        Phase::default().into()
     }
 }
 

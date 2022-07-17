@@ -1,7 +1,8 @@
 use bevy_inspector_egui::Inspectable;
 
-#[derive(Inspectable, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Inspectable, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum MoveId {
+    #[default]
     Default, // To satisfy Inspectable.
 
     // Universal
@@ -33,10 +34,4 @@ pub enum MoveId {
     Low,
     CommandPunch,
     Punch,
-}
-
-impl Default for MoveId {
-    fn default() -> Self {
-        Self::Default
-    }
 }

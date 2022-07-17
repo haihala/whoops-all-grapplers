@@ -4,16 +4,12 @@ use crate::helper_types::Diff;
 
 use super::InputStream;
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Default)]
 enum ParrotMode {
     Listening,
     Repeating,
+    #[default]
     Noop,
-}
-impl Default for ParrotMode {
-    fn default() -> Self {
-        ParrotMode::Noop
-    }
 }
 
 #[derive(Component, Default)]

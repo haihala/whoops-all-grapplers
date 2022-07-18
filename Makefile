@@ -9,10 +9,7 @@ build:
 	cargo build $(release)
 
 test:
-	cargo nextest run --workspace --exclude integration_tests
-
-cargo-test:
-	cargo test $(release)
+	cargo test $(release) --workspace --exclude integration_tests
 
 integration:
 	cargo test $(release) -p integration_tests
@@ -30,6 +27,6 @@ check: test clippy fmt udeps
 
 install:
 	rustup update
-	cargo install cargo-udeps cargo-nextest
+	cargo install cargo-udeps
 	rustup component add clippy
 	rustup component add rustfmt

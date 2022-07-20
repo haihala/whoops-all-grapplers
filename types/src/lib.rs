@@ -5,7 +5,7 @@ mod facing;
 pub use facing::Facing;
 
 mod gltf;
-pub use gltf::{Animation, DummyAnimation, Model};
+pub use gltf::*;
 
 mod effects;
 pub use effects::{SoundEffect, VisualEffect};

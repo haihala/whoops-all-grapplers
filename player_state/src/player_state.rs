@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use characters::{AttackHeight, MoveSituation};
-use types::{Area, Facing, StickPosition};
+use types::{AnimationType, Area, Facing, StickPosition};
 
 use crate::sub_state::{AirState, CrouchState, StandState};
 
@@ -30,6 +30,25 @@ impl Default for PlayerState {
 impl PlayerState {
     pub fn reset(&mut self) {
         *self = PlayerState::default();
+    }
+
+    pub fn get_generic_animation(&self, facing: Facing) -> Option<AnimationType> {
+        match self.main {
+            MainState::Air(AirState::Idle) => Some(AnimationType::AirIdle),
+            MainState::Air(AirState::Freefall) => Some(AnimationType::AirStun),
+
+            MainState::Stand(StandState::Idle) => Some(AnimationType::StandIdle),
+            MainState::Stand(StandState::Stun(_)) => Some(AnimationType::StandStun),
+            MainState::Stand(StandState::Walk(dir)) => Some(if facing == dir {
+                AnimationType::WalkForward
+            } else {
+                AnimationType::WalkBack
+            }),
+
+            MainState::Crouch(CrouchState::Idle) => Some(AnimationType::CrouchIdle),
+            MainState::Crouch(CrouchState::Stun(_)) => Some(AnimationType::CrouchStun),
+            _ => None,
+        }
     }
 
     // Moves

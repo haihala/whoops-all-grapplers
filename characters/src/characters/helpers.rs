@@ -24,6 +24,7 @@ pub fn jump(input: &'static str, impulse: Vec2) -> Move {
             }
             .into(),
         ],
+        ..default()
     }
 }
 
@@ -40,7 +41,9 @@ pub fn dash(input: &'static str, duration: usize, impulse: f32) -> Move {
             kind: PhaseKind::Animation,
             mobility: Some(MoveMobility::Impulse(Vec3::X * impulse)),
             cancellable: true,
+            ..default()
         }
         .into()],
+        ..default()
     }
 }

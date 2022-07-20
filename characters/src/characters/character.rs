@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use bevy::prelude::*;
-use types::{Animation, Area, DummyAnimation, Model, StickPosition};
+use map_macro::map;
+use types::{Animation, AnimationType, Area, DummyAnimation, Model, StickPosition};
 
 use crate::{Inventory, Item, ItemId, Move, MoveId};
 
@@ -10,7 +11,6 @@ pub struct Character {
     moves: HashMap<MoveId, Move>,
     items: HashMap<ItemId, Item>,
     pub model: Model,
-    pub idle_animation: Animation,
     pub low_block_height: f32,
     pub high_block_height: f32,
     pub standing_hurtbox: Area,
@@ -18,6 +18,7 @@ pub struct Character {
     pub standing_pushbox: Area,
     pub crouching_pushbox: Area,
     pub charge_directions: Vec<StickPosition>,
+    pub generic_animations: HashMap<AnimationType, Animation>,
 }
 
 impl Default for Character {
@@ -26,7 +27,14 @@ impl Default for Character {
             moves: Default::default(),
             items: Default::default(),
             model: Model::Dummy,
-            idle_animation: Animation::Dummy(DummyAnimation::Idle),
+            generic_animations: map! {
+                AnimationType::AirIdle => Animation::TPose,
+                AnimationType::AirStun => Animation::TPose,
+                AnimationType::StandIdle => Animation::Dummy(DummyAnimation::Idle),
+                AnimationType::StandStun => Animation::TPose,
+                AnimationType::CrouchIdle => Animation::TPose,
+                AnimationType::CrouchStun => Animation::TPose,
+            },
             low_block_height: 0.5,
             high_block_height: 1.2,
             charge_directions: vec![

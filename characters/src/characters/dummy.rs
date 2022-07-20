@@ -104,6 +104,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 }
                 .into(),
             ],
+            ..default()
         },
         MoveId::Low => Move {
             input: Some("[123]f"),
@@ -136,6 +137,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 }
                 .into(),
             ],
+            ..default()
         },
         MoveId::CommandPunch => Move {
             input: Some("6f"),
@@ -181,6 +183,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                     )],
                 },
             ],
+            ..default()
         },
         MoveId::BudgetBoom => Move {
             input: Some("[41]6f"),
@@ -216,6 +219,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 }
                 .into(),
             ],
+            ..default()
         },
         MoveId::SonicBoom => Move {
             input: Some("[41]6f"),
@@ -256,6 +260,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 }
                 .into(),
             ],
+            ..default()
         },
         MoveId::Hadouken => Move {
             input: Some("236f"),
@@ -292,6 +297,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 }
                 .into(),
             ],
+            ..default()
         },
         MoveId::HeavyHadouken => Move {
             input: Some("236s"),
@@ -332,6 +338,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 }
                 .into(),
             ],
+            ..default()
         },
         MoveId::AirPunch => Move {
             input: Some("f"),
@@ -365,6 +372,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 }
                 .into(),
             ],
+            ..default()
         },
         MoveId::Grab => Move {
             input: Some("g"),
@@ -390,6 +398,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 }
                 .into(),
             ],
+            ..default()
         },
     }
 }

@@ -1,4 +1,6 @@
-use bevy::{gltf::Gltf, prelude::*, utils::HashMap};
+use bevy::{gltf::Gltf, prelude::*};
+use map_macro::map;
+use std::collections::HashMap;
 use types::Model;
 
 #[derive(Debug, Deref, DerefMut)]
@@ -31,7 +33,7 @@ pub fn model_spawner(
 }
 
 pub(super) fn model_paths() -> HashMap<Model, &'static str> {
-    vec![(Model::Dummy, "dummy-character.glb")]
-        .into_iter()
-        .collect()
+    map! {
+        Model::Dummy => "dummy.glb",
+    }
 }

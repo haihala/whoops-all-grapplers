@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use types::Area;
+use types::{Animation, Area};
 
 use crate::MoveId;
 
@@ -54,6 +54,7 @@ pub struct Phase {
     pub duration: usize,
     pub cancellable: bool,
     pub mobility: Option<MoveMobility>,
+    pub animation: Option<Animation>,
 }
 
 #[derive(Debug, Inspectable, Clone, PartialEq, Default)]

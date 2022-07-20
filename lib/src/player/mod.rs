@@ -1,5 +1,4 @@
 mod charge_accumulator;
-mod model_flipper;
 mod move_activation;
 mod move_advancement;
 mod movement;
@@ -11,7 +10,7 @@ use characters::{dummy, Character, Grabable, Hurtbox, Inventory, Resources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use time::{once_per_combat_frame, Clock, GameState, RoundResult};
-use types::{Facing, Model, Player, Players};
+use types::{Facing, Player, Players};
 
 use crate::{
     assets::{AnimationHelperSetup, ModelRequest},
@@ -21,7 +20,7 @@ use crate::{
 
 use bevy::{ecs::query::WorldQuery, prelude::*};
 
-use self::{model_flipper::PlayerModel, move_activation::MoveBuffer};
+use self::move_activation::MoveBuffer;
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
@@ -47,7 +46,6 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
             .add_system(reset.with_run_criteria(State::on_update(GameState::Shop)))
-            .add_system(model_flipper::model_flipper)
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(once_per_combat_frame)
@@ -106,15 +104,14 @@ fn spawn_player(commands: &mut Commands, offset: f32, player: Player) -> Entity 
         .insert(Facing::from_flipped(offset.is_sign_positive()))
         .insert(Hurtbox(character.get_hurtbox(false)))
         .insert(Pushbox(character.get_pushbox(false)))
-        .insert(character)
+        .insert(character.clone())
         .insert(player)
         .insert(state);
 
     spawn_handle.with_children(|parent| {
         parent
             .spawn_bundle(TransformBundle::default())
-            .insert(ModelRequest(Model::Dummy))
-            .insert(PlayerModel(player));
+            .insert(ModelRequest(character.model));
     });
 
     spawn_handle.id()

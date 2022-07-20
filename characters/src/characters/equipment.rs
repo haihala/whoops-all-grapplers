@@ -42,6 +42,7 @@ pub(crate) fn get_handmedownken() -> Move {
             }
             .into(),
         ],
+        ..default()
     }
 }
 
@@ -105,6 +106,7 @@ pub(crate) fn get_gunshot() -> Move {
                 )],
             },
         ],
+        ..default()
     }
 }
 
@@ -126,5 +128,6 @@ pub(crate) fn get_shot() -> Move {
             .into(),
             MoveId::Gunshot.into(),
         ],
+        ..default()
     }
 }

@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use types::GameButton;
+use types::{Animation, GameButton};
 
 use crate::{Cost, ItemId};
 
@@ -11,6 +11,7 @@ use super::{MoveAction, MoveId, MoveSituation, MoveType, Phase};
 #[derive(Debug, Default, Inspectable, Clone, PartialEq)]
 pub struct Move {
     pub input: Option<&'static str>,
+    pub animation: Animation,
     pub move_type: MoveType,
     pub phases: Vec<Branch>,
     pub requirements: Requirements,
@@ -47,6 +48,17 @@ impl Move {
         let switch = self.phases.get(situation.phase_index)?.to_owned();
 
         Some(switch.get(situation))
+    }
+
+    pub fn get_animation(&self, situation: &MoveSituation) -> Animation {
+        if let Some(action) = self.get_action(situation) {
+            if let MoveAction::Phase(phase) = action.0 {
+                if let Some(phase_animation) = phase.animation {
+                    return phase_animation;
+                }
+            }
+        }
+        self.animation
     }
 }
 

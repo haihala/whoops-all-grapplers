@@ -53,7 +53,7 @@ pub fn models(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 pub fn animations(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(Animations(
+    commands.insert_resource(Animations::new(
         animation_paths()
             .into_iter()
             .map(|(key, path)| (key, asset_server.load(path)))

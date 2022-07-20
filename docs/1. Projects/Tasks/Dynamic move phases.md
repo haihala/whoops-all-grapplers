@@ -1,0 +1,11 @@
+- Could there be a property generic that evaluates into a value based on a FnOnce that takes the movesituation
+	- Maybe you could specify a base phase and a function that transforms that based on the situation
+	- This could make it so you don't need a global store for all stats and representing phases that get influence by multiple items easier.
+	- Move away from switches for nearly identical phases
+		- **Maybe this structure could replace switches entirely?**
+- Sidenote: `MoveSituation` ought to include the phase resolution history so that it becomes deterministic
+	- Currently it can't handle cases where multiple phases depend on input
+	- Re-evaluating for later ones includes the input for previous ones, which causes issues
+- Instead of pure phase index, use a combination of index, branch coordinates to determine where the execution of a move is at.
+	- This allows to have a window to transition into another action instead of just at action boundary
+	- e.g. user can tap gunshot while already shooting and the second shot comes immediately and not after a delay. Holding would still be possible.

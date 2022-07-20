@@ -4,7 +4,7 @@
 - [x] Loads animations from the gltf initially to a hashmap
 - [x] System that changes animations
 	- [x] Ensures an animation is always playing
-- [ ] Change animation based on State
+- [x] Change animation based on State
 
 # Model loading
 - [x] Enum for different models

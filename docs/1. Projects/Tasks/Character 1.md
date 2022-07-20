@@ -1,5 +1,7 @@
 See [[Ryan]] and [[Lex]] for ideas
 
+Animating is separated into [[Animations for character 1]], but this one does include move data.
+
 # Normals
 - 5f Jab
 	- Fastest move

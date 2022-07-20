@@ -9,6 +9,10 @@
 ## Idea dump
 If a character has a name or more than 3 lines, they need a file of their own. Copy [[template]] and change the name. The idea list below is rarely if ever groomed. They probably should be. Only read if highly motivated.
 
+- qcf+f small hop forwards
+	- -> f for fast anti-air
+	- -> 46+button for a donkey kick (with lightning bolt effect)
+	- -> g for a grab face, connect with knees, fall on your back
 - Characters have small strings of music attached to some of their combos
 	- Like a few hit combo that sounds like the start of the american national anthem
 - Character with a miniquest mechanic where they get rewarded for completing quests

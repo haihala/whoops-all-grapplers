@@ -7,16 +7,23 @@ Keep it simple.
 	- No animations for items that may exist at some point
 
 - [x] Figure out what tools to use for animation
-- Make animations (blender?)
+- Make animations
 	- [ ] Idle
 		- [ ] Air
 		- [ ] Ground
-	- [ ] Jump (One animation for all jumps)
 	- [ ] Walk
 		- [ ] Forwards
 		- [ ] Back
 	- [ ] Hitstun (on the ground, reeling)
 	- [ ] Freefall (horizontal)
 	- [ ] Individual moves
+		- [ ] Jump (One animation for all jumps)
+		- [ ] Dash
+			- [ ] Foward
+			- [ ] Back
+		- [ ] See [[Character 1]]
+		- [ ] Items
+			- [ ] Gun
+			- [ ] Handmedownken
 - [x] Make animations play
 

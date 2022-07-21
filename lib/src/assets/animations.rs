@@ -132,12 +132,8 @@ pub fn update_animation(
     for (mut helper, facing) in main.iter_mut() {
         if let Some(next) = helper.next {
             let mut player = players.get_mut(helper.player_entity).unwrap();
-            if next == Animation::TPose {
-                player.stop_repeating();
-            } else {
-                let asset = animations.get(next, facing);
-                player.play(asset).repeat();
-            }
+            let asset = animations.get(next, facing);
+            player.play(asset).repeat(); // Just in case, non-repeating actions change state so this doesn't matter
             helper.current = next;
         }
     }
@@ -187,6 +183,6 @@ fn find_animation_player_entity(
 pub(super) fn animation_paths() -> HashMap<Animation, &'static str> {
     map! {
         Animation::Dummy(DummyAnimation::Idle) => "dummy.glb#Animation0",
-        Animation::Dummy(DummyAnimation::Wave) => "dummy.glb#Animation1",
+        Animation::TPose => "dummy.glb#Animation1",
     }
 }

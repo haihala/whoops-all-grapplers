@@ -32,6 +32,8 @@ impl Default for Character {
                 AnimationType::AirStun => Animation::TPose,
                 AnimationType::StandIdle => Animation::Dummy(DummyAnimation::Idle),
                 AnimationType::StandStun => Animation::TPose,
+                AnimationType::WalkBack => Animation::TPose,
+                AnimationType::WalkForward => Animation::TPose,
                 AnimationType::CrouchIdle => Animation::TPose,
                 AnimationType::CrouchStun => Animation::TPose,
             },

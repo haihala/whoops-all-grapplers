@@ -11,6 +11,7 @@ pub const ROUND_TIME: f32 = 99.0;
 #[derive(Inspectable, Default)]
 pub struct Clock {
     pub frame: usize,
+    start_time: f32,
     pub elapsed_time: f32,
 }
 impl Clock {
@@ -18,9 +19,10 @@ impl Clock {
         self.elapsed_time >= ROUND_TIME - 1.0
     }
 
-    pub fn reset(&mut self) {
+    pub fn reset(&mut self, time: f64) {
         self.frame = 0;
         self.elapsed_time = 0.0;
+        self.start_time = time as f32;
     }
 }
 /// The component for the round timer
@@ -73,11 +75,11 @@ impl Plugin for TimePlugin {
 
 fn update_clock(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
     clock.frame += 1;
-    clock.elapsed_time += bevy_clock.delta_seconds();
+    clock.elapsed_time = bevy_clock.seconds_since_startup() as f32 - clock.start_time;
 }
 
-fn reset_clock(mut clock: ResMut<Clock>) {
-    clock.reset();
+fn reset_clock(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
+    clock.reset(bevy_clock.seconds_since_startup());
 }
 
 pub fn not_in_combat(state: Res<State<GameState>>) -> ShouldRun {

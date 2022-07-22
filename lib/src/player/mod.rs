@@ -131,11 +131,12 @@ fn reset(
     )>,
     mut game_state: ResMut<State<GameState>>,
     mut clock: ResMut<Clock>,
+    bevy_time: Res<Time>,
 ) {
     // Just pressed would be better, but it's difficult in tests and the difference is very minor.
     if keys.pressed(KeyCode::Return) {
         game_state.set(GameState::Combat).unwrap();
-        clock.reset();
+        clock.reset(bevy_time.seconds_since_startup());
         commands.remove_resource::<RoundResult>();
 
         for (mut health, mut resources, mut tf, player, mut player_state, mut buffer, mut parser) in

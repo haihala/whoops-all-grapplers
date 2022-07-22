@@ -39,6 +39,7 @@ impl Animations {
 pub struct AnimationHelper {
     pub player_entity: Entity,
     pub current: Animation,
+    facing: Facing,
     next: Option<Animation>,
 }
 
@@ -47,11 +48,17 @@ impl AnimationHelper {
         AnimationHelper {
             player_entity,
             current: Animation::TPose,
+            facing: Facing::default(),
             next: None,
         }
     }
     pub fn play(&mut self, new: Animation) {
         self.next = if new != self.current { Some(new) } else { None }
+    }
+
+    fn set_playing(&mut self, animation: Animation, facing: Facing) {
+        self.current = animation;
+        self.facing = facing;
     }
 }
 
@@ -130,11 +137,16 @@ pub fn update_animation(
     mut players: Query<&mut AnimationPlayer>,
 ) {
     for (mut helper, facing) in main.iter_mut() {
+        let mut player = players.get_mut(helper.player_entity).unwrap();
         if let Some(next) = helper.next {
-            let mut player = players.get_mut(helper.player_entity).unwrap();
             let asset = animations.get(next, facing);
-            player.play(asset).repeat(); // Just in case, non-repeating actions change state so this doesn't matter
-            helper.current = next;
+            player.play(asset).repeat();
+            helper.set_playing(next, *facing);
+        } else if *facing != helper.facing {
+            let asset = animations.get(helper.current, facing);
+            player.play(asset).repeat();
+            let current = helper.current;
+            helper.set_playing(current, *facing);
         }
     }
 }

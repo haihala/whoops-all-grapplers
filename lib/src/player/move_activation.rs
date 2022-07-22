@@ -100,9 +100,9 @@ pub(super) fn move_activator(
 
 fn activate_move(
     commands: &mut Commands,
-    sounds: &mut ResMut<Sounds>,
-    clock: &Res<Clock>,
-    notifications: &mut ResMut<Notifications>,
+    sounds: &mut Sounds,
+    clock: &Clock,
+    notifications: &mut Notifications,
     actor: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
     target: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {

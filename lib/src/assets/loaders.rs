@@ -100,7 +100,7 @@ pub fn particles(mut commands: Commands, effects: Option<ResMut<Assets<EffectAss
     commands.insert_resource(resource);
 }
 
-fn block_entity(commands: &mut Commands, effects: &mut ResMut<Assets<EffectAsset>>) -> Entity {
+fn block_entity(commands: &mut Commands, effects: &mut Assets<EffectAsset>) -> Entity {
     particle_explosion(
         commands,
         effects,
@@ -112,7 +112,7 @@ fn block_entity(commands: &mut Commands, effects: &mut ResMut<Assets<EffectAsset
     )
 }
 
-fn hit_entity(commands: &mut Commands, effects: &mut ResMut<Assets<EffectAsset>>) -> Entity {
+fn hit_entity(commands: &mut Commands, effects: &mut Assets<EffectAsset>) -> Entity {
     particle_explosion(
         commands,
         effects,
@@ -124,7 +124,7 @@ fn hit_entity(commands: &mut Commands, effects: &mut ResMut<Assets<EffectAsset>>
     )
 }
 
-fn clash_entity(commands: &mut Commands, effects: &mut ResMut<Assets<EffectAsset>>) -> Entity {
+fn clash_entity(commands: &mut Commands, effects: &mut Assets<EffectAsset>) -> Entity {
     particle_explosion(
         commands,
         effects,
@@ -145,7 +145,7 @@ fn vanishing_size_gradient(start: Vec2, duration: f32) -> Gradient<Vec2> {
 
 fn particle_explosion(
     commands: &mut Commands,
-    effects: &mut ResMut<Assets<EffectAsset>>,
+    effects: &mut Assets<EffectAsset>,
     name: &'static str,
     color_gradient: Gradient<Vec4>,
     size_gradient: Gradient<Vec2>,

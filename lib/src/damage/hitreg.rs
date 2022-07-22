@@ -139,8 +139,8 @@ const FRAMES_BETWEEN_HITS: usize = 10;
 fn handle_hit(
     commands: &mut Commands,
     frame: usize,
-    sounds: &mut ResMut<Sounds>,
-    particles: &mut ResMut<Particles>,
+    sounds: &mut Sounds,
+    particles: &mut Particles,
     effect: &OnHitEffect,
     hit_tracker: &mut HitTracker,
     hitbox: Area,

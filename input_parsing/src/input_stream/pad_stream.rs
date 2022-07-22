@@ -124,7 +124,7 @@ pub fn update_pads(
 
 fn pad_connection(
     pad_id: &Gamepad,
-    unused_pads: &mut ResMut<VecDeque<Gamepad>>,
+    unused_pads: &mut VecDeque<Gamepad>,
     readers: &mut Query<(&mut PadStream, &mut ParrotStream)>,
 ) {
     println!("New gamepad connected with ID: {:?}", pad_id);
@@ -140,7 +140,7 @@ fn pad_connection(
     }
 }
 
-fn pad_disconnection(reader: &mut Mut<PadStream>, unused_pads: &mut ResMut<VecDeque<Gamepad>>) {
+fn pad_disconnection(reader: &mut Mut<PadStream>, unused_pads: &mut VecDeque<Gamepad>) {
     println!("Gamepad disconnected with ID: {:?}", reader.pad_id);
 
     reader.pad_id = unused_pads.pop_front();

@@ -26,7 +26,7 @@ pub(super) fn move_advancement(
 fn advance_move(
     commands: &mut Commands,
     clock: &Clock,
-    notifications: &mut ResMut<Notifications>,
+    notifications: &mut Notifications,
     actor: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
     target: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {
@@ -62,7 +62,7 @@ pub(super) fn activate_phase(
     commands: &mut Commands,
     phase_index: usize,
     frame: usize,
-    notifications: &mut ResMut<Notifications>,
+    notifications: &mut Notifications,
     actor: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
     target: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
 ) {

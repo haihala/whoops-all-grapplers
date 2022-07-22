@@ -64,26 +64,38 @@ impl AnimationHelper {
 
 pub(super) fn mirror_after_load(
     mut animations: ResMut<Animations>,
-    mut assets: ResMut<Assets<AnimationClip>>,
+    mut maybe_assets: Option<ResMut<Assets<AnimationClip>>>, // For integration tests
+    mut done: Local<bool>,
 ) {
-    if animations.all_loaded(&assets) && animations.mirrored.is_empty() {
-        animations.mirrored = animations
-            .normal
-            .iter()
-            .map(|(animation, handle)| {
-                let mirrored = assets.get(handle).unwrap().curves().into_iter().fold(
-                    AnimationClip::default(),
-                    |clip, (path, curves)| {
-                        let mirrored_path = mirror_path(path.to_owned());
-                        curves.iter().cloned().fold(clip, |mut acc, curve| {
-                            acc.add_curve_to_path(mirrored_path.clone(), mirror_curve(curve));
-                            acc
-                        })
-                    },
-                );
-                (animation.to_owned(), assets.add(mirrored))
-            })
-            .collect();
+    if !*done {
+        if let Some(ref mut assets) = maybe_assets {
+            if animations.all_loaded(assets) && animations.mirrored.is_empty() {
+                animations.mirrored = animations
+                    .normal
+                    .iter()
+                    .map(|(animation, handle)| {
+                        let mirrored = assets.get(handle).unwrap().curves().into_iter().fold(
+                            AnimationClip::default(),
+                            |clip, (path, curves)| {
+                                let mirrored_path = mirror_path(path.to_owned());
+                                curves.iter().cloned().fold(clip, |mut acc, curve| {
+                                    acc.add_curve_to_path(
+                                        mirrored_path.clone(),
+                                        mirror_curve(curve),
+                                    );
+                                    acc
+                                })
+                            },
+                        );
+                        (animation.to_owned(), assets.add(mirrored))
+                    })
+                    .collect();
+                *done = true;
+            }
+        } else {
+            // We're in integration tests
+            *done = true;
+        }
     }
 }
 

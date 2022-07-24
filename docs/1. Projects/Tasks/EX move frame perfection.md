@@ -1,3 +1,0 @@
-- Problem is that if the non-ex version starts, nothing is done if the second EX button comes in a frame late.
-- [ ] Add a field for stuff like "autocorrect_for" to moves
-- [ ] If a move with that field is inputted and one of the listed moves is ongoing, substitute it with the listed version

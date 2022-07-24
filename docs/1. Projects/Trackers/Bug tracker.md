@@ -1,0 +1,2 @@
+- Timer font is weird in full screen relative to health bars
+- Figure out how to get rid of panics while despawning hitboxes

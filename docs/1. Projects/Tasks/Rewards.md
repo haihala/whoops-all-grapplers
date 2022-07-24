@@ -1,46 +1,41 @@
-13/7/2022 note: Wow does this need a recheck. Dropped in to say that meter bar should have 4-5 segments. Meter is gained in smaller chunks but always spent in whole segments. Items could grant more segments and secondary bars.
-
-Characters are heels or faces and gain meter / fans / money for different things
-
 # Meter
-Meter is for technically interesting stuff. If you want to use the ez tools, you need to be crispy.
+Meter is for rewarding stuff immediately. Players have 4 bars of meter, used in chunks, but gained slowly.
 
 ## Timing bonus
-- Timing buttons in a combo gives you meter
-- Meter is gained immediately
+- Links and optimal cancels are rewarded with meter
+	- Perfect (or close to) gains a lot
+	- Good gains some
+	- Outside good there is an area where auto linker works but you don't gain meter.
 
-## Combo damage
-- Doing combos gives you meter
-- Meter is gained after the combo
-- Very small amount relative to other things
+## Defense
+- Theory: Defensive play is boring because it's passive and reactive
+- You gain meter for every chained correct defensive option
+- Chain ends after a few seconds of not blocking or teching
+- First few don't give you anything
+- Aims to emphasize varying your options over knowing where the gaps in a sequence are.
 
-## Parry
-[[Clash parry]], maybe [[Gi of the old masters]] later
+### Parry
+- [[Clash parry]]
+	- Projectiles clashing does nothing
+	- The player whose move activated later gets the defense stack
+- [[Gi of the old masters]] later, maybe gives 2x as well as frame advantage
 
-# Fans
-- **Maybe you can cash out on combo damage by taunting to gain money**
+# Opener
+As a replacement to combo scaling, the first hit gets a damage boost. Maybe other properties as well later.
 
-Fans are maybe too complicated, just reward money directly.
-
-In addition to of rewarding money, you gain an lose fans. At the end of the round you get money based on fans.
-
-In general, Heels have a lot more ways to gain fans but also lose fans passively.
+# Money
+Money is rewarded for doing cool stuff that isn't directly beneficial for winning.
 
 ## Taunting
-- Taunting gives you fans
-- Interruping the other guy taunting gives heels fans
+- Taunting gives money gradually over time
+- Interruping the other guy taunting gives you the money they'd get for finishing the taunt
 - Add taunt button (A bumper button)
 
+## Close games
+- The more damage you deal, the more money you get
+	- Logic is that the match was hype for the provider, sold well, you get a bonus.
+- You also get money for taking damage, but not as much, maybe half
+
 ## Winning
-- Faces get more fans for close wins
-- Heels get more fans for stomps
-- Both get fans from just winning
-
-## Selling hits
-- Option to extend the opponent's combo for meter gain. Maybe another to stun yourself more on opener, cause a big hitstop that signals "this is a consentual crush counter"
-- Done with taunt button + direction
-
-## OTG hits
-- Heels gain fans
-- Faces lose fans
-
+- Winning importantly doesn't give you money.
+- For the organizer, who wins is not important.

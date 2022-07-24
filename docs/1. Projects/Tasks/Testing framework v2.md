@@ -3,6 +3,7 @@ See [[Testing framework]] for the original
 It was done to a functional level, has some shortcomings:
 - Un-ergonomic assertions
 - No scenarios (shared starting positions)
+	- Could scenarious be loaded as assets from `integration_tests/assets`?
 
 # Todo
 - Better querying

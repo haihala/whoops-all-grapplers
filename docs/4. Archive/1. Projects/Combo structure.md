@@ -45,4 +45,4 @@ Notes:
 - [x] No meter for neutral hits
 - [x] Change cancelling to the pondered system
 
-Separate EX to it's own story: [[EX move frame perfection]]
+Separate EX to it's own story: [[Move activation autocorrection]]

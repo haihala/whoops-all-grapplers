@@ -4,7 +4,11 @@ See [[Polish#Visual]]
 	- Low
 	- Overhead
 	- Thrown
-	- Active with a move
+	- 'stuffed' - Active with a move
 	- Simply not blocking ("Caught lacking", "Hold back to block")
 - Others
 	- Frame advantage
+	- Block meter gain
+- Frame traps
+	- 'trapped' when you get counterhit out of recovery
+	- 'hard trapped' = 'trapped' + None of your moves would've been fast enough

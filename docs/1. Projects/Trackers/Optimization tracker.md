@@ -6,3 +6,5 @@
 
 # Other
 - Can you use const sin for angles in jumps yet?
+- Could you mirror player animation/model with shaders?
+	- #bevy08

@@ -35,7 +35,8 @@
 - [ ] Items
 	- [x] Projectile
 	- [ ] Parry
-	- [ ] RC
-	- [ ] Drugs for [[Ryan]]
+	- [ ] Unlock a move
+	- [ ] Passive items that grants something like startup reduction
+- [ ] Buy menu
 - [x] Background
 - [x] Camera

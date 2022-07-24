@@ -1,34 +1,25 @@
 For stuff like pause and main menus
 
-- Represent with a json object
-	- root is the first level.
-	- Each node has a heading and either subs(objects list) or action(string) as values for directional keys.
+- Represent with a nested enum
+- Add ability to recognize directional taps in input parser
+- Load clear moves in parser
+- UI (using bevy_egui)
+	- Usable through the parser
+- A way to ignore menus and jump straight into a testing scenario
 
-```json
-{
-	heading: 'Main menu',
-	subs: [
-		{
-			heading: 'Options'
-			subs: [...]
-		},
-		{
-			heading: 'Play'
-			subs: [...]
-		},
-		...
-		{
-			heading: 'Quit'
-			action: 'quit'
-		}
-	]
-}
-```
-
-- [ ] Load a temporary "Menu mode" to input parsers where the moves are stuff like "Up", "Down", "Accept" and "Back"
-- [ ] Define a basic main menu
-	- [ ] Container where cursor can move between selection options
-	- [ ] Selecting an option does something
-- [ ] Ignore that menu for dev purposes
-	- [ ] Also maybe shorten pre-round
-- [ ] Dunno about the menu structure given, it doesn't really scale
+Rough outline:
+- Main
+	- Play
+		- Local
+		- Online
+		- Back
+	- Learn 
+		- Lab -> Character select
+		- Tutorial
+		- Glossary
+	- Options
+		- (extend as relevant)
+		- back
+	- Quit
+		- Yes -> Quits the game
+		- No -> Back to main

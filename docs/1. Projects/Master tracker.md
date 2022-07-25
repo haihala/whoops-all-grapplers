@@ -12,6 +12,7 @@
 
 ## Easy nibbles
 - Make parrot echo inputs while recording
+- Resource bars visible sections and use by section
 
 ## Not a priority
 - [[CLI args]]
@@ -33,7 +34,7 @@
 # Other trackers
 ![[Bug tracker]]
 
-![[Optimization tracker]]
+![[Chore tracker]]
 ![[MVP]]
 
 # Overarching plan

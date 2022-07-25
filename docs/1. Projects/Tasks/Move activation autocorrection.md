@@ -7,6 +7,7 @@
 		- Override animations
 		- Adjust spawned boxes
 		- Moves that have hit are a bit difficult
+	- Maybe just save the player state from before starting the move and revert to it
 - How to tell what autocorrects into what
 	- Input overlap
 	- Input complexity

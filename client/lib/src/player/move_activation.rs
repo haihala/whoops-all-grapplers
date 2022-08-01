@@ -2,9 +2,9 @@ use bevy::prelude::*;
 
 use characters::{Action, Character, MoveHistory, Situation};
 use time::Clock;
-use types::{MoveId, SoundEffect};
+use types::MoveId;
 
-use crate::{assets::Sounds, ui::Notifications};
+use crate::ui::Notifications;
 
 use super::PlayerQuery;
 
@@ -62,7 +62,6 @@ impl MoveBuffer {
 }
 
 pub(super) fn move_activator(
-    mut sounds: ResMut<Sounds>,
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
     mut query: Query<PlayerQuery>,
@@ -132,7 +131,6 @@ pub(super) fn move_activator(
                 clock.frame
             };
 
-            sounds.play(SoundEffect::Whoosh); // TODO, make this an action
             player.state.start_move(MoveHistory {
                 move_id,
                 started,

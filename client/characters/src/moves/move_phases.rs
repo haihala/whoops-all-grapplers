@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use types::{Animation, MoveId};
+use types::{Animation, MoveId, SoundEffect};
 
 use crate::{resources::Cost, SpawnDescriptor};
 
@@ -23,6 +23,7 @@ impl Movement {
 #[derive(Debug, Clone, Copy)]
 pub enum Action {
     Animation(Animation),
+    Sound(SoundEffect),
     Move(MoveId),
     Hitbox(SpawnDescriptor),
     Grab(GrabDescription),

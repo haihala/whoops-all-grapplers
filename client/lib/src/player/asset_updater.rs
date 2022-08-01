@@ -3,7 +3,7 @@ use characters::{Action, Character};
 use player_state::PlayerState;
 use types::Facing;
 
-use crate::assets::AnimationHelper;
+use crate::assets::{AnimationHelper, Sounds};
 
 #[allow(clippy::type_complexity)]
 pub fn update_animation(
@@ -34,6 +34,20 @@ pub fn update_animation(
             helper.play(move_animation.to_owned());
         } else {
             dbg!("No generic animation nor is a move ongoing?");
+        }
+    }
+}
+
+pub(super) fn update_audio(mut query: Query<&mut PlayerState>, mut sounds: ResMut<Sounds>) {
+    for mut state in query.iter_mut() {
+        for clip in state.drain_matching_actions(|animation| {
+            if let Action::Sound(clip) = animation {
+                Some(*clip)
+            } else {
+                None
+            }
+        }) {
+            sounds.play(clip);
         }
     }
 }

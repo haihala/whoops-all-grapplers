@@ -1,10 +1,10 @@
+mod asset_updater;
 mod charge_accumulator;
 mod move_activation;
 mod move_advancement;
 mod movement;
 mod recovery;
 mod size_adjustment;
-mod update_animation;
 
 use characters::{dummy, Character, Grabable, Hurtbox, Inventory, Resources};
 use input_parsing::{InputParser, PadBundle};
@@ -61,7 +61,10 @@ impl Plugin for PlayerPlugin {
                         charge_accumulator::manage_charge.after(size_adjustment::size_adjustment),
                     )
                     .with_system(
-                        update_animation::update_animation.after(charge_accumulator::manage_charge),
+                        asset_updater::update_animation.after(charge_accumulator::manage_charge),
+                    )
+                    .with_system(
+                        asset_updater::update_audio.after(asset_updater::update_animation),
                     ),
             );
     }

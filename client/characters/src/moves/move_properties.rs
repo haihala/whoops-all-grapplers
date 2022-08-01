@@ -31,13 +31,46 @@ pub enum AttackHeight {
     High,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Inspectable, Default)]
-pub enum Lifetime {
-    #[default]
-    Phase,
-    UntilHit,
-    Frames(usize),
-    Forever,
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Inspectable)]
+pub struct Lifetime {
+    pub despawn_on_hit: bool,
+    pub despawn_on_landing: bool,
+    pub frames: Option<usize>,
+}
+
+impl Default for Lifetime {
+    fn default() -> Self {
+        Self {
+            despawn_on_hit: true,
+            despawn_on_landing: true,
+            frames: Some(1),
+        }
+    }
+}
+
+impl Lifetime {
+    pub(crate) fn eternal() -> Self {
+        Self {
+            despawn_on_hit: false,
+            despawn_on_landing: false,
+            frames: None,
+        }
+    }
+
+    pub(crate) fn until_owner_hit() -> Self {
+        Self {
+            despawn_on_hit: true,
+            despawn_on_landing: false,
+            frames: None,
+        }
+    }
+
+    pub(crate) fn frames(frames: usize) -> Self {
+        Self {
+            frames: Some(frames),
+            ..Default::default()
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]

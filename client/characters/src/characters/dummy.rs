@@ -130,7 +130,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 Action::Hitbox(SpawnDescriptor {
                         hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
                         speed: 5.0 * Vec3::X,
-                        lifetime: Lifetime::Frames((constants::FPS * 0.25) as usize),
+                        lifetime: Lifetime::frames((constants::FPS * 0.25) as usize),
                         attached_to_player: false,
                         ..default()
                     }).into(),
@@ -149,7 +149,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 Action::Hitbox(SpawnDescriptor {
                     hitbox: Hitbox(Area::new(0.5, 1.2, 0.4, 0.3)),
                     speed: 6.0 * Vec3::X,
-                    lifetime: Lifetime::UntilHit,
+                    lifetime: Lifetime::until_owner_hit(),
                     damage: (20, 3).into(),
                     attached_to_player: false,
                     ..default()
@@ -166,7 +166,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 Action::Hitbox(SpawnDescriptor {
                     hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
                     speed: 4.0 * Vec3::X,
-                    lifetime: Lifetime::UntilHit,
+                    lifetime: Lifetime::until_owner_hit(),
                     attached_to_player: false,
                     ..default()
                 }).into(),
@@ -185,7 +185,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 Action::Hitbox(SpawnDescriptor {
                     hitbox: Hitbox(Area::new(0.5, 1.0, 0.4, 0.5)),
                     speed: 5.0 * Vec3::X,
-                    lifetime: Lifetime::UntilHit,
+                    lifetime: Lifetime::until_owner_hit(),
                     hits: 2,
                     attached_to_player: false,
                     ..default()

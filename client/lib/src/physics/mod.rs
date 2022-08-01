@@ -89,7 +89,7 @@ fn player_gravity(
             }
         } else if !state.is_grounded() {
             state.land();
-            spawner.despawn_on_phase_change(&mut commands);
+            spawner.despawn_on_landing(&mut commands);
         }
     }
 }

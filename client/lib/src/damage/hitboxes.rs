@@ -7,18 +7,10 @@ use types::{Area, Facing, Owner, Player};
 
 use crate::physics::ConstantVelocity;
 
-#[derive(Debug, Clone, Copy)]
-enum DespawnTime {
-    Frame(usize),
-    StateChange,
-    OnHit,
-    EndOfRound,
-}
-
 #[derive(Debug)]
 struct DespawnRequest {
     entity: Entity,
-    time: DespawnTime,
+    lifetime: Lifetime,
 }
 
 #[derive(Default, Component)]
@@ -76,14 +68,12 @@ impl HitboxSpawner {
         if descriptor.attached_to_player {
             commands.entity(parent).push_children(&[new_hitbox]);
         }
+        let mut lifetime = descriptor.lifetime;
+        lifetime.frames = lifetime.frames.map(|lifetime| lifetime + frame);
+
         self.despawn_requests.push(DespawnRequest {
             entity: new_hitbox,
-            time: match descriptor.lifetime {
-                Lifetime::Phase => DespawnTime::StateChange,
-                Lifetime::UntilHit => DespawnTime::OnHit,
-                Lifetime::Frames(time_to_live) => DespawnTime::Frame(frame + time_to_live),
-                Lifetime::Forever => DespawnTime::EndOfRound,
-            },
+            lifetime,
         });
     }
 
@@ -106,17 +96,11 @@ impl HitboxSpawner {
     }
 
     pub fn despawn_on_hit(&mut self, commands: &mut Commands) {
-        self.despawn_matching(commands, |event| {
-            matches!(event.time, DespawnTime::OnHit)
-            // Getting hit changes the state
-                || matches!(event.time, DespawnTime::StateChange)
-        });
+        self.despawn_matching(commands, |event| event.lifetime.despawn_on_hit);
     }
 
-    pub fn despawn_on_phase_change(&mut self, commands: &mut Commands) {
-        self.despawn_matching(commands, |event| {
-            matches!(event.time, DespawnTime::StateChange)
-        });
+    pub fn despawn_on_landing(&mut self, commands: &mut Commands) {
+        self.despawn_matching(commands, |event| event.lifetime.despawn_on_landing);
     }
 }
 
@@ -163,8 +147,8 @@ pub(super) fn despawn_expired(
 ) {
     for mut spawner in spawners.iter_mut() {
         spawner.despawn_matching(&mut commands, |event| {
-            if let DespawnTime::Frame(despawn_frame) = event.time {
-                despawn_frame <= clock.frame
+            if let Some(last_frame_alive) = event.lifetime.frames {
+                last_frame_alive <= clock.frame
             } else {
                 false
             }

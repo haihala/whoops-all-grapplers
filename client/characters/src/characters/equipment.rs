@@ -18,7 +18,7 @@ pub(crate) fn get_handmedownken() -> Move {
             Action::Hitbox(SpawnDescriptor {
                 hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
                 speed: 3.0 * Vec3::X,
-                lifetime: Lifetime::Forever,
+                lifetime: Lifetime::eternal(),
                 ..default()
             })
             .into(),
@@ -40,7 +40,7 @@ pub(crate) fn get_gunshot() -> Move {
                     Action::Hitbox(SpawnDescriptor {
                         hitbox: Hitbox(Area::new(0.5, 1.2, 0.1, 0.1)),
                         speed: 8.0 * Vec3::X,
-                        lifetime: Lifetime::Forever,
+                        lifetime: Lifetime::eternal(),
                         ..default()
                     })
                     .into()

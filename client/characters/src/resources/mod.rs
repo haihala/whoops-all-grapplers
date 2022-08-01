@@ -24,27 +24,21 @@ impl Resources {
         self.meter.reset();
     }
 
-    pub fn can_afford(&self, cost: &Option<Cost>) -> bool {
-        if let Some(costs) = cost {
-            self.meter.can_afford(costs.meter)
-                && (!costs.charge || self.charge.is_charged())
-                && (!costs.bullet || self.bullets.has_one())
-        } else {
-            true
-        }
+    pub fn can_afford(&self, cost: Cost) -> bool {
+        self.meter.can_afford(cost.meter)
+            && (!cost.charge || self.charge.is_charged())
+            && (!cost.bullet || self.bullets.has_one())
     }
 
-    pub fn pay(&mut self, cost: Option<Cost>) {
-        if let Some(costs) = cost {
-            self.meter.pay(costs.meter);
+    pub fn pay(&mut self, cost: Cost) {
+        self.meter.pay(cost.meter);
 
-            if costs.charge {
-                self.charge.consume_charge();
-            }
+        if cost.charge {
+            self.charge.consume_charge();
+        }
 
-            if costs.bullet {
-                self.bullets.use_one();
-            }
+        if cost.bullet {
+            self.bullets.use_one();
         }
     }
 }

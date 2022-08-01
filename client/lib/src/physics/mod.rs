@@ -4,10 +4,10 @@ pub use player_velocity::PlayerVelocity;
 use bevy::{ecs::query::WorldQuery, prelude::*};
 use bevy_inspector_egui::Inspectable;
 
-use characters::Character;
+use characters::{Action, Character};
 use constants::PLAYER_GRAVITY_PER_FRAME;
 use player_state::PlayerState;
-use time::{once_per_combat_frame, WAGStage};
+use time::{once_per_combat_frame, Clock, WAGStage};
 use types::{Area, Facing, Players};
 
 use crate::{
@@ -94,8 +94,21 @@ fn player_gravity(
     }
 }
 
-fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity)>) {
-    for (state, mut velocity) in query.iter_mut() {
+fn player_input(
+    clock: Res<Clock>,
+    mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &Facing)>,
+) {
+    for (mut state, mut velocity, facing) in query.iter_mut() {
+        for movement in state.drain_matching_actions(|action| {
+            if let Action::Movement(movement) = action {
+                Some(movement.to_owned())
+            } else {
+                None
+            }
+        }) {
+            velocity.handle_movement(clock.frame, *facing, movement);
+        }
+
         if let Some(walk_direction) = state.get_walk_direction() {
             velocity.handle_walking_velocity(walk_direction);
         }
@@ -103,6 +116,8 @@ fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity)>) {
         if state.is_grounded() {
             velocity.drag();
         }
+
+        velocity.cleanup_movements(clock.frame);
     }
 }
 

@@ -10,11 +10,11 @@ pub(crate) fn get_handmedownken() -> Move {
     Move {
         input: Some("236e"),
         move_type: MoveType::Special,
-        can_start: |situation: Situation| {
+        requirement: |situation: Situation| {
             situation.inventory.contains(&ItemId::HandMeDownKen) && situation.grounded
         },
         phases: vec![
-            FlowControl::Wait(30, false).into(),
+            FlowControl::Wait(30, false),
             Action::Hitbox(SpawnDescriptor {
                 hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
                 speed: 3.0 * Vec3::X,
@@ -22,7 +22,7 @@ pub(crate) fn get_handmedownken() -> Move {
                 ..default()
             })
             .into(),
-            FlowControl::Wait(10, true).into(),
+            FlowControl::Wait(10, true),
         ],
     }
 }
@@ -32,14 +32,11 @@ pub(crate) fn get_gunshot() -> Move {
     Move {
         input: None,
         move_type: MoveType::Normal,
-        can_start: |situation: Situation| situation.grounded,
+        requirement: |situation: Situation| situation.grounded,
         phases: vec![
-            FlowControl::Wait(10, false).into(),
+            FlowControl::Wait(10, false),
             FlowControl::Dynamic(|situation: Situation| {
-                if situation.resources.can_afford(&Some(Cost {
-                    bullet: true,
-                    ..default()
-                })) {
+                if situation.resources.can_afford(Cost::bullet()) {
                     Action::Hitbox(SpawnDescriptor {
                         hitbox: Hitbox(Area::new(0.5, 1.2, 0.1, 0.1)),
                         speed: 8.0 * Vec3::X,
@@ -59,7 +56,7 @@ pub(crate) fn get_gunshot() -> Move {
                 {
                     Action::Move(MoveId::Gunshot).into()
                 } else {
-                    FlowControl::Wait(30, false).into()
+                    FlowControl::Wait(30, false)
                 }
             }),
         ],
@@ -70,7 +67,7 @@ pub(crate) fn get_shot() -> Move {
     Move {
         input: Some("e"),
         move_type: MoveType::Normal,
-        can_start: |situation: Situation| {
+        requirement: |situation: Situation| {
             situation.inventory.contains(&ItemId::Gun) && situation.grounded
         },
         phases: vec![

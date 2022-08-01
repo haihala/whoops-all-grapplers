@@ -7,15 +7,27 @@ use crate::{resources::Cost, SpawnDescriptor};
 use super::{move_history::Situation, GrabDescription};
 
 #[derive(Debug, Clone, Copy)]
+pub struct Movement {
+    pub amount: Vec2,
+    pub duration: usize,
+}
+impl Movement {
+    pub(crate) fn impulse(amount: Vec2) -> Self {
+        Self {
+            amount,
+            duration: 1,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum Action {
     Animation(Animation),
     Move(MoveId),
     Hitbox(SpawnDescriptor),
     Grab(GrabDescription),
-    Impulse(Vec2),
-    Perpetual(Vec2, usize),
+    Movement(Movement),
     Pay(Cost),
-    End,
     // TODO:
     // Separate projectiles from normal attacks
 }

@@ -51,12 +51,17 @@ impl PlayerState {
             history.past.append(&mut new_fcs);
         }
     }
-    pub fn drain_unprocessed_actions(
+
+    pub fn drain_matching_actions<T>(
         &mut self,
-        predicate: impl Fn(&mut Action) -> bool,
-    ) -> Vec<Action> {
+        predicate: impl Fn(&mut Action) -> Option<T>,
+    ) -> Vec<T> {
         if let Some(ref mut history) = self.get_move_history_mut() {
-            history.unprocessed_events.drain_filter(predicate).collect()
+            history
+                .unprocessed_events
+                .drain_filter(|action| (predicate)(action).is_some())
+                .map(|mut action| (predicate)(&mut action).unwrap())
+                .collect()
         } else {
             vec![]
         }

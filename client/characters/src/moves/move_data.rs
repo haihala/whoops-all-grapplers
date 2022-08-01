@@ -7,7 +7,7 @@ pub struct Move {
     pub input: Option<&'static str>,
     pub move_type: MoveType,
     pub phases: Vec<FlowControl>,
-    pub can_start: fn(Situation) -> bool,
+    pub requirement: fn(Situation) -> bool,
 }
 
 impl Default for Move {
@@ -16,7 +16,7 @@ impl Default for Move {
             input: Default::default(),
             move_type: Default::default(),
             phases: Default::default(),
-            can_start: |_: Situation| true,
+            requirement: |_: Situation| true,
         }
     }
 }

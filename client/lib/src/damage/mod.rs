@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 mod hitreg;
 
+mod grabbing;
 mod health;
 pub use health::Health;
 
@@ -21,10 +22,11 @@ impl Plugin for DamagePlugin {
                 .with_system(hitboxes::despawn_expired.after(hitboxes::spawn_new))
                 .with_system(hitreg::clash_parry.after(hitboxes::despawn_expired))
                 .with_system(hitreg::register_hits.after(hitreg::clash_parry))
-                .with_system(hitreg::handle_grabs.after(hitreg::register_hits))
+                .with_system(grabbing::spawn_grabs.after(hitreg::register_hits))
+                .with_system(grabbing::register_grabs.after(grabbing::spawn_grabs))
                 .with_system(
                     health::check_dead
-                        .after(hitreg::handle_grabs)
+                        .after(grabbing::register_grabs)
                         .with_run_criteria(State::on_update(GameState::Combat)),
                 )
                 .with_system(

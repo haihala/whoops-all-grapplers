@@ -100,19 +100,7 @@ pub(super) fn move_advancement(clock: Res<Clock>, mut query: Query<PlayerQuery>)
 //                     match phase_data.kind {
 //                         PhaseKind::Attack(descriptor) => actor.spawner.add_to_queue(descriptor),
 //                         PhaseKind::Grab(descriptor) => {
-//                             let grab_origin = actor.tf.translation + descriptor.offset.extend(0.0);
-//                             let distance = (grab_origin - target.tf.translation).length();
-//                             let max_distance = target.grabbable.size + descriptor.range;
-//                             let in_range = distance <= max_distance;
 
-//                             let teched = target.state.get_move_state().is_none()
-//                                 && target.input_parser.head_is_clear();
-
-//                             if teched {
-//                                 notifications.add(target.player.to_owned(), "Teched!".into());
-//                             } else if in_range {
-//                                 target.grabbable.queue.push(descriptor);
-//                             }
 //                         }
 //                         PhaseKind::Animation => {}
 //                     };

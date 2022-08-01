@@ -3,6 +3,7 @@ mod assets;
 mod camera;
 mod damage;
 mod dev;
+mod economy;
 mod physics;
 mod player;
 mod stage;
@@ -23,6 +24,7 @@ impl PluginGroup for WAGLib {
             .add(ui::UIPlugin)
             .add(camera::CustomCameraPlugin)
             .add(player::PlayerPlugin)
+            .add(economy::EconomyPlugin)
             .add(damage::DamagePlugin)
             .add(DevPlugin)
             .add(physics::PhysicsPlugin)

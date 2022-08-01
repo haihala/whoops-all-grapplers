@@ -1,19 +1,20 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use types::{Facing, MoveId};
+use characters::Movement;
+use types::Facing;
 
 #[derive(Debug, Inspectable, Clone, Default, Copy)]
-pub struct CurrentMove {
-    id: (MoveId, i32),
-    base_velocity: Vec3,
+pub struct AppliedMovement {
+    amount: Vec3,
+    until_frame: usize,
 }
-#[derive(Debug, Inspectable, Clone, Default, Copy, Component)]
+#[derive(Debug, Inspectable, Clone, Default, Component)]
 pub struct PlayerVelocity {
     velocity: Vec3,
+    movements: Vec<AppliedMovement>,
     /// Keep track of if pushing is currently happening for wall clamp reasons
     pub(super) pushing: bool,
-    pub(super) current_move: Option<CurrentMove>,
 }
 // Drag
 const MINIMUM_WALK_SPEED: f32 = 3.0;
@@ -33,6 +34,21 @@ impl PlayerVelocity {
     pub fn add_impulse(&mut self, impulse: Vec3) {
         self.velocity += impulse;
     }
+    pub(super) fn handle_movement(&mut self, frame: usize, facing: Facing, movement: Movement) {
+        self.movements.push(AppliedMovement {
+            amount: facing.mirror_vec(movement.amount.extend(0.0)),
+            until_frame: frame + movement.duration,
+        });
+    }
+    pub(super) fn handle_walking_velocity(&mut self, direction: Facing) {
+        let proposed_walk_velocity = self.velocity.x + direction.mirror_f32(PLAYER_ACCELERATION);
+
+        self.velocity.x = direction.mirror_f32(
+            proposed_walk_velocity
+                .abs()
+                .clamp(MINIMUM_WALK_SPEED, MAXIMUM_WALK_SPEED),
+        );
+    }
     pub(super) fn drag(&mut self) {
         let abs_x = self.velocity.x.abs() * (1.0 - PROPORTIONAL_DRAG);
 
@@ -46,16 +62,9 @@ impl PlayerVelocity {
             0.0,
         );
     }
-
-    pub(super) fn handle_walking_velocity(&mut self, direction: Facing) {
-        let proposed_walk_velocity = self.velocity.x + direction.mirror_f32(PLAYER_ACCELERATION);
-
-        self.velocity.x = direction.mirror_f32(
-            proposed_walk_velocity
-                .abs()
-                .clamp(MINIMUM_WALK_SPEED, MAXIMUM_WALK_SPEED),
-        );
-        self.current_move = None;
+    pub(super) fn cleanup_movements(&mut self, frame: usize) {
+        self.movements
+            .retain(|movement| movement.until_frame < frame);
     }
 
     pub(super) fn x_collision(&mut self) {

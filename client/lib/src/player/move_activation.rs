@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use characters::{Character, Move, MoveHistory, Situation};
+use characters::{Action, Character, MoveHistory, Situation};
 use time::Clock;
 use types::{MoveId, SoundEffect};
 
@@ -17,13 +17,8 @@ const GOOD_TIMING_DELTA: usize = 5;
 #[derive(Debug, Default, Component)]
 pub struct MoveBuffer {
     buffer: Vec<(usize, MoveId)>,
-    force_start: Option<(MoveId, Move, Option<i32>)>,
 }
 impl MoveBuffer {
-    pub fn set_force_starter(&mut self, move_id: MoveId, move_data: Move) {
-        self.force_start = Some((move_id, move_data, None));
-    }
-
     fn add_events(&mut self, events: Vec<MoveId>, frame: usize) {
         self.buffer.extend(events.into_iter().map(|id| (frame, id)));
     }
@@ -32,18 +27,18 @@ impl MoveBuffer {
         &mut self,
         character: &Character,
         situation: &Situation,
-    ) -> Option<(MoveId, Move, Option<i32>)> {
-        if let Some((selected_id, move_data, frame)) = self
+    ) -> Option<(MoveId, Option<i32>)> {
+        if let Some((selected_id, _, frame)) = self
             .buffer
             .iter()
             .map(|(frame, id)| (*id, character.get_move(*id), *frame))
-            .filter(|(_, move_data, _)| (move_data.can_start)(situation.clone()))
+            .filter(|(_, move_data, _)| (move_data.requirement)(situation.clone()))
             // TODO: Special/normal considerations. Maybe add those dynamically to can_start somehow?
             // Do that when splitting move starting.
             .min_by(|(id1, _, _), (id2, _, _)| id1.cmp(id2))
         {
             self.buffer.retain(|(_, id)| selected_id != *id);
-            Some((selected_id, move_data, Some(frame as i32)))
+            Some((selected_id, Some(frame as i32)))
         } else {
             None
         }
@@ -82,11 +77,23 @@ pub(super) fn move_activator(
             return;
         }
 
-        let force_start = if player.buffer.force_start.is_some() {
-            player.buffer.force_start.take()
-        } else {
-            None
-        };
+        if let Some(move_id) = player
+            .state
+            .drain_matching_actions(|action| {
+                if let Action::Move(move_id) = action {
+                    Some(*move_id)
+                } else {
+                    None
+                }
+            })
+            .last()
+        {
+            player.state.start_move(MoveHistory {
+                move_id: move_id.to_owned(),
+                started: clock.frame,
+                ..default()
+            });
+        }
 
         let situation = Situation {
             inventory: &player.inventory,
@@ -100,8 +107,7 @@ pub(super) fn move_activator(
             current_frame: clock.frame,
         };
 
-        if let Some((move_id, _, stored_frame)) =
-            force_start.or_else(|| player.buffer.use_move(player.character, &situation))
+        if let Some((move_id, stored_frame)) = player.buffer.use_move(player.character, &situation)
         {
             let started = if let Some(earliest_activation_frame) = player
                 .state

@@ -11,6 +11,6 @@ pub use self::characters::{dummy, Character};
 pub use items::Inventory;
 pub use moves::{
     Action, AttackHeight, FlowControl, Grabable, HitTracker, Hitbox, Hurtbox, Lifetime, Move,
-    MoveHistory, OnHitEffect, Situation, SpawnDescriptor,
+    MoveHistory, Movement, OnHitEffect, Situation, SpawnDescriptor,
 };
 pub use resources::Resources;

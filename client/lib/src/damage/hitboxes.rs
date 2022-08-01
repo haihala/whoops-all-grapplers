@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
-use characters::{HitTracker, Hitbox, Lifetime, OnHitEffect, SpawnDescriptor};
+use characters::{Action, HitTracker, Hitbox, Lifetime, OnHitEffect, SpawnDescriptor};
+use player_state::PlayerState;
 use time::Clock;
 use types::{Area, Facing, Owner, Player};
 
@@ -22,7 +23,6 @@ struct DespawnRequest {
 
 #[derive(Default, Component)]
 pub struct HitboxSpawner {
-    queue: Vec<SpawnDescriptor>,
     despawn_requests: Vec<DespawnRequest>,
 }
 impl HitboxSpawner {
@@ -118,19 +118,31 @@ impl HitboxSpawner {
             matches!(event.time, DespawnTime::StateChange)
         });
     }
-
-    pub fn add_to_queue(&mut self, object: SpawnDescriptor) {
-        self.queue.push(object);
-    }
 }
 
 pub(super) fn spawn_new(
     mut commands: Commands,
     clock: Res<Clock>,
-    mut query: Query<(&mut HitboxSpawner, Entity, &Facing, &Player, &Transform)>,
+    mut query: Query<(
+        &mut HitboxSpawner,
+        &mut PlayerState,
+        Entity,
+        &Facing,
+        &Player,
+        &Transform,
+    )>,
 ) {
-    for (mut spawner, parent, facing, player, transform) in query.iter_mut() {
-        for spawn_descriptor in spawner.queue.drain(..).collect::<Vec<_>>().into_iter() {
+    for (mut spawner, mut state, parent, facing, player, transform) in query.iter_mut() {
+        for spawn_descriptor in state
+            .drain_matching_actions(|action| {
+                if let Action::Hitbox(descriptor) = action {
+                    Some(*descriptor)
+                } else {
+                    None
+                }
+            })
+            .into_iter()
+        {
             spawner.spawn_attack(
                 &mut commands,
                 spawn_descriptor,

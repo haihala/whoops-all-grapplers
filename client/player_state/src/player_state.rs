@@ -32,7 +32,7 @@ impl PlayerState {
         *self = PlayerState::default();
     }
 
-    pub fn update_action_queue(&mut self, situation: Situation) {
+    pub fn proceed_move(&mut self, situation: Situation) {
         if let Some(ref mut history) = self.get_move_history_mut() {
             if !history.unprocessed_events.is_empty() {
                 warn!("Leftover events");
@@ -49,6 +49,14 @@ impl PlayerState {
                     }
                 }));
             history.past.append(&mut new_fcs);
+        }
+    }
+
+    pub fn current_move_fully_handled(&self) -> Option<bool> {
+        if let Some(history) = self.get_move_history() {
+            Some(history.past.len() == history.move_data.phases.len())
+        } else {
+            None
         }
     }
 

@@ -18,6 +18,11 @@ pub(super) fn move_advancement(clock: Res<Clock>, mut query: Query<PlayerQuery>)
             current_frame: clock.frame,
         };
 
-        player.state.update_action_queue(situation);
+        player.state.proceed_move(situation);
+
+        // Recover from the move if it's over
+        if player.state.current_move_fully_handled().unwrap() {
+            player.state.recover(clock.frame)
+        }
     }
 }

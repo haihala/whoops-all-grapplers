@@ -94,27 +94,10 @@ fn player_gravity(
     }
 }
 
-fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity, &Character, &Facing)>) {
-    for (state, mut velocity, character, facing) in query.iter_mut() {
-        if let Some((move_id, start_frame, mobility)) =
-            state.get_move_state().and_then(|move_state| {
-                // Some if a move is happening
-                character
-                    .get_move(move_state.move_id)
-                    .get_action(move_state)
-                    .unwrap()
-                    .0
-                    .get_mobility()
-                    .map(|mobility| (move_state.move_id, move_state.start_frame, mobility))
-            })
-        {
-            velocity.handle_move_velocity(move_id, start_frame, mobility, facing);
-        } else {
-            velocity.current_move = None;
-
-            if let Some(walk_direction) = state.get_walk_direction() {
-                velocity.handle_walking_velocity(walk_direction);
-            }
+fn player_input(mut query: Query<(&PlayerState, &mut PlayerVelocity)>) {
+    for (state, mut velocity) in query.iter_mut() {
+        if let Some(walk_direction) = state.get_walk_direction() {
+            velocity.handle_walking_velocity(walk_direction);
         }
 
         if state.is_grounded() {

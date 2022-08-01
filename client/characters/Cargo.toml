@@ -10,4 +10,5 @@ bevy-inspector-egui = "0.11.0"
 map-macro = "0.2.2"
 
 constants = { path = "../constants" }
+input_parsing = { path = "../input_parsing"}
 types = { path = "../types" }

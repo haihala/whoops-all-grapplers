@@ -1,11 +1,11 @@
 use bevy_inspector_egui::Inspectable;
 
-mod situation;
-pub use situation::MoveSituation;
-mod move_id;
-pub use move_id::MoveId;
-mod move_data;
-pub use move_data::{Branch, Move, Requirements};
+mod move_history;
+pub use move_history::{MoveHistory, Situation};
+mod moves;
+pub use moves::Move;
+mod move_phases;
+pub use move_phases::{Action, FlowControl};
 mod move_properties;
 pub use move_properties::*;
 

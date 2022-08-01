@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
-use super::ItemId;
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
+use types::ItemId;
 
 #[derive(Debug, Default, Component, Eq, PartialEq, Inspectable, Clone)]
 pub struct Inventory {

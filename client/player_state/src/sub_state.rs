@@ -1,29 +1,29 @@
 use bevy_inspector_egui::Inspectable;
 
-use characters::MoveSituation;
+use characters::MoveHistory;
 use types::Facing;
 
-#[derive(Inspectable, Eq, PartialEq, Clone, Debug, Default)]
+#[derive(Inspectable, Clone, Debug, Default)]
 pub enum AirState {
     Freefall,
-    Move(MoveSituation),
+    Move(MoveHistory),
     #[default]
     Idle,
 }
 
-#[derive(Inspectable, Eq, PartialEq, Clone, Debug, Default)]
+#[derive(Inspectable, Clone, Debug, Default)]
 pub enum StandState {
     Stun(usize),
-    Move(MoveSituation),
+    Move(MoveHistory),
     Walk(Facing),
     #[default]
     Idle,
 }
 
-#[derive(Inspectable, Eq, PartialEq, Clone, Debug, Default)]
+#[derive(Inspectable, Clone, Debug, Default)]
 pub enum CrouchState {
     Stun(usize),
-    Move(MoveSituation),
+    Move(MoveHistory),
     #[default]
     Idle,
 }

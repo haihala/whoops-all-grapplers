@@ -1,48 +1,29 @@
 use bevy::prelude::*;
-use map_macro::set;
-use types::{Area, GameButton};
+use types::{Area, GameButton, ItemId, MoveId};
 
 use crate::{
-    moves::MoveType, Branch, Cost, Hitbox, ItemId, Lifetime, Move, MoveId, Phase, PhaseKind,
-    Requirements, SpawnDescriptor,
+    moves::{Action, FlowControl, MoveType, Situation},
+    Cost, Hitbox, Lifetime, Move, SpawnDescriptor,
 };
 
 pub(crate) fn get_handmedownken() -> Move {
     Move {
         input: Some("236e"),
         move_type: MoveType::Special,
-        requirements: Requirements {
-            items: Some(set! {ItemId::HandMeDownKen}),
-            grounded: Some(true),
-            ..default()
+        can_start: |situation: Situation| {
+            situation.inventory.contains(&ItemId::HandMeDownKen) && situation.grounded
         },
         phases: vec![
-            Phase {
-                kind: PhaseKind::Animation,
-                duration: 30,
+            FlowControl::Wait(30, false).into(),
+            Action::Hitbox(SpawnDescriptor {
+                hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
+                speed: 3.0 * Vec3::X,
+                lifetime: Lifetime::Forever,
                 ..default()
-            }
+            })
             .into(),
-            Phase {
-                kind: PhaseKind::Attack(SpawnDescriptor {
-                    hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
-                    speed: 3.0 * Vec3::X,
-                    lifetime: Lifetime::Forever,
-                    ..default()
-                }),
-                duration: 4,
-                ..default()
-            }
-            .into(),
-            Phase {
-                kind: PhaseKind::Animation,
-                duration: 10,
-                cancellable: true,
-                ..default()
-            }
-            .into(),
+            FlowControl::Wait(10, true).into(),
         ],
-        ..default()
     }
 }
 
@@ -51,62 +32,37 @@ pub(crate) fn get_gunshot() -> Move {
     Move {
         input: None,
         move_type: MoveType::Normal,
-        requirements: Requirements {
-            grounded: Some(true),
-            ..default()
-        },
+        can_start: |situation: Situation| situation.grounded,
         phases: vec![
-            Phase {
-                kind: PhaseKind::Animation,
-                duration: 10,
-                ..default()
-            }
-            .into(),
-            Branch {
-                default: Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 30,
+            FlowControl::Wait(10, false).into(),
+            FlowControl::Dynamic(|situation: Situation| {
+                if situation.resources.can_afford(&Some(Cost {
+                    bullet: true,
                     ..default()
+                })) {
+                    Action::Hitbox(SpawnDescriptor {
+                        hitbox: Hitbox(Area::new(0.5, 1.2, 0.1, 0.1)),
+                        speed: 8.0 * Vec3::X,
+                        lifetime: Lifetime::Forever,
+                        ..default()
+                    })
+                    .into()
+                } else {
+                    FlowControl::Wait(30, false)
                 }
-                .into(),
-                branches: vec![(
-                    Requirements {
-                        cost: Some(Cost {
-                            bullet: true,
-                            ..default()
-                        }),
-                        ..default()
-                    },
-                    Phase {
-                        duration: 20,
-                        kind: PhaseKind::Attack(SpawnDescriptor {
-                            hitbox: Hitbox(Area::new(0.5, 1.2, 0.1, 0.1)),
-                            speed: 8.0 * Vec3::X,
-                            lifetime: Lifetime::Forever,
-                            ..default()
-                        }),
-                        ..default()
-                    }
-                    .into(),
-                )],
-            },
-            Branch {
-                default: Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 30,
-                    ..default()
+            }),
+            FlowControl::Dynamic(|situation: Situation| {
+                if situation
+                    .parser
+                    .get_pressed()
+                    .contains(&GameButton::Equipment)
+                {
+                    Action::Move(MoveId::Gunshot).into()
+                } else {
+                    FlowControl::Wait(30, false).into()
                 }
-                .into(),
-                branches: vec![(
-                    Requirements {
-                        buttons_held: Some(set! {GameButton::Equipment }),
-                        ..default()
-                    },
-                    MoveId::Gunshot.into(),
-                )],
-            },
+            }),
         ],
-        ..default()
     }
 }
 
@@ -114,20 +70,12 @@ pub(crate) fn get_shot() -> Move {
     Move {
         input: Some("e"),
         move_type: MoveType::Normal,
-        requirements: Requirements {
-            items: Some(set! {ItemId::HandMeDownKen}),
-            grounded: Some(true),
-            ..default()
+        can_start: |situation: Situation| {
+            situation.inventory.contains(&ItemId::Gun) && situation.grounded
         },
         phases: vec![
-            Phase {
-                kind: PhaseKind::Animation,
-                duration: 30,
-                ..default()
-            }
-            .into(),
-            MoveId::Gunshot.into(),
+            FlowControl::Wait(30, false),
+            Action::Move(MoveId::Gunshot).into(),
         ],
-        ..default()
     }
 }

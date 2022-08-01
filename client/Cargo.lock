@@ -995,6 +995,7 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "constants",
+ "input_parsing",
  "map-macro",
  "types",
 ]
@@ -1860,7 +1861,6 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
- "characters",
  "map-macro",
  "time",
  "types",

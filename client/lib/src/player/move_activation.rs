@@ -1,15 +1,12 @@
-use bevy::{
-    ecs::query::{Fetch, WorldQuery},
-    prelude::*,
-};
+use bevy::prelude::*;
 
-use characters::{Character, Move, MoveId, MoveSituation};
+use characters::{Character, Move, MoveHistory, Situation};
 use time::Clock;
-use types::{Players, SoundEffect};
+use types::{MoveId, SoundEffect};
 
 use crate::{assets::Sounds, ui::Notifications};
 
-use super::{move_advancement::activate_phase, PlayerQuery};
+use super::PlayerQuery;
 
 const AUTOCORRECT: usize = (0.2 * constants::FPS) as usize;
 
@@ -34,15 +31,15 @@ impl MoveBuffer {
     fn use_move(
         &mut self,
         character: &Character,
-        situation: &MoveSituation,
+        situation: &Situation,
     ) -> Option<(MoveId, Move, Option<i32>)> {
         if let Some((selected_id, move_data, frame)) = self
             .buffer
             .iter()
             .map(|(frame, id)| (*id, character.get_move(*id), *frame))
-            .filter(|(_, move_data, _)| {
-                situation.fulfills(&move_data.requirements, Some(move_data.move_type))
-            })
+            .filter(|(_, move_data, _)| (move_data.can_start)(situation.clone()))
+            // TODO: Special/normal considerations. Maybe add those dynamically to can_start somehow?
+            // Do that when splitting move starting.
             .min_by(|(id1, _, _), (id2, _, _)| id1.cmp(id2))
         {
             self.buffer.retain(|(_, id)| selected_id != *id);
@@ -69,109 +66,73 @@ impl MoveBuffer {
     }
 }
 
-#[allow(clippy::type_complexity)]
 pub(super) fn move_activator(
-    mut commands: Commands,
     mut sounds: ResMut<Sounds>,
-    players: Res<Players>,
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
     mut query: Query<PlayerQuery>,
 ) {
-    if let Ok([mut p1, mut p2]) = query.get_many_mut([players.one, players.two]) {
-        activate_move(
-            &mut commands,
-            &mut sounds,
-            &clock,
-            &mut notifications,
-            &mut p1,
-            &mut p2,
-        );
-        activate_move(
-            &mut commands,
-            &mut sounds,
-            &clock,
-            &mut notifications,
-            &mut p2,
-            &mut p1,
-        );
-    }
-}
+    for mut player in query.iter_mut() {
+        player.buffer.clear_old(clock.frame);
+        player
+            .buffer
+            .add_events(player.input_parser.drain_events(), clock.frame);
 
-fn activate_move(
-    commands: &mut Commands,
-    sounds: &mut Sounds,
-    clock: &Clock,
-    notifications: &mut Notifications,
-    actor: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
-    target: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
-) {
-    actor.buffer.clear_old(clock.frame);
-    actor
-        .buffer
-        .add_events(actor.input_parser.drain_events(), clock.frame);
+        if player.state.stunned() {
+            return;
+        }
 
-    if actor.state.stunned() {
-        return;
-    }
-
-    let force_start = if actor.buffer.force_start.is_some() {
-        actor.buffer.force_start.take()
-    } else {
-        None
-    };
-
-    let ongoing_move_situation = actor.state.get_move_state().map(|state| state.to_owned());
-
-    // As a move is either happening or not happening, one of the 'or' options will always be Some if the user has a move they are trying to get out
-    if let Some((move_id, move_data, stored_frame)) = force_start.or_else(|| {
-        ongoing_move_situation
-            .clone()
-            .or_else(|| {
-                Some(MoveSituation {
-                    // Construct a pseudo-situation. This is one that represents the current state without a move.
-                    // Some of the fields like start frame will be off, but those aren't relevant for move activation
-                    resources: actor.resources.to_owned(),
-                    inventory: actor.inventory.to_owned(),
-                    buttons_held: actor.input_parser.get_pressed(),
-                    grounded: actor.state.is_grounded(),
-                    ..default()
-                })
-            })
-            .and_then(|situation| actor.buffer.use_move(actor.character, &situation))
-    }) {
-        let start_frame = if let Some(earliest_activation_frame) = actor
-            .state
-            .free_since
-            .filter(|free_since| *free_since as usize + AUTOCORRECT >= clock.frame)
-            .or_else(|| ongoing_move_situation.and_then(|sit| sit.cancellable_since))
-        {
-            if let Some(frame) = stored_frame {
-                // Not a forced start
-                // Make a toast
-                let frame_diff = earliest_activation_frame as i32 - frame;
-                let (notification_content, meter_gain) = get_combo_notification(frame_diff);
-
-                notifications.add(*actor.player, notification_content);
-                actor.resources.meter.gain(meter_gain);
-            }
-            earliest_activation_frame
+        let force_start = if player.buffer.force_start.is_some() {
+            player.buffer.force_start.take()
         } else {
-            clock.frame
-        } as i32;
+            None
+        };
 
-        actor.resources.pay(move_data.requirements.cost);
-        sounds.play(SoundEffect::Whoosh);
-        actor.state.start_move(MoveSituation {
-            move_id,
-            start_frame,
-            cost: move_data.requirements.cost,
-            move_type: Some(move_data.move_type),
-            resources: actor.resources.to_owned(),
-            inventory: actor.inventory.to_owned(),
-            ..default()
-        });
-        activate_phase(commands, 0, clock.frame, notifications, actor, target);
+        let situation = Situation {
+            inventory: &player.inventory,
+            history: player
+                .state
+                .get_move_history()
+                .map(|history| history.to_owned()),
+            grounded: player.state.is_grounded(),
+            resources: &player.resources,
+            parser: &player.input_parser,
+            current_frame: clock.frame,
+        };
+
+        if let Some((move_id, _, stored_frame)) =
+            force_start.or_else(|| player.buffer.use_move(player.character, &situation))
+        {
+            let started = if let Some(earliest_activation_frame) = player
+                .state
+                .free_since
+                .filter(|free_since| *free_since as usize + AUTOCORRECT >= clock.frame)
+                .or_else(|| {
+                    situation
+                        .history
+                        .and_then(|history| history.cancellable_since)
+                }) {
+                if let Some(frame) = stored_frame {
+                    // Not a forced start
+                    // Make a toast
+                    let frame_diff = earliest_activation_frame as i32 - frame;
+                    let (notification_content, meter_gain) = get_combo_notification(frame_diff);
+
+                    notifications.add(*player.player, notification_content);
+                    player.resources.meter.gain(meter_gain);
+                }
+                earliest_activation_frame
+            } else {
+                clock.frame
+            };
+
+            sounds.play(SoundEffect::Whoosh); // TODO, make this an action
+            player.state.start_move(MoveHistory {
+                move_id,
+                started,
+                ..default()
+            });
+        }
     }
 }
 

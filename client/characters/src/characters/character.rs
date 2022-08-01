@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use bevy::prelude::*;
 use map_macro::map;
-use types::{Animation, AnimationType, Area, DummyAnimation, Model, StickPosition};
+use types::{Animation, AnimationType, Area, DummyAnimation, ItemId, Model, MoveId, StickPosition};
 
-use crate::{Inventory, Item, ItemId, Move, MoveId};
+use crate::{Inventory, Item, Move};
 
 #[derive(Debug, Component, Clone)]
 pub struct Character {

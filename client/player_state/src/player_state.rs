@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use characters::{AttackHeight, MoveSituation};
+use characters::{Action, AttackHeight, FlowControl, MoveHistory, Situation};
 use types::{AnimationType, Area, Facing, StickPosition};
 
 use crate::sub_state::{AirState, CrouchState, StandState};
@@ -32,6 +32,36 @@ impl PlayerState {
         *self = PlayerState::default();
     }
 
+    pub fn update_action_queue(&mut self, situation: Situation) {
+        if let Some(ref mut history) = self.get_move_history_mut() {
+            if !history.unprocessed_events.is_empty() {
+                warn!("Leftover events");
+            }
+
+            let mut new_fcs = situation.new_actions();
+            history
+                .unprocessed_events
+                .extend(new_fcs.clone().into_iter().filter_map(|fc| {
+                    if let FlowControl::Action(action) = fc {
+                        Some(action)
+                    } else {
+                        None
+                    }
+                }));
+            history.past.append(&mut new_fcs);
+        }
+    }
+    pub fn drain_unprocessed_actions(
+        &mut self,
+        predicate: impl Fn(&mut Action) -> bool,
+    ) -> Vec<Action> {
+        if let Some(ref mut history) = self.get_move_history_mut() {
+            history.unprocessed_events.drain_filter(predicate).collect()
+        } else {
+            vec![]
+        }
+    }
+
     pub fn get_generic_animation(&self, facing: Facing) -> Option<AnimationType> {
         match self.main {
             MainState::Air(AirState::Idle) => Some(AnimationType::AirIdle),
@@ -52,34 +82,34 @@ impl PlayerState {
     }
 
     // Moves
-    pub fn start_move(&mut self, situation: MoveSituation) {
+    pub fn start_move(&mut self, history: MoveHistory) {
         self.main = match self.main {
-            MainState::Stand(_) => MainState::Stand(StandState::Move(situation)),
-            MainState::Crouch(_) => MainState::Crouch(CrouchState::Move(situation)),
-            MainState::Air(_) => MainState::Air(AirState::Move(situation)),
+            MainState::Stand(_) => MainState::Stand(StandState::Move(history)),
+            MainState::Crouch(_) => MainState::Crouch(CrouchState::Move(history)),
+            MainState::Air(_) => MainState::Air(AirState::Move(history)),
         };
         self.free_since = None;
     }
-    pub fn get_move_state(&self) -> Option<&MoveSituation> {
+    pub fn get_move_history(&self) -> Option<&MoveHistory> {
         match self.main {
-            MainState::Stand(StandState::Move(ref situation))
-            | MainState::Crouch(CrouchState::Move(ref situation))
-            | MainState::Air(AirState::Move(ref situation)) => Some(situation),
+            MainState::Stand(StandState::Move(ref history))
+            | MainState::Crouch(CrouchState::Move(ref history))
+            | MainState::Air(AirState::Move(ref history)) => Some(history),
             _ => None,
         }
     }
-    pub fn get_move_state_mut(&mut self) -> Option<&mut MoveSituation> {
+    pub fn get_move_history_mut(&mut self) -> Option<&mut MoveHistory> {
         match self.main {
-            MainState::Stand(StandState::Move(ref mut situation))
-            | MainState::Crouch(CrouchState::Move(ref mut situation))
-            | MainState::Air(AirState::Move(ref mut situation)) => Some(situation),
+            MainState::Stand(StandState::Move(ref mut history))
+            | MainState::Crouch(CrouchState::Move(ref mut history))
+            | MainState::Air(AirState::Move(ref mut history)) => Some(history),
             _ => None,
         }
     }
 
     pub fn register_hit(&mut self) {
-        if let Some(ref mut situation) = self.get_move_state_mut() {
-            situation.hit_registered = true;
+        if let Some(ref mut history) = self.get_move_history_mut() {
+            history.has_hit = true;
         }
     }
 
@@ -201,6 +231,6 @@ impl PlayerState {
         }
     }
     fn can_block_now(&self) -> bool {
-        self.get_move_state().is_none() && self.is_grounded()
+        self.get_move_history().is_none() && self.is_grounded()
     }
 }

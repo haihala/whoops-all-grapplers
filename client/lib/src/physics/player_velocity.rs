@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use characters::{MoveId, MoveMobility};
-use types::Facing;
+use types::{Facing, MoveId};
 
 #[derive(Debug, Inspectable, Clone, Default, Copy)]
 pub struct CurrentMove {
@@ -46,54 +45,6 @@ impl PlayerVelocity {
             self.velocity.y,
             0.0,
         );
-    }
-    pub(super) fn handle_move_velocity(
-        &mut self,
-        move_id: MoveId,
-        start_frame: i32,
-        mobility: MoveMobility,
-        facing: &Facing,
-    ) {
-        let (amount, perpetual) = match mobility {
-            MoveMobility::Impulse(amount) => (amount, false),
-            MoveMobility::Perpetual(amount) => (amount, true),
-        };
-        self.handle_move_velocity_chaining(
-            (move_id, start_frame),
-            facing.mirror_vec(amount),
-            perpetual,
-        );
-    }
-
-    fn handle_move_velocity_chaining(&mut self, id: (MoveId, i32), amount: Vec3, perpetual: bool) {
-        let first_move = self.current_move.is_none();
-
-        if first_move {
-            // Move started
-            self.velocity = amount;
-            self.current_move = Some(CurrentMove {
-                id,
-                base_velocity: Vec3::ZERO,
-            });
-        } else {
-            let current_move = self.current_move.unwrap();
-            let move_continues = current_move.id == id;
-
-            if move_continues {
-                if perpetual {
-                    // Continue perpetual motion
-                    self.velocity = current_move.base_velocity + amount;
-                }
-            } else {
-                // Cancel into a new move
-                self.current_move = Some(CurrentMove {
-                    id,
-                    base_velocity: self.velocity,
-                });
-
-                self.add_impulse(amount);
-            }
-        }
     }
 
     pub(super) fn handle_walking_velocity(&mut self, direction: Facing) {

@@ -8,9 +8,7 @@ use crate::{
 
 use bevy::prelude::*;
 
-use types::{Facing, GameButton, StickPosition};
-
-use characters::MoveId;
+use types::{Facing, GameButton, MoveId, StickPosition};
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from

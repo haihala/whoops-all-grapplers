@@ -3,11 +3,11 @@ use std::{collections::HashMap, iter::empty};
 use bevy::prelude::*;
 use map_macro::map;
 
-use types::Area;
+use types::{Area, ItemId, MoveId};
 
 use crate::{
-    moves::MoveType, AttackHeight, Branch, Cost, GrabDescription, Hitbox, Item, ItemId, Lifetime,
-    Move, MoveId, MoveMobility, Phase, PhaseKind, Requirements, SpawnDescriptor,
+    moves::{Action, FlowControl, MoveType, Situation},
+    AttackHeight, Cost, GrabDescription, Hitbox, Item, Lifetime, Move, SpawnDescriptor,
 };
 
 use super::{
@@ -76,329 +76,149 @@ fn attacks() -> HashMap<MoveId, Move> {
         MoveId::Punch => Move {
             input: Some("f"),
             move_type: MoveType::Normal,
-            requirements: Requirements {
-                grounded: Some(true),
-                ..default()
-            },
+            can_start: |situation: Situation| situation.grounded,
             phases: vec![
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 5,
+                FlowControl::Wait(5, false).into(),
+                Action::Hitbox(SpawnDescriptor {
+                    hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
                     ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Attack(SpawnDescriptor {
-                        hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
-                        ..default()
-                    }),
-                    duration: 10,
-                    ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 10,
-                    cancellable: true,
-                    ..default()
-                }
-                .into(),
+                }).into(),
+                FlowControl::Wait(15, true).into(),
             ],
-            ..default()
         },
         MoveId::Low => Move {
             input: Some("[123]f"),
             move_type: MoveType::Normal,
-            requirements: Requirements {
-                grounded: Some(true),
-                ..default()
-            },
+            can_start: |situation: Situation| situation.grounded,
             phases: vec![
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 5,
-                    ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Attack(SpawnDescriptor {
+                FlowControl::Wait(5, false).into(),
+                Action::Hitbox(SpawnDescriptor {
                         hitbox: Hitbox(Area::new(0.5, 0.2, 0.3, 0.2)),
                         ..default()
-                    }),
-                    duration: 10,
-                    ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 10,
-                    cancellable: true,
-                    ..default()
-                }
-                .into(),
+                    }).into(),
+                FlowControl::Wait(15, true).into(),
             ],
-            ..default()
         },
         MoveId::CommandPunch => Move {
             input: Some("6f"),
             move_type: MoveType::Normal,
-            requirements: Requirements {
-                grounded: Some(true),
-                ..default()
-            },
+            can_start: |situation: Situation| situation.grounded,
             phases: vec![
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 10,
-                    mobility: Some(MoveMobility::Perpetual(Vec3::new(1.0, 0.0, 0.0))),
-                    ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Attack(SpawnDescriptor {
+                Action::Perpetual(Vec2::X*1.0, 10).into(),
+                FlowControl::Wait(10, false).into(),
+                Action::Hitbox(SpawnDescriptor {
                         hitbox: Hitbox(Area::new(0.5, 1.5, 0.5, 0.5)),
                         ..default()
-                    }),
-                    duration: 20,
-                    mobility: Some(MoveMobility::Perpetual(Vec3::new(2.0, 0.0, 0.0))),
-                    ..default()
-                }
-                .into(),
-                Branch {
-                    default: Phase {
-                        kind: PhaseKind::Animation,
-                        duration: 60,
-                        ..default()
+                    }).into(),
+                Action::Perpetual(Vec2::X*2.0, 10).into(),
+                FlowControl::Wait(20, false),
+                FlowControl::Dynamic(|situation: Situation| {
+                    if situation.history.unwrap().has_hit {
+                        FlowControl::Wait(10, true)
+                    } else {
+                        FlowControl::Wait(60, false)
                     }
-                    .into(),
-                    branches: vec![(
-                        Requirements::has_hit(),
-                        Phase {
-                            kind: PhaseKind::Animation,
-                            duration: 1,
-                            cancellable: true,
-                            ..default()
-                        }
-                        .into(),
-                    )],
-                },
+                })
             ],
-            ..default()
         },
         MoveId::BudgetBoom => Move {
             input: Some("[41]6f"),
             move_type: MoveType::Special,
-            requirements: Requirements {
-                grounded: Some(true),
-                ..default()
-            },
+            can_start: |situation: Situation| situation.grounded,
             phases: vec![
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 10,
-                    ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Attack(SpawnDescriptor {
+                FlowControl::Wait(10, false).into(),
+                Action::Hitbox(SpawnDescriptor {
                         hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
                         speed: 5.0 * Vec3::X,
                         lifetime: Lifetime::Frames((constants::FPS * 0.25) as usize),
                         attached_to_player: false,
                         ..default()
-                    }),
-                    duration: 4,
-                    ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 5,
-                    cancellable: true,
-                    ..default()
-                }
-                .into(),
+                    }).into(),
+                FlowControl::Wait(5, true).into(),
             ],
-            ..default()
         },
         MoveId::SonicBoom => Move {
             input: Some("[41]6f"),
             move_type: MoveType::Special,
-            requirements: Requirements {
-                cost: Some(Cost {
-                    charge: true,
-                    ..default()
-                }),
-                grounded: Some(true),
-                ..default()
+            can_start: |situation: Situation| {
+                situation.grounded && situation.resources.can_afford(&Some(Cost{ charge: true, ..default()}))
             },
             phases: vec![
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 10,
+                Action::Pay(Cost{charge: true, ..default()}).into(),
+                FlowControl::Wait(10, false).into(),
+                Action::Hitbox(SpawnDescriptor {
+                    hitbox: Hitbox(Area::new(0.5, 1.2, 0.4, 0.3)),
+                    speed: 6.0 * Vec3::X,
+                    lifetime: Lifetime::UntilHit,
+                    damage: (20, 3).into(),
+                    attached_to_player: false,
                     ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Attack(SpawnDescriptor {
-                        hitbox: Hitbox(Area::new(0.5, 1.2, 0.4, 0.3)),
-                        speed: 6.0 * Vec3::X,
-                        lifetime: Lifetime::UntilHit,
-                        damage: (20, 3).into(),
-                        attached_to_player: false,
-                        ..default()
-                    }),
-                    duration: 4,
-                    ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 5,
-                    cancellable: true,
-                    ..default()
-                }
-                .into(),
+                }).into(),
+                FlowControl::Wait(5, true).into(),
             ],
-            ..default()
         },
         MoveId::Hadouken => Move {
             input: Some("236f"),
             move_type: MoveType::Special,
-            requirements: Requirements {
-                grounded: Some(true),
-                ..default()
-            },
+            can_start: |situation: Situation| situation.grounded,
             phases: vec![
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 30,
+                FlowControl::Wait(30, false).into(),
+                Action::Hitbox(SpawnDescriptor {
+                    hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
+                    speed: 4.0 * Vec3::X,
+                    lifetime: Lifetime::UntilHit,
+                    attached_to_player: false,
                     ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Attack(SpawnDescriptor {
-                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
-                        speed: 4.0 * Vec3::X,
-                        lifetime: Lifetime::UntilHit,
-                        attached_to_player: false,
-                        ..default()
-                    }),
-                    duration: 4,
-                    cancellable: true,
-                    ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 30,
-                    cancellable: true,
-                    ..default()
-                }
-                .into(),
+                }).into(),
+                FlowControl::Wait(30, true).into(),
             ],
-            ..default()
         },
         MoveId::HeavyHadouken => Move {
             input: Some("236s"),
             move_type: MoveType::Special,
-            requirements: Requirements {
-                cost: Some(Cost {
-                    meter: 30,
-                    ..default()
-                }),
-                ..default()
+            can_start: |situation: Situation| {
+                situation.resources.can_afford(&Some(Cost{ meter: 30, ..default()}))
             },
             phases: vec![
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 30,
+                Action::Pay(Cost{meter: 30, ..default()}).into(),
+                FlowControl::Wait(30, false).into(),
+                Action::Hitbox(SpawnDescriptor {
+                    hitbox: Hitbox(Area::new(0.5, 1.0, 0.4, 0.5)),
+                    speed: 5.0 * Vec3::X,
+                    lifetime: Lifetime::UntilHit,
+                    hits: 2,
+                    attached_to_player: false,
                     ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Attack(SpawnDescriptor {
-                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.4, 0.5)),
-                        speed: 5.0 * Vec3::X,
-                        lifetime: Lifetime::UntilHit,
-                        hits: 2,
-                        attached_to_player: false,
-                        ..default()
-                    }),
-                    duration: 4,
-                    cancellable: true,
-                    ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 20,
-                    cancellable: true,
-                    ..default()
-                }
-                .into(),
+                }).into(),
+                FlowControl::Wait(20, false).into(),
             ],
-            ..default()
         },
         MoveId::AirPunch => Move {
             input: Some("f"),
             move_type: MoveType::Normal,
-            requirements: Requirements {
-                grounded: Some(false),
-                ..default()
-            },
+            can_start: |situation: Situation| !situation.grounded,
             phases: vec![
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 5,
-                    ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Attack(SpawnDescriptor {
+                FlowControl::Wait(5, false).into(),
+                Action::Hitbox(SpawnDescriptor {
                         hitbox: Hitbox(Area::new(0.5, 0.1, 0.3, 0.5)),
                         fixed_height: Some(AttackHeight::High),
                         ..default()
-                    }),
-                    duration: 10,
-                    ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 10,
-                    cancellable: true,
-                    ..default()
-                }
-                .into(),
+                    }).into(),
+                FlowControl::Wait(10, true).into(),
             ],
-            ..default()
         },
         MoveId::Grab => Move {
             input: Some("g"),
             move_type: MoveType::Normal,
-            requirements: Requirements {
-                grounded: Some(true),
-                ..default()
-            },
+            can_start: |situation: Situation| situation.grounded,
             phases: vec![
-                Phase {
-                    kind: PhaseKind::Animation,
-                    duration: 5,
+                FlowControl::Wait(5, false).into(),
+                Action::Grab(GrabDescription {
+                    damage: 25,
                     ..default()
-                }
-                .into(),
-                Phase {
-                    kind: PhaseKind::Grab(GrabDescription {
-                        damage: 25,
-                        ..default()
-                    }),
-                    duration: 40,
-                    ..default()
-                }
-                .into(),
+                }).into(),
+                FlowControl::Wait(40, true).into(),
             ],
-            ..default()
         },
     }
 }

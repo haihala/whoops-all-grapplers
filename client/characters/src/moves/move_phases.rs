@@ -29,8 +29,7 @@ pub enum Action {
     Grab(GrabDescription),
     Movement(Movement),
     Pay(Cost),
-    // TODO:
-    // Separate projectiles from normal attacks
+    // TODO: Separate projectiles from normal attacks
 }
 
 #[derive(Clone, Copy)]

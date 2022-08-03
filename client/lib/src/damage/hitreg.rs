@@ -71,7 +71,6 @@ pub(super) fn clash_parry(
             sounds.play(SoundEffect::Clash);
             particles.spawn(ParticleRequest {
                 effect: VisualEffect::Clash,
-                // TODO: This can be refined more
                 position: overlap.center().extend(0.0),
             });
 

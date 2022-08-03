@@ -31,7 +31,6 @@ impl Area {
         }
     }
 
-    // TODO: Plan is to allow multiple boxes in a single object, so keep struct elements private
     pub fn center(&self) -> Vec2 {
         self.center
     }

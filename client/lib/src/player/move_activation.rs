@@ -72,7 +72,7 @@ impl MoveBuffer {
             .filter_map(|(frame, id)| {
                 let move_data = character.get_move(*id);
                 if (move_data.requirement)(situation.to_owned()) {
-                    Some((*frame, *id, move_data.to_owned()))
+                    Some((*frame, *id, move_data))
                 } else {
                     None
                 }
@@ -101,14 +101,19 @@ pub(super) fn move_continuation(mut query: Query<(&mut MoveBuffer, &mut PlayerSt
                 None
             }
         });
-        if move_continuations.len() == 1 {
-            buffer.activation = Some(MoveActivation {
-                kind: ActivationType::Continuation,
-                id: move_continuations[0],
-            })
-        } else if move_continuations.len() > 1 {
-            // TODO: Maybe handle this by resolving until one of them can start?
-            todo!("Multiple moves to continue")
+        match move_continuations.len() {
+            1 => {
+                buffer.activation = Some(MoveActivation {
+                    kind: ActivationType::Continuation,
+                    id: move_continuations[0],
+                })
+            }
+            0 => {
+                // Nothing to do, so do nothing
+            }
+            _ => {
+                todo!("Multiple moves to continue")
+            }
         }
     }
 }
@@ -130,7 +135,7 @@ pub(super) fn raw_or_link(
 
             if let Some((stored, id, _)) = buffer
                 .get_situation_moves(
-                    &character,
+                    character,
                     Situation {
                         inventory,
                         history: state.get_move_history().map(|history| history.to_owned()),
@@ -177,7 +182,7 @@ pub(super) fn special_cancel(
                 // Is current move cancellable, if so, since when
                 if let Some((stored, id, freedom)) = buffer
                     .get_situation_moves(
-                        &character,
+                        character,
                         Situation {
                             inventory,
                             history: state.get_move_history().map(|history| history.to_owned()),
@@ -189,11 +194,9 @@ pub(super) fn special_cancel(
                     )
                     .into_iter()
                     .filter_map(|(frame, id, data)| {
-                        if let Some(freedom) = history.cancellable_into_since(&data) {
-                            Some((frame, id, freedom))
-                        } else {
-                            None
-                        }
+                        history
+                            .cancellable_into_since(&data)
+                            .map(|freedom| (frame, id, freedom))
                     })
                     .min_by(|(_, id1, _), (_, id2, _)| id1.cmp(id2))
                 {

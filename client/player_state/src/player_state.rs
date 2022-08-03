@@ -53,11 +53,8 @@ impl PlayerState {
     }
 
     pub fn current_move_fully_handled(&self) -> Option<bool> {
-        if let Some(history) = self.get_move_history() {
-            Some(history.past.len() == history.move_data.phases.len())
-        } else {
-            None
-        }
+        self.get_move_history()
+            .map(|history| history.past.len() == history.move_data.phases.len())
     }
 
     pub fn drain_matching_actions<T>(

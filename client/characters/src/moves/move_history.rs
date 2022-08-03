@@ -89,12 +89,7 @@ pub struct MoveHistory {
 
 impl MoveHistory {
     fn next_phase(&self) -> Option<FlowControl> {
-        self.move_data
-            .phases
-            .iter()
-            .skip(self.past.len())
-            .next()
-            .cloned()
+        self.move_data.phases.get(self.past.len()).cloned()
     }
 
     fn cancellable_since(&self) -> Option<usize> {
@@ -115,16 +110,14 @@ impl MoveHistory {
             }
         }
 
-        if let Some(maybe_wait) = self.next_phase() {
-            if let FlowControl::Wait(_, cancellable) = maybe_wait {
-                if cancellable {
-                    if output.is_none() {
-                        output = Some(frame);
-                    }
-                    // Importantly do nothing if output is some and this phase is cancellable
-                } else {
-                    output = None;
+        if let Some(FlowControl::Wait(_, cancellable)) = self.next_phase() {
+            if cancellable {
+                if output.is_none() {
+                    output = Some(frame);
                 }
+                // Importantly do nothing if output is some and this phase is cancellable
+            } else {
+                output = None;
             }
         }
         output

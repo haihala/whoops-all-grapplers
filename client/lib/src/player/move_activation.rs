@@ -269,7 +269,7 @@ fn get_combo_notification(frame_diff: i32) -> (String, i32) {
     let mut buffer_left_edge = "-".repeat(BUFFER_LEN);
     let mut buffer_right_edge = buffer_left_edge.clone();
 
-    let abs_diff = frame_diff.unsigned_abs() as usize;
+    let abs_diff = frame_diff.abs() as usize;
     let (word, gain) = if abs_diff <= PERFECT_TIMING_DELTA {
         // Perfect timing
         let bound = (frame_diff + 1) as usize;
@@ -290,10 +290,10 @@ fn get_combo_notification(frame_diff: i32) -> (String, i32) {
         let index = (abs_diff - GOOD_TIMING_DELTA).min(BUFFER_LEN - 1);
         if frame_diff > 0 {
             buffer_left_edge.replace_range(BUFFER_LEN - index..BUFFER_LEN - index + 1, "x");
-            ("Early", 0)
+            ("Late", 0)
         } else {
             buffer_right_edge.replace_range(index..index + 1, "x");
-            ("Late", 0)
+            ("Early", 0)
         }
     };
 

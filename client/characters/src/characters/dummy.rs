@@ -79,13 +79,13 @@ fn attacks() -> HashMap<MoveId, Move> {
             requirement: |situation: Situation| situation.grounded,
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::Slap)).into(),
-                FlowControl::Wait(9, false),
+                FlowControl::Wait(20, false),
                 Action::Hitbox(SpawnDescriptor {
                     hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
-                    lifetime: Lifetime::frames(4),
+                    lifetime: Lifetime::frames(8),
                     ..default()
                 }).into(),
-                FlowControl::Wait(8, true),
+                FlowControl::Wait(20, true),
             ],
         },
         MoveId::Low => Move {

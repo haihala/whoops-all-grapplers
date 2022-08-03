@@ -3,15 +3,12 @@ See [[Ryan]] and [[Lex]] for ideas
 Animating is separated into [[Animations for character 1]], but this one does include move data.
 
 # Normals
-- 5f Jab
-	- Fastest move
-- 2f quick low
-- 4f shoulder bash with a high hitbox
+- 5f Slap
+- 2f Low chop
 - air f basic air to air
 - 5s Guile burn straight
 - 2s Goldlewis "reverse divekick"
 	- launcher anti-air
-- 4s Guile backhand
 - air s is an Alex stomp
 - 5g normal throw
 	- Main function is to win over space

@@ -22,6 +22,16 @@ Keep it simple.
 			- [ ] Foward
 			- [ ] Back
 		- [ ] See [[Character 1]]
+			- [x] Slap
+			- [ ] Low slap
+			- [ ] Air f
+			- [ ] Air s
+			- [ ] Normal grab
+			- [ ] Backthrow
+			- [ ] Sweep
+			- [ ] Air grab
+			- [ ] Dash punch
+			- [ ] Volleyball slam
 		- [ ] Items
 			- [ ] Gun
 			- [ ] Handmedownken

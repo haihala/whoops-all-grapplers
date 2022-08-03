@@ -8,9 +8,8 @@
 	- Spawn a hitbox
 	- Spawn a projectile
 	- Grab
-	- Impulse
-	- Force (impulse over time)
-	- Special
+	- Movement (impulse or perpetual)
+	- Extend later for special cases
 		- For [[Gi of the old masters]] and [[Stance system]]
 		- Generic 'other' options
 - Flow control

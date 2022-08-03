@@ -2,9 +2,9 @@
 ## High priority
 - [[Character 1]]
 	- [[Animations for character 1]]
-- [[Move rework]]
 
 ## Low priority
+- [[bevy 0.8]]
 - [[Recovery and knockdown]]
 - [[Rewards]]
 - [[Menus]]

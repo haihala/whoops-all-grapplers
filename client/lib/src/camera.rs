@@ -22,7 +22,7 @@ impl Plugin for CustomCameraPlugin {
 fn add_cameras(mut commands: Commands) {
     commands
         .spawn_bundle(OrthographicCameraBundle {
-            transform: Transform::from_xyz(0.0, 1.5, 10.0),
+            transform: Transform::from_xyz(0.0, 1.8, 10.0),
             orthographic_projection: OrthographicProjection {
                 scaling_mode: ScalingMode::FixedHorizontal,
                 scale: 4.0,

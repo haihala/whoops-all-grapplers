@@ -12,6 +12,7 @@ pub fn jump(input: &'static str, impulse: Vec2) -> Move {
         phases: vec![
             FlowControl::Wait(5, false),
             Action::Movement(Movement::impulse(impulse)).into(),
+            FlowControl::Wait(5, false),
         ],
     }
 }

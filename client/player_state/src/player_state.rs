@@ -23,7 +23,7 @@ impl Default for PlayerState {
     fn default() -> Self {
         Self {
             main: MainState::Stand(StandState::default()),
-            free_since: None,
+            free_since: Some(0),
         }
     }
 }

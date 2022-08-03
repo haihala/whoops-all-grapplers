@@ -81,6 +81,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 FlowControl::Wait(5, false),
                 Action::Hitbox(SpawnDescriptor {
                     hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
+                    lifetime: Lifetime::frames(5),
                     ..default()
                 }).into(),
                 FlowControl::Wait(15, true),
@@ -94,6 +95,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 FlowControl::Wait(5, false),
                 Action::Hitbox(SpawnDescriptor {
                         hitbox: Hitbox(Area::new(0.5, 0.2, 0.3, 0.2)),
+                        lifetime: Lifetime::frames(5),
                         ..default()
                     }).into(),
                 FlowControl::Wait(15, true),
@@ -104,13 +106,14 @@ fn attacks() -> HashMap<MoveId, Move> {
             move_type: MoveType::Normal,
             requirement: |situation: Situation| situation.grounded,
             phases: vec![
-                Action::Movement(Movement{amount: Vec2::X*1.0, duration: 10}).into(),
+                Action::Movement(Movement{amount: Vec2::X*6.0, duration: 10}).into(),
                 FlowControl::Wait(10, false),
                 Action::Hitbox(SpawnDescriptor {
                         hitbox: Hitbox(Area::new(0.5, 1.5, 0.5, 0.5)),
+                        lifetime: Lifetime::frames(15),
                         ..default()
                     }).into(),
-                Action::Movement(Movement{amount: Vec2::X*2.0, duration: 10}).into(),
+                Action::Movement(Movement{amount: Vec2::X*10.0, duration: 10}).into(),
                 FlowControl::Wait(20, false),
                 FlowControl::Dynamic(|situation: Situation| {
                     if situation.history.unwrap().has_hit {

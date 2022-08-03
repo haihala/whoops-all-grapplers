@@ -35,8 +35,11 @@ impl PlayerVelocity {
         self.velocity += impulse;
     }
     pub(super) fn handle_movement(&mut self, frame: usize, facing: Facing, movement: Movement) {
+        // This will make it so that lengthening the duration of a movement will spread out the amount across the duration.
+        // Basically, you can double the lenght and it shouldn't affect the total distance
+        let amount = facing.mirror_vec(movement.amount.extend(0.0));
         self.movements.push(AppliedMovement {
-            amount: facing.mirror_vec(movement.amount.extend(0.0)),
+            amount: amount.normalize() * (amount.length() / movement.duration as f32),
             until_frame: frame + movement.duration,
         });
     }
@@ -62,9 +65,17 @@ impl PlayerVelocity {
             0.0,
         );
     }
+    pub(super) fn sum_movements(&mut self) {
+        self.add_impulse(
+            self.movements
+                .iter()
+                .map(|am| am.amount)
+                .fold(Vec3::ZERO, |collector, item| collector + item),
+        );
+    }
     pub(super) fn cleanup_movements(&mut self, frame: usize) {
         self.movements
-            .retain(|movement| movement.until_frame < frame);
+            .retain(|movement| movement.until_frame > frame);
     }
 
     pub(super) fn x_collision(&mut self) {

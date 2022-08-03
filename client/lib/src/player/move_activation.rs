@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 
-use characters::{Action, Character, MoveHistory, Situation};
+use characters::{Action, Character, Inventory, Move, MoveHistory, Resources, Situation};
+use input_parsing::InputParser;
+use player_state::PlayerState;
 use time::Clock;
-use types::MoveId;
+use types::{MoveId, Player};
 
 use crate::ui::Notifications;
-
-use super::PlayerQuery;
 
 const AUTOCORRECT: usize = (0.2 * constants::FPS) as usize;
 
@@ -14,34 +14,36 @@ const AUTOCORRECT: usize = (0.2 * constants::FPS) as usize;
 const PERFECT_TIMING_DELTA: usize = 1;
 const GOOD_TIMING_DELTA: usize = 5;
 
+#[derive(Debug)]
+struct MoveActivation {
+    kind: ActivationType,
+    id: MoveId,
+}
+
+#[derive(Debug)]
+enum ActivationType {
+    Continuation,
+    Raw,
+    Link(Timing),
+    Cancel(Timing),
+}
+
+#[derive(Debug)]
+struct Timing {
+    /// How much meter / what toast to give
+    error: i32,
+    /// The frame when the move is said to have started
+    correction: usize,
+}
+
 #[derive(Debug, Default, Component)]
 pub struct MoveBuffer {
     buffer: Vec<(usize, MoveId)>,
+    activation: Option<MoveActivation>,
 }
 impl MoveBuffer {
     fn add_events(&mut self, events: Vec<MoveId>, frame: usize) {
         self.buffer.extend(events.into_iter().map(|id| (frame, id)));
-    }
-
-    fn use_move(
-        &mut self,
-        character: &Character,
-        situation: &Situation,
-    ) -> Option<(MoveId, Option<i32>)> {
-        if let Some((selected_id, _, frame)) = self
-            .buffer
-            .iter()
-            .map(|(frame, id)| (*id, character.get_move(*id), *frame))
-            .filter(|(_, move_data, _)| (move_data.requirement)(situation.clone()))
-            // TODO: Special/normal considerations. Maybe add those dynamically to can_start somehow?
-            // Do that when splitting move starting.
-            .min_by(|(id1, _, _), (id2, _, _)| id1.cmp(id2))
-        {
-            self.buffer.retain(|(_, id)| selected_id != *id);
-            Some((selected_id, Some(frame as i32)))
-        } else {
-            None
-        }
     }
 
     fn clear_old(&mut self, current_frame: usize) {
@@ -56,86 +58,195 @@ impl MoveBuffer {
         });
     }
 
-    pub fn clear(&mut self) {
+    pub fn clear_all(&mut self) {
         *self = MoveBuffer::default();
+    }
+
+    fn get_situation_moves(
+        &self,
+        character: &Character,
+        situation: Situation,
+    ) -> Vec<(usize, MoveId, Move)> {
+        self.buffer
+            .iter()
+            .filter_map(|(frame, id)| {
+                let move_data = character.get_move(*id);
+                if (move_data.requirement)(situation.to_owned()) {
+                    Some((*frame, *id, move_data.to_owned()))
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+}
+
+pub(super) fn manage_buffer(
+    clock: Res<Clock>,
+    mut query: Query<(&mut MoveBuffer, &mut InputParser)>,
+) {
+    // Read from the input parser and fill the buffer
+    for (mut buffer, mut parser) in query.iter_mut() {
+        buffer.clear_old(clock.frame);
+        buffer.add_events(parser.drain_events(), clock.frame);
+    }
+}
+pub(super) fn move_continuation(mut query: Query<(&mut MoveBuffer, &mut PlayerState)>) {
+    // Read from state, set activating move if an Action demands it
+    for (mut buffer, mut state) in query.iter_mut() {
+        let move_continuations = state.drain_matching_actions(|action| {
+            if let Action::Move(move_id) = action {
+                Some(*move_id)
+            } else {
+                None
+            }
+        });
+        if move_continuations.len() == 1 {
+            buffer.activation = Some(MoveActivation {
+                kind: ActivationType::Continuation,
+                id: move_continuations[0],
+            })
+        } else if move_continuations.len() > 1 {
+            // TODO: Maybe handle this by resolving until one of them can start?
+            todo!("Multiple moves to continue")
+        }
+    }
+}
+pub(super) fn raw_or_link(
+    clock: Res<Clock>,
+    mut query: Query<(
+        &mut MoveBuffer,
+        &Character,
+        &PlayerState,
+        &Inventory,
+        &Resources,
+        &InputParser,
+    )>,
+) {
+    // Set activating move if one in the buffer can start raw or be linked into
+    for (mut buffer, character, state, inventory, resources, parser) in query.iter_mut() {
+        if let Some(freedom) = state.free_since {
+            // Character has recently been freed
+
+            if let Some((stored, id, _)) = buffer
+                .get_situation_moves(
+                    &character,
+                    Situation {
+                        inventory,
+                        history: state.get_move_history().map(|history| history.to_owned()),
+                        grounded: state.is_grounded(),
+                        resources,
+                        parser,
+                        current_frame: clock.frame,
+                    },
+                )
+                .into_iter()
+                .min_by(|(_, id1, _), (_, id2, _)| id1.cmp(id2))
+            {
+                let error = stored as i32 - freedom as i32;
+                let kind = if error.abs() < AUTOCORRECT as i32 {
+                    ActivationType::Link(Timing {
+                        error,
+                        correction: freedom,
+                    })
+                } else {
+                    ActivationType::Raw
+                };
+
+                buffer.activation = Some(MoveActivation { id, kind });
+            }
+        }
+    }
+}
+pub(super) fn special_cancel(
+    clock: Res<Clock>,
+    mut query: Query<(
+        &mut MoveBuffer,
+        &Character,
+        &PlayerState,
+        &Inventory,
+        &Resources,
+        &InputParser,
+    )>,
+) {
+    // Set activating move if one in the buffer can be cancelled into
+    for (mut buffer, character, state, inventory, resources, parser) in query.iter_mut() {
+        if state.free_since.is_none() {
+            if let Some(history) = state.get_move_history() {
+                // Not free because a move is happening
+                // Is current move cancellable, if so, since when
+                if let Some((stored, id, freedom)) = buffer
+                    .get_situation_moves(
+                        &character,
+                        Situation {
+                            inventory,
+                            history: state.get_move_history().map(|history| history.to_owned()),
+                            grounded: state.is_grounded(),
+                            resources,
+                            parser,
+                            current_frame: clock.frame,
+                        },
+                    )
+                    .into_iter()
+                    .filter_map(|(frame, id, data)| {
+                        if let Some(freedom) = history.cancellable_into_since(&data) {
+                            Some((frame, id, freedom))
+                        } else {
+                            None
+                        }
+                    })
+                    .min_by(|(_, id1, _), (_, id2, _)| id1.cmp(id2))
+                {
+                    let error = stored as i32 - freedom as i32;
+                    if error.abs() < AUTOCORRECT as i32 {
+                        buffer.activation = Some(MoveActivation {
+                            id,
+                            kind: ActivationType::Cancel(Timing {
+                                error,
+                                correction: freedom,
+                            }),
+                        });
+                    }
+                }
+            }
+        }
     }
 }
 
 pub(super) fn move_activator(
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
-    mut query: Query<PlayerQuery>,
+    mut query: Query<(
+        &mut MoveBuffer,
+        &mut PlayerState,
+        &mut Resources,
+        &Player,
+        &Character,
+    )>,
 ) {
-    for mut player in query.iter_mut() {
-        player.buffer.clear_old(clock.frame);
-        player
-            .buffer
-            .add_events(player.input_parser.drain_events(), clock.frame);
+    // Activate and clear activating move
+    for (mut buffer, mut state, mut resources, player, character) in query.iter_mut() {
+        if let Some(activation) = buffer.activation.take() {
+            let started = if let ActivationType::Link(timing) | ActivationType::Cancel(timing) =
+                activation.kind
+            {
+                let (message, meter_gain) = get_combo_notification(timing.error);
 
-        if player.state.stunned() {
-            return;
-        }
+                notifications.add(*player, message);
+                resources.meter.gain(meter_gain);
 
-        if let Some(move_id) = player
-            .state
-            .drain_matching_actions(|action| {
-                if let Action::Move(move_id) = action {
-                    Some(*move_id)
-                } else {
-                    None
-                }
-            })
-            .last()
-        {
-            player.state.start_move(MoveHistory {
-                move_id: move_id.to_owned(),
-                started: clock.frame,
-                ..default()
-            });
-        }
-
-        let situation = Situation {
-            inventory: &player.inventory,
-            history: player
-                .state
-                .get_move_history()
-                .map(|history| history.to_owned()),
-            grounded: player.state.is_grounded(),
-            resources: &player.resources,
-            parser: &player.input_parser,
-            current_frame: clock.frame,
-        };
-
-        if let Some((move_id, stored_frame)) = player.buffer.use_move(player.character, &situation)
-        {
-            let started = if let Some(earliest_activation_frame) = player
-                .state
-                .free_since
-                .filter(|free_since| *free_since as usize + AUTOCORRECT >= clock.frame)
-                .or_else(|| {
-                    situation
-                        .history
-                        .and_then(|history| history.cancellable_since)
-                }) {
-                if let Some(frame) = stored_frame {
-                    // Not a forced start
-                    // Make a toast
-                    let frame_diff = earliest_activation_frame as i32 - frame;
-                    let (notification_content, meter_gain) = get_combo_notification(frame_diff);
-
-                    notifications.add(*player.player, notification_content);
-                    player.resources.meter.gain(meter_gain);
-                }
-                earliest_activation_frame
+                timing.correction
             } else {
                 clock.frame
             };
 
-            player.state.start_move(MoveHistory {
-                move_id,
+            state.start_move(MoveHistory {
+                move_id: activation.id,
+                move_data: character.get_move(activation.id),
                 started,
                 ..default()
             });
+            buffer.buffer.retain(|(_, id)| *id != activation.id);
         }
     }
 }

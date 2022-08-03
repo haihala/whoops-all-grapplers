@@ -49,11 +49,23 @@ impl Plugin for PlayerPlugin {
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(once_per_combat_frame)
-                    .with_system(move_advancement::move_advancement.after(reset))
+                    .with_system(move_activation::manage_buffer.after(reset))
                     .with_system(
-                        move_activation::move_activator.after(move_advancement::move_advancement),
+                        move_activation::move_continuation.after(move_activation::manage_buffer),
                     )
-                    .with_system(recovery::stun_recovery.after(move_activation::move_activator))
+                    .with_system(
+                        move_activation::raw_or_link.after(move_activation::move_continuation),
+                    )
+                    .with_system(
+                        move_activation::special_cancel.after(move_activation::raw_or_link),
+                    )
+                    .with_system(
+                        move_activation::move_activator.after(move_activation::special_cancel),
+                    )
+                    .with_system(
+                        move_advancement::move_advancement.after(move_activation::move_activator),
+                    )
+                    .with_system(recovery::stun_recovery.after(move_advancement::move_advancement))
                     .with_system(recovery::ground_recovery.after(recovery::stun_recovery))
                     .with_system(movement::movement.after(recovery::ground_recovery))
                     .with_system(size_adjustment::size_adjustment.after(movement::movement))
@@ -148,7 +160,7 @@ fn reset(
             health.reset();
             resources.reset();
             player_state.reset();
-            buffer.clear();
+            buffer.clear_all();
             parser.clear();
 
             tf.translation = Vec3::new(

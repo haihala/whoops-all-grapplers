@@ -118,6 +118,7 @@ fn player_input(
         }
 
         velocity.cleanup_movements(clock.frame);
+        velocity.sum_movements();
     }
 }
 

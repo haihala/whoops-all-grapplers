@@ -16,20 +16,6 @@ pub struct Situation<'a> {
     pub current_frame: usize,
 }
 
-#[derive(Debug, Default, Clone, Inspectable)]
-pub struct MoveHistory {
-    pub move_id: MoveId,
-    #[inspectable(ignore)]
-    pub move_data: Move,
-    pub started: usize,
-    pub cancellable_since: Option<usize>,
-    #[inspectable(ignore)]
-    pub past: Vec<FlowControl>,
-    #[inspectable(ignore)]
-    pub unprocessed_events: Vec<Action>,
-    pub has_hit: bool,
-}
-
 impl Situation<'_> {
     pub fn new_actions(&self) -> Vec<FlowControl> {
         if let Some(ref history) = self.history {
@@ -85,6 +71,71 @@ impl Situation<'_> {
             FlowControl::Dynamic(fun) => {
                 Self::handle_flow_control(fun(situation.clone()), situation, unused_time)
             }
+        }
+    }
+}
+#[derive(Debug, Default, Clone, Inspectable)]
+pub struct MoveHistory {
+    pub move_id: MoveId,
+    #[inspectable(ignore)]
+    pub move_data: Move,
+    pub started: usize,
+    #[inspectable(ignore)]
+    pub past: Vec<FlowControl>,
+    #[inspectable(ignore)]
+    pub unprocessed_events: Vec<Action>,
+    pub has_hit: bool,
+}
+
+impl MoveHistory {
+    fn next_phase(&self) -> Option<FlowControl> {
+        self.move_data
+            .phases
+            .iter()
+            .skip(self.past.len())
+            .next()
+            .cloned()
+    }
+
+    fn cancellable_since(&self) -> Option<usize> {
+        // TODO: This could probably use some unit tests
+        let mut frame = 0;
+        let mut output = None;
+        for fc in self.past.iter() {
+            if let FlowControl::Wait(frames, cancellable) = *fc {
+                if cancellable {
+                    if output.is_none() {
+                        output = Some(frame);
+                    }
+                    // Importantly do nothing if output is some and this phase is cancellable
+                } else {
+                    output = None;
+                }
+                frame += frames;
+            }
+        }
+
+        if let Some(maybe_wait) = self.next_phase() {
+            if let FlowControl::Wait(_, cancellable) = maybe_wait {
+                if cancellable {
+                    if output.is_none() {
+                        output = Some(frame);
+                    }
+                    // Importantly do nothing if output is some and this phase is cancellable
+                } else {
+                    output = None;
+                }
+            }
+        }
+        output
+    }
+
+    pub fn cancellable_into_since(&self, other_move: &Move) -> Option<usize> {
+        if self.move_data.move_type < other_move.move_type {
+            // TODO: This only allows normal to special cancelling
+            self.cancellable_since()
+        } else {
+            None
         }
     }
 }

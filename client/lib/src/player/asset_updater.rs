@@ -32,8 +32,6 @@ pub fn update_animation(
             .last()
         {
             helper.play(move_animation.to_owned());
-        } else {
-            dbg!("No generic animation nor is a move ongoing?");
         }
     }
 }

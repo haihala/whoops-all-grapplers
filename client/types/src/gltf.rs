@@ -9,6 +9,7 @@ pub enum Model {
 pub enum DummyAnimation {
     #[default]
     Idle,
+    Slap,
 }
 
 #[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Inspectable)]

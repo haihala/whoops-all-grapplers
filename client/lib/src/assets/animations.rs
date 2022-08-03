@@ -150,7 +150,7 @@ pub fn update_animation(
 ) {
     for (mut helper, facing) in main.iter_mut() {
         let mut player = players.get_mut(helper.player_entity).unwrap();
-        if let Some(next) = helper.next {
+        if let Some(next) = helper.next.take() {
             let asset = animations.get(next, facing);
             player.play(asset).repeat();
             helper.set_playing(next, *facing);
@@ -207,6 +207,7 @@ fn find_animation_player_entity(
 pub(super) fn animation_paths() -> HashMap<Animation, &'static str> {
     map! {
         Animation::Dummy(DummyAnimation::Idle) => "dummy.glb#Animation0",
-        Animation::TPose => "dummy.glb#Animation1",
+        Animation::Dummy(DummyAnimation::Slap) => "dummy.glb#Animation1",
+        Animation::TPose => "dummy.glb#Animation2",
     }
 }

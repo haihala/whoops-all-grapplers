@@ -3,7 +3,7 @@ use std::{collections::HashMap, iter::empty};
 use bevy::prelude::*;
 use map_macro::map;
 
-use types::{Area, ItemId, MoveId};
+use types::{Animation, Area, DummyAnimation, ItemId, MoveId};
 
 use crate::{
     moves::{Action, FlowControl, MoveType, Movement, Situation},
@@ -78,13 +78,14 @@ fn attacks() -> HashMap<MoveId, Move> {
             move_type: MoveType::Normal,
             requirement: |situation: Situation| situation.grounded,
             phases: vec![
-                FlowControl::Wait(5, false),
+                Action::Animation(Animation::Dummy(DummyAnimation::Slap)).into(),
+                FlowControl::Wait(9, false),
                 Action::Hitbox(SpawnDescriptor {
                     hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
-                    lifetime: Lifetime::frames(5),
+                    lifetime: Lifetime::frames(4),
                     ..default()
                 }).into(),
-                FlowControl::Wait(15, true),
+                FlowControl::Wait(8, true),
             ],
         },
         MoveId::Low => Move {

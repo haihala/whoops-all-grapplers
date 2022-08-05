@@ -9,6 +9,7 @@
 - [[Rewards]]
 - [[Menus]]
 - [[Netplay]]
+- [[Yoink assets]]
 
 ## Easy nibbles
 - Make parrot echo inputs while recording

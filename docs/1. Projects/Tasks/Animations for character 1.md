@@ -10,11 +10,14 @@ Keep it simple.
 - Make animations
 	- [ ] Idle
 		- [ ] Air
-		- [ ] Ground
+		- [x] Ground
+		- [x] Crouch
 	- [ ] Walk
 		- [ ] Forwards
 		- [ ] Back
 	- [ ] Hitstun (on the ground, reeling)
+		- [ ] Stand
+		- [ ] Crouch
 	- [ ] Freefall (horizontal)
 	- [ ] Individual moves
 		- [ ] Jump (One animation for all jumps)

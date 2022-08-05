@@ -34,7 +34,7 @@ impl Default for Character {
                 AnimationType::StandStun => Animation::TPose,
                 AnimationType::WalkBack => Animation::TPose,
                 AnimationType::WalkForward => Animation::TPose,
-                AnimationType::CrouchIdle => Animation::TPose,
+                AnimationType::CrouchIdle => Animation::Dummy(DummyAnimation::Crouch),
                 AnimationType::CrouchStun => Animation::TPose,
             },
             low_block_height: 0.5,

@@ -9,6 +9,7 @@ pub enum Model {
 pub enum DummyAnimation {
     #[default]
     Idle,
+    Crouch,
     Slap,
 }
 

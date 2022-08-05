@@ -12,9 +12,9 @@ Keep it simple.
 		- [ ] Air
 		- [x] Ground
 		- [x] Crouch
-	- [ ] Walk
+	- [x] Walk
 		- [x] Forwards
-		- [ ] Back
+		- [x] Back
 	- [ ] Hitstun (on the ground, reeling)
 		- [ ] Stand
 		- [ ] Crouch

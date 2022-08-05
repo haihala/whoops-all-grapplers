@@ -11,6 +11,7 @@ pub enum DummyAnimation {
     Idle,
     Crouch,
     WalkForward,
+    WalkBack,
     Slap,
 }
 

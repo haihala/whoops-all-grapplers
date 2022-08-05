@@ -211,6 +211,7 @@ pub(super) fn animation_paths() -> HashMap<Animation, &'static str> {
         Animation::Dummy(DummyAnimation::Idle) => "dummy.glb#Animation1",
         Animation::Dummy(DummyAnimation::Slap) => "dummy.glb#Animation2",
         Animation::TPose => "dummy.glb#Animation3",
-        Animation::Dummy(DummyAnimation::WalkForward) => "dummy.glb#Animation4",
+        Animation::Dummy(DummyAnimation::WalkBack) => "dummy.glb#Animation4",
+        Animation::Dummy(DummyAnimation::WalkForward) => "dummy.glb#Animation5",
     }
 }

@@ -205,12 +205,12 @@ fn find_animation_player_entity(
 }
 
 pub(super) fn animation_paths() -> HashMap<Animation, &'static str> {
-    // Every time a new animation is added, every other animation on the same glb is bumped down by one
-    // New one seems to always be #Animation0
+    // Every time a new animation is added, other animations may get affected
     map! {
         Animation::Dummy(DummyAnimation::Crouch) => "dummy.glb#Animation0",
         Animation::Dummy(DummyAnimation::Idle) => "dummy.glb#Animation1",
         Animation::Dummy(DummyAnimation::Slap) => "dummy.glb#Animation2",
         Animation::TPose => "dummy.glb#Animation3",
+        Animation::Dummy(DummyAnimation::WalkForward) => "dummy.glb#Animation4",
     }
 }

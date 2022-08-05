@@ -13,7 +13,7 @@ Keep it simple.
 		- [x] Ground
 		- [x] Crouch
 	- [ ] Walk
-		- [ ] Forwards
+		- [x] Forwards
 		- [ ] Back
 	- [ ] Hitstun (on the ground, reeling)
 		- [ ] Stand

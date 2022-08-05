@@ -10,6 +10,7 @@ pub enum DummyAnimation {
     #[default]
     Idle,
     Crouch,
+    WalkForward,
     Slap,
 }
 

@@ -15,9 +15,9 @@ Keep it simple.
 	- [x] Walk
 		- [x] Forwards
 		- [x] Back
-	- [ ] Hitstun (on the ground, reeling)
-		- [ ] Stand
-		- [ ] Crouch
+	- [x] Hitstun (on the ground, reeling)
+		- [x] Stand
+		- [x] Crouch
 	- [ ] Freefall (horizontal)
 	- [ ] Individual moves
 		- [ ] Jump (One animation for all jumps)

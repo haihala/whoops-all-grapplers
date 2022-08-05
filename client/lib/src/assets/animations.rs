@@ -208,13 +208,16 @@ pub(super) fn animation_paths() -> HashMap<Animation, &'static str> {
     // Every time a new animation is added, other animations may get affected
     // They are alphabetically ordered
     map! {
-        Animation::Dummy(DummyAnimation::Crouch) => "dummy.glb#Animation0",
-        Animation::Dummy(DummyAnimation::CrouchStun) => "dummy.glb#Animation1",
-        Animation::Dummy(DummyAnimation::Idle) => "dummy.glb#Animation2",
-        Animation::Dummy(DummyAnimation::Slap) => "dummy.glb#Animation3",
-        Animation::Dummy(DummyAnimation::StandStun) => "dummy.glb#Animation4",
-        Animation::TPose => "dummy.glb#Animation5",
-        Animation::Dummy(DummyAnimation::WalkBack) => "dummy.glb#Animation6",
-        Animation::Dummy(DummyAnimation::WalkForward) => "dummy.glb#Animation7",
+        Animation::Dummy(DummyAnimation::AirIdle) => "dummy.glb#Animation0",
+        Animation::Dummy(DummyAnimation::AirStun) => "dummy.glb#Animation1",
+        Animation::Dummy(DummyAnimation::Crouch) => "dummy.glb#Animation2",
+        Animation::Dummy(DummyAnimation::CrouchStun) => "dummy.glb#Animation3",
+        Animation::Dummy(DummyAnimation::Idle) => "dummy.glb#Animation4",
+        Animation::Dummy(DummyAnimation::Jump) => "dummy.glb#Animation5",
+        Animation::Dummy(DummyAnimation::Slap) => "dummy.glb#Animation6",
+        Animation::Dummy(DummyAnimation::StandStun) => "dummy.glb#Animation7",
+        Animation::TPose => "dummy.glb#Animation8",
+        Animation::Dummy(DummyAnimation::WalkBack) => "dummy.glb#Animation9",
+        Animation::Dummy(DummyAnimation::WalkForward) => "dummy.glb#Animation10",
     }
 }

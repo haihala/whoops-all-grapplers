@@ -28,8 +28,8 @@ impl Default for Character {
             items: Default::default(),
             model: Model::Dummy,
             generic_animations: map! {
-                AnimationType::AirIdle => Animation::TPose,
-                AnimationType::AirStun => Animation::TPose,
+                AnimationType::AirIdle => Animation::Dummy(DummyAnimation::AirIdle),
+                AnimationType::AirStun => Animation::Dummy(DummyAnimation::AirStun),
                 AnimationType::StandIdle => Animation::Dummy(DummyAnimation::Idle),
                 AnimationType::StandStun => Animation::Dummy(DummyAnimation::StandStun),
                 AnimationType::WalkBack => Animation::Dummy(DummyAnimation::WalkBack),

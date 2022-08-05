@@ -3,6 +3,7 @@ use crate::{
     Move,
 };
 use bevy::prelude::*;
+use types::{Animation, DummyAnimation};
 
 pub fn jump(input: &'static str, impulse: Vec2) -> Move {
     Move {
@@ -10,6 +11,7 @@ pub fn jump(input: &'static str, impulse: Vec2) -> Move {
         move_type: MoveType::Normal,
         requirement: |situation: Situation| situation.grounded,
         phases: vec![
+            Action::Animation(Animation::Dummy(DummyAnimation::Jump)).into(),
             FlowControl::Wait(5, false),
             Action::Movement(Movement::impulse(impulse)).into(),
             FlowControl::Wait(5, false),

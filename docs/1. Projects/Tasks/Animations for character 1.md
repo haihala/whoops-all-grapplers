@@ -8,8 +8,8 @@ Keep it simple.
 
 - [x] Figure out what tools to use for animation
 - Make animations
-	- [ ] Idle
-		- [ ] Air
+	- [x] Idle
+		- [x] Air
 		- [x] Ground
 		- [x] Crouch
 	- [x] Walk
@@ -18,9 +18,9 @@ Keep it simple.
 	- [x] Hitstun (on the ground, reeling)
 		- [x] Stand
 		- [x] Crouch
-	- [ ] Freefall (horizontal)
+	- [x] Freefall (horizontal)
 	- [ ] Individual moves
-		- [ ] Jump (One animation for all jumps)
+		- [x] Jump (One animation for all jumps)
 		- [ ] Dash
 			- [ ] Foward
 			- [ ] Back

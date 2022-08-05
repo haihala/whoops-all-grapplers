@@ -204,20 +204,40 @@ fn find_animation_player_entity(
     None
 }
 
-pub(super) fn animation_paths() -> HashMap<Animation, &'static str> {
+pub(super) fn animation_paths() -> HashMap<Animation, String> {
     // Every time a new animation is added, other animations may get affected
     // They are alphabetically ordered
-    map! {
-        Animation::Dummy(DummyAnimation::AirIdle) => "dummy.glb#Animation0",
-        Animation::Dummy(DummyAnimation::AirStun) => "dummy.glb#Animation1",
-        Animation::Dummy(DummyAnimation::Crouch) => "dummy.glb#Animation2",
-        Animation::Dummy(DummyAnimation::CrouchStun) => "dummy.glb#Animation3",
-        Animation::Dummy(DummyAnimation::Idle) => "dummy.glb#Animation4",
-        Animation::Dummy(DummyAnimation::Jump) => "dummy.glb#Animation5",
-        Animation::Dummy(DummyAnimation::Slap) => "dummy.glb#Animation6",
-        Animation::Dummy(DummyAnimation::StandStun) => "dummy.glb#Animation7",
-        Animation::TPose => "dummy.glb#Animation8",
-        Animation::Dummy(DummyAnimation::WalkBack) => "dummy.glb#Animation9",
-        Animation::Dummy(DummyAnimation::WalkForward) => "dummy.glb#Animation10",
-    }
+
+    load_glb_animations(
+        "dummy.glb".to_owned(),
+        vec![
+            Animation::Dummy(DummyAnimation::AirIdle),
+            Animation::Dummy(DummyAnimation::AirStun),
+            Animation::Dummy(DummyAnimation::Crouch),
+            Animation::Dummy(DummyAnimation::CrouchStun),
+            Animation::Dummy(DummyAnimation::Idle),
+            Animation::Dummy(DummyAnimation::Jump),
+            Animation::Dummy(DummyAnimation::Slap),
+            Animation::Dummy(DummyAnimation::StandStun),
+            Animation::TPose,
+            Animation::Dummy(DummyAnimation::WalkBack),
+            Animation::Dummy(DummyAnimation::WalkForward),
+        ],
+    )
+}
+
+fn load_glb_animations(
+    file_path: String,
+    animations: Vec<Animation>,
+) -> HashMap<Animation, String> {
+    animations
+        .into_iter()
+        .enumerate()
+        .map(|(index, animation)| {
+            (
+                animation,
+                format!("{}#Animation{}", file_path, index.to_string()),
+            )
+        })
+        .collect()
 }

@@ -7,5 +7,5 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 [dependencies]
 bevy = "0.7.0"
 bevy-inspector-egui = "0.11.0"
-strum = "0.23.0"
-strum_macros = "0.23.1"
+strum = "0.24.1"
+strum_macros = "0.24.2"

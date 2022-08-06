@@ -73,7 +73,7 @@ impl Lifetime {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Default, Inspectable)]
 pub struct HitProperty<PropType: Clone + Copy + PartialEq + Default + Inspectable> {
     pub on_hit: PropType,
     pub on_block: PropType,

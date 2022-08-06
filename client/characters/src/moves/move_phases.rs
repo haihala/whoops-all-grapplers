@@ -4,7 +4,7 @@ use types::{Animation, MoveId, SoundEffect};
 
 use crate::{resources::Cost, SpawnDescriptor};
 
-use super::{move_history::Situation, GrabDescription};
+use super::{GrabDescription, Situation};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Movement {

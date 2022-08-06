@@ -1,7 +1,9 @@
 use bevy_inspector_egui::Inspectable;
 
 mod move_history;
-pub use move_history::{MoveHistory, Situation};
+pub use move_history::MoveHistory;
+mod move_situation;
+pub use move_situation::Situation;
 mod move_data;
 pub use move_data::Move;
 mod move_phases;

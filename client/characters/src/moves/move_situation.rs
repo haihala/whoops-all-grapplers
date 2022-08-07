@@ -130,30 +130,26 @@ mod test {
             }
             .new_actions()
         }
+
+        fn assert_actions(&self, actions: Vec<FlowControl>) {
+            assert!(self.get_actions() == actions);
+        }
     }
 
     #[test]
     fn sanity_check() {
         let phases = vec![];
-        let sw = SituationWrapper::with_phases(phases);
+        let sw = SituationWrapper::with_phases(phases.clone());
 
-        let new_actions = sw.get_actions();
-
-        assert!(new_actions.len() == 0);
+        sw.assert_actions(phases);
     }
 
     #[test]
     fn single_action() {
         let phases = vec![Action::Animation(Animation::TPose).into()];
-        let sw = SituationWrapper::with_phases(phases);
+        let sw = SituationWrapper::with_phases(phases.clone());
 
-        let new_actions = sw.get_actions();
-
-        assert!(new_actions.len() == 1);
-        assert!(matches!(
-            new_actions[0],
-            FlowControl::Action(Action::Animation(Animation::TPose))
-        ));
+        sw.assert_actions(phases);
     }
 
     #[test]
@@ -162,18 +158,8 @@ mod test {
             Action::Animation(Animation::TPose).into(),
             Action::Hitbox(SpawnDescriptor::default()).into(),
         ];
-        let sw = SituationWrapper::with_phases(phases);
+        let sw = SituationWrapper::with_phases(phases.clone());
 
-        let new_actions = sw.get_actions();
-
-        assert!(new_actions.len() == 2);
-        assert!(matches!(
-            new_actions[0],
-            FlowControl::Action(Action::Animation(Animation::TPose))
-        ));
-        assert!(matches!(
-            new_actions[1],
-            FlowControl::Action(Action::Hitbox(_))
-        ));
+        sw.assert_actions(phases);
     }
 }

@@ -72,3 +72,108 @@ impl Situation<'_> {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::{Action, Move, SpawnDescriptor};
+
+    use super::*;
+    use bevy::prelude::*;
+    use types::{Animation, MoveId};
+
+    struct SituationWrapper {
+        inventory: Inventory,
+        history: Option<MoveHistory>,
+        grounded: bool,
+        resources: Resources,
+        parser: InputParser,
+        current_frame: usize,
+    }
+    impl Default for SituationWrapper {
+        fn default() -> Self {
+            Self {
+                inventory: Default::default(),
+                history: Default::default(),
+                grounded: true,
+                resources: Default::default(),
+                parser: Default::default(),
+                current_frame: 1, // So that history can start at 0 and all initial actions are drained
+            }
+        }
+    }
+
+    impl SituationWrapper {
+        fn with_phases(phases: Vec<FlowControl>) -> Self {
+            let move_data = Move {
+                phases,
+                ..default()
+            };
+
+            Self {
+                history: Some(MoveHistory {
+                    move_data,
+                    move_id: MoveId::TestMove,
+                    ..default()
+                }),
+                ..default()
+            }
+        }
+
+        fn get_actions(&self) -> Vec<FlowControl> {
+            Situation {
+                inventory: &self.inventory,
+                history: self.history.clone(),
+                grounded: self.grounded,
+                resources: &&self.resources,
+                parser: &&self.parser,
+                current_frame: self.current_frame,
+            }
+            .new_actions()
+        }
+    }
+
+    #[test]
+    fn sanity_check() {
+        let phases = vec![];
+        let sw = SituationWrapper::with_phases(phases);
+
+        let new_actions = sw.get_actions();
+
+        assert!(new_actions.len() == 0);
+    }
+
+    #[test]
+    fn single_action() {
+        let phases = vec![Action::Animation(Animation::TPose).into()];
+        let sw = SituationWrapper::with_phases(phases);
+
+        let new_actions = sw.get_actions();
+
+        assert!(new_actions.len() == 1);
+        assert!(matches!(
+            new_actions[0],
+            FlowControl::Action(Action::Animation(Animation::TPose))
+        ));
+    }
+
+    #[test]
+    fn multiple_actions() {
+        let phases = vec![
+            Action::Animation(Animation::TPose).into(),
+            Action::Hitbox(SpawnDescriptor::default()).into(),
+        ];
+        let sw = SituationWrapper::with_phases(phases);
+
+        let new_actions = sw.get_actions();
+
+        assert!(new_actions.len() == 2);
+        assert!(matches!(
+            new_actions[0],
+            FlowControl::Action(Action::Animation(Animation::TPose))
+        ));
+        assert!(matches!(
+            new_actions[1],
+            FlowControl::Action(Action::Hitbox(_))
+        ));
+    }
+}

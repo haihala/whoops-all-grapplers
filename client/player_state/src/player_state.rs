@@ -54,7 +54,7 @@ impl PlayerState {
     }
 
     pub fn current_move_fully_handled(&self) -> Option<bool> {
-        self.get_move_history().map(|history| history.done())
+        self.get_move_history().map(|history| history.is_done())
     }
 
     pub fn drain_matching_actions<T>(

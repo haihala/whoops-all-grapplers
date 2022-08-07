@@ -151,6 +151,20 @@ mod test {
             history.has_hit = true;
             self.history = Some(history);
         }
+
+        fn assert_done(&self) {
+            assert!(self.is_done());
+        }
+
+        fn assert_not_done(&self) {
+            assert!(!self.is_done());
+        }
+
+        fn is_done(&self) -> bool {
+            let mut history = self.history.clone().unwrap();
+            history.past.extend(self.get_actions().into_iter());
+            history.is_done()
+        }
     }
 
     #[test]
@@ -159,6 +173,7 @@ mod test {
         let sw = SituationWrapper::with_phases(phases.clone());
 
         sw.assert_actions(&phases);
+        sw.assert_done();
     }
 
     #[test]
@@ -167,6 +182,7 @@ mod test {
         let sw = SituationWrapper::with_phases(phases.clone());
 
         sw.assert_actions(&phases);
+        sw.assert_done();
     }
 
     #[test]
@@ -178,6 +194,7 @@ mod test {
         let sw = SituationWrapper::with_phases(phases.clone());
 
         sw.assert_actions(&phases);
+        sw.assert_done();
     }
 
     #[test]
@@ -191,9 +208,11 @@ mod test {
         let mut sw = SituationWrapper::with_phases(phases.clone());
 
         sw.assert_actions(&phases[..2]);
+        sw.assert_not_done();
 
         sw.set_time(10);
         sw.assert_actions(&phases);
+        sw.assert_done();
     }
 
     #[test]
@@ -204,14 +223,16 @@ mod test {
             FlowControl::Wait(10, false),
             Action::Animation(Animation::TPose).into(),
         ];
+
         let mut sw = SituationWrapper::with_phases(phases.clone());
 
         sw.assert_actions(&phases[..2]);
-
         sw.update_history();
-        sw.set_time(10);
+        sw.assert_not_done();
 
+        sw.set_time(10);
         sw.assert_actions(&phases[2..]);
+        sw.assert_done();
     }
 
     #[test]
@@ -223,12 +244,12 @@ mod test {
                 Action::Hitbox(SpawnDescriptor::default()).into()
             }
         })];
+
         let mut sw = SituationWrapper::with_phases(phases);
 
         sw.assert_actions(&[Action::Hitbox(SpawnDescriptor::default()).into()]);
 
         sw.register_hit();
-
         sw.assert_actions(&[Action::Animation(Animation::TPose).into()]);
     }
 }

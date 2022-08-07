@@ -62,7 +62,7 @@ impl MoveHistory {
         }
     }
 
-    pub fn done(&self) -> bool {
+    pub fn is_done(&self) -> bool {
         self.past.len() == self.move_data.phases.len()
     }
 }

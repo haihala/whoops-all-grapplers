@@ -145,6 +145,12 @@ mod test {
             history.past.extend(self.get_actions().into_iter());
             self.history = Some(history);
         }
+
+        fn register_hit(&mut self) {
+            let mut history = self.history.clone().unwrap();
+            history.has_hit = true;
+            self.history = Some(history);
+        }
     }
 
     #[test]
@@ -206,5 +212,23 @@ mod test {
         sw.set_time(10);
 
         sw.assert_actions(&phases[2..]);
+    }
+
+    #[test]
+    fn dynamics() {
+        let phases = vec![FlowControl::Dynamic(|situation: Situation| {
+            if situation.history.unwrap().has_hit {
+                Action::Animation(Animation::TPose).into()
+            } else {
+                Action::Hitbox(SpawnDescriptor::default()).into()
+            }
+        })];
+        let mut sw = SituationWrapper::with_phases(phases);
+
+        sw.assert_actions(&[Action::Hitbox(SpawnDescriptor::default()).into()]);
+
+        sw.register_hit();
+
+        sw.assert_actions(&[Action::Animation(Animation::TPose).into()]);
     }
 }

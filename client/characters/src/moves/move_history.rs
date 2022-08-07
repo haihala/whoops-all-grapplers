@@ -23,39 +23,46 @@ impl MoveHistory {
     }
 
     fn cancellable_since(&self) -> Option<usize> {
-        // TODO: This could probably use some unit tests
-        let mut frame = 0;
-        let mut output = None;
-        for fc in self.past.iter() {
-            if let FlowControl::Wait(frames, cancellable) = *fc {
-                if cancellable {
-                    if output.is_none() {
-                        output = Some(frame);
-                    }
-                    // Importantly do nothing if output is some and this phase is cancellable
+        self.past
+            .iter()
+            .chain(self.next_phase().iter())
+            .filter_map(|fc| {
+                if let &FlowControl::Wait(frames, cancellable) = fc {
+                    Some((frames, cancellable))
                 } else {
-                    output = None;
+                    None
                 }
-                frame += frames;
-            }
-        }
+            })
+            .fold(
+                (None, self.started),
+                |(output, fc_start_frame), (frames, cancellable)| {
+                    let next_start_frame = fc_start_frame + frames;
+                    let updated_output = if cancellable {
+                        if output.is_some() {
+                            // Still cancellable, keep on trucking
+                            output
+                        } else {
+                            // Cancellable just now, set since time to current frame
+                            Some(fc_start_frame)
+                        }
+                    } else {
+                        // Not cancellable, so cancellable since is None
+                        None
+                    };
 
-        if let Some(FlowControl::Wait(_, cancellable)) = self.next_phase() {
-            if cancellable {
-                if output.is_none() {
-                    output = Some(frame);
-                }
-                // Importantly do nothing if output is some and this phase is cancellable
-            } else {
-                output = None;
-            }
-        }
-        output
+                    (updated_output, next_start_frame)
+                },
+            )
+            .0
+    }
+
+    pub fn cancellable_into(&self, other_move: &Move) -> bool {
+        // TODO: This only allows normal to special cancelling
+        self.move_data.move_type < other_move.move_type
     }
 
     pub fn cancellable_into_since(&self, other_move: &Move) -> Option<usize> {
-        if self.move_data.move_type < other_move.move_type {
-            // TODO: This only allows normal to special cancelling
+        if self.cancellable_into(other_move) {
             self.cancellable_since()
         } else {
             None
@@ -64,5 +71,53 @@ impl MoveHistory {
 
     pub fn is_done(&self) -> bool {
         self.past.len() == self.move_data.phases.len()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use bevy::prelude::*;
+    use types::Animation;
+
+    #[test]
+    fn sanity_check() {
+        let history = MoveHistory {
+            move_id: MoveId::TestMove,
+            move_data: Move {
+                phases: vec![Action::Animation(Animation::TPose).into()],
+                ..default()
+            },
+            ..default()
+        };
+
+        assert!(!history.is_done());
+        assert!(!history.has_hit);
+        assert!(history.next_phase() == Some(Action::Animation(Animation::TPose).into()));
+        assert!(history.cancellable_since() == None)
+    }
+
+    #[test]
+    fn basic_cancellability() {
+        let started = 69;
+        let duration = 10;
+        let phases = vec![
+            Action::Animation(Animation::TPose).into(),
+            FlowControl::Wait(duration, true),
+        ];
+
+        let history = MoveHistory {
+            move_id: MoveId::TestMove,
+            started,
+            past: phases.clone(),
+            move_data: Move {
+                phases,
+                ..default()
+            },
+            ..default()
+        };
+
+        assert!(history.is_done());
+        assert!(history.cancellable_since() == Some(started));
     }
 }

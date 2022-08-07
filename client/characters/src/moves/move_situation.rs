@@ -124,15 +124,26 @@ mod test {
                 inventory: &self.inventory,
                 history: self.history.clone(),
                 grounded: self.grounded,
-                resources: &&self.resources,
-                parser: &&self.parser,
+                resources: &self.resources,
+                parser: &self.parser,
                 current_frame: self.current_frame,
             }
             .new_actions()
         }
 
-        fn assert_actions(&self, actions: Vec<FlowControl>) {
-            assert!(self.get_actions() == actions);
+        fn assert_actions(&self, comparison: &[FlowControl]) {
+            let actions = self.get_actions();
+            assert!(actions == comparison, "{:?} != {:?}", actions, comparison);
+        }
+
+        fn set_time(&mut self, frame: usize) {
+            self.current_frame = frame;
+        }
+
+        fn update_history(&mut self) {
+            let mut history = self.history.clone().unwrap();
+            history.past.extend(self.get_actions().into_iter());
+            self.history = Some(history);
         }
     }
 
@@ -141,7 +152,7 @@ mod test {
         let phases = vec![];
         let sw = SituationWrapper::with_phases(phases.clone());
 
-        sw.assert_actions(phases);
+        sw.assert_actions(&phases);
     }
 
     #[test]
@@ -149,7 +160,7 @@ mod test {
         let phases = vec![Action::Animation(Animation::TPose).into()];
         let sw = SituationWrapper::with_phases(phases.clone());
 
-        sw.assert_actions(phases);
+        sw.assert_actions(&phases);
     }
 
     #[test]
@@ -160,6 +171,40 @@ mod test {
         ];
         let sw = SituationWrapper::with_phases(phases.clone());
 
-        sw.assert_actions(phases);
+        sw.assert_actions(&phases);
+    }
+
+    #[test]
+    fn wait_gate() {
+        let phases = vec![
+            Action::Animation(Animation::TPose).into(),
+            Action::Hitbox(SpawnDescriptor::default()).into(),
+            FlowControl::Wait(10, false),
+            Action::Animation(Animation::TPose).into(),
+        ];
+        let mut sw = SituationWrapper::with_phases(phases.clone());
+
+        sw.assert_actions(&phases[..2]);
+
+        sw.set_time(10);
+        sw.assert_actions(&phases);
+    }
+
+    #[test]
+    fn wait_gate_partial() {
+        let phases = vec![
+            Action::Animation(Animation::TPose).into(),
+            Action::Hitbox(SpawnDescriptor::default()).into(),
+            FlowControl::Wait(10, false),
+            Action::Animation(Animation::TPose).into(),
+        ];
+        let mut sw = SituationWrapper::with_phases(phases.clone());
+
+        sw.assert_actions(&phases[..2]);
+
+        sw.update_history();
+        sw.set_time(10);
+
+        sw.assert_actions(&phases[2..]);
     }
 }

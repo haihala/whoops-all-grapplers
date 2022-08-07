@@ -36,9 +36,10 @@ impl PlayerState {
         if let Some(ref mut history) = self.get_move_history_mut() {
             if !history.unprocessed_events.is_empty() {
                 warn!("Leftover events");
+                dbg!(&history.unprocessed_events);
             }
 
-            let mut new_fcs = situation.new_actions();
+            let new_fcs = situation.new_actions();
             history
                 .unprocessed_events
                 .extend(new_fcs.clone().into_iter().filter_map(|fc| {
@@ -48,13 +49,12 @@ impl PlayerState {
                         None
                     }
                 }));
-            history.past.append(&mut new_fcs);
+            history.past.extend(new_fcs.into_iter());
         }
     }
 
     pub fn current_move_fully_handled(&self) -> Option<bool> {
-        self.get_move_history()
-            .map(|history| history.past.len() == history.move_data.phases.len())
+        self.get_move_history().map(|history| history.done())
     }
 
     pub fn drain_matching_actions<T>(

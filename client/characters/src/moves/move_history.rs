@@ -61,4 +61,8 @@ impl MoveHistory {
             None
         }
     }
+
+    pub fn done(&self) -> bool {
+        self.past.len() == self.move_data.phases.len()
+    }
 }

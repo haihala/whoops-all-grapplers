@@ -1,7 +1,4 @@
-use bevy::{
-    ecs::query::{Fetch, WorldQuery},
-    prelude::*,
-};
+use bevy::{ecs::query::WorldQuery, prelude::*};
 
 use characters::{Character, HitTracker, Hitbox, Hurtbox, OnHitEffect, Resources};
 use input_parsing::InputParser;
@@ -64,8 +61,8 @@ pub(super) fn clash_parry(
         }
 
         if let Some(overlap) = hitbox1
-            .with_offset(gtf1.translation.truncate())
-            .intersection(&hitbox2.with_offset(gtf2.translation.truncate()))
+            .with_offset(gtf1.translation().truncate())
+            .intersection(&hitbox2.with_offset(gtf2.translation().truncate()))
         {
             // Hitboxes collide
             sounds.play(SoundEffect::Clash);
@@ -123,7 +120,7 @@ pub(super) fn register_hits(
                 &mut particles,
                 effect,
                 &mut hit_tracker,
-                hitbox.with_offset(hitbox_tf.translation.truncate()),
+                hitbox.with_offset(hitbox_tf.translation().truncate()),
                 entity,
                 attacker,
                 defender,
@@ -144,8 +141,8 @@ fn handle_hit(
     hit_tracker: &mut HitTracker,
     hitbox: Area,
     hitbox_entity: Entity,
-    attacker: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
-    defender: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
+    attacker: &mut PlayerQueryItem,
+    defender: &mut PlayerQueryItem,
 ) {
     if let Some(last_hit_frame) = hit_tracker.last_hit_frame {
         if last_hit_frame + FRAMES_BETWEEN_HITS > frame {

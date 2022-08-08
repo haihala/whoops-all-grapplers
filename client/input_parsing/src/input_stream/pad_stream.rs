@@ -99,14 +99,18 @@ pub fn update_pads(
     mut unused_pads: ResMut<VecDeque<Gamepad>>,
     mut readers: Query<(&mut PadStream, &mut ParrotStream)>,
 ) {
-    for GamepadEvent(pad_id, event_type) in gamepad_events.iter() {
+    for GamepadEvent {
+        gamepad,
+        event_type,
+    } in gamepad_events.iter()
+    {
         let matching_components = readers
             .iter_mut()
-            .find(|(reader, _)| reader.pad_id.is_some() && reader.pad_id.unwrap() == *pad_id);
+            .find(|(reader, _)| reader.pad_id.is_some() && reader.pad_id.unwrap() == *gamepad);
 
         match event_type {
             GamepadEventType::Connected => {
-                pad_connection(pad_id, &mut unused_pads, &mut readers);
+                pad_connection(gamepad, &mut unused_pads, &mut readers);
             }
             GamepadEventType::Disconnected => {
                 pad_disconnection(&mut matching_components.unwrap().0, &mut unused_pads);
@@ -149,26 +153,22 @@ fn pad_disconnection(reader: &mut Mut<PadStream>, unused_pads: &mut VecDeque<Gam
 fn axis_change(reader: &mut Mut<PadStream>, axis: GamepadAxisType, new_value: f32) {
     match axis {
         // Even though DPad axis are on the list, they don't fire
-        GamepadAxisType::LeftStickX | GamepadAxisType::RightStickX | GamepadAxisType::DPadX => {
-            reader.update_stick(
-                Some(if new_value.abs() > STICK_DEAD_ZONE {
-                    new_value.signum() as i32
-                } else {
-                    0
-                }),
-                None,
-            )
-        }
-        GamepadAxisType::LeftStickY | GamepadAxisType::RightStickY | GamepadAxisType::DPadY => {
-            reader.update_stick(
-                None,
-                Some(if new_value.abs() > STICK_DEAD_ZONE {
-                    new_value.signum() as i32
-                } else {
-                    0
-                }),
-            )
-        }
+        GamepadAxisType::LeftStickX | GamepadAxisType::RightStickX => reader.update_stick(
+            Some(if new_value.abs() > STICK_DEAD_ZONE {
+                new_value.signum() as i32
+            } else {
+                0
+            }),
+            None,
+        ),
+        GamepadAxisType::LeftStickY | GamepadAxisType::RightStickY => reader.update_stick(
+            None,
+            Some(if new_value.abs() > STICK_DEAD_ZONE {
+                new_value.signum() as i32
+            } else {
+                0
+            }),
+        ),
         _ => {}
     }
 }

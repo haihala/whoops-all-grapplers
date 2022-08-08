@@ -13,7 +13,7 @@ use time::{once_per_combat_frame, Clock, GameState, RoundResult};
 use types::{Facing, Player, Players};
 
 use crate::{
-    assets::{AnimationHelperSetup, ModelRequest},
+    assets::{AnimationHelperSetup, Models},
     damage::{Health, HitboxSpawner},
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
@@ -82,10 +82,10 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, models: Res<Models>) {
     let players = Players {
-        one: spawn_player(&mut commands, -PLAYER_SPAWN_DISTANCE, Player::One),
-        two: spawn_player(&mut commands, PLAYER_SPAWN_DISTANCE, Player::Two),
+        one: spawn_player(&mut commands, &models, -PLAYER_SPAWN_DISTANCE, Player::One),
+        two: spawn_player(&mut commands, &models, PLAYER_SPAWN_DISTANCE, Player::Two),
     };
 
     commands.insert_resource(players);
@@ -102,12 +102,12 @@ struct PlayerDefaults {
     move_buffer: MoveBuffer,
 }
 
-fn spawn_player(commands: &mut Commands, offset: f32, player: Player) -> Entity {
+fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: Player) -> Entity {
     let state = PlayerState::default();
     let character = dummy();
 
-    let mut spawn_handle = commands.spawn_bundle(TransformBundle {
-        local: Transform::from_translation((offset, PLAYER_SPAWN_HEIGHT, 0.0).into()),
+    let mut spawn_handle = commands.spawn_bundle(SpatialBundle {
+        transform: Transform::from_translation((offset, PLAYER_SPAWN_HEIGHT, 0.0).into()),
         ..default()
     });
 
@@ -124,9 +124,10 @@ fn spawn_player(commands: &mut Commands, offset: f32, player: Player) -> Entity 
         .insert(state);
 
     spawn_handle.with_children(|parent| {
-        parent
-            .spawn_bundle(TransformBundle::default())
-            .insert(ModelRequest(character.model));
+        parent.spawn_bundle(SceneBundle {
+            scene: models[&character.model].clone(),
+            ..default()
+        });
     });
 
     spawn_handle.id()

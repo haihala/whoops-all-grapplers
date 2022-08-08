@@ -45,7 +45,7 @@ pub(super) fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fo
                 position_type: PositionType::Absolute,
                 justify_content: JustifyContent::Center,
                 size: Size::new(FULL, Val::Percent(10.0)),
-                position: Rect {
+                position: UiRect {
                     top: Val::Percent(40.0),
                     left: Val::Px(0.0),
                     ..default()
@@ -58,18 +58,18 @@ pub(super) fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fo
         .with_children(|parent| {
             parent
                 .spawn_bundle(TextBundle {
-                    text: Text::with_section(
+                    text: Text::from_section(
                         "New round",
                         TextStyle {
                             font: fonts.basic.clone(),
                             font_size: 100.0,
                             color: colors.text,
                         },
-                        TextAlignment {
-                            horizontal: HorizontalAlign::Center,
-                            ..default()
-                        },
-                    ),
+                    )
+                    .with_alignment(TextAlignment {
+                        horizontal: HorizontalAlign::Center,
+                        ..default()
+                    }),
                     ..default()
                 })
                 .insert(RoundText);

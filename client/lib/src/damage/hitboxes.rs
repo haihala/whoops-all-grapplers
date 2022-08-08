@@ -37,12 +37,10 @@ impl HitboxSpawner {
             absolute_position
         });
 
-        let mut builder = commands.spawn_bundle(TransformBundle {
-            local: transform,
-            global: GlobalTransform {
-                translation: absolute_position,
-                ..default()
-            },
+        let mut builder = commands.spawn_bundle(SpatialBundle {
+            transform,
+            global_transform: Transform::from_translation(absolute_position).into(),
+            ..default()
         });
 
         // Housekeeping

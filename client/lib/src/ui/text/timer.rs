@@ -12,7 +12,7 @@ pub fn spawn_timer(parent: &mut ChildBuilder, font: Handle<Font>) {
             style: Style {
                 justify_content: JustifyContent::Center,
                 size: Size::new(Val::Percent(TIMER_WIDTH), FULL),
-                position: Rect {
+                position: UiRect {
                     top: Val::Percent(TIMER_TOP_PADDING),
                     ..default()
                 },
@@ -23,18 +23,18 @@ pub fn spawn_timer(parent: &mut ChildBuilder, font: Handle<Font>) {
         .with_children(|timer_wrapper| {
             timer_wrapper
                 .spawn_bundle(TextBundle {
-                    text: Text::with_section(
+                    text: Text::from_section(
                         ROUND_TIME.round().to_string(),
                         TextStyle {
                             font,
                             font_size: 100.0,
                             color: Color::WHITE,
                         },
-                        TextAlignment {
-                            horizontal: HorizontalAlign::Center,
-                            vertical: VerticalAlign::Center,
-                        },
-                    ),
+                    )
+                    .with_alignment(TextAlignment {
+                        horizontal: HorizontalAlign::Center,
+                        vertical: VerticalAlign::Center,
+                    }),
                     ..default()
                 })
                 .insert(RoundTimer);

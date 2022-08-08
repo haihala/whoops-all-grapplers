@@ -1,7 +1,4 @@
-use bevy::{
-    ecs::query::{Fetch, WorldQuery},
-    prelude::*,
-};
+use bevy::{ecs::query::WorldQuery, prelude::*};
 use characters::{Action, Grabable};
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -34,8 +31,8 @@ pub(super) fn spawn_grabs(
 }
 fn handle_grabs(
     notifications: &mut Notifications,
-    actor: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
-    target: &mut <<PlayerQuery as WorldQuery>::Fetch as Fetch>::Item,
+    actor: &mut PlayerQueryItem,
+    target: &mut PlayerQueryItem,
 ) {
     for descriptor in actor.state.drain_matching_actions(|action| {
         if let Action::Grab(gd) = action {

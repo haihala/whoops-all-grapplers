@@ -7,7 +7,7 @@ mod particles;
 mod sounds;
 
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
-pub use models::{ModelRequest, Models};
+pub use models::Models;
 pub use particles::{ParticleRequest, Particles};
 pub use sounds::Sounds;
 
@@ -43,7 +43,6 @@ impl Plugin for AssetsPlugin {
             .add_startup_system_to_stage(StartupStage::PreStartup, loaders::animations)
             .add_startup_system_to_stage(StartupStage::PreStartup, loaders::sounds)
             .add_startup_system_to_stage(StartupStage::PreStartup, loaders::particles)
-            .add_system(models::model_spawner)
             .add_system(animations::setup_helpers)
             .add_system(animations::update_animation)
             .add_system(animations::mirror_after_load)

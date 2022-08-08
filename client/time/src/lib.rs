@@ -1,5 +1,4 @@
-use bevy::prelude::*;
-use bevy::{core::FixedTimestep, ecs::schedule::ShouldRun};
+use bevy::{ecs::schedule::ShouldRun, prelude::*, time::FixedTimestep};
 use bevy_inspector_egui::Inspectable;
 
 mod game_flow;

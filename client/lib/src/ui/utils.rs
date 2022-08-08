@@ -7,7 +7,7 @@ pub const FULL: Val = Val::Percent(100.0);
 pub(super) fn div_style() -> Style {
     Style {
         size: Size::new(FULL, FULL),
-        position: Rect {
+        position: UiRect {
             top: ZERO,
             left: ZERO,
             ..default()

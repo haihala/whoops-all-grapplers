@@ -1,5 +1,6 @@
+use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::*;
-use bevy::render::camera::{Camera2d, ScalingMode};
+use bevy::render::camera::ScalingMode;
 use types::Player;
 
 use crate::physics::ARENA_WIDTH;
@@ -20,20 +21,37 @@ impl Plugin for CustomCameraPlugin {
 }
 
 fn add_cameras(mut commands: Commands) {
+    let projection = OrthographicProjection {
+        scaling_mode: ScalingMode::FixedHorizontal(VIEWPORT_HALFWIDTH * 2.0),
+        ..default()
+    };
+
     commands
-        .spawn_bundle(OrthographicCameraBundle {
+        .spawn_bundle(SpatialBundle {
             transform: Transform::from_xyz(0.0, 1.8, 10.0),
-            orthographic_projection: OrthographicProjection {
-                scaling_mode: ScalingMode::FixedHorizontal,
-                scale: 4.0,
-                ..default()
-            },
-            ..OrthographicCameraBundle::new_3d()
+            ..default()
         })
         .insert(WorldCamera)
-        .insert(Camera2d);
-
-    commands.spawn_bundle(UiCameraBundle::default());
+        .with_children(|parent| {
+            parent.spawn_bundle(Camera3dBundle {
+                projection: projection.clone().into(),
+                ..default()
+            });
+            parent.spawn_bundle(Camera2dBundle {
+                transform: Transform::from_translation(Vec3::ZERO),
+                camera: Camera {
+                    // Higher is rendered later
+                    priority: 1,
+                    ..default()
+                },
+                camera_2d: Camera2d {
+                    // Don't draw a clear color on top of the 3d stuff
+                    clear_color: ClearColorConfig::None,
+                },
+                projection,
+                ..default()
+            });
+        });
 }
 
 #[allow(clippy::type_complexity)]

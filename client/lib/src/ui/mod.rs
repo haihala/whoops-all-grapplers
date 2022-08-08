@@ -63,7 +63,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                     Val::Percent(TOP_CONTAINER_WIDTH),
                     Val::Percent(TOP_CONTAINER_HEIGHT),
                 ),
-                position: Rect {
+                position: UiRect {
                     top: Val::Percent(TOP_CONTAINER_TOP_PAD),
                     left: Val::Percent(TOP_CONTAINER_SIDE_PAD),
                     ..default()
@@ -90,7 +90,7 @@ fn setup_bottom_bars(commands: &mut Commands, colors: &Colors) {
                     Val::Percent(BOTTOM_CONTAINER_WIDTH),
                     Val::Percent(BOTTOM_CONTAINER_HEIGHT),
                 ),
-                position: Rect {
+                position: UiRect {
                     bottom: Val::Percent(BOTTOM_CONTAINER_BOTTOM_PAD),
                     left: Val::Percent(BOTTOM_CONTAINER_SIDE_PAD),
                     ..default()

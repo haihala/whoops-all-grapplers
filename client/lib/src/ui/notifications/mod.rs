@@ -49,12 +49,12 @@ fn create_notification_container(commands: &mut Commands, side: Player) -> Entit
     let top = Val::Percent(top_margin);
     let size = Size::new(Val::Percent(20.0), Val::Percent(100.0 - top_margin));
     let position = match side {
-        Player::One => Rect {
+        Player::One => UiRect {
             left: Val::Px(0.0),
             top,
             ..default()
         },
-        Player::Two => Rect {
+        Player::Two => UiRect {
             right: Val::Px(0.0),
             top,
             ..default()
@@ -120,7 +120,7 @@ fn spawn_notification(
         .spawn_bundle(NodeBundle {
             style: Style {
                 size: Size::new(FULL, Val::Auto),
-                margin: Rect::all(Val::Px(7.0)),
+                margin: UiRect::all(Val::Px(7.0)),
                 justify_content: JustifyContent::Center,
                 ..div_style()
             },
@@ -129,18 +129,18 @@ fn spawn_notification(
         })
         .with_children(|container| {
             container.spawn_bundle(TextBundle {
-                text: Text::with_section(
+                text: Text::from_section(
                     content,
                     TextStyle {
                         font,
                         font_size: 18.0,
                         color: text_color,
                     },
-                    TextAlignment {
-                        horizontal: HorizontalAlign::Center,
-                        vertical: VerticalAlign::Center,
-                    },
-                ),
+                )
+                .with_alignment(TextAlignment {
+                    horizontal: HorizontalAlign::Center,
+                    vertical: VerticalAlign::Center,
+                }),
                 style: Style {
                     align_self: AlignSelf::Center,
                     ..default()

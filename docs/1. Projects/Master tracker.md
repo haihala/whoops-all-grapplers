@@ -10,10 +10,11 @@
 - [[Menus]]
 - [[Netplay]]
 - [[Yoink assets]]
+- Resource bars visible sections and use by section
 
 ## Easy nibbles
+- Make throws use hitboxes (this will make rendering them easier)
 - Make parrot echo inputs while recording
-- Resource bars visible sections and use by section
 
 ## Not a priority
 - [[CLI args]]

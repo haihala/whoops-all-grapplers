@@ -21,6 +21,10 @@ pub enum DummyAnimation {
     Jump,
     Slap,
     CrouchChop,
+    BurnStraight,
+    AntiAir,
+    AirSlap,
+    Divekick,
 }
 
 #[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Inspectable)]

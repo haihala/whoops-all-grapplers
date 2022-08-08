@@ -7,9 +7,9 @@ Animating is separated into [[Animations for character 1]], but this one does in
 - 2f Low chop
 - air f basic air to air
 - 5s Guile burn straight
-- 2s Goldlewis "reverse divekick"
+- 2s is a poor man's dp
 	- launcher anti-air
-- air s is an Alex stomp
+- air s is a divekick
 - 5g normal throw
 	- Main function is to win over space
 	- Can't really combo off of it, but it will yeet the opponent a good way back

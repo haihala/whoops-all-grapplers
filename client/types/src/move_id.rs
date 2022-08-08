@@ -25,13 +25,15 @@ pub enum MoveId {
     SecondTestMove,
 
     // Dummy moves
-    Grab,
     SonicBoom,
     BudgetBoom,
     HeavyHadouken,
     Hadouken,
-    AirPunch,
-    Low,
-    CommandPunch,
-    Punch,
+    Grab,
+    Divekick,
+    AirSlap,
+    AntiAir,
+    LowChop,
+    BurnStraight,
+    Slap,
 }

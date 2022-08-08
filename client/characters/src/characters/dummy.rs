@@ -73,7 +73,7 @@ fn movement() -> HashMap<MoveId, Move> {
 
 fn attacks() -> HashMap<MoveId, Move> {
     map! {
-        MoveId::Punch => Move {
+        MoveId::Slap => Move {
             input: Some("f"),
             move_type: MoveType::Normal,
             requirement: |situation: Situation| situation.grounded,
@@ -88,7 +88,7 @@ fn attacks() -> HashMap<MoveId, Move> {
                 FlowControl::Wait(10, true),
             ],
         },
-        MoveId::Low => Move {
+        MoveId::LowChop => Move {
             input: Some("[123]f"),
             move_type: MoveType::Normal,
             requirement: |situation: Situation| situation.grounded,
@@ -103,27 +103,67 @@ fn attacks() -> HashMap<MoveId, Move> {
                 FlowControl::Wait(7, true),
             ],
         },
-        MoveId::CommandPunch => Move {
-            input: Some("6f"),
+        MoveId::BurnStraight => Move {
+            input: Some("s"),
             move_type: MoveType::Normal,
             requirement: |situation: Situation| situation.grounded,
             phases: vec![
-                Action::Movement(Movement{amount: Vec2::X*6.0, duration: 10}).into(),
+                Action::Animation(Animation::Dummy(DummyAnimation::BurnStraight)).into(),
                 FlowControl::Wait(10, false),
                 Action::Hitbox(SpawnDescriptor {
-                        hitbox: Hitbox(Area::new(0.5, 1.5, 0.5, 0.5)),
-                        lifetime: Lifetime::frames(15),
+                        hitbox: Hitbox(Area::new(1.0, 1.35, 0.3, 0.3)),
+                        lifetime: Lifetime::frames(8),
                         ..default()
                     }).into(),
-                Action::Movement(Movement{amount: Vec2::X*10.0, duration: 10}).into(),
-                FlowControl::Wait(20, false),
-                FlowControl::Dynamic(|situation: Situation| {
-                    if situation.history.unwrap().has_hit {
-                        FlowControl::Wait(10, true)
-                    } else {
-                        FlowControl::Wait(60, false)
-                    }
-                })
+                Action::Movement(Movement{amount: Vec2::X*2.0, duration: 1}).into(),
+                FlowControl::Wait(10, false),
+            ],
+        },
+        MoveId::AntiAir => Move {
+            input: Some("[123]s"),
+            move_type: MoveType::Normal,
+            requirement: |situation: Situation| situation.grounded,
+            phases: vec![
+                Action::Animation(Animation::Dummy(DummyAnimation::AntiAir)).into(),
+                FlowControl::Wait(13, false),
+                Action::Hitbox(SpawnDescriptor {
+                        hitbox: Hitbox(Area::new(0.75, 1.9, 0.3, 0.5)),
+                        lifetime: Lifetime::frames(4),
+                        ..default()
+                    }).into(),
+                FlowControl::Wait(13, false),
+            ],
+        },
+        MoveId::AirSlap => Move {
+            input: Some("f"),
+            move_type: MoveType::Normal,
+            requirement: |situation: Situation| !situation.grounded,
+            phases: vec![
+                Action::Animation(Animation::Dummy(DummyAnimation::AirSlap)).into(),
+                FlowControl::Wait(8, false),
+                Action::Hitbox(SpawnDescriptor {
+                        hitbox: Hitbox(Area::new(0.7, 1.3, 0.35, 0.25)),
+                        lifetime: Lifetime::frames(5),
+                        fixed_height: Some(AttackHeight::High),
+                        ..default()
+                    }).into(),
+                FlowControl::Wait(10, true),
+            ],
+        },
+        MoveId::Divekick => Move {
+            input: Some("s"),
+            move_type: MoveType::Normal,
+            requirement: |situation: Situation| !situation.grounded,
+            phases: vec![
+                Action::Animation(Animation::Dummy(DummyAnimation::Divekick)).into(),
+                FlowControl::Wait(5, false),
+                Action::Hitbox(SpawnDescriptor {
+                        hitbox: Hitbox(Area::new(0.6, 0.1, 0.35, 0.25)),
+                        lifetime: Lifetime::frames(10),
+                        fixed_height: Some(AttackHeight::High),
+                        ..default()
+                    }).into(),
+                FlowControl::Wait(10, true),
             ],
         },
         MoveId::BudgetBoom => Move {
@@ -196,20 +236,6 @@ fn attacks() -> HashMap<MoveId, Move> {
                     ..default()
                 }).into(),
                 FlowControl::Wait(20, false),
-            ],
-        },
-        MoveId::AirPunch => Move {
-            input: Some("f"),
-            move_type: MoveType::Normal,
-            requirement: |situation: Situation| !situation.grounded,
-            phases: vec![
-                FlowControl::Wait(5, false),
-                Action::Hitbox(SpawnDescriptor {
-                        hitbox: Hitbox(Area::new(0.5, 0.1, 0.3, 0.5)),
-                        fixed_height: Some(AttackHeight::High),
-                        ..default()
-                    }).into(),
-                FlowControl::Wait(10, true),
             ],
         },
         MoveId::Grab => Move {

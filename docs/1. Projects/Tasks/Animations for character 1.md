@@ -27,8 +27,10 @@ Keep it simple.
 		- [ ] See [[Character 1]]
 			- [x] Slap
 			- [x] Low slap
-			- [ ] Air f
-			- [ ] Air s
+			- [x] Burn straight
+			- [x] Anti-air
+			- [x] Air to air
+			- [x] Divekick
 			- [ ] Normal grab
 			- [ ] Backthrow
 			- [ ] Sweep

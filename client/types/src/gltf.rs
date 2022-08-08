@@ -12,12 +12,15 @@ pub enum DummyAnimation {
     Crouch,
     WalkForward,
     WalkBack,
-    Slap,
+    DashForward,
+    DashBack,
     StandStun,
     CrouchStun,
     AirIdle,
     AirStun,
     Jump,
+    Slap,
+    CrouchChop,
 }
 
 #[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Inspectable)]

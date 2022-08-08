@@ -19,12 +19,13 @@ pub fn jump(input: &'static str, impulse: Vec2) -> Move {
     }
 }
 
-pub fn dash(input: &'static str, duration: usize, impulse: f32) -> Move {
+pub fn dash(input: &'static str, duration: usize, impulse: f32, animation: Animation) -> Move {
     Move {
         input: Some(input),
         move_type: MoveType::Special,
         requirement: |situation: Situation| situation.grounded,
         phases: vec![
+            Action::Animation(animation).into(),
             FlowControl::Wait(5, false),
             Action::Movement(Movement::impulse(Vec2::X * impulse)).into(),
             FlowControl::Wait(duration - 5, true),

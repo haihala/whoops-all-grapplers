@@ -213,8 +213,11 @@ pub(super) fn animation_paths() -> HashMap<Animation, String> {
         vec![
             Animation::Dummy(DummyAnimation::AirIdle),
             Animation::Dummy(DummyAnimation::AirStun),
+            Animation::Dummy(DummyAnimation::DashBack),
             Animation::Dummy(DummyAnimation::Crouch),
+            Animation::Dummy(DummyAnimation::CrouchChop),
             Animation::Dummy(DummyAnimation::CrouchStun),
+            Animation::Dummy(DummyAnimation::DashForward),
             Animation::Dummy(DummyAnimation::Idle),
             Animation::Dummy(DummyAnimation::Jump),
             Animation::Dummy(DummyAnimation::Slap),

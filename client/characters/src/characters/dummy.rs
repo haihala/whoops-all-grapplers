@@ -66,8 +66,8 @@ fn movement() -> HashMap<MoveId, Move> {
                     constants::DIAGONAL_SUPERJUMP_Y,
                 ),
             ),
-            MoveId::DashForward => dash("656", DASH_DURATION, DASH_IMPULSE),
-        MoveId::DashBack => dash("454", DASH_DURATION, -DASH_IMPULSE)
+            MoveId::DashForward => dash("656", DASH_DURATION, DASH_IMPULSE, Animation::Dummy(DummyAnimation::DashForward)),
+        MoveId::DashBack => dash("454", DASH_DURATION, -DASH_IMPULSE, Animation::Dummy(DummyAnimation::DashBack))
     }
 }
 
@@ -79,13 +79,13 @@ fn attacks() -> HashMap<MoveId, Move> {
             requirement: |situation: Situation| situation.grounded,
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::Slap)).into(),
-                FlowControl::Wait(15, false),
+                FlowControl::Wait(9, false),
                 Action::Hitbox(SpawnDescriptor {
-                    hitbox: Hitbox(Area::new(0.5, 1.35, 0.35, 0.25)),
-                    lifetime: Lifetime::frames(8),
+                    hitbox: Hitbox(Area::new(0.7, 1.35, 0.35, 0.25)),
+                    lifetime: Lifetime::frames(5),
                     ..default()
                 }).into(),
-                FlowControl::Wait(15, true),
+                FlowControl::Wait(10, true),
             ],
         },
         MoveId::Low => Move {
@@ -93,13 +93,14 @@ fn attacks() -> HashMap<MoveId, Move> {
             move_type: MoveType::Normal,
             requirement: |situation: Situation| situation.grounded,
             phases: vec![
-                FlowControl::Wait(5, false),
+                Action::Animation(Animation::Dummy(DummyAnimation::CrouchChop)).into(),
+                FlowControl::Wait(8, false),
                 Action::Hitbox(SpawnDescriptor {
-                        hitbox: Hitbox(Area::new(0.5, 0.2, 0.3, 0.2)),
+                        hitbox: Hitbox(Area::new(0.75, 0.2, 0.3, 0.2)),
                         lifetime: Lifetime::frames(5),
                         ..default()
                     }).into(),
-                FlowControl::Wait(15, true),
+                FlowControl::Wait(7, true),
             ],
         },
         MoveId::CommandPunch => Move {

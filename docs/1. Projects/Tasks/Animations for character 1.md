@@ -21,12 +21,12 @@ Keep it simple.
 	- [x] Freefall (horizontal)
 	- [ ] Individual moves
 		- [x] Jump (One animation for all jumps)
-		- [ ] Dash
-			- [ ] Foward
-			- [ ] Back
+		- [x] Dash
+			- [x] Foward
+			- [x] Back
 		- [ ] See [[Character 1]]
 			- [x] Slap
-			- [ ] Low slap
+			- [x] Low slap
 			- [ ] Air f
 			- [ ] Air s
 			- [ ] Normal grab

@@ -42,32 +42,54 @@ fn items() -> HashMap<MoveId, Move> {
 
 fn movement() -> HashMap<MoveId, Move> {
     map! {
-            MoveId::BackJump => jump(
-                "7",
-                Vec2::new(-constants::DIAGONAL_JUMP_X, constants::DIAGONAL_JUMP_Y),
+        MoveId::BackJump => jump(
+            "7",
+            Vec2::new(
+                -constants::DIAGONAL_JUMP_X,
+                constants::DIAGONAL_JUMP_Y,
             ),
-            MoveId::NeutralJump => jump("8", Vec2::Y * constants::NEUTRAL_JUMP_Y),
-            MoveId::ForwardJump => jump(
-                "9",
-                Vec2::new(constants::DIAGONAL_JUMP_X, constants::DIAGONAL_JUMP_Y),
+        ),
+        MoveId::NeutralJump => jump(
+            "8",
+            Vec2::Y * constants::NEUTRAL_JUMP_Y,
+        ),
+        MoveId::ForwardJump => jump(
+            "9",
+            Vec2::new(
+                constants::DIAGONAL_JUMP_X,
+                constants::DIAGONAL_JUMP_Y,
             ),
-            MoveId::BackSuperJump => jump(
-                "[123]7",
-                Vec2::new(
-                    -constants::DIAGONAL_SUPERJUMP_X,
-                    constants::DIAGONAL_SUPERJUMP_Y,
-                ),
+        ),
+        MoveId::BackSuperJump => jump(
+            "[123]7",
+            Vec2::new(
+                -constants::DIAGONAL_SUPERJUMP_X,
+                constants::DIAGONAL_SUPERJUMP_Y,
             ),
-            MoveId::NeutralSuperJump => jump("[123]8", Vec2::Y * constants::NEUTRAL_SUPERJUMP_Y),
-            MoveId::ForwardSuperJump => jump(
-                "[123]9",
-                Vec2::new(
-                    constants::DIAGONAL_SUPERJUMP_X,
-                    constants::DIAGONAL_SUPERJUMP_Y,
-                ),
+        ),
+        MoveId::NeutralSuperJump => jump(
+            "[123]8",
+            Vec2::Y * constants::NEUTRAL_SUPERJUMP_Y,
+        ),
+        MoveId::ForwardSuperJump => jump(
+            "[123]9",
+            Vec2::new(
+                constants::DIAGONAL_SUPERJUMP_X,
+                constants::DIAGONAL_SUPERJUMP_Y,
             ),
-            MoveId::DashForward => dash("656", DASH_DURATION, DASH_IMPULSE, Animation::Dummy(DummyAnimation::DashForward)),
-        MoveId::DashBack => dash("454", DASH_DURATION, -DASH_IMPULSE, Animation::Dummy(DummyAnimation::DashBack))
+        ),
+        MoveId::DashForward => dash(
+            "656",
+            DASH_DURATION,
+            DASH_IMPULSE,
+            Animation::Dummy(DummyAnimation::DashForward),
+        ),
+        MoveId::DashBack => dash(
+            "454",
+            DASH_DURATION,
+            -DASH_IMPULSE,
+            Animation::Dummy(DummyAnimation::DashBack),
+        ),
     }
 }
 

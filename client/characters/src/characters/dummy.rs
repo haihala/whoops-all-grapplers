@@ -6,7 +6,7 @@ use map_macro::map;
 use types::{Animation, Area, DummyAnimation, ItemId, MoveId};
 
 use crate::{
-    moves::{Action, FlowControl, MoveType, Movement, Situation},
+    moves::{grounded, not_grounded, Action, FlowControl, MoveType, Movement, Situation},
     AttackHeight, Cost, GrabDescription, Hitbox, Item, Lifetime, Move, SpawnDescriptor,
 };
 
@@ -76,7 +76,7 @@ fn attacks() -> HashMap<MoveId, Move> {
         MoveId::Slap => Move {
             input: Some("f"),
             move_type: MoveType::Normal,
-            requirement: |situation: Situation| situation.grounded,
+            requirement: grounded,
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::Slap)).into(),
                 FlowControl::Wait(9, false),
@@ -91,7 +91,7 @@ fn attacks() -> HashMap<MoveId, Move> {
         MoveId::LowChop => Move {
             input: Some("[123]f"),
             move_type: MoveType::Normal,
-            requirement: |situation: Situation| situation.grounded,
+            requirement: grounded,
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::CrouchChop)).into(),
                 FlowControl::Wait(8, false),
@@ -106,7 +106,7 @@ fn attacks() -> HashMap<MoveId, Move> {
         MoveId::BurnStraight => Move {
             input: Some("s"),
             move_type: MoveType::Normal,
-            requirement: |situation: Situation| situation.grounded,
+            requirement: grounded,
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::BurnStraight)).into(),
                 FlowControl::Wait(10, false),
@@ -122,7 +122,7 @@ fn attacks() -> HashMap<MoveId, Move> {
         MoveId::AntiAir => Move {
             input: Some("[123]s"),
             move_type: MoveType::Normal,
-            requirement: |situation: Situation| situation.grounded,
+            requirement: grounded,
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::AntiAir)).into(),
                 FlowControl::Wait(13, false),
@@ -137,7 +137,7 @@ fn attacks() -> HashMap<MoveId, Move> {
         MoveId::AirSlap => Move {
             input: Some("f"),
             move_type: MoveType::Normal,
-            requirement: |situation: Situation| !situation.grounded,
+            requirement: not_grounded,
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::AirSlap)).into(),
                 FlowControl::Wait(8, false),
@@ -153,7 +153,7 @@ fn attacks() -> HashMap<MoveId, Move> {
         MoveId::Divekick => Move {
             input: Some("s"),
             move_type: MoveType::Normal,
-            requirement: |situation: Situation| !situation.grounded,
+            requirement: not_grounded,
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::Divekick)).into(),
                 FlowControl::Wait(5, false),
@@ -169,7 +169,7 @@ fn attacks() -> HashMap<MoveId, Move> {
         MoveId::BudgetBoom => Move {
             input: Some("[41]6f"),
             move_type: MoveType::Special,
-            requirement: |situation: Situation| situation.grounded,
+            requirement: grounded,
             phases: vec![
                 FlowControl::Wait(10, false),
                 Action::Hitbox(SpawnDescriptor {
@@ -186,7 +186,7 @@ fn attacks() -> HashMap<MoveId, Move> {
             input: Some("[41]6f"),
             move_type: MoveType::Special,
             requirement: |situation: Situation| {
-                situation.grounded && situation.resources.can_afford(Cost::charge())
+                situation.resources.can_afford(Cost::charge()) && grounded(situation)
             },
             phases: vec![
                 Action::Pay(Cost::charge()).into(),
@@ -205,7 +205,7 @@ fn attacks() -> HashMap<MoveId, Move> {
         MoveId::Hadouken => Move {
             input: Some("236f"),
             move_type: MoveType::Special,
-            requirement: |situation: Situation| situation.grounded,
+            requirement: grounded,
             phases: vec![
                 FlowControl::Wait(30, false),
                 Action::Hitbox(SpawnDescriptor {
@@ -241,7 +241,7 @@ fn attacks() -> HashMap<MoveId, Move> {
         MoveId::Grab => Move {
             input: Some("g"),
             move_type: MoveType::Normal,
-            requirement: |situation: Situation| situation.grounded,
+            requirement: grounded,
             phases: vec![
                 FlowControl::Wait(5, false),
                 Action::Grab(GrabDescription {

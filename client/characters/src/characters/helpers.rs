@@ -1,5 +1,5 @@
 use crate::{
-    moves::{Action, FlowControl, MoveType, Movement, Situation},
+    moves::{grounded, Action, FlowControl, MoveType, Movement},
     Move,
 };
 use bevy::prelude::*;
@@ -9,7 +9,7 @@ pub fn jump(input: &'static str, impulse: Vec2) -> Move {
     Move {
         input: Some(input),
         move_type: MoveType::Normal,
-        requirement: |situation: Situation| situation.grounded,
+        requirement: grounded,
         phases: vec![
             Action::Animation(Animation::Dummy(DummyAnimation::Jump)).into(),
             FlowControl::Wait(5, false),
@@ -23,7 +23,7 @@ pub fn dash(input: &'static str, duration: usize, impulse: f32, animation: Anima
     Move {
         input: Some(input),
         move_type: MoveType::Special,
-        requirement: |situation: Situation| situation.grounded,
+        requirement: grounded,
         phases: vec![
             Action::Animation(animation).into(),
             FlowControl::Wait(5, false),

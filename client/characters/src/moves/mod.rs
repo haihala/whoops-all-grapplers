@@ -1,5 +1,7 @@
 use bevy_inspector_egui::Inspectable;
 
+mod situation_shorthands;
+pub use situation_shorthands::*;
 mod move_history;
 pub use move_history::MoveHistory;
 mod move_situation;

@@ -139,7 +139,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 Action::Animation(Animation::Dummy(DummyAnimation::BurnStraight)).into(),
                 FlowControl::Wait(10, false),
                 Action::Hitbox(SpawnDescriptor {
-                        hitbox: Hitbox(Area::new(1.0, 1.35, 0.3, 0.3)),
+                        hitbox: Hitbox(Area::new(0.6, 1.35, 1.0, 0.2)),
                         lifetime: Lifetime::frames(8),
                         ..default()
                     }).into(),

@@ -31,8 +31,6 @@ pub(crate) fn get_gunshot() -> Move {
     // Single shot, the repeating bit
     Move {
         input: None,
-        move_type: MoveType::Normal,
-        requirement: |situation: Situation| situation.grounded,
         phases: vec![
             FlowControl::Wait(10, false),
             FlowControl::Dynamic(|situation: Situation| {
@@ -60,13 +58,13 @@ pub(crate) fn get_gunshot() -> Move {
                 }
             }),
         ],
+        ..default()
     }
 }
 
 pub(crate) fn get_shot() -> Move {
     Move {
         input: Some("e"),
-        move_type: MoveType::Normal,
         requirement: |situation: Situation| {
             situation.inventory.contains(&ItemId::Gun) && situation.grounded
         },
@@ -74,5 +72,6 @@ pub(crate) fn get_shot() -> Move {
             FlowControl::Wait(30, false),
             Action::Move(MoveId::Gunshot).into(),
         ],
+        ..default()
     }
 }

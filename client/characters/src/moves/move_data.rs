@@ -1,6 +1,6 @@
 use crate::Situation;
 
-use super::{FlowControl, MoveType};
+use super::{grounded, FlowControl, MoveType};
 
 #[derive(Clone)]
 pub struct Move {
@@ -16,7 +16,7 @@ impl Default for Move {
             input: Default::default(),
             move_type: Default::default(),
             phases: Default::default(),
-            requirement: |_: Situation| true,
+            requirement: grounded,
         }
     }
 }

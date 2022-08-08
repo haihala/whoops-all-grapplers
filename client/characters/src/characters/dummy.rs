@@ -26,21 +26,24 @@ const DASH_IMPULSE: f32 = 10.0;
 
 fn dummy_moves() -> HashMap<MoveId, Move> {
     empty()
-        .chain(items().into_iter())
-        .chain(movement().into_iter())
-        .chain(attacks().into_iter())
+        .chain(items())
+        .chain(jumps())
+        .chain(dashes())
+        .chain(normals())
+        .chain(specials())
         .collect()
 }
 
-fn items() -> HashMap<MoveId, Move> {
+fn items() -> impl Iterator<Item = (MoveId, Move)> {
     map! {
         MoveId::HandMeDownKen => get_handmedownken(),
         MoveId::Gunshot => get_gunshot(),
         MoveId::Shoot => get_shot(),
     }
+    .into_iter()
 }
 
-fn movement() -> HashMap<MoveId, Move> {
+fn jumps() -> impl Iterator<Item = (MoveId, Move)> {
     map! {
         MoveId::BackJump => jump(
             "7",
@@ -78,6 +81,12 @@ fn movement() -> HashMap<MoveId, Move> {
                 constants::DIAGONAL_SUPERJUMP_Y,
             ),
         ),
+    }
+    .into_iter()
+}
+
+fn dashes() -> impl Iterator<Item = (MoveId, Move)> {
+    map! {
         MoveId::DashForward => dash(
             "656",
             DASH_DURATION,
@@ -91,9 +100,10 @@ fn movement() -> HashMap<MoveId, Move> {
             Animation::Dummy(DummyAnimation::DashBack),
         ),
     }
+    .into_iter()
 }
 
-fn attacks() -> HashMap<MoveId, Move> {
+fn normals() -> impl Iterator<Item = (MoveId, Move)> {
     map! {
         MoveId::Slap => Move {
             input: Some("f"),
@@ -184,6 +194,24 @@ fn attacks() -> HashMap<MoveId, Move> {
             ],
             ..default()
         },
+        MoveId::Grab => Move {
+            input: Some("g"),
+            phases: vec![
+                FlowControl::Wait(5, false),
+                Action::Grab(GrabDescription {
+                    damage: 25,
+                    ..default()
+                }).into(),
+                FlowControl::Wait(40, true),
+            ],
+            ..default()
+        },
+    }
+    .into_iter()
+}
+
+fn specials() -> impl Iterator<Item = (MoveId, Move)> {
+    map! {
         MoveId::BudgetBoom => Move {
             input: Some("[41]6f"),
             move_type: MoveType::Special,
@@ -256,19 +284,8 @@ fn attacks() -> HashMap<MoveId, Move> {
                 FlowControl::Wait(20, false),
             ],
         },
-        MoveId::Grab => Move {
-            input: Some("g"),
-            phases: vec![
-                FlowControl::Wait(5, false),
-                Action::Grab(GrabDescription {
-                    damage: 25,
-                    ..default()
-                }).into(),
-                FlowControl::Wait(40, true),
-            ],
-            ..default()
-        },
     }
+    .into_iter()
 }
 
 fn dummy_items() -> HashMap<ItemId, Item> {

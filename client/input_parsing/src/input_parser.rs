@@ -89,7 +89,7 @@ impl InputParser {
 pub fn parse_input<T: InputStream + Component>(
     mut characters: Query<(&mut InputParser, &mut T, &Facing)>,
 ) {
-    for (mut parser, mut reader, facing) in characters.iter_mut() {
+    for (mut parser, mut reader, facing) in &mut characters {
         if let Some(diff) = reader.read() {
             parser.add_frame(diff, facing);
         }

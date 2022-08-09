@@ -47,7 +47,7 @@ fn test_system(
 ) {
     // B for Buy
     if keys.just_pressed(KeyCode::B) {
-        for (mut inventory, character) in query.iter_mut() {
+        for (mut inventory, character) in &mut query {
             if let Some((id, _)) = character.roll_items(1, &inventory).first() {
                 inventory.add_item(*id);
             }

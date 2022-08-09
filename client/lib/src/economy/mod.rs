@@ -11,7 +11,7 @@ impl Plugin for EconomyPlugin {
 }
 
 fn pay_resources(mut query: Query<(&mut PlayerState, &mut Resources)>) {
-    for (mut state, mut resources) in query.iter_mut() {
+    for (mut state, mut resources) in &mut query {
         for bill in state.drain_matching_actions(|action| {
             if let Action::Pay(cost) = action {
                 Some(*cost)

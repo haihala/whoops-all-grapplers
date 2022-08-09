@@ -105,7 +105,7 @@ pub(super) fn register_hits(
     mut hurtboxes: Query<PlayerQuery>,
     players: Res<Players>,
 ) {
-    for (entity, owner, effect, hitbox_tf, hitbox, mut hit_tracker) in hitboxes.iter_mut() {
+    for (entity, owner, effect, hitbox_tf, hitbox, mut hit_tracker) in &mut hitboxes {
         if let Ok([mut p1, mut p2]) = hurtboxes.get_many_mut([players.one, players.two]) {
             let (attacker, defender) = if owner.0 == Player::One {
                 (&mut p1, &mut p2)

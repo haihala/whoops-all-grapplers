@@ -114,7 +114,7 @@ pub(super) fn spawn_new(
         &Transform,
     )>,
 ) {
-    for (mut spawner, mut state, parent, facing, player, transform) in query.iter_mut() {
+    for (mut spawner, mut state, parent, facing, player, transform) in &mut query {
         for spawn_descriptor in state
             .drain_matching_actions(|action| {
                 if let Action::Hitbox(descriptor) = action {
@@ -143,7 +143,7 @@ pub(super) fn despawn_expired(
     clock: Res<Clock>,
     mut spawners: Query<&mut HitboxSpawner>,
 ) {
-    for mut spawner in spawners.iter_mut() {
+    for mut spawner in &mut spawners {
         spawner.despawn_matching(&mut commands, |event| {
             if let Some(last_frame_alive) = event.lifetime.frames {
                 last_frame_alive <= clock.frame
@@ -155,7 +155,7 @@ pub(super) fn despawn_expired(
 }
 
 pub(super) fn despawn_everything(mut commands: Commands, mut spawners: Query<&mut HitboxSpawner>) {
-    for mut spawner in spawners.iter_mut() {
+    for mut spawner in &mut spawners {
         spawner.despawn_matching(&mut commands, |_| true);
     }
 }

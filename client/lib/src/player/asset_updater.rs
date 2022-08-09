@@ -12,7 +12,7 @@ pub fn update_animation(
         Or<(Changed<PlayerState>, Changed<Facing>)>,
     >,
 ) {
-    for (character, mut state, facing, mut helper) in query.iter_mut() {
+    for (character, mut state, facing, mut helper) in &mut query {
         if let Some(generic) = state.get_generic_animation(*facing) {
             helper.play(
                 character
@@ -39,7 +39,7 @@ pub fn update_animation(
 }
 
 pub(super) fn update_audio(mut query: Query<&mut PlayerState>, mut sounds: ResMut<Sounds>) {
-    for mut state in query.iter_mut() {
+    for mut state in &mut query {
         for clip in state.drain_matching_actions(|animation| {
             if let Action::Sound(clip) = animation {
                 Some(*clip)

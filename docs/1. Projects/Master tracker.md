@@ -4,7 +4,6 @@
 	- [[Animations for character 1]]
 
 ## Low priority
-- [[bevy 0.8]]
 - [[Recovery and knockdown]]
 - [[Rewards]]
 - [[Menus]]

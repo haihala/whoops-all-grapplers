@@ -10,7 +10,7 @@ pub fn manage_charge(
     mut query: Query<(&mut Resources, &InputParser, &Character)>,
     clock: Res<Clock>,
 ) {
-    for (mut resources, parser, character) in query.iter_mut() {
+    for (mut resources, parser, character) in &mut query {
         let charge = &mut resources.charge;
 
         let player_charging = character

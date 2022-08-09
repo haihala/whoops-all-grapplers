@@ -18,7 +18,7 @@ pub(super) fn spawn_boxes(
     pushboxes: Query<(Entity, &Pushbox, Option<&Children>)>,
     sprites: Query<&Sprite, With<BoxVisual>>,
 ) {
-    for (entity, hitbox, maybe_children) in hitboxes.iter() {
+    for (entity, hitbox, maybe_children) in &hitboxes {
         handle_box_spawning(
             &mut commands,
             &sprites,
@@ -30,7 +30,7 @@ pub(super) fn spawn_boxes(
             Some(hitbox.size()),
         );
     }
-    for (entity, hurtbox, maybe_children) in hurtboxes.iter() {
+    for (entity, hurtbox, maybe_children) in &hurtboxes {
         handle_box_spawning(
             &mut commands,
             &sprites,
@@ -42,7 +42,7 @@ pub(super) fn spawn_boxes(
             Some(hurtbox.size()),
         );
     }
-    for (entity, pushbox, maybe_children) in pushboxes.iter() {
+    for (entity, pushbox, maybe_children) in &pushboxes {
         handle_box_spawning(
             &mut commands,
             &sprites,
@@ -95,7 +95,7 @@ pub(super) fn size_adjustment(
     hitboxes: Query<&Hitbox>,
     mut sprites: Query<(&mut Sprite, &mut Transform, &BoxVisual, &Parent)>,
 ) {
-    for (mut sprite, mut tf, box_type, parent) in sprites.iter_mut() {
+    for (mut sprite, mut tf, box_type, parent) in &mut sprites {
         let area = match box_type {
             BoxVisual::Hurtbox => players.get(**parent).unwrap().0 .0,
             BoxVisual::Hitbox => hitboxes.get(**parent).unwrap().0,

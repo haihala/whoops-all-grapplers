@@ -5,7 +5,7 @@ use time::Clock;
 use super::PlayerQuery;
 
 pub(super) fn move_advancement(clock: Res<Clock>, mut query: Query<PlayerQuery>) {
-    for mut player in query.iter_mut() {
+    for mut player in &mut query {
         let situation = Situation {
             inventory: &player.inventory,
             history: player

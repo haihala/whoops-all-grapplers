@@ -156,7 +156,7 @@ fn reset(
         commands.remove_resource::<RoundResult>();
 
         for (mut health, mut resources, mut tf, player, mut player_state, mut buffer, mut parser) in
-            query.iter_mut()
+            &mut query
         {
             health.reset();
             resources.reset();

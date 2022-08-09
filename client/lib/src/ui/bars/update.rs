@@ -16,18 +16,18 @@ pub fn update(
     players: Query<(&Player, &Health, &Resources)>,
     colors: Res<Colors>,
 ) {
-    for (player, health, resources) in players.iter() {
-        for (mut style, bar) in bars.p0().iter_mut() {
+    for (player, health, resources) in &players {
+        for (mut style, bar) in &mut bars.p0() {
             if *player == bar.0 {
                 style.size.width = Val::Percent(health.get_percentage());
             }
         }
-        for (mut style, bar) in bars.p1().iter_mut() {
+        for (mut style, bar) in &mut bars.p1() {
             if *player == bar.0 {
                 style.size.width = Val::Percent(resources.meter.get_percentage());
             }
         }
-        for (mut style, mut color, bar) in bars.p2().iter_mut() {
+        for (mut style, mut color, bar) in &mut bars.p2() {
             if *player == bar.0 {
                 style.size.width = Val::Percent(resources.charge.get_percentage());
                 *color = if resources.charge.is_charged() {

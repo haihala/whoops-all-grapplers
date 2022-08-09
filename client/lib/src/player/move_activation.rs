@@ -86,14 +86,14 @@ pub(super) fn manage_buffer(
     mut query: Query<(&mut MoveBuffer, &mut InputParser)>,
 ) {
     // Read from the input parser and fill the buffer
-    for (mut buffer, mut parser) in query.iter_mut() {
+    for (mut buffer, mut parser) in &mut query {
         buffer.clear_old(clock.frame);
         buffer.add_events(parser.drain_events(), clock.frame);
     }
 }
 pub(super) fn move_continuation(mut query: Query<(&mut MoveBuffer, &mut PlayerState)>) {
     // Read from state, set activating move if an Action demands it
-    for (mut buffer, mut state) in query.iter_mut() {
+    for (mut buffer, mut state) in &mut query {
         let move_continuations = state.drain_matching_actions(|action| {
             if let Action::Move(move_id) = action {
                 Some(*move_id)
@@ -129,7 +129,7 @@ pub(super) fn raw_or_link(
     )>,
 ) {
     // Set activating move if one in the buffer can start raw or be linked into
-    for (mut buffer, character, state, inventory, resources, parser) in query.iter_mut() {
+    for (mut buffer, character, state, inventory, resources, parser) in &mut query {
         if let Some(freedom) = state.free_since {
             // Character has recently been freed
 
@@ -175,7 +175,7 @@ pub(super) fn special_cancel(
     )>,
 ) {
     // Set activating move if one in the buffer can be cancelled into
-    for (mut buffer, character, state, inventory, resources, parser) in query.iter_mut() {
+    for (mut buffer, character, state, inventory, resources, parser) in &mut query {
         if state.free_since.is_none() {
             if let Some(history) = state.get_move_history() {
                 // Not free because a move is happening
@@ -228,7 +228,7 @@ pub(super) fn move_activator(
     )>,
 ) {
     // Activate and clear activating move
-    for (mut buffer, mut state, mut resources, player, character) in query.iter_mut() {
+    for (mut buffer, mut state, mut resources, player, character) in &mut query {
         if let Some(activation) = buffer.activation.take() {
             let started = if let ActivationType::Link(timing) | ActivationType::Cancel(timing) =
                 activation.kind

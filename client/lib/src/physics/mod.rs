@@ -78,7 +78,7 @@ fn player_gravity(
         &Transform,
     )>,
 ) {
-    for (mut velocity, mut state, mut spawner, tf) in players.iter_mut() {
+    for (mut velocity, mut state, mut spawner, tf) in &mut players {
         let is_airborne = tf.translation.y > GROUND_PLANE_HEIGHT;
 
         if is_airborne {
@@ -98,7 +98,7 @@ fn player_input(
     clock: Res<Clock>,
     mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &Facing)>,
 ) {
-    for (mut state, mut velocity, facing) in query.iter_mut() {
+    for (mut state, mut velocity, facing) in &mut query {
         for movement in state.drain_matching_actions(|action| {
             if let Action::Movement(movement) = action {
                 Some(movement.to_owned())
@@ -134,7 +134,7 @@ struct PlayerMovingQuery<'a> {
 }
 
 fn move_players(mut query: Query<PlayerMovingQuery>) {
-    for mut p in query.iter_mut() {
+    for mut p in &mut query {
         p.tf.translation += p.velocity.get_shift();
     }
 }
@@ -259,7 +259,7 @@ fn move_constants(
     mut query: Query<(Entity, &ConstantVelocity, &mut Transform)>,
 ) {
     // Handle static collision
-    for (entity, velocity, mut transform) in query.iter_mut() {
+    for (entity, velocity, mut transform) in &mut query {
         transform.translation += velocity.shift;
 
         // Despawn the thing if it's outside of the arena

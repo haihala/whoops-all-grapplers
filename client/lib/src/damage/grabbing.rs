@@ -68,9 +68,7 @@ pub(super) fn register_grabs(
         &Facing,
     )>,
 ) {
-    for (mut grab_target, mut state, mut spawner, mut velocity, mut health, &facing) in
-        query.iter_mut()
-    {
+    for (mut grab_target, mut state, mut spawner, mut velocity, mut health, &facing) in &mut query {
         for descriptor in grab_target.queue.drain(..).collect::<Vec<_>>().into_iter() {
             state.throw();
             spawner.despawn_on_hit(&mut commands);

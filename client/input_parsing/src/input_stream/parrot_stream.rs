@@ -56,7 +56,7 @@ impl InputStream for ParrotStream {
 }
 
 pub fn update_parrots<T: InputStream + Component>(mut readers: Query<(&mut ParrotStream, &mut T)>) {
-    for (mut parrot, mut stream) in readers.iter_mut() {
+    for (mut parrot, mut stream) in &mut readers {
         if parrot.mode == ParrotMode::Listening {
             parrot.listen(stream.read());
         } else if parrot.mode == ParrotMode::Repeating {

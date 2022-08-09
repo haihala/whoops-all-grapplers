@@ -162,7 +162,7 @@ pub fn update_animation(
     mut main: Query<(&mut AnimationHelper, &Facing)>,
     mut players: Query<&mut AnimationPlayer>,
 ) {
-    for (mut helper, facing) in main.iter_mut() {
+    for (mut helper, facing) in &mut main {
         let mut player = players.get_mut(helper.player_entity).unwrap();
         if let Some((animation, offset)) = helper.next.take() {
             let asset = animations.get(animation, facing);
@@ -190,7 +190,7 @@ pub fn setup_helpers(
     children: Query<&Children>,
     players: Query<&AnimationPlayer>,
 ) {
-    for host_entity in to_setup.iter() {
+    for host_entity in &to_setup {
         if let Some(animation_player) =
             find_animation_player_entity(host_entity, &children, &players)
         {

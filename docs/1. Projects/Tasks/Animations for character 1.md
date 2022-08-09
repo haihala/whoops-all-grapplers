@@ -31,7 +31,7 @@ Keep it simple.
 			- [x] Anti-air
 			- [x] Air to air
 			- [x] Divekick
-			- [ ] Normal grab
+			- [x] Normal grab
 			- [ ] Backthrow
 			- [ ] Sweep
 			- [ ] Air grab

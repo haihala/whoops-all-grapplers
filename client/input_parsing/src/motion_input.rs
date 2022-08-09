@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 use bevy::utils::Instant;
 
-use types::{GameButton, StickPosition};
+use types::GameButton;
 
 use crate::{
-    helper_types::{Diff, InputEvent},
+    helper_types::{Diff, Frame, InputEvent},
     MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
 };
 
@@ -28,23 +28,25 @@ impl Default for ParserHead {
     }
 }
 impl ParserHead {
-    fn from_old_stick(requirements: &[InputEvent], old_stick: StickPosition) -> ParserHead {
-        let mut new = ParserHead::new(requirements.get(0).cloned());
+    fn from_frame(requirements: &[InputEvent], prev_state: Frame) -> ParserHead {
+        let mut new = ParserHead {
+            requirement: requirements.get(0).cloned(),
+            ..default()
+        };
+
         new.advance(
             requirements,
             &Diff {
-                stick_move: Some(old_stick),
+                stick_move: Some(prev_state.stick_position),
+                pressed: if !prev_state.pressed.is_empty() {
+                    Some(prev_state.pressed.clone())
+                } else {
+                    None
+                },
                 ..default()
             },
         );
         new
-    }
-
-    fn new(requirement: Option<InputEvent>) -> ParserHead {
-        ParserHead {
-            requirement,
-            ..default()
-        }
     }
 
     fn is_done(&self) -> bool {
@@ -126,23 +128,28 @@ impl MotionInput {
         self.heads.iter().any(|head| head.requirement.is_none())
     }
 
-    pub fn advance(&mut self, diff: &Diff, old_stick: StickPosition) {
+    pub fn advance(&mut self, diff: &Diff, prev_state: Frame) {
         if self.is_done() {
             return;
         }
 
-        let new_head = ParserHead::from_old_stick(&self.requirements, old_stick);
+        let new_head = ParserHead::from_frame(&self.requirements, prev_state);
 
-        if let Some(ref mut existing_head) = self
-            .heads
-            .iter_mut()
-            .find(|head| head.index == new_head.index)
-        {
-            // There is an existing head with the same index
-            existing_head.last_update = Instant::now();
-        } else {
-            // No existing head
-            self.heads.push(new_head);
+        if !new_head.is_done() {
+            // The previous input state has triggered this event.
+            // It ought to have been reacted to already, so don't bother adding it into the pool.
+
+            if let Some(ref mut existing_head) = self
+                .heads
+                .iter_mut()
+                .find(|head| head.index == new_head.index)
+            {
+                // There is an existing head with the same index
+                existing_head.last_update = Instant::now();
+            } else {
+                // No existing head
+                self.heads.push(new_head);
+            }
         }
 
         self.heads = self
@@ -263,7 +270,13 @@ mod test {
             ..default()
         };
 
-        let mut ph = ParserHead::from_old_stick(&motion.requirements, StickPosition::E);
+        let mut ph = ParserHead::from_frame(
+            &motion.requirements,
+            Frame {
+                stick_position: StickPosition::E,
+                ..default()
+            },
+        );
         assert!(ph.index == 1);
 
         ph.advance(&motion.requirements, &diff);

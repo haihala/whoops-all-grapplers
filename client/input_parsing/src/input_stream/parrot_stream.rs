@@ -49,6 +49,8 @@ impl InputStream for ParrotStream {
         if self.mode == ParrotMode::Repeating {
             self.buffer_index = (self.buffer_index + 1) % self.buffer.len();
             self.buffer[self.buffer_index].to_owned()
+        } else if self.mode == ParrotMode::Listening {
+            self.buffer.last().map(|inner| inner.to_owned()).flatten()
         } else {
             None
         }

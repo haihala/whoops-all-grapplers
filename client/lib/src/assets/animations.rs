@@ -21,11 +21,17 @@ impl Animations {
     fn all_loaded(&self, assets: &Assets<AnimationClip>) -> bool {
         self.normal
             .iter()
-            .map(|(_, handle)| handle)
-            .all(|handle| assets.get(handle).is_some())
+            .map(|(_, handle)| assets.get(handle))
+            .all(|clip| clip.is_some())
     }
 
     fn get(&self, animation: Animation, flipped: &Facing) -> Handle<AnimationClip> {
+        if animation == Animation::TPose {
+            // TPose is not mirrored and mirrored animations may not be ready by the time TPose is requested
+            // This should be irrelevant after a real loading screen.
+            return self.normal[&Animation::TPose].clone();
+        }
+
         match flipped {
             Facing::Right => self.normal.get(&animation),
             Facing::Left => self.mirrored.get(&animation),
@@ -224,6 +230,8 @@ pub(super) fn animation_paths() -> HashMap<Animation, String> {
             Animation::Dummy(DummyAnimation::DashForward),
             Animation::Dummy(DummyAnimation::Idle),
             Animation::Dummy(DummyAnimation::Jump),
+            Animation::Dummy(DummyAnimation::NormalThrow),
+            Animation::Dummy(DummyAnimation::NormalThrowRecipient),
             Animation::Dummy(DummyAnimation::Slap),
             Animation::Dummy(DummyAnimation::StandStun),
             Animation::TPose,

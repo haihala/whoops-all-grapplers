@@ -7,24 +7,33 @@ pub enum Model {
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Inspectable)]
 pub enum DummyAnimation {
+    // Basics
     #[default]
     Idle,
     Crouch,
     WalkForward,
     WalkBack,
-    DashForward,
-    DashBack,
     StandStun,
     CrouchStun,
     AirIdle,
     AirStun,
+
+    // Movement
     Jump,
+    DashForward,
+    DashBack,
+
+    // Strikes
     Slap,
     CrouchChop,
     BurnStraight,
     AntiAir,
     AirSlap,
     Divekick,
+
+    // Throws
+    NormalThrow,
+    NormalThrowRecipient,
 }
 
 #[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Inspectable)]

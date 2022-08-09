@@ -1,6 +1,6 @@
 use input_parsing::InputParser;
 
-use crate::{Inventory, MoveHistory, Resources};
+use crate::{Action, Inventory, MoveHistory, Resources};
 
 use super::FlowControl;
 
@@ -35,11 +35,14 @@ impl Situation<'_> {
             let mut handled_events = vec![];
 
             for future_event in history.move_data.phases.iter().skip(skip_to) {
-                if let Some(new_event) =
+                if let Some(mut new_event) =
                     self.handle_flow_control(future_event.to_owned(), unused_time)
                 {
                     if let FlowControl::Wait(time, _) = new_event {
                         unused_time -= time;
+                    } else if history.frame_skip != 0 && let FlowControl::Action(Action::Animation(animation)) = new_event {
+                        // This'll make it so that if a move is fast-forwarded due to frame fitting, the animation will be in sync
+                        new_event = Action::AnimationAtFrame(animation, history.frame_skip).into();
                     }
                     handled_events.push(new_event);
                 } else {

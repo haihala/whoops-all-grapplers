@@ -23,6 +23,7 @@ impl Movement {
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Action {
     Animation(Animation),
+    AnimationAtFrame(Animation, usize),
     Sound(SoundEffect),
     Move(MoveId),
     Hitbox(SpawnDescriptor),

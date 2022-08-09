@@ -9,6 +9,7 @@ pub struct MoveHistory {
     pub move_id: MoveId,
     #[inspectable(ignore)]
     pub move_data: Move,
+    pub frame_skip: usize,
     pub started: usize,
     #[inspectable(ignore)]
     pub past: Vec<FlowControl>,

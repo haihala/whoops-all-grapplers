@@ -21,17 +21,19 @@ pub fn update_animation(
                     .unwrap()
                     .to_owned(),
             );
-        } else if let Some(move_animation) = state
+        } else if let Some(&(move_animation, frame_skip)) = state
             .drain_matching_actions(|animation| {
-                if let Action::Animation(ani) = animation {
-                    Some(*ani)
+                if let Action::AnimationAtFrame(ani, frame) = animation {
+                    Some((*ani, *frame))
+                } else if let Action::Animation(ani) = animation {
+                    Some((*ani, 0))
                 } else {
                     None
                 }
             })
             .last()
         {
-            helper.play(move_animation.to_owned());
+            helper.play_with_offset(move_animation, frame_skip);
         }
     }
 }

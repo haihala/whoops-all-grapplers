@@ -46,7 +46,7 @@ pub struct AnimationHelper {
     pub player_entity: Entity,
     pub current: Animation,
     facing: Facing,
-    next: Option<Animation>,
+    next: Option<(Animation, usize)>,
 }
 
 impl AnimationHelper {
@@ -59,7 +59,15 @@ impl AnimationHelper {
         }
     }
     pub fn play(&mut self, new: Animation) {
-        self.next = if new != self.current { Some(new) } else { None }
+        self.play_with_offset(new, 0);
+    }
+
+    pub fn play_with_offset(&mut self, new: Animation, offset: usize) {
+        self.next = if new != self.current {
+            Some((new, offset))
+        } else {
+            None
+        }
     }
 
     fn set_playing(&mut self, animation: Animation, facing: Facing) {
@@ -156,13 +164,17 @@ pub fn update_animation(
 ) {
     for (mut helper, facing) in main.iter_mut() {
         let mut player = players.get_mut(helper.player_entity).unwrap();
-        if let Some(next) = helper.next.take() {
-            let asset = animations.get(next, facing);
-            player.play(asset).repeat();
-            helper.set_playing(next, *facing);
+        if let Some((animation, offset)) = helper.next.take() {
+            let asset = animations.get(animation, facing);
+            player
+                .play(asset)
+                .set_elapsed(offset as f32 * constants::FPS)
+                .repeat();
+            helper.set_playing(animation, *facing);
         } else if *facing != helper.facing {
             let asset = animations.get(helper.current, facing);
-            player.play(asset).repeat();
+            let elapsed = player.elapsed();
+            player.play(asset).set_elapsed(elapsed).repeat();
             let current = helper.current;
             helper.set_playing(current, *facing);
         }

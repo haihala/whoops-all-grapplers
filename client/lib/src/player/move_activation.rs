@@ -247,6 +247,7 @@ pub(super) fn move_activator(
                 move_id: activation.id,
                 move_data: character.get_move(activation.id),
                 started,
+                frame_skip: clock.frame - started,
                 ..default()
             });
             buffer.buffer.retain(|(_, id)| *id != activation.id);

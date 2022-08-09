@@ -11,8 +11,7 @@ pub fn movement(mut query: Query<(&InputParser, &mut PlayerState)>) {
                 StickPosition::W => state.walk(Facing::Left),
                 StickPosition::E => state.walk(Facing::Right),
                 StickPosition::SW | StickPosition::S | StickPosition::SE => state.crouch(),
-                StickPosition::Neutral => state.stand(),
-                _ => {}
+                _ => state.stand(),
             }
         }
     }

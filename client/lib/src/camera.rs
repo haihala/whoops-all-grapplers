@@ -31,26 +31,31 @@ fn add_cameras(mut commands: Commands) {
             transform: Transform::from_xyz(0.0, 1.8, 10.0),
             ..default()
         })
+        .insert(Name::new("Cameras"))
         .insert(WorldCamera)
         .with_children(|parent| {
-            parent.spawn_bundle(Camera3dBundle {
-                projection: projection.clone().into(),
-                ..default()
-            });
-            parent.spawn_bundle(Camera2dBundle {
-                transform: Transform::from_translation(Vec3::ZERO),
-                camera: Camera {
-                    // Higher is rendered later
-                    priority: 1,
+            parent
+                .spawn_bundle(Camera3dBundle {
+                    projection: projection.clone().into(),
                     ..default()
-                },
-                camera_2d: Camera2d {
-                    // Don't draw a clear color on top of the 3d stuff
-                    clear_color: ClearColorConfig::None,
-                },
-                projection,
-                ..default()
-            });
+                })
+                .insert(Name::new("3d Cam"));
+            parent
+                .spawn_bundle(Camera2dBundle {
+                    transform: Transform::from_translation(Vec3::ZERO),
+                    camera: Camera {
+                        // Higher is rendered later
+                        priority: 1,
+                        ..default()
+                    },
+                    camera_2d: Camera2d {
+                        // Don't draw a clear color on top of the 3d stuff
+                        clear_color: ClearColorConfig::None,
+                    },
+                    projection,
+                    ..default()
+                })
+                .insert(Name::new("2d Cam"));
         });
 }
 

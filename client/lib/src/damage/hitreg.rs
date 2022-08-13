@@ -90,6 +90,7 @@ pub(super) fn clash_parry(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(super) fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,

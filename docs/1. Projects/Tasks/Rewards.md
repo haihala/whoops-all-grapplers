@@ -1,3 +1,13 @@
+Progress:
+- [ ] Meter
+	- [x] Timing
+	- [x] Defense
+	- [ ] Parry
+	- [ ] Opener
+- [ ] Money
+	- [ ] Taunt
+	- [ ] Close games
+
 # Meter
 Meter is for rewarding stuff immediately. Players have 4 bars of meter, used in chunks, but gained slowly.
 

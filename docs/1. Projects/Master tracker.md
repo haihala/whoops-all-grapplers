@@ -1,21 +1,4 @@
 # Backlog
-## Saturday 13.8. todo
-- [x] Add a fireball model
-- [x] Remove combo meter
-- [x] Add blocking animations
-	- [x] Crouch
-	- [x] Stand
-- [x] Modify state to use blocking animations
-- [x] Add defense meter
-	- [x] Blocking
-	- [x] Throwing
-- [x] Fix teched toast
-- [x] Remove accuracy bonus and autocorrect from cancels
-	- [x] Maybe still have a toast that says whereabouts in the cancel windows you were
-- [x] Simplify link meter bonus toast
-- [ ] Make some moves outside the link system (jumps)
-- [x] Don't give link meter on whiffing
-
 ## High priority
 - [[Character 1]]
 	- [[Animations for character 1]]
@@ -47,6 +30,9 @@
 	- Double tap a cardinal to dodge that way
 		- Down is an in place dodge
 		- Opener bonus is re-applied
+- De-couple hit effects from registering a hit
+- Figure out a neater way to specify hit properties
+- 2 out of the 3 longest files in the project are in input parsing, maybe it could do with a cleanup at some point now that rust is more familiar
 
 # Other trackers
 ![[Bug tracker]]

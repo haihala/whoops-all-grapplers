@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use types::MoveId;
 
 #[derive(Debug)]
@@ -98,15 +100,17 @@ pub(super) struct Cancellation {
 impl Cancellation {
     pub(super) fn new(input_frame: usize, cancellable_since: usize) -> Self {
         Self {
-            message: if input_frame > cancellable_since {
-                format!("Cancelled on frame {}", input_frame - cancellable_since)
-            } else if input_frame == cancellable_since {
-                "Frame perfect cancel".to_owned()
-            } else {
-                format!(
+            message: match input_frame.cmp(&cancellable_since) {
+                Ordering::Equal => "Frame perfect cancel".to_owned(),
+                Ordering::Greater => {
+                    // Input frame came after it was cancellable
+                    format!("Cancelled on frame {}", input_frame - cancellable_since)
+                }
+                Ordering::Less => format!(
+                    // Input frame came before it was cancellable
                     "Cancel buffered for {} frames",
                     cancellable_since - input_frame
-                )
+                ),
             },
         }
     }

@@ -39,7 +39,7 @@ impl ParserHead {
             &Diff {
                 stick_move: Some(prev_state.stick_position),
                 pressed: if !prev_state.pressed.is_empty() {
-                    Some(prev_state.pressed.clone())
+                    Some(prev_state.pressed)
                 } else {
                     None
                 },

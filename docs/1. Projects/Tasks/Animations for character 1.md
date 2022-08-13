@@ -19,6 +19,9 @@ Keep it simple.
 		- [x] Stand
 		- [x] Crouch
 	- [x] Freefall (horizontal)
+	- [x] Blocking
+		- [x] Stand
+		- [x] Crouch
 	- [ ] Individual moves
 		- [x] Jump (One animation for all jumps)
 		- [x] Dash

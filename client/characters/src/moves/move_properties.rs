@@ -79,10 +79,6 @@ pub struct HitProperty<PropType: Clone + Copy + PartialEq + Default + Inspectabl
     pub on_block: PropType,
 }
 impl<T: Clone + Copy + PartialEq + Default + Inspectable> HitProperty<T> {
-    pub fn new(on_hit: T, on_block: T) -> HitProperty<T> {
-        HitProperty { on_hit, on_block }
-    }
-
     pub fn get(&self, blocked: bool) -> T {
         if blocked {
             self.on_block

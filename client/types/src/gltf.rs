@@ -49,12 +49,14 @@ pub enum Animation {
 // For state to be able to return a generic animation
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 pub enum AnimationType {
-    StandIdle,
-    CrouchIdle,
     AirIdle,
-    StandStun,
-    CrouchStun,
     AirStun,
+    StandIdle,
+    StandBlock,
+    StandStun,
     WalkForward,
     WalkBack,
+    CrouchIdle,
+    CrouchBlock,
+    CrouchStun,
 }

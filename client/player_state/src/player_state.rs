@@ -4,7 +4,7 @@ use bevy_inspector_egui::Inspectable;
 use characters::{Action, AttackHeight, FlowControl, MoveHistory, Situation};
 use types::{AnimationType, Area, Facing, StickPosition};
 
-use crate::sub_state::{AirState, CrouchState, StandState};
+use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 
 #[derive(Inspectable, Debug, Component, Clone)]
 enum MainState {
@@ -78,7 +78,8 @@ impl PlayerState {
             MainState::Air(AirState::Freefall) => Some(AnimationType::AirStun),
 
             MainState::Stand(StandState::Idle) => Some(AnimationType::StandIdle),
-            MainState::Stand(StandState::Stun(_)) => Some(AnimationType::StandStun),
+            MainState::Stand(StandState::Stun(Stun::Block(_))) => Some(AnimationType::StandBlock),
+            MainState::Stand(StandState::Stun(Stun::Hit(_))) => Some(AnimationType::StandStun),
             MainState::Stand(StandState::Walk(dir)) => Some(if facing == dir {
                 AnimationType::WalkForward
             } else {
@@ -86,7 +87,10 @@ impl PlayerState {
             }),
 
             MainState::Crouch(CrouchState::Idle) => Some(AnimationType::CrouchIdle),
-            MainState::Crouch(CrouchState::Stun(_)) => Some(AnimationType::CrouchStun),
+            MainState::Crouch(CrouchState::Stun(Stun::Block(_))) => {
+                Some(AnimationType::CrouchBlock)
+            }
+            MainState::Crouch(CrouchState::Stun(Stun::Hit(_))) => Some(AnimationType::CrouchStun),
             _ => None,
         }
     }
@@ -124,10 +128,20 @@ impl PlayerState {
     }
 
     // Stun
+    pub fn block(&mut self, recovery_frame: usize) {
+        self.main = match self.main {
+            MainState::Stand(_) => MainState::Stand(StandState::Stun(Stun::Block(recovery_frame))),
+            MainState::Crouch(_) => {
+                MainState::Crouch(CrouchState::Stun(Stun::Block(recovery_frame)))
+            }
+            MainState::Air(_) => MainState::Air(AirState::Freefall),
+        };
+        self.free_since = None;
+    }
     pub fn stun(&mut self, recovery_frame: usize) {
         self.main = match self.main {
-            MainState::Stand(_) => MainState::Stand(StandState::Stun(recovery_frame)),
-            MainState::Crouch(_) => MainState::Crouch(CrouchState::Stun(recovery_frame)),
+            MainState::Stand(_) => MainState::Stand(StandState::Stun(Stun::Hit(recovery_frame))),
+            MainState::Crouch(_) => MainState::Crouch(CrouchState::Stun(Stun::Hit(recovery_frame))),
             MainState::Air(_) => MainState::Air(AirState::Freefall),
         };
         self.free_since = None;
@@ -146,8 +160,8 @@ impl PlayerState {
     }
     pub fn unstun_frame(&self) -> Option<usize> {
         match self.main {
-            MainState::Stand(StandState::Stun(frame))
-            | MainState::Crouch(CrouchState::Stun(frame)) => Some(frame.to_owned()),
+            MainState::Stand(StandState::Stun(ref stun))
+            | MainState::Crouch(CrouchState::Stun(ref stun)) => Some(stun.get_frame()),
             _ => None,
         }
     }

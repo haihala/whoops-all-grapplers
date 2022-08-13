@@ -189,7 +189,12 @@ fn handle_hit(
         if knockback_impulse.y > 0.0 {
             defender.state.launch();
         } else {
-            defender.state.stun(effect.stun.get(blocked) + frame);
+            let end_frame = effect.stun.get(blocked) + frame;
+            if blocked {
+                defender.state.block(end_frame);
+            } else {
+                defender.state.stun(end_frame);
+            }
         }
 
         // Sound effect

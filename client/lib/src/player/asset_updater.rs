@@ -13,15 +13,7 @@ pub fn update_animation(
     >,
 ) {
     for (character, mut state, facing, mut helper) in &mut query {
-        if let Some(generic) = state.get_generic_animation(*facing) {
-            helper.play(
-                character
-                    .generic_animations
-                    .get(&generic)
-                    .unwrap()
-                    .to_owned(),
-            );
-        } else if let Some(&(move_animation, frame_skip)) = state
+        if let Some(&(move_animation, frame_skip)) = state
             .drain_matching_actions(|animation| {
                 if let Action::AnimationAtFrame(ani, frame) = animation {
                     Some((*ani, *frame))
@@ -34,6 +26,14 @@ pub fn update_animation(
             .last()
         {
             helper.play_with_offset(move_animation, frame_skip);
+        } else if let Some(generic) = state.get_generic_animation(*facing) {
+            helper.play(
+                character
+                    .generic_animations
+                    .get(&generic)
+                    .unwrap()
+                    .to_owned(),
+            );
         }
     }
 }

@@ -5,7 +5,7 @@
 - [x] Add blocking animations
 	- [x] Crouch
 	- [x] Stand
-- [ ] Modify state to use blocking animations
+- [x] Modify state to use blocking animations
 - [ ] Add blocking meter
 - [ ] Remove accuracy bonus and autocorrect from cancels
 	- [ ] Maybe still have a toast that says whereabouts in the cancel windows you were

@@ -49,11 +49,18 @@ fn handle_grabs(
         let teched =
             target.state.get_move_history().is_none() && target.input_parser.head_is_clear();
 
-        if teched {
-            notifications.add(target.player.to_owned(), "Teched!".into());
-        } else if in_range {
-            target.grabbable.queue.push(descriptor);
-        }
+        notifications.add(
+            target.player.to_owned(),
+            if !in_range {
+                "Out of range!"
+            } else if teched {
+                "Teched!"
+            } else {
+                target.grabbable.queue.push(descriptor);
+                "Thrown!"
+            }
+            .into(),
+        );
     }
 }
 

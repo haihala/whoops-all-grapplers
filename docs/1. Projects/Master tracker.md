@@ -1,10 +1,11 @@
 # Backlog
 ## Saturday 13.8. todo
 - [x] Add a fireball model
-- [ ] Remove combo meter
-- [ ] Add blocking animations
-	- [ ] Crouch
-	- [ ] Stand
+- [x] Remove combo meter
+- [x] Add blocking animations
+	- [x] Crouch
+	- [x] Stand
+- [ ] Modify state to use blocking animations
 - [ ] Add blocking meter
 - [ ] Remove accuracy bonus and autocorrect from cancels
 	- [ ] Maybe still have a toast that says whereabouts in the cancel windows you were

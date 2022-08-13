@@ -12,10 +12,12 @@ pub enum DummyAnimation {
     #[default]
     Idle,
     Crouch,
+    CrouchStun,
+    CrouchBlock,
     WalkForward,
     WalkBack,
     StandStun,
-    CrouchStun,
+    StandBlock,
     AirIdle,
     AirStun,
 

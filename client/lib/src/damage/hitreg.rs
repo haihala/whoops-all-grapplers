@@ -167,10 +167,9 @@ fn handle_hit(
             defender.parser.get_relative_stick_position(),
         );
 
-        // Damage and meter gain
-        let amount = effect.damage.get(blocked);
-        defender.health.apply_damage(amount);
-        attacker.resources.meter.add_combo_meter(amount);
+        // Damage
+        let damage = effect.damage.get(blocked);
+        defender.health.apply_damage(damage);
 
         // Knockback
         let knockback_impulse = attacker.facing.mirror_vec(effect.knockback.get(blocked));

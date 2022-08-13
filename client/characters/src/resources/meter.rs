@@ -5,14 +5,12 @@ use bevy_inspector_egui::Inspectable;
 pub struct Meter {
     value: i32,
     max: i32,
-    combo_meter: i32,
 }
 impl Default for Meter {
     fn default() -> Self {
         Self {
             value: 100,
             max: 100,
-            combo_meter: 0,
         }
     }
 }
@@ -32,13 +30,5 @@ impl Meter {
     }
     pub fn gain(&mut self, amount: i32) {
         self.value = (self.value + amount).min(self.max);
-    }
-    pub fn add_combo_meter(&mut self, damage: i32) {
-        const METER_GAINED_PER_DAMAGE: f32 = 0.5;
-        self.combo_meter += (damage as f32 * METER_GAINED_PER_DAMAGE) as i32;
-    }
-    pub fn flush_combo(&mut self) {
-        self.gain(self.combo_meter);
-        self.combo_meter = 0;
     }
 }

@@ -3,6 +3,7 @@ use bevy_inspector_egui::Inspectable;
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Inspectable)]
 pub enum Model {
     Dummy,
+    Fireball,
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Inspectable)]

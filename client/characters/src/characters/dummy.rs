@@ -3,7 +3,7 @@ use std::{collections::HashMap, iter::empty};
 use bevy::prelude::*;
 use map_macro::map;
 
-use types::{Animation, Area, DummyAnimation, ItemId, MoveId};
+use types::{Animation, Area, DummyAnimation, ItemId, Model, MoveId};
 
 use crate::{
     moves::{grounded, not_grounded, Action, FlowControl, MoveType, Movement, Situation},
@@ -218,12 +218,13 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
             phases: vec![
                 FlowControl::Wait(10, false),
                 Action::Hitbox(SpawnDescriptor {
-                        hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
-                        speed: 5.0 * Vec3::X,
-                        lifetime: Lifetime::frames((constants::FPS * 0.25) as usize),
-                        attached_to_player: false,
-                        ..default()
-                    }).into(),
+                    hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
+                    speed: 5.0 * Vec3::X,
+                    lifetime: Lifetime::frames((constants::FPS * 0.25) as usize),
+                    attached_to_player: false,
+                    model: Some(Model::Fireball),
+                    ..default()
+                }).into(),
                 FlowControl::Wait(5, true),
             ],
             ..default()
@@ -243,6 +244,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                     lifetime: Lifetime::until_owner_hit(),
                     damage: (20, 3).into(),
                     attached_to_player: false,
+                    model: Some(Model::Fireball),
                     ..default()
                 }).into(),
                 FlowControl::Wait(5, true),
@@ -258,6 +260,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                     speed: 4.0 * Vec3::X,
                     lifetime: Lifetime::until_owner_hit(),
                     attached_to_player: false,
+                    model: Some(Model::Fireball),
                     ..default()
                 }).into(),
                 FlowControl::Wait(30, true),
@@ -279,6 +282,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                     lifetime: Lifetime::until_owner_hit(),
                     hits: 2,
                     attached_to_player: false,
+                    model: Some(Model::Fireball),
                     ..default()
                 }).into(),
                 FlowControl::Wait(20, false),

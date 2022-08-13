@@ -5,7 +5,7 @@ use player_state::PlayerState;
 use time::Clock;
 use types::{Area, Facing, Owner, Player};
 
-use crate::physics::ConstantVelocity;
+use crate::{assets::Models, physics::ConstantVelocity};
 
 #[derive(Debug)]
 struct DespawnRequest {
@@ -22,6 +22,7 @@ impl HitboxSpawner {
     pub fn spawn_attack(
         &mut self,
         commands: &mut Commands,
+        models: &Models,
         descriptor: SpawnDescriptor,
         frame: usize,
         parent: Entity,
@@ -62,6 +63,15 @@ impl HitboxSpawner {
                 descriptor.hitbox.size(),
             )))
             .insert(ConstantVelocity::new(facing.mirror_vec(descriptor.speed)));
+
+        if let Some(model) = descriptor.model {
+            builder.with_children(|parent| {
+                parent.spawn_bundle(SceneBundle {
+                    scene: models[&model].clone(),
+                    ..default()
+                });
+            });
+        }
 
         if descriptor.attached_to_player {
             commands.entity(parent).push_children(&[new_hitbox]);
@@ -105,6 +115,7 @@ impl HitboxSpawner {
 pub(super) fn spawn_new(
     mut commands: Commands,
     clock: Res<Clock>,
+    models: Res<Models>,
     mut query: Query<(
         &mut HitboxSpawner,
         &mut PlayerState,
@@ -127,6 +138,7 @@ pub(super) fn spawn_new(
         {
             spawner.spawn_attack(
                 &mut commands,
+                &models,
                 spawn_descriptor,
                 clock.frame,
                 parent,

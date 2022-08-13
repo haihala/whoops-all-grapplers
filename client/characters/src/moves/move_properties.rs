@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use types::Area;
+use types::{Area, Model};
 
 #[derive(Debug, Clone, Copy, Default, Component, DerefMut, Deref, Inspectable)]
 pub struct Hurtbox(pub Area);
@@ -148,6 +148,7 @@ pub struct SpawnDescriptor {
     pub hits: usize,
     pub knockback: Knockback,
     pub pushback: Pushback,
+    pub model: Option<Model>,
 
     /// Hitbox is moved at this constant speed
     pub speed: Vec3,
@@ -170,6 +171,7 @@ impl Default for SpawnDescriptor {
             attached_to_player: true,
             knockback: (Vec3::X * 2.0, Vec3::X * 1.0).into(),
             pushback: (Vec3::X * 1.0, Vec3::X * 0.5).into(),
+            model: None,
         }
     }
 }

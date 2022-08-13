@@ -11,12 +11,13 @@ use crate::{
     physics::PlayerVelocity,
 };
 
-use super::{Health, HitboxSpawner};
+use super::{Defense, Health, HitboxSpawner};
 
 #[derive(WorldQuery)]
 #[world_query(mutable)]
 pub struct PlayerQuery<'a> {
     character: &'a Character,
+    defense: &'a mut Defense,
     hurtbox: &'a Hurtbox,
     tf: &'a Transform,
     health: &'a mut Health,
@@ -195,6 +196,14 @@ fn handle_hit(
             } else {
                 defender.state.stun(end_frame);
             }
+        }
+
+        // Defense
+        if blocked {
+            defender.defense.bump_streak(frame);
+            defender.resources.meter.gain(defender.defense.get_reward());
+        } else {
+            defender.defense.reset()
         }
 
         // Sound effect

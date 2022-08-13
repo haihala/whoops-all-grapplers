@@ -8,10 +8,7 @@ pub struct Meter {
 }
 impl Default for Meter {
     fn default() -> Self {
-        Self {
-            value: 100,
-            max: 100,
-        }
+        Self { value: 0, max: 100 }
     }
 }
 impl Meter {

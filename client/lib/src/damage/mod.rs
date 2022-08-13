@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 
-mod hitreg;
-
+mod defense;
 mod grabbing;
 mod health;
-pub use health::Health;
-
 mod hitboxes;
+mod hitreg;
+
+pub use defense::Defense;
+pub use health::Health;
 pub use hitboxes::HitboxSpawner;
 
 use time::{GameState, WAGStage};
@@ -24,9 +25,10 @@ impl Plugin for DamagePlugin {
                 .with_system(hitreg::register_hits.after(hitreg::clash_parry))
                 .with_system(grabbing::spawn_grabs.after(hitreg::register_hits))
                 .with_system(grabbing::register_grabs.after(grabbing::spawn_grabs))
+                .with_system(defense::timeout_defense_streak.after(grabbing::register_grabs))
                 .with_system(
                     health::check_dead
-                        .after(grabbing::register_grabs)
+                        .after(defense::timeout_defense_streak)
                         .with_run_criteria(State::on_update(GameState::Combat)),
                 )
                 .with_system(

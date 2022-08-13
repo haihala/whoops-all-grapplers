@@ -6,9 +6,9 @@
 	- [x] Crouch
 	- [x] Stand
 - [x] Modify state to use blocking animations
-- [ ] Add defense meter
+- [x] Add defense meter
 	- [x] Blocking
-	- [ ] Throwing
+	- [x] Throwing
 - [x] Fix teched toast
 - [ ] Remove accuracy bonus and autocorrect from cancels
 	- [ ] Maybe still have a toast that says whereabouts in the cancel windows you were

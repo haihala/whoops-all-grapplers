@@ -1,12 +1,13 @@
 use bevy::{ecs::query::WorldQuery, prelude::*};
-use characters::{Action, Grabable};
+use characters::{Action, Grabable, Resources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
+use time::Clock;
 use types::{Facing, Player, Players};
 
 use crate::{physics::PlayerVelocity, ui::Notifications};
 
-use super::{Health, HitboxSpawner};
+use super::{Defense, Health, HitboxSpawner};
 
 #[derive(WorldQuery)]
 #[world_query(mutable)]
@@ -17,20 +18,24 @@ pub(super) struct PlayerQuery<'a> {
     facing: &'a Facing,
     grabbable: &'a mut Grabable,
     player: &'a Player,
+    defense: &'a mut Defense,
+    resources: &'a mut Resources,
 }
 
 pub(super) fn spawn_grabs(
     mut notifications: ResMut<Notifications>,
     mut query: Query<PlayerQuery>,
     players: Res<Players>,
+    clock: Res<Clock>,
 ) {
     if let Ok([mut p1, mut p2]) = query.get_many_mut([players.one, players.two]) {
-        handle_grabs(&mut notifications, &mut p1, &mut p2);
-        handle_grabs(&mut notifications, &mut p2, &mut p1);
+        handle_grabs(&mut notifications, clock.frame, &mut p1, &mut p2);
+        handle_grabs(&mut notifications, clock.frame, &mut p2, &mut p1);
     }
 }
 fn handle_grabs(
     notifications: &mut Notifications,
+    frame: usize,
     actor: &mut PlayerQueryItem,
     target: &mut PlayerQueryItem,
 ) {
@@ -54,9 +59,12 @@ fn handle_grabs(
             if !in_range {
                 "Out of range!"
             } else if teched {
+                target.defense.bump_streak(frame);
+                target.resources.meter.gain(target.defense.get_reward());
                 "Teched!"
             } else {
                 target.grabbable.queue.push(descriptor);
+                target.defense.reset();
                 "Thrown!"
             }
             .into(),

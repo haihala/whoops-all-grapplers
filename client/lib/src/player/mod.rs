@@ -14,7 +14,7 @@ use types::{Facing, Player, Players};
 
 use crate::{
     assets::{AnimationHelperSetup, Models},
-    damage::{Health, HitboxSpawner},
+    damage::{Defense, Health, HitboxSpawner},
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
 
@@ -93,6 +93,7 @@ fn setup(mut commands: Commands, models: Res<Models>) {
 
 #[derive(Bundle, Default)]
 struct PlayerDefaults {
+    defense: Defense,
     health: Health,
     resources: Resources,
     inventory: Inventory,

@@ -7,7 +7,7 @@ use types::{Facing, Player, Players};
 
 use crate::{physics::PlayerVelocity, ui::Notifications};
 
-use super::{Defense, Health, HitboxSpawner};
+use super::{Combo, Defense, Health, HitboxSpawner};
 
 #[derive(WorldQuery)]
 #[world_query(mutable)]
@@ -74,6 +74,7 @@ fn handle_grabs(
 
 pub(super) fn register_grabs(
     mut commands: Commands,
+    combo: Option<Res<Combo>>,
     mut query: Query<(
         &mut Grabable,
         &mut PlayerState,
@@ -85,6 +86,10 @@ pub(super) fn register_grabs(
 ) {
     for (mut grab_target, mut state, mut spawner, mut velocity, mut health, &facing) in &mut query {
         for descriptor in grab_target.queue.drain(..).collect::<Vec<_>>().into_iter() {
+            if combo.is_none() {
+                commands.insert_resource(Combo);
+            }
+
             state.throw();
             spawner.despawn_on_hit(&mut commands);
             // Facing is from the one being thrown, but we want to write the vector from the attacker's perspective

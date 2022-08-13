@@ -6,7 +6,7 @@ use player_state::PlayerState;
 use time::Clock;
 use types::{MoveId, Player};
 
-use crate::ui::Notifications;
+use crate::{damage::Combo, ui::Notifications};
 
 mod helper_types;
 use helper_types::{ActivationType, Cancellation, Link, MoveActivation};
@@ -186,6 +186,7 @@ pub(super) fn special_cancel(
 
 pub(super) fn move_activator(
     clock: Res<Clock>,
+    combo: Option<Res<Combo>>,
     mut notifications: ResMut<Notifications>,
     mut query: Query<(
         &mut MoveBuffer,
@@ -200,16 +201,20 @@ pub(super) fn move_activator(
         if let Some(activation) = buffer.activation.take() {
             let started = match activation.kind {
                 ActivationType::Link(link) => {
-                    notifications.add(*player, link.message());
+                    if combo.is_some() {
+                        notifications.add(*player, link.message());
 
-                    if let Some(meter_gain) = link.meter_gain() {
-                        resources.meter.gain(meter_gain);
+                        if let Some(meter_gain) = link.meter_gain() {
+                            resources.meter.gain(meter_gain);
+                        }
                     }
 
                     link.correction
                 }
                 ActivationType::Cancel(cancellation) => {
-                    notifications.add(*player, cancellation.message);
+                    if combo.is_some() {
+                        notifications.add(*player, cancellation.message);
+                    }
                     clock.frame
                 }
                 _ => clock.frame,
@@ -222,7 +227,7 @@ pub(super) fn move_activator(
                 frame_skip: clock.frame - started,
                 ..default()
             });
-            buffer.buffer.retain(|(_, id)| *id != activation.id);
+            buffer.buffer.clear();
         }
     }
 }

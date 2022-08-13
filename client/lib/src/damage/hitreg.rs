@@ -11,7 +11,7 @@ use crate::{
     physics::PlayerVelocity,
 };
 
-use super::{Defense, Health, HitboxSpawner};
+use super::{Combo, Defense, Health, HitboxSpawner};
 
 #[derive(WorldQuery)]
 #[world_query(mutable)]
@@ -93,6 +93,7 @@ pub(super) fn clash_parry(
 pub(super) fn register_hits(
     mut commands: Commands,
     clock: Res<Clock>,
+    combo: Option<Res<Combo>>,
     mut sounds: ResMut<Sounds>,
     mut particles: ResMut<Particles>,
     mut hitboxes: Query<(
@@ -116,6 +117,7 @@ pub(super) fn register_hits(
 
             handle_hit(
                 &mut commands,
+                combo.is_some(),
                 clock.frame,
                 &mut sounds,
                 &mut particles,
@@ -135,6 +137,7 @@ const FRAMES_BETWEEN_HITS: usize = 10;
 #[allow(clippy::too_many_arguments)]
 fn handle_hit(
     commands: &mut Commands,
+    combo_ongoing: bool,
     frame: usize,
     sounds: &mut Sounds,
     particles: &mut Particles,
@@ -157,6 +160,10 @@ fn handle_hit(
         .intersection(&hitbox)
     {
         // Hit has happened
+        if !combo_ongoing {
+            commands.insert_resource(Combo);
+        }
+
         // Handle blocking and state transitions here
         attacker.state.register_hit();
 

@@ -1,11 +1,13 @@
 use bevy::prelude::*;
 
+mod combo;
 mod defense;
 mod grabbing;
 mod health;
 mod hitboxes;
 mod hitreg;
 
+pub use combo::Combo;
 pub use defense::Defense;
 pub use health::Health;
 pub use hitboxes::HitboxSpawner;

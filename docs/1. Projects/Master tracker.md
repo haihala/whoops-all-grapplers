@@ -14,7 +14,7 @@
 	- [x] Maybe still have a toast that says whereabouts in the cancel windows you were
 - [x] Simplify link meter bonus toast
 - [ ] Make some moves outside the link system (jumps)
-- [ ] Don't give link meter on whiffing
+- [x] Don't give link meter on whiffing
 
 ## High priority
 - [[Character 1]]

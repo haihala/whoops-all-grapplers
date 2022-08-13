@@ -1,4 +1,21 @@
 # Backlog
+## Saturday 13.8. todo
+- [x] Add a fireball model
+- [ ] Remove combo meter
+- [ ] Add blocking animations
+	- [ ] Crouch
+	- [ ] Stand
+- [ ] Add blocking meter
+- [ ] Remove accuracy bonus and autocorrect from cancels
+	- [ ] Maybe still have a toast that says whereabouts in the cancel windows you were
+- [ ] Simplify link meter bonus toast to one of:
+	- [ ] "Perfect, +30"
+	- [ ] "Good, n frames early, +10"
+	- [ ] "Good, n frames late, +10"
+	- [ ] "Early by n frames, +0"
+	- [ ] "Late by n frames, +0"
+- [ ] Make some moves outside the link system (jumps)
+
 ## High priority
 - [[Character 1]]
 	- [[Animations for character 1]]

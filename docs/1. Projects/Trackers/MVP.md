@@ -27,7 +27,7 @@
 		- [x] Can throw
 		- [x] Yomi counter
 - [ ] One character ([[Lex]])
-	- [ ] 4 normals
+	- [x] 4 normals
 	- [ ] 2 specials
 	- [x] Visuals (Box)
 	- [x] Animations (moving boxes)

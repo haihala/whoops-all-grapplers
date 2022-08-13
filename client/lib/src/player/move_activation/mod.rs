@@ -8,33 +8,10 @@ use types::{MoveId, Player};
 
 use crate::ui::Notifications;
 
+mod helper_types;
+use helper_types::{ActivationType, Cancellation, Link, MoveActivation};
+
 const AUTOCORRECT: usize = (0.2 * constants::FPS) as usize;
-
-// +- frames. 0 is frame perfect, 1 means +-1 aka 3 frame window
-const PERFECT_TIMING_DELTA: usize = 1;
-const GOOD_TIMING_DELTA: usize = 5;
-
-#[derive(Debug)]
-struct MoveActivation {
-    kind: ActivationType,
-    id: MoveId,
-}
-
-#[derive(Debug)]
-enum ActivationType {
-    Continuation,
-    Raw,
-    Link(Timing),
-    Cancel(Timing),
-}
-
-#[derive(Debug)]
-struct Timing {
-    /// How much meter / what toast to give
-    error: i32,
-    /// The frame when the move is said to have started
-    correction: usize,
-}
 
 #[derive(Debug, Default, Component)]
 pub struct MoveBuffer {
@@ -130,7 +107,7 @@ pub(super) fn raw_or_link(
 ) {
     // Set activating move if one in the buffer can start raw or be linked into
     for (mut buffer, character, state, inventory, resources, parser) in &mut query {
-        if let Some(freedom) = state.free_since {
+        if let Some(freedom_frame) = state.free_since {
             // Character has recently been freed
 
             if let Some((stored, id, _)) = buffer
@@ -148,12 +125,9 @@ pub(super) fn raw_or_link(
                 .into_iter()
                 .min_by(|(_, id1, _), (_, id2, _)| id1.cmp(id2))
             {
-                let error = stored as i32 - freedom as i32;
+                let error = stored as i32 - freedom_frame as i32;
                 let kind = if error.abs() < AUTOCORRECT as i32 {
-                    ActivationType::Link(Timing {
-                        error,
-                        correction: freedom,
-                    })
+                    ActivationType::Link(Link::new(stored, freedom_frame))
                 } else {
                     ActivationType::Raw
                 };
@@ -180,7 +154,7 @@ pub(super) fn special_cancel(
             if let Some(history) = state.get_move_history() {
                 // Not free because a move is happening
                 // Is current move cancellable, if so, since when
-                if let Some((stored, id, freedom)) = buffer
+                if let Some((stored, id, cancellable_since)) = buffer
                     .get_situation_moves(
                         character,
                         Situation {
@@ -200,16 +174,10 @@ pub(super) fn special_cancel(
                     })
                     .min_by(|(_, id1, _), (_, id2, _)| id1.cmp(id2))
                 {
-                    let error = stored as i32 - freedom as i32;
-                    if error.abs() < AUTOCORRECT as i32 {
-                        buffer.activation = Some(MoveActivation {
-                            id,
-                            kind: ActivationType::Cancel(Timing {
-                                error,
-                                correction: freedom,
-                            }),
-                        });
-                    }
+                    buffer.activation = Some(MoveActivation {
+                        id,
+                        kind: ActivationType::Cancel(Cancellation::new(stored, cancellable_since)),
+                    });
                 }
             }
         }
@@ -230,17 +198,21 @@ pub(super) fn move_activator(
     // Activate and clear activating move
     for (mut buffer, mut state, mut resources, player, character) in &mut query {
         if let Some(activation) = buffer.activation.take() {
-            let started = if let ActivationType::Link(timing) | ActivationType::Cancel(timing) =
-                activation.kind
-            {
-                let (message, meter_gain) = get_combo_notification(timing.error);
+            let started = match activation.kind {
+                ActivationType::Link(link) => {
+                    notifications.add(*player, link.message());
 
-                notifications.add(*player, message);
-                resources.meter.gain(meter_gain);
+                    if let Some(meter_gain) = link.meter_gain() {
+                        resources.meter.gain(meter_gain);
+                    }
 
-                timing.correction
-            } else {
-                clock.frame
+                    link.correction
+                }
+                ActivationType::Cancel(cancellation) => {
+                    notifications.add(*player, cancellation.message);
+                    clock.frame
+                }
+                _ => clock.frame,
             };
 
             state.start_move(MoveHistory {
@@ -253,56 +225,4 @@ pub(super) fn move_activator(
             buffer.buffer.retain(|(_, id)| *id != activation.id);
         }
     }
-}
-
-const MIDDLE_LEN: usize = 1 + 2 * PERFECT_TIMING_DELTA;
-const EDGE_LEN: usize = GOOD_TIMING_DELTA - PERFECT_TIMING_DELTA;
-const BUFFER_LEN: usize = AUTOCORRECT - EDGE_LEN;
-
-const METER_GAIN_ON_PERFECT: i32 = 30;
-const METER_GAIN_ON_GOOD: i32 = 10;
-
-fn get_combo_notification(frame_diff: i32) -> (String, i32) {
-    // TODO: This could use a cleanup
-    let mut middle = "-".repeat(MIDDLE_LEN);
-    let mut good_left_edge = "-".repeat(EDGE_LEN);
-    let mut good_right_edge = good_left_edge.clone();
-    let mut buffer_left_edge = "-".repeat(BUFFER_LEN);
-    let mut buffer_right_edge = buffer_left_edge.clone();
-
-    let abs_diff = frame_diff.unsigned_abs() as usize;
-    let (word, gain) = if abs_diff <= PERFECT_TIMING_DELTA {
-        // Perfect timing
-        let bound = (frame_diff + 1) as usize;
-        middle.replace_range(bound..bound + 1, "x");
-
-        ("Perfect", METER_GAIN_ON_PERFECT)
-    } else if abs_diff <= GOOD_TIMING_DELTA {
-        // Good timing
-        let index = (abs_diff - PERFECT_TIMING_DELTA).min(EDGE_LEN - 1);
-        if frame_diff > 0 {
-            good_left_edge.replace_range(EDGE_LEN - index..EDGE_LEN - index + 1, "x");
-        } else {
-            good_right_edge.replace_range(index..index + 1, "x");
-        }
-
-        ("Good", METER_GAIN_ON_GOOD)
-    } else {
-        let index = (abs_diff - GOOD_TIMING_DELTA).min(BUFFER_LEN - 1);
-        if frame_diff > 0 {
-            buffer_left_edge.replace_range(BUFFER_LEN - index..BUFFER_LEN - index + 1, "x");
-            ("Late", 0)
-        } else {
-            buffer_right_edge.replace_range(index..index + 1, "x");
-            ("Early", 0)
-        }
-    };
-
-    (
-        format!(
-            "{}: {}[{}[{}]{}]{}",
-            word, buffer_left_edge, good_left_edge, middle, good_right_edge, buffer_right_edge
-        ),
-        gain,
-    )
 }

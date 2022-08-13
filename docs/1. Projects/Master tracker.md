@@ -10,15 +10,11 @@
 	- [x] Blocking
 	- [x] Throwing
 - [x] Fix teched toast
-- [ ] Remove accuracy bonus and autocorrect from cancels
-	- [ ] Maybe still have a toast that says whereabouts in the cancel windows you were
-- [ ] Simplify link meter bonus toast to one of:
-	- [ ] "Perfect, +30"
-	- [ ] "Good, n frames early, +10"
-	- [ ] "Good, n frames late, +10"
-	- [ ] "Early by n frames, +0"
-	- [ ] "Late by n frames, +0"
+- [x] Remove accuracy bonus and autocorrect from cancels
+	- [x] Maybe still have a toast that says whereabouts in the cancel windows you were
+- [x] Simplify link meter bonus toast
 - [ ] Make some moves outside the link system (jumps)
+- [ ] Don't give link meter on whiffing
 
 ## High priority
 - [[Character 1]]

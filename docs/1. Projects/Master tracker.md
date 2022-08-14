@@ -6,6 +6,7 @@
 	- [x] Intangibility
 		- [x] In effect
 		- [x] Notification
+- [x] Make projectiles stop if they are inactive (hitting)
 - [ ] Builder patterns for moves
 
 # Backlog
@@ -42,7 +43,6 @@
 		- Opener bonus is re-applied
 - De-couple hit effects from registering a hit
 - Figure out a neater way to specify hit properties
-- 2 out of the 3 longest files in the project are in input parsing, maybe it could do with a cleanup at some point now that rust is more familiar
 
 # Other trackers
 ![[Bug tracker]]

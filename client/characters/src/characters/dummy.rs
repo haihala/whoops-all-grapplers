@@ -242,7 +242,8 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                     hitbox: Hitbox(Area::new(0.5, 1.2, 0.4, 0.3)),
                     speed: 6.0 * Vec3::X,
                     lifetime: Lifetime::until_owner_hit(),
-                    damage: (20, 3).into(),
+                    damage: (10, 3).into(),
+                    hits: 3,
                     attached_to_player: false,
                     model: Some(Model::Fireball),
                     ..default()

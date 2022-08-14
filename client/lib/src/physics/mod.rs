@@ -4,7 +4,7 @@ pub use player_velocity::PlayerVelocity;
 use bevy::{ecs::query::WorldQuery, prelude::*};
 use bevy_inspector_egui::Inspectable;
 
-use characters::{Action, Character};
+use characters::{Action, Character, HitTracker};
 use constants::PLAYER_GRAVITY_PER_FRAME;
 use player_state::PlayerState;
 use time::{once_per_combat_frame, Clock, WAGStage};
@@ -257,10 +257,22 @@ fn get_x_clamp(collider: Area, left_border: f32, right_border: f32) -> Option<f3
 
 fn move_constants(
     mut commands: Commands,
-    mut query: Query<(Entity, &ConstantVelocity, &mut Transform)>,
+    clock: Res<Clock>,
+    mut query: Query<(
+        Entity,
+        &ConstantVelocity,
+        Option<&HitTracker>,
+        &mut Transform,
+    )>,
 ) {
-    // Handle static collision
-    for (entity, velocity, mut transform) in &mut query {
+    for (entity, velocity, hit_tracker, mut transform) in &mut query {
+        if hit_tracker
+            .map(|tracker| !tracker.active(clock.frame))
+            .unwrap_or(false)
+        {
+            continue;
+        }
+
         transform.translation += velocity.shift;
 
         // Despawn the thing if it's outside of the arena

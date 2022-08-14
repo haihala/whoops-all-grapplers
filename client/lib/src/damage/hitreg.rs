@@ -50,16 +50,8 @@ pub(super) fn clash_parry(
             continue;
         }
 
-        // TODO: Prettify
-        if let Some(last_hit_frame) = tracker1.last_hit_frame {
-            if last_hit_frame + FRAMES_BETWEEN_HITS > clock.frame {
-                continue;
-            }
-        }
-        if let Some(last_hit_frame) = tracker2.last_hit_frame {
-            if last_hit_frame + FRAMES_BETWEEN_HITS > clock.frame {
-                continue;
-            }
+        if !tracker1.active(clock.frame) || !tracker2.active(clock.frame) {
+            continue;
         }
 
         if let Some(overlap) = hitbox1
@@ -83,8 +75,7 @@ pub(super) fn clash_parry(
                         .unwrap()
                         .despawn(&mut commands, entity);
                 } else {
-                    tracker.hits -= 1;
-                    tracker.last_hit_frame = Some(clock.frame);
+                    tracker.register_hit(clock.frame);
                 }
             }
         }
@@ -136,8 +127,6 @@ pub(super) fn register_hits(
     }
 }
 
-const FRAMES_BETWEEN_HITS: usize = 10;
-
 #[allow(clippy::too_many_arguments)]
 fn handle_hit(
     commands: &mut Commands,
@@ -153,10 +142,8 @@ fn handle_hit(
     attacker: &mut PlayerQueryItem,
     defender: &mut PlayerQueryItem,
 ) {
-    if let Some(last_hit_frame) = hit_tracker.last_hit_frame {
-        if last_hit_frame + FRAMES_BETWEEN_HITS > frame {
-            return;
-        }
+    if !hit_tracker.active(frame) {
+        return;
     }
 
     if let Some(overlap) = defender
@@ -260,7 +247,7 @@ fn handle_hit(
         if hit_tracker.hits <= 1 {
             attacker.spawner.despawn(commands, hitbox_entity);
         } else {
-            hit_tracker.hits -= 1;
+            hit_tracker.register_hit(frame)
         }
     }
 }

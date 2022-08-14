@@ -118,6 +118,8 @@ pub struct OnHitEffect {
     pub pushback: Pushback,
 }
 
+const FRAMES_BETWEEN_HITS: usize = 10;
+
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Inspectable, Component)]
 pub struct HitTracker {
     pub hits: usize,
@@ -127,6 +129,15 @@ pub struct HitTracker {
 impl HitTracker {
     pub fn new(hits: usize) -> Self {
         Self { hits, ..default() }
+    }
+    pub fn active(&self, current_frame: usize) -> bool {
+        self.last_hit_frame
+            .map(|frame| frame + FRAMES_BETWEEN_HITS <= current_frame)
+            .unwrap_or(true)
+    }
+    pub fn register_hit(&mut self, current_frame: usize) {
+        self.hits -= 1;
+        self.last_hit_frame = Some(current_frame);
     }
 }
 impl Default for HitTracker {

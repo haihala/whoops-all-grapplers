@@ -17,12 +17,12 @@
 	- [x] Dash
 	- [x] Jump
 	- [x] Run
-- [ ] Basic combat
+- [x] Basic combat
 	- [x] Attack (Damage boxes created on command)
 	- [x] Block
 		- [x] Can block
 		- [x] High/low
-	- [ ] Recovery
+	- [x] Recovery
 	- [x] Throw
 		- [x] Can throw
 		- [x] Yomi counter

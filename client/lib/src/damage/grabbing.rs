@@ -62,10 +62,12 @@ fn handle_grabs(
                 target.defense.bump_streak(frame);
                 target.resources.meter.gain(target.defense.get_reward());
                 "Teched!"
+            } else if target.state.otg_since().is_some() {
+                "Intangible!"
             } else {
                 target.grabbable.queue.push(descriptor);
                 target.defense.reset();
-                "Thrown!"
+                "Grabbed!"
             }
             .into(),
         );

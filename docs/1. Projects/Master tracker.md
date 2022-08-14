@@ -1,10 +1,19 @@
+# 14.8. Todo
+- [x] Ground game
+	- [x] State
+	- [x] Quick rise
+	- [x] Animation
+	- [x] Intangibility
+		- [x] In effect
+		- [x] Notification
+- [ ] Builder patterns for moves
+
 # Backlog
 ## High priority
 - [[Character 1]]
 	- [[Animations for character 1]]
 
 ## Low priority
-- [[Recovery and knockdown]]
 - [[Rewards]]
 - [[Menus]]
 - [[Netplay]]
@@ -18,6 +27,7 @@
 - [[CLI args]]
 - [[Toasts in various spots]]
 - [[Resources between rounds]]
+- [[Recovery and knockdown]]
 - [[Lex]]
 	- Split movelist generation function
 	- Heat

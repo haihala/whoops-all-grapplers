@@ -20,6 +20,7 @@ pub enum DummyAnimation {
     StandBlock,
     AirIdle,
     AirStun,
+    Getup,
 
     // Movement
     Jump,
@@ -51,12 +52,16 @@ pub enum Animation {
 pub enum AnimationType {
     AirIdle,
     AirStun,
+
     StandIdle,
     StandBlock,
     StandStun,
     WalkForward,
     WalkBack,
+
     CrouchIdle,
     CrouchBlock,
     CrouchStun,
+
+    Getup,
 }

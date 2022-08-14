@@ -9,6 +9,7 @@ use types::{Area, Facing, Owner, Player, Players, SoundEffect, VisualEffect};
 use crate::{
     assets::{ParticleRequest, Particles, Sounds},
     physics::PlayerVelocity,
+    ui::Notifications,
 };
 
 use super::{Combo, Defense, Health, HitboxSpawner};
@@ -93,6 +94,7 @@ pub(super) fn clash_parry(
 #[allow(clippy::too_many_arguments)]
 pub(super) fn register_hits(
     mut commands: Commands,
+    mut notifications: ResMut<Notifications>,
     clock: Res<Clock>,
     combo: Option<Res<Combo>>,
     mut sounds: ResMut<Sounds>,
@@ -118,6 +120,7 @@ pub(super) fn register_hits(
 
             handle_hit(
                 &mut commands,
+                &mut notifications,
                 combo.is_some(),
                 clock.frame,
                 &mut sounds,
@@ -138,6 +141,7 @@ const FRAMES_BETWEEN_HITS: usize = 10;
 #[allow(clippy::too_many_arguments)]
 fn handle_hit(
     commands: &mut Commands,
+    notifications: &mut Notifications,
     combo_ongoing: bool,
     frame: usize,
     sounds: &mut Sounds,
@@ -160,6 +164,20 @@ fn handle_hit(
         .with_offset(defender.tf.translation.truncate())
         .intersection(&hitbox)
     {
+        if defender.state.otg_since().is_some() {
+            // Defender is intangible on the ground
+
+            if !hit_tracker.hit_intangible {
+                // Only send the notification once
+                hit_tracker.hit_intangible = true;
+                notifications.add(*defender.player, "Intangible".to_owned());
+            }
+            return;
+        } else if hit_tracker.hit_intangible {
+            // Just a nice notification for now.
+            notifications.add(*attacker.player, "Meaty!".to_owned());
+        }
+
         // Hit has happened
         if !combo_ongoing {
             commands.insert_resource(Combo);

@@ -11,6 +11,7 @@ enum MainState {
     Air(AirState),
     Stand(StandState),
     Crouch(CrouchState),
+    Ground(usize),
 }
 
 #[derive(Inspectable, Debug, Component, Clone)]
@@ -91,6 +92,7 @@ impl PlayerState {
                 Some(AnimationType::CrouchBlock)
             }
             MainState::Crouch(CrouchState::Stun(Stun::Hit(_))) => Some(AnimationType::CrouchStun),
+            MainState::Ground(_) => Some(AnimationType::Getup),
             _ => None,
         }
     }
@@ -101,6 +103,7 @@ impl PlayerState {
             MainState::Stand(_) => MainState::Stand(StandState::Move(history)),
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Move(history)),
             MainState::Air(_) => MainState::Air(AirState::Move(history)),
+            MainState::Ground(_) => panic!("Starting a move on the ground"),
         };
         self.free_since = None;
     }
@@ -135,6 +138,7 @@ impl PlayerState {
                 MainState::Crouch(CrouchState::Stun(Stun::Block(recovery_frame)))
             }
             MainState::Air(_) => MainState::Air(AirState::Freefall),
+            MainState::Ground(_) => panic!("Blocked on the ground"),
         };
         self.free_since = None;
     }
@@ -143,6 +147,7 @@ impl PlayerState {
             MainState::Stand(_) => MainState::Stand(StandState::Stun(Stun::Hit(recovery_frame))),
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Stun(Stun::Hit(recovery_frame))),
             MainState::Air(_) => MainState::Air(AirState::Freefall),
+            MainState::Ground(_) => panic!("Stunned on the ground"),
         };
         self.free_since = None;
     }
@@ -155,6 +160,7 @@ impl PlayerState {
             MainState::Stand(_) => MainState::Stand(StandState::Idle),
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Idle),
             MainState::Air(_) => MainState::Air(AirState::Idle),
+            MainState::Ground(_) => MainState::Crouch(CrouchState::Idle),
         };
         self.free_since = Some(frame);
     }
@@ -171,6 +177,7 @@ impl PlayerState {
             MainState::Stand(StandState::Stun(_))
                 | MainState::Crouch(CrouchState::Stun(_))
                 | MainState::Air(AirState::Freefall)
+                | MainState::Ground(_)
         )
     }
 
@@ -184,23 +191,31 @@ impl PlayerState {
             MainState::Crouch(_) | MainState::Stand(_) => {
                 self.main = MainState::Air(AirState::Idle)
             }
-            _ => {}
+            _ => {
+                panic!("Jumping while {:?}", self.main)
+            }
         };
     }
     pub fn launch(&mut self) {
         self.main = MainState::Air(AirState::Freefall);
         self.free_since = None;
     }
-    pub fn land(&mut self) {
-        if matches!(self.main, MainState::Air(AirState::Freefall)) {
-            // TODO: Better handling of what happens on landing
-            // Recovery?
-            // Put the player in a groundactivity otg or something and pick up on that in a recovery system
-        }
-        self.main = MainState::Crouch(CrouchState::Idle);
+    pub fn land(&mut self, frame: usize) {
+        self.main = if matches!(self.main, MainState::Air(AirState::Freefall)) {
+            MainState::Ground(frame)
+        } else {
+            MainState::Stand(StandState::Idle)
+        };
     }
     pub fn is_grounded(&self) -> bool {
-        matches!(self.main, MainState::Stand(_) | MainState::Crouch(_))
+        !matches!(self.main, MainState::Air(_))
+    }
+    pub fn otg_since(&self) -> Option<usize> {
+        if let MainState::Ground(landing_frame) = self.main {
+            Some(landing_frame)
+        } else {
+            None
+        }
     }
 
     // Walking

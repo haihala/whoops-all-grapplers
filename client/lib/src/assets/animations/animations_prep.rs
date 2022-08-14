@@ -145,6 +145,7 @@ pub fn animation_paths() -> HashMap<Animation, String> {
             Animation::Dummy(DummyAnimation::Jump),
             Animation::Dummy(DummyAnimation::NormalThrow),
             Animation::Dummy(DummyAnimation::NormalThrowRecipient),
+            Animation::Dummy(DummyAnimation::Getup),
             Animation::Dummy(DummyAnimation::Slap),
             Animation::Dummy(DummyAnimation::StandBlock),
             Animation::Dummy(DummyAnimation::StandStun),

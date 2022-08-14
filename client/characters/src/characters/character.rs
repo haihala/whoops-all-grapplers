@@ -30,14 +30,18 @@ impl Default for Character {
             generic_animations: map! {
                 AnimationType::AirIdle => Animation::Dummy(DummyAnimation::AirIdle),
                 AnimationType::AirStun => Animation::Dummy(DummyAnimation::AirStun),
+
                 AnimationType::StandIdle => Animation::Dummy(DummyAnimation::Idle),
                 AnimationType::StandBlock => Animation::Dummy(DummyAnimation::StandBlock),
                 AnimationType::StandStun => Animation::Dummy(DummyAnimation::StandStun),
                 AnimationType::WalkBack => Animation::Dummy(DummyAnimation::WalkBack),
                 AnimationType::WalkForward => Animation::Dummy(DummyAnimation::WalkForward),
+
                 AnimationType::CrouchIdle => Animation::Dummy(DummyAnimation::Crouch),
                 AnimationType::CrouchBlock => Animation::Dummy(DummyAnimation::CrouchBlock),
                 AnimationType::CrouchStun => Animation::Dummy(DummyAnimation::CrouchStun),
+
+                AnimationType::Getup => Animation::Dummy(DummyAnimation::Getup),
             },
             low_block_height: 0.5,
             high_block_height: 1.2,

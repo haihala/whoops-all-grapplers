@@ -16,9 +16,11 @@ pub fn stun_recovery(
         if let Some(unstun_frame) = state.unstun_frame() {
             if unstun_frame <= clock.frame {
                 state.recover(clock.frame);
-            } else {
-                stunned_player = true;
             }
+        }
+
+        if state.stunned() {
+            stunned_player = true;
         }
     }
 
@@ -27,5 +29,14 @@ pub fn stun_recovery(
     }
 }
 
-// TODO:
-pub fn ground_recovery() {}
+const QUICK_RISE_DURATION: usize = (constants::FPS * 0.5) as usize;
+
+pub fn ground_recovery(mut players: Query<&mut PlayerState>, clock: Res<Clock>) {
+    for mut state in &mut players {
+        if let Some(landing_frame) = state.otg_since() {
+            if landing_frame + QUICK_RISE_DURATION <= clock.frame {
+                state.recover(clock.frame);
+            }
+        }
+    }
+}

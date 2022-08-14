@@ -122,6 +122,7 @@ pub struct OnHitEffect {
 pub struct HitTracker {
     pub hits: usize,
     pub last_hit_frame: Option<usize>,
+    pub hit_intangible: bool,
 }
 impl HitTracker {
     pub fn new(hits: usize) -> Self {
@@ -133,6 +134,7 @@ impl Default for HitTracker {
         Self {
             hits: 1,
             last_hit_frame: None,
+            hit_intangible: false,
         }
     }
 }

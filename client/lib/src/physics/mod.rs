@@ -71,6 +71,7 @@ fn sideswitcher(players: Res<Players>, mut query: Query<SideswitcherQuery>) {
 
 fn player_gravity(
     mut commands: Commands,
+    clock: Res<Clock>,
     mut players: Query<(
         &mut PlayerVelocity,
         &mut PlayerState,
@@ -88,7 +89,7 @@ fn player_gravity(
                 state.jump();
             }
         } else if !state.is_grounded() {
-            state.land();
+            state.land(clock.frame);
             spawner.despawn_on_landing(&mut commands);
         }
     }

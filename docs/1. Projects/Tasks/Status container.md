@@ -1,0 +1,3 @@
+- Attributes like startup reduction and stun increase to and from inventory
+- Temporary effects like intangibility
+- How does it play with the inventory?

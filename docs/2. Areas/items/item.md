@@ -59,3 +59,7 @@ How do you force a mistake
 - Burst that doesn't have a use restrictive use limitation, but every time you use it a bag of money is thrown at the other player
 	- Bag may miss
 	- Limit it so that endgame you don't burst on every hit (maybe if you have enough money you just win by capitalism)
+- Air dodge (item)
+	- Double tap a cardinal to dodge that way
+		- Down is an in place dodge
+		- Opener bonus is re-applied

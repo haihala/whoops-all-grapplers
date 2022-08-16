@@ -163,6 +163,6 @@ fn load_glb_animations(
     animations
         .into_iter()
         .enumerate()
-        .map(|(index, animation)| (animation, format!("{}#Animation{}", file_path, index)))
+        .map(|(index, animation)| (animation, format!("{file_path}#Animation{index}")))
         .collect()
 }

@@ -99,7 +99,7 @@ impl From<char> for InputEvent {
                 'E' => InputEvent::Release(GameButton::Equipment),
                 't' => InputEvent::Press(GameButton::Taunt),
                 'T' => InputEvent::Release(GameButton::Taunt),
-                _ => panic!("Invalid character {}", ch),
+                _ => panic!("Invalid character {ch}"),
             }
         }
     }

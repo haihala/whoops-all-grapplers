@@ -35,7 +35,7 @@ pub fn spawn_health_bar(parent: &mut ChildBuilder, color: Color, player: Player)
             color: TRANSPARENT.into(),
             ..default()
         })
-        .insert(Name::new(format!("Player {} health bar", player)))
+        .insert(Name::new(format!("Player {player} health bar")))
         .with_children(|health_bar_wrapper| {
             health_bar_wrapper
                 .spawn_bundle(NodeBundle {

@@ -115,7 +115,7 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
     spawn_handle
         .insert_bundle(PlayerDefaults::default())
         .insert_bundle(PadBundle::new(character.get_inputs()))
-        .insert(Name::new(format!("Player {}", player)))
+        .insert(Name::new(format!("Player {player}")))
         .insert(AnimationHelperSetup)
         .insert(Facing::from_flipped(offset.is_sign_positive()))
         .insert(Hurtbox(character.get_hurtbox(false)))

@@ -31,7 +31,7 @@ pub fn update_round_text(
 
         visible.is_visible = true;
         text.sections[0].value = if let Some(winner) = result.winner {
-            format!("{} won the round", winner)
+            format!("{winner} won the round")
         } else {
             "Tie".to_string()
         }

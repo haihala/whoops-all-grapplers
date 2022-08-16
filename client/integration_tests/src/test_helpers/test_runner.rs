@@ -26,7 +26,7 @@ impl TestRunner {
     /// Run a spec, return the world
     pub fn run(&mut self, case_name: &str, spec: TestSpec) -> AppWrapper {
         let ticks = spec.len;
-        println!("Starting test case '{}' ({} ticks)", case_name, ticks);
+        println!("Starting test case '{case_name}' ({ticks} ticks)");
 
         let mut app = self.setup(spec);
         self.simulate(&mut app, ticks);

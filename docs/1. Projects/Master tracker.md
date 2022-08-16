@@ -11,31 +11,29 @@
 
 # Backlog
 ## High priority
-- [[Action extention]]
+- [[Move format refinement]]
 - [[Character 1]]
-	- [[Animations for character 1]]
+- [[Input parser refinement]]
 
 ## Low priority
 - [[Rewards]]
-- [[Menus]]
-- [[Netplay]]
-- [[Yoink assets]]
+- [[Resources between rounds]]
+- [[Toasts in various spots]]
 - Resource bars visible sections and use by section
-- [[Builders for move specification]]
 
 ## Easy nibbles
 
 ## Not a priority
 - [[CLI args]]
-- [[Toasts in various spots]]
-- [[Resources between rounds]]
 - [[Recovery and knockdown]]
-- [[Lex]]
-	- Heat
+- [[Menus]]
 - [[Testing framework v2]]
 - A way to pause the game (look at inspector)
 - Generic state based visibility toggler for UI components (there is a component for visibility)
 - De-couple hit effects from registering a hit
+- [[Yoink assets]]
+- [[Netplay]]
+- [[Random encounters]]
 
 # Other trackers
 ![[Bug tracker]]

@@ -9,6 +9,8 @@
 ## Idea dump
 If a character has a name or more than 3 lines, they need a file of their own. Copy [[template]] and change the name. The idea list below is rarely if ever groomed. They probably should be. Only read if highly motivated.
 
+- A move called "con", which puts the player in a rekka-like state they can continue with extentions like "-centrate", "-test", "-vince"
+- "Chris" a white guy playing the role of the constant underdog. Has to get facial reconstructive surgery and a stage name change every few years.
 - qcf+f small hop forwards
 	- -> f for fast anti-air
 	- -> 46+button for a donkey kick (with lightning bolt effect)

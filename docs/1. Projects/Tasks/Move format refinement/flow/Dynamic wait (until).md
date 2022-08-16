@@ -1,0 +1,2 @@
+- Wait until a certain condition is true
+- Optional timeout

@@ -1,0 +1,6 @@
+- A is a sub input of B if completing all the requirements for B also completes all the requirements for A
+- Calculate (and add to the moves) on the character on load which moves are sub-inputs of which moves
+- This information will be useful later
+- Odd cases
+	- Pot buster and forward dash
+	- Pot buster (out of block) and back dash

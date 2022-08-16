@@ -1,8 +1,6 @@
 # Input parsing
 - Maybe only store index in parser head
-- Add a way to specify that the last stick direction must be present when move is triggering
-	- Maybe do this automatically for all normals?
-	- Maybe do it outside the parser?
+- Automatically check if the last direction of the input is still being held for all normals detected with [[Normal and special detector function]]?
 
 # Waiting for upstream
 - Can you use const sin for angles in jumps yet?
@@ -10,3 +8,4 @@
 
 # Other
 - Pushback should not apply to projectiles
+- Newtype wrapper for frames. Currently using usize, which means frames 99% of the time, but not always.

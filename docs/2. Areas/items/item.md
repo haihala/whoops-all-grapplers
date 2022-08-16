@@ -51,15 +51,35 @@ How do you force a mistake
 		- Items serve two purposes, give outs and create uncertain situations
 
 # Idea dump
+- Components
+	- A feather that increases jump height
+	- Defense increase 
+	- Damage increase
+	- Animation speed increase
 - Balrog vskill 2 (no charge required for a charge move)
 	- Buy it, you can do charge moves without charge, if you do it consumes the item
-- Steel toed boots, block one low per round you would've gotten hit by
-- Custom combo like mechanic where yoiu play back your own moves at fractions of speed speed
+- Custom combo like mechanic where you play back your own moves at fractions of speed speed
 - winged shield, gives you a shitty air block and has a flavor text reference to the Bloodborne wooden shield
 - Burst that doesn't have a use restrictive use limitation, but every time you use it a bag of money is thrown at the other player
 	- Bag may miss
 	- Limit it so that endgame you don't burst on every hit (maybe if you have enough money you just win by capitalism)
-- Air dodge (item)
-	- Double tap a cardinal to dodge that way
-		- Down is an in place dodge
-		- Opener bonus is re-applied
+- Jumper cables. Allows you to do electrics with special moves with frame perfect inputs
+- Entrance music. Start the round with some meter
+- Short hop with "up->down" input
+- Boots that boost movement speed and evolve into different sneakers
+	- Movement speed doesn't stack, so players are incentivized to not take multiple pairs
+	- Maybe like in terraria, you can combine them into the super boot.
+		- Like in dota, you lose monetary value when slot value increases 
+	- Upgrades
+		- Full Assaults
+			- Allow you to dash cancel by spending as much meter as the cancel requires
+			- Full Assault Dash Cancel is conveniently fadc
+		- Escape plan
+			- Invulnerable backdash
+		- Air Jordans
+			- Air dodge
+			- Double tap a cardinal to dodge that way
+				- Down is an in place dodge
+				- Opener bonus is re-applied
+		- Steel toed boots
+			- Block one low per round you would've gotten hit by

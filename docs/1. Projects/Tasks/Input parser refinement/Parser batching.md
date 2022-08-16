@@ -1,0 +1,2 @@
+- Currently, multiple moves can have the same input (crouch, stand, air)
+- Combine those together so their parser logic only runs once

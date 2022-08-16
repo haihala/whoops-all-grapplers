@@ -21,8 +21,9 @@ impl Plugin for DevPlugin {
         let mut registry = app
             .add_plugin(WorldInspectorPlugin::new())
             .insert_resource(InspectableRegistry::default())
-            .add_system(test_system)
-            .add_system(box_visualization::spawn_boxes.after(test_system))
+            .add_system(generic_test_system)
+            .add_system(input_leniency_test_system.after(generic_test_system))
+            .add_system(box_visualization::spawn_boxes.after(input_leniency_test_system))
             .add_system(box_visualization::size_adjustment.after(box_visualization::spawn_boxes))
             .world
             .resource_mut::<InspectableRegistry>();
@@ -40,12 +41,28 @@ impl Plugin for DevPlugin {
     }
 }
 
-fn test_system(
+fn generic_test_system(
+    keys: Res<Input<KeyCode>>,
+    mut query: Query<(&mut Inventory, &Character)>,
+    mut sounds: ResMut<Sounds>,
+) {
+    // B for Buy
+    if keys.just_pressed(KeyCode::B) {
+        for (mut inventory, character) in &mut query {
+            if let Some((id, _)) = character.roll_items(1, &inventory).first() {
+                inventory.add_item(*id);
+            }
+        }
+    } else if keys.just_pressed(KeyCode::S) {
+        dbg!("Playing");
+        sounds.play(SoundEffect::Whoosh)
+    }
+}
+
+fn input_leniency_test_system(
     keys: Res<Input<KeyCode>>,
     pad_buttons: Res<Input<GamepadButton>>,
     clock: Res<Clock>,
-    mut query: Query<(&mut Inventory, &Character)>,
-    mut sounds: ResMut<Sounds>,
     mut h_pressed: Local<Option<usize>>,
     mut j_pressed: Local<Option<usize>>,
     mut south_pressed: Local<Option<usize>>,
@@ -72,18 +89,6 @@ fn test_system(
         *east_pressed = Some(clock.frame);
     }
     log_diff(&mut south_pressed, "A", &mut east_pressed, "B");
-
-    // B for Buy
-    if keys.just_pressed(KeyCode::B) {
-        for (mut inventory, character) in &mut query {
-            if let Some((id, _)) = character.roll_items(1, &inventory).first() {
-                inventory.add_item(*id);
-            }
-        }
-    } else if keys.just_pressed(KeyCode::S) {
-        dbg!("Playing");
-        sounds.play(SoundEffect::Whoosh)
-    }
 }
 
 fn log_diff(

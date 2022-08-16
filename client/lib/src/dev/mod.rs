@@ -42,9 +42,37 @@ impl Plugin for DevPlugin {
 
 fn test_system(
     keys: Res<Input<KeyCode>>,
+    pad_buttons: Res<Input<GamepadButton>>,
+    clock: Res<Clock>,
     mut query: Query<(&mut Inventory, &Character)>,
     mut sounds: ResMut<Sounds>,
+    mut h_pressed: Local<Option<usize>>,
+    mut j_pressed: Local<Option<usize>>,
+    mut south_pressed: Local<Option<usize>>,
+    mut east_pressed: Local<Option<usize>>,
 ) {
+    if keys.just_pressed(KeyCode::H) {
+        *h_pressed = Some(clock.frame);
+    }
+    if keys.just_pressed(KeyCode::J) {
+        *j_pressed = Some(clock.frame);
+    }
+    log_diff(&mut h_pressed, "H", &mut j_pressed, "J");
+
+    if pad_buttons.just_pressed(GamepadButton {
+        gamepad: Gamepad { id: 0 },
+        button_type: GamepadButtonType::South,
+    }) {
+        *south_pressed = Some(clock.frame);
+    }
+    if pad_buttons.just_pressed(GamepadButton {
+        gamepad: Gamepad { id: 0 },
+        button_type: GamepadButtonType::East,
+    }) {
+        *east_pressed = Some(clock.frame);
+    }
+    log_diff(&mut south_pressed, "A", &mut east_pressed, "B");
+
     // B for Buy
     if keys.just_pressed(KeyCode::B) {
         for (mut inventory, character) in &mut query {
@@ -55,5 +83,35 @@ fn test_system(
     } else if keys.just_pressed(KeyCode::S) {
         dbg!("Playing");
         sounds.play(SoundEffect::Whoosh)
+    }
+}
+
+fn log_diff(
+    a_status: &mut Option<usize>,
+    a_name: &'static str,
+    b_status: &mut Option<usize>,
+    b_name: &'static str,
+) {
+    if let (Some(a_frame), Some(b_frame)) = (*a_status, *b_status) {
+        match a_frame.cmp(&b_frame) {
+            std::cmp::Ordering::Equal => {
+                println!("{a_name} and {b_name} pressed on same frame ({a_frame})",)
+            }
+            std::cmp::Ordering::Less => {
+                println!(
+                    "{a_name} was pressed {} frames before {b_name}",
+                    b_frame - a_frame
+                )
+            }
+            std::cmp::Ordering::Greater => {
+                println!(
+                    "{a_name} was pressed {} frames after {b_name}",
+                    a_frame - b_frame
+                )
+            }
+        }
+
+        *a_status = None;
+        *b_status = None;
     }
 }

@@ -1,14 +1,3 @@
-# 14.8. Todo
-- [x] Ground game
-	- [x] State
-	- [x] Quick rise
-	- [x] Animation
-	- [x] Intangibility
-		- [x] In effect
-		- [x] Notification
-- [x] Make projectiles stop if they are inactive (hitting)
-- [x] Groom backlog
-
 # Backlog
 ## High priority
 - [[Move format refinement]]

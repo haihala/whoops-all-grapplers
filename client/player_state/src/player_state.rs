@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use characters::{Action, AttackHeight, FlowControl, MoveHistory, Situation};
-use types::{AnimationType, Area, Facing, StickPosition};
+use types::{AnimationType, Area, Facing, Status, StatusCondition, StatusEffect, StickPosition};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 
@@ -18,6 +18,7 @@ enum MainState {
 pub struct PlayerState {
     main: MainState,
     pub free_since: Option<usize>,
+    conditions: Vec<StatusCondition>,
 }
 
 impl Default for PlayerState {
@@ -25,6 +26,7 @@ impl Default for PlayerState {
         Self {
             main: MainState::Stand(StandState::default()),
             free_since: Some(0),
+            conditions: vec![],
         }
     }
 }
@@ -271,5 +273,26 @@ impl PlayerState {
     }
     fn can_block_now(&self) -> bool {
         self.get_move_history().is_none() && self.is_grounded()
+    }
+
+    pub fn add_condition(&mut self, condition: StatusCondition) {
+        self.conditions.push(condition);
+    }
+
+    pub fn has_condition(&mut self, condition: Status) -> bool {
+        self.conditions.iter().any(|cond| cond.name == condition)
+    }
+
+    pub fn combined_status_effects(&self) -> StatusEffect {
+        // TODO: Cache for later
+        self.conditions
+            .iter()
+            .fold(StatusEffect::default(), |acc, cond| {
+                if let Some(effect) = &cond.effect {
+                    acc.combine(effect)
+                } else {
+                    acc
+                }
+            })
     }
 }

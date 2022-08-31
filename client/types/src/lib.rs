@@ -21,5 +21,8 @@ pub use move_id::MoveId;
 
 mod item_id;
 pub use item_id::ItemId;
+
+mod status;
+pub use status::{Status, StatusCondition, StatusEffect};
 // This crate will be as small as possible so that types are where they are used
 // It's meant for common universal types to circumvent circular dependencies.

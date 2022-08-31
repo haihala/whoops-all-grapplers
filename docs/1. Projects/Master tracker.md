@@ -8,6 +8,8 @@
 - [[Rewards]]
 - [[Resources between rounds]]
 - [[Toasts in various spots]]
+- [[Convert to egui]]
+- [[Shop UI]]
 - Resource bars visible sections and use by section
 
 ## Easy nibbles

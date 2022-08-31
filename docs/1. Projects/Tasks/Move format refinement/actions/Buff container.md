@@ -1,0 +1,20 @@
+- StatusEffect struct
+	- Fields
+		- Animation speed multiplier
+		- Damage multiplier
+		- Projectile speed multiplier
+		- Increased max health
+		- Walk speed
+		- Jump height
+	- Can be added together
+- Condition struct
+	- Name (enum)
+	- Optional StatusEffect
+	- Optional expiration frame
+	- Later:
+		- Stacking rules
+		- An icon
+- Add a `Vec<Condition>` to PlayerState with some methods
+	- Add a new condition
+	- Retrieve combined StatusEffect
+	- Check if the player is being affected by a specific condition

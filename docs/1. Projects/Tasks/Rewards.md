@@ -1,3 +1,5 @@
+Not really #blocked, but better done after [[Convert to egui]]
+
 Progress:
 - [ ] Meter
 	- [x] Timing

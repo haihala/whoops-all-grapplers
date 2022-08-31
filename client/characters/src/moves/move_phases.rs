@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use types::{Animation, MoveId, SoundEffect};
+use types::{Animation, MoveId, SoundEffect, StatusCondition};
 
 use crate::{resources::Cost, SpawnDescriptor};
 
@@ -30,6 +30,7 @@ pub enum Action {
     Grab(GrabDescription),
     Movement(Movement),
     Pay(Cost),
+    Condition(StatusCondition),
     // TODO: Separate projectiles from normal attacks
 }
 

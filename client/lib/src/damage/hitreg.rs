@@ -151,9 +151,7 @@ fn handle_hit(
         .with_offset(defender.tf.translation.truncate())
         .intersection(&hitbox)
     {
-        if defender.state.otg_since().is_some() {
-            // Defender is intangible on the ground
-
+        if defender.state.is_intangible() {
             if !hit_tracker.hit_intangible {
                 // Only send the notification once
                 hit_tracker.hit_intangible = true;

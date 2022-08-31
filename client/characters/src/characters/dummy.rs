@@ -3,7 +3,7 @@ use std::{collections::HashMap, iter::empty};
 use bevy::prelude::*;
 use map_macro::map;
 
-use types::{Animation, Area, DummyAnimation, ItemId, Model, MoveId};
+use types::{Animation, Area, DummyAnimation, ItemId, Model, MoveId, Status, StatusCondition};
 
 use crate::{
     moves::{grounded, not_grounded, Action, FlowControl, MoveType, Movement, Situation},
@@ -212,6 +212,20 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
 
 fn specials() -> impl Iterator<Item = (MoveId, Move)> {
     map! {
+        MoveId::Dodge => Move {
+            input: Some("252"),
+            move_type: MoveType::Normal,
+            phases: vec![
+                Action::Animation(Animation::Dummy(DummyAnimation::Dodge)).into(),
+                Action::Condition(StatusCondition {
+                    name: Status::Dodge,
+                    effect: None,
+                    expiration: Some(20),
+                }).into(),
+                FlowControl::Wait(45, false),
+            ],
+            ..default()
+        },
         MoveId::BudgetBoom => Move {
             input: Some("[41]6f"),
             move_type: MoveType::Special,

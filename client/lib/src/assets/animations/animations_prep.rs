@@ -140,6 +140,7 @@ pub fn animation_paths() -> HashMap<Animation, String> {
             Animation::Dummy(DummyAnimation::CrouchChop),
             Animation::Dummy(DummyAnimation::CrouchStun),
             Animation::Dummy(DummyAnimation::Divekick),
+            Animation::Dummy(DummyAnimation::Dodge),
             Animation::Dummy(DummyAnimation::DashForward),
             Animation::Dummy(DummyAnimation::Idle),
             Animation::Dummy(DummyAnimation::Jump),

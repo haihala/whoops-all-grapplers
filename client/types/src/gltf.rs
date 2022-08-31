@@ -26,6 +26,7 @@ pub enum DummyAnimation {
     Jump,
     DashForward,
     DashBack,
+    Dodge,
 
     // Strikes
     Slap,

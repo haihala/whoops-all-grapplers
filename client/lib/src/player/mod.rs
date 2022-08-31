@@ -1,5 +1,6 @@
 mod asset_updater;
 mod charge_accumulator;
+mod condition_management;
 mod move_activation;
 mod move_advancement;
 mod movement;
@@ -73,7 +74,12 @@ impl Plugin for PlayerPlugin {
                         charge_accumulator::manage_charge.after(size_adjustment::size_adjustment),
                     )
                     .with_system(
-                        asset_updater::update_animation.after(charge_accumulator::manage_charge),
+                        condition_management::manage_conditions
+                            .after(charge_accumulator::manage_charge),
+                    )
+                    .with_system(
+                        asset_updater::update_animation
+                            .after(condition_management::manage_conditions),
                     )
                     .with_system(
                         asset_updater::update_audio.after(asset_updater::update_animation),

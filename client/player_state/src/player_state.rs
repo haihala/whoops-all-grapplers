@@ -278,11 +278,9 @@ impl PlayerState {
     pub fn add_condition(&mut self, condition: StatusCondition) {
         self.conditions.push(condition);
     }
-
-    pub fn has_condition(&mut self, condition: Status) -> bool {
+    pub fn has_condition(&self, condition: Status) -> bool {
         self.conditions.iter().any(|cond| cond.name == condition)
     }
-
     pub fn combined_status_effects(&self) -> StatusEffect {
         // TODO: Cache for later
         self.conditions
@@ -294,5 +292,12 @@ impl PlayerState {
                     acc
                 }
             })
+    }
+    pub fn expire_conditions(&mut self, frame: usize) {
+        self.conditions
+            .retain(|cond| cond.expiration.is_none() || cond.expiration.unwrap() > frame);
+    }
+    pub fn is_intangible(&self) -> bool {
+        self.otg_since().is_some() || self.has_condition(Status::Dodge)
     }
 }

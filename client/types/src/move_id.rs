@@ -36,4 +36,5 @@ pub enum MoveId {
     LowChop,
     BurnStraight,
     Slap,
+    Dodge,
 }

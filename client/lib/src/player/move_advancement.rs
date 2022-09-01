@@ -16,6 +16,7 @@ pub(super) fn move_advancement(clock: Res<Clock>, mut query: Query<PlayerQuery>)
             resources: &player.resources,
             parser: &player.input_parser,
             current_frame: clock.frame,
+            conditions: &player.state.get_conditions().to_owned(), // There is probably a smarter way to do this, but I can't really be bothered to think of it at this moment
         };
 
         player.state.proceed_move(situation);

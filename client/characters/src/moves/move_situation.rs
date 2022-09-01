@@ -1,4 +1,7 @@
+use std::vec;
+
 use input_parsing::InputParser;
+use types::StatusCondition;
 
 use crate::{Action, Inventory, MoveHistory, Resources};
 
@@ -11,6 +14,7 @@ pub struct Situation<'a> {
     pub grounded: bool,
     pub resources: &'a Resources,
     pub parser: &'a InputParser,
+    pub conditions: &'a Vec<StatusCondition>,
     pub current_frame: usize,
 }
 
@@ -90,6 +94,7 @@ mod test {
         grounded: bool,
         resources: Resources,
         parser: InputParser,
+        conditions: Vec<StatusCondition>,
         current_frame: usize,
     }
     impl Default for SituationWrapper {
@@ -98,6 +103,7 @@ mod test {
                 inventory: Default::default(),
                 history: Default::default(),
                 grounded: true,
+                conditions: vec![],
                 resources: Default::default(),
                 parser: Default::default(),
                 current_frame: 1, // So that history can start at 0 and all initial actions are drained
@@ -130,6 +136,7 @@ mod test {
                 resources: &self.resources,
                 parser: &self.parser,
                 current_frame: self.current_frame,
+                conditions: &self.conditions,
             }
             .new_actions()
         }

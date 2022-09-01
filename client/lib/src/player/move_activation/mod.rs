@@ -120,6 +120,7 @@ pub(super) fn raw_or_link(
                         resources,
                         parser,
                         current_frame: clock.frame,
+                        conditions: state.get_conditions(),
                     },
                 )
                 .into_iter()
@@ -164,6 +165,7 @@ pub(super) fn special_cancel(
                             resources,
                             parser,
                             current_frame: clock.frame,
+                            conditions: state.get_conditions(),
                         },
                     )
                     .into_iter()

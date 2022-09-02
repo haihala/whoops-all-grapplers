@@ -2,8 +2,10 @@
 
 # Part 1: Action extention
 - [[Grab system extention]]
-- [[Intangibility on moves]]
+
+## Done
 - [[Buff container]]
+- [[Intangibility on moves]]
 - [[Stance system]]
 
 # Part 2: FlowControl extention

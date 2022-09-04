@@ -11,6 +11,7 @@
 - [[Convert to egui]]
 - [[Shop UI]]
 - Resource bars visible sections and use by section
+- [[Dynamic hitboxes]]
 
 ## Easy nibbles
 

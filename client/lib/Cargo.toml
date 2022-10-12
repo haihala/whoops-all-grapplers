@@ -5,11 +5,11 @@ edition = "2021"
 authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
-bevy = {version="0.8.0", features=["mp3"]}
-bevy_hanabi = "0.3"
-bevy-inspector-egui = "0.12.1"
-rand = "0.8.5"
-map-macro = "0.2.3"
+bevy = { workspace = true, features=["mp3"]}
+bevy_hanabi  = { workspace = true }
+bevy-inspector-egui = { workspace = true }
+rand = { workspace = true }
+map-macro = { workspace = true }
 
 constants = { path = "../constants" }
 input_parsing = { path = "../input_parsing" }

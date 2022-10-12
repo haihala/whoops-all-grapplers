@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
-bevy = "0.8.0"
-bevy-inspector-egui = "0.12.1"
-strum = "0.24.1"
-strum_macros = "0.24.2"
+bevy = { workspace = true }
+bevy-inspector-egui = { workspace = true }
+strum = { workspace = true }
+strum_macros = { workspace = true }

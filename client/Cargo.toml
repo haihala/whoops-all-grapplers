@@ -19,3 +19,12 @@ incremental = true
 
 [profile.dev.package."*"]
 opt-level = 3
+
+[workspace.dependencies]
+bevy = "0.8.0"
+bevy-inspector-egui = "0.12.1"
+bevy_hanabi = "0.3"
+rand = "0.8.5"
+map-macro = "0.2.3"
+strum = "0.24.1"
+strum_macros = "0.24.2"

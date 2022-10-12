@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use bevy::prelude::*;
-use map_macro::map;
 use types::{Animation, AnimationType, Area, DummyAnimation, ItemId, Model, MoveId, StickPosition};
 
 use crate::{Inventory, Item, Move};
@@ -27,22 +26,22 @@ impl Default for Character {
             moves: Default::default(),
             items: Default::default(),
             model: Model::Dummy,
-            generic_animations: map! {
-                AnimationType::AirIdle => Animation::Dummy(DummyAnimation::AirIdle),
-                AnimationType::AirStun => Animation::Dummy(DummyAnimation::AirStun),
-
-                AnimationType::StandIdle => Animation::Dummy(DummyAnimation::Idle),
-                AnimationType::StandBlock => Animation::Dummy(DummyAnimation::StandBlock),
-                AnimationType::StandStun => Animation::Dummy(DummyAnimation::StandStun),
-                AnimationType::WalkBack => Animation::Dummy(DummyAnimation::WalkBack),
-                AnimationType::WalkForward => Animation::Dummy(DummyAnimation::WalkForward),
-
-                AnimationType::CrouchIdle => Animation::Dummy(DummyAnimation::Crouch),
-                AnimationType::CrouchBlock => Animation::Dummy(DummyAnimation::CrouchBlock),
-                AnimationType::CrouchStun => Animation::Dummy(DummyAnimation::CrouchStun),
-
-                AnimationType::Getup => Animation::Dummy(DummyAnimation::Getup),
-            },
+            generic_animations: vec![
+                (AnimationType::AirIdle, DummyAnimation::AirIdle),
+                (AnimationType::AirStun, DummyAnimation::AirStun),
+                (AnimationType::StandIdle, DummyAnimation::Idle),
+                (AnimationType::StandBlock, DummyAnimation::StandBlock),
+                (AnimationType::StandStun, DummyAnimation::StandStun),
+                (AnimationType::WalkBack, DummyAnimation::WalkBack),
+                (AnimationType::WalkForward, DummyAnimation::WalkForward),
+                (AnimationType::CrouchIdle, DummyAnimation::Crouch),
+                (AnimationType::CrouchBlock, DummyAnimation::CrouchBlock),
+                (AnimationType::CrouchStun, DummyAnimation::CrouchStun),
+                (AnimationType::Getup, DummyAnimation::Getup),
+            ]
+            .into_iter()
+            .map(|(k, v)| (k, Animation::Dummy(v)))
+            .collect(),
             low_block_height: 0.5,
             high_block_height: 1.2,
             charge_directions: vec![

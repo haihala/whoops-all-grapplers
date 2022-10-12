@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use map_macro::map;
 use std::collections::HashMap;
 
 use types::{Animation, DummyAnimation, Facing};
@@ -14,7 +13,7 @@ impl Animations {
     pub fn new(animations: HashMap<Animation, Handle<AnimationClip>>) -> Self {
         Self {
             normal: animations,
-            mirrored: map! {},
+            mirrored: default(),
         }
     }
 

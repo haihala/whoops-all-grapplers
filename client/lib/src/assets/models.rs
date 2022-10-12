@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use map_macro::map;
 use std::collections::HashMap;
 use types::Model;
 
@@ -7,8 +6,10 @@ use types::Model;
 pub struct Models(pub HashMap<Model, Handle<Scene>>);
 
 pub(super) fn model_paths() -> HashMap<Model, &'static str> {
-    map! {
-        Model::Dummy => "dummy.glb#Scene0",
-        Model::Fireball => "fireball.glb#Scene0",
-    }
+    vec![
+        (Model::Dummy, "dummy.glb#Scene0"),
+        (Model::Fireball, "fireball.glb#Scene0"),
+    ]
+    .into_iter()
+    .collect()
 }

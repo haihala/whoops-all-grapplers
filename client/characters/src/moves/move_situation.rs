@@ -82,7 +82,7 @@ impl Situation<'_> {
 
 #[cfg(test)]
 mod test {
-    use crate::{Action, Move, SpawnDescriptor};
+    use crate::{Action, Move, OnHitEffect, ToHit};
 
     use super::*;
     use bevy::prelude::*;
@@ -199,7 +199,7 @@ mod test {
     fn multiple_actions() {
         let phases = vec![
             Action::Animation(Animation::TPose).into(),
-            Action::Hitbox(SpawnDescriptor::default()).into(),
+            Action::Attack(ToHit::default(), OnHitEffect::default()).into(),
         ];
         let sw = SituationWrapper::with_phases(phases.clone());
 
@@ -211,7 +211,7 @@ mod test {
     fn wait_gate() {
         let phases = vec![
             Action::Animation(Animation::TPose).into(),
-            Action::Hitbox(SpawnDescriptor::default()).into(),
+            Action::Attack(ToHit::default(), OnHitEffect::default()).into(),
             FlowControl::Wait(10, false),
             Action::Animation(Animation::TPose).into(),
         ];
@@ -229,7 +229,7 @@ mod test {
     fn wait_gate_partial() {
         let phases = vec![
             Action::Animation(Animation::TPose).into(),
-            Action::Hitbox(SpawnDescriptor::default()).into(),
+            Action::Attack(ToHit::default(), OnHitEffect::default()).into(),
             FlowControl::Wait(10, false),
             Action::Animation(Animation::TPose).into(),
         ];
@@ -251,13 +251,13 @@ mod test {
             if situation.history.unwrap().has_hit {
                 Action::Animation(Animation::TPose).into()
             } else {
-                Action::Hitbox(SpawnDescriptor::default()).into()
+                Action::Attack(ToHit::default(), OnHitEffect::default()).into()
             }
         })];
 
         let mut sw = SituationWrapper::with_phases(phases);
 
-        sw.assert_actions(&[Action::Hitbox(SpawnDescriptor::default()).into()]);
+        sw.assert_actions(&[Action::Attack(ToHit::default(), OnHitEffect::default()).into()]);
 
         sw.register_hit();
         sw.assert_actions(&[Action::Animation(Animation::TPose).into()]);

@@ -3,7 +3,7 @@ use types::{Area, GameButton, ItemId, MoveId};
 
 use crate::{
     moves::{Action, FlowControl, MoveType, Situation},
-    Cost, Hitbox, Lifetime, Move, SpawnDescriptor,
+    Cost, Hitbox, Lifetime, Move, OnHitEffect, ToHit,
 };
 
 pub(crate) fn get_handmedownken() -> Move {
@@ -15,12 +15,15 @@ pub(crate) fn get_handmedownken() -> Move {
         },
         phases: vec![
             FlowControl::Wait(30, false),
-            Action::Hitbox(SpawnDescriptor {
-                hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
-                speed: 3.0 * Vec3::X,
-                lifetime: Lifetime::eternal(),
-                ..default()
-            })
+            Action::Attack(
+                ToHit {
+                    hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
+                    velocity: Some(3.0 * Vec2::X),
+                    lifetime: Lifetime::eternal(),
+                    ..default()
+                },
+                OnHitEffect::default(),
+            )
             .into(),
             FlowControl::Wait(10, true),
         ],
@@ -35,12 +38,15 @@ pub(crate) fn get_gunshot() -> Move {
             FlowControl::Wait(10, false),
             FlowControl::Dynamic(|situation: Situation| {
                 if situation.resources.can_afford(Cost::bullet()) {
-                    Action::Hitbox(SpawnDescriptor {
-                        hitbox: Hitbox(Area::new(0.5, 1.2, 0.1, 0.1)),
-                        speed: 8.0 * Vec3::X,
-                        lifetime: Lifetime::eternal(),
-                        ..default()
-                    })
+                    Action::Attack(
+                        ToHit {
+                            hitbox: Hitbox(Area::new(0.5, 1.2, 0.1, 0.1)),
+                            velocity: Some(8.0 * Vec2::X),
+                            lifetime: Lifetime::eternal(),
+                            ..default()
+                        },
+                        OnHitEffect::default(),
+                    )
                     .into()
                 } else {
                     FlowControl::Wait(30, false)

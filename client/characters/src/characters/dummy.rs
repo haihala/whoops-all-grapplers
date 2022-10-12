@@ -6,8 +6,10 @@ use map_macro::map;
 use types::{Animation, Area, DummyAnimation, ItemId, Model, MoveId, Status, StatusCondition};
 
 use crate::{
-    moves::{grounded, not_grounded, Action, FlowControl, MoveType, Movement, Situation},
-    AttackHeight, Cost, GrabDescription, Hitbox, Item, Lifetime, Move, SpawnDescriptor,
+    moves::{
+        grounded, not_grounded, Action, FlowControl, MoveType, Movement, Projectile, Situation,
+    },
+    AttackHeight, BlockType, Cost, Hitbox, Item, Lifetime, Move, OnHitEffect, ToHit,
 };
 
 use super::{
@@ -110,11 +112,14 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::Slap)).into(),
                 FlowControl::Wait(9, false),
-                Action::Hitbox(SpawnDescriptor {
-                    hitbox: Hitbox(Area::new(0.7, 1.35, 0.35, 0.25)),
-                    lifetime: Lifetime::frames(5),
-                    ..default()
-                }).into(),
+                Action::Attack(
+                    ToHit {
+                        hitbox: Hitbox(Area::new(0.7, 1.35, 0.35, 0.25)),
+                        lifetime: Lifetime::frames(5),
+                        ..default()
+                    }, OnHitEffect {
+                        ..default()
+                    }).into(),
                 FlowControl::Wait(10, true),
             ],
             ..default()
@@ -124,11 +129,14 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::CrouchChop)).into(),
                 FlowControl::Wait(8, false),
-                Action::Hitbox(SpawnDescriptor {
+                Action::Attack(
+                    ToHit {
                         hitbox: Hitbox(Area::new(0.75, 0.2, 0.3, 0.2)),
                         lifetime: Lifetime::frames(5),
                         ..default()
-                    }).into(),
+                    },
+                    OnHitEffect::default()
+                ).into(),
                 FlowControl::Wait(7, true),
             ],
             ..default()
@@ -138,11 +146,14 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::BurnStraight)).into(),
                 FlowControl::Wait(10, false),
-                Action::Hitbox(SpawnDescriptor {
+                Action::Attack(
+                    ToHit {
                         hitbox: Hitbox(Area::new(0.6, 1.35, 1.0, 0.2)),
                         lifetime: Lifetime::frames(8),
                         ..default()
-                    }).into(),
+                    },
+                    OnHitEffect::default()
+                ).into(),
                 Action::Movement(Movement{amount: Vec2::X*2.0, duration: 1}).into(),
                 FlowControl::Wait(10, false),
             ],
@@ -153,11 +164,14 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::AntiAir)).into(),
                 FlowControl::Wait(13, false),
-                Action::Hitbox(SpawnDescriptor {
+                Action::Attack(
+                    ToHit {
                         hitbox: Hitbox(Area::new(0.75, 1.9, 0.3, 0.5)),
                         lifetime: Lifetime::frames(4),
                         ..default()
-                    }).into(),
+                    },
+                    OnHitEffect::default()
+                ).into(),
                 FlowControl::Wait(13, false),
             ],
             ..default()
@@ -168,12 +182,15 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::AirSlap)).into(),
                 FlowControl::Wait(8, false),
-                Action::Hitbox(SpawnDescriptor {
+                Action::Attack(
+                    ToHit {
                         hitbox: Hitbox(Area::new(0.7, 1.3, 0.35, 0.25)),
                         lifetime: Lifetime::frames(5),
-                        fixed_height: Some(AttackHeight::High),
+                        block_type: BlockType::Constant(AttackHeight::High),
                         ..default()
-                    }).into(),
+                    },
+                    OnHitEffect::default()
+                ).into(),
                 FlowControl::Wait(10, true),
             ],
             ..default()
@@ -184,12 +201,15 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             phases: vec![
                 Action::Animation(Animation::Dummy(DummyAnimation::Divekick)).into(),
                 FlowControl::Wait(5, false),
-                Action::Hitbox(SpawnDescriptor {
+                Action::Attack(
+                    ToHit {
                         hitbox: Hitbox(Area::new(0.6, 0.1, 0.35, 0.25)),
                         lifetime: Lifetime::frames(10),
-                        fixed_height: Some(AttackHeight::High),
+                        block_type: BlockType::Constant(AttackHeight::High),
                         ..default()
-                    }).into(),
+                    },
+                    OnHitEffect::default()
+                ).into(),
                 FlowControl::Wait(10, true),
             ],
             ..default()
@@ -198,10 +218,19 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             input: Some("g"),
             phases: vec![
                 FlowControl::Wait(5, false),
-                Action::Grab(GrabDescription {
-                    damage: 25,
-                    ..default()
-                }).into(),
+                Action::Attack(
+                    ToHit {
+                        block_type: BlockType::Grab,
+                        hitbox: Hitbox(Area::new(0.75, 1.9, 0.3, 0.5)),
+                        lifetime: Lifetime::frames(5),
+                        ..default()
+                    },
+                    OnHitEffect {
+                        damage:(25, 0).into(),
+                        stun: (60, 0).into(),
+                        knockback: ( Vec3::Y*1.0, Vec3::ZERO).into(),
+                        ..default()
+                    }).into(),
                 FlowControl::Wait(40, true),
             ],
             ..default()
@@ -231,14 +260,16 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
             move_type: MoveType::Special,
             phases: vec![
                 FlowControl::Wait(10, false),
-                Action::Hitbox(SpawnDescriptor {
-                    hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
-                    speed: 5.0 * Vec3::X,
-                    lifetime: Lifetime::frames((constants::FPS * 0.25) as usize),
-                    attached_to_player: false,
-                    model: Some(Model::Fireball),
-                    ..default()
-                }).into(),
+                Action::Attack(
+                    ToHit {
+                        hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
+                        velocity: Some(5.0 * Vec2::X),
+                        lifetime: Lifetime::frames((constants::FPS * 0.25) as usize),
+                        projectile: Some(Projectile {model: Model::Fireball}),
+                        ..default()
+                    },
+                    OnHitEffect::default()
+                ).into(),
                 FlowControl::Wait(5, true),
             ],
             ..default()
@@ -252,16 +283,20 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
             phases: vec![
                 Action::Pay(Cost::charge()).into(),
                 FlowControl::Wait(10, false),
-                Action::Hitbox(SpawnDescriptor {
-                    hitbox: Hitbox(Area::new(0.5, 1.2, 0.4, 0.3)),
-                    speed: 6.0 * Vec3::X,
-                    lifetime: Lifetime::until_owner_hit(),
-                    damage: (10, 3).into(),
-                    hits: 3,
-                    attached_to_player: false,
-                    model: Some(Model::Fireball),
-                    ..default()
-                }).into(),
+                Action::Attack(
+                    ToHit {
+                        hitbox: Hitbox(Area::new(0.5, 1.2, 0.4, 0.3)),
+                        velocity: Some(6.0 * Vec2::X),
+                        lifetime: Lifetime::until_owner_hit(),
+                        projectile: Some(Projectile {model: Model::Fireball}),
+                        hits: 3,
+                        ..default()
+                    },
+                    OnHitEffect {
+                        damage: (10, 3).into(),
+                        ..default()
+                    }
+                ).into(),
                 FlowControl::Wait(5, true),
             ],
         },
@@ -270,14 +305,17 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
             move_type: MoveType::Special,
             phases: vec![
                 FlowControl::Wait(30, false),
-                Action::Hitbox(SpawnDescriptor {
-                    hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
-                    speed: 4.0 * Vec3::X,
-                    lifetime: Lifetime::until_owner_hit(),
-                    attached_to_player: false,
-                    model: Some(Model::Fireball),
-                    ..default()
-                }).into(),
+                Action::Attack(
+                    ToHit {
+                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
+                        velocity: Some(4.0 * Vec2::X),
+                        lifetime: Lifetime::until_owner_hit(),
+                        projectile: Some(Projectile {model: Model::Fireball}),
+                        hits: 3,
+                        ..default()
+                    },
+                    OnHitEffect::default(),
+                ).into(),
                 FlowControl::Wait(30, true),
             ],
             ..default()
@@ -291,16 +329,20 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
             phases: vec![
                 Action::Pay(Cost::meter(30)).into(),
                 FlowControl::Wait(30, false),
-                Action::Hitbox(SpawnDescriptor {
-                    hitbox: Hitbox(Area::new(0.5, 1.0, 0.4, 0.5)),
-                    speed: 5.0 * Vec3::X,
-                    lifetime: Lifetime::until_owner_hit(),
-                    stun: (30, 30).into(),
-                    hits: 2,
-                    attached_to_player: false,
-                    model: Some(Model::Fireball),
-                    ..default()
-                }).into(),
+                Action::Attack(
+                    ToHit {
+                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.4, 0.5)),
+                        velocity: Some(5.0 * Vec2::X),
+                        lifetime: Lifetime::until_owner_hit(),
+                        projectile: Some(Projectile {model: Model::Fireball}),
+                        hits: 2,
+                        ..default()
+                    },
+                    OnHitEffect {
+                        stun: (30, 30).into(),
+                        ..default()
+                    }
+                ).into(),
                 FlowControl::Wait(20, false),
             ],
         },

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use characters::{Action, HitTracker, Hitbox, Lifetime, OnHitEffect, SpawnDescriptor};
+use characters::{Action, HitTracker, Hitbox, Lifetime, OnHitEffect, ToHit};
 use player_state::PlayerState;
 use time::Clock;
 use types::{Area, Facing, Owner, Player};
@@ -23,16 +23,17 @@ impl HitboxSpawner {
         &mut self,
         commands: &mut Commands,
         models: &Models,
-        descriptor: SpawnDescriptor,
+        to_hit: ToHit,
+        on_hit: OnHitEffect,
         frame: usize,
         parent: Entity,
         facing: &Facing,
         player: Player,
         parent_position: Vec3,
     ) {
-        let offset = facing.mirror_vec(descriptor.hitbox.center().extend(0.0));
+        let offset = facing.mirror_vec(to_hit.hitbox.center().extend(0.0));
         let absolute_position = parent_position + offset;
-        let transform = Transform::from_translation(if descriptor.attached_to_player {
+        let transform = Transform::from_translation(if to_hit.projectile.is_none() {
             offset
         } else {
             absolute_position
@@ -49,22 +50,22 @@ impl HitboxSpawner {
 
         // Components used when collision happens
         builder
-            .insert(OnHitEffect {
-                fixed_height: descriptor.fixed_height,
-                damage: descriptor.damage,
-                stun: descriptor.stun,
-                knockback: descriptor.knockback,
-                pushback: descriptor.pushback,
-            })
-            .insert(HitTracker::new(descriptor.hits))
+            .insert(on_hit)
+            .insert(HitTracker::new(to_hit.hits))
             .insert(Owner(player))
             .insert(Hitbox(Area::from_center_size(
                 Vec2::ZERO, // Position is set into the object directly
-                descriptor.hitbox.size(),
+                to_hit.hitbox.size(),
             )))
-            .insert(ConstantVelocity::new(facing.mirror_vec(descriptor.speed)));
+            .insert(to_hit.block_type);
 
-        if let Some(model) = descriptor.model {
+        if let Some(velocity) = to_hit.velocity {
+            builder.insert(ConstantVelocity::new(
+                facing.mirror_vec(velocity.extend(0.0)),
+            ));
+        }
+
+        if let Some(model) = to_hit.projectile.map(|p| p.model) {
             builder.with_children(|parent| {
                 parent.spawn_bundle(SceneBundle {
                     scene: models[&model].clone(),
@@ -73,10 +74,10 @@ impl HitboxSpawner {
             });
         }
 
-        if descriptor.attached_to_player {
+        if to_hit.projectile.is_none() {
             commands.entity(parent).push_children(&[new_hitbox]);
         }
-        let mut lifetime = descriptor.lifetime;
+        let mut lifetime = to_hit.lifetime;
         lifetime.frames = lifetime.frames.map(|lifetime| lifetime + frame);
 
         self.despawn_requests.push(DespawnRequest {
@@ -126,10 +127,10 @@ pub(super) fn spawn_new(
     )>,
 ) {
     for (mut spawner, mut state, parent, facing, player, transform) in &mut query {
-        for spawn_descriptor in state
+        for (to_hit, on_hit) in state
             .drain_matching_actions(|action| {
-                if let Action::Hitbox(descriptor) = action {
-                    Some(*descriptor)
+                if let Action::Attack(to_hit, on_hit) = action {
+                    Some((*to_hit, *on_hit))
                 } else {
                     None
                 }
@@ -139,7 +140,8 @@ pub(super) fn spawn_new(
             spawner.spawn_attack(
                 &mut commands,
                 &models,
-                spawn_descriptor,
+                to_hit,
+                on_hit,
                 clock.frame,
                 parent,
                 facing,

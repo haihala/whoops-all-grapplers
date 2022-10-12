@@ -1,4 +1,4 @@
-- Make throws use hitboxes (this will make rendering them easier)
+- [x] Make throws use hitboxes (this will make rendering them easier)
 	- Could allow to use the same system to detect collisions
 	- Maybe first step at decoupling hit effects
 - Force other participant into an animation

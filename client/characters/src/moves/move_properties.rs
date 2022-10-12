@@ -2,24 +2,6 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 use types::{Area, Model};
 
-#[derive(Debug, Clone, Copy, Default, Component, DerefMut, Deref, Inspectable)]
-pub struct Hurtbox(pub Area);
-
-#[derive(Clone, Component)]
-pub struct Grabable {
-    pub size: f32,
-    pub queue: Vec<GrabDescription>,
-}
-
-impl Default for Grabable {
-    fn default() -> Self {
-        Self {
-            size: 0.5,
-            queue: vec![],
-        }
-    }
-}
-
 #[derive(Default, Clone, Copy, Deref, DerefMut, Debug, Component, Inspectable, PartialEq)]
 pub struct Hitbox(pub Area);
 
@@ -109,13 +91,23 @@ pub type Stun = HitProperty<usize>;
 pub type Knockback = HitProperty<Vec3>;
 pub type Pushback = HitProperty<Vec3>;
 
-#[derive(Debug, Clone, Copy, PartialEq, Inspectable, Component, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Inspectable, Component)]
 pub struct OnHitEffect {
-    pub fixed_height: Option<AttackHeight>,
     pub damage: Damage,
     pub stun: Stun,
     pub knockback: Knockback,
     pub pushback: Pushback,
+}
+
+impl Default for OnHitEffect {
+    fn default() -> Self {
+        Self {
+            damage: (10, 1).into(),
+            stun: (15, 5).into(),
+            knockback: (Vec3::X * 2.0, Vec3::X * 1.0).into(),
+            pushback: (Vec3::X * 1.0, Vec3::X * 0.5).into(),
+        }
+    }
 }
 
 const FRAMES_BETWEEN_HITS: usize = 10;
@@ -150,57 +142,38 @@ impl Default for HitTracker {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Inspectable)]
-pub struct SpawnDescriptor {
-    pub damage: Damage,
-    pub stun: Stun,
-    pub hits: usize,
-    pub knockback: Knockback,
-    pub pushback: Pushback,
-    pub model: Option<Model>,
+#[derive(Clone, Copy, Debug, Inspectable, Eq, PartialEq, Default, Component)]
+pub enum BlockType {
+    Constant(AttackHeight),
+    Grab,
+    #[default]
+    Dynamic,
+}
 
-    /// Hitbox is moved at this constant speed
-    pub speed: Vec3,
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ToHit {
+    pub block_type: BlockType,
     pub hitbox: Hitbox,
-    pub fixed_height: Option<AttackHeight>,
     pub lifetime: Lifetime,
-    pub attached_to_player: bool,
+    pub velocity: Option<Vec2>,
+    pub projectile: Option<Projectile>,
+    pub hits: usize,
 }
 
-impl Default for SpawnDescriptor {
+impl Default for ToHit {
     fn default() -> Self {
         Self {
-            damage: (10, 1).into(),
-            stun: (15, 5).into(),
-            speed: Vec3::ZERO,
-            hits: 1,
+            block_type: Default::default(),
             hitbox: Hitbox(Area::new(1.0, 1.2, 0.2, 0.2)),
-            fixed_height: None,
             lifetime: Lifetime::default(),
-            attached_to_player: true,
-            knockback: (Vec3::X * 2.0, Vec3::X * 1.0).into(),
-            pushback: (Vec3::X * 1.0, Vec3::X * 0.5).into(),
-            model: None,
+            velocity: Default::default(),
+            projectile: Default::default(),
+            hits: 1,
         }
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Inspectable)]
-pub struct GrabDescription {
-    pub damage: i32,
-    pub impulse: Vec3,
-
-    pub range: f32,
-    pub offset: Vec2,
-}
-
-impl Default for GrabDescription {
-    fn default() -> Self {
-        Self {
-            damage: 10,
-            impulse: Vec3::new(2.0, 5.0, 0.0),
-            range: 1.0,
-            offset: Vec2::ZERO,
-        }
-    }
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Projectile {
+    pub model: Model,
 }

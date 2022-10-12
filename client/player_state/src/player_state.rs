@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use characters::{Action, AttackHeight, FlowControl, MoveHistory, Situation};
-use types::{AnimationType, Area, Facing, Status, StatusCondition, StatusEffect, StickPosition};
+use characters::{Action, FlowControl, MoveHistory, Situation};
+use types::{AnimationType, Facing, Status, StatusCondition, StatusEffect};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 
@@ -125,6 +125,9 @@ impl PlayerState {
             _ => None,
         }
     }
+    pub fn is_free(&self) -> bool {
+        self.get_move_history().is_none()
+    }
 
     pub fn register_hit(&mut self) {
         if let Some(ref mut history) = self.get_move_history_mut() {
@@ -151,10 +154,6 @@ impl PlayerState {
             MainState::Air(_) => MainState::Air(AirState::Freefall),
             MainState::Ground(_) => panic!("Stunned on the ground"),
         };
-        self.free_since = None;
-    }
-    pub fn throw(&mut self) {
-        self.main = MainState::Air(AirState::Freefall);
         self.free_since = None;
     }
     pub fn recover(&mut self, frame: usize) {
@@ -240,39 +239,6 @@ impl PlayerState {
     }
     pub fn is_crouching(&self) -> bool {
         matches!(self.main, MainState::Crouch(_))
-    }
-
-    pub fn blocked(
-        &self,
-        fixed_height: Option<AttackHeight>,
-        hitbox: Area,
-        low_threshold: f32,
-        high_threshold: f32,
-        stick: StickPosition,
-    ) -> bool {
-        if !self.can_block_now() {
-            return false;
-        }
-
-        let blocking_high = stick == StickPosition::W;
-        let blocking_low = stick == StickPosition::SW;
-
-        let height = fixed_height.unwrap_or(if hitbox.bottom() > high_threshold {
-            AttackHeight::High
-        } else if hitbox.top() > low_threshold {
-            AttackHeight::Mid
-        } else {
-            AttackHeight::Low
-        });
-
-        match height {
-            AttackHeight::Low => blocking_low,
-            AttackHeight::Mid => blocking_low || blocking_high,
-            AttackHeight::High => blocking_high,
-        }
-    }
-    fn can_block_now(&self) -> bool {
-        self.get_move_history().is_none() && self.is_grounded()
     }
 
     pub fn add_condition(&mut self, condition: StatusCondition) {

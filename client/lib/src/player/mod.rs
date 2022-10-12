@@ -7,7 +7,7 @@ mod movement;
 mod recovery;
 mod size_adjustment;
 
-use characters::{dummy, Character, Grabable, Hurtbox, Inventory, Resources};
+use characters::{dummy, Character, Hurtbox, Inventory, Resources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use time::{once_per_combat_frame, Clock, GameState, RoundResult};
@@ -33,7 +33,6 @@ struct PlayerQuery<'a> {
     spawner: &'a mut HitboxSpawner,
     character: &'a Character,
     tf: &'a Transform,
-    grabbable: &'a mut Grabable,
     buffer: &'a mut MoveBuffer,
     resources: &'a mut Resources,
     inventory: &'a mut Inventory,
@@ -104,7 +103,6 @@ struct PlayerDefaults {
     resources: Resources,
     inventory: Inventory,
     spawner: HitboxSpawner,
-    grab_target: Grabable,
     player_velocity: PlayerVelocity,
     move_buffer: MoveBuffer,
 }

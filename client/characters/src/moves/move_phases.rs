@@ -2,9 +2,9 @@ use bevy::prelude::*;
 
 use types::{Animation, MoveId, SoundEffect, StatusCondition};
 
-use crate::{resources::Cost, SpawnDescriptor};
+use crate::resources::Cost;
 
-use super::{GrabDescription, Situation};
+use super::{OnHitEffect, Situation, ToHit};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Movement {
@@ -26,8 +26,7 @@ pub enum Action {
     AnimationAtFrame(Animation, usize),
     Sound(SoundEffect),
     Move(MoveId),
-    Hitbox(SpawnDescriptor),
-    Grab(GrabDescription),
+    Attack(ToHit, OnHitEffect),
     Movement(Movement),
     Pay(Cost),
     Condition(StatusCondition),

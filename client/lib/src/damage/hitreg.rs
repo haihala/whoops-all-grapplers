@@ -1,10 +1,12 @@
 use bevy::{ecs::query::WorldQuery, prelude::*};
 
-use characters::{Character, HitTracker, Hitbox, Hurtbox, OnHitEffect, Resources};
+use characters::{
+    AttackHeight, BlockType, Character, HitTracker, Hitbox, Hurtbox, OnHitEffect, Resources,
+};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use time::Clock;
-use types::{Area, Facing, Owner, Player, Players, SoundEffect, VisualEffect};
+use types::{Area, Facing, Owner, Player, Players, SoundEffect, StickPosition, VisualEffect};
 
 use crate::{
     assets::{ParticleRequest, Particles, Sounds},
@@ -93,6 +95,7 @@ pub(super) fn register_hits(
     mut hitboxes: Query<(
         Entity,
         &Owner,
+        &BlockType,
         &OnHitEffect,
         &GlobalTransform,
         &Hitbox,
@@ -101,7 +104,7 @@ pub(super) fn register_hits(
     mut hurtboxes: Query<PlayerQuery>,
     players: Res<Players>,
 ) {
-    for (entity, owner, effect, hitbox_tf, hitbox, mut hit_tracker) in &mut hitboxes {
+    for (entity, owner, block_type, effect, hitbox_tf, hitbox, mut hit_tracker) in &mut hitboxes {
         if let Ok([mut p1, mut p2]) = hurtboxes.get_many_mut([players.one, players.two]) {
             let (attacker, defender) = if owner.0 == Player::One {
                 (&mut p1, &mut p2)
@@ -116,6 +119,7 @@ pub(super) fn register_hits(
                 clock.frame,
                 &mut sounds,
                 &mut particles,
+                block_type,
                 effect,
                 &mut hit_tracker,
                 hitbox.with_offset(hitbox_tf.translation().truncate()),
@@ -135,6 +139,7 @@ fn handle_hit(
     frame: usize,
     sounds: &mut Sounds,
     particles: &mut Particles,
+    block_type: &BlockType,
     effect: &OnHitEffect,
     hit_tracker: &mut HitTracker,
     hitbox: Area,
@@ -171,20 +176,38 @@ fn handle_hit(
         // Handle blocking and state transitions here
         attacker.state.register_hit();
 
-        let blocked = defender.state.blocked(
-            effect.fixed_height,
-            hitbox,
-            defender.character.low_block_height,
-            defender.character.high_block_height,
-            defender.parser.get_relative_stick_position(),
-        );
+        let (avoided, notification) = match (defender.state.is_free(), block_type) {
+            (false, _) => (false, "Busy!".into()),
+            (_, BlockType::Grab) => {
+                if defender.parser.head_is_clear() {
+                    (true, "Teched!".into())
+                } else {
+                    (false, "Grappled!".into())
+                }
+            }
+            (_, BlockType::Constant(height)) => {
+                handle_blocking(*height, defender.parser.get_relative_stick_position())
+            }
+            (_, BlockType::Dynamic) => handle_blocking(
+                if hitbox.bottom() > defender.character.high_block_height {
+                    AttackHeight::High
+                } else if hitbox.top() > defender.character.low_block_height {
+                    AttackHeight::Mid
+                } else {
+                    AttackHeight::Low
+                },
+                defender.parser.get_relative_stick_position(),
+            ),
+        };
+
+        notifications.add(defender.player.to_owned(), notification);
 
         // Damage
-        let damage = effect.damage.get(blocked);
+        let damage = effect.damage.get(avoided);
         defender.health.apply_damage(damage);
 
         // Knockback
-        let knockback_impulse = attacker.facing.mirror_vec(effect.knockback.get(blocked));
+        let knockback_impulse = attacker.facing.mirror_vec(effect.knockback.get(avoided));
         defender.velocity.add_impulse(knockback_impulse);
 
         // Pushback
@@ -194,15 +217,16 @@ fn handle_hit(
             .add_impulse(
                 defender
                     .facing
-                    .mirror_vec(defender.facing.mirror_vec(effect.pushback.get(blocked))),
+                    .mirror_vec(defender.facing.mirror_vec(effect.pushback.get(avoided))),
             );
 
         // Stun
         if knockback_impulse.y > 0.0 {
+            dbg!("Launching");
             defender.state.launch();
         } else {
-            let end_frame = effect.stun.get(blocked) + frame;
-            if blocked {
+            let end_frame = effect.stun.get(avoided) + frame;
+            if avoided {
                 defender.state.block(end_frame);
             } else {
                 defender.state.stun(end_frame);
@@ -210,7 +234,7 @@ fn handle_hit(
         }
 
         // Defense
-        if blocked {
+        if avoided {
             defender.defense.bump_streak(frame);
             defender.resources.meter.gain(defender.defense.get_reward());
         } else {
@@ -218,7 +242,7 @@ fn handle_hit(
         }
 
         // Sound effect
-        sounds.play(if blocked {
+        sounds.play(if avoided {
             SoundEffect::Block
         } else {
             SoundEffect::Hit
@@ -226,7 +250,7 @@ fn handle_hit(
 
         // Visual effect
         particles.spawn(ParticleRequest {
-            effect: if blocked {
+            effect: if avoided {
                 VisualEffect::Block
             } else {
                 VisualEffect::Hit
@@ -237,7 +261,7 @@ fn handle_hit(
 
         hit_tracker.last_hit_frame = Some(frame);
 
-        if !blocked {
+        if !avoided {
             defender.spawner.despawn_on_hit(commands);
         }
 
@@ -247,5 +271,20 @@ fn handle_hit(
         } else {
             hit_tracker.register_hit(frame)
         }
+    }
+}
+
+fn handle_blocking(height: AttackHeight, stick: StickPosition) -> (bool, String) {
+    let blocking_high = stick == StickPosition::W;
+    let blocking_low = stick == StickPosition::SW;
+
+    if match height {
+        AttackHeight::Low => blocking_low,
+        AttackHeight::Mid => blocking_low || blocking_high,
+        AttackHeight::High => blocking_high,
+    } {
+        (true, "Blocked!".into())
+    } else {
+        (false, format!("Hit {:?}", height))
     }
 }

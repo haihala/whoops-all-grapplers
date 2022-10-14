@@ -59,10 +59,17 @@ impl Facing {
         }
     }
 
-    pub fn mirror_vec(&self, vector: Vec3) -> Vec3 {
+    pub fn mirror_vec3(&self, vector: Vec3) -> Vec3 {
         match self {
             Facing::Right => vector,
             Facing::Left => Vec3::new(-vector.x, vector.y, vector.z),
+        }
+    }
+
+    pub fn mirror_vec2(&self, vector: Vec2) -> Vec2 {
+        match self {
+            Facing::Right => vector,
+            Facing::Left => Vec2::new(-vector.x, vector.y),
         }
     }
 
@@ -100,10 +107,10 @@ mod test {
         let left = Vec3::X;
         let right = -Vec3::X;
 
-        assert!(Facing::Right.mirror_vec(left) == left);
-        assert!(Facing::Right.mirror_vec(right) == right);
-        assert!(Facing::Left.mirror_vec(left) == right);
-        assert!(Facing::Left.mirror_vec(right) == left);
+        assert!(Facing::Right.mirror_vec3(left) == left);
+        assert!(Facing::Right.mirror_vec3(right) == right);
+        assert!(Facing::Left.mirror_vec3(left) == right);
+        assert!(Facing::Left.mirror_vec3(right) == left);
     }
 
     #[test]

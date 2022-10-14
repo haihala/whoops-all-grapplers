@@ -31,7 +31,7 @@ impl HitboxSpawner {
         player: Player,
         parent_position: Vec3,
     ) {
-        let offset = facing.mirror_vec(to_hit.hitbox.center().extend(0.0));
+        let offset = facing.mirror_vec3(to_hit.hitbox.center().extend(0.0));
         let absolute_position = parent_position + offset;
         let transform = Transform::from_translation(if to_hit.projectile.is_none() {
             offset
@@ -61,7 +61,7 @@ impl HitboxSpawner {
 
         if let Some(velocity) = to_hit.velocity {
             builder.insert(ConstantVelocity::new(
-                facing.mirror_vec(velocity.extend(0.0)),
+                facing.mirror_vec3(velocity.extend(0.0)),
             ));
         }
 

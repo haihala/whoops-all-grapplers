@@ -83,7 +83,7 @@ fn player_gravity(
         let is_airborne = tf.translation.y > GROUND_PLANE_HEIGHT;
 
         if is_airborne {
-            velocity.add_impulse(-Vec3::Y * PLAYER_GRAVITY_PER_FRAME);
+            velocity.add_impulse(-Vec2::Y * PLAYER_GRAVITY_PER_FRAME);
 
             if state.is_grounded() {
                 state.jump();
@@ -136,7 +136,7 @@ struct PlayerMovingQuery<'a> {
 
 fn move_players(mut query: Query<PlayerMovingQuery>) {
     for mut p in &mut query {
-        p.tf.translation += p.velocity.get_shift();
+        p.tf.translation += p.velocity.get_shift().extend(0.0);
     }
 }
 

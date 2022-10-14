@@ -88,8 +88,8 @@ impl<T: Clone + Copy + PartialEq + Default + Inspectable> From<T> for HitPropert
 
 pub type Damage = HitProperty<i32>;
 pub type Stun = HitProperty<usize>;
-pub type Knockback = HitProperty<Vec3>;
-pub type Pushback = HitProperty<Vec3>;
+pub type Knockback = HitProperty<Vec2>;
+pub type Pushback = HitProperty<Vec2>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Inspectable, Component)]
 pub struct OnHitEffect {
@@ -104,8 +104,8 @@ impl Default for OnHitEffect {
         Self {
             damage: (10, 1).into(),
             stun: (15, 5).into(),
-            knockback: (Vec3::X * 2.0, Vec3::X * 1.0).into(),
-            pushback: (Vec3::X * 1.0, Vec3::X * 0.5).into(),
+            knockback: (Vec2::X * 2.0, Vec2::X * 1.0).into(),
+            pushback: (Vec2::X * 1.0, Vec2::X * 0.5).into(),
         }
     }
 }

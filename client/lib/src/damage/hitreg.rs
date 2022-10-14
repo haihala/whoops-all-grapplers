@@ -207,7 +207,7 @@ fn handle_hit(
         defender.health.apply_damage(damage);
 
         // Knockback
-        let knockback_impulse = attacker.facing.mirror_vec(effect.knockback.get(avoided));
+        let knockback_impulse = attacker.facing.mirror_vec2(effect.knockback.get(avoided));
         defender.velocity.add_impulse(knockback_impulse);
 
         // Pushback
@@ -217,7 +217,7 @@ fn handle_hit(
             .add_impulse(
                 defender
                     .facing
-                    .mirror_vec(defender.facing.mirror_vec(effect.pushback.get(avoided))),
+                    .mirror_vec2(defender.facing.mirror_vec2(effect.pushback.get(avoided))),
             );
 
         // Stun

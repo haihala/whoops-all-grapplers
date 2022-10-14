@@ -199,7 +199,10 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             lifetime: Lifetime::frames(4),
                             ..default()
                         },
-                        OnHitEffect::default(),
+                        OnHitEffect {
+                            knockback: (Vec2::splat(1.0), Vec2::ZERO).into(),
+                            ..default()
+                        },
                     )
                     .into(),
                     FlowControl::Wait(13, false),
@@ -269,7 +272,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         OnHitEffect {
                             damage: (25, 0).into(),
                             stun: (60, 0).into(),
-                            knockback: (Vec3::Y * 1.0, Vec3::ZERO).into(),
+                            knockback: (Vec2::Y * 1.0, Vec2::ZERO).into(),
                             ..default()
                         },
                     )

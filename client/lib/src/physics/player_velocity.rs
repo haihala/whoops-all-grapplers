@@ -6,12 +6,12 @@ use types::Facing;
 
 #[derive(Debug, Inspectable, Clone, Default, Copy)]
 pub struct AppliedMovement {
-    amount: Vec3,
+    amount: Vec2,
     until_frame: usize,
 }
 #[derive(Debug, Inspectable, Clone, Default, Component)]
 pub struct PlayerVelocity {
-    velocity: Vec3,
+    velocity: Vec2,
     movements: Vec<AppliedMovement>,
     /// Keep track of if pushing is currently happening for wall clamp reasons
     pub(super) pushing: bool,
@@ -28,16 +28,16 @@ const PROPORTIONAL_DRAG: f32 = 0.03;
 const LINEAR_DRAG: f32 = 0.3;
 
 impl PlayerVelocity {
-    pub(super) fn get_shift(&self) -> Vec3 {
+    pub(super) fn get_shift(&self) -> Vec2 {
         self.velocity / constants::FPS
     }
-    pub fn add_impulse(&mut self, impulse: Vec3) {
+    pub fn add_impulse(&mut self, impulse: Vec2) {
         self.velocity += impulse;
     }
     pub(super) fn handle_movement(&mut self, frame: usize, facing: Facing, movement: Movement) {
         // This will make it so that lengthening the duration of a movement will spread out the amount across the duration.
         // Basically, you can double the lenght and it shouldn't affect the total distance
-        let amount = facing.mirror_vec(movement.amount.extend(0.0));
+        let amount = facing.mirror_vec2(movement.amount);
         self.movements.push(AppliedMovement {
             amount: amount.normalize() * (amount.length() / movement.duration as f32),
             until_frame: frame + movement.duration,
@@ -55,14 +55,13 @@ impl PlayerVelocity {
     pub(super) fn drag(&mut self) {
         let abs_x = self.velocity.x.abs() * (1.0 - PROPORTIONAL_DRAG);
 
-        self.velocity = Vec3::new(
+        self.velocity = Vec2::new(
             if abs_x > LINEAR_DRAG {
                 self.velocity.x.signum() * (abs_x - LINEAR_DRAG)
             } else {
                 0.0
             },
             self.velocity.y,
-            0.0,
         );
     }
     pub(super) fn sum_movements(&mut self) {
@@ -70,7 +69,7 @@ impl PlayerVelocity {
             self.movements
                 .iter()
                 .map(|am| am.amount)
-                .fold(Vec3::ZERO, |collector, item| collector + item),
+                .fold(Vec2::ZERO, |collector, item| collector + item),
         );
     }
     pub(super) fn cleanup_movements(&mut self, frame: usize) {

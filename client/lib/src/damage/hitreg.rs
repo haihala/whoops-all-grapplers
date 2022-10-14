@@ -206,10 +206,6 @@ fn handle_hit(
         let damage = effect.damage.get(avoided);
         defender.health.apply_damage(damage);
 
-        // Knockback
-        let knockback_impulse = attacker.facing.mirror_vec2(effect.knockback.get(avoided));
-        defender.velocity.add_impulse(knockback_impulse);
-
         // Pushback
         attacker
             .velocity
@@ -220,9 +216,11 @@ fn handle_hit(
                     .mirror_vec2(defender.facing.mirror_vec2(effect.pushback.get(avoided))),
             );
 
+        // Knockback
+        let knockback_impulse = attacker.facing.mirror_vec2(effect.knockback.get(avoided));
+
         // Stun
         if knockback_impulse.y > 0.0 {
-            dbg!("Launching");
             defender.state.launch();
         } else {
             let end_frame = effect.stun.get(avoided) + frame;
@@ -232,6 +230,9 @@ fn handle_hit(
                 defender.state.stun(end_frame);
             }
         }
+
+        // Has to be after the stun, as state transitions would have a window of invalidity otherwise
+        defender.velocity.add_impulse(knockback_impulse);
 
         // Defense
         if avoided {

@@ -88,7 +88,8 @@ fn player_gravity(
             if state.is_grounded() {
                 state.jump();
             }
-        } else if !state.is_grounded() {
+        } else if !state.is_grounded() && velocity.get_shift().y <= 0.0 {
+            // Velocity check ensures that we don't call land on the frame we're being launched
             state.land(clock.frame);
             spawner.despawn_on_landing(&mut commands);
         }

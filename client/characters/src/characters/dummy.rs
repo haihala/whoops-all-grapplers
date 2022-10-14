@@ -200,7 +200,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             ..default()
                         },
                         OnHitEffect {
-                            knockback: (Vec2::splat(1.0), Vec2::ZERO).into(),
+                            knockback: (Vec2::splat(4.0), Vec2::ZERO).into(),
                             ..default()
                         },
                     )

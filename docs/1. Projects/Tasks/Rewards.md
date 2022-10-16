@@ -9,6 +9,8 @@ Progress:
 - [ ] Money
 	- [ ] Taunt
 	- [ ] Close games
+- [ ] Damage
+	- [ ] Opener
 
 # Meter
 Meter is for rewarding stuff immediately. Players have 4 bars of meter, used in chunks, but gained slowly.

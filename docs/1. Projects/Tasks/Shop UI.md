@@ -1,4 +1,4 @@
 #blocked by [[Convert to egui]]
 
-- Check out [[Items]]
+- Check out [[Items and the shop]]
 - An UI to do the shopping in

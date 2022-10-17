@@ -200,7 +200,9 @@ fn handle_hit(
             ),
         };
 
-        notifications.add(defender.player.to_owned(), notification);
+        if !combo_ongoing {
+            notifications.add(defender.player.to_owned(), notification);
+        }
 
         // Damage
         let damage = effect.damage.get(avoided);

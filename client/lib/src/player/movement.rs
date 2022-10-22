@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
+use core::{Facing, StickPosition};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use types::{Facing, StickPosition};
 
 pub fn movement(mut query: Query<(&InputParser, &mut PlayerState)>) {
     for (reader, mut state) in &mut query {

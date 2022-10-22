@@ -9,6 +9,5 @@ bevy = { workspace = true }
 bevy-inspector-egui = { workspace = true }
 map-macro = { workspace = true }
 
-constants = { path = "../constants" }
 input_parsing = { path = "../input_parsing"}
-types = { path = "../types" }
+core = { path = "../core" }

@@ -8,10 +8,10 @@ mod recovery;
 mod size_adjustment;
 
 use characters::{dummy, Character, Hurtbox, Inventory, Resources};
+use core::{Facing, Player, Players};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use time::{once_per_combat_frame, Clock, GameState, RoundResult};
-use types::{Facing, Player, Players};
 
 use crate::{
     assets::{AnimationHelperSetup, Models},

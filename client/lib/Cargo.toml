@@ -11,9 +11,8 @@ bevy-inspector-egui = { workspace = true }
 rand = { workspace = true }
 map-macro = { workspace = true }
 
-constants = { path = "../constants" }
 input_parsing = { path = "../input_parsing" }
 characters = { path = "../characters" }
 player_state = { path = "../player_state" }
-types = { path = "../types" }
+core = { path = "../core" }
 time = { path = "../time" }

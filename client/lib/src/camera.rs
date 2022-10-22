@@ -1,7 +1,7 @@
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::*;
 use bevy::render::camera::ScalingMode;
-use types::Player;
+use core::Player;
 
 use crate::physics::ARENA_WIDTH;
 

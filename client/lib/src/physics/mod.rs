@@ -5,10 +5,9 @@ use bevy::{ecs::query::WorldQuery, prelude::*};
 use bevy_inspector_egui::Inspectable;
 
 use characters::{Action, Character, HitTracker};
-use constants::PLAYER_GRAVITY_PER_FRAME;
+use core::{Area, Facing, Players};
 use player_state::PlayerState;
 use time::{once_per_combat_frame, Clock, WAGStage};
-use types::{Area, Facing, Players};
 
 use crate::{
     camera::{WorldCamera, VIEWPORT_HALFWIDTH},
@@ -27,7 +26,7 @@ impl ConstantVelocity {
     pub fn new(speed: Vec3) -> ConstantVelocity {
         ConstantVelocity {
             speed,
-            shift: speed / constants::FPS,
+            shift: speed / core::FPS,
         }
     }
 }
@@ -77,13 +76,14 @@ fn player_gravity(
         &mut PlayerState,
         &mut HitboxSpawner,
         &Transform,
+        &Character,
     )>,
 ) {
-    for (mut velocity, mut state, mut spawner, tf) in &mut players {
+    for (mut velocity, mut state, mut spawner, tf, character) in &mut players {
         let is_airborne = tf.translation.y > GROUND_PLANE_HEIGHT;
 
         if is_airborne {
-            velocity.add_impulse(-Vec2::Y * PLAYER_GRAVITY_PER_FRAME);
+            velocity.add_impulse(-Vec2::Y * character.gravity);
 
             if state.is_grounded() {
                 state.jump();

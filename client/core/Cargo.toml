@@ -1,5 +1,5 @@
 [package]
-name = "types"
+name = "core"
 version = "0.1.0"
 edition = "2021"
 authors = ["Eero Häihälä <eero.haihala@gmail.com>"]

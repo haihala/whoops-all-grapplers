@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use types::{Area, GameButton, ItemId, MoveId};
+use core::{Area, GameButton, ItemId, MoveId};
 
 use crate::{
     moves::{Action, FlowControl, MoveType, Situation},

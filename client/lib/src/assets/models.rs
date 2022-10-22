@@ -1,6 +1,6 @@
 use bevy::prelude::*;
+use core::Model;
 use std::collections::HashMap;
-use types::Model;
 
 #[derive(Debug, Deref, DerefMut)]
 pub struct Models(pub HashMap<Model, Handle<Scene>>);

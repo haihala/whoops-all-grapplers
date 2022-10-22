@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use characters::Movement;
-use types::Facing;
+use core::Facing;
 
 #[derive(Debug, Inspectable, Clone, Default, Copy)]
 pub struct AppliedMovement {
@@ -22,14 +22,14 @@ const MAXIMUM_WALK_SPEED: f32 = 4.0;
 const ACCELERATION_TIME: f32 = 1.0;
 
 const ACCELERATION_DELTA: f32 = MAXIMUM_WALK_SPEED - MINIMUM_WALK_SPEED;
-const PLAYER_ACCELERATION: f32 = ACCELERATION_DELTA / ACCELERATION_TIME / constants::FPS;
+const PLAYER_ACCELERATION: f32 = ACCELERATION_DELTA / ACCELERATION_TIME / core::FPS;
 
 const PROPORTIONAL_DRAG: f32 = 0.03;
 const LINEAR_DRAG: f32 = 0.3;
 
 impl PlayerVelocity {
     pub(super) fn get_shift(&self) -> Vec2 {
-        self.velocity / constants::FPS
+        self.velocity / core::FPS
     }
     pub fn add_impulse(&mut self, impulse: Vec2) {
         self.velocity += impulse;

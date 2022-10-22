@@ -1,9 +1,11 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::prelude::*;
-use types::{Animation, AnimationType, Area, ItemId, Model, MoveId, StickPosition};
+use core::{Animation, AnimationType, Area, ItemId, Model, MoveId, StickPosition};
 
 use crate::{Inventory, Item, Move};
+
+use super::jump;
 
 #[derive(Debug, Component, Clone)]
 pub struct Character {
@@ -18,14 +20,20 @@ pub struct Character {
     pub crouching_pushbox: Area,
     pub charge_directions: Vec<StickPosition>,
     pub generic_animations: HashMap<AnimationType, Animation>,
+    pub gravity: f32,
 }
 impl Character {
     pub(crate) fn new(
         model: Model,
         generic_animations: HashMap<AnimationType, Animation>,
-        moves: HashMap<MoveId, Move>,
+        mut moves: HashMap<MoveId, Move>,
         items: HashMap<ItemId, Item>,
+        jump_height: f32,
+        jump_duration: f32,
     ) -> Character {
+        let (jumps, gravity) = Self::jumps(jump_height, jump_duration);
+        moves.extend(jumps);
+
         Self {
             model,
             generic_animations,
@@ -43,6 +51,7 @@ impl Character {
             crouching_hurtbox: Area::from_center_size(Vec2::Y * 0.6, Vec2::new(0.5, 1.2)),
             standing_pushbox: Area::from_center_size(Vec2::Y * 0.7, Vec2::new(0.4, 1.4)),
             crouching_pushbox: Area::from_center_size(Vec2::Y * 0.5, Vec2::new(0.4, 1.0)),
+            gravity,
         }
     }
 
@@ -81,5 +90,79 @@ impl Character {
             .map(|(id, item)| (id.to_owned(), item.to_owned()))
             .collect()
         // TODO random selection that doesn't break rollback
+    }
+
+    fn jumps(height: f32, duration: f32) -> (impl Iterator<Item = (MoveId, Move)>, f32) {
+        /*
+        // Math for gravity
+        x = x0 + v0*t + 1/2*a*t^2
+
+        From the apex down
+        x0 = jump height,
+        x = 0
+        v0 = 0
+
+        0 = -h + 1/2*a*t^2
+        1/2*a*t^2 = h
+        a = 2*h/t^2
+        */
+        let gravity_force: f32 = 2.0 * height / (duration / 2.0).powf(2.0);
+        let gravity_per_frame: f32 = gravity_force / core::FPS;
+
+        /*
+        Math for initial jump velocity
+        x = x0 + v0*t + 1/2*a*t^2
+        From start to end
+
+        x0 = 0
+        x = 0
+        t and a = known, solve v0
+
+        0 = v0*t + 1/2*a*t^2
+        v0 = -1/2*a*t
+        */
+        let neutral_jump_y: f32 = 0.5 * gravity_force * duration;
+
+        const DIAGONAL_JUMP_ANGLE: f32 = 60.0 * PI / 180.0;
+        let diagonal_jump_x: f32 = neutral_jump_y * DIAGONAL_JUMP_ANGLE.cos();
+        let diagonal_jump_y: f32 = neutral_jump_y * DIAGONAL_JUMP_ANGLE.sin();
+
+        const SUPERJUMP_HEIGHT_MULTIPLIER: f32 = 1.3;
+        let neutral_superjump_y: f32 = SUPERJUMP_HEIGHT_MULTIPLIER * neutral_jump_y;
+        let diagonal_superjump_x: f32 = SUPERJUMP_HEIGHT_MULTIPLIER * diagonal_jump_x;
+        let diagonal_superjump_y: f32 = SUPERJUMP_HEIGHT_MULTIPLIER * diagonal_jump_y;
+
+        let jumps = vec![
+            (
+                MoveId::BackJump,
+                jump("7", Vec2::new(-diagonal_jump_x, diagonal_jump_y)),
+            ),
+            (MoveId::NeutralJump, jump("8", Vec2::Y * neutral_jump_y)),
+            (
+                MoveId::ForwardJump,
+                jump("9", Vec2::new(diagonal_jump_x, diagonal_jump_y)),
+            ),
+            (
+                MoveId::BackSuperJump,
+                jump(
+                    "[123]7",
+                    Vec2::new(-diagonal_superjump_x, diagonal_superjump_y),
+                ),
+            ),
+            (
+                MoveId::NeutralSuperJump,
+                jump("[123]8", Vec2::Y * neutral_superjump_y),
+            ),
+            (
+                MoveId::ForwardSuperJump,
+                jump(
+                    "[123]9",
+                    Vec2::new(diagonal_superjump_x, diagonal_superjump_y),
+                ),
+            ),
+        ]
+        .into_iter();
+
+        (jumps, gravity_per_frame)
     }
 }

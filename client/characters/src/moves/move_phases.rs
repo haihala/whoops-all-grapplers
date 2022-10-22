@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use types::{Animation, MoveId, SoundEffect, StatusCondition};
+use core::{Animation, MoveId, SoundEffect, StatusCondition};
 
 use crate::resources::Cost;
 

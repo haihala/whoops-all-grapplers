@@ -8,9 +8,8 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 bevy = { workspace = true }
 bevy_hanabi  = { workspace = true }
 
-constants = { path = "../constants" }
 input_parsing = { path = "../input_parsing" }
 characters = { path = "../characters" }
 whoops-all-grapplers-lib = { path = "../lib" }
-types = { path = "../types" }
+core = { path = "../core" }
 time = { path = "../time" }

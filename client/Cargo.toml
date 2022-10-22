@@ -2,13 +2,13 @@
 [workspace]
 resolver = "2"
 members = [
-    "constants",
+    "characters",
+    "core",
     "input_parsing",
     "integration_tests",
     "lib",
     "main",
     "player_state",
-    "types",
     "time",
 ]
 

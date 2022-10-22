@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use characters::Action;
+use core::StatusCondition;
 use player_state::PlayerState;
 use time::Clock;
-use types::StatusCondition;
 
 pub fn manage_conditions(mut query: Query<&mut PlayerState>, clock: Res<Clock>) {
     // Could be split in two if need arises

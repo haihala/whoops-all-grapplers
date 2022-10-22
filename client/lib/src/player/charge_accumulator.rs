@@ -4,7 +4,7 @@ use input_parsing::InputParser;
 use time::Clock;
 
 const CHARGE_EXPIRATION_TIME: f32 = 0.2;
-const CHARGE_EXPIRATION_FRAMES: usize = (CHARGE_EXPIRATION_TIME * constants::FPS) as usize;
+const CHARGE_EXPIRATION_FRAMES: usize = (CHARGE_EXPIRATION_TIME * core::FPS) as usize;
 
 pub fn manage_charge(
     mut query: Query<(&mut Resources, &InputParser, &Character)>,

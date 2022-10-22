@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
+use core::Player;
 use time::{Clock, GameState, RoundResult};
-use types::Player;
 
 #[derive(Inspectable, Component, Clone, Copy)]
 pub struct Health {

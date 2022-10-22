@@ -1,7 +1,7 @@
 use bevy_inspector_egui::Inspectable;
 
 use characters::MoveHistory;
-use types::Facing;
+use core::Facing;
 
 #[derive(Inspectable, Clone, Debug)]
 pub enum Stun {

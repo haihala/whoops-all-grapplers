@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use types::Player;
+use core::Player;
 
 use crate::{
     assets::Colors,

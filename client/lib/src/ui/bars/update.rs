@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::Resources;
-use types::Player;
+use core::Player;
 
 use crate::{assets::Colors, damage::Health};
 

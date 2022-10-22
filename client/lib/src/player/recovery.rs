@@ -29,7 +29,7 @@ pub fn stun_recovery(
     }
 }
 
-const QUICK_RISE_DURATION: usize = (constants::FPS * 0.5) as usize;
+const QUICK_RISE_DURATION: usize = (core::FPS * 0.5) as usize;
 
 pub fn ground_recovery(mut players: Query<&mut PlayerState>, clock: Res<Clock>) {
     for mut state in &mut players {

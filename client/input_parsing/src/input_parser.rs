@@ -8,7 +8,7 @@ use crate::{
 
 use bevy::prelude::*;
 
-use types::{Facing, GameButton, MoveId, StickPosition};
+use core::{Facing, GameButton, MoveId, StickPosition};
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
@@ -98,9 +98,9 @@ pub fn parse_input<T: InputStream + Component>(
 
 #[cfg(test)]
 mod test {
+    use core::GameButton;
     use std::thread::sleep;
     use std::time::Duration;
-    use types::GameButton;
 
     use crate::{
         helper_types::InputEvent,

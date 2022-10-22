@@ -1,7 +1,7 @@
 use std::vec;
 
+use core::StatusCondition;
 use input_parsing::InputParser;
-use types::StatusCondition;
 
 use crate::{Action, Inventory, MoveHistory, Resources};
 
@@ -86,7 +86,7 @@ mod test {
 
     use super::*;
     use bevy::prelude::*;
-    use types::{Animation, MoveId};
+    use core::{Animation, MoveId};
 
     struct SituationWrapper {
         inventory: Inventory,

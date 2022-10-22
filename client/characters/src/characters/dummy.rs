@@ -2,7 +2,7 @@ use std::{collections::HashMap, iter::empty};
 
 use bevy::prelude::*;
 
-use types::{
+use core::{
     Animation, AnimationType, Area, DummyAnimation, ItemId, Model, MoveId, Status, StatusCondition,
 };
 
@@ -16,7 +16,7 @@ use crate::{
 use super::{
     dash,
     equipment::{get_gunshot, get_handmedownken, get_shot},
-    jump, Character,
+    Character,
 };
 
 pub fn dummy() -> Character {
@@ -25,6 +25,8 @@ pub fn dummy() -> Character {
         dummy_animations(),
         dummy_moves(),
         dummy_items(),
+        2.0,
+        1.0,
     )
 }
 
@@ -48,13 +50,12 @@ fn dummy_animations() -> HashMap<AnimationType, Animation> {
 }
 
 // Dashing
-const DASH_DURATION: usize = (0.5 * constants::FPS) as usize;
+const DASH_DURATION: usize = (0.5 * core::FPS) as usize;
 const DASH_IMPULSE: f32 = 10.0;
 
 fn dummy_moves() -> HashMap<MoveId, Move> {
     empty()
         .chain(items())
-        .chain(jumps())
         .chain(dashes())
         .chain(normals())
         .chain(specials())
@@ -66,54 +67,6 @@ fn items() -> impl Iterator<Item = (MoveId, Move)> {
         (MoveId::HandMeDownKen, get_handmedownken()),
         (MoveId::Gunshot, get_gunshot()),
         (MoveId::Shoot, get_shot()),
-    ]
-    .into_iter()
-}
-
-fn jumps() -> impl Iterator<Item = (MoveId, Move)> {
-    vec![
-        (
-            MoveId::BackJump,
-            jump(
-                "7",
-                Vec2::new(-constants::DIAGONAL_JUMP_X, constants::DIAGONAL_JUMP_Y),
-            ),
-        ),
-        (
-            MoveId::NeutralJump,
-            jump("8", Vec2::Y * constants::NEUTRAL_JUMP_Y),
-        ),
-        (
-            MoveId::ForwardJump,
-            jump(
-                "9",
-                Vec2::new(constants::DIAGONAL_JUMP_X, constants::DIAGONAL_JUMP_Y),
-            ),
-        ),
-        (
-            MoveId::BackSuperJump,
-            jump(
-                "[123]7",
-                Vec2::new(
-                    -constants::DIAGONAL_SUPERJUMP_X,
-                    constants::DIAGONAL_SUPERJUMP_Y,
-                ),
-            ),
-        ),
-        (
-            MoveId::NeutralSuperJump,
-            jump("[123]8", Vec2::Y * constants::NEUTRAL_SUPERJUMP_Y),
-        ),
-        (
-            MoveId::ForwardSuperJump,
-            jump(
-                "[123]9",
-                Vec2::new(
-                    constants::DIAGONAL_SUPERJUMP_X,
-                    constants::DIAGONAL_SUPERJUMP_Y,
-                ),
-            ),
-        ),
     ]
     .into_iter()
 }
@@ -343,7 +296,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         ToHit {
                             hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
                             velocity: Some(5.0 * Vec2::X),
-                            lifetime: Lifetime::frames((constants::FPS * 0.25) as usize),
+                            lifetime: Lifetime::frames((core::FPS * 0.25) as usize),
                             projectile: Some(Projectile {
                                 model: Model::Fireball,
                             }),

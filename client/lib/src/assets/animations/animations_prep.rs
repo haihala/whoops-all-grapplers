@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use std::collections::HashMap;
 
-use types::{Animation, DummyAnimation, Facing};
+use core::{Animation, DummyAnimation, Facing};
 
 #[derive(Debug, Default)]
 pub struct Animations {

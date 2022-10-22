@@ -1,4 +1,4 @@
-use types::Player;
+use core::Player;
 
 #[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
 pub enum GameState {

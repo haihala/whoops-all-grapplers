@@ -8,5 +8,4 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 bevy = { workspace = true }
 bevy-inspector-egui = { workspace = true }
 
-constants = { path = "../constants" }
-types = { path = "../types" }
+core = { path = "../core" }

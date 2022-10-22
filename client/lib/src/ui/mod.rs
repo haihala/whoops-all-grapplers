@@ -1,7 +1,7 @@
 mod notifications;
 use bevy::prelude::*;
+use core::Player;
 use time::GameState;
-use types::Player;
 
 use crate::assets::{Colors, Fonts};
 

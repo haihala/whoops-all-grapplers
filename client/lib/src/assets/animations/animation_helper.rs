@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use types::{Animation, Facing};
+use core::{Animation, Facing};
 
 use super::Animations;
 
@@ -89,7 +89,7 @@ pub fn update_animation(
             let asset = animations.get(animation, facing);
             player
                 .play(asset)
-                .set_elapsed(offset as f32 * constants::FPS)
+                .set_elapsed(offset as f32 * core::FPS)
                 .repeat();
             helper.set_playing(animation, *facing);
         } else if *facing != helper.facing {

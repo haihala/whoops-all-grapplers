@@ -1,5 +1,5 @@
 use bevy_inspector_egui::Inspectable;
-use types::MoveId;
+use core::MoveId;
 
 use crate::{Action, Move};
 
@@ -79,7 +79,7 @@ impl MoveHistory {
 mod test {
     use super::*;
     use bevy::prelude::*;
-    use types::Animation;
+    use core::Animation;
 
     #[test]
     fn sanity_check() {

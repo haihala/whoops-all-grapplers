@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_hanabi::*;
 
-use types::VisualEffect;
+use core::VisualEffect;
 
 use super::{
     animations::animation_paths,

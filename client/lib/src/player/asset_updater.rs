@@ -37,10 +37,10 @@ pub fn update_animation(
                 .unwrap()
                 .to_owned();
 
-            if helper.current != generic_animation && helper.low_priority {
+            if helper.current != generic_animation && helper.generic_overrideable {
                 helper.play(AnimationRequest {
                     animation: generic_animation,
-                    low_priority: true,
+                    generic_overrideable: true,
                     ..default()
                 });
             }

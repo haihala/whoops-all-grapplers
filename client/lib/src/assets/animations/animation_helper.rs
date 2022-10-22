@@ -8,7 +8,7 @@ use super::Animations;
 pub struct AnimationRequest {
     pub animation: Animation,
     pub offset: usize,
-    pub low_priority: bool,
+    pub generic_overrideable: bool,
     pub invert: bool,
 }
 impl From<Animation> for AnimationRequest {
@@ -24,7 +24,7 @@ impl From<Animation> for AnimationRequest {
 pub struct AnimationHelper {
     pub player_entity: Entity,
     pub current: Animation,
-    pub low_priority: bool, // This exists to see if it can be overridden by general animations
+    pub generic_overrideable: bool,
     facing: Facing,
     request: Option<AnimationRequest>,
 }
@@ -35,7 +35,7 @@ impl AnimationHelper {
             current: Animation::TPose,
             facing: Facing::default(),
             request: None,
-            low_priority: true,
+            generic_overrideable: true,
         }
     }
     pub fn play(&mut self, new: AnimationRequest) {
@@ -110,7 +110,7 @@ pub fn update_animation(
                 ))
                 .set_elapsed(request.offset as f32 * core::FPS);
             helper.set_playing(request.animation, *facing);
-            helper.low_priority = request.low_priority;
+            helper.generic_overrideable = request.generic_overrideable;
         } else if *facing != helper.facing {
             // Sideswitch
             let elapsed = player.elapsed();
@@ -119,11 +119,11 @@ pub fn update_animation(
             helper.set_playing(current, *facing);
         } else if player.elapsed() >= assets.get(&handle).unwrap().duration() {
             // Animation has been playing for over it's duration, loop it
-            if helper.low_priority {
+            if helper.generic_overrideable {
                 player.play(animations.get(helper.current, facing));
             } else {
-                // Nothing is low priority after first loop
-                helper.low_priority = true;
+                // Everything is generic_overrideable after first loop
+                helper.generic_overrideable = true;
             }
         }
     }

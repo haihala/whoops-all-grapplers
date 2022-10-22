@@ -248,6 +248,7 @@ fn handle_hit(
         if let Some(forced_animation) = effect.forced_animation.get(avoided) {
             defender.animation_helper.play(AnimationRequest {
                 invert: true,
+                position_offset: (attacker.tf.translation - defender.tf.translation).truncate(),
                 ..forced_animation.into()
             });
         }

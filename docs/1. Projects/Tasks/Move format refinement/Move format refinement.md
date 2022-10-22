@@ -1,9 +1,8 @@
 #epic 
 
 # Part 1: Action extention
-- [[Grab system extention]]
-
 ## Done
+- [[Grab system extention]]
 - [[Buff container]]
 - [[Intangibility on moves]]
 - [[Stance system]]

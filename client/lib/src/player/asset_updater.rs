@@ -27,7 +27,7 @@ pub fn update_animation(
         {
             helper.play(AnimationRequest {
                 animation: move_animation,
-                offset: frame_skip,
+                time_offset: frame_skip,
                 ..default()
             });
         } else if let Some(generic) = state.get_generic_animation(*facing) {

@@ -9,7 +9,7 @@ use player_state::PlayerState;
 use time::Clock;
 
 use crate::{
-    assets::{AnimationHelper, ParticleRequest, Particles, Sounds},
+    assets::{AnimationHelper, AnimationRequest, ParticleRequest, Particles, Sounds},
     physics::PlayerVelocity,
     ui::Notifications,
 };
@@ -246,7 +246,10 @@ fn handle_hit(
         }
 
         if let Some(forced_animation) = effect.forced_animation.get(avoided) {
-            defender.animation_helper.play(forced_animation.into());
+            defender.animation_helper.play(AnimationRequest {
+                invert: true,
+                ..forced_animation.into()
+            });
         }
 
         // Effects

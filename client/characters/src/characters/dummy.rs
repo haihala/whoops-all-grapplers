@@ -110,11 +110,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
-                        OnHitEffect {
-                            forced_animation: Some(Animation::Dummy(DummyAnimation::AirIdle))
-                                .into(),
-                            ..default()
-                        },
+                        OnHitEffect::default(),
                     )
                     .into(),
                     FlowControl::Wait(10, true),
@@ -245,10 +241,11 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("g"),
                 phases: vec![
                     FlowControl::Wait(5, false),
+                    Action::Animation(Animation::Dummy(DummyAnimation::NormalThrow)).into(),
                     Action::Attack(
                         ToHit {
                             block_type: BlockType::Grab,
-                            hitbox: Hitbox(Area::new(0.75, 1.9, 0.3, 0.5)),
+                            hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.5)),
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
@@ -256,6 +253,10 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             damage: (25, 0).into(),
                             stun: (60, 0).into(),
                             knockback: (Vec2::Y * 1.0, Vec2::ZERO).into(),
+                            forced_animation: Some(Animation::Dummy(
+                                DummyAnimation::NormalThrowRecipient,
+                            ))
+                            .into(),
                             ..default()
                         },
                     )

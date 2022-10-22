@@ -1,7 +1,7 @@
 - [x] Make throws use hitboxes (this will make rendering them easier)
 	- Could allow to use the same system to detect collisions
 	- Maybe first step at decoupling hit effects
-- Force other participant into an animation
-	- Lock them in place
-	- Set their animation
-	- Problem with offsets?
+- [ ] Force other participant into an animation
+	- [ ] Lock them in place
+	- [x] Set their animation
+	- [ ] Problem with offsets?

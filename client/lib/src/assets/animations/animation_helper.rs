@@ -9,6 +9,7 @@ pub struct AnimationRequest {
     pub animation: Animation,
     pub offset: usize,
     pub low_priority: bool,
+    pub invert: bool,
 }
 impl From<Animation> for AnimationRequest {
     fn from(animation: Animation) -> Self {
@@ -99,7 +100,14 @@ pub fn update_animation(
         if let Some(request) = helper.request.take() {
             // New animation set to start
             player
-                .play(animations.get(request.animation, facing))
+                .play(animations.get(
+                    request.animation,
+                    &if request.invert {
+                        facing.opposite()
+                    } else {
+                        *facing
+                    },
+                ))
                 .set_elapsed(request.offset as f32 * core::FPS);
             helper.set_playing(request.animation, *facing);
             helper.low_priority = request.low_priority;

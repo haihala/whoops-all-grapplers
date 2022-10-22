@@ -2,7 +2,9 @@ use std::{collections::HashMap, iter::empty};
 
 use bevy::prelude::*;
 
-use types::{Animation, Area, DummyAnimation, ItemId, Model, MoveId, Status, StatusCondition};
+use types::{
+    Animation, AnimationType, Area, DummyAnimation, ItemId, Model, MoveId, Status, StatusCondition,
+};
 
 use crate::{
     moves::{
@@ -18,7 +20,31 @@ use super::{
 };
 
 pub fn dummy() -> Character {
-    Character::new(dummy_moves(), dummy_items())
+    Character::new(
+        Model::Dummy,
+        dummy_animations(),
+        dummy_moves(),
+        dummy_items(),
+    )
+}
+
+fn dummy_animations() -> HashMap<AnimationType, Animation> {
+    vec![
+        (AnimationType::AirIdle, DummyAnimation::AirIdle),
+        (AnimationType::AirStun, DummyAnimation::AirStun),
+        (AnimationType::StandIdle, DummyAnimation::Idle),
+        (AnimationType::StandBlock, DummyAnimation::StandBlock),
+        (AnimationType::StandStun, DummyAnimation::StandStun),
+        (AnimationType::WalkBack, DummyAnimation::WalkBack),
+        (AnimationType::WalkForward, DummyAnimation::WalkForward),
+        (AnimationType::CrouchIdle, DummyAnimation::Crouch),
+        (AnimationType::CrouchBlock, DummyAnimation::CrouchBlock),
+        (AnimationType::CrouchStun, DummyAnimation::CrouchStun),
+        (AnimationType::Getup, DummyAnimation::Getup),
+    ]
+    .into_iter()
+    .map(|(k, v)| (k, Animation::Dummy(v)))
+    .collect()
 }
 
 // Dashing

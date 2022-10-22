@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::*;
-use types::{Animation, AnimationType, Area, DummyAnimation, ItemId, Model, MoveId, StickPosition};
+use types::{Animation, AnimationType, Area, ItemId, Model, MoveId, StickPosition};
 
 use crate::{Inventory, Item, Move};
 
@@ -19,29 +19,18 @@ pub struct Character {
     pub charge_directions: Vec<StickPosition>,
     pub generic_animations: HashMap<AnimationType, Animation>,
 }
-
-impl Default for Character {
-    fn default() -> Self {
+impl Character {
+    pub(crate) fn new(
+        model: Model,
+        generic_animations: HashMap<AnimationType, Animation>,
+        moves: HashMap<MoveId, Move>,
+        items: HashMap<ItemId, Item>,
+    ) -> Character {
         Self {
-            moves: Default::default(),
-            items: Default::default(),
-            model: Model::Dummy,
-            generic_animations: vec![
-                (AnimationType::AirIdle, DummyAnimation::AirIdle),
-                (AnimationType::AirStun, DummyAnimation::AirStun),
-                (AnimationType::StandIdle, DummyAnimation::Idle),
-                (AnimationType::StandBlock, DummyAnimation::StandBlock),
-                (AnimationType::StandStun, DummyAnimation::StandStun),
-                (AnimationType::WalkBack, DummyAnimation::WalkBack),
-                (AnimationType::WalkForward, DummyAnimation::WalkForward),
-                (AnimationType::CrouchIdle, DummyAnimation::Crouch),
-                (AnimationType::CrouchBlock, DummyAnimation::CrouchBlock),
-                (AnimationType::CrouchStun, DummyAnimation::CrouchStun),
-                (AnimationType::Getup, DummyAnimation::Getup),
-            ]
-            .into_iter()
-            .map(|(k, v)| (k, Animation::Dummy(v)))
-            .collect(),
+            model,
+            generic_animations,
+            moves,
+            items,
             low_block_height: 0.5,
             high_block_height: 1.2,
             charge_directions: vec![
@@ -50,20 +39,10 @@ impl Default for Character {
                 StickPosition::SW,
                 StickPosition::W,
             ],
-            // TODO: Make theses a part of the constructor:
             standing_hurtbox: Area::from_center_size(Vec2::Y * 0.9, Vec2::new(0.5, 1.8)),
             crouching_hurtbox: Area::from_center_size(Vec2::Y * 0.6, Vec2::new(0.5, 1.2)),
             standing_pushbox: Area::from_center_size(Vec2::Y * 0.7, Vec2::new(0.4, 1.4)),
             crouching_pushbox: Area::from_center_size(Vec2::Y * 0.5, Vec2::new(0.4, 1.0)),
-        }
-    }
-}
-impl Character {
-    pub(crate) fn new(moves: HashMap<MoveId, Move>, items: HashMap<ItemId, Item>) -> Character {
-        Character {
-            moves,
-            items,
-            ..default()
         }
     }
 

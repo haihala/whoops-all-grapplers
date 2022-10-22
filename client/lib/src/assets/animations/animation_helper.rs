@@ -4,12 +4,28 @@ use core::{Animation, Facing};
 
 use super::Animations;
 
+#[derive(Debug, Default)]
+pub struct AnimationRequest {
+    pub animation: Animation,
+    pub offset: usize,
+    pub low_priority: bool,
+}
+impl From<Animation> for AnimationRequest {
+    fn from(animation: Animation) -> Self {
+        Self {
+            animation,
+            ..default()
+        }
+    }
+}
+
 #[derive(Debug, Component)]
 pub struct AnimationHelper {
     pub player_entity: Entity,
     pub current: Animation,
+    pub low_priority: bool, // This exists to see if it can be overridden by general animations
     facing: Facing,
-    next: Option<(Animation, usize)>,
+    request: Option<AnimationRequest>,
 }
 impl AnimationHelper {
     fn new(player_entity: Entity) -> AnimationHelper {
@@ -17,19 +33,12 @@ impl AnimationHelper {
             player_entity,
             current: Animation::TPose,
             facing: Facing::default(),
-            next: None,
+            request: None,
+            low_priority: true,
         }
     }
-    pub fn play(&mut self, new: Animation) {
-        self.play_with_offset(new, 0);
-    }
-
-    pub fn play_with_offset(&mut self, new: Animation, offset: usize) {
-        self.next = if new != self.current {
-            Some((new, offset))
-        } else {
-            None
-        }
+    pub fn play(&mut self, new: AnimationRequest) {
+        self.request = Some(new);
     }
 
     fn set_playing(&mut self, animation: Animation, facing: Facing) {
@@ -79,25 +88,35 @@ fn find_animation_player_entity(
 }
 
 pub fn update_animation(
+    assets: Res<Assets<AnimationClip>>,
     animations: Res<Animations>,
     mut main: Query<(&mut AnimationHelper, &Facing)>,
     mut players: Query<&mut AnimationPlayer>,
 ) {
     for (mut helper, facing) in &mut main {
         let mut player = players.get_mut(helper.player_entity).unwrap();
-        if let Some((animation, offset)) = helper.next.take() {
-            let asset = animations.get(animation, facing);
+        let handle = animations.get(helper.current, facing);
+        if let Some(request) = helper.request.take() {
+            // New animation set to start
             player
-                .play(asset)
-                .set_elapsed(offset as f32 * core::FPS)
-                .repeat();
-            helper.set_playing(animation, *facing);
+                .play(animations.get(request.animation, facing))
+                .set_elapsed(request.offset as f32 * core::FPS);
+            helper.set_playing(request.animation, *facing);
+            helper.low_priority = request.low_priority;
         } else if *facing != helper.facing {
-            let asset = animations.get(helper.current, facing);
+            // Sideswitch
             let elapsed = player.elapsed();
-            player.play(asset).set_elapsed(elapsed).repeat();
+            player.play(handle).set_elapsed(elapsed).repeat();
             let current = helper.current;
             helper.set_playing(current, *facing);
+        } else if player.elapsed() >= assets.get(&handle).unwrap().duration() {
+            // Animation has been playing for over it's duration, loop it
+            if helper.low_priority {
+                player.play(animations.get(helper.current, facing));
+            } else {
+                // Nothing is low priority after first loop
+                helper.low_priority = true;
+            }
         }
     }
 }

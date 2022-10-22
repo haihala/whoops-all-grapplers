@@ -30,7 +30,6 @@ pub enum Action {
     Movement(Movement),
     Pay(Cost),
     Condition(StatusCondition),
-    // TODO: Separate projectiles from normal attacks
 }
 
 #[derive(Clone, Copy)]

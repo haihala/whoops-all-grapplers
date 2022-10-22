@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use core::{Area, Model};
+use core::{Animation, Area, Model};
 
 #[derive(Default, Clone, Copy, Deref, DerefMut, Debug, Component, Inspectable, PartialEq)]
 pub struct Hitbox(pub Area);
@@ -90,6 +90,7 @@ pub type Damage = HitProperty<i32>;
 pub type Stun = HitProperty<usize>;
 pub type Knockback = HitProperty<Vec2>;
 pub type Pushback = HitProperty<Vec2>;
+pub type ForcedAnimation = HitProperty<Option<Animation>>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Inspectable, Component)]
 pub struct OnHitEffect {
@@ -97,6 +98,7 @@ pub struct OnHitEffect {
     pub stun: Stun,
     pub knockback: Knockback,
     pub pushback: Pushback,
+    pub forced_animation: ForcedAnimation,
 }
 
 impl Default for OnHitEffect {
@@ -106,6 +108,7 @@ impl Default for OnHitEffect {
             stun: (15, 5).into(),
             knockback: (Vec2::X * 2.0, Vec2::X * 1.0).into(),
             pushback: (Vec2::X * 1.0, Vec2::X * 0.5).into(),
+            forced_animation: None.into(),
         }
     }
 }

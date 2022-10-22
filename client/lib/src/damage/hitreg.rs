@@ -9,7 +9,7 @@ use player_state::PlayerState;
 use time::Clock;
 
 use crate::{
-    assets::{ParticleRequest, Particles, Sounds},
+    assets::{AnimationHelper, ParticleRequest, Particles, Sounds},
     physics::PlayerVelocity,
     ui::Notifications,
 };
@@ -31,6 +31,7 @@ pub struct PlayerQuery<'a> {
     velocity: &'a mut PlayerVelocity,
     facing: &'a Facing,
     spawner: &'a mut HitboxSpawner,
+    animation_helper: &'a mut AnimationHelper,
 }
 
 pub(super) fn clash_parry(
@@ -244,20 +245,20 @@ fn handle_hit(
             defender.defense.reset()
         }
 
-        // Sound effect
-        sounds.play(if avoided {
-            SoundEffect::Block
-        } else {
-            SoundEffect::Hit
-        });
+        if let Some(forced_animation) = effect.forced_animation.get(avoided) {
+            defender.animation_helper.play(forced_animation.into());
+        }
 
-        // Visual effect
+        // Effects
+        let (sound, particle) = if avoided {
+            (SoundEffect::Block, VisualEffect::Block)
+        } else {
+            (SoundEffect::Hit, VisualEffect::Hit)
+        };
+
+        sounds.play(sound);
         particles.spawn(ParticleRequest {
-            effect: if avoided {
-                VisualEffect::Block
-            } else {
-                VisualEffect::Hit
-            },
+            effect: particle,
             // TODO: This can be refined more
             position: overlap.center().extend(0.0),
         });

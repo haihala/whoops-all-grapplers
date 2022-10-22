@@ -110,7 +110,11 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
-                        OnHitEffect { ..default() },
+                        OnHitEffect {
+                            forced_animation: Some(Animation::Dummy(DummyAnimation::AirIdle))
+                                .into(),
+                            ..default()
+                        },
                     )
                     .into(),
                     FlowControl::Wait(10, true),

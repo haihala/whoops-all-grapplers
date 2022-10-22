@@ -3,7 +3,7 @@ use characters::{Action, Character};
 use core::Facing;
 use player_state::PlayerState;
 
-use crate::assets::{AnimationHelper, Sounds};
+use crate::assets::{AnimationHelper, AnimationRequest, Sounds};
 
 #[allow(clippy::type_complexity)]
 pub fn update_animation(
@@ -25,15 +25,25 @@ pub fn update_animation(
             })
             .last()
         {
-            helper.play_with_offset(move_animation, frame_skip);
+            helper.play(AnimationRequest {
+                animation: move_animation,
+                offset: frame_skip,
+                ..default()
+            });
         } else if let Some(generic) = state.get_generic_animation(*facing) {
-            helper.play(
-                character
-                    .generic_animations
-                    .get(&generic)
-                    .unwrap()
-                    .to_owned(),
-            );
+            let generic_animation = character
+                .generic_animations
+                .get(&generic)
+                .unwrap()
+                .to_owned();
+
+            if helper.current != generic_animation && helper.low_priority {
+                helper.play(AnimationRequest {
+                    animation: generic_animation,
+                    low_priority: true,
+                    ..default()
+                });
+            }
         }
     }
 }

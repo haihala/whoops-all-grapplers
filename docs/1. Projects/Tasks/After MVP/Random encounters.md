@@ -1,3 +1,0 @@
-- Not sure if going to implement this, but it's on the list because I was clearing my notes
-- If the shop is going to lead to samey games, maybe add a random encounter every few rounds to spice it up a bit.
-	- Leads to more dynamic situations

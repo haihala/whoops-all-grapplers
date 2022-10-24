@@ -1,4 +1,4 @@
-#blocked by [[Move format refinement#Part 2 FlowControl extention]], [[Normal and special detector function]] and [[HitboxBuilder]]
+#blocked by [[Normal and special detector function]] and [[HitboxBuilder]]
 
 # MoveBuilder
 - Init with either:

@@ -1,8 +1,8 @@
 # Backlog
 ## High priority
 - [[Character 1]]
-- [[Input parser refinement]]
-- [[Shop UI]]
+- [[Input parser refinement#Do now]]
+- [[Shop UI]] + [[Items and the shop]]
 
 ## Low priority
 - [[Rewards]]
@@ -11,12 +11,13 @@
 - Resource bars visible sections and use by section
 
 ## Nice to have
-- [[Dynamic hitboxes]]
+- [[Dynamic hitboxes and hurtboxes]]
 - [[Move format refinement]]
+- [[Input parser refinement#Nice to have]]
 
 ## Not a priority
 - [[CLI args]]
-- [[Recovery and knockdown]]
+- Delay wakeup on knockdown
 - [[Menus]]
 - [[Testing framework v2]]
 - A way to pause the game (look at inspector)
@@ -24,8 +25,7 @@
 - De-couple hit effects from registering a hit
 - [[Yoink assets]]
 - [[Netplay]]
-- [[Random encounters]]
-- [[Convert to egui]]
+- [[Try out egui]]
 
 # Other trackers
 ![[Bug tracker]]

@@ -7,7 +7,7 @@ Keep it simple.
 	- No animations for items that may exist at some point
 
 - [x] Figure out what tools to use for animation
-- Make animations
+- [ ] Make animations
 	- [x] Idle
 		- [x] Air
 		- [x] Ground
@@ -38,7 +38,7 @@ Keep it simple.
 			- [ ] Backthrow
 			- [ ] Sweep
 			- [ ] Air grab
-			- [ ] Dash punch
+			- [x] Spot dodge
 			- [ ] Volleyball slam
 		- [ ] Items
 			- [ ] Gun

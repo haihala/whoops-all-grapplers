@@ -1,16 +1,13 @@
-Not really #blocked, but better done after [[Convert to egui]]
-
 Progress:
 - [ ] Meter
 	- [x] Timing
 	- [x] Defense
-	- [ ] Parry
-	- [ ] Opener
+	- [ ] [[#Parry]]
 - [ ] Money
-	- [ ] Taunt
-	- [ ] Close games
-- [ ] Damage
-	- [ ] Opener
+	- [ ] Winning
+	- [ ] Losing (CS like loss bonus?)
+- [ ] [[#Opener]]
+- [ ] [[#Timing bonus]] gives more stun frames?
 
 # Meter
 Meter is for rewarding stuff immediately. Players have 4 bars of meter, used in chunks, but gained slowly.

@@ -5,4 +5,3 @@ No recovery options in the air
 
 On knockdown:
 - [x] Default to non-instant quick rise
-- [ ] Hold down to delay for up to a max time

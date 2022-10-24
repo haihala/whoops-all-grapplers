@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use core::MoveId;
+use wag_core::MoveId;
 
 #[derive(Debug)]
 pub(super) struct MoveActivation {

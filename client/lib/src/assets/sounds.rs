@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::utils::HashMap;
 use rand::prelude::*;
 
-use core::SoundEffect;
+use wag_core::SoundEffect;
 
 pub struct Sounds {
     handles: HashMap<SoundEffect, Vec<Handle<AudioSource>>>,

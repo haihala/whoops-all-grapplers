@@ -11,4 +11,4 @@ strum = { workspace = true }
 strum_macros = { workspace = true }
 
 characters = { path = "../characters" }
-core = { path = "../core" }
+wag_core = { path = "../wag_core" }

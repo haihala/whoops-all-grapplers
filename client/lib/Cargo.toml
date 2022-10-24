@@ -14,5 +14,5 @@ map-macro = { workspace = true }
 input_parsing = { path = "../input_parsing" }
 characters = { path = "../characters" }
 player_state = { path = "../player_state" }
-core = { path = "../core" }
+wag_core = { path = "../wag_core" }
 time = { path = "../time" }

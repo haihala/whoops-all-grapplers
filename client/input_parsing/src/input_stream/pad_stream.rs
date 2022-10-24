@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 use bevy::prelude::*;
-use core::{GameButton, StickPosition};
+use wag_core::{GameButton, StickPosition};
 
 use crate::{
     helper_types::{Diff, InputEvent},
@@ -111,7 +111,7 @@ pub fn update_pads(
         match event_type {
             GamepadEventType::Connected => {
                 // The & seems to be an error with rust analyzer.
-                pad_connection(&gamepad, &mut unused_pads, &mut readers);
+                pad_connection(gamepad, &mut unused_pads, &mut readers);
             }
             GamepadEventType::Disconnected => {
                 pad_disconnection(&mut matching_components.unwrap().0, &mut unused_pads);

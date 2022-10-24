@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use characters::{Action, FlowControl, MoveHistory, Situation};
-use core::{AnimationType, Facing, Status, StatusCondition, StatusEffect};
+use wag_core::{AnimationType, Facing, Status, StatusCondition, StatusEffect};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 

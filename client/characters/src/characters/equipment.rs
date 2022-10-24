@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use core::{Area, GameButton, ItemId, MoveId};
+use wag_core::{Area, GameButton, ItemId, MoveId};
 
 use crate::{
     moves::{Action, FlowControl, MoveType, Situation},

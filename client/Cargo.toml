@@ -3,13 +3,13 @@
 resolver = "2"
 members = [
     "characters",
-    "core",
     "input_parsing",
     "integration_tests",
     "lib",
     "main",
     "player_state",
     "time",
+    "wag_core",
 ]
 
 [profile.dev]

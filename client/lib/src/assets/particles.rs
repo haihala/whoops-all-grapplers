@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_hanabi::ParticleEffect;
 use std::collections::HashMap;
 
-use core::VisualEffect;
+use wag_core::VisualEffect;
 
 #[derive(Debug)]
 pub struct ParticleRequest {

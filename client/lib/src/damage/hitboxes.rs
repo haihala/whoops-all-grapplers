@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 
 use characters::{Action, HitTracker, Hitbox, Lifetime, OnHitEffect, ToHit};
-use core::{Area, Facing, Owner, Player};
 use player_state::PlayerState;
 use time::Clock;
+use wag_core::{Area, Facing, Owner, Player};
 
 use crate::{assets::Models, physics::ConstantVelocity};
 

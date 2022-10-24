@@ -5,8 +5,8 @@ use std::{
 
 use bevy::{app::ScheduleRunnerSettings, asset::AssetPlugin, input::InputPlugin, prelude::*};
 use bevy_hanabi::HanabiPlugin;
-use core::Players;
 use input_parsing::testing::{parse_input, PreWrittenStream};
+use wag_core::Players;
 use whoops_all_grapplers_lib::{DevPlugin, WAGLib};
 
 use super::{AppWrapper, TestSpec};
@@ -76,7 +76,7 @@ impl TestRunner {
             app.update();
             // Must sleep real time here, as bevy clock doesn't care about our fake time
             sleep(Duration::from_secs_f32(
-                (1.0 / core::FPS - pre_update.elapsed().as_secs_f32()).max(0.0),
+                (1.0 / wag_core::FPS - pre_update.elapsed().as_secs_f32()).max(0.0),
             ))
         }
     }

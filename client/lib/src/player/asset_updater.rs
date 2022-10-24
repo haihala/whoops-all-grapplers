@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{Action, Character};
-use core::Facing;
 use player_state::PlayerState;
+use wag_core::Facing;
 
 use crate::assets::{AnimationHelper, AnimationRequest, Sounds};
 

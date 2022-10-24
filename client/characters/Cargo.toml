@@ -10,4 +10,4 @@ bevy-inspector-egui = { workspace = true }
 map-macro = { workspace = true }
 
 input_parsing = { path = "../input_parsing"}
-core = { path = "../core" }
+wag_core = { path = "../wag_core" }

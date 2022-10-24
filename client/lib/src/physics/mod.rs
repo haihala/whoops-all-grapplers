@@ -5,9 +5,9 @@ use bevy::{ecs::query::WorldQuery, prelude::*};
 use bevy_inspector_egui::Inspectable;
 
 use characters::{Action, Character, HitTracker};
-use core::{Area, Facing, Players};
 use player_state::PlayerState;
 use time::{once_per_combat_frame, Clock, WAGStage};
+use wag_core::{Area, Facing, Players};
 
 use crate::{
     camera::{WorldCamera, VIEWPORT_HALFWIDTH},
@@ -26,7 +26,7 @@ impl ConstantVelocity {
     pub fn new(speed: Vec3) -> ConstantVelocity {
         ConstantVelocity {
             speed,
-            shift: speed / core::FPS,
+            shift: speed / wag_core::FPS,
         }
     }
 }

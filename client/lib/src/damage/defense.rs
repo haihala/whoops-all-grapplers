@@ -4,7 +4,7 @@ use time::Clock;
 const MIN_STREAK_FOR_REWARD: i32 = 3;
 const REWARD_FLOOR: i32 = 5;
 const REWARD_RAMP: i32 = 3;
-const TIME_UNTIL_RESET: usize = (core::FPS * 1.0) as usize;
+const TIME_UNTIL_RESET: usize = (wag_core::FPS * 1.0) as usize;
 
 #[derive(Debug, Default, Component)]
 pub struct Defense {

@@ -3,7 +3,7 @@ use crate::{
     Move,
 };
 use bevy::prelude::*;
-use core::{Animation, DummyAnimation};
+use wag_core::{Animation, DummyAnimation};
 
 pub fn jump(input: &'static str, impulse: Vec2) -> Move {
     Move {

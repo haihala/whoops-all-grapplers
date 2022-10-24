@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-use core::MoveId;
 use std::collections::{HashMap, VecDeque};
 use time::WAGStage;
+use wag_core::MoveId;
 
 mod helper_types;
 mod input_parser;

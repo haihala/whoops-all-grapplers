@@ -38,7 +38,7 @@ impl TestSpec {
                     .map(|char| Some(InputEvent::from(char)))
                     .collect(),
                 InputClump::Idle(frames) => {
-                    vec![None; (frames.as_secs_f32() * core::FPS) as usize]
+                    vec![None; (frames.as_secs_f32() * wag_core::FPS) as usize]
                 }
             })
             .collect()

@@ -1037,9 +1037,9 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
- "core",
  "input_parsing",
  "map-macro",
+ "wag_core",
 ]
 
 [[package]]
@@ -1151,16 +1151,6 @@ name = "copyless"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2df960f5d869b2dd8532793fde43eb5427cceb126c929747a26823ab0eeb536"
-
-[[package]]
-name = "core"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy-inspector-egui",
- "strum",
- "strum_macros",
-]
 
 [[package]]
 name = "core-foundation"
@@ -1956,9 +1946,9 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
- "core",
  "map-macro",
  "time",
+ "wag_core",
 ]
 
 [[package]]
@@ -1980,9 +1970,9 @@ dependencies = [
  "bevy",
  "bevy_hanabi",
  "characters",
- "core",
  "input_parsing",
  "time",
+ "wag_core",
  "whoops-all-grapplers-lib",
 ]
 
@@ -2748,9 +2738,9 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "characters",
- "core",
  "strum",
  "strum_macros",
+ "wag_core",
 ]
 
 [[package]]
@@ -3228,7 +3218,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
- "core",
+ "wag_core",
 ]
 
 [[package]]
@@ -3411,6 +3401,16 @@ name = "version_check"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
+
+[[package]]
+name = "wag_core"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "strum",
+ "strum_macros",
+]
 
 [[package]]
 name = "waker-fn"
@@ -3641,12 +3641,12 @@ dependencies = [
  "bevy-inspector-egui",
  "bevy_hanabi",
  "characters",
- "core",
  "input_parsing",
  "map-macro",
  "player_state",
  "rand",
  "time",
+ "wag_core",
 ]
 
 [[package]]

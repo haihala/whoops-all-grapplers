@@ -1,7 +1,7 @@
 use map_macro::set;
 use std::collections::HashSet;
 
-use core::{GameButton, StickPosition};
+use wag_core::{GameButton, StickPosition};
 
 #[derive(Clone, Eq, PartialEq, Debug, Default)]
 /// Frame is a situation, diff is a change

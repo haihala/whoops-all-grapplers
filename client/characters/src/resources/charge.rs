@@ -16,7 +16,7 @@ impl Default for Charge {
         Self {
             last_update: 0,
             progress: 0,
-            full_progress: (0.75 * core::FPS) as usize,
+            full_progress: (0.75 * wag_core::FPS) as usize,
         }
     }
 }

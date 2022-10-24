@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use core::ItemId;
+use wag_core::ItemId;
 
 #[derive(Debug, Default, Component, Eq, PartialEq, Inspectable, Clone)]
 pub struct Inventory {

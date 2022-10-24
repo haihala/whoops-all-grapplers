@@ -1,6 +1,6 @@
 use bevy::{prelude::*, scene::SceneInstance};
 
-use core::{Animation, Facing};
+use wag_core::{Animation, Facing};
 
 use super::Animations;
 
@@ -120,7 +120,7 @@ pub fn update_animation(
                         *facing
                     },
                 ))
-                .set_elapsed(request.time_offset as f32 * core::FPS);
+                .set_elapsed(request.time_offset as f32 * wag_core::FPS);
             helper.set_playing(request.animation, *facing);
             helper.generic_overrideable = request.generic_overrideable;
             scene_root.translation = request.position_offset.extend(0.0);

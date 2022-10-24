@@ -2,7 +2,7 @@ use std::{collections::HashMap, iter::empty};
 
 use bevy::prelude::*;
 
-use core::{
+use wag_core::{
     Animation, AnimationType, Area, DummyAnimation, ItemId, Model, MoveId, Status, StatusCondition,
 };
 
@@ -50,7 +50,7 @@ fn dummy_animations() -> HashMap<AnimationType, Animation> {
 }
 
 // Dashing
-const DASH_DURATION: usize = (0.5 * core::FPS) as usize;
+const DASH_DURATION: usize = (0.5 * wag_core::FPS) as usize;
 const DASH_IMPULSE: f32 = 10.0;
 
 fn dummy_moves() -> HashMap<MoveId, Move> {
@@ -301,7 +301,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         ToHit {
                             hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
                             velocity: Some(5.0 * Vec2::X),
-                            lifetime: Lifetime::frames((core::FPS * 0.25) as usize),
+                            lifetime: Lifetime::frames((wag_core::FPS * 0.25) as usize),
                             projectile: Some(Projectile {
                                 model: Model::Fireball,
                             }),

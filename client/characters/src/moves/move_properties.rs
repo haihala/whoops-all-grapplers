@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use core::{Animation, Area, Model};
+use wag_core::{Animation, Area, Model};
 
 #[derive(Default, Clone, Copy, Deref, DerefMut, Debug, Component, Inspectable, PartialEq)]
 pub struct Hitbox(pub Area);

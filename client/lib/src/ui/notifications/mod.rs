@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use core::Player;
 use time::Clock;
+use wag_core::Player;
 
 use crate::assets::{Colors, Fonts};
 
@@ -75,7 +75,7 @@ fn create_notification_container(commands: &mut Commands, side: Player) -> Entit
         .id()
 }
 
-const TIME_TO_LIVE: usize = 3 * core::FPS as usize;
+const TIME_TO_LIVE: usize = 3 * wag_core::FPS as usize;
 
 pub fn update(
     mut commands: Commands,

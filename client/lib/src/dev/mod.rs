@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use bevy_inspector_egui::{InspectableRegistry, WorldInspectorPlugin};
 
 use characters::{Character, Hitbox, Hurtbox, Inventory, Resources};
-use core::{Player, SoundEffect};
 use player_state::PlayerState;
 use time::Clock;
+use wag_core::{Player, SoundEffect};
 
 use crate::{
     assets::Sounds,

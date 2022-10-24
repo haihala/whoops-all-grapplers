@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use core::Player;
+use wag_core::Player;
 
 use crate::{
     assets::Colors,

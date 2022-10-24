@@ -1,4 +1,4 @@
-use core::Player;
+use wag_core::Player;
 
 #[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
 pub enum GameState {

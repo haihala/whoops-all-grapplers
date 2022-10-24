@@ -1,7 +1,7 @@
 use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::prelude::*;
-use core::{Animation, AnimationType, Area, ItemId, Model, MoveId, StickPosition};
+use wag_core::{Animation, AnimationType, Area, ItemId, Model, MoveId, StickPosition};
 
 use crate::{Inventory, Item, Move};
 
@@ -107,7 +107,7 @@ impl Character {
         a = 2*h/t^2
         */
         let gravity_force: f32 = 2.0 * height / (duration / 2.0).powf(2.0);
-        let gravity_per_frame: f32 = gravity_force / core::FPS;
+        let gravity_per_frame: f32 = gravity_force / wag_core::FPS;
 
         /*
         Math for initial jump velocity

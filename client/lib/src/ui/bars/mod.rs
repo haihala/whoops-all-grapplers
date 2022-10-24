@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use core::Player;
+use wag_core::Player;
 
 mod spawn;
 mod update;

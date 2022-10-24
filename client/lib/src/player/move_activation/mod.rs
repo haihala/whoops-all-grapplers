@@ -1,17 +1,17 @@
 use bevy::prelude::*;
 
 use characters::{Action, Character, Inventory, Move, MoveHistory, Resources, Situation};
-use core::{MoveId, Player};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use time::Clock;
+use wag_core::{MoveId, Player};
 
 use crate::{damage::Combo, ui::Notifications};
 
 mod helper_types;
 use helper_types::{ActivationType, Cancellation, Link, MoveActivation};
 
-const AUTOCORRECT: usize = (0.2 * core::FPS) as usize;
+const AUTOCORRECT: usize = (0.2 * wag_core::FPS) as usize;
 
 #[derive(Debug, Default, Component)]
 pub struct MoveBuffer {

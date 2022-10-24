@@ -3,10 +3,10 @@ use bevy::{ecs::query::WorldQuery, prelude::*};
 use characters::{
     AttackHeight, BlockType, Character, HitTracker, Hitbox, Hurtbox, OnHitEffect, Resources,
 };
-use core::{Area, Facing, Owner, Player, Players, SoundEffect, StickPosition, VisualEffect};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use time::Clock;
+use wag_core::{Area, Facing, Owner, Player, Players, SoundEffect, StickPosition, VisualEffect};
 
 use crate::{
     assets::{AnimationHelper, AnimationRequest, ParticleRequest, Particles, Sounds},

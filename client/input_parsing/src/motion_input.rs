@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::utils::Instant;
 
-use core::GameButton;
+use wag_core::GameButton;
 
 use crate::{
     helper_types::{Diff, Frame, InputEvent},
@@ -242,8 +242,8 @@ impl From<&str> for MotionInput {
 
 #[cfg(test)]
 mod test {
-    use core::StickPosition;
     use map_macro::set;
+    use wag_core::StickPosition;
 
     use super::*;
 

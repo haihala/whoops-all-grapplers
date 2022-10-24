@@ -1,5 +1,5 @@
 use bevy::{ecs::query::WorldQuery, prelude::*};
-use core::Players;
+use wag_core::Players;
 
 pub struct AppWrapper {
     app: App,

@@ -16,23 +16,32 @@ use wag_core::{Facing, GameButton, MoveId, StickPosition};
 pub struct InputParser {
     events: Vec<MoveId>,
 
-    registered_inputs: HashMap<MoveId, MotionInput>,
+    moves: HashMap<&'static str, Vec<MoveId>>,
+    inputs: HashMap<&'static str, MotionInput>,
     head: Frame,
     relative_stick: StickPosition,
 }
 impl InputParser {
-    pub fn load(inputs: HashMap<MoveId, &str>) -> Self {
+    pub fn load(new_inputs: HashMap<MoveId, &'static str>) -> Self {
+        let mut moves: HashMap<&'static str, Vec<MoveId>> = HashMap::new();
+        let mut inputs: HashMap<&'static str, MotionInput> = HashMap::new();
+
+        for (move_id, input_str) in new_inputs.into_iter() {
+            let input = input_str.into();
+            inputs.insert(input_str, input);
+
+            if let Some(ids) = moves.get_mut(input_str) {
+                ids.push(move_id);
+            } else {
+                moves.insert(input_str, vec![move_id]);
+            }
+        }
+
         Self {
-            registered_inputs: inputs
-                .into_iter()
-                .map(|(id, definition)| (id, definition.into()))
-                .collect(),
+            moves,
+            inputs,
             ..default()
         }
-    }
-
-    pub fn register_input(&mut self, id: MoveId, input: MotionInput) {
-        self.registered_inputs.insert(id, input);
     }
 
     pub fn get_pressed(&self) -> HashSet<GameButton> {
@@ -70,15 +79,18 @@ impl InputParser {
     }
 
     fn parse_inputs(&mut self, diff: Diff, old_head: Frame) {
-        self.events
-            .extend(self.registered_inputs.iter_mut().filter_map(|(id, input)| {
-                input.advance(&diff, old_head.clone());
-                if input.is_done() {
-                    input.clear();
-                    return Some(*id);
-                }
-                None
-            }));
+        let completed_inputs = self.inputs.iter_mut().filter_map(|(input_str, input)| {
+            input.advance(&diff, old_head.clone());
+            if input.is_done() {
+                input.clear();
+                return Some(*input_str);
+            }
+            None
+        });
+
+        let new_events = completed_inputs.flat_map(|input_str| self.moves[input_str].clone());
+
+        self.events.extend(new_events);
     }
 
     pub fn clear(&mut self) {
@@ -229,18 +241,18 @@ mod test {
         stage: SystemStage,
     }
     impl TestInterface {
-        fn with_input(input: &str) -> TestInterface {
+        fn with_input(input: &'static str) -> TestInterface {
             TestInterface::new(vec![(MoveId::TestMove, input)])
         }
 
-        fn with_inputs(input: &str, second_input: &str) -> TestInterface {
+        fn with_inputs(input: &'static str, second_input: &'static str) -> TestInterface {
             TestInterface::new(vec![
                 (MoveId::TestMove, input),
                 (MoveId::SecondTestMove, second_input),
             ])
         }
 
-        fn new(moves: Vec<(MoveId, &str)>) -> TestInterface {
+        fn new(moves: Vec<(MoveId, &'static str)>) -> TestInterface {
             let mut world = World::default();
 
             let mut stage = SystemStage::parallel();

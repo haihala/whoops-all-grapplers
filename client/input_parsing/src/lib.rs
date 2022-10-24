@@ -46,7 +46,7 @@ pub struct PadBundle {
     parrot: ParrotStream,
 }
 impl PadBundle {
-    pub fn new(inputs: HashMap<MoveId, &str>) -> Self {
+    pub fn new(inputs: HashMap<MoveId, &'static str>) -> Self {
         Self {
             reader: PadStream::default(),
             parser: InputParser::load(inputs),
@@ -68,7 +68,7 @@ pub mod testing {
         parrot: ParrotStream,
     }
     impl PreWrittenInputBundle {
-        pub fn new(events: Vec<Option<InputEvent>>, inputs: HashMap<MoveId, &str>) -> Self {
+        pub fn new(events: Vec<Option<InputEvent>>, inputs: HashMap<MoveId, &'static str>) -> Self {
             Self {
                 reader: PreWrittenStream::new(events),
                 parser: InputParser::load(inputs),
@@ -84,7 +84,7 @@ pub mod testing {
         parrot: ParrotStream,
     }
     impl TestInputBundle {
-        pub fn new(inputs: HashMap<MoveId, &str>) -> Self {
+        pub fn new(inputs: HashMap<MoveId, &'static str>) -> Self {
             Self {
                 reader: TestStream::default(),
                 parser: InputParser::load(inputs),

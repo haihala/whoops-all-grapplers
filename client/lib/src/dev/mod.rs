@@ -50,6 +50,7 @@ fn generic_test_system(
     if keys.just_pressed(KeyCode::B) {
         for (mut inventory, character) in &mut query {
             if let Some((id, _)) = character.roll_items(1, &inventory).first() {
+                dbg!(id);
                 inventory.add_item(*id);
             }
         }

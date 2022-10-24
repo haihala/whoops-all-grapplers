@@ -39,6 +39,7 @@ pub enum FlowControl {
     Dynamic(fn(Situation) -> FlowControl),
     Noop,
     DynamicAction(fn(Situation) -> Option<Action>),
+    WaitUntil(fn(Situation) -> bool, Option<usize>),
 }
 
 impl std::fmt::Debug for FlowControl {
@@ -46,10 +47,14 @@ impl std::fmt::Debug for FlowControl {
         match self {
             Self::Dynamic(_) => f.debug_tuple("Dynamic").finish(),
             Self::DynamicAction(_) => f.debug_tuple("DynamicAction").finish(),
+            Self::WaitUntil(_, timeout) => f
+                .debug_tuple("WaitUntil with timeout")
+                .field(timeout)
+                .finish(),
             // Default
             Self::Wait(arg0, arg1) => f.debug_tuple("Wait").field(arg0).field(arg1).finish(),
             Self::Action(arg0) => f.debug_tuple("Action").field(arg0).finish(),
-            Self::Noop => f.write_str("Noop"),
+            Self::Noop => f.debug_tuple("Noop").finish(),
         }
     }
 }

@@ -95,6 +95,16 @@ impl Situation<'_> {
                     Some(FlowControl::Noop)
                 }
             }
+            FlowControl::WaitUntil(fun, timeout) => {
+                let timed_out = timeout.map(|time| time <= unused_time).unwrap_or(false);
+                if timed_out || fun(self.clone()) {
+                    // We've hit a timeout or the wait condition has been met
+                    // Store it in move history as a constant wait
+                    Some(FlowControl::Wait(unused_time, false))
+                } else {
+                    None
+                }
+            }
         }
     }
 }

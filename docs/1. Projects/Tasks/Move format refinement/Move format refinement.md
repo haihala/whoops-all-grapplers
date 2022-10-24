@@ -8,15 +8,14 @@
 - [[Stance system]]
 
 # Part 2: FlowControl extention
-- Remove dynamic flow control and replace it with:
-	- [[Dynamic wait (until)]]
+- Remove dynamic flow control
 
 This ought to make calculating when a move will end easier. Certainly makes knowing if such a thing can be known easier.
 
 ## Done
 - [[Noop in flowcontrol]]
 - [[Dynamic actions]]
-
+- [[Dynamic wait (until)]]
 
 # Part 3: Move structure
 - [[Separate hitboxes from phases]]

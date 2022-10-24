@@ -98,12 +98,18 @@ fn find_animation_player_entity(
 }
 
 pub fn update_animation(
-    assets: Res<Assets<AnimationClip>>,
+    clips: Option<Res<Assets<AnimationClip>>>,
     animations: Res<Animations>,
     mut main: Query<(&mut AnimationHelper, &Facing)>,
     mut players: Query<&mut AnimationPlayer>,
     mut scenes: Query<&mut Transform, With<Handle<Scene>>>,
 ) {
+    if clips.is_none() {
+        // In integration tests
+        return;
+    }
+    let assets = clips.unwrap();
+
     for (mut helper, facing) in &mut main {
         let mut player = players.get_mut(helper.player_entity).unwrap();
         let mut scene_root = scenes.get_mut(helper.scene_root).unwrap();

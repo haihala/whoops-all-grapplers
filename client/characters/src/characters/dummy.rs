@@ -146,15 +146,25 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::BurnStraight)).into(),
                     FlowControl::Wait(10, false),
-                    Action::Attack(
-                        ToHit {
-                            hitbox: Hitbox(Area::new(0.6, 1.35, 1.0, 0.2)),
-                            lifetime: Lifetime::frames(8),
-                            ..default()
-                        },
-                        OnHitEffect::default(),
-                    )
-                    .into(),
+                    FlowControl::DynamicAction(|situation: Situation| {
+                        Some(Action::Attack(
+                            ToHit {
+                                hitbox: Hitbox(Area::new(0.6, 1.35, 1.0, 0.2)),
+                                lifetime: Lifetime::frames(8),
+                                ..default()
+                            },
+                            if situation.inventory.contains(&ItemId::Drugs) {
+                                OnHitEffect {
+                                    damage: 20.into(),
+                                    knockback: Vec2::splat(3.0).into(),
+                                    pushback: (-3.0 * Vec2::X).into(),
+                                    ..default()
+                                }
+                            } else {
+                                OnHitEffect::default()
+                            },
+                        ))
+                    }),
                     Action::Movement(Movement {
                         amount: Vec2::X * 2.0,
                         duration: 1,

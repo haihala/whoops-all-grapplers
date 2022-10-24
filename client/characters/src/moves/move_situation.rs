@@ -88,6 +88,13 @@ impl Situation<'_> {
             FlowControl::Action(action) => Some(FlowControl::Action(action)),
             FlowControl::Dynamic(fun) => self.handle_flow_control(fun(self.clone()), unused_time),
             FlowControl::Noop => Some(FlowControl::Noop),
+            FlowControl::DynamicAction(fun) => {
+                if let Some(action) = fun(self.clone()) {
+                    Some(FlowControl::Action(action))
+                } else {
+                    Some(FlowControl::Noop)
+                }
+            }
         }
     }
 }

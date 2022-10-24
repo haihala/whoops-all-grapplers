@@ -1,4 +1,4 @@
-# HitboxBuilder
+- A mechanism to make attacks configurable in a sensible way
 - Init with HitBuilder::projectile or HitBuilder::attached
 - Sanity check. A sane hitbox has:
 	- Some stun and damage

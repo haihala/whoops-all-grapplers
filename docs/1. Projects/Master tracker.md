@@ -1,19 +1,18 @@
 # Backlog
 ## High priority
-- [[Move format refinement]]
 - [[Character 1]]
 - [[Input parser refinement]]
+- [[Shop UI]]
 
 ## Low priority
 - [[Rewards]]
 - [[Resources between rounds]]
 - [[Toasts in various spots]]
-- [[Convert to egui]]
-- [[Shop UI]]
 - Resource bars visible sections and use by section
-- [[Dynamic hitboxes]]
 
-## Easy nibbles
+## Nice to have
+- [[Dynamic hitboxes]]
+- [[Move format refinement]]
 
 ## Not a priority
 - [[CLI args]]
@@ -26,6 +25,7 @@
 - [[Yoink assets]]
 - [[Netplay]]
 - [[Random encounters]]
+- [[Convert to egui]]
 
 # Other trackers
 ![[Bug tracker]]

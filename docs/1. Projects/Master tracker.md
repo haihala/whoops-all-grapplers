@@ -1,7 +1,6 @@
 # Backlog
 ## High priority
 - [[Character 1]]
-- [[Input parser refinement#Do now]]
 - [[Shop UI]] + [[Items and the shop]]
 
 ## Low priority

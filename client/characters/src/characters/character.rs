@@ -55,8 +55,8 @@ impl Character {
         }
     }
 
-    pub fn get_move(&self, id: MoveId) -> Move {
-        self.moves.get(&id).unwrap().to_owned()
+    pub fn get_move(&self, id: MoveId) -> Option<Move> {
+        self.moves.get(&id).map(|opt| opt.to_owned())
     }
 
     pub fn get_pushbox(&self, crouching: bool) -> Area {

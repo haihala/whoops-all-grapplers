@@ -26,7 +26,7 @@ impl InputParser {
         let mut moves: HashMap<&'static str, Vec<MoveId>> = HashMap::new();
         let mut inputs: HashMap<&'static str, MotionInput> = HashMap::new();
 
-        for (move_id, input_str) in new_inputs.into_iter() {
+        for (move_id, input_str) in new_inputs.into_iter().chain(Self::generic_inputs()) {
             let input = input_str.into();
             inputs.insert(input_str, input);
 
@@ -56,12 +56,24 @@ impl InputParser {
         self.relative_stick
     }
 
-    pub fn drain_events(&mut self) -> Vec<MoveId> {
-        self.events.drain(..).collect()
+    pub fn get_events(&self) -> Vec<MoveId> {
+        self.events.clone()
     }
 
     pub fn head_is_clear(&self) -> bool {
         self.head.stick_position == StickPosition::Neutral && self.head.pressed.is_empty()
+    }
+
+    fn generic_inputs() -> impl Iterator<Item = (MoveId, &'static str)> {
+        vec![
+            (MoveId::Up, "58"),
+            (MoveId::Down, "52"),
+            (MoveId::Left, "54"),
+            (MoveId::Right, "56"),
+            (MoveId::Fast, "f"),
+            (MoveId::Strong, "s"),
+        ]
+        .into_iter()
     }
 
     fn add_frame(&mut self, diff: Diff, facing: &Facing) {
@@ -103,6 +115,7 @@ pub fn parse_input<T: InputStream + Component>(
 ) {
     for (mut parser, mut reader, facing) in &mut characters {
         if let Some(diff) = reader.read() {
+            parser.clear();
             parser.add_frame(diff, facing);
         }
     }

@@ -4,6 +4,12 @@ use bevy_inspector_egui::Inspectable;
 pub enum MoveId {
     #[default]
     Default, // To satisfy Inspectable.
+    Up,
+    Down,
+    Left,
+    Right,
+    Fast,
+    Strong,
 
     // Universal
     DashForward,

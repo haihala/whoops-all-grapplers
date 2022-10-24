@@ -47,25 +47,22 @@ impl MoveBuffer {
         self.buffer
             .iter()
             .filter_map(|(frame, id)| {
-                let move_data = character.get_move(*id);
-                if (move_data.requirement)(situation.to_owned()) {
-                    Some((*frame, *id, move_data))
-                } else {
-                    None
+                if let Some(move_data) = character.get_move(*id) {
+                    if (move_data.requirement)(situation.to_owned()) {
+                        return Some((*frame, *id, move_data));
+                    }
                 }
+                None
             })
             .collect()
     }
 }
 
-pub(super) fn manage_buffer(
-    clock: Res<Clock>,
-    mut query: Query<(&mut MoveBuffer, &mut InputParser)>,
-) {
+pub(super) fn manage_buffer(clock: Res<Clock>, mut query: Query<(&mut MoveBuffer, &InputParser)>) {
     // Read from the input parser and fill the buffer
-    for (mut buffer, mut parser) in &mut query {
+    for (mut buffer, parser) in &mut query {
         buffer.clear_old(clock.frame);
-        buffer.add_events(parser.drain_events(), clock.frame);
+        buffer.add_events(parser.get_events(), clock.frame);
     }
 }
 pub(super) fn move_continuation(mut query: Query<(&mut MoveBuffer, &mut PlayerState)>) {
@@ -224,7 +221,7 @@ pub(super) fn move_activator(
 
             state.start_move(MoveHistory {
                 move_id: activation.id,
-                move_data: character.get_move(activation.id),
+                move_data: character.get_move(activation.id).unwrap(),
                 started,
                 frame_skip: clock.frame - started,
                 ..default()

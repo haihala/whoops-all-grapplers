@@ -42,12 +42,23 @@ impl Situation<'_> {
                 if let Some(mut new_event) =
                     self.handle_flow_control(future_event.to_owned(), unused_time)
                 {
-                    if let FlowControl::Wait(time, _) = new_event {
-                        unused_time -= time;
-                    } else if history.frame_skip != 0 && let FlowControl::Action(Action::Animation(animation)) = new_event {
-                        // This'll make it so that if a move is fast-forwarded due to frame fitting, the animation will be in sync
-                        new_event = Action::AnimationAtFrame(animation, history.frame_skip).into();
+                    match new_event {
+                        FlowControl::Wait(time, _) => {
+                            unused_time -= time;
+                        }
+                        FlowControl::Action(Action::Animation(animation)) => {
+                            if history.frame_skip != 0 {
+                                // This'll make it so that if a move is fast-forwarded due to frame fitting, the animation will be in sync
+                                new_event =
+                                    Action::AnimationAtFrame(animation, history.frame_skip).into();
+                            }
+                        }
+                        FlowControl::Noop => {
+                            continue; // So that noops don't end up in the handled_events list
+                        }
+                        _ => {}
                     }
+
                     handled_events.push(new_event);
                 } else {
                     // There is a time block
@@ -76,6 +87,7 @@ impl Situation<'_> {
             }
             FlowControl::Action(action) => Some(FlowControl::Action(action)),
             FlowControl::Dynamic(fun) => self.handle_flow_control(fun(self.clone()), unused_time),
+            FlowControl::Noop => Some(FlowControl::Noop),
         }
     }
 }

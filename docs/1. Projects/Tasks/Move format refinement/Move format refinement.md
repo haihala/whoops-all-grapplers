@@ -20,3 +20,4 @@ This ought to make calculating when a move will end easier. Certainly makes know
 - [[HitboxBuilder]]
 - [[MoveBuilder]]
 - [[External events for moves]]
+- Could maybe

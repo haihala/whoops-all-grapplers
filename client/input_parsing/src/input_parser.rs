@@ -22,11 +22,11 @@ pub struct InputParser {
     relative_stick: StickPosition,
 }
 impl InputParser {
-    pub fn load(new_inputs: HashMap<MoveId, &'static str>) -> Self {
+    pub(crate) fn new(new_inputs: HashMap<MoveId, &'static str>) -> Self {
         let mut moves: HashMap<&'static str, Vec<MoveId>> = HashMap::new();
         let mut inputs: HashMap<&'static str, MotionInput> = HashMap::new();
 
-        for (move_id, input_str) in new_inputs.into_iter().chain(Self::generic_inputs()) {
+        for (move_id, input_str) in new_inputs.into_iter() {
             let input = input_str.into();
             inputs.insert(input_str, input);
 
@@ -62,18 +62,6 @@ impl InputParser {
 
     pub fn head_is_clear(&self) -> bool {
         self.head.stick_position == StickPosition::Neutral && self.head.pressed.is_empty()
-    }
-
-    fn generic_inputs() -> impl Iterator<Item = (MoveId, &'static str)> {
-        vec![
-            (MoveId::Up, "58"),
-            (MoveId::Down, "52"),
-            (MoveId::Left, "54"),
-            (MoveId::Right, "56"),
-            (MoveId::Fast, "f"),
-            (MoveId::Strong, "s"),
-        ]
-        .into_iter()
     }
 
     fn add_frame(&mut self, diff: Diff, facing: &Facing) {

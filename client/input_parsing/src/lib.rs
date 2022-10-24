@@ -46,15 +46,27 @@ pub struct PadBundle {
     parrot: ParrotStream,
 }
 impl PadBundle {
-    pub fn new(inputs: HashMap<MoveId, &'static str>) -> Self {
+    pub fn new(mut inputs: HashMap<MoveId, &'static str>) -> Self {
+        inputs.extend(generic_inputs());
         Self {
             reader: PadStream::default(),
-            parser: InputParser::load(inputs),
+            parser: InputParser::new(inputs),
             parrot: ParrotStream::default(),
         }
     }
 }
 
+fn generic_inputs() -> impl Iterator<Item = (MoveId, &'static str)> {
+    vec![
+        (MoveId::Up, "58"),
+        (MoveId::Down, "52"),
+        (MoveId::Left, "54"),
+        (MoveId::Right, "56"),
+        (MoveId::Fast, "f"),
+        (MoveId::Strong, "s"),
+    ]
+    .into_iter()
+}
 pub mod testing {
     use super::*;
     pub use input_parser::parse_input;
@@ -71,7 +83,7 @@ pub mod testing {
         pub fn new(events: Vec<Option<InputEvent>>, inputs: HashMap<MoveId, &'static str>) -> Self {
             Self {
                 reader: PreWrittenStream::new(events),
-                parser: InputParser::load(inputs),
+                parser: InputParser::new(inputs),
                 parrot: ParrotStream::default(),
             }
         }
@@ -87,7 +99,7 @@ pub mod testing {
         pub fn new(inputs: HashMap<MoveId, &'static str>) -> Self {
             Self {
                 reader: TestStream::default(),
-                parser: InputParser::load(inputs),
+                parser: InputParser::new(inputs),
                 parrot: ParrotStream::default(),
             }
         }

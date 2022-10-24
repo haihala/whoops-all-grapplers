@@ -36,7 +36,6 @@ pub enum Action {
 pub enum FlowControl {
     Wait(usize, bool),
     Action(Action),
-    Dynamic(fn(Situation) -> FlowControl),
     Noop,
     DynamicAction(fn(Situation) -> Option<Action>),
     WaitUntil(fn(Situation) -> bool, Option<usize>),
@@ -45,7 +44,6 @@ pub enum FlowControl {
 impl std::fmt::Debug for FlowControl {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Dynamic(_) => f.debug_tuple("Dynamic").finish(),
             Self::DynamicAction(_) => f.debug_tuple("DynamicAction").finish(),
             Self::WaitUntil(_, timeout) => f
                 .debug_tuple("WaitUntil with timeout")
@@ -66,8 +64,7 @@ impl PartialEq for FlowControl {
             }
             (Self::Action(action1), Self::Action(action2)) => action1 == action2,
             (Self::Noop, Self::Noop) => true,
-            (_, Self::Dynamic(_) | Self::DynamicAction(_))
-            | (Self::Dynamic(_) | Self::DynamicAction(_), _) => {
+            (_, Self::DynamicAction(_)) | (Self::DynamicAction(_), _) => {
                 panic!("Comparing to a dynamic one")
             }
             _ => false,

@@ -86,7 +86,6 @@ impl Situation<'_> {
                 }
             }
             FlowControl::Action(action) => Some(FlowControl::Action(action)),
-            FlowControl::Dynamic(fun) => self.handle_flow_control(fun(self.clone()), unused_time),
             FlowControl::Noop => Some(FlowControl::Noop),
             FlowControl::DynamicAction(fun) => {
                 if let Some(action) = fun(self.clone()) {
@@ -276,12 +275,12 @@ mod test {
 
     #[test]
     fn dynamics() {
-        let phases = vec![FlowControl::Dynamic(|situation: Situation| {
-            if situation.history.unwrap().has_hit {
-                Action::Animation(Animation::TPose).into()
+        let phases = vec![FlowControl::DynamicAction(|situation: Situation| {
+            Some(if situation.history.unwrap().has_hit {
+                Action::Animation(Animation::TPose)
             } else {
-                Action::Attack(ToHit::default(), OnHitEffect::default()).into()
-            }
+                Action::Attack(ToHit::default(), OnHitEffect::default())
+            })
         })];
 
         let mut sw = SituationWrapper::with_phases(phases);

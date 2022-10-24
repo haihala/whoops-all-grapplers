@@ -36,9 +36,9 @@ pub(crate) fn get_gunshot() -> Move {
         input: None,
         phases: vec![
             FlowControl::Wait(10, false),
-            FlowControl::Dynamic(|situation: Situation| {
+            FlowControl::DynamicAction(|situation: Situation| {
                 if situation.resources.can_afford(Cost::bullet()) {
-                    Action::Attack(
+                    Some(Action::Attack(
                         ToHit {
                             hitbox: Hitbox(Area::new(0.5, 1.2, 0.1, 0.1)),
                             velocity: Some(8.0 * Vec2::X),
@@ -46,23 +46,25 @@ pub(crate) fn get_gunshot() -> Move {
                             ..default()
                         },
                         OnHitEffect::default(),
-                    )
-                    .into()
+                    ))
                 } else {
-                    FlowControl::Wait(30, false)
+                    // TODO: put a sound effect here or something later
+                    None
                 }
             }),
-            FlowControl::Dynamic(|situation: Situation| {
+            FlowControl::Wait(10, false),
+            FlowControl::DynamicAction(|situation: Situation| {
                 if situation
                     .parser
                     .get_pressed()
                     .contains(&GameButton::Equipment)
                 {
-                    Action::Move(MoveId::Gunshot).into()
+                    Some(Action::Move(MoveId::Gunshot))
                 } else {
-                    FlowControl::Wait(30, false)
+                    None
                 }
             }),
+            FlowControl::Wait(30, false),
         ],
         ..default()
     }

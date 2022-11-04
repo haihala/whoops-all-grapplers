@@ -8,7 +8,8 @@ use wag_core::{
 
 use crate::{
     moves::{
-        grounded, not_grounded, Action, FlowControl, MoveType, Movement, Projectile, Situation,
+        crouching, grounded, not_grounded, standing, Action, FlowControl, MoveType, Movement,
+        Projectile, Situation,
     },
     AttackHeight, BlockType, Cost, Hitbox, Item, Lifetime, Move, OnHitEffect, ToHit,
 };
@@ -101,6 +102,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             MoveId::Slap,
             Move {
                 input: Some("f"),
+                requirement: standing,
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::Slap)).into(),
                     FlowControl::Wait(9, false),
@@ -121,7 +123,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
         (
             MoveId::LowChop,
             Move {
-                input: Some("[123]f"),
+                input: Some("f"),
+                requirement: crouching,
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::CrouchChop)).into(),
                     FlowControl::Wait(8, false),
@@ -143,6 +146,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             MoveId::BurnStraight,
             Move {
                 input: Some("s"),
+                requirement: standing,
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::BurnStraight)).into(),
                     FlowControl::Wait(10, false),
@@ -178,7 +182,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
         (
             MoveId::AntiAir,
             Move {
-                input: Some("[123]s"),
+                input: Some("s"),
+                requirement: crouching,
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::AntiAir)).into(),
                     FlowControl::Wait(13, false),
@@ -249,6 +254,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             MoveId::ForwardThrow,
             Move {
                 input: Some("g"),
+                requirement: standing,
                 phases: vec![
                     FlowControl::Wait(5, false),
                     Action::Animation(Animation::Dummy(DummyAnimation::NormalThrow)).into(),
@@ -279,7 +285,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
         (
             MoveId::BackThrow,
             Move {
-                input: Some("g"),
+                input: Some("4g"),
+                requirement: standing,
                 phases: vec![
                     FlowControl::Wait(5, false),
                     Action::Animation(Animation::Dummy(DummyAnimation::NormalThrow)).into(),
@@ -318,6 +325,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
             MoveId::Dodge,
             Move {
                 input: Some("252"),
+                requirement: standing,
                 move_type: MoveType::Normal,
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::Dodge)).into(),
@@ -336,6 +344,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
             MoveId::BudgetBoom,
             Move {
                 input: Some("[41]6f"),
+                requirement: standing,
                 move_type: MoveType::Special,
                 phases: vec![
                     FlowControl::Wait(10, false),

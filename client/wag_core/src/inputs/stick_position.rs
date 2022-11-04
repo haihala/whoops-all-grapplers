@@ -39,6 +39,21 @@ impl From<i32> for StickPosition {
         }
     }
 }
+impl Into<i32> for StickPosition {
+    fn into(self) -> i32 {
+        match self {
+            StickPosition::SW => 1,
+            StickPosition::S => 2,
+            StickPosition::SE => 3,
+            StickPosition::W => 4,
+            StickPosition::Neutral => 5,
+            StickPosition::E => 6,
+            StickPosition::NW => 7,
+            StickPosition::N => 8,
+            StickPosition::NE => 9,
+        }
+    }
+}
 impl From<IVec2> for StickPosition {
     fn from(item: IVec2) -> Self {
         let matrix = vec![

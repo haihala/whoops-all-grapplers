@@ -58,11 +58,15 @@ impl MoveBuffer {
     }
 }
 
-pub(super) fn manage_buffer(clock: Res<Clock>, mut query: Query<(&mut MoveBuffer, &InputParser)>) {
+pub(super) fn manage_buffer(
+    clock: Res<Clock>,
+    mut query: Query<(&mut MoveBuffer, &mut InputParser)>,
+) {
     // Read from the input parser and fill the buffer
-    for (mut buffer, parser) in &mut query {
+    for (mut buffer, mut parser) in &mut query {
         buffer.clear_old(clock.frame);
         buffer.add_events(parser.get_events(), clock.frame);
+        parser.clear();
     }
 }
 pub(super) fn move_continuation(mut query: Query<(&mut MoveBuffer, &mut PlayerState)>) {

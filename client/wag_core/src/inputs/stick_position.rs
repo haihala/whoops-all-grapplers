@@ -39,9 +39,9 @@ impl From<i32> for StickPosition {
         }
     }
 }
-impl Into<i32> for StickPosition {
-    fn into(self) -> i32 {
-        match self {
+impl From<StickPosition> for i32 {
+    fn from(sp: StickPosition) -> Self {
+        match sp {
             StickPosition::SW => 1,
             StickPosition::S => 2,
             StickPosition::SE => 3,
@@ -65,11 +65,9 @@ impl From<IVec2> for StickPosition {
         matrix[(item.y + 1) as usize][(item.x + 1) as usize]
     }
 }
-// Can't implement traits for bevy types
-#[allow(clippy::from_over_into)]
-impl Into<IVec2> for StickPosition {
-    fn into(self) -> IVec2 {
-        match self {
+impl From<StickPosition> for IVec2 {
+    fn from(sp: StickPosition) -> Self {
+        match sp {
             StickPosition::NW => (-1, 1).into(),
             StickPosition::N => (0, 1).into(),
             StickPosition::NE => (1, 1).into(),
@@ -93,6 +91,15 @@ mod test {
         for sp1 in StickPosition::iter() {
             let ivec: IVec2 = sp1.into();
             let sp2: StickPosition = ivec.into();
+            assert!(sp1 == sp2)
+        }
+    }
+
+    #[test]
+    fn test_i32_stickposition_conversions() {
+        for sp1 in StickPosition::iter() {
+            let int: i32 = sp1.into();
+            let sp2: StickPosition = int.into();
             assert!(sp1 == sp2)
         }
     }

@@ -103,7 +103,6 @@ pub fn parse_input<T: InputStream + Component>(
 ) {
     for (mut parser, mut reader, facing) in &mut characters {
         if let Some(diff) = reader.read() {
-            parser.clear();
             parser.add_frame(diff, facing);
         }
     }

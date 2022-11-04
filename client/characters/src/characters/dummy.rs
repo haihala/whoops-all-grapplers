@@ -364,7 +364,6 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                     .into(),
                     FlowControl::Wait(5, true),
                 ],
-                ..default()
             },
         ),
         (

@@ -325,9 +325,9 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
             MoveId::Dodge,
             Move {
                 input: Some("252"),
-                requirement: standing,
                 move_type: MoveType::Normal,
                 phases: vec![
+                    Action::ForceStand.into(),
                     Action::Animation(Animation::Dummy(DummyAnimation::Dodge)).into(),
                     Action::Condition(StatusCondition {
                         name: Status::Dodge,
@@ -347,6 +347,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 requirement: standing,
                 move_type: MoveType::Special,
                 phases: vec![
+                    Action::ForceStand.into(),
                     FlowControl::Wait(10, false),
                     Action::Attack(
                         ToHit {
@@ -375,6 +376,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                     situation.resources.can_afford(Cost::charge()) && grounded(situation)
                 },
                 phases: vec![
+                    Action::ForceStand.into(),
                     Action::Pay(Cost::charge()).into(),
                     FlowControl::Wait(10, false),
                     Action::Attack(
@@ -404,6 +406,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("236f"),
                 move_type: MoveType::Special,
                 phases: vec![
+                    Action::ForceStand.into(),
                     FlowControl::Wait(30, false),
                     Action::Attack(
                         ToHit {
@@ -431,6 +434,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 move_type: MoveType::Special,
                 requirement: |situation: Situation| situation.resources.can_afford(Cost::meter(30)),
                 phases: vec![
+                    Action::ForceStand.into(),
                     Action::Pay(Cost::meter(30)).into(),
                     FlowControl::Wait(30, false),
                     Action::Attack(

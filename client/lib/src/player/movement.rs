@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use characters::Action;
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{Facing, StickPosition};
@@ -13,6 +14,16 @@ pub fn movement(mut query: Query<(&InputParser, &mut PlayerState)>) {
                 StickPosition::SW | StickPosition::S | StickPosition::SE => state.crouch(),
                 _ => state.stand(),
             }
+        }
+
+        for _ in state.drain_matching_actions(|action| {
+            if *action == Action::ForceStand {
+                Some(*action)
+            } else {
+                None
+            }
+        }) {
+            state.force_stand()
         }
     }
 }

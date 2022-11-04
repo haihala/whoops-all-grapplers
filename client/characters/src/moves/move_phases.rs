@@ -30,6 +30,7 @@ pub enum Action {
     Movement(Movement),
     Pay(Cost),
     Condition(StatusCondition),
+    ForceStand,
 }
 
 #[derive(Clone, Copy)]

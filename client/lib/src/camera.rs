@@ -72,5 +72,12 @@ fn center_camera(
         .fold(0.0, |acc, tf| acc + tf.translation.x)
         / 2.0;
 
-    queryies.p1().single_mut().translation.x = player_pos_sum.max(-CAMERA_CLAMP).min(CAMERA_CLAMP);
+    // Do some light lerping to make backthrows less jarring
+    let mut camquery = queryies.p1();
+    let mut tf = camquery.single_mut();
+    let target = Vec3 {
+        x: player_pos_sum.max(-CAMERA_CLAMP).min(CAMERA_CLAMP),
+        ..tf.translation
+    };
+    tf.translation = tf.translation.lerp(target, 0.1);
 }

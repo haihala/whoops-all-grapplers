@@ -35,7 +35,7 @@ Keep it simple.
 			- [x] Air to air
 			- [x] Divekick
 			- [x] Normal grab
-			- [ ] Backthrow
+			- [x] Backthrow
 			- [ ] Sweep
 			- [ ] Air grab
 			- [x] Spot dodge

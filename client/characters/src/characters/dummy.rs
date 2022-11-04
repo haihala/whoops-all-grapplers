@@ -246,7 +246,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             },
         ),
         (
-            MoveId::Grab,
+            MoveId::ForwardThrow,
             Move {
                 input: Some("g"),
                 phases: vec![
@@ -267,6 +267,38 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                                 DummyAnimation::NormalThrowRecipient,
                             ))
                             .into(),
+                            ..default()
+                        },
+                    )
+                    .into(),
+                    FlowControl::Wait(40, true),
+                ],
+                ..default()
+            },
+        ),
+        (
+            MoveId::BackThrow,
+            Move {
+                input: Some("g"),
+                phases: vec![
+                    FlowControl::Wait(5, false),
+                    Action::Animation(Animation::Dummy(DummyAnimation::NormalThrow)).into(),
+                    Action::Attack(
+                        ToHit {
+                            block_type: BlockType::Grab,
+                            hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.5)),
+                            lifetime: Lifetime::frames(5),
+                            ..default()
+                        },
+                        OnHitEffect {
+                            damage: (25, 0).into(),
+                            stun: (60, 0).into(),
+                            knockback: (Vec2::Y * 1.0, Vec2::ZERO).into(),
+                            forced_animation: Some(Animation::Dummy(
+                                DummyAnimation::NormalThrowRecipient,
+                            ))
+                            .into(),
+                            side_switch: true,
                             ..default()
                         },
                     )

@@ -10,7 +10,7 @@ use wag_core::{Area, Facing, Owner, Player, Players, SoundEffect, StickPosition,
 
 use crate::{
     assets::{AnimationHelper, AnimationRequest, ParticleRequest, Particles, Sounds},
-    physics::PlayerVelocity,
+    physics::{PlayerVelocity, Pushbox},
     ui::Notifications,
 };
 
@@ -22,7 +22,7 @@ pub struct PlayerQuery<'a> {
     character: &'a Character,
     defense: &'a mut Defense,
     hurtbox: &'a Hurtbox,
-    tf: &'a Transform,
+    tf: &'a mut Transform,
     health: &'a mut Health,
     resources: &'a mut Resources,
     player: &'a Player,
@@ -32,6 +32,7 @@ pub struct PlayerQuery<'a> {
     facing: &'a Facing,
     spawner: &'a mut HitboxSpawner,
     animation_helper: &'a mut AnimationHelper,
+    pushbox: &'a Pushbox,
 }
 
 pub(super) fn clash_parry(
@@ -245,10 +246,24 @@ fn handle_hit(
             defender.defense.reset()
         }
 
+        // Forced animation (throw)
         if let Some(forced_animation) = effect.forced_animation.get(avoided) {
+            // Snap players together
+            let raw_diff = defender.tf.translation.x - attacker.tf.translation.x; // This ougth to be positive when attacker is on the left
+            let width_between = (attacker.pushbox.width() + defender.pushbox.width()) / 2.0;
+
+            let new_position = attacker.tf.translation
+                + Vec3::X
+                    * raw_diff.signum()
+                    * width_between
+                    * (1.0 - (2.0 * effect.side_switch as i32 as f32));
+
+            defender.tf.translation = new_position;
+
+            let position_offset = (attacker.tf.translation - new_position).truncate();
             defender.animation_helper.play(AnimationRequest {
                 invert: true,
-                position_offset: (attacker.tf.translation - defender.tf.translation).truncate(),
+                position_offset,
                 ..forced_animation.into()
             });
         }

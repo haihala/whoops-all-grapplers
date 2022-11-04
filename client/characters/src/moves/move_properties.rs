@@ -99,6 +99,7 @@ pub struct OnHitEffect {
     pub knockback: Knockback,
     pub pushback: Pushback,
     pub forced_animation: ForcedAnimation,
+    pub side_switch: bool,
 }
 
 impl Default for OnHitEffect {
@@ -109,6 +110,7 @@ impl Default for OnHitEffect {
             knockback: (Vec2::X * 2.0, Vec2::X * 1.0).into(),
             pushback: (Vec2::X * 1.0, Vec2::X * 0.5).into(),
             forced_animation: None.into(),
+            side_switch: false,
         }
     }
 }

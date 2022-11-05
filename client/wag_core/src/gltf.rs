@@ -35,6 +35,9 @@ pub enum DummyAnimation {
     AntiAir,
     AirSlap,
     Divekick,
+    AirSlam,
+    GroundSlam,
+    Sweep,
 
     // Throws
     NormalThrow,

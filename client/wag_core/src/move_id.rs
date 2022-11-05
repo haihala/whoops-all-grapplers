@@ -35,6 +35,8 @@ pub enum MoveId {
     BudgetBoom,
     HeavyHadouken,
     Hadouken,
+    GroundSlam,
+    AirSlam,
     BackThrow,
     ForwardThrow,
     Divekick,
@@ -43,5 +45,6 @@ pub enum MoveId {
     LowChop,
     BurnStraight,
     Slap,
+    Sweep,
     Dodge,
 }

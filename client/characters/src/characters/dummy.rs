@@ -8,7 +8,7 @@ use wag_core::{
 
 use crate::{
     moves::{
-        crouching, grounded, not_grounded, standing, Action, FlowControl, MoveType, Movement,
+        airborne, crouching, grounded, standing, Action, FlowControl, MoveType, Movement,
         Projectile, Situation,
     },
     AttackHeight, BlockType, Cost, Hitbox, Item, Lifetime, Move, OnHitEffect, ToHit,
@@ -208,7 +208,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             MoveId::AirSlap,
             Move {
                 input: Some("f"),
-                requirement: not_grounded,
+                requirement: airborne,
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::AirSlap)).into(),
                     FlowControl::Wait(8, false),
@@ -231,7 +231,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
             MoveId::Divekick,
             Move {
                 input: Some("s"),
-                requirement: not_grounded,
+                requirement: airborne,
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::Divekick)).into(),
                     FlowControl::Wait(5, false),
@@ -256,8 +256,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("g"),
                 requirement: standing,
                 phases: vec![
-                    FlowControl::Wait(5, false),
                     Action::Animation(Animation::Dummy(DummyAnimation::NormalThrow)).into(),
+                    FlowControl::Wait(5, false),
                     Action::Attack(
                         ToHit {
                             block_type: BlockType::Grab,
@@ -288,8 +288,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("4g"),
                 requirement: standing,
                 phases: vec![
-                    FlowControl::Wait(5, false),
                     Action::Animation(Animation::Dummy(DummyAnimation::NormalThrow)).into(),
+                    FlowControl::Wait(5, false),
                     Action::Attack(
                         ToHit {
                             block_type: BlockType::Grab,
@@ -315,6 +315,33 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 ..default()
             },
         ),
+        (
+            MoveId::Sweep,
+            Move {
+                input: Some("g"),
+                requirement: crouching,
+                phases: vec![
+                    Action::Animation(Animation::Dummy(DummyAnimation::Sweep)).into(),
+                    FlowControl::Wait(10, false),
+                    Action::Attack(
+                        ToHit {
+                            block_type: BlockType::Grab,
+                            hitbox: Hitbox(Area::new(0.7, 0.2, 1.0, 0.2)),
+                            lifetime: Lifetime::frames(5),
+                            ..default()
+                        },
+                        OnHitEffect {
+                            damage: (25, 0).into(),
+                            knockback: (Vec2::Y * 8.0, Vec2::ZERO).into(),
+                            ..default()
+                        },
+                    )
+                    .into(),
+                    FlowControl::Wait(15, true),
+                ],
+                ..default()
+            },
+        ),
     ]
     .into_iter()
 }
@@ -336,6 +363,70 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                     })
                     .into(),
                     FlowControl::Wait(45, false),
+                ],
+                ..default()
+            },
+        ),
+        (
+            MoveId::GroundSlam,
+            Move {
+                input: Some("[789]6s"),
+                requirement: grounded,
+                phases: vec![
+                    Action::Animation(Animation::Dummy(DummyAnimation::GroundSlam)).into(),
+                    FlowControl::Wait(14, false),
+                    Action::Attack(
+                        ToHit {
+                            hitbox: Hitbox(Area::new(0.7, 1.25, 0.8, 0.8)),
+                            lifetime: Lifetime::frames(8),
+                            ..default()
+                        },
+                        OnHitEffect {
+                            damage: 20.into(),
+                            knockback: Vec2::Y.into(),
+                            pushback: (-3.0 * Vec2::X).into(),
+                            ..default()
+                        },
+                    )
+                    .into(),
+                    Action::Movement(Movement {
+                        amount: Vec2::X * 2.0,
+                        duration: 1,
+                    })
+                    .into(),
+                    FlowControl::Wait(20, false),
+                ],
+                ..default()
+            },
+        ),
+        (
+            MoveId::AirSlam,
+            Move {
+                input: Some("[789]6s"),
+                requirement: airborne,
+                phases: vec![
+                    Action::Animation(Animation::Dummy(DummyAnimation::AirSlam)).into(),
+                    FlowControl::Wait(14, false),
+                    Action::Attack(
+                        ToHit {
+                            hitbox: Hitbox(Area::new(0.9, 1.25, 0.8, 0.8)),
+                            lifetime: Lifetime::frames(8),
+                            ..default()
+                        },
+                        OnHitEffect {
+                            damage: 20.into(),
+                            knockback: Vec2::Y.into(),
+                            pushback: (-3.0 * Vec2::X).into(),
+                            ..default()
+                        },
+                    )
+                    .into(),
+                    Action::Movement(Movement {
+                        amount: Vec2::X * 1.0,
+                        duration: 2,
+                    })
+                    .into(),
+                    FlowControl::Wait(35, false),
                 ],
                 ..default()
             },

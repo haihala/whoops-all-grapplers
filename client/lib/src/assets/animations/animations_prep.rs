@@ -129,6 +129,7 @@ pub fn animation_paths() -> HashMap<Animation, String> {
         "dummy.glb".to_owned(),
         vec![
             Animation::Dummy(DummyAnimation::AirIdle),
+            Animation::Dummy(DummyAnimation::AirSlam),
             Animation::Dummy(DummyAnimation::AirSlap),
             Animation::Dummy(DummyAnimation::AirStun),
             Animation::Dummy(DummyAnimation::AntiAir),
@@ -141,6 +142,7 @@ pub fn animation_paths() -> HashMap<Animation, String> {
             Animation::Dummy(DummyAnimation::Divekick),
             Animation::Dummy(DummyAnimation::Dodge),
             Animation::Dummy(DummyAnimation::DashForward),
+            Animation::Dummy(DummyAnimation::GroundSlam),
             Animation::Dummy(DummyAnimation::Idle),
             Animation::Dummy(DummyAnimation::Jump),
             Animation::Dummy(DummyAnimation::NormalThrow),
@@ -149,6 +151,7 @@ pub fn animation_paths() -> HashMap<Animation, String> {
             Animation::Dummy(DummyAnimation::Slap),
             Animation::Dummy(DummyAnimation::StandBlock),
             Animation::Dummy(DummyAnimation::StandStun),
+            Animation::Dummy(DummyAnimation::Sweep),
             Animation::TPose,
             Animation::Dummy(DummyAnimation::WalkBack),
             Animation::Dummy(DummyAnimation::WalkForward),

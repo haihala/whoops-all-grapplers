@@ -36,10 +36,10 @@ Keep it simple.
 			- [x] Divekick
 			- [x] Normal grab
 			- [x] Backthrow
-			- [ ] Sweep
+			- [x] Sweep
 			- [ ] Air grab
 			- [x] Spot dodge
-			- [ ] Volleyball slam
+			- [x] Volleyball slam
 		- [ ] Items
 			- [ ] Gun
 			- [ ] Handmedownken

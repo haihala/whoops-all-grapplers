@@ -21,7 +21,7 @@ use crate::{
 
 use bevy::{ecs::query::WorldQuery, prelude::*};
 
-use self::move_activation::MoveBuffer;
+pub use move_activation::MoveBuffer;
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;

@@ -10,6 +10,7 @@ use crate::{
     assets::Sounds,
     damage::Health,
     physics::{ConstantVelocity, PlayerVelocity, Pushbox},
+    player::MoveBuffer,
 };
 
 mod box_visualization;
@@ -38,6 +39,7 @@ impl Plugin for DevPlugin {
         registry.register::<Pushbox>();
         registry.register::<Hurtbox>();
         registry.register::<Hitbox>();
+        registry.register::<MoveBuffer>();
     }
 }
 

@@ -205,6 +205,7 @@ impl PlayerState {
         self.main = if matches!(self.main, MainState::Air(AirState::Freefall)) {
             MainState::Ground(frame)
         } else {
+            self.free_since = Some(frame);
             MainState::Stand(StandState::Idle)
         };
     }

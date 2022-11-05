@@ -1,16 +1,18 @@
 use std::cmp::Ordering;
 
+use bevy_inspector_egui::Inspectable;
 use wag_core::MoveId;
 
-#[derive(Debug)]
+#[derive(Debug, Default, Inspectable)]
 pub(super) struct MoveActivation {
     pub kind: ActivationType,
     pub id: MoveId,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default, Inspectable)]
 pub(super) enum ActivationType {
     Continuation,
+    #[default]
     Raw,
     Link(Link),
     Cancel(Cancellation),
@@ -20,9 +22,10 @@ pub(super) enum ActivationType {
 const PERFECT_TIMING_DELTA: i32 = 0;
 const GOOD_TIMING_DELTA: i32 = 3;
 
-#[derive(Debug)]
+#[derive(Debug, Default, Inspectable)]
 enum ErrorDirection {
     Late,
+    #[default]
     Early,
 }
 impl From<i32> for ErrorDirection {
@@ -35,8 +38,9 @@ impl From<i32> for ErrorDirection {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default, Inspectable)]
 enum LinkPrecision {
+    #[default]
     Perfect,
     Good(ErrorDirection),
     Fine(ErrorDirection),
@@ -69,7 +73,7 @@ impl LinkPrecision {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default, Inspectable)]
 pub(super) struct Link {
     pub correction: usize,
     precision: LinkPrecision,
@@ -93,7 +97,7 @@ impl Link {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default, Inspectable)]
 pub(super) struct Cancellation {
     pub message: String,
 }

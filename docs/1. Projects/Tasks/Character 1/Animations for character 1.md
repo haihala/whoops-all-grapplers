@@ -5,6 +5,7 @@ Keep it simple.
 - Don't add animations that are not certain to be used
 	- No duplicate get hit animations
 	- No animations for items that may exist at some point
+- Woah boy these will need a second pass, some of them are **rough**
 
 - [x] Figure out what tools to use for animation
 - [ ] Make animations

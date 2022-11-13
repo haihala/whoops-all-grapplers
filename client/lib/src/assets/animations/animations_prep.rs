@@ -19,8 +19,8 @@ impl Animations {
 
     fn all_loaded(&self, assets: &Assets<AnimationClip>) -> bool {
         self.normal
-            .iter()
-            .map(|(_, handle)| assets.get(handle))
+            .values()
+            .map(|handle| assets.get(handle))
             .all(|clip| clip.is_some())
     }
 

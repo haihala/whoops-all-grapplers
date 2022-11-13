@@ -76,7 +76,7 @@ fn center_camera(
     let mut camquery = queryies.p1();
     let mut tf = camquery.single_mut();
     let target = Vec3 {
-        x: player_pos_sum.max(-CAMERA_CLAMP).min(CAMERA_CLAMP),
+        x: player_pos_sum.clamp(-CAMERA_CLAMP, CAMERA_CLAMP),
         ..tf.translation
     };
     tf.translation = tf.translation.lerp(target, 0.1);

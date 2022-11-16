@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use wag_core::{Animation, DummyAnimation, Facing};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Resource)]
 pub struct Animations {
     normal: HashMap<Animation, Handle<AnimationClip>>,
     mirrored: HashMap<Animation, Handle<AnimationClip>>,

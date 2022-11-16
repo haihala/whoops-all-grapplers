@@ -3,6 +3,8 @@ use std::fmt::{Debug, Display};
 use strum_macros::EnumIter;
 
 use bevy::prelude::*;
+
+#[derive(Debug, Resource)]
 pub struct Players {
     pub one: Entity,
     pub two: Entity,

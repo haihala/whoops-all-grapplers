@@ -258,10 +258,10 @@ mod test {
             let mut stage = SystemStage::parallel();
             stage.add_system(parse_input::<TestStream>);
 
-            world
-                .spawn()
-                .insert_bundle(TestInputBundle::new(moves.into_iter().collect()))
-                .insert(Facing::Right);
+            world.spawn((
+                TestInputBundle::new(moves.into_iter().collect()),
+                Facing::Right,
+            ));
 
             let mut tester = TestInterface { world, stage };
             tester.tick();

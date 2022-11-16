@@ -43,11 +43,12 @@ impl TestRunner {
         app.add_plugin(AssetPlugin::default());
         app.add_plugin(InputPlugin::default());
 
-        app.add_plugins_with(WAGLib, |group| {
-            group.disable::<HanabiPlugin>();
-            group.disable::<DevPlugin>();
-            group
-        });
+        app.add_plugins(
+            WAGLib
+                .build()
+                .disable::<HanabiPlugin>()
+                .disable::<DevPlugin>(),
+        );
         app.add_system(parse_input::<PreWrittenStream>);
         app.update();
 
@@ -62,8 +63,8 @@ impl TestRunner {
         let p2 = players.two;
         drop(players); // Needs to drop because couldn't figure out how to get the Players resource without by value.
 
-        app.world.entity_mut(p1).insert_bundle(spec.p1_bundle);
-        app.world.entity_mut(p2).insert_bundle(spec.p2_bundle);
+        app.world.entity_mut(p1).insert(spec.p1_bundle);
+        app.world.entity_mut(p2).insert(spec.p2_bundle);
 
         app.update();
         app

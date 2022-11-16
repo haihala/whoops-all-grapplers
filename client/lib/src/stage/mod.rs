@@ -41,8 +41,8 @@ fn add_stage(
         });
 
         // textured quad - normal
-        commands
-            .spawn_bundle(PbrBundle {
+        commands.spawn((
+            PbrBundle {
                 mesh: quad_handle,
                 material: material_handle,
                 transform: Transform {
@@ -50,7 +50,8 @@ fn add_stage(
                     ..default()
                 },
                 ..default()
-            })
-            .insert(Name::new("Background quad"));
+            },
+            Name::new("Background quad"),
+        ));
     }
 }

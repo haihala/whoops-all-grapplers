@@ -55,24 +55,26 @@ fn setup_ui(mut commands: Commands, colors: Res<Colors>, fonts: Res<Fonts>) {
 
 fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
     commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                align_items: AlignItems::Center,
-                size: Size::new(
-                    Val::Percent(TOP_CONTAINER_WIDTH),
-                    Val::Percent(TOP_CONTAINER_HEIGHT),
-                ),
-                position: UiRect {
-                    top: Val::Percent(TOP_CONTAINER_TOP_PAD),
-                    left: Val::Percent(TOP_CONTAINER_SIDE_PAD),
-                    ..default()
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    align_items: AlignItems::Center,
+                    size: Size::new(
+                        Val::Percent(TOP_CONTAINER_WIDTH),
+                        Val::Percent(TOP_CONTAINER_HEIGHT),
+                    ),
+                    position: UiRect {
+                        top: Val::Percent(TOP_CONTAINER_TOP_PAD),
+                        left: Val::Percent(TOP_CONTAINER_SIDE_PAD),
+                        ..default()
+                    },
+                    ..div_style()
                 },
-                ..div_style()
+                ..div()
             },
-            ..div()
-        })
-        .insert(Name::new("Top bar"))
+            Name::new("Top bar"),
+        ))
         .with_children(|top_bar_wrapper| {
             spawn_health_bar(top_bar_wrapper, colors.health, Player::One);
             spawn_timer(top_bar_wrapper, fonts.basic.clone());
@@ -82,24 +84,26 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
 
 fn setup_bottom_bars(commands: &mut Commands, colors: &Colors) {
     commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::Column,
-                justify_content: JustifyContent::SpaceBetween,
-                size: Size::new(
-                    Val::Percent(BOTTOM_CONTAINER_WIDTH),
-                    Val::Percent(BOTTOM_CONTAINER_HEIGHT),
-                ),
-                position: UiRect {
-                    bottom: Val::Percent(BOTTOM_CONTAINER_BOTTOM_PAD),
-                    left: Val::Percent(BOTTOM_CONTAINER_SIDE_PAD),
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::SpaceBetween,
+                    size: Size::new(
+                        Val::Percent(BOTTOM_CONTAINER_WIDTH),
+                        Val::Percent(BOTTOM_CONTAINER_HEIGHT),
+                    ),
+                    position: UiRect {
+                        bottom: Val::Percent(BOTTOM_CONTAINER_BOTTOM_PAD),
+                        left: Val::Percent(BOTTOM_CONTAINER_SIDE_PAD),
+                        ..default()
+                    },
                     ..default()
                 },
-                ..default()
+                ..div()
             },
-            ..div()
-        })
-        .insert(Name::new("Bottom bars"))
+            Name::new("Bottom bars"),
+        ))
         .with_children(|parent| {
             spawn_meter_bars(parent, colors);
             spawn_charge_bars(parent, colors);

@@ -19,7 +19,7 @@ pub(super) fn div_style() -> Style {
 pub(super) fn div() -> NodeBundle {
     NodeBundle {
         style: div_style(),
-        color: TRANSPARENT.into(),
+        background_color: TRANSPARENT.into(),
         ..default()
     }
 }

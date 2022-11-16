@@ -4,6 +4,7 @@
 - [[Shop UI]] + [[Items and the shop]]
 
 ## Low priority
+- [[Bevy 0.9]]
 - [[Rewards]]
 - [[Resources between rounds]]
 - [[Toasts in various spots]]

@@ -1,4 +1,4 @@
-use bevy::{prelude::*, sprite::Rect};
+use bevy::{math::Rect, prelude::*};
 use bevy_inspector_egui::Inspectable;
 
 #[derive(Clone, Copy, Default, Debug, Inspectable, PartialEq)]
@@ -97,23 +97,6 @@ impl Into<Rect> for Area {
 impl From<Rect> for Area {
     fn from(rect: Rect) -> Self {
         Self::from_sides(rect.max.y, rect.min.y, rect.min.x, rect.max.y)
-    }
-}
-
-#[allow(clippy::from_over_into)]
-impl Into<UiRect<f32>> for Area {
-    fn into(self) -> UiRect<f32> {
-        UiRect {
-            left: self.left(),
-            right: self.right(),
-            top: self.top(),
-            bottom: self.bottom(),
-        }
-    }
-}
-impl From<UiRect<f32>> for Area {
-    fn from(rect: UiRect<f32>) -> Self {
-        Self::from_sides(rect.top, rect.bottom, rect.left, rect.right)
     }
 }
 

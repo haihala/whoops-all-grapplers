@@ -39,25 +39,21 @@ impl HitboxSpawner {
             absolute_position
         });
 
-        let mut builder = commands.spawn_bundle(SpatialBundle {
-            transform,
-            global_transform: Transform::from_translation(absolute_position).into(),
-            ..default()
-        });
-
-        // Housekeeping
-        let new_hitbox = builder.id();
-
-        // Components used when collision happens
-        builder
-            .insert(on_hit)
-            .insert(HitTracker::new(to_hit.hits))
-            .insert(Owner(player))
-            .insert(Hitbox(Area::from_center_size(
+        let mut builder = commands.spawn((
+            SpatialBundle {
+                transform,
+                global_transform: Transform::from_translation(absolute_position).into(),
+                ..default()
+            },
+            on_hit,
+            HitTracker::new(to_hit.hits),
+            Owner(player),
+            Hitbox(Area::from_center_size(
                 Vec2::ZERO, // Position is set into the object directly
                 to_hit.hitbox.size(),
-            )))
-            .insert(to_hit.block_type);
+            )),
+            to_hit.block_type,
+        ));
 
         if let Some(velocity) = to_hit.velocity {
             builder.insert(ConstantVelocity::new(
@@ -67,13 +63,14 @@ impl HitboxSpawner {
 
         if let Some(model) = to_hit.projectile.map(|p| p.model) {
             builder.with_children(|parent| {
-                parent.spawn_bundle(SceneBundle {
+                parent.spawn(SceneBundle {
                     scene: models[&model].clone(),
                     ..default()
                 });
             });
         }
 
+        let new_hitbox = builder.id();
         if to_hit.projectile.is_none() {
             commands.entity(parent).push_children(&[new_hitbox]);
         }

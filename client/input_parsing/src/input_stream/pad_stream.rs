@@ -5,7 +5,7 @@ use wag_core::{GameButton, StickPosition};
 
 use crate::{
     helper_types::{Diff, InputEvent},
-    STICK_DEAD_ZONE,
+    PadReserve, STICK_DEAD_ZONE,
 };
 
 use super::{InputStream, ParrotStream};
@@ -94,9 +94,9 @@ impl InputStream for PadStream {
     }
 }
 
-pub fn update_pads(
+pub(crate) fn update_pads(
     mut gamepad_events: EventReader<GamepadEvent>,
-    mut unused_pads: ResMut<VecDeque<Gamepad>>,
+    mut unused_pads: ResMut<PadReserve>,
     mut readers: Query<(&mut PadStream, &mut ParrotStream)>,
 ) {
     for GamepadEvent {
@@ -109,7 +109,7 @@ pub fn update_pads(
             .find(|(reader, _)| reader.pad_id.is_some() && reader.pad_id.unwrap() == *gamepad);
 
         match event_type {
-            GamepadEventType::Connected => {
+            GamepadEventType::Connected(_) => {
                 // The & seems to be an error with rust analyzer.
                 pad_connection(gamepad, &mut unused_pads, &mut readers);
             }

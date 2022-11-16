@@ -8,7 +8,7 @@ const TIMER_TOP_PADDING: f32 = 2.0;
 
 pub fn spawn_timer(parent: &mut ChildBuilder, font: Handle<Font>) {
     parent
-        .spawn_bundle(NodeBundle {
+        .spawn(NodeBundle {
             style: Style {
                 justify_content: JustifyContent::Center,
                 size: Size::new(Val::Percent(TIMER_WIDTH), FULL),
@@ -21,8 +21,8 @@ pub fn spawn_timer(parent: &mut ChildBuilder, font: Handle<Font>) {
             ..div()
         })
         .with_children(|timer_wrapper| {
-            timer_wrapper
-                .spawn_bundle(TextBundle {
+            timer_wrapper.spawn((
+                TextBundle {
                     text: Text::from_section(
                         ROUND_TIME.round().to_string(),
                         TextStyle {
@@ -36,7 +36,8 @@ pub fn spawn_timer(parent: &mut ChildBuilder, font: Handle<Font>) {
                         vertical: VerticalAlign::Center,
                     }),
                     ..default()
-                })
-                .insert(RoundTimer);
+                },
+                RoundTimer,
+            ));
         });
 }

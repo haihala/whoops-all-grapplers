@@ -40,24 +40,26 @@ pub fn update_round_text(
 
 pub(super) fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
     commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                justify_content: JustifyContent::Center,
-                size: Size::new(FULL, Val::Percent(10.0)),
-                position: UiRect {
-                    top: Val::Percent(40.0),
-                    left: Val::Px(0.0),
-                    ..default()
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    justify_content: JustifyContent::Center,
+                    size: Size::new(FULL, Val::Percent(10.0)),
+                    position: UiRect {
+                        top: Val::Percent(40.0),
+                        left: Val::Px(0.0),
+                        ..default()
+                    },
+                    ..div_style()
                 },
-                ..div_style()
+                ..div()
             },
-            ..div()
-        })
-        .insert(Name::new("Round info text"))
+            Name::new("Round info text"),
+        ))
         .with_children(|parent| {
-            parent
-                .spawn_bundle(TextBundle {
+            parent.spawn((
+                TextBundle {
                     text: Text::from_section(
                         "New round",
                         TextStyle {
@@ -71,7 +73,8 @@ pub(super) fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fo
                         ..default()
                     }),
                     ..default()
-                })
-                .insert(RoundText);
+                },
+                RoundText,
+            ));
         });
 }

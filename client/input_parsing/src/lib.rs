@@ -18,9 +18,12 @@ const STICK_DEAD_ZONE: f32 = 0.2;
 
 pub struct InputParsingPlugin;
 
+#[derive(Debug, Default, Resource, Deref, DerefMut)]
+struct PadReserve(VecDeque<Gamepad>);
+
 impl Plugin for InputParsingPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(VecDeque::<Gamepad>::default())
+        app.insert_resource(PadReserve::default())
             .add_system_set_to_stage(
                 WAGStage::Inputs,
                 SystemSet::new()

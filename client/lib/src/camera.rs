@@ -27,21 +27,24 @@ fn add_cameras(mut commands: Commands) {
     };
 
     commands
-        .spawn_bundle(SpatialBundle {
-            transform: Transform::from_xyz(0.0, 1.8, 10.0),
-            ..default()
-        })
-        .insert(Name::new("Cameras"))
-        .insert(WorldCamera)
+        .spawn((
+            SpatialBundle {
+                transform: Transform::from_xyz(0.0, 1.8, 10.0),
+                ..default()
+            },
+            Name::new("Cameras"),
+            WorldCamera,
+        ))
         .with_children(|parent| {
-            parent
-                .spawn_bundle(Camera3dBundle {
+            parent.spawn((
+                Camera3dBundle {
                     projection: projection.clone().into(),
                     ..default()
-                })
-                .insert(Name::new("3d Cam"));
-            parent
-                .spawn_bundle(Camera2dBundle {
+                },
+                Name::new("3d Cam"),
+            ));
+            parent.spawn((
+                Camera2dBundle {
                     transform: Transform::from_translation(Vec3::ZERO),
                     camera: Camera {
                         // Higher is rendered later
@@ -54,8 +57,9 @@ fn add_cameras(mut commands: Commands) {
                     },
                     projection,
                     ..default()
-                })
-                .insert(Name::new("2d Cam"));
+                },
+                Name::new("2d Cam"),
+            ));
         });
 }
 

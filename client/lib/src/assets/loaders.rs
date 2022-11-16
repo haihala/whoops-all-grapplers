@@ -55,7 +55,7 @@ pub fn animations(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(Animations::new(
         animation_paths()
             .into_iter()
-            .map(|(key, path)| (key, asset_server.load(&path)))
+            .map(|(key, path)| (key, asset_server.load(path)))
             .collect(),
     ));
 }
@@ -177,7 +177,9 @@ fn particle_explosion(
     );
 
     commands
-        .spawn_bundle(ParticleEffectBundle::new(effect).with_spawner(spawner))
-        .insert(Name::new(format!("Particle system '{name}'")))
+        .spawn((
+            ParticleEffectBundle::new(effect).with_spawner(spawner),
+            Name::new(format!("Particle system '{name}'")),
+        ))
         .id()
 }

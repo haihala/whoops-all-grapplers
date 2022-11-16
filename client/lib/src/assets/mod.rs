@@ -11,6 +11,7 @@ pub use models::Models;
 pub use particles::{ParticleRequest, Particles};
 pub use sounds::Sounds;
 
+#[derive(Debug, Resource)]
 pub struct Colors {
     pub notification_text: Color,
     pub notification_background: Color,
@@ -24,10 +25,12 @@ pub struct Colors {
     pub text: Color,
 }
 
+#[derive(Debug, Resource)]
 pub struct Fonts {
     pub basic: Handle<Font>,
 }
 
+#[derive(Debug, Resource)]
 pub struct Sprites {
     pub background_image: Handle<Image>,
 }

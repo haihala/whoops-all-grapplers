@@ -75,8 +75,8 @@ fn handle_box_spawning(
     {
         // If there is no child entity that has the marker component and a sprite (has been handled)
         commands.entity(entity).with_children(|parent| {
-            parent
-                .spawn_bundle(SpriteBundle {
+            parent.spawn((
+                SpriteBundle {
                     transform: Transform::from_translation(offset.extend(0.0)),
                     sprite: Sprite {
                         color,
@@ -84,8 +84,9 @@ fn handle_box_spawning(
                         ..default()
                     },
                     ..default()
-                })
-                .insert(marker);
+                },
+                marker,
+            ));
         });
     }
 }

@@ -12,7 +12,7 @@ struct Notification {
     entity: Entity,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Resource)]
 pub struct Notifications {
     spawned: Vec<Notification>,
     requests: Vec<(Player, String)>,
@@ -62,7 +62,7 @@ fn create_notification_container(commands: &mut Commands, side: Player) -> Entit
     };
 
     commands
-        .spawn_bundle(NodeBundle {
+        .spawn(NodeBundle {
             style: Style {
                 flex_direction: FlexDirection::ColumnReverse,
                 position_type: PositionType::Absolute,
@@ -117,18 +117,18 @@ fn spawn_notification(
     content: String,
 ) -> Entity {
     parent
-        .spawn_bundle(NodeBundle {
+        .spawn(NodeBundle {
             style: Style {
                 size: Size::new(FULL, Val::Auto),
                 margin: UiRect::all(Val::Px(7.0)),
                 justify_content: JustifyContent::Center,
                 ..div_style()
             },
-            color: bg_color.into(),
+            background_color: bg_color.into(),
             ..div()
         })
         .with_children(|container| {
-            container.spawn_bundle(TextBundle {
+            container.spawn(TextBundle {
                 text: Text::from_section(
                     content,
                     TextStyle {

@@ -111,31 +111,30 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
     let state = PlayerState::default();
     let character = dummy();
 
-    let mut spawn_handle = commands.spawn_bundle(SpatialBundle {
-        transform: Transform::from_translation((offset, PLAYER_SPAWN_HEIGHT, 0.0).into()),
-        ..default()
-    });
-
-    spawn_handle
-        .insert_bundle(PlayerDefaults::default())
-        .insert_bundle(PadBundle::new(character.get_inputs()))
-        .insert(Name::new(format!("Player {player}")))
-        .insert(AnimationHelperSetup)
-        .insert(Facing::from_flipped(offset.is_sign_positive()))
-        .insert(Hurtbox(character.get_hurtbox(false)))
-        .insert(Pushbox(character.get_pushbox(false)))
-        .insert(character.clone())
-        .insert(player)
-        .insert(state);
-
-    spawn_handle.with_children(|parent| {
-        parent.spawn_bundle(SceneBundle {
-            scene: models[&character.model].clone(),
-            ..default()
-        });
-    });
-
-    spawn_handle.id()
+    commands
+        .spawn((
+            SpatialBundle {
+                transform: Transform::from_translation((offset, PLAYER_SPAWN_HEIGHT, 0.0).into()),
+                ..default()
+            },
+            PlayerDefaults::default(),
+            PadBundle::new(character.get_inputs()),
+            Name::new(format!("Player {player}")),
+            AnimationHelperSetup,
+            Facing::from_flipped(offset.is_sign_positive()),
+            Hurtbox(character.get_hurtbox(false)),
+            Pushbox(character.get_pushbox(false)),
+            character.clone(),
+            player,
+            state,
+        ))
+        .with_children(|parent| {
+            parent.spawn(SceneBundle {
+                scene: models[&character.model].clone(),
+                ..default()
+            });
+        })
+        .id()
 }
 
 fn reset(
@@ -157,7 +156,7 @@ fn reset(
     // Just pressed would be better, but it's difficult in tests and the difference is very minor.
     if keys.pressed(KeyCode::Return) {
         game_state.set(GameState::Combat).unwrap();
-        clock.reset(bevy_time.seconds_since_startup());
+        clock.reset(bevy_time.elapsed_seconds_f64());
         commands.remove_resource::<RoundResult>();
 
         for (mut health, mut resources, mut tf, player, mut player_state, mut buffer, mut parser) in

@@ -11,7 +11,7 @@ pub fn update(
     mut bars: ParamSet<(
         Query<(&mut Style, &HealthBar)>,
         Query<(&mut Style, &MeterBar)>,
-        Query<(&mut Style, &mut UiColor, &ChargeBar)>,
+        Query<(&mut Style, &mut BackgroundColor, &ChargeBar)>,
     )>,
     players: Query<(&Player, &Health, &Resources)>,
     colors: Res<Colors>,

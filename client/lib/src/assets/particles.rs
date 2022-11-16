@@ -10,6 +10,7 @@ pub struct ParticleRequest {
     pub position: Vec3,
 }
 
+#[derive(Debug, Resource)]
 pub struct Particles {
     handles: HashMap<VisualEffect, Entity>,
     queue: Vec<ParticleRequest>,

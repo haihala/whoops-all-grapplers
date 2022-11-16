@@ -7,7 +7,7 @@ pub use game_flow::{GameState, RoundResult};
 pub const ROUND_TIME: f32 = 99.0;
 
 /// The component for measuring time in frames
-#[derive(Inspectable, Default)]
+#[derive(Inspectable, Default, Resource)]
 pub struct Clock {
     pub frame: usize,
     start_time: f32,
@@ -74,11 +74,11 @@ impl Plugin for TimePlugin {
 
 fn update_clock(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
     clock.frame += 1;
-    clock.elapsed_time = bevy_clock.seconds_since_startup() as f32 - clock.start_time;
+    clock.elapsed_time = bevy_clock.elapsed_seconds() - clock.start_time;
 }
 
 fn reset_clock(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
-    clock.reset(bevy_clock.seconds_since_startup());
+    clock.reset(bevy_clock.elapsed_seconds_f64());
 }
 
 pub fn not_in_combat(state: Res<State<GameState>>) -> ShouldRun {

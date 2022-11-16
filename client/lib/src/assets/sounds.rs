@@ -4,6 +4,7 @@ use rand::prelude::*;
 
 use wag_core::SoundEffect;
 
+#[derive(Debug, Resource)]
 pub struct Sounds {
     handles: HashMap<SoundEffect, Vec<Handle<AudioSource>>>,
     queue: Vec<Handle<AudioSource>>,

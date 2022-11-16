@@ -19,34 +19,37 @@ const RESOURCE_BAR_HEIGHT: f32 = 45.0; // Relative to wrapper (BOTTOM_CONTAINER_
 
 pub fn spawn_health_bar(parent: &mut ChildBuilder, color: Color, player: Player) {
     parent
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                flex_direction: match player {
-                    // to drain to the middle
-                    Player::One => FlexDirection::RowReverse,
-                    Player::Two => FlexDirection::Row,
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    flex_direction: match player {
+                        // to drain to the middle
+                        Player::One => FlexDirection::RowReverse,
+                        Player::Two => FlexDirection::Row,
+                    },
+                    size: Size::new(
+                        Val::Percent(HEALTH_BAR_WIDTH),
+                        Val::Percent(HEALTH_BAR_HEIGHT),
+                    ),
+                    ..default()
                 },
-                size: Size::new(
-                    Val::Percent(HEALTH_BAR_WIDTH),
-                    Val::Percent(HEALTH_BAR_HEIGHT),
-                ),
+                background_color: TRANSPARENT.into(),
                 ..default()
             },
-            color: TRANSPARENT.into(),
-            ..default()
-        })
-        .insert(Name::new(format!("Player {player} health bar")))
+            Name::new(format!("Player {player} health bar")),
+        ))
         .with_children(|health_bar_wrapper| {
-            health_bar_wrapper
-                .spawn_bundle(NodeBundle {
+            health_bar_wrapper.spawn((
+                NodeBundle {
                     style: Style {
                         size: Size::new(FULL, FULL),
                         ..default()
                     },
-                    color: color.into(),
+                    background_color: color.into(),
                     ..default()
-                })
-                .insert(HealthBar(player));
+                },
+                HealthBar(player),
+            ));
         });
 }
 
@@ -70,19 +73,19 @@ pub fn spawn_charge_bars(parent: &mut ChildBuilder, colors: &Colors) {
 
 fn resource_bars(
     parent: &mut ChildBuilder,
-    color: UiColor,
+    color: BackgroundColor,
     component_p1: impl Component + std::fmt::Debug,
     component_p2: impl Component + std::fmt::Debug,
 ) {
     parent
-        .spawn_bundle(NodeBundle {
+        .spawn(NodeBundle {
             style: Style {
                 position_type: PositionType::Relative,
                 justify_content: JustifyContent::SpaceBetween,
                 size: Size::new(FULL, Val::Percent(RESOURCE_BAR_HEIGHT)),
                 ..default()
             },
-            color: TRANSPARENT.into(),
+            background_color: TRANSPARENT.into(),
             ..default()
         })
         .with_children(|parent| {
@@ -93,21 +96,27 @@ fn resource_bars(
 
 fn resource_bar(
     parent: &mut ChildBuilder,
-    color: UiColor,
+    background_color: BackgroundColor,
     component: impl Component + std::fmt::Debug,
 ) {
     parent
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                size: Size::new(Val::Percent(RESOURCE_BAR_WIDTH), FULL),
-                ..div_style()
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(RESOURCE_BAR_WIDTH), FULL),
+                    ..div_style()
+                },
+                ..div()
             },
-            ..div()
-        })
-        .insert(Name::new(format!("{:?}", component)))
+            Name::new(format!("{:?}", component)),
+        ))
         .with_children(|container| {
-            container
-                .spawn_bundle(NodeBundle { color, ..div() })
-                .insert(component);
+            container.spawn((
+                NodeBundle {
+                    background_color,
+                    ..div()
+                },
+                component,
+            ));
         });
 }

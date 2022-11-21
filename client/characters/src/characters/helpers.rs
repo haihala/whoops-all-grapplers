@@ -1,5 +1,5 @@
 use crate::{
-    moves::{Action, FlowControl, MoveType, Movement},
+    moves::{Action, CancelPolicy, FlowControl, MoveType, Movement},
     Move,
 };
 use bevy::prelude::*;
@@ -10,9 +10,9 @@ pub fn jump(input: &'static str, impulse: Vec2) -> Move {
         input: Some(input),
         phases: vec![
             Action::Animation(Animation::Dummy(DummyAnimation::Jump)).into(),
-            FlowControl::Wait(5, false),
+            FlowControl::Wait(5, CancelPolicy::Never),
             Action::Movement(Movement::impulse(impulse)).into(),
-            FlowControl::Wait(5, false),
+            FlowControl::Wait(5, CancelPolicy::Never),
         ],
         ..default()
     }
@@ -24,9 +24,9 @@ pub fn dash(input: &'static str, duration: usize, impulse: f32, animation: Anima
         move_type: MoveType::Special,
         phases: vec![
             Action::Animation(animation).into(),
-            FlowControl::Wait(5, false),
+            FlowControl::Wait(5, CancelPolicy::Never),
             Action::Movement(Movement::impulse(Vec2::X * impulse)).into(),
-            FlowControl::Wait(duration - 5, true),
+            FlowControl::Wait(duration - 5, CancelPolicy::Always),
         ],
         ..default()
     }

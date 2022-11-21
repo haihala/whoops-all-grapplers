@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use wag_core::{Area, GameButton, ItemId, MoveId};
 
 use crate::{
-    moves::{Action, FlowControl, MoveType, Situation},
+    moves::{Action, CancelPolicy, FlowControl, MoveType, Situation},
     Cost, Hitbox, Lifetime, Move, OnHitEffect, ToHit,
 };
 
@@ -14,7 +14,7 @@ pub(crate) fn get_handmedownken() -> Move {
             situation.inventory.contains(&ItemId::HandMeDownKen) && situation.grounded
         },
         phases: vec![
-            FlowControl::Wait(30, false),
+            FlowControl::Wait(30, CancelPolicy::Never),
             Action::Attack(
                 ToHit {
                     hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
@@ -25,7 +25,7 @@ pub(crate) fn get_handmedownken() -> Move {
                 OnHitEffect::default(),
             )
             .into(),
-            FlowControl::Wait(10, true),
+            FlowControl::Wait(10, CancelPolicy::IfHit),
         ],
     }
 }
@@ -35,7 +35,7 @@ pub(crate) fn get_gunshot() -> Move {
     Move {
         input: None,
         phases: vec![
-            FlowControl::Wait(10, false),
+            FlowControl::Wait(10, CancelPolicy::Never),
             FlowControl::DynamicAction(|situation: Situation| {
                 if situation.resources.can_afford(Cost::bullet()) {
                     Some(Action::Attack(
@@ -52,7 +52,7 @@ pub(crate) fn get_gunshot() -> Move {
                     None
                 }
             }),
-            FlowControl::Wait(10, false),
+            FlowControl::Wait(10, CancelPolicy::Never),
             FlowControl::DynamicAction(|situation: Situation| {
                 if situation
                     .parser
@@ -64,7 +64,7 @@ pub(crate) fn get_gunshot() -> Move {
                     None
                 }
             }),
-            FlowControl::Wait(30, false),
+            FlowControl::Wait(30, CancelPolicy::Never),
         ],
         ..default()
     }
@@ -77,7 +77,7 @@ pub(crate) fn get_shot() -> Move {
             situation.inventory.contains(&ItemId::Gun) && situation.grounded
         },
         phases: vec![
-            FlowControl::Wait(30, false),
+            FlowControl::Wait(30, CancelPolicy::Never),
             Action::Move(MoveId::Gunshot).into(),
         ],
         ..default()

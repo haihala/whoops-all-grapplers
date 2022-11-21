@@ -33,9 +33,25 @@ pub enum Action {
     ForceStand,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum CancelPolicy {
+    IfHit,
+    Always,
+    Never,
+}
+impl CancelPolicy {
+    pub fn can_cancel(&self, hit: bool) -> bool {
+        match self {
+            Self::Always => true,
+            Self::Never => false,
+            Self::IfHit => hit,
+        }
+    }
+}
+
 #[derive(Clone, Copy)]
 pub enum FlowControl {
-    Wait(usize, bool),
+    Wait(usize, CancelPolicy),
     Action(Action),
     Noop,
     DynamicAction(fn(Situation) -> Option<Action>),
@@ -78,14 +94,14 @@ impl From<Action> for FlowControl {
     }
 }
 
-impl From<(usize, bool)> for FlowControl {
-    fn from((time, cancellable): (usize, bool)) -> Self {
-        FlowControl::Wait(time, cancellable)
+impl From<(usize, CancelPolicy)> for FlowControl {
+    fn from((time, cancel_policy): (usize, CancelPolicy)) -> Self {
+        FlowControl::Wait(time, cancel_policy)
     }
 }
 
 impl From<usize> for FlowControl {
     fn from(time: usize) -> Self {
-        FlowControl::Wait(time, false)
+        FlowControl::Wait(time, CancelPolicy::Never)
     }
 }

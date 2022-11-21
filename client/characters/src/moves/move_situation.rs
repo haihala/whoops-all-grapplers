@@ -5,7 +5,7 @@ use wag_core::StatusCondition;
 
 use crate::{Action, Inventory, MoveHistory, Resources};
 
-use super::FlowControl;
+use super::{CancelPolicy, FlowControl};
 
 #[derive(Debug, Clone)]
 pub struct Situation<'a> {
@@ -99,7 +99,7 @@ impl Situation<'_> {
                 if timed_out || fun(self.clone()) {
                     // We've hit a timeout or the wait condition has been met
                     // Store it in move history as a constant wait
-                    Some(FlowControl::Wait(unused_time, false))
+                    Some(FlowControl::Wait(unused_time, CancelPolicy::Never))
                 } else {
                     None
                 }
@@ -240,7 +240,7 @@ mod test {
         let phases = vec![
             Action::Animation(Animation::TPose).into(),
             Action::Attack(ToHit::default(), OnHitEffect::default()).into(),
-            FlowControl::Wait(10, false),
+            FlowControl::Wait(10, CancelPolicy::Never),
             Action::Animation(Animation::TPose).into(),
         ];
         let mut sw = SituationWrapper::with_phases(phases.clone());
@@ -258,7 +258,7 @@ mod test {
         let phases = vec![
             Action::Animation(Animation::TPose).into(),
             Action::Attack(ToHit::default(), OnHitEffect::default()).into(),
-            FlowControl::Wait(10, false),
+            FlowControl::Wait(10, CancelPolicy::Never),
             Action::Animation(Animation::TPose).into(),
         ];
 

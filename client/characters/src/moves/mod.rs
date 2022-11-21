@@ -13,7 +13,7 @@ mod move_data;
 pub use move_data::Move;
 
 mod move_phases;
-pub use move_phases::{Action, FlowControl, Movement};
+pub use move_phases::{Action, CancelPolicy, FlowControl, Movement};
 
 mod move_properties;
 pub use move_properties::*;
@@ -26,4 +26,9 @@ pub enum MoveType {
     #[default]
     Normal,
     Special,
+}
+
+#[test]
+fn move_type_ord() {
+    assert!(MoveType::Normal < MoveType::Special)
 }

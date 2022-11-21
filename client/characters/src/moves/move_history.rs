@@ -36,9 +36,9 @@ impl MoveHistory {
             })
             .fold(
                 (None, self.started),
-                |(output, fc_start_frame), (frames, cancellable)| {
+                |(output, fc_start_frame), (frames, cancel_policy)| {
                     let next_start_frame = fc_start_frame + frames;
-                    let updated_output = if cancellable {
+                    let updated_output = if cancel_policy.can_cancel(self.has_hit) {
                         if output.is_some() {
                             // Still cancellable, keep on trucking
                             output
@@ -77,6 +77,8 @@ impl MoveHistory {
 
 #[cfg(test)]
 mod test {
+    use crate::moves::CancelPolicy;
+
     use super::*;
     use bevy::prelude::*;
     use wag_core::Animation;
@@ -104,7 +106,7 @@ mod test {
         let duration = 10;
         let phases = vec![
             Action::Animation(Animation::TPose).into(),
-            FlowControl::Wait(duration, true),
+            FlowControl::Wait(duration, CancelPolicy::Always),
         ];
 
         let history = MoveHistory {

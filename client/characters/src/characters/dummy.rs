@@ -104,7 +104,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("f"),
                 requirement: standing,
                 phases: vec![
-                    Action::Animation(Animation::Dummy(DummyAnimation::Slap)).into(),
+                    Animation::Dummy(DummyAnimation::Slap).into(),
                     FlowControl::Wait(9, CancelPolicy::Never),
                     Attack {
                         to_hit: ToHit {
@@ -126,7 +126,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("f"),
                 requirement: crouching,
                 phases: vec![
-                    Action::Animation(Animation::Dummy(DummyAnimation::CrouchChop)).into(),
+                    Animation::Dummy(DummyAnimation::CrouchChop).into(),
                     FlowControl::Wait(8, CancelPolicy::Never),
                     Attack {
                         to_hit: ToHit {
@@ -148,7 +148,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("s"),
                 requirement: standing,
                 phases: vec![
-                    Action::Animation(Animation::Dummy(DummyAnimation::BurnStraight)).into(),
+                    Animation::Dummy(DummyAnimation::BurnStraight).into(),
                     FlowControl::Wait(10, CancelPolicy::Never),
                     FlowControl::DynamicAction(|situation: Situation| {
                         Some(
@@ -173,10 +173,10 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             .into(),
                         )
                     }),
-                    Action::Movement(Movement {
+                    Movement {
                         amount: Vec2::X * 2.0,
                         duration: 1,
-                    })
+                    }
                     .into(),
                     FlowControl::Wait(10, CancelPolicy::IfHit),
                 ],
@@ -189,7 +189,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("s"),
                 requirement: crouching,
                 phases: vec![
-                    Action::Animation(Animation::Dummy(DummyAnimation::AntiAir)).into(),
+                    Animation::Dummy(DummyAnimation::AntiAir).into(),
                     FlowControl::Wait(13, CancelPolicy::Never),
                     Attack {
                         to_hit: ToHit {
@@ -215,7 +215,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("f"),
                 requirement: airborne,
                 phases: vec![
-                    Action::Animation(Animation::Dummy(DummyAnimation::AirSlap)).into(),
+                    Animation::Dummy(DummyAnimation::AirSlap).into(),
                     FlowControl::Wait(8, CancelPolicy::Never),
                     Attack {
                         to_hit: ToHit {
@@ -238,7 +238,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("s"),
                 requirement: airborne,
                 phases: vec![
-                    Action::Animation(Animation::Dummy(DummyAnimation::Divekick)).into(),
+                    Animation::Dummy(DummyAnimation::Divekick).into(),
                     FlowControl::Wait(5, CancelPolicy::Never),
                     Attack {
                         to_hit: ToHit {
@@ -261,7 +261,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("g"),
                 requirement: standing,
                 phases: vec![
-                    Action::Animation(Animation::Dummy(DummyAnimation::NormalThrow)).into(),
+                    Animation::Dummy(DummyAnimation::NormalThrow).into(),
                     FlowControl::Wait(5, CancelPolicy::Never),
                     Attack {
                         to_hit: ToHit {
@@ -293,7 +293,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("4g"),
                 requirement: standing,
                 phases: vec![
-                    Action::Animation(Animation::Dummy(DummyAnimation::NormalThrow)).into(),
+                    Animation::Dummy(DummyAnimation::NormalThrow).into(),
                     FlowControl::Wait(5, CancelPolicy::Never),
                     Attack {
                         to_hit: ToHit {
@@ -326,7 +326,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("g"),
                 requirement: crouching,
                 phases: vec![
-                    Action::Animation(Animation::Dummy(DummyAnimation::Sweep)).into(),
+                    Animation::Dummy(DummyAnimation::Sweep).into(),
                     FlowControl::Wait(10, CancelPolicy::Never),
                     Attack {
                         to_hit: ToHit {
@@ -361,7 +361,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 move_type: MoveType::Normal,
                 phases: vec![
                     Action::ForceStand.into(),
-                    Action::Animation(Animation::Dummy(DummyAnimation::Dodge)).into(),
+                    Animation::Dummy(DummyAnimation::Dodge).into(),
                     Action::Condition(StatusCondition {
                         name: Status::Dodge,
                         effect: None,
@@ -380,7 +380,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 move_type: MoveType::Special,
                 requirement: grounded,
                 phases: vec![
-                    Action::Animation(Animation::Dummy(DummyAnimation::GroundSlam)).into(),
+                    Animation::Dummy(DummyAnimation::GroundSlam).into(),
                     FlowControl::Wait(14, CancelPolicy::Never),
                     Attack {
                         to_hit: ToHit {
@@ -397,10 +397,10 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         ..default()
                     }
                     .into(),
-                    Action::Movement(Movement {
+                    Movement {
                         amount: Vec2::X * 2.0,
                         duration: 1,
-                    })
+                    }
                     .into(),
                     FlowControl::Wait(20, CancelPolicy::IfHit),
                 ],
@@ -413,7 +413,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 move_type: MoveType::Special,
                 requirement: airborne,
                 phases: vec![
-                    Action::Animation(Animation::Dummy(DummyAnimation::AirSlam)).into(),
+                    Animation::Dummy(DummyAnimation::AirSlam).into(),
                     FlowControl::Wait(14, CancelPolicy::Never),
                     Attack {
                         to_hit: ToHit {
@@ -430,10 +430,10 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         ..default()
                     }
                     .into(),
-                    Action::Movement(Movement {
+                    Movement {
                         amount: Vec2::X * 1.0,
                         duration: 2,
-                    })
+                    }
                     .into(),
                     FlowControl::Wait(35, CancelPolicy::IfHit),
                 ],

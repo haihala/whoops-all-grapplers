@@ -106,19 +106,20 @@ impl From<Action> for FlowControl {
     }
 }
 
-impl From<(usize, CancelPolicy)> for FlowControl {
-    fn from((time, cancel_policy): (usize, CancelPolicy)) -> Self {
-        FlowControl::Wait(time, cancel_policy)
-    }
-}
-
-impl From<usize> for FlowControl {
-    fn from(time: usize) -> Self {
-        FlowControl::Wait(time, CancelPolicy::Never)
-    }
-}
 impl From<Attack> for FlowControl {
     fn from(value: Attack) -> Self {
         Action::Attack(value).into()
+    }
+}
+
+impl From<Animation> for FlowControl {
+    fn from(value: Animation) -> Self {
+        Action::Animation(value).into()
+    }
+}
+
+impl From<Movement> for FlowControl {
+    fn from(value: Movement) -> Self {
+        Action::Movement(value).into()
     }
 }

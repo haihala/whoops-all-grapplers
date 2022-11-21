@@ -148,6 +148,7 @@ fn reset(
         &mut PlayerState,
         &mut MoveBuffer,
         &mut InputParser,
+        &mut PlayerVelocity,
     )>,
     mut game_state: ResMut<State<GameState>>,
     mut clock: ResMut<Clock>,
@@ -159,14 +160,23 @@ fn reset(
         clock.reset(bevy_time.elapsed_seconds_f64());
         commands.remove_resource::<RoundResult>();
 
-        for (mut health, mut resources, mut tf, player, mut player_state, mut buffer, mut parser) in
-            &mut query
+        for (
+            mut health,
+            mut resources,
+            mut tf,
+            player,
+            mut player_state,
+            mut buffer,
+            mut parser,
+            mut velocity,
+        ) in &mut query
         {
             health.reset();
             resources.reset();
             player_state.reset();
             buffer.clear_all();
             parser.clear();
+            velocity.reset();
 
             tf.translation = Vec3::new(
                 match *player {

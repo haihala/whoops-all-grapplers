@@ -28,6 +28,9 @@ const PROPORTIONAL_DRAG: f32 = 0.03;
 const LINEAR_DRAG: f32 = 0.3;
 
 impl PlayerVelocity {
+    pub fn reset(&mut self) {
+        *self = Self::default();
+    }
     pub(super) fn get_shift(&self) -> Vec2 {
         self.velocity / wag_core::FPS
     }

@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use wag_core::{Area, GameButton, ItemId, MoveId};
 
 use crate::{
-    moves::{Action, CancelPolicy, FlowControl, MoveType, Situation},
-    Cost, Hitbox, Lifetime, Move, OnHitEffect, ToHit,
+    moves::{Action, Attack, CancelPolicy, FlowControl, MoveType, Situation},
+    Cost, Hitbox, Lifetime, Move, ToHit,
 };
 
 pub(crate) fn get_handmedownken() -> Move {
@@ -15,15 +15,15 @@ pub(crate) fn get_handmedownken() -> Move {
         },
         phases: vec![
             FlowControl::Wait(30, CancelPolicy::Never),
-            Action::Attack(
-                ToHit {
+            Attack {
+                to_hit: ToHit {
                     hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
                     velocity: Some(3.0 * Vec2::X),
                     lifetime: Lifetime::eternal(),
                     ..default()
                 },
-                OnHitEffect::default(),
-            )
+                ..default()
+            }
             .into(),
             FlowControl::Wait(10, CancelPolicy::IfHit),
         ],
@@ -38,15 +38,18 @@ pub(crate) fn get_gunshot() -> Move {
             FlowControl::Wait(10, CancelPolicy::Never),
             FlowControl::DynamicAction(|situation: Situation| {
                 if situation.resources.can_afford(Cost::bullet()) {
-                    Some(Action::Attack(
-                        ToHit {
-                            hitbox: Hitbox(Area::new(0.5, 1.2, 0.1, 0.1)),
-                            velocity: Some(8.0 * Vec2::X),
-                            lifetime: Lifetime::eternal(),
+                    Some(
+                        Attack {
+                            to_hit: ToHit {
+                                hitbox: Hitbox(Area::new(0.5, 1.2, 0.1, 0.1)),
+                                velocity: Some(8.0 * Vec2::X),
+                                lifetime: Lifetime::eternal(),
+                                ..default()
+                            },
                             ..default()
-                        },
-                        OnHitEffect::default(),
-                    ))
+                        }
+                        .into(),
+                    )
                 } else {
                     // TODO: put a sound effect here or something later
                     None

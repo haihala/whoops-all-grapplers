@@ -23,8 +23,12 @@ impl Plugin for DamagePlugin {
                 .with_system(hitboxes::spawn_new)
                 .with_system(hitboxes::despawn_expired.after(hitboxes::spawn_new))
                 .with_system(hitreg::clash_parry.after(hitboxes::despawn_expired))
-                .with_system(hitreg::register_hits.after(hitreg::clash_parry))
-                .with_system(defense::timeout_defense_streak.after(hitreg::register_hits))
+                .with_system(
+                    hitreg::detect_hits
+                        .pipe(hitreg::apply_hits)
+                        .after(hitreg::clash_parry),
+                )
+                .with_system(defense::timeout_defense_streak.after(hitreg::apply_hits))
                 .with_system(
                     health::check_dead
                         .after(defense::timeout_defense_streak)

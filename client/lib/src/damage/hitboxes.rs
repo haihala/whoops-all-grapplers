@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use characters::{Action, HitTracker, Hitbox, Lifetime, OnHitEffect, ToHit};
+use characters::{Action, Attack, HitTracker, Hitbox, Lifetime};
 use player_state::PlayerState;
 use time::Clock;
 use wag_core::{Area, Facing, Owner, Player};
@@ -23,17 +23,16 @@ impl HitboxSpawner {
         &mut self,
         commands: &mut Commands,
         models: &Models,
-        to_hit: ToHit,
-        on_hit: OnHitEffect,
+        attack: Attack,
         frame: usize,
         parent: Entity,
         facing: &Facing,
         player: Player,
         parent_position: Vec3,
     ) {
-        let offset = facing.mirror_vec3(to_hit.hitbox.center().extend(0.0));
+        let offset = facing.mirror_vec3(attack.to_hit.hitbox.center().extend(0.0));
         let absolute_position = parent_position + offset;
-        let transform = Transform::from_translation(if to_hit.projectile.is_none() {
+        let transform = Transform::from_translation(if attack.to_hit.projectile.is_none() {
             offset
         } else {
             absolute_position
@@ -45,23 +44,22 @@ impl HitboxSpawner {
                 global_transform: Transform::from_translation(absolute_position).into(),
                 ..default()
             },
-            on_hit,
-            HitTracker::new(to_hit.hits),
+            HitTracker::new(attack.to_hit.hits),
             Owner(player),
             Hitbox(Area::from_center_size(
                 Vec2::ZERO, // Position is set into the object directly
-                to_hit.hitbox.size(),
+                attack.to_hit.hitbox.size(),
             )),
-            to_hit.block_type,
+            attack,
         ));
 
-        if let Some(velocity) = to_hit.velocity {
+        if let Some(velocity) = attack.to_hit.velocity {
             builder.insert(ConstantVelocity::new(
                 facing.mirror_vec3(velocity.extend(0.0)),
             ));
         }
 
-        if let Some(model) = to_hit.projectile.map(|p| p.model) {
+        if let Some(model) = attack.to_hit.projectile.map(|p| p.model) {
             builder.with_children(|parent| {
                 parent.spawn(SceneBundle {
                     scene: models[&model].clone(),
@@ -71,10 +69,10 @@ impl HitboxSpawner {
         }
 
         let new_hitbox = builder.id();
-        if to_hit.projectile.is_none() {
+        if attack.to_hit.projectile.is_none() {
             commands.entity(parent).push_children(&[new_hitbox]);
         }
-        let mut lifetime = to_hit.lifetime;
+        let mut lifetime = attack.to_hit.lifetime;
         lifetime.frames = lifetime.frames.map(|lifetime| lifetime + frame);
 
         self.despawn_requests.push(DespawnRequest {
@@ -124,10 +122,10 @@ pub(super) fn spawn_new(
     )>,
 ) {
     for (mut spawner, mut state, parent, facing, player, transform) in &mut query {
-        for (to_hit, on_hit) in state
+        for attack in state
             .drain_matching_actions(|action| {
-                if let Action::Attack(to_hit, on_hit) = action {
-                    Some((*to_hit, *on_hit))
+                if let Action::Attack(attack) = action {
+                    Some(attack.to_owned())
                 } else {
                     None
                 }
@@ -137,8 +135,7 @@ pub(super) fn spawn_new(
             spawner.spawn_attack(
                 &mut commands,
                 &models,
-                to_hit,
-                on_hit,
+                attack,
                 clock.frame,
                 parent,
                 facing,

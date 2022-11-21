@@ -55,61 +55,24 @@ impl Lifetime {
     }
 }
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Default, Inspectable)]
-pub struct HitProperty<PropType: Clone + Copy + PartialEq + Default + Inspectable> {
-    pub on_hit: PropType,
-    pub on_block: PropType,
-}
-impl<T: Clone + Copy + PartialEq + Default + Inspectable> HitProperty<T> {
-    pub fn get(&self, blocked: bool) -> T {
-        if blocked {
-            self.on_block
-        } else {
-            self.on_hit
-        }
-    }
-}
-impl<T: Clone + Copy + PartialEq + Default + Inspectable> From<(T, T)> for HitProperty<T> {
-    fn from(input: (T, T)) -> Self {
-        Self {
-            on_hit: input.0,
-            on_block: input.1,
-        }
-    }
-}
-impl<T: Clone + Copy + PartialEq + Default + Inspectable> From<T> for HitProperty<T> {
-    fn from(input: T) -> Self {
-        Self {
-            on_hit: input,
-            on_block: T::default(),
-        }
-    }
-}
-
-pub type Damage = HitProperty<i32>;
-pub type Stun = HitProperty<usize>;
-pub type Knockback = HitProperty<Vec2>;
-pub type Pushback = HitProperty<Vec2>;
-pub type ForcedAnimation = HitProperty<Option<Animation>>;
-
 #[derive(Debug, Clone, Copy, PartialEq, Inspectable, Component)]
 pub struct OnHitEffect {
-    pub damage: Damage,
-    pub stun: Stun,
-    pub knockback: Knockback,
-    pub pushback: Pushback,
-    pub forced_animation: ForcedAnimation,
+    pub damage: usize,
+    pub stun: usize,
+    pub knockback: Vec2,
+    pub pushback: Vec2,
+    pub forced_animation: Option<Animation>,
     pub side_switch: bool,
 }
 
 impl Default for OnHitEffect {
     fn default() -> Self {
         Self {
-            damage: (10, 1).into(),
-            stun: (15, 5).into(),
-            knockback: (Vec2::X * 2.0, Vec2::X * 1.0).into(),
-            pushback: (Vec2::X * 1.0, Vec2::X * 0.5).into(),
-            forced_animation: None.into(),
+            damage: 10,
+            stun: 15,
+            knockback: Vec2::X * 2.0,
+            pushback: Vec2::X * 1.0,
+            forced_animation: None,
             side_switch: false,
         }
     }

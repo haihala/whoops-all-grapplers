@@ -9,7 +9,7 @@ use resources::Cost;
 pub use self::characters::{dummy, Character};
 pub use items::Inventory;
 pub use moves::{
-    Action, AttackHeight, BlockType, FlowControl, HitTracker, Hitbox, Hurtbox, Lifetime, Move,
-    MoveHistory, Movement, OnHitEffect, Situation, ToHit,
+    Action, Attack, AttackHeight, BlockType, FlowControl, HitTracker, Hitbox, Hurtbox, Lifetime,
+    Move, MoveHistory, Movement, OnHitEffect, Situation, ToHit,
 };
 pub use resources::Resources;

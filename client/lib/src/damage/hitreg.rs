@@ -1,7 +1,7 @@
 use bevy::{ecs::query::WorldQuery, prelude::*};
 
 use characters::{
-    AttackHeight, BlockType, Character, HitTracker, Hitbox, Hurtbox, OnHitEffect, Resources,
+    Attack, AttackHeight, BlockType, Character, HitTracker, Hitbox, Hurtbox, OnHitEffect, Resources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -15,6 +15,23 @@ use crate::{
 };
 
 use super::{Combo, Defense, Health, HitboxSpawner};
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub(super) enum HitType {
+    Strike,
+    Block,
+    Throw,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub(super) struct Hit {
+    attacker: Entity,
+    defender: Entity,
+    hitbox: Entity,
+    overlap: Area,
+    hit_type: HitType,
+    effect: OnHitEffect,
+}
 
 #[derive(WorldQuery)]
 #[world_query(mutable)]
@@ -86,129 +103,151 @@ pub(super) fn clash_parry(
     }
 }
 
-#[allow(clippy::too_many_arguments)]
-pub(super) fn register_hits(
-    mut commands: Commands,
-    mut notifications: ResMut<Notifications>,
+pub(super) fn detect_hits(
     clock: Res<Clock>,
+    mut notifications: ResMut<Notifications>,
+    mut commands: Commands,
     combo: Option<Res<Combo>>,
-    mut sounds: ResMut<Sounds>,
-    mut particles: ResMut<Particles>,
     mut hitboxes: Query<(
         Entity,
         &Owner,
-        &BlockType,
-        &OnHitEffect,
+        &Attack,
         &GlobalTransform,
         &Hitbox,
         &mut HitTracker,
     )>,
-    mut hurtboxes: Query<PlayerQuery>,
     players: Res<Players>,
-) {
-    for (entity, owner, block_type, effect, hitbox_tf, hitbox, mut hit_tracker) in &mut hitboxes {
-        if let Ok([mut p1, mut p2]) = hurtboxes.get_many_mut([players.one, players.two]) {
-            let (attacker, defender) = if owner.0 == Player::One {
-                (&mut p1, &mut p2)
-            } else {
-                (&mut p2, &mut p1)
-            };
+    mut hurtboxes: Query<(
+        &mut HitboxSpawner,
+        &Transform,
+        &Hurtbox,
+        &PlayerState,
+        &Character,
+        &InputParser,
+    )>,
+) -> Vec<Hit> {
+    hitboxes
+        .iter_mut()
+        .filter_map(
+            |(hitbox_entity, owner, attack, hitbox_tf, hitbox, mut hit_tracker)| {
+                if !hit_tracker.active(clock.frame) {
+                    return None;
+                }
 
-            handle_hit(
-                &mut commands,
-                &mut notifications,
-                combo.is_some(),
-                clock.frame,
-                &mut sounds,
-                &mut particles,
-                block_type,
-                effect,
-                &mut hit_tracker,
-                hitbox.with_offset(hitbox_tf.translation().truncate()),
-                entity,
-                attacker,
-                defender,
-            );
-        }
-    }
+                let attacking_player = **owner;
+                let defending_player = owner.other();
+
+                let defender = players.get(defending_player);
+                let (_, defender_tf, hurtbox, state, character, parser) =
+                    hurtboxes.get(defender).unwrap();
+
+                let Some(overlap) = hurtbox
+                    .with_offset(defender_tf.translation.truncate())
+                    .intersection(&hitbox.with_offset(hitbox_tf.translation().truncate()))
+                else {
+                    return None;
+                };
+
+                if state.is_intangible() {
+                    if !hit_tracker.hit_intangible {
+                        // Only send the notification once
+                        hit_tracker.hit_intangible = true;
+                        notifications.add(defending_player, "Intangible".to_owned());
+                    }
+                    return None;
+                } else if hit_tracker.hit_intangible {
+                    // Just a nice notification for now.
+                    notifications.add(attacking_player, "Meaty!".to_owned());
+                }
+
+                let (hit_type, effect, notification) = if !state.is_free() {
+                    (
+                        match attack.to_hit.block_type {
+                            BlockType::Constant(_) | BlockType::Dynamic => HitType::Strike,
+                            BlockType::Grab => HitType::Throw,
+                        },
+                        attack.on_hit,
+                        "Busy".into(),
+                    )
+                } else {
+                    match attack.to_hit.block_type {
+                        BlockType::Constant(height) => {
+                            handle_blocking(height, attack, parser.get_relative_stick_position())
+                        }
+                        BlockType::Grab => {
+                            if teched(parser) {
+                                notifications.add(defending_player, "Teched".into());
+                                return None;
+                            }
+
+                            (HitType::Throw, attack.on_hit, "Grappled".into())
+                        }
+                        BlockType::Dynamic => handle_blocking(
+                            if overlap.bottom() > character.high_block_height {
+                                AttackHeight::High
+                            } else if overlap.top() > character.low_block_height {
+                                AttackHeight::Mid
+                            } else {
+                                AttackHeight::Low
+                            },
+                            attack,
+                            parser.get_relative_stick_position(),
+                        ),
+                    }
+                };
+
+                if combo.is_none() {
+                    notifications.add(defending_player, notification);
+                }
+
+                if hit_tracker.hits <= 1 {
+                    hurtboxes
+                        .get_mut(players.get(attacking_player))
+                        .unwrap()
+                        .0
+                        .despawn(&mut commands, hitbox_entity);
+                } else {
+                    hit_tracker.register_hit(clock.frame)
+                }
+
+                // Collision is happening
+                Some(Hit {
+                    defender,
+                    attacker: players.get(**owner),
+                    hitbox: hitbox_entity,
+                    overlap,
+                    hit_type,
+                    effect,
+                })
+            },
+        )
+        .collect()
 }
 
-#[allow(clippy::too_many_arguments)]
-fn handle_hit(
-    commands: &mut Commands,
-    notifications: &mut Notifications,
-    combo_ongoing: bool,
-    frame: usize,
-    sounds: &mut Sounds,
-    particles: &mut Particles,
-    block_type: &BlockType,
-    effect: &OnHitEffect,
-    hit_tracker: &mut HitTracker,
-    hitbox: Area,
-    hitbox_entity: Entity,
-    attacker: &mut PlayerQueryItem,
-    defender: &mut PlayerQueryItem,
+pub(super) fn apply_hits(
+    In(hits): In<Vec<Hit>>,
+    mut commands: Commands,
+    combo: Option<Res<Combo>>,
+    clock: Res<Clock>,
+    mut players: Query<PlayerQuery>,
+    mut sounds: ResMut<Sounds>,
+    mut particles: ResMut<Particles>,
 ) {
-    if !hit_tracker.active(frame) {
-        return;
-    }
-
-    if let Some(overlap) = defender
-        .hurtbox
-        .with_offset(defender.tf.translation.truncate())
-        .intersection(&hitbox)
-    {
-        if defender.state.is_intangible() {
-            if !hit_tracker.hit_intangible {
-                // Only send the notification once
-                hit_tracker.hit_intangible = true;
-                notifications.add(*defender.player, "Intangible".to_owned());
-            }
-            return;
-        } else if hit_tracker.hit_intangible {
-            // Just a nice notification for now.
-            notifications.add(*attacker.player, "Meaty!".to_owned());
-        }
+    for hit in hits {
+        let [mut attacker, mut defender] =
+            players.get_many_mut([hit.attacker, hit.defender]).unwrap();
+        let blocked = hit.hit_type == HitType::Block;
+        let effect = hit.effect;
 
         // Hit has happened
-        if !combo_ongoing {
+        if combo.is_none() {
             commands.insert_resource(Combo);
         }
 
         // Handle blocking and state transitions here
         attacker.state.register_hit();
 
-        let (avoided, notification) = match (defender.state.is_free(), block_type) {
-            (false, _) => (false, "Busy!".into()),
-            (_, BlockType::Grab) => {
-                if defender.parser.head_is_clear() {
-                    (true, "Teched!".into())
-                } else {
-                    (false, "Grappled!".into())
-                }
-            }
-            (_, BlockType::Constant(height)) => {
-                handle_blocking(*height, defender.parser.get_relative_stick_position())
-            }
-            (_, BlockType::Dynamic) => handle_blocking(
-                if hitbox.bottom() > defender.character.high_block_height {
-                    AttackHeight::High
-                } else if hitbox.top() > defender.character.low_block_height {
-                    AttackHeight::Mid
-                } else {
-                    AttackHeight::Low
-                },
-                defender.parser.get_relative_stick_position(),
-            ),
-        };
-
-        if !combo_ongoing {
-            notifications.add(defender.player.to_owned(), notification);
-        }
-
-        // Damage
-        let damage = effect.damage.get(avoided);
-        defender.health.apply_damage(damage);
+        defender.health.apply_damage(effect.damage);
 
         // Pushback
         attacker
@@ -217,18 +256,17 @@ fn handle_hit(
             .add_impulse(
                 defender
                     .facing
-                    .mirror_vec2(defender.facing.mirror_vec2(effect.pushback.get(avoided))),
+                    .mirror_vec2(defender.facing.mirror_vec2(effect.pushback)),
             );
 
-        // Knockback
-        let knockback_impulse = attacker.facing.mirror_vec2(effect.knockback.get(avoided));
+        let knockback_impulse = attacker.facing.mirror_vec2(effect.knockback);
 
         // Stun
         if knockback_impulse.y > 0.0 {
             defender.state.launch();
         } else {
-            let end_frame = effect.stun.get(avoided) + frame;
-            if avoided {
+            let end_frame = effect.stun + clock.frame;
+            if blocked {
                 defender.state.block(end_frame);
             } else {
                 defender.state.stun(end_frame);
@@ -239,15 +277,15 @@ fn handle_hit(
         defender.velocity.add_impulse(knockback_impulse);
 
         // Defense
-        if avoided {
-            defender.defense.bump_streak(frame);
+        if blocked {
+            defender.defense.bump_streak(clock.frame);
             defender.resources.meter.gain(defender.defense.get_reward());
         } else {
             defender.defense.reset()
         }
 
         // Forced animation (throw)
-        if let Some(forced_animation) = effect.forced_animation.get(avoided) {
+        if let Some(forced_animation) = effect.forced_animation {
             // Snap players together
             let raw_diff = defender.tf.translation.x - attacker.tf.translation.x; // This ougth to be positive when attacker is on the left
             let width_between = (attacker.pushbox.width() + defender.pushbox.width()) / 2.0;
@@ -269,45 +307,48 @@ fn handle_hit(
         }
 
         // Effects
-        let (sound, particle) = if avoided {
-            (SoundEffect::Block, VisualEffect::Block)
-        } else {
-            (SoundEffect::Hit, VisualEffect::Hit)
+        let (sound, particle) = match hit.hit_type {
+            HitType::Block => (SoundEffect::Block, VisualEffect::Block),
+            HitType::Strike => (SoundEffect::Hit, VisualEffect::Hit),
+            HitType::Throw => todo!(),
         };
 
         sounds.play(sound);
         particles.spawn(ParticleRequest {
             effect: particle,
             // TODO: This can be refined more
-            position: overlap.center().extend(0.0),
+            position: hit.overlap.center().extend(0.0),
         });
 
-        hit_tracker.last_hit_frame = Some(frame);
-
-        if !avoided {
-            defender.spawner.despawn_on_hit(commands);
-        }
-
-        // Despawns
-        if hit_tracker.hits <= 1 {
-            attacker.spawner.despawn(commands, hitbox_entity);
-        } else {
-            hit_tracker.register_hit(frame)
-        }
+        defender.spawner.despawn_on_hit(&mut commands);
     }
 }
 
-fn handle_blocking(height: AttackHeight, stick: StickPosition) -> (bool, String) {
+fn handle_blocking(
+    height: AttackHeight,
+    attack: &Attack,
+    stick: StickPosition,
+) -> (HitType, OnHitEffect, String) {
     let blocking_high = stick == StickPosition::W;
     let blocking_low = stick == StickPosition::SW;
 
-    if match height {
+    if !(blocking_high || blocking_low) {
+        (HitType::Strike, attack.on_hit, "Not blocking".into())
+    } else if match dbg!(height) {
         AttackHeight::Low => blocking_low,
         AttackHeight::Mid => blocking_low || blocking_high,
         AttackHeight::High => blocking_high,
     } {
-        (true, "Blocked!".into())
+        (
+            HitType::Block,
+            attack.on_block.unwrap_or_default(), // This kinda fucks up how moves are created, but that's fixable
+            "Blocked!".into(),
+        )
     } else {
-        (false, format!("Hit {:?}", height))
+        (HitType::Strike, attack.on_hit, format!("Hit {:?}", height))
     }
+}
+
+fn teched(parser: &InputParser) -> bool {
+    parser.head_is_clear()
 }

@@ -6,8 +6,8 @@ use wag_core::Player;
 
 #[derive(Inspectable, Component, Clone, Copy)]
 pub struct Health {
-    value: i32,
-    max: i32,
+    value: usize,
+    max: usize,
 }
 impl Default for Health {
     fn default() -> Self {
@@ -26,7 +26,7 @@ impl Health {
         *self = Health::default();
     }
 
-    pub fn apply_damage(&mut self, amount: i32) {
+    pub fn apply_damage(&mut self, amount: usize) {
         self.value -= amount;
     }
 }

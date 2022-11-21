@@ -1,3 +1,10 @@
+# 2022-11-21 update:
+- You can find parts of the model and attach hitboxes to those parts
+- Maybe you could do this for hurboxes as well
+	- Don't need any fancy dynamic things
+	- Expand `Area` to a multi-collider system
+	- Capsules and Rectangles. Circle is a capsule with both foci in the same spot
+
 - [bevy-scene-hook](https://github.com/nicopap/bevy-scene-hook "https://github.com/nicopap/bevy-scene-hook")
 - use a naming scheme 
 	- With another mesh attached to the same skeleton

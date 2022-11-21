@@ -110,7 +110,7 @@ impl Situation<'_> {
 
 #[cfg(test)]
 mod test {
-    use crate::{Action, Move, OnHitEffect, ToHit};
+    use crate::{moves::Attack, Action, Move};
 
     use super::*;
     use bevy::prelude::*;
@@ -227,7 +227,7 @@ mod test {
     fn multiple_actions() {
         let phases = vec![
             Action::Animation(Animation::TPose).into(),
-            Action::Attack(ToHit::default(), OnHitEffect::default()).into(),
+            Attack::default().into(),
         ];
         let sw = SituationWrapper::with_phases(phases.clone());
 
@@ -239,7 +239,7 @@ mod test {
     fn wait_gate() {
         let phases = vec![
             Action::Animation(Animation::TPose).into(),
-            Action::Attack(ToHit::default(), OnHitEffect::default()).into(),
+            Attack::default().into(),
             FlowControl::Wait(10, CancelPolicy::Never),
             Action::Animation(Animation::TPose).into(),
         ];
@@ -257,7 +257,7 @@ mod test {
     fn wait_gate_partial() {
         let phases = vec![
             Action::Animation(Animation::TPose).into(),
-            Action::Attack(ToHit::default(), OnHitEffect::default()).into(),
+            Attack::default().into(),
             FlowControl::Wait(10, CancelPolicy::Never),
             Action::Animation(Animation::TPose).into(),
         ];
@@ -279,13 +279,13 @@ mod test {
             Some(if situation.history.unwrap().has_hit {
                 Action::Animation(Animation::TPose)
             } else {
-                Action::Attack(ToHit::default(), OnHitEffect::default())
+                Attack::default().into()
             })
         })];
 
         let mut sw = SituationWrapper::with_phases(phases);
 
-        sw.assert_actions(&[Action::Attack(ToHit::default(), OnHitEffect::default()).into()]);
+        sw.assert_actions(&[Attack::default().into()]);
 
         sw.register_hit();
         sw.assert_actions(&[Action::Animation(Animation::TPose).into()]);

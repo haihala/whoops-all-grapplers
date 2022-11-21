@@ -8,8 +8,8 @@ use wag_core::{
 
 use crate::{
     moves::{
-        airborne, crouching, grounded, standing, Action, CancelPolicy, FlowControl, MoveType,
-        Movement, Projectile, Situation,
+        airborne, crouching, grounded, standing, Action, Attack, CancelPolicy, FlowControl,
+        MoveType, Movement, Projectile, Situation,
     },
     AttackHeight, BlockType, Cost, Hitbox, Item, Lifetime, Move, OnHitEffect, ToHit,
 };
@@ -106,14 +106,14 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::Slap)).into(),
                     FlowControl::Wait(9, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             hitbox: Hitbox(Area::new(0.7, 1.35, 0.35, 0.25)),
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
-                        OnHitEffect::default(),
-                    )
+                        ..default()
+                    }
                     .into(),
                     FlowControl::Wait(10, CancelPolicy::IfHit),
                 ],
@@ -128,14 +128,14 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::CrouchChop)).into(),
                     FlowControl::Wait(8, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             hitbox: Hitbox(Area::new(0.75, 0.2, 0.3, 0.2)),
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
-                        OnHitEffect::default(),
-                    )
+                        ..default()
+                    }
                     .into(),
                     FlowControl::Wait(7, CancelPolicy::IfHit),
                 ],
@@ -151,23 +151,27 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     Action::Animation(Animation::Dummy(DummyAnimation::BurnStraight)).into(),
                     FlowControl::Wait(10, CancelPolicy::Never),
                     FlowControl::DynamicAction(|situation: Situation| {
-                        Some(Action::Attack(
-                            ToHit {
-                                hitbox: Hitbox(Area::new(0.6, 1.35, 1.0, 0.2)),
-                                lifetime: Lifetime::frames(8),
-                                ..default()
-                            },
-                            if situation.inventory.contains(&ItemId::Drugs) {
-                                OnHitEffect {
-                                    damage: 20.into(),
-                                    knockback: Vec2::splat(3.0).into(),
-                                    pushback: (-3.0 * Vec2::X).into(),
+                        Some(
+                            Attack {
+                                to_hit: ToHit {
+                                    hitbox: Hitbox(Area::new(0.6, 1.35, 1.0, 0.2)),
+                                    lifetime: Lifetime::frames(8),
                                     ..default()
-                                }
-                            } else {
-                                OnHitEffect::default()
-                            },
-                        ))
+                                },
+                                on_hit: if situation.inventory.contains(&ItemId::Drugs) {
+                                    OnHitEffect {
+                                        damage: 20,
+                                        knockback: Vec2::splat(3.0),
+                                        pushback: (-3.0 * Vec2::X),
+                                        ..default()
+                                    }
+                                } else {
+                                    OnHitEffect::default()
+                                },
+                                ..default()
+                            }
+                            .into(),
+                        )
                     }),
                     Action::Movement(Movement {
                         amount: Vec2::X * 2.0,
@@ -187,17 +191,18 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::AntiAir)).into(),
                     FlowControl::Wait(13, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             hitbox: Hitbox(Area::new(0.75, 1.9, 0.3, 0.5)),
                             lifetime: Lifetime::frames(4),
                             ..default()
                         },
-                        OnHitEffect {
-                            knockback: (Vec2::splat(4.0), Vec2::ZERO).into(),
+                        on_hit: OnHitEffect {
+                            knockback: Vec2::splat(4.0),
                             ..default()
                         },
-                    )
+                        ..default()
+                    }
                     .into(),
                     FlowControl::Wait(13, CancelPolicy::IfHit),
                 ],
@@ -212,15 +217,15 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::AirSlap)).into(),
                     FlowControl::Wait(8, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             hitbox: Hitbox(Area::new(0.7, 1.3, 0.35, 0.25)),
                             lifetime: Lifetime::frames(5),
                             block_type: BlockType::Constant(AttackHeight::High),
                             ..default()
                         },
-                        OnHitEffect::default(),
-                    )
+                        ..default()
+                    }
                     .into(),
                     FlowControl::Wait(10, CancelPolicy::IfHit),
                 ],
@@ -235,15 +240,15 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::Divekick)).into(),
                     FlowControl::Wait(5, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             hitbox: Hitbox(Area::new(0.6, 0.1, 0.35, 0.25)),
                             lifetime: Lifetime::frames(10),
                             block_type: BlockType::Constant(AttackHeight::High),
                             ..default()
                         },
-                        OnHitEffect::default(),
-                    )
+                        ..default()
+                    }
                     .into(),
                     FlowControl::Wait(10, CancelPolicy::IfHit),
                 ],
@@ -258,24 +263,24 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::NormalThrow)).into(),
                     FlowControl::Wait(5, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             block_type: BlockType::Grab,
                             hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.5)),
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
-                        OnHitEffect {
-                            damage: (25, 0).into(),
-                            stun: (60, 0).into(),
-                            knockback: (Vec2::Y * 1.0, Vec2::ZERO).into(),
+                        on_hit: OnHitEffect {
+                            damage: 25,
+                            stun: 60,
+                            knockback: Vec2::Y * 1.0,
                             forced_animation: Some(Animation::Dummy(
                                 DummyAnimation::NormalThrowRecipient,
-                            ))
-                            .into(),
+                            )),
                             ..default()
                         },
-                    )
+                        ..default()
+                    }
                     .into(),
                     FlowControl::Wait(40, CancelPolicy::Never),
                 ],
@@ -290,25 +295,25 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::NormalThrow)).into(),
                     FlowControl::Wait(5, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             block_type: BlockType::Grab,
                             hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.5)),
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
-                        OnHitEffect {
-                            damage: (25, 0).into(),
-                            stun: (60, 0).into(),
-                            knockback: (Vec2::Y * 1.0, Vec2::ZERO).into(),
+                        on_hit: OnHitEffect {
+                            damage: 25,
+                            stun: 60,
+                            knockback: Vec2::Y * 1.0,
                             forced_animation: Some(Animation::Dummy(
                                 DummyAnimation::NormalThrowRecipient,
-                            ))
-                            .into(),
+                            )),
                             side_switch: true,
                             ..default()
                         },
-                    )
+                        ..default()
+                    }
                     .into(),
                     FlowControl::Wait(40, CancelPolicy::Never),
                 ],
@@ -323,19 +328,20 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::Sweep)).into(),
                     FlowControl::Wait(10, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             block_type: BlockType::Grab,
                             hitbox: Hitbox(Area::new(0.7, 0.2, 1.0, 0.2)),
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
-                        OnHitEffect {
-                            damage: (25, 0).into(),
-                            knockback: (Vec2::Y * 8.0, Vec2::ZERO).into(),
+                        on_hit: OnHitEffect {
+                            damage: 25,
+                            knockback: Vec2::Y * 8.0,
                             ..default()
                         },
-                    )
+                        ..default()
+                    }
                     .into(),
                     FlowControl::Wait(15, CancelPolicy::IfHit),
                 ],
@@ -376,19 +382,20 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::GroundSlam)).into(),
                     FlowControl::Wait(14, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             hitbox: Hitbox(Area::new(0.7, 1.25, 0.8, 0.8)),
                             lifetime: Lifetime::frames(8),
                             ..default()
                         },
-                        OnHitEffect {
-                            damage: 20.into(),
-                            knockback: Vec2::Y.into(),
-                            pushback: (-3.0 * Vec2::X).into(),
+                        on_hit: OnHitEffect {
+                            damage: 20,
+                            knockback: Vec2::Y,
+                            pushback: -3.0 * Vec2::X,
                             ..default()
                         },
-                    )
+                        ..default()
+                    }
                     .into(),
                     Action::Movement(Movement {
                         amount: Vec2::X * 2.0,
@@ -408,19 +415,20 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::Animation(Animation::Dummy(DummyAnimation::AirSlam)).into(),
                     FlowControl::Wait(14, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             hitbox: Hitbox(Area::new(0.9, 1.25, 0.8, 0.8)),
                             lifetime: Lifetime::frames(8),
                             ..default()
                         },
-                        OnHitEffect {
-                            damage: 20.into(),
-                            knockback: Vec2::Y.into(),
-                            pushback: (-3.0 * Vec2::X).into(),
+                        on_hit: OnHitEffect {
+                            damage: 20,
+                            knockback: Vec2::Y,
+                            pushback: -3.0 * Vec2::X,
                             ..default()
                         },
-                    )
+                        ..default()
+                    }
                     .into(),
                     Action::Movement(Movement {
                         amount: Vec2::X * 1.0,
@@ -440,8 +448,8 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::ForceStand.into(),
                     FlowControl::Wait(10, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
                             velocity: Some(5.0 * Vec2::X),
                             lifetime: Lifetime::frames((wag_core::FPS * 0.25) as usize),
@@ -450,8 +458,8 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                             }),
                             ..default()
                         },
-                        OnHitEffect::default(),
-                    )
+                        ..default()
+                    }
                     .into(),
                     FlowControl::Wait(5, CancelPolicy::IfHit),
                 ],
@@ -469,8 +477,8 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                     Action::ForceStand.into(),
                     Action::Pay(Cost::charge()).into(),
                     FlowControl::Wait(10, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             hitbox: Hitbox(Area::new(0.5, 1.2, 0.4, 0.3)),
                             velocity: Some(6.0 * Vec2::X),
                             lifetime: Lifetime::until_owner_hit(),
@@ -480,11 +488,12 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                             hits: 3,
                             ..default()
                         },
-                        OnHitEffect {
-                            damage: (10, 3).into(),
+                        on_hit: OnHitEffect {
+                            damage: 10,
                             ..default()
                         },
-                    )
+                        ..default()
+                    }
                     .into(),
                     FlowControl::Wait(5, CancelPolicy::IfHit),
                 ],
@@ -498,8 +507,8 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Action::ForceStand.into(),
                     FlowControl::Wait(30, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
                             velocity: Some(4.0 * Vec2::X),
                             lifetime: Lifetime::until_owner_hit(),
@@ -509,8 +518,8 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                             hits: 3,
                             ..default()
                         },
-                        OnHitEffect::default(),
-                    )
+                        ..default()
+                    }
                     .into(),
                     FlowControl::Wait(30, CancelPolicy::IfHit),
                 ],
@@ -527,8 +536,8 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                     Action::ForceStand.into(),
                     Action::Pay(Cost::meter(30)).into(),
                     FlowControl::Wait(30, CancelPolicy::Never),
-                    Action::Attack(
-                        ToHit {
+                    Attack {
+                        to_hit: ToHit {
                             hitbox: Hitbox(Area::new(0.5, 1.0, 0.4, 0.5)),
                             velocity: Some(5.0 * Vec2::X),
                             lifetime: Lifetime::until_owner_hit(),
@@ -538,11 +547,12 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                             hits: 2,
                             ..default()
                         },
-                        OnHitEffect {
-                            stun: (30, 30).into(),
+                        on_hit: OnHitEffect {
+                            stun: 30,
                             ..default()
                         },
-                    )
+                        ..default()
+                    }
                     .into(),
                     FlowControl::Wait(20, CancelPolicy::IfHit),
                 ],

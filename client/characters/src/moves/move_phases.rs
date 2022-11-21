@@ -20,17 +20,29 @@ impl Movement {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Default, Component)]
+pub struct Attack {
+    pub to_hit: ToHit,
+    pub on_hit: OnHitEffect,
+    pub on_block: Option<OnHitEffect>,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Action {
     Animation(Animation),
     AnimationAtFrame(Animation, usize),
     Sound(SoundEffect),
     Move(MoveId),
-    Attack(ToHit, OnHitEffect),
+    Attack(Attack),
     Movement(Movement),
     Pay(Cost),
     Condition(StatusCondition),
     ForceStand,
+}
+impl From<Attack> for Action {
+    fn from(value: Attack) -> Self {
+        Action::Attack(value)
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -103,5 +115,10 @@ impl From<(usize, CancelPolicy)> for FlowControl {
 impl From<usize> for FlowControl {
     fn from(time: usize) -> Self {
         FlowControl::Wait(time, CancelPolicy::Never)
+    }
+}
+impl From<Attack> for FlowControl {
+    fn from(value: Attack) -> Self {
+        Action::Attack(value).into()
     }
 }

@@ -13,7 +13,7 @@ mod move_data;
 pub use move_data::Move;
 
 mod move_phases;
-pub use move_phases::{Action, CancelPolicy, FlowControl, Movement};
+pub use move_phases::{Action, Attack, CancelPolicy, FlowControl, Movement};
 
 mod move_properties;
 pub use move_properties::*;

@@ -22,7 +22,6 @@
 - [[Testing framework v2]]
 - A way to pause the game (look at inspector)
 - Generic state based visibility toggler for UI components (there is a component for visibility)
-- De-couple hit effects from registering a hit
 - [[Yoink assets]]
 - [[Netplay]]
 - [[Try out egui]]

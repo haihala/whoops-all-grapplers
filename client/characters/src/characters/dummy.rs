@@ -158,15 +158,15 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                                     lifetime: Lifetime::frames(8),
                                     ..default()
                                 },
-                                on_hit: if situation.inventory.contains(&ItemId::Drugs) {
-                                    OnHitEffect {
-                                        damage: 20,
-                                        knockback: Vec2::splat(3.0),
-                                        pushback: (-3.0 * Vec2::X),
-                                        ..default()
-                                    }
-                                } else {
-                                    OnHitEffect::default()
+                                on_hit: OnHitEffect {
+                                    damage: 20,
+                                    knockback: Vec2::splat(3.0),
+                                    pushback: if situation.inventory.contains(&ItemId::Drugs) {
+                                        3.0
+                                    } else {
+                                        -10.0
+                                    } * Vec2::X,
+                                    ..default()
                                 },
                                 ..default()
                             }

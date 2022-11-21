@@ -35,8 +35,8 @@ pub(super) struct Hit {
 
 #[derive(WorldQuery)]
 #[world_query(mutable)]
-pub struct PlayerQuery<'a> {
-    character: &'a Character,
+/// Used for querying all the components that are required when a player is hit.
+pub struct HitPlayerQuery<'a> {
     defense: &'a mut Defense,
     hurtbox: &'a Hurtbox,
     tf: &'a mut Transform,
@@ -229,7 +229,7 @@ pub(super) fn apply_hits(
     mut commands: Commands,
     combo: Option<Res<Combo>>,
     clock: Res<Clock>,
-    mut players: Query<PlayerQuery>,
+    mut players: Query<HitPlayerQuery>,
     mut sounds: ResMut<Sounds>,
     mut particles: ResMut<Particles>,
 ) {
@@ -249,20 +249,8 @@ pub(super) fn apply_hits(
 
         defender.health.apply_damage(effect.damage);
 
-        // Pushback
-        attacker
-            .velocity
-            // More intuitive to think of it from the defenders perspective
-            .add_impulse(
-                defender
-                    .facing
-                    .mirror_vec2(defender.facing.mirror_vec2(effect.pushback)),
-            );
-
-        let knockback_impulse = attacker.facing.mirror_vec2(effect.knockback);
-
         // Stun
-        if knockback_impulse.y > 0.0 {
+        if effect.launches {
             defender.state.launch();
         } else {
             let end_frame = effect.stun + clock.frame;
@@ -273,8 +261,13 @@ pub(super) fn apply_hits(
             }
         }
 
-        // Has to be after the stun, as state transitions would have a window of invalidity otherwise
-        defender.velocity.add_impulse(knockback_impulse);
+        attacker
+            .velocity
+            .add_impulse(attacker.facing.mirror_vec2(effect.pushback));
+
+        defender
+            .velocity
+            .add_impulse(attacker.facing.mirror_vec2(effect.knockback));
 
         // Defense
         if blocked {
@@ -334,7 +327,7 @@ fn handle_blocking(
 
     if !(blocking_high || blocking_low) {
         (HitType::Strike, attack.on_hit, "Not blocking".into())
-    } else if match dbg!(height) {
+    } else if match height {
         AttackHeight::Low => blocking_low,
         AttackHeight::Mid => blocking_low || blocking_high,
         AttackHeight::High => blocking_high,

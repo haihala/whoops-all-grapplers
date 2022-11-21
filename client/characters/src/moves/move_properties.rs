@@ -61,6 +61,7 @@ pub struct OnHitEffect {
     pub stun: usize,
     pub knockback: Vec2,
     pub pushback: Vec2,
+    pub launches: bool,
     pub forced_animation: Option<Animation>,
     pub side_switch: bool,
 }
@@ -68,10 +69,11 @@ pub struct OnHitEffect {
 impl Default for OnHitEffect {
     fn default() -> Self {
         Self {
-            damage: 10,
+            damage: 1,
             stun: 15,
             knockback: Vec2::X * 2.0,
-            pushback: Vec2::X * 1.0,
+            pushback: Vec2::ZERO,
+            launches: false,
             forced_animation: None,
             side_switch: false,
         }

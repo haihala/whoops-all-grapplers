@@ -137,14 +137,15 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
         .id()
 }
 
+#[allow(clippy::type_complexity)]
 fn reset(
     mut commands: Commands,
     keys: Res<Input<KeyCode>>,
     mut query: Query<(
+        &Player,
         &mut Health,
         &mut Resources,
         &mut Transform,
-        &Player,
         &mut PlayerState,
         &mut MoveBuffer,
         &mut InputParser,
@@ -161,10 +162,10 @@ fn reset(
         commands.remove_resource::<RoundResult>();
 
         for (
+            player,
             mut health,
             mut resources,
             mut tf,
-            player,
             mut player_state,
             mut buffer,
             mut parser,

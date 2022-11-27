@@ -19,7 +19,7 @@ pub struct Situation<'a> {
 }
 
 impl Situation<'_> {
-    pub fn new_actions(&self) -> Vec<FlowControl> {
+    pub fn new_fcs(&self) -> Vec<FlowControl> {
         // TODO: This could probably use some unit tests
         if let Some(ref history) = self.history {
             let past_duration = history
@@ -46,15 +46,22 @@ impl Situation<'_> {
                         FlowControl::Wait(time, _) => {
                             unused_time -= time;
                         }
-                        FlowControl::Action(Action::Animation(animation)) => {
-                            if history.frame_skip != 0 {
-                                // This'll make it so that if a move is fast-forwarded due to frame fitting, the animation will be in sync
-                                new_event =
-                                    Action::AnimationAtFrame(animation, history.frame_skip).into();
-                            }
-                        }
-                        FlowControl::Noop => {
-                            continue; // So that noops don't end up in the handled_events list
+                        FlowControl::Actions(actions) => {
+                            // TODO: This could be cleaned up a ton
+                            new_event = FlowControl::Actions(
+                                actions
+                                    .into_iter()
+                                    .map(|action| {
+                                        if history.frame_skip == 0 {
+                                            action
+                                        } else if let Action::Animation(animation) = action {
+                                            Action::AnimationAtFrame(animation, history.frame_skip)
+                                        } else {
+                                            action
+                                        }
+                                    })
+                                    .collect(),
+                            );
                         }
                         _ => {}
                     }
@@ -85,15 +92,7 @@ impl Situation<'_> {
                     Some(future_event)
                 }
             }
-            FlowControl::Action(action) => Some(FlowControl::Action(action)),
-            FlowControl::Noop => Some(FlowControl::Noop),
-            FlowControl::DynamicAction(fun) => {
-                if let Some(action) = fun(self.clone()) {
-                    Some(FlowControl::Action(action))
-                } else {
-                    Some(FlowControl::Noop)
-                }
-            }
+            FlowControl::DynamicActions(fun) => Some(FlowControl::Actions(fun(self.clone()))),
             FlowControl::WaitUntil(fun, timeout) => {
                 let timed_out = timeout.map(|time| time <= unused_time).unwrap_or(false);
                 if timed_out || fun(self.clone()) {
@@ -104,6 +103,7 @@ impl Situation<'_> {
                     None
                 }
             }
+            other => Some(other),
         }
     }
 }
@@ -166,7 +166,7 @@ mod test {
                 current_frame: self.current_frame,
                 conditions: &self.conditions,
             }
-            .new_actions()
+            .new_fcs()
         }
 
         fn assert_actions(&self, comparison: &[FlowControl]) {
@@ -275,12 +275,12 @@ mod test {
 
     #[test]
     fn dynamics() {
-        let phases = vec![FlowControl::DynamicAction(|situation: Situation| {
-            Some(if situation.history.unwrap().has_hit {
+        let phases = vec![FlowControl::DynamicActions(|situation: Situation| {
+            vec![if situation.history.unwrap().has_hit {
                 Action::Animation(Animation::TPose)
             } else {
                 Attack::default().into()
-            })
+            }]
         })];
 
         let mut sw = SituationWrapper::with_phases(phases);

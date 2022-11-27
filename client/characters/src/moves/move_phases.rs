@@ -44,6 +44,11 @@ impl From<Attack> for Action {
         Action::Attack(value)
     }
 }
+impl From<Animation> for Action {
+    fn from(value: Animation) -> Self {
+        Action::Animation(value)
+    }
+}
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum CancelPolicy {
@@ -61,27 +66,25 @@ impl CancelPolicy {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub enum FlowControl {
     Wait(usize, CancelPolicy),
-    Action(Action),
-    Noop,
-    DynamicAction(fn(Situation) -> Option<Action>),
+    Actions(Vec<Action>),
+    DynamicActions(fn(Situation) -> Vec<Action>),
     WaitUntil(fn(Situation) -> bool, Option<usize>),
 }
 
 impl std::fmt::Debug for FlowControl {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::DynamicAction(_) => f.debug_tuple("DynamicAction").finish(),
+            Self::DynamicActions(_) => f.debug_tuple("DynamicActions").finish(),
             Self::WaitUntil(_, timeout) => f
                 .debug_tuple("WaitUntil with timeout")
                 .field(timeout)
                 .finish(),
             // Default
             Self::Wait(arg0, arg1) => f.debug_tuple("Wait").field(arg0).field(arg1).finish(),
-            Self::Action(arg0) => f.debug_tuple("Action").field(arg0).finish(),
-            Self::Noop => f.debug_tuple("Noop").finish(),
+            Self::Actions(arg0) => f.debug_tuple("Actions").field(arg0).finish(),
         }
     }
 }
@@ -91,9 +94,8 @@ impl PartialEq for FlowControl {
             (Self::Wait(time1, cancellable1), Self::Wait(time2, cancellable2)) => {
                 time1 == time2 && cancellable1 == cancellable2
             }
-            (Self::Action(action1), Self::Action(action2)) => action1 == action2,
-            (Self::Noop, Self::Noop) => true,
-            (_, Self::DynamicAction(_)) | (Self::DynamicAction(_), _) => {
+            (Self::Actions(actions1), Self::Actions(actions2)) => actions1 == actions2,
+            (_, Self::DynamicActions(_)) | (Self::DynamicActions(_), _) => {
                 panic!("Comparing to a dynamic one")
             }
             _ => false,
@@ -102,7 +104,12 @@ impl PartialEq for FlowControl {
 }
 impl From<Action> for FlowControl {
     fn from(action: Action) -> Self {
-        FlowControl::Action(action)
+        FlowControl::Actions(vec![action])
+    }
+}
+impl From<Vec<Action>> for FlowControl {
+    fn from(actions: Vec<Action>) -> Self {
+        FlowControl::Actions(actions)
     }
 }
 

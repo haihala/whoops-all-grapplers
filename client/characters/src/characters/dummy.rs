@@ -150,28 +150,26 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                 phases: vec![
                     Animation::Dummy(DummyAnimation::BurnStraight).into(),
                     FlowControl::Wait(10, CancelPolicy::Never),
-                    FlowControl::DynamicAction(|situation: Situation| {
-                        Some(
-                            Attack {
-                                to_hit: ToHit {
-                                    hitbox: Hitbox(Area::new(0.6, 1.35, 1.0, 0.2)),
-                                    lifetime: Lifetime::frames(8),
-                                    ..default()
-                                },
-                                on_hit: OnHitEffect {
-                                    damage: 20,
-                                    knockback: Vec2::splat(3.0),
-                                    pushback: if situation.inventory.contains(&ItemId::Drugs) {
-                                        3.0
-                                    } else {
-                                        -10.0
-                                    } * Vec2::X,
-                                    ..default()
-                                },
+                    FlowControl::DynamicActions(|situation: Situation| {
+                        vec![Attack {
+                            to_hit: ToHit {
+                                hitbox: Hitbox(Area::new(0.6, 1.35, 1.0, 0.2)),
+                                lifetime: Lifetime::frames(8),
                                 ..default()
-                            }
-                            .into(),
-                        )
+                            },
+                            on_hit: OnHitEffect {
+                                damage: 20,
+                                knockback: Vec2::splat(3.0),
+                                pushback: if situation.inventory.contains(&ItemId::Drugs) {
+                                    3.0
+                                } else {
+                                    -10.0
+                                } * Vec2::X,
+                                ..default()
+                            },
+                            ..default()
+                        }
+                        .into()]
                     }),
                     Movement {
                         amount: Vec2::X * 2.0,
@@ -360,13 +358,15 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("252"),
                 move_type: MoveType::Normal,
                 phases: vec![
-                    Action::ForceStand.into(),
-                    Animation::Dummy(DummyAnimation::Dodge).into(),
-                    Action::Condition(StatusCondition {
-                        name: Status::Dodge,
-                        effect: None,
-                        expiration: Some(20),
-                    })
+                    vec![
+                        Action::ForceStand,
+                        Animation::Dummy(DummyAnimation::Dodge).into(),
+                        Action::Condition(StatusCondition {
+                            name: Status::Dodge,
+                            effect: None,
+                            expiration: Some(20),
+                        }),
+                    ]
                     .into(),
                     FlowControl::Wait(45, CancelPolicy::Never),
                 ],
@@ -474,8 +474,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                     situation.resources.can_afford(Cost::charge()) && grounded(situation)
                 },
                 phases: vec![
-                    Action::ForceStand.into(),
-                    Action::Pay(Cost::charge()).into(),
+                    vec![Action::ForceStand, Action::Pay(Cost::charge())].into(),
                     FlowControl::Wait(10, CancelPolicy::Never),
                     Attack {
                         to_hit: ToHit {
@@ -533,8 +532,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 move_type: MoveType::Special,
                 requirement: |situation: Situation| situation.resources.can_afford(Cost::meter(30)),
                 phases: vec![
-                    Action::ForceStand.into(),
-                    Action::Pay(Cost::meter(30)).into(),
+                    vec![Action::ForceStand, Action::Pay(Cost::meter(30))].into(),
                     FlowControl::Wait(30, CancelPolicy::Never),
                     Attack {
                         to_hit: ToHit {

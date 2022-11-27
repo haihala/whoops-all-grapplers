@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use characters::{Action, FlowControl, MoveHistory, Situation};
+use characters::{Action, MoveHistory, Situation};
 use wag_core::{AnimationType, Facing, Status, StatusCondition, StatusEffect};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
@@ -42,17 +42,9 @@ impl PlayerState {
                 dbg!(&history.unprocessed_events);
             }
 
-            let new_fcs = situation.new_actions();
-            history
-                .unprocessed_events
-                .extend(new_fcs.clone().into_iter().filter_map(|fc| {
-                    if let FlowControl::Action(action) = fc {
-                        Some(action)
-                    } else {
-                        None
-                    }
-                }));
-            history.past.extend(new_fcs.into_iter());
+            let new_fcs = situation.new_fcs();
+            history.add_actions_from(new_fcs.clone());
+            history.past.extend(new_fcs);
         }
     }
 

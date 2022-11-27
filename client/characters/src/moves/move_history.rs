@@ -73,6 +73,17 @@ impl MoveHistory {
     pub fn is_done(&self) -> bool {
         self.past.len() == self.move_data.phases.len()
     }
+
+    pub fn add_actions_from(&mut self, fcs: Vec<FlowControl>) {
+        self.unprocessed_events
+            .extend(fcs.into_iter().flat_map(|fc| {
+                if let FlowControl::Actions(actions) = fc {
+                    actions
+                } else {
+                    vec![]
+                }
+            }));
+    }
 }
 
 #[cfg(test)]

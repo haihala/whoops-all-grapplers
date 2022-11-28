@@ -118,14 +118,8 @@ pub(super) fn detect_hits(
         &mut HitTracker,
     )>,
     players: Res<Players>,
-    mut hurtboxes: Query<(
-        &mut HitboxSpawner,
-        &Transform,
-        &Hurtbox,
-        &PlayerState,
-        &Character,
-        &InputParser,
-    )>,
+    hurtboxes: Query<(&Transform, &Hurtbox, &PlayerState, &Character, &InputParser)>,
+    mut spawners: Query<&mut HitboxSpawner>,
 ) -> Vec<Hit> {
     hitboxes
         .iter_mut()
@@ -139,7 +133,8 @@ pub(super) fn detect_hits(
                 let defending_player = owner.other();
 
                 let defender = players.get(defending_player);
-                let (_, defender_tf, hurtbox, state, character, parser) =
+                let attacker = players.get(**owner);
+                let (defender_tf, hurtbox, state, character, parser) =
                     hurtboxes.get(defender).unwrap();
 
                 let Some(overlap) = hurtbox
@@ -161,6 +156,15 @@ pub(super) fn detect_hits(
                     notifications.add(attacking_player, "Meaty!".to_owned());
                 }
 
+                if hit_tracker.hits <= 1 {
+                    spawners
+                        .get_mut(attacker)
+                        .unwrap()
+                        .despawn(&mut commands, hitbox_entity);
+                } else {
+                    hit_tracker.register_hit(clock.frame)
+                }
+
                 let (hit_type, notification) = if !state.is_free() {
                     (
                         match attack.to_hit.block_type {
@@ -177,6 +181,7 @@ pub(super) fn detect_hits(
                         BlockType::Grab => {
                             if teched(parser) {
                                 notifications.add(defending_player, "Teched".into());
+
                                 return None;
                             }
 
@@ -199,20 +204,9 @@ pub(super) fn detect_hits(
                     notifications.add(defending_player, notification);
                 }
 
-                if hit_tracker.hits <= 1 {
-                    hurtboxes
-                        .get_mut(players.get(attacking_player))
-                        .unwrap()
-                        .0
-                        .despawn(&mut commands, hitbox_entity);
-                } else {
-                    hit_tracker.register_hit(clock.frame)
-                }
-
-                // Collision is happening
                 Some(Hit {
                     defender,
-                    attacker: players.get(**owner),
+                    attacker,
                     hitbox: hitbox_entity,
                     overlap,
                     hit_type,

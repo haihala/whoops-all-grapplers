@@ -164,7 +164,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                                 damage: 20,
                                 on_hit: Stun(20),
                                 knock_back: if situation.inventory.contains(&ItemId::Drugs) {
-                                    3.0
+                                    1.0
                                 } else {
                                     -3.0
                                 } * Vec2::X,
@@ -203,7 +203,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             ..default()
                         },
                         CommonAttackProps {
-                            knock_back: Vec2::splat(4.0),
+                            knock_back: Vec2::new(-4.0, 3.0),
                             ..default()
                         },
                     )
@@ -425,8 +425,8 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         },
                         CommonAttackProps {
                             damage: 20,
-                            push_back: Vec2::Y,
                             knock_back: -3.0 * Vec2::X,
+                            push_back: Vec2::Y,
                             ..default()
                         },
                     )

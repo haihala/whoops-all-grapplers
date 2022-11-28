@@ -1,5 +1,11 @@
 use bevy_inspector_egui::Inspectable;
 
+mod attack;
+pub use attack::{Attack, CommonAttackProps, StunType};
+
+mod to_hit;
+pub use to_hit::{AttackHeight, BlockType, Hitbox, Lifetime, Projectile, ToHit};
+
 mod situation_shorthands;
 pub use situation_shorthands::*;
 
@@ -13,10 +19,10 @@ mod move_data;
 pub use move_data::Move;
 
 mod move_phases;
-pub use move_phases::{Action, Attack, CancelPolicy, FlowControl, Movement};
+pub use move_phases::{Action, CancelPolicy, FlowControl, Movement};
 
-mod move_properties;
-pub use move_properties::*;
+mod hit_tracker;
+pub use hit_tracker::*;
 
 mod targets;
 pub use targets::Hurtbox;

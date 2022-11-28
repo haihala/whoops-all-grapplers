@@ -50,6 +50,11 @@ pub enum Animation {
     TPose,
     Dummy(DummyAnimation),
 }
+impl From<DummyAnimation> for Animation {
+    fn from(value: DummyAnimation) -> Self {
+        Animation::Dummy(value)
+    }
+}
 
 // For state to be able to return a generic animation
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]

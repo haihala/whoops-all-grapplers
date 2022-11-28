@@ -2,30 +2,32 @@ use bevy::prelude::*;
 use wag_core::{Area, GameButton, ItemId, MoveId};
 
 use crate::{
-    moves::{Action, Attack, CancelPolicy, FlowControl, MoveType, Situation},
+    moves::{
+        Action, Attack, CancelPolicy::*, CommonAttackProps, FlowControl::*, MoveType::*, Situation,
+    },
     Cost, Hitbox, Lifetime, Move, ToHit,
 };
 
 pub(crate) fn get_handmedownken() -> Move {
     Move {
         input: Some("236e"),
-        move_type: MoveType::Special,
+        move_type: Special,
         requirement: |situation: Situation| {
             situation.inventory.contains(&ItemId::HandMeDownKen) && situation.grounded
         },
         phases: vec![
-            FlowControl::Wait(30, CancelPolicy::Never),
-            Attack {
-                to_hit: ToHit {
+            Wait(30, Never),
+            Attack::new(
+                ToHit {
                     hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
                     velocity: Some(3.0 * Vec2::X),
                     lifetime: Lifetime::eternal(),
                     ..default()
                 },
-                ..default()
-            }
+                CommonAttackProps::default(),
+            )
             .into(),
-            FlowControl::Wait(10, CancelPolicy::IfHit),
+            Wait(10, IfHit),
         ],
     }
 }
@@ -35,26 +37,26 @@ pub(crate) fn get_gunshot() -> Move {
     Move {
         input: None,
         phases: vec![
-            FlowControl::Wait(10, CancelPolicy::Never),
-            FlowControl::DynamicActions(|situation: Situation| {
+            Wait(10, Never),
+            DynamicActions(|situation: Situation| {
                 if situation.resources.can_afford(Cost::bullet()) {
-                    vec![Attack {
-                        to_hit: ToHit {
+                    vec![Attack::new(
+                        ToHit {
                             hitbox: Hitbox(Area::new(0.5, 1.2, 0.1, 0.1)),
                             velocity: Some(8.0 * Vec2::X),
                             lifetime: Lifetime::eternal(),
                             ..default()
                         },
-                        ..default()
-                    }
+                        CommonAttackProps::default(),
+                    )
                     .into()]
                 } else {
                     // TODO: put a sound effect here or something later
                     vec![]
                 }
             }),
-            FlowControl::Wait(10, CancelPolicy::Never),
-            FlowControl::DynamicActions(|situation: Situation| {
+            Wait(10, Never),
+            DynamicActions(|situation: Situation| {
                 if situation
                     .parser
                     .get_pressed()
@@ -65,7 +67,7 @@ pub(crate) fn get_gunshot() -> Move {
                     vec![]
                 }
             }),
-            FlowControl::Wait(30, CancelPolicy::Never),
+            Wait(30, Never),
         ],
         ..default()
     }
@@ -77,10 +79,7 @@ pub(crate) fn get_shot() -> Move {
         requirement: |situation: Situation| {
             situation.inventory.contains(&ItemId::Gun) && situation.grounded
         },
-        phases: vec![
-            FlowControl::Wait(30, CancelPolicy::Never),
-            Action::Move(MoveId::Gunshot).into(),
-        ],
+        phases: vec![Wait(30, Never), Action::Move(MoveId::Gunshot).into()],
         ..default()
     }
 }

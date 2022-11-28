@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 
 use bevy_inspector_egui::Inspectable;
-use wag_core::{Animation, MoveId, SoundEffect, StatusCondition};
+use wag_core::{Animation, DummyAnimation, MoveId, SoundEffect, StatusCondition};
 
-use crate::resources::Cost;
+use crate::{resources::Cost, Attack};
 
-use super::{Situation, ToHit};
+use super::Situation;
 
 #[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]
 pub struct Movement {
@@ -19,15 +19,6 @@ impl Movement {
             duration: 1,
         }
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Default, Component, Inspectable)]
-pub struct Attack {
-    pub to_hit: ToHit,
-    pub self_on_hit: Vec<Action>,
-    pub self_on_block: Vec<Action>,
-    pub target_on_hit: Vec<Action>,
-    pub target_on_block: Vec<Action>,
 }
 
 #[derive(Debug, Clone, PartialEq, Inspectable, Default)]
@@ -67,6 +58,11 @@ impl From<Animation> for Action {
 impl From<Movement> for Action {
     fn from(value: Movement) -> Self {
         Action::Movement(value)
+    }
+}
+impl From<DummyAnimation> for Action {
+    fn from(value: DummyAnimation) -> Self {
+        Action::Animation(Animation::Dummy(value))
     }
 }
 
@@ -148,5 +144,10 @@ impl From<Animation> for FlowControl {
 impl From<Movement> for FlowControl {
     fn from(value: Movement) -> Self {
         Action::Movement(value).into()
+    }
+}
+impl From<DummyAnimation> for FlowControl {
+    fn from(value: DummyAnimation) -> Self {
+        Action::Animation(Animation::Dummy(value)).into()
     }
 }

@@ -18,7 +18,7 @@ pub fn movement(mut query: Query<(&InputParser, &mut PlayerState)>) {
 
         for _ in state.drain_matching_actions(|action| {
             if *action == Action::ForceStand {
-                Some(*action)
+                Some(action.to_owned())
             } else {
                 None
             }

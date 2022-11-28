@@ -16,6 +16,16 @@ impl Players {
             Player::Two => self.two,
         }
     }
+
+    pub fn get_other_entity(&self, entity: Entity) -> Entity {
+        if entity == self.one {
+            self.two
+        } else if entity == self.two {
+            self.one
+        } else {
+            panic!("Unrecognized player")
+        }
+    }
 }
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]

@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 
+use bevy_inspector_egui::Inspectable;
 use wag_core::{Animation, MoveId, SoundEffect, StatusCondition};
 
 use crate::resources::Cost;
 
-use super::{OnHitEffect, Situation, ToHit};
+use super::{Situation, ToHit};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]
 pub struct Movement {
     pub amount: Vec2,
     pub duration: usize,
@@ -20,24 +21,38 @@ impl Movement {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Default, Component)]
+#[derive(Debug, Clone, PartialEq, Default, Component, Inspectable)]
 pub struct Attack {
     pub to_hit: ToHit,
-    pub on_hit: OnHitEffect,
-    pub on_block: Option<OnHitEffect>,
+    pub self_on_hit: Vec<Action>,
+    pub self_on_block: Vec<Action>,
+    pub target_on_hit: Vec<Action>,
+    pub target_on_block: Vec<Action>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Inspectable, Default)]
 pub enum Action {
+    // TODO: Figure out a better way to handle actions that change depending on game state
+    // Maybe hoist AnimationRequest?
     Animation(Animation),
+    OffsetAnimation(Animation),
     AnimationAtFrame(Animation, usize),
+    OffsetAnimationAtFrame(Animation, usize),
     Sound(SoundEffect),
     Move(MoveId),
     Attack(Attack),
     Movement(Movement),
     Pay(Cost),
     Condition(StatusCondition),
+    #[default]
     ForceStand,
+    TakeDamage(usize),
+    SnapToOpponent,
+    SideSwitch,
+    // TODO
+    HitStun(usize),
+    BlockStun(usize),
+    Launch,
 }
 impl From<Attack> for Action {
     fn from(value: Attack) -> Self {
@@ -47,6 +62,11 @@ impl From<Attack> for Action {
 impl From<Animation> for Action {
     fn from(value: Animation) -> Self {
         Action::Animation(value)
+    }
+}
+impl From<Movement> for Action {
+    fn from(value: Movement) -> Self {
+        Action::Movement(value)
     }
 }
 

@@ -11,7 +11,7 @@ use crate::{
         airborne, crouching, grounded, standing, Action, Attack, CancelPolicy, FlowControl,
         MoveType, Movement, Projectile, Situation,
     },
-    AttackHeight, BlockType, Cost, Hitbox, Item, Lifetime, Move, OnHitEffect, ToHit,
+    AttackHeight, BlockType, Cost, Hitbox, Item, Lifetime, Move, ToHit,
 };
 
 use super::{
@@ -157,16 +157,25 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                                 lifetime: Lifetime::frames(8),
                                 ..default()
                             },
-                            on_hit: OnHitEffect {
-                                damage: 20,
-                                knockback: Vec2::splat(3.0),
-                                pushback: if situation.inventory.contains(&ItemId::Drugs) {
+                            target_on_hit: vec![
+                                Action::TakeDamage(20),
+                                Movement::impulse(
+                                    if situation.inventory.contains(&ItemId::Drugs) {
+                                        3.0
+                                    } else {
+                                        -10.0
+                                    } * Vec2::X,
+                                )
+                                .into(),
+                            ],
+                            self_on_block: vec![Movement::impulse(
+                                if situation.inventory.contains(&ItemId::Drugs) {
                                     3.0
                                 } else {
                                     -10.0
                                 } * Vec2::X,
-                                ..default()
-                            },
+                            )
+                            .into()],
                             ..default()
                         }
                         .into()]
@@ -195,10 +204,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             lifetime: Lifetime::frames(4),
                             ..default()
                         },
-                        on_hit: OnHitEffect {
-                            knockback: Vec2::splat(4.0),
-                            ..default()
-                        },
+                        target_on_hit: vec![Movement::impulse(Vec2::splat(4.0)).into()],
                         ..default()
                     }
                     .into(),
@@ -268,15 +274,14 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
-                        on_hit: OnHitEffect {
-                            damage: 25,
-                            stun: 60,
-                            knockback: Vec2::Y * 1.0,
-                            forced_animation: Some(Animation::Dummy(
+                        target_on_hit: vec![
+                            Action::TakeDamage(25),
+                            Action::HitStun(60),
+                            Action::SnapToOpponent,
+                            Action::OffsetAnimation(Animation::Dummy(
                                 DummyAnimation::NormalThrowRecipient,
                             )),
-                            ..default()
-                        },
+                        ],
                         ..default()
                     }
                     .into(),
@@ -300,16 +305,15 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
-                        on_hit: OnHitEffect {
-                            damage: 25,
-                            stun: 60,
-                            knockback: Vec2::Y * 1.0,
-                            forced_animation: Some(Animation::Dummy(
+                        target_on_hit: vec![
+                            Action::TakeDamage(25),
+                            Action::HitStun(60),
+                            Action::SnapToOpponent,
+                            Action::SideSwitch,
+                            Action::OffsetAnimation(Animation::Dummy(
                                 DummyAnimation::NormalThrowRecipient,
                             )),
-                            side_switch: true,
-                            ..default()
-                        },
+                        ],
                         ..default()
                     }
                     .into(),
@@ -333,11 +337,10 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
-                        on_hit: OnHitEffect {
-                            damage: 25,
-                            knockback: Vec2::Y * 8.0,
-                            ..default()
-                        },
+                        target_on_hit: vec![
+                            Action::TakeDamage(25),
+                            Movement::impulse(Vec2::Y * 8.0).into(),
+                        ],
                         ..default()
                     }
                     .into(),
@@ -388,12 +391,11 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                             lifetime: Lifetime::frames(8),
                             ..default()
                         },
-                        on_hit: OnHitEffect {
-                            damage: 20,
-                            knockback: Vec2::Y,
-                            pushback: -3.0 * Vec2::X,
-                            ..default()
-                        },
+                        target_on_hit: vec![
+                            Action::TakeDamage(20),
+                            Movement::impulse(Vec2::Y).into(),
+                        ],
+                        self_on_hit: vec![Movement::impulse(-3.0 * Vec2::X).into()],
                         ..default()
                     }
                     .into(),
@@ -421,12 +423,11 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                             lifetime: Lifetime::frames(8),
                             ..default()
                         },
-                        on_hit: OnHitEffect {
-                            damage: 20,
-                            knockback: Vec2::Y,
-                            pushback: -3.0 * Vec2::X,
-                            ..default()
-                        },
+                        target_on_hit: vec![
+                            Action::TakeDamage(20),
+                            Movement::impulse(Vec2::Y).into(),
+                        ],
+                        self_on_hit: vec![Movement::impulse(-3.0 * Vec2::X).into()],
                         ..default()
                     }
                     .into(),
@@ -487,10 +488,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                             hits: 3,
                             ..default()
                         },
-                        on_hit: OnHitEffect {
-                            damage: 10,
-                            ..default()
-                        },
+                        target_on_hit: vec![Action::TakeDamage(10)],
                         ..default()
                     }
                     .into(),
@@ -545,10 +543,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                             hits: 2,
                             ..default()
                         },
-                        on_hit: OnHitEffect {
-                            stun: 30,
-                            ..default()
-                        },
+                        target_on_hit: vec![Action::HitStun(30)],
                         ..default()
                     }
                     .into(),

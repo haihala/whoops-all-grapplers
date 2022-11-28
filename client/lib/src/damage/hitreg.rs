@@ -1,7 +1,8 @@
 use bevy::{ecs::query::WorldQuery, prelude::*};
+use strum::IntoEnumIterator;
 
 use characters::{
-    Attack, AttackHeight, BlockType, Character, HitTracker, Hitbox, Hurtbox, OnHitEffect, Resources,
+    Action, Attack, AttackHeight, BlockType, Character, HitTracker, Hitbox, Hurtbox, Resources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -9,7 +10,7 @@ use time::Clock;
 use wag_core::{Area, Facing, Owner, Player, Players, SoundEffect, StickPosition, VisualEffect};
 
 use crate::{
-    assets::{AnimationHelper, AnimationRequest, ParticleRequest, Particles, Sounds},
+    assets::{AnimationHelper, ParticleRequest, Particles, Sounds},
     physics::{PlayerVelocity, Pushbox},
     ui::Notifications,
 };
@@ -23,14 +24,14 @@ pub(super) enum HitType {
     Throw,
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone)]
 pub(super) struct Hit {
     attacker: Entity,
     defender: Entity,
     hitbox: Entity,
     overlap: Area,
     hit_type: HitType,
-    effect: OnHitEffect,
+    attack: Attack,
 }
 
 #[derive(WorldQuery)]
@@ -160,19 +161,18 @@ pub(super) fn detect_hits(
                     notifications.add(attacking_player, "Meaty!".to_owned());
                 }
 
-                let (hit_type, effect, notification) = if !state.is_free() {
+                let (hit_type, notification) = if !state.is_free() {
                     (
                         match attack.to_hit.block_type {
                             BlockType::Constant(_) | BlockType::Dynamic => HitType::Strike,
                             BlockType::Grab => HitType::Throw,
                         },
-                        attack.on_hit,
                         "Busy".into(),
                     )
                 } else {
                     match attack.to_hit.block_type {
                         BlockType::Constant(height) => {
-                            handle_blocking(height, attack, parser.get_relative_stick_position())
+                            handle_blocking(height, parser.get_relative_stick_position())
                         }
                         BlockType::Grab => {
                             if teched(parser) {
@@ -180,7 +180,7 @@ pub(super) fn detect_hits(
                                 return None;
                             }
 
-                            (HitType::Throw, attack.on_hit, "Grappled".into())
+                            (HitType::Throw, "Grappled".into())
                         }
                         BlockType::Dynamic => handle_blocking(
                             if overlap.bottom() > character.high_block_height {
@@ -190,7 +190,6 @@ pub(super) fn detect_hits(
                             } else {
                                 AttackHeight::Low
                             },
-                            attack,
                             parser.get_relative_stick_position(),
                         ),
                     }
@@ -217,7 +216,7 @@ pub(super) fn detect_hits(
                     hitbox: hitbox_entity,
                     overlap,
                     hit_type,
-                    effect,
+                    attack: attack.to_owned(),
                 })
             },
         )
@@ -237,7 +236,6 @@ pub(super) fn apply_hits(
         let [mut attacker, mut defender] =
             players.get_many_mut([hit.attacker, hit.defender]).unwrap();
         let blocked = hit.hit_type == HitType::Block;
-        let effect = hit.effect;
 
         // Hit has happened
         if combo.is_none() {
@@ -246,28 +244,16 @@ pub(super) fn apply_hits(
 
         // Handle blocking and state transitions here
         attacker.state.register_hit();
-
-        defender.health.apply_damage(effect.damage);
-
-        // Stun
-        if effect.launches {
-            defender.state.launch();
+        attacker.state.add_actions(if blocked {
+            hit.attack.self_on_block
         } else {
-            let end_frame = effect.stun + clock.frame;
-            if blocked {
-                defender.state.block(end_frame);
-            } else {
-                defender.state.stun(end_frame);
-            }
-        }
-
-        attacker
-            .velocity
-            .add_impulse(attacker.facing.mirror_vec2(effect.pushback));
-
-        defender
-            .velocity
-            .add_impulse(attacker.facing.mirror_vec2(effect.knockback));
+            hit.attack.self_on_hit
+        });
+        defender.state.add_actions(if blocked {
+            hit.attack.target_on_block
+        } else {
+            hit.attack.target_on_hit
+        });
 
         // Defense
         if blocked {
@@ -277,33 +263,11 @@ pub(super) fn apply_hits(
             defender.defense.reset()
         }
 
-        // Forced animation (throw)
-        if let Some(forced_animation) = effect.forced_animation {
-            // Snap players together
-            let raw_diff = defender.tf.translation.x - attacker.tf.translation.x; // This ougth to be positive when attacker is on the left
-            let width_between = (attacker.pushbox.width() + defender.pushbox.width()) / 2.0;
-
-            let new_position = attacker.tf.translation
-                + Vec3::X
-                    * raw_diff.signum()
-                    * width_between
-                    * (1.0 - (2.0 * effect.side_switch as i32 as f32));
-
-            defender.tf.translation = new_position;
-
-            let position_offset = (attacker.tf.translation - new_position).truncate();
-            defender.animation_helper.play(AnimationRequest {
-                invert: true,
-                position_offset,
-                ..forced_animation.into()
-            });
-        }
-
         // Effects
         let (sound, particle) = match hit.hit_type {
             HitType::Block => (SoundEffect::Block, VisualEffect::Block),
             HitType::Strike => (SoundEffect::Hit, VisualEffect::Hit),
-            HitType::Throw => todo!(),
+            HitType::Throw => (SoundEffect::Hit, VisualEffect::Hit), // TODO custom effects
         };
 
         sounds.play(sound);
@@ -317,31 +281,75 @@ pub(super) fn apply_hits(
     }
 }
 
-fn handle_blocking(
-    height: AttackHeight,
-    attack: &Attack,
-    stick: StickPosition,
-) -> (HitType, OnHitEffect, String) {
+fn handle_blocking(height: AttackHeight, stick: StickPosition) -> (HitType, String) {
     let blocking_high = stick == StickPosition::W;
     let blocking_low = stick == StickPosition::SW;
 
     if !(blocking_high || blocking_low) {
-        (HitType::Strike, attack.on_hit, "Not blocking".into())
+        (HitType::Strike, "Not blocking".into())
     } else if match height {
         AttackHeight::Low => blocking_low,
         AttackHeight::Mid => blocking_low || blocking_high,
         AttackHeight::High => blocking_high,
     } {
-        (
-            HitType::Block,
-            attack.on_block.unwrap_or_default(), // This kinda fucks up how moves are created, but that's fixable
-            "Blocked!".into(),
-        )
+        (HitType::Block, "Blocked!".into())
     } else {
-        (HitType::Strike, attack.on_hit, format!("Hit {:?}", height))
+        (HitType::Strike, format!("Hit {:?}", height))
     }
 }
 
 fn teched(parser: &InputParser) -> bool {
     parser.head_is_clear()
+}
+
+pub(super) fn snap_and_switch(
+    mut query: Query<(&mut PlayerState, &mut Transform, &Pushbox)>,
+    players: Res<Players>,
+) {
+    for player in Player::iter() {
+        let [(mut state, mut self_tf, self_pushbox), (_, other_tf, other_pushbox)] = query
+            .get_many_mut([players.get(player), players.get(player.other())])
+            .unwrap();
+        let actions = state.drain_matching_actions(|action| {
+            if matches!(*action, Action::SnapToOpponent | Action::SideSwitch) {
+                Some(action.to_owned())
+            } else {
+                None
+            }
+        });
+
+        if actions.contains(&Action::SnapToOpponent) {
+            let switch = actions.contains(&Action::SideSwitch) as i32 as f32;
+
+            let raw_diff = self_tf.translation.x - other_tf.translation.x; // This ought to be positive when attacker is on the left
+            let width_between = (self_pushbox.width() + other_pushbox.width()) / 2.0;
+
+            let new_position = other_tf.translation
+                + Vec3::X * raw_diff.signum() * width_between * (1.0 - (2.0 * switch));
+
+            self_tf.translation = new_position;
+        }
+    }
+}
+
+pub(super) fn stun_actions(mut query: Query<&mut PlayerState>, clock: Res<Clock>) {
+    for mut state in &mut query {
+        for action in state.drain_matching_actions(|action| {
+            if matches!(
+                *action,
+                Action::Launch | Action::HitStun(_) | Action::BlockStun(_)
+            ) {
+                Some(action.to_owned())
+            } else {
+                None
+            }
+        }) {
+            match action {
+                Action::HitStun(frames) => state.stun(clock.frame + frames),
+                Action::BlockStun(frames) => state.block(clock.frame + frames),
+                Action::Launch => state.launch(),
+                _ => panic!("Leaking"),
+            }
+        }
+    }
 }

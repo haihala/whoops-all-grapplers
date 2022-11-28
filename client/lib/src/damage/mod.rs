@@ -28,10 +28,13 @@ impl Plugin for DamagePlugin {
                         .pipe(hitreg::apply_hits)
                         .after(hitreg::clash_parry),
                 )
-                .with_system(defense::timeout_defense_streak.after(hitreg::apply_hits))
+                .with_system(hitreg::stun_actions.after(hitreg::apply_hits))
+                .with_system(hitreg::snap_and_switch.after(hitreg::stun_actions))
+                .with_system(defense::timeout_defense_streak.after(hitreg::snap_and_switch))
+                .with_system(health::take_damage.after(defense::timeout_defense_streak))
                 .with_system(
                     health::check_dead
-                        .after(defense::timeout_defense_streak)
+                        .after(health::take_damage)
                         .with_run_criteria(State::on_update(GameState::Combat)),
                 )
                 .with_system(

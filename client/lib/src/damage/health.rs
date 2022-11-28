@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
+use characters::Action;
+use player_state::PlayerState;
 use time::{Clock, GameState, RoundResult};
 use wag_core::Player;
 
@@ -60,5 +62,19 @@ pub fn check_dead(
         });
 
         state.set(GameState::Shop).unwrap();
+    }
+}
+
+pub(super) fn take_damage(mut query: Query<(&mut PlayerState, &mut Health)>) {
+    for (mut state, mut health) in &mut query {
+        for amount in state.drain_matching_actions(|action| {
+            if let Action::TakeDamage(amount) = action {
+                Some(*amount)
+            } else {
+                None
+            }
+        }) {
+            health.apply_damage(amount);
+        }
     }
 }

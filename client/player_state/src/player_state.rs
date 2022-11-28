@@ -19,6 +19,7 @@ pub struct PlayerState {
     main: MainState,
     pub free_since: Option<usize>,
     conditions: Vec<StatusCondition>,
+    external_actions: Vec<Action>,
 }
 
 impl Default for PlayerState {
@@ -27,6 +28,7 @@ impl Default for PlayerState {
             main: MainState::Stand(StandState::default()),
             free_since: Some(0),
             conditions: vec![],
+            external_actions: vec![],
         }
     }
 }
@@ -56,15 +58,24 @@ impl PlayerState {
         &mut self,
         predicate: impl Fn(&mut Action) -> Option<T>,
     ) -> Vec<T> {
+        let mut actions: Vec<T> = self
+            .external_actions
+            .drain_filter(|action| (predicate)(action).is_some())
+            .map(|mut action| (predicate)(&mut action).unwrap())
+            .collect();
+
         if let Some(ref mut history) = self.get_move_history_mut() {
-            history
+            let history_actions = history
                 .unprocessed_events
                 .drain_filter(|action| (predicate)(action).is_some())
-                .map(|mut action| (predicate)(&mut action).unwrap())
-                .collect()
-        } else {
-            vec![]
+                .map(|mut action| (predicate)(&mut action).unwrap());
+            actions.extend(history_actions);
         }
+        actions
+    }
+
+    pub fn add_actions(&mut self, mut actions: Vec<Action>) {
+        self.external_actions.append(&mut actions);
     }
 
     pub fn get_generic_animation(&self, facing: Facing) -> Option<AnimationType> {

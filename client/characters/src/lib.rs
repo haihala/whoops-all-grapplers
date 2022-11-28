@@ -10,6 +10,6 @@ pub use self::characters::{dummy, Character};
 pub use items::Inventory;
 pub use moves::{
     Action, Attack, AttackHeight, BlockType, HitTracker, Hitbox, Hurtbox, Lifetime, Move,
-    MoveHistory, Movement, OnHitEffect, Situation, ToHit,
+    MoveHistory, Movement, Situation, ToHit,
 };
 pub use resources::Resources;

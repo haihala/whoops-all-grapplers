@@ -4,7 +4,7 @@ use wag_core::{Animation, Facing};
 
 use super::Animations;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct AnimationRequest {
     pub animation: Animation,
     pub time_offset: usize,

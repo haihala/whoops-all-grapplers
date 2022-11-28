@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use wag_core::{Animation, Area, Model};
+use wag_core::{Area, Model};
 
 #[derive(Default, Clone, Copy, Deref, DerefMut, Debug, Component, Inspectable, PartialEq)]
 pub struct Hitbox(pub Area);
@@ -55,31 +55,6 @@ impl Lifetime {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Inspectable, Component)]
-pub struct OnHitEffect {
-    pub damage: usize,
-    pub stun: usize,
-    pub knockback: Vec2,
-    pub pushback: Vec2,
-    pub launches: bool,
-    pub forced_animation: Option<Animation>,
-    pub side_switch: bool,
-}
-
-impl Default for OnHitEffect {
-    fn default() -> Self {
-        Self {
-            damage: 1,
-            stun: 15,
-            knockback: Vec2::X * 2.0,
-            pushback: Vec2::ZERO,
-            launches: false,
-            forced_animation: None,
-            side_switch: false,
-        }
-    }
-}
-
 const FRAMES_BETWEEN_HITS: usize = 10;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Inspectable, Component)]
@@ -120,7 +95,7 @@ pub enum BlockType {
     Dynamic,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Inspectable)]
 pub struct ToHit {
     pub block_type: BlockType,
     pub hitbox: Hitbox,
@@ -143,7 +118,7 @@ impl Default for ToHit {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Inspectable)]
 pub struct Projectile {
     pub model: Model,
 }

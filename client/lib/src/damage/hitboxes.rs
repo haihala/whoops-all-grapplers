@@ -50,7 +50,7 @@ impl HitboxSpawner {
                 Vec2::ZERO, // Position is set into the object directly
                 attack.to_hit.hitbox.size(),
             )),
-            attack,
+            attack.clone(),
         ));
 
         if let Some(velocity) = attack.to_hit.velocity {

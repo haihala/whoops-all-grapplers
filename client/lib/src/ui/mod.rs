@@ -25,8 +25,6 @@ const TOP_CONTAINER_HEIGHT: f32 = 10.0;
 // Bottom bars
 const BOTTOM_CONTAINER_BOTTOM_PAD: f32 = 3.0;
 const BOTTOM_CONTAINER_SIDE_PAD: f32 = 3.0;
-const BOTTOM_CONTAINER_WIDTH: f32 = 100.0 - 2.0 * BOTTOM_CONTAINER_SIDE_PAD; // Relative to screen
-const BOTTOM_CONTAINER_HEIGHT: f32 = 10.0; // Relative to screen
 
 pub struct UIPlugin;
 
@@ -88,16 +86,14 @@ fn setup_bottom_bars(commands: &mut Commands, colors: &Colors) {
             NodeBundle {
                 style: Style {
                     flex_direction: FlexDirection::Column,
-                    justify_content: JustifyContent::SpaceBetween,
-                    size: Size::new(
-                        Val::Percent(BOTTOM_CONTAINER_WIDTH),
-                        Val::Percent(BOTTOM_CONTAINER_HEIGHT),
-                    ),
+                    justify_content: JustifyContent::FlexEnd,
+                    size: Size::new(FULL, FULL),
                     position: UiRect {
                         bottom: Val::Percent(BOTTOM_CONTAINER_BOTTOM_PAD),
                         left: Val::Percent(BOTTOM_CONTAINER_SIDE_PAD),
                         ..default()
                     },
+
                     ..default()
                 },
                 ..div()

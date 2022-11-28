@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 
-pub const TRANSPARENT: Color = Color::rgba(0.0, 0.0, 0.0, 0.0);
 pub const ZERO: Val = Val::Percent(0.0);
 pub const FULL: Val = Val::Percent(100.0);
 
@@ -19,7 +18,6 @@ pub(super) fn div_style() -> Style {
 pub(super) fn div() -> NodeBundle {
     NodeBundle {
         style: div_style(),
-        background_color: TRANSPARENT.into(),
         ..default()
     }
 }

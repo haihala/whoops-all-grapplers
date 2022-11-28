@@ -47,27 +47,25 @@ pub fn setup_toasts(commands: &mut Commands) {
 fn create_notification_container(commands: &mut Commands, side: Player) -> Entity {
     let top_margin = 15.0;
     let top = Val::Percent(top_margin);
-    let size = Size::new(Val::Percent(20.0), Val::Percent(100.0 - top_margin));
-    let position = match side {
-        Player::One => UiRect {
-            left: Val::Px(0.0),
-            top,
-            ..default()
-        },
-        Player::Two => UiRect {
-            right: Val::Px(0.0),
-            top,
-            ..default()
-        },
-    };
 
     commands
         .spawn(NodeBundle {
             style: Style {
-                flex_direction: FlexDirection::ColumnReverse,
+                flex_direction: FlexDirection::Column,
                 position_type: PositionType::Absolute,
-                position,
-                size,
+                position: match side {
+                    Player::One => UiRect {
+                        left: Val::Px(0.0),
+                        top,
+                        ..default()
+                    },
+                    Player::Two => UiRect {
+                        right: Val::Px(0.0),
+                        top,
+                        ..default()
+                    },
+                },
+                size: Size::new(Val::Percent(20.0), Val::Percent(100.0 - top_margin)),
                 ..div_style()
             },
             ..div()

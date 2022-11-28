@@ -6,7 +6,7 @@ use crate::{
     ui::{
         text::TIMER_WIDTH,
         utils::{div, div_style},
-        FULL, TRANSPARENT,
+        FULL,
     },
 };
 
@@ -15,7 +15,7 @@ use super::{ChargeBar, HealthBar, MeterBar};
 const HEALTH_BAR_WIDTH: f32 = (100.0 - TIMER_WIDTH) / 2.0; // Relative to wrapper
 const HEALTH_BAR_HEIGHT: f32 = 50.0; // Relative to wrapper
 const RESOURCE_BAR_WIDTH: f32 = 30.0; // Relative to wrapper
-const RESOURCE_BAR_HEIGHT: f32 = 45.0; // Relative to wrapper (BOTTOM_CONTAINER_HEIGHT)
+const RESOURCE_BAR_HEIGHT: f32 = 5.0; // Relative to wrapper
 
 pub fn spawn_health_bar(parent: &mut ChildBuilder, color: Color, player: Player) {
     parent
@@ -33,7 +33,6 @@ pub fn spawn_health_bar(parent: &mut ChildBuilder, color: Color, player: Player)
                     ),
                     ..default()
                 },
-                background_color: TRANSPARENT.into(),
                 ..default()
             },
             Name::new(format!("Player {player} health bar")),
@@ -83,9 +82,12 @@ fn resource_bars(
                 position_type: PositionType::Relative,
                 justify_content: JustifyContent::SpaceBetween,
                 size: Size::new(FULL, Val::Percent(RESOURCE_BAR_HEIGHT)),
+                padding: UiRect {
+                    bottom: Val::Percent(1.0),
+                    ..default()
+                },
                 ..default()
             },
-            background_color: TRANSPARENT.into(),
             ..default()
         })
         .with_children(|parent| {

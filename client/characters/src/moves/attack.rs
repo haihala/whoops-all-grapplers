@@ -68,7 +68,8 @@ pub struct CommonAttackProps {
     pub damage: usize,
     pub knock_back: Vec2,
     pub push_back: Vec2,
-    pub stun: StunType,
+    pub on_hit: StunType,
+    pub on_block: StunType,
 }
 
 impl Default for CommonAttackProps {
@@ -77,7 +78,8 @@ impl Default for CommonAttackProps {
             damage: 5,
             knock_back: -Vec2::X,
             push_back: -Vec2::X,
-            stun: StunType::Stun(15),
+            on_hit: StunType::Stun(15),
+            on_block: StunType::Stun(10),
         }
     }
 }
@@ -107,14 +109,18 @@ impl CommonAttackProps {
     }
 
     fn get_stun(&self, blocked: bool) -> Action {
-        match self.stun {
-            StunType::Launcher => Action::Launch,
-            StunType::Stun(frames) => {
-                if blocked {
-                    Action::BlockStun(frames)
-                } else {
-                    Action::HitStun(frames)
+        if blocked {
+            match self.on_hit {
+                StunType::Launcher => Action::Launch,
+                StunType::Stun(frames) => Action::HitStun(frames),
+            }
+        } else {
+            match self.on_block {
+                StunType::Launcher => {
+                    warn!("Launch on block?");
+                    Action::Launch
                 }
+                StunType::Stun(frames) => Action::BlockStun(frames),
             }
         }
     }

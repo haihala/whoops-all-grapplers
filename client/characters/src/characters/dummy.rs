@@ -162,7 +162,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             },
                             CommonAttackProps {
                                 damage: 20,
-                                stun: Stun(20),
+                                on_hit: Stun(20),
                                 knock_back: if situation.inventory.contains(&ItemId::Drugs) {
                                     3.0
                                 } else {
@@ -173,6 +173,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                                 } else {
                                     -2.0
                                 } * Vec2::X,
+                                ..default()
                             },
                         )
                         .into()]
@@ -275,7 +276,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         },
                         CommonAttackProps {
                             damage: 25,
-                            stun: Launcher,
+                            on_hit: Launcher,
                             ..default()
                         },
                     )
@@ -306,7 +307,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         },
                         CommonAttackProps {
                             damage: 25,
-                            stun: Launcher,
+                            on_hit: Launcher,
                             ..default()
                         },
                     )
@@ -338,7 +339,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         },
                         CommonAttackProps {
                             knock_back: Vec2::Y * 8.0,
-                            stun: Launcher,
+                            on_hit: Launcher,
                             ..default()
                         },
                     )
@@ -545,7 +546,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                             ..default()
                         },
                         CommonAttackProps {
-                            stun: Stun(30),
+                            on_hit: Stun(30),
                             ..default()
                         },
                     )

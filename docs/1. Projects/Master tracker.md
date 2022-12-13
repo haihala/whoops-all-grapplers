@@ -4,7 +4,6 @@
 - [[Shop UI]] + [[Items and the shop]]
 
 ## Low priority
-- Convert OnHitEffect to a vector of enums (this will allow splitting and adding more effects easily, as well as connecting related fields)
 - [[Bevy 0.9]]
 - [[Rewards]]
 - [[Resources between rounds]]

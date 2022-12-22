@@ -104,6 +104,7 @@ pub(super) fn clash_parry(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(super) fn detect_hits(
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,

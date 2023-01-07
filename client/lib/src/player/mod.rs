@@ -45,11 +45,11 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
-            .add_system(reset.with_run_criteria(State::on_update(GameState::Shop)))
+            .add_system(setup_combat.with_run_criteria(State::on_enter(GameState::Combat)))
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(once_per_combat_frame)
-                    .with_system(move_activation::manage_buffer.after(reset))
+                    .with_system(move_activation::manage_buffer)
                     .with_system(
                         move_activation::move_continuation.after(move_activation::manage_buffer),
                     )
@@ -138,9 +138,8 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
 }
 
 #[allow(clippy::type_complexity)]
-fn reset(
+fn setup_combat(
     mut commands: Commands,
-    keys: Res<Input<KeyCode>>,
     mut query: Query<(
         &Player,
         &mut Health,
@@ -151,42 +150,37 @@ fn reset(
         &mut InputParser,
         &mut PlayerVelocity,
     )>,
-    mut game_state: ResMut<State<GameState>>,
     mut clock: ResMut<Clock>,
     bevy_time: Res<Time>,
 ) {
-    // Just pressed would be better, but it's difficult in tests and the difference is very minor.
-    if keys.pressed(KeyCode::Return) {
-        game_state.set(GameState::Combat).unwrap();
-        clock.reset(bevy_time.elapsed_seconds_f64());
-        commands.remove_resource::<RoundResult>();
+    clock.reset(bevy_time.elapsed_seconds_f64());
+    commands.remove_resource::<RoundResult>();
 
-        for (
-            player,
-            mut health,
-            mut resources,
-            mut tf,
-            mut player_state,
-            mut buffer,
-            mut parser,
-            mut velocity,
-        ) in &mut query
-        {
-            health.reset();
-            resources.reset();
-            player_state.reset();
-            buffer.clear_all();
-            parser.clear();
-            velocity.reset();
+    for (
+        player,
+        mut health,
+        mut resources,
+        mut tf,
+        mut player_state,
+        mut buffer,
+        mut parser,
+        mut velocity,
+    ) in &mut query
+    {
+        health.reset();
+        resources.reset();
+        player_state.reset();
+        buffer.clear_all();
+        parser.clear();
+        velocity.reset();
 
-            tf.translation = Vec3::new(
-                match *player {
-                    Player::One => -PLAYER_SPAWN_DISTANCE,
-                    Player::Two => PLAYER_SPAWN_DISTANCE,
-                },
-                PLAYER_SPAWN_HEIGHT,
-                0.0,
-            );
-        }
+        tf.translation = Vec3::new(
+            match *player {
+                Player::One => -PLAYER_SPAWN_DISTANCE,
+                Player::Two => PLAYER_SPAWN_DISTANCE,
+            },
+            PLAYER_SPAWN_HEIGHT,
+            0.0,
+        );
     }
 }

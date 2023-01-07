@@ -3,7 +3,7 @@ use bevy_inspector_egui::{InspectableRegistry, WorldInspectorPlugin};
 
 use characters::{Character, Hitbox, Hurtbox, Inventory, Resources};
 use player_state::PlayerState;
-use time::Clock;
+use time::{Clock, GameState};
 use wag_core::{Player, SoundEffect};
 
 use crate::{
@@ -23,7 +23,8 @@ impl Plugin for DevPlugin {
             .add_plugin(WorldInspectorPlugin::new())
             .insert_resource(InspectableRegistry::default())
             .add_system(generic_test_system)
-            .add_system(input_leniency_test_system.after(generic_test_system))
+            .add_system(cycle_game_state.after(generic_test_system))
+            .add_system(input_leniency_test_system.after(cycle_game_state))
             .add_system(box_visualization::spawn_boxes.after(input_leniency_test_system))
             .add_system(box_visualization::size_adjustment.after(box_visualization::spawn_boxes))
             .world
@@ -121,5 +122,13 @@ fn log_diff(
 
         *a_status = None;
         *b_status = None;
+    }
+}
+
+#[allow(clippy::type_complexity)]
+fn cycle_game_state(keys: Res<Input<KeyCode>>, mut game_state: ResMut<State<GameState>>) {
+    if keys.just_pressed(KeyCode::Return) {
+        let next_state = game_state.current().next();
+        game_state.set(next_state).unwrap();
     }
 }

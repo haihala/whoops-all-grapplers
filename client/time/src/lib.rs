@@ -51,7 +51,7 @@ impl Plugin for TimePlugin {
             SystemStage::parallel(),
         )
         .insert_resource(Clock::default())
-        .add_state_to_stage(CoreStage::Last, GameState::Shop)
+        .add_state_to_stage(CoreStage::Last, GameState::Loading)
         .add_system_set_to_stage(CoreStage::PostUpdate, State::<GameState>::get_driver())
         .add_system_set_to_stage(CoreStage::Update, State::<GameState>::get_driver())
         .add_system_set_to_stage(CoreStage::PreUpdate, State::<GameState>::get_driver())

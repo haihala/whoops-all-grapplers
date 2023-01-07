@@ -298,13 +298,19 @@ fn teched(parser: &InputParser) -> bool {
 }
 
 pub(super) fn snap_and_switch(
-    mut query: Query<(&mut PlayerState, &mut Transform, &Pushbox)>,
+    mut query: Query<(
+        &mut PlayerState,
+        &mut Transform,
+        &Pushbox,
+        &mut PlayerVelocity,
+    )>,
     players: Res<Players>,
 ) {
     for player in Player::iter() {
-        let [(mut state, mut self_tf, self_pushbox), (_, other_tf, other_pushbox)] = query
-            .get_many_mut([players.get(player), players.get(player.other())])
-            .unwrap();
+        let [(mut state, mut self_tf, self_pushbox, mut self_velocity), (_, other_tf, other_pushbox, other_velocity)] =
+            query
+                .get_many_mut([players.get(player), players.get(player.other())])
+                .unwrap();
         let actions = state.drain_matching_actions(|action| {
             if matches!(*action, Action::SnapToOpponent | Action::SideSwitch) {
                 Some(action.to_owned())
@@ -323,6 +329,7 @@ pub(super) fn snap_and_switch(
                 + Vec3::X * raw_diff.signum() * width_between * (1.0 - (2.0 * switch));
 
             self_tf.translation = new_position;
+            self_velocity.sync_with(&other_velocity);
         }
     }
 }

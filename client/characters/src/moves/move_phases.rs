@@ -26,7 +26,7 @@ pub enum Action {
     // TODO: Figure out a better way to handle actions that change depending on game state
     // Maybe hoist AnimationRequest?
     Animation(Animation),
-    OffsetAnimation(Animation),
+    RecipientAnimation(Animation),
     AnimationAtFrame(Animation, usize),
     OffsetAnimationAtFrame(Animation, usize),
     Sound(SoundEffect),

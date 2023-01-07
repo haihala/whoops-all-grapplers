@@ -1,6 +1,5 @@
 # Backlog
 ## High priority
-- [[Character 1]]
 - [[Shop UI]] + [[Items and the shop]]
 
 ## Low priority

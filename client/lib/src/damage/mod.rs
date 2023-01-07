@@ -26,9 +26,10 @@ impl Plugin for DamagePlugin {
                 .with_system(
                     hitreg::detect_hits
                         .pipe(hitreg::apply_hits)
-                        .after(hitreg::clash_parry),
+                        .after(hitreg::clash_parry)
+                        .label("autolabels don't work for this"),
                 )
-                .with_system(hitreg::stun_actions.after(hitreg::apply_hits))
+                .with_system(hitreg::stun_actions.after("autolabels don't work for this"))
                 .with_system(hitreg::snap_and_switch.after(hitreg::stun_actions))
                 .with_system(defense::timeout_defense_streak.after(hitreg::snap_and_switch))
                 .with_system(health::take_damage.after(defense::timeout_defense_streak))

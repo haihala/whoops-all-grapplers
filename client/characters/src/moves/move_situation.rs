@@ -56,7 +56,8 @@ impl Situation<'_> {
                                             action
                                         } else if let Action::Animation(animation) = action {
                                             Action::AnimationAtFrame(animation, history.frame_skip)
-                                        } else if let Action::OffsetAnimation(animation) = action {
+                                        } else if let Action::RecipientAnimation(animation) = action
+                                        {
                                             Action::OffsetAnimationAtFrame(
                                                 animation,
                                                 history.frame_skip,

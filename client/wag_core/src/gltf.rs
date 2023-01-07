@@ -42,6 +42,8 @@ pub enum DummyAnimation {
     // Throws
     NormalThrow,
     NormalThrowRecipient,
+    AirThrow,
+    AirThrowRecipient,
 }
 
 #[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Inspectable)]

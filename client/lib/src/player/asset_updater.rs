@@ -33,9 +33,10 @@ pub fn update_animation(
                     animation: *animation,
                     ..default()
                 }),
-                Action::OffsetAnimation(animation) => Some(AnimationRequest {
+                Action::RecipientAnimation(animation) => Some(AnimationRequest {
                     animation: *animation,
                     position_offset,
+                    invert: true,
                     ..default()
                 }),
                 Action::AnimationAtFrame(animation, frame) => Some(AnimationRequest {
@@ -47,6 +48,7 @@ pub fn update_animation(
                     animation: *animation,
                     time_offset: *frame,
                     position_offset,
+                    invert: true,
                     ..default()
                 }),
                 _ => None,

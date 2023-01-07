@@ -132,6 +132,8 @@ pub fn animation_paths() -> HashMap<Animation, String> {
             Animation::Dummy(DummyAnimation::AirSlam),
             Animation::Dummy(DummyAnimation::AirSlap),
             Animation::Dummy(DummyAnimation::AirStun),
+            Animation::Dummy(DummyAnimation::AirThrow),
+            Animation::Dummy(DummyAnimation::AirThrowRecipient),
             Animation::Dummy(DummyAnimation::AntiAir),
             Animation::Dummy(DummyAnimation::DashBack),
             Animation::Dummy(DummyAnimation::BurnStraight),

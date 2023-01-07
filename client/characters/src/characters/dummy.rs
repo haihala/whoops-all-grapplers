@@ -282,7 +282,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     )
                     .with_to_target_on_hit(vec![
                         SnapToOpponent,
-                        OffsetAnimation(DummyAnimation::NormalThrowRecipient.into()),
+                        RecipientAnimation(DummyAnimation::NormalThrowRecipient.into()),
                     ])
                     .into(),
                     Wait(40, Never),
@@ -314,7 +314,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     .with_to_target_on_hit(vec![
                         SnapToOpponent,
                         SideSwitch,
-                        OffsetAnimation(DummyAnimation::NormalThrowRecipient.into()),
+                        RecipientAnimation(DummyAnimation::NormalThrowRecipient.into()),
                     ])
                     .into(),
                     Wait(40, Never),
@@ -345,6 +345,38 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     )
                     .into(),
                     Wait(15, IfHit),
+                ],
+                ..default()
+            },
+        ),
+        (
+            MoveId::AirThrow,
+            Move {
+                input: Some("g"),
+                requirement: airborne,
+                phases: vec![
+                    DummyAnimation::AirThrow.into(),
+                    Wait(9, Never),
+                    Attack::new(
+                        ToHit {
+                            block_type: Grab,
+                            hitbox: Hitbox(Area::new(0.75, 1.0, 0.8, 0.8)),
+                            lifetime: Lifetime::frames(5),
+                            ..default()
+                        },
+                        CommonAttackProps {
+                            damage: 25,
+                            on_hit: Launcher,
+                            knock_back: Vec2::new(1.0, -4.0),
+                            ..default()
+                        },
+                    )
+                    .with_to_target_on_hit(vec![
+                        SnapToOpponent,
+                        RecipientAnimation(DummyAnimation::AirThrowRecipient.into()),
+                    ])
+                    .into(),
+                    Wait(30, Never),
                 ],
                 ..default()
             },

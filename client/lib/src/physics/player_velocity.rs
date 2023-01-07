@@ -31,6 +31,10 @@ impl PlayerVelocity {
     pub fn reset(&mut self) {
         *self = Self::default();
     }
+    pub fn sync_with(&mut self, other: &PlayerVelocity) {
+        self.velocity = other.velocity;
+        // This may need other actions, used primarily when snapping to the other player
+    }
     pub(super) fn get_shift(&self) -> Vec2 {
         self.velocity / wag_core::FPS
     }

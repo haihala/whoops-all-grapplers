@@ -39,6 +39,7 @@ pub enum MoveId {
     AirSlam,
     BackThrow,
     ForwardThrow,
+    AirThrow,
     Divekick,
     AirSlap,
     AntiAir,

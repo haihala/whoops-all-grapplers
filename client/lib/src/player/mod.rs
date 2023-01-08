@@ -5,6 +5,7 @@ mod move_activation;
 mod move_advancement;
 mod movement;
 mod recovery;
+mod root_mover;
 mod size_adjustment;
 
 use characters::{dummy, Character, Hurtbox, Inventory, Resources};
@@ -22,6 +23,8 @@ use crate::{
 use bevy::{ecs::query::WorldQuery, prelude::*};
 
 pub use move_activation::MoveBuffer;
+
+use self::root_mover::RootMover;
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
@@ -80,8 +83,9 @@ impl Plugin for PlayerPlugin {
                         asset_updater::update_animation
                             .after(condition_management::manage_conditions),
                     )
+                    .with_system(asset_updater::update_audio.after(asset_updater::update_animation))
                     .with_system(
-                        asset_updater::update_audio.after(asset_updater::update_animation),
+                        root_mover::update_root_transform.after(asset_updater::update_audio),
                     ),
             );
     }
@@ -129,10 +133,13 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
             state,
         ))
         .with_children(|parent| {
-            parent.spawn(SceneBundle {
-                scene: models[&character.model].clone(),
-                ..default()
-            });
+            parent.spawn((
+                SceneBundle {
+                    scene: models[&character.model].clone(),
+                    ..default()
+                },
+                RootMover,
+            ));
         })
         .id()
 }

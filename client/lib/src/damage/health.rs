@@ -29,7 +29,12 @@ impl Health {
     }
 
     pub fn apply_damage(&mut self, amount: usize) {
-        self.value -= amount;
+        if amount > self.value {
+            // Prevent underflow
+            self.value = 0;
+        } else {
+            self.value -= amount;
+        }
     }
 }
 
@@ -39,6 +44,10 @@ pub fn check_dead(
     query: Query<(&Health, &Player)>,
     mut state: ResMut<State<GameState>>,
 ) {
+    if *state.current() != GameState::Combat {
+        return;
+    }
+
     let living_players: Vec<Player> = query
         .iter()
         .filter_map(|(health, player)| {
@@ -52,7 +61,7 @@ pub fn check_dead(
 
     let round_over = living_players.len() != 2 || clock.time_out();
 
-    if *state.current() == GameState::Combat && round_over {
+    if round_over {
         commands.insert_resource(if living_players.len() == 1 {
             RoundResult {
                 winner: Some(living_players[0]),
@@ -61,7 +70,7 @@ pub fn check_dead(
             RoundResult { winner: None }
         });
 
-        state.set(GameState::Shop).unwrap();
+        state.set(GameState::PostRound).unwrap();
     }
 }
 

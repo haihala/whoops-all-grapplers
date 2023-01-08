@@ -2,7 +2,7 @@ use bevy::{ecs::schedule::ShouldRun, prelude::*, time::FixedTimestep};
 use bevy_inspector_egui::Inspectable;
 
 mod game_flow;
-pub use game_flow::{GameState, RoundResult};
+pub use game_flow::{GameState, OnlyShowInGameState, RoundResult};
 
 pub const ROUND_TIME: f32 = 99.0;
 
@@ -51,6 +51,7 @@ impl Plugin for TimePlugin {
             SystemStage::parallel(),
         )
         .insert_resource(Clock::default())
+        .add_system(update_visibility_on_state_change)
         .add_state_to_stage(CoreStage::Last, GameState::Loading)
         .add_system_set_to_stage(CoreStage::PostUpdate, State::<GameState>::get_driver())
         .add_system_set_to_stage(CoreStage::Update, State::<GameState>::get_driver())
@@ -79,6 +80,19 @@ fn update_clock(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
 
 fn reset_clock(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
     clock.reset(bevy_clock.elapsed_seconds_f64());
+}
+
+fn update_visibility_on_state_change(
+    state: Res<State<GameState>>,
+    mut query: Query<(&mut Visibility, &OnlyShowInGameState)>,
+) {
+    // TODO FIXME: This is broken, and happens on every frame which is not performant
+    if state.is_changed() {
+        let new_state = state.current();
+        for (mut visibility, restriction) in &mut query {
+            visibility.is_visible = restriction.contains(new_state);
+        }
+    }
 }
 
 pub fn not_in_combat(state: Res<State<GameState>>) -> ShouldRun {

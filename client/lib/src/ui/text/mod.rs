@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use time::{Clock, GameState, RoundResult, RoundTimer, ROUND_TIME};
+use time::{Clock, GameState, OnlyShowInGameState, RoundResult, RoundTimer, ROUND_TIME};
 
 use crate::assets::{Colors, Fonts};
 
@@ -13,13 +13,6 @@ pub struct RoundText;
 
 pub fn update_timer(mut query: Query<&mut Text, With<RoundTimer>>, clock: Res<Clock>) {
     query.single_mut().sections[0].value = (ROUND_TIME - clock.elapsed_time).floor().to_string();
-}
-
-pub fn hide_round_text(
-    mut query: Query<&mut Visibility, With<RoundText>>,
-    state: Res<State<GameState>>,
-) {
-    query.single_mut().is_visible = *state.current() != GameState::Combat;
 }
 
 pub fn update_round_text(
@@ -56,6 +49,7 @@ pub(super) fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fo
                 ..div()
             },
             Name::new("Round info text"),
+            OnlyShowInGameState(vec![GameState::Loading, GameState::PostRound]),
         ))
         .with_children(|parent| {
             parent.spawn((

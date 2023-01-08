@@ -38,8 +38,7 @@ impl Plugin for UIPlugin {
                 .with_system(
                     text::update_timer.with_run_criteria(State::on_update(GameState::Combat)),
                 )
-                .with_system(text::hide_round_text.after(text::update_timer))
-                .with_system(text::update_round_text.after(text::hide_round_text)),
+                .with_system(text::update_round_text.after(text::update_timer)),
         );
     }
 }

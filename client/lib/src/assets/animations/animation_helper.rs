@@ -9,8 +9,8 @@ pub struct AnimationRequest {
     pub animation: Animation,
     pub time_offset: usize,
     pub position_offset: Vec2,
-    pub generic_overrideable: bool,
     pub invert: bool,
+    pub looping: bool,
 }
 impl From<Animation> for AnimationRequest {
     fn from(animation: Animation) -> Self {
@@ -26,7 +26,6 @@ pub struct AnimationHelper {
     pub player_entity: Entity,
     pub scene_root: Entity,
     pub current: Animation,
-    pub generic_overrideable: bool,
     facing: Facing,
     request: Option<AnimationRequest>,
 }
@@ -38,7 +37,6 @@ impl AnimationHelper {
             current: Animation::TPose,
             facing: Facing::default(),
             request: None,
-            generic_overrideable: true,
         }
     }
     pub fn play(&mut self, new: AnimationRequest) {
@@ -98,18 +96,11 @@ fn find_animation_player_entity(
 }
 
 pub fn update_animation(
-    clips: Option<Res<Assets<AnimationClip>>>,
     animations: Res<Animations>,
     mut main: Query<(&mut AnimationHelper, &Facing)>,
     mut players: Query<&mut AnimationPlayer>,
     mut scenes: Query<&mut Transform, With<Handle<Scene>>>,
 ) {
-    if clips.is_none() {
-        // In integration tests
-        return;
-    }
-    let assets = clips.unwrap();
-
     for (mut helper, facing) in &mut main {
         let mut player = players.get_mut(helper.player_entity).unwrap();
         let mut scene_root = scenes.get_mut(helper.scene_root).unwrap();
@@ -118,7 +109,7 @@ pub fn update_animation(
         if let Some(request) = helper.request.take() {
             // New animation set to start
             player
-                .play(animations.get(
+                .start(animations.get(
                     request.animation,
                     &if request.invert {
                         facing.opposite()
@@ -127,8 +118,12 @@ pub fn update_animation(
                     },
                 ))
                 .set_elapsed(request.time_offset as f32 * wag_core::FPS);
+
+            if request.looping {
+                player.repeat();
+            }
+
             helper.set_playing(request.animation, *facing);
-            helper.generic_overrideable = request.generic_overrideable;
             scene_root.translation = request.position_offset.extend(0.0);
         } else if *facing != helper.facing {
             // Sideswitch
@@ -136,14 +131,6 @@ pub fn update_animation(
             player.play(handle).set_elapsed(elapsed).repeat();
             let current = helper.current;
             helper.set_playing(current, *facing);
-        } else if player.elapsed() >= assets.get(&handle).unwrap().duration() {
-            // Animation has been playing for over it's duration, loop it
-            if helper.generic_overrideable {
-                player.play(animations.get(helper.current, facing));
-            } else {
-                // Everything is generic_overrideable after first loop
-                helper.generic_overrideable = true;
-            }
         }
     }
 }

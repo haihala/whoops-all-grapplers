@@ -1,14 +1,14 @@
-- Basic migration (it builds)
+# New toys to consider for later
 - Plugin settings (integration tests?)
 - [Global time scaling](https://bevyengine.org/learn/book/migration-guides/0.8-0.9/#add-global-time-scaling) for hitstop
 - Inputs
-	- Investigate [gamepad changes](https://bevyengine.org/learn/book/migration-guides/0.8-0.9/#change-gamepad-rs-tuples-to-normal-structs)
 	- [InputAxis](https://bevyengine.org/learn/book/migration-guides/0.8-0.9/#add-getters-and-setters-for-inputaxis-and-buttonsettings) changes
 	- Use [gamepadinfo](https://bevyengine.org/learn/book/migration-guides/0.8-0.9/#add-gamepadinfo-expose-gamepad-names) to show connected device name
 	- [Gamepad copy](https://bevyengine.org/learn/book/migration-guides/0.8-0.9/#gamepad-type-is-copy-do-not-require-return-references-to-it-in-gamepads-api)
-- [System piping](https://bevyengine.org/learn/book/migration-guides/0.8-0.9/#rename-system-chaining-to-system-piping)
 
-# Broken
+# Done
+- Basic migration (it builds)
+- [System piping](https://bevyengine.org/learn/book/migration-guides/0.8-0.9/#rename-system-chaining-to-system-piping)
 - UI
 	- Meter bar isn't visible
 	- Notifications are shown where meter ought to be

@@ -3,7 +3,6 @@
 - [[Shop UI]] + [[Items and the shop]]
 
 ## Low priority
-- [[Bevy 0.9]]
 - [[Rewards]]
 - [[Resources between rounds]]
 - [[Toasts in various spots]]
@@ -24,6 +23,7 @@
 - [[Yoink assets]]
 - [[Netplay]]
 - [[Try out egui]]
+- https://bevyengine.org/learn/book/migration-guides/0.8-0.9/#add-global-time-scaling for hitstop
 
 # Other trackers
 ![[Bug tracker]]

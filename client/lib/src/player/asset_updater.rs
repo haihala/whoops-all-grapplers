@@ -57,16 +57,16 @@ pub fn update_animation(
         {
             helper.play(request.to_owned());
         } else if let Some(generic) = state.get_generic_animation(*facing) {
-            let generic_animation = character
+            let animation = character
                 .generic_animations
                 .get(&generic)
                 .unwrap()
                 .to_owned();
 
-            if helper.current != generic_animation && helper.generic_overrideable {
+            if helper.current != animation {
                 helper.play(AnimationRequest {
-                    animation: generic_animation,
-                    generic_overrideable: true,
+                    animation,
+                    looping: true,
                     ..default()
                 });
             }

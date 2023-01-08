@@ -110,17 +110,17 @@ impl CommonAttackProps {
 
     fn get_stun(&self, blocked: bool) -> Action {
         if blocked {
-            match self.on_hit {
-                StunType::Launcher => Action::Launch,
-                StunType::Stun(frames) => Action::HitStun(frames),
-            }
-        } else {
             match self.on_block {
                 StunType::Launcher => {
                     warn!("Launch on block?");
                     Action::Launch
                 }
                 StunType::Stun(frames) => Action::BlockStun(frames),
+            }
+        } else {
+            match self.on_hit {
+                StunType::Launcher => Action::Launch,
+                StunType::Stun(frames) => Action::HitStun(frames),
             }
         }
     }

@@ -125,8 +125,8 @@ fn log_diff(
     }
 }
 
-#[allow(clippy::type_complexity)]
 fn cycle_game_state(keys: Res<Input<KeyCode>>, mut game_state: ResMut<State<GameState>>) {
+    // Can be converted to a non-dev system eventually (to start game press start type of deal)
     if keys.just_pressed(KeyCode::Return) {
         let next_state = game_state.current().next();
         game_state.set(next_state).unwrap();

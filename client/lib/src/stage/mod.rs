@@ -20,7 +20,7 @@ fn add_stage(
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
-    if let Some(mut meshes) = meshes {
+    if let (Some(mut meshes), Some(mut materials)) = (meshes, materials) {
         // As it is in Bevy 0.7, you can't put 3d assets on top of 2d sprites
         // Because of this, use a quad for a background.
 
@@ -33,7 +33,7 @@ fn add_stage(
         ))));
 
         // this material renders the texture normally
-        let material_handle = materials.unwrap().add(StandardMaterial {
+        let material_handle = materials.add(StandardMaterial {
             base_color_texture: Some(sprites.background_image.clone()),
             alpha_mode: AlphaMode::Blend,
             unlit: true,

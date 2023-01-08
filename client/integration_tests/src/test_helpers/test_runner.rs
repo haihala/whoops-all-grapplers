@@ -3,11 +3,16 @@ use std::{
     time::{Duration, Instant},
 };
 
-use bevy::{app::ScheduleRunnerSettings, asset::AssetPlugin, input::InputPlugin, prelude::*};
+use bevy::{
+    app::ScheduleRunnerSettings, asset::AssetPlugin, input::InputPlugin, prelude::*,
+    render::RenderPlugin,
+};
 use bevy_hanabi::HanabiPlugin;
+
 use input_parsing::testing::{parse_input, PreWrittenStream};
+use time::GameState;
 use wag_core::Players;
-use whoops_all_grapplers_lib::{DevPlugin, WAGLib};
+use whoops_all_grapplers_lib::WAGLib;
 
 use super::{AppWrapper, TestSpec};
 
@@ -41,21 +46,20 @@ impl TestRunner {
             run_mode: bevy::app::RunMode::Loop { wait: None },
         });
         app.add_plugin(AssetPlugin::default());
+        app.add_plugin(WindowPlugin::default());
         app.add_plugin(InputPlugin::default());
+        app.add_plugin(RenderPlugin::default());
+        app.add_plugin(ImagePlugin::default());
 
-        app.add_plugins(
-            WAGLib
-                .build()
-                .disable::<HanabiPlugin>()
-                .disable::<DevPlugin>(),
-        );
+        app.add_plugins(WAGLib.build().disable::<HanabiPlugin>());
         app.add_system(parse_input::<PreWrittenStream>);
         app.update();
 
-        // Go to combat (skip buy phase)
+        // Go to combat
         app.world
-            .resource_mut::<Input<KeyCode>>()
-            .press(KeyCode::Return);
+            .resource_mut::<State<GameState>>()
+            .set(GameState::Combat)
+            .unwrap();
         app.update();
 
         let players = app.world.resource::<Players>();

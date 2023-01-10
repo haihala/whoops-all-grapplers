@@ -23,3 +23,11 @@ Interlocked with [[Items and the shop]]
 - Doen't need to be pretty
 - Use first letter of an item as the icon
 - Gray out items you can't afford
+
+# Architecture brainstorming
+- Centralized component to store/write/read state would be cool
+	- Referencing said component may be difficult
+	- Link after creation?
+- How to update buttons?
+- How to highlight selected option?
+- Where to read input?

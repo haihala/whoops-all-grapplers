@@ -1,6 +1,7 @@
 mod notifications;
+mod shop;
 use bevy::prelude::*;
-use time::GameState;
+use time::{GameState, OnlyShowInGameState};
 use wag_core::Player;
 
 use crate::assets::{Colors, Fonts};
@@ -30,7 +31,7 @@ pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup_ui).add_system_set_to_stage(
+        app.add_system_set_to_stage(
             CoreStage::Last,
             SystemSet::new()
                 .with_system(bars::update)
@@ -39,11 +40,16 @@ impl Plugin for UIPlugin {
                     text::update_timer.with_run_criteria(State::on_update(GameState::Combat)),
                 )
                 .with_system(text::update_round_text.after(text::update_timer)),
+        )
+        .add_startup_system_set(
+            SystemSet::new()
+                .with_system(setup_combat_hud)
+                .with_system(shop::setup_shop),
         );
     }
 }
 
-fn setup_ui(mut commands: Commands, colors: Res<Colors>, fonts: Res<Fonts>) {
+fn setup_combat_hud(mut commands: Commands, colors: Res<Colors>, fonts: Res<Fonts>) {
     setup_top_bars(&mut commands, &colors, &fonts);
     setup_bottom_bars(&mut commands, &colors);
     setup_round_info_text(&mut commands, &colors, &fonts);
@@ -71,6 +77,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                 ..div()
             },
             Name::new("Top bar"),
+            OnlyShowInGameState(vec![GameState::Combat]),
         ))
         .with_children(|top_bar_wrapper| {
             spawn_health_bar(top_bar_wrapper, colors.health, Player::One);
@@ -98,6 +105,7 @@ fn setup_bottom_bars(commands: &mut Commands, colors: &Colors) {
                 ..div()
             },
             Name::new("Bottom bars"),
+            OnlyShowInGameState(vec![GameState::Combat]),
         ))
         .with_children(|parent| {
             spawn_meter_bars(parent, colors);

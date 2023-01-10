@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use time::Clock;
+use time::{Clock, GameState, OnlyShowInGameState};
 use wag_core::Player;
 
 use crate::assets::{Colors, Fonts};
@@ -49,27 +49,30 @@ fn create_notification_container(commands: &mut Commands, side: Player) -> Entit
     let top = Val::Percent(top_margin);
 
     commands
-        .spawn(NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::Column,
-                position_type: PositionType::Absolute,
-                position: match side {
-                    Player::One => UiRect {
-                        left: Val::Px(0.0),
-                        top,
-                        ..default()
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    flex_direction: FlexDirection::Column,
+                    position_type: PositionType::Absolute,
+                    position: match side {
+                        Player::One => UiRect {
+                            left: Val::Px(0.0),
+                            top,
+                            ..default()
+                        },
+                        Player::Two => UiRect {
+                            right: Val::Px(0.0),
+                            top,
+                            ..default()
+                        },
                     },
-                    Player::Two => UiRect {
-                        right: Val::Px(0.0),
-                        top,
-                        ..default()
-                    },
+                    size: Size::new(Val::Percent(20.0), Val::Percent(100.0 - top_margin)),
+                    ..div_style()
                 },
-                size: Size::new(Val::Percent(20.0), Val::Percent(100.0 - top_margin)),
-                ..div_style()
+                ..div()
             },
-            ..div()
-        })
+            OnlyShowInGameState(vec![GameState::Combat]),
+        ))
         .id()
 }
 

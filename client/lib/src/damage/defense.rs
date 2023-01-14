@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use time::Clock;
+use wag_core::Clock;
 
 const MIN_STREAK_FOR_REWARD: i32 = 3;
 const REWARD_FLOOR: i32 = 5;

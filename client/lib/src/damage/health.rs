@@ -2,8 +2,7 @@ use bevy::prelude::*;
 
 use characters::Action;
 use player_state::PlayerState;
-use time::{Clock, GameState, RoundResult};
-use wag_core::Player;
+use wag_core::{Clock, GameState, Player, RoundResult};
 
 #[derive(Reflect, Component, Clone, Copy)]
 pub struct Health {

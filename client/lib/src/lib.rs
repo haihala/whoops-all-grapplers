@@ -46,7 +46,7 @@ impl PluginGroup for WAGLib {
         }
 
         group = group
-            .add(time::TimePlugin) // Has to be first, since it defines labels for ordering other systems
+            .add(wag_core::TimePlugin) // Has to be first, since it defines labels for ordering other systems
             .add(assets::AssetsPlugin) // Has to be before those assets are used
             .add(ui::UIPlugin)
             .add(camera::CustomCameraPlugin)

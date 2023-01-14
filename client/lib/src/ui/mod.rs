@@ -1,8 +1,7 @@
 mod notifications;
 mod shop;
 use bevy::prelude::*;
-use time::{GameState, OnlyShowInGameState};
-use wag_core::Player;
+use wag_core::{GameState, OnlyShowInGameState, Player};
 
 use crate::assets::{Colors, Fonts};
 

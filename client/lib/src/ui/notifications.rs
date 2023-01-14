@@ -1,6 +1,5 @@
 use bevy::prelude::*;
-use time::{Clock, GameState, OnlyShowInGameState};
-use wag_core::Player;
+use wag_core::{Clock, GameState, OnlyShowInGameState, Player};
 
 use crate::assets::{Colors, Fonts};
 

@@ -3,8 +3,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use characters::{Character, Hitbox, Hurtbox, Inventory, Resources};
 use player_state::PlayerState;
-use time::{Clock, GameState};
-use wag_core::{Player, SoundEffect};
+use wag_core::{Clock, GameState, Player, SoundEffect};
 
 use crate::{
     assets::Sounds,

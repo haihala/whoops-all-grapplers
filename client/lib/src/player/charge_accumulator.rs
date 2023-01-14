@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{Character, Resources};
 use input_parsing::InputParser;
-use time::Clock;
+use wag_core::Clock;
 
 const CHARGE_EXPIRATION_TIME: f32 = 0.2;
 const CHARGE_EXPIRATION_FRAMES: usize = (CHARGE_EXPIRATION_TIME * wag_core::FPS) as usize;

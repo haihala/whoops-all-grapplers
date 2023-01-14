@@ -3,8 +3,7 @@ use bevy::prelude::*;
 use characters::{Action, Character, Inventory, Move, MoveHistory, Resources, Situation};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use time::Clock;
-use wag_core::{MoveId, Player};
+use wag_core::{Clock, MoveId, Player};
 
 use crate::{damage::Combo, ui::Notifications};
 

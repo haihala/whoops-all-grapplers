@@ -1,5 +1,5 @@
+use crate::Player;
 use bevy::prelude::*;
-use wag_core::Player;
 
 #[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
 pub enum GameState {

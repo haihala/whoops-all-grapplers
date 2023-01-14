@@ -11,8 +11,7 @@ mod size_adjustment;
 use characters::{dummy, Character, Hurtbox, Inventory, Resources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
-use time::{once_per_combat_frame, Clock, GameState, RoundResult};
-use wag_core::{Facing, Player, Players};
+use wag_core::{once_per_combat_frame, Clock, Facing, GameState, Player, Players, RoundResult};
 
 use crate::{
     assets::{AnimationHelperSetup, Models},

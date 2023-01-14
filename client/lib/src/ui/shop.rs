@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
-use time::{GameState, OnlyShowInGameState};
-use wag_core::Player;
+use wag_core::{GameState, OnlyShowInGameState, Player};
 
 #[derive(Debug, Component)]
 struct ShopRoot(Player);

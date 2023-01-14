@@ -11,7 +11,7 @@ pub use defense::Defense;
 pub use health::Health;
 pub use hitboxes::HitboxSpawner;
 
-use time::{GameState, WAGStage};
+use wag_core::{GameState, WAGStage};
 
 pub struct DamagePlugin;
 

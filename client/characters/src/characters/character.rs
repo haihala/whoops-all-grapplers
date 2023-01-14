@@ -3,14 +3,14 @@ use std::{collections::HashMap, f32::consts::PI};
 use bevy::prelude::*;
 use wag_core::{Animation, AnimationType, Area, ItemId, Model, MoveId, StickPosition};
 
-use crate::{Inventory, Item, Move};
+use crate::{Item, Move};
 
 use super::jump;
 
 #[derive(Debug, Component, Clone)]
 pub struct Character {
     moves: HashMap<MoveId, Move>,
-    items: HashMap<ItemId, Item>,
+    pub items: HashMap<ItemId, Item>,
     pub model: Model,
     pub low_block_height: f32,
     pub high_block_height: f32,
@@ -80,16 +80,6 @@ impl Character {
             .iter()
             .filter_map(|(key, move_data)| move_data.input.map(|input| (*key, input)))
             .collect()
-    }
-
-    pub fn roll_items(&self, max_amount: usize, inventory: &Inventory) -> Vec<(ItemId, Item)> {
-        self.items
-            .iter()
-            .filter(|(id, _)| !inventory.contains(id))
-            .take(max_amount)
-            .map(|(id, item)| (id.to_owned(), item.to_owned()))
-            .collect()
-        // TODO random selection that doesn't break rollback
     }
 
     fn jumps(height: f32, duration: f32) -> (impl Iterator<Item = (MoveId, Move)>, f32) {

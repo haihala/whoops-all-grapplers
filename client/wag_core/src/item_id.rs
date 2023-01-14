@@ -7,8 +7,17 @@ pub enum ItemId {
     Gi,
     Gun,
     HandMeDownKen,
-    Drugs,
+    Roids,
 
     #[default]
     Default,
+}
+
+impl ItemId {
+    pub fn display_name(&self) -> String {
+        match self {
+            Self::HandMeDownKen => String::from("Hand me down -ken"),
+            _ => format!("{:?}", self),
+        }
+    }
 }

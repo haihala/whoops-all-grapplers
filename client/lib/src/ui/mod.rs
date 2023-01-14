@@ -1,11 +1,11 @@
-mod notifications;
-mod shop;
 use bevy::prelude::*;
 use wag_core::{GameState, OnlyShowInGameState, Player};
 
 use crate::assets::{Colors, Fonts};
 
 mod bars;
+mod notifications;
+mod shop;
 mod text;
 mod utils;
 
@@ -40,7 +40,8 @@ impl Plugin for UIPlugin {
                 )
                 .with_system(text::update_round_text.after(text::update_timer)),
         )
-        .add_startup_system_set(
+        .add_startup_system_set_to_stage(
+            StartupStage::PostStartup,
             SystemSet::new()
                 .with_system(setup_combat_hud)
                 .with_system(shop::setup_shop),

@@ -7,7 +7,7 @@ fn main() {
     // Happens roughly in order, so add stages, click and assets before using them
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins(WAGLib)
+        .add_plugins(WAGLib::default())
         // .add_plugin(LogDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .insert_resource(ReportExecutionOrderAmbiguities)

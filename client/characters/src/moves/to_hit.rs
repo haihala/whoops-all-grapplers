@@ -1,9 +1,8 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
 use wag_core::{Area, Model};
 
-#[derive(Debug, Clone, Copy, PartialEq, Inspectable)]
+#[derive(Debug, Clone, Copy, PartialEq, Reflect, FromReflect)]
 pub struct ToHit {
     pub block_type: BlockType,
     pub hitbox: Hitbox,
@@ -26,7 +25,7 @@ impl Default for ToHit {
     }
 }
 
-#[derive(Clone, Copy, Debug, Inspectable, Eq, PartialEq, Default)]
+#[derive(Clone, Copy, Debug, Reflect, FromReflect, Eq, PartialEq, Default)]
 pub enum AttackHeight {
     Low,
     #[default]
@@ -34,7 +33,7 @@ pub enum AttackHeight {
     High,
 }
 
-#[derive(Clone, Copy, Debug, Inspectable, Eq, PartialEq, Default, Component)]
+#[derive(Clone, Copy, Debug, Reflect, FromReflect, Eq, PartialEq, Default, Component)]
 pub enum BlockType {
     Constant(AttackHeight),
     Grab,
@@ -42,15 +41,17 @@ pub enum BlockType {
     Dynamic,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Inspectable)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Reflect, FromReflect)]
 pub struct Projectile {
     pub model: Model,
 }
 
-#[derive(Default, Clone, Copy, Deref, DerefMut, Debug, Component, Inspectable, PartialEq)]
+#[derive(
+    Default, Clone, Copy, Deref, DerefMut, Debug, Component, Reflect, FromReflect, PartialEq,
+)]
 pub struct Hitbox(pub Area);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Inspectable)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Reflect, FromReflect)]
 pub struct Lifetime {
     pub despawn_on_hit: bool,
     pub despawn_on_landing: bool,

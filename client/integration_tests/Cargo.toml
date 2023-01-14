@@ -6,7 +6,6 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
 bevy = { workspace = true }
-bevy_hanabi  = { workspace = true }
 
 input_parsing = { path = "../input_parsing" }
 characters = { path = "../characters" }

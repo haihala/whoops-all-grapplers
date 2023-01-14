@@ -1,9 +1,8 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
 use crate::StickPosition;
 
-#[derive(Inspectable, PartialEq, Eq, Clone, Copy, Debug, Component, Default)]
+#[derive(Reflect, FromReflect, PartialEq, Eq, Clone, Copy, Debug, Component, Default)]
 pub enum Facing {
     #[default]
     Right,

@@ -1,7 +1,6 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
-#[derive(Inspectable, Component, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Reflect, Component, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Meter {
     value: i32,
     max: i32,

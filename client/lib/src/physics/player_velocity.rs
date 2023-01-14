@@ -1,15 +1,14 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
 use characters::Movement;
 use wag_core::Facing;
 
-#[derive(Debug, Inspectable, Clone, Default, Copy)]
+#[derive(Debug, Reflect, FromReflect, Clone, Default, Copy)]
 pub struct AppliedMovement {
     amount: Vec2,
     until_frame: usize,
 }
-#[derive(Debug, Inspectable, Clone, Default, Component)]
+#[derive(Debug, Reflect, Clone, Default, Component)]
 pub struct PlayerVelocity {
     velocity: Vec2,
     movements: Vec<AppliedMovement>,

@@ -1,7 +1,6 @@
 use bevy::{math::Rect, prelude::*};
-use bevy_inspector_egui::Inspectable;
 
-#[derive(Clone, Copy, Default, Debug, Inspectable, PartialEq)]
+#[derive(Clone, Copy, Default, Debug, Reflect, FromReflect, PartialEq)]
 pub struct Area {
     center: Vec2,
     width: f32,

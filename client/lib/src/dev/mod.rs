@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::{InspectableRegistry, WorldInspectorPlugin};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use characters::{Character, Hitbox, Hurtbox, Inventory, Resources};
 use player_state::PlayerState;
@@ -19,28 +19,23 @@ pub struct DevPlugin;
 
 impl Plugin for DevPlugin {
     fn build(&self, app: &mut App) {
-        let mut registry = app
-            .add_plugin(WorldInspectorPlugin::new())
-            .insert_resource(InspectableRegistry::default())
+        app.add_plugin(WorldInspectorPlugin)
+            .register_type::<Player>()
+            .register_type::<Resources>()
+            .register_type::<Health>()
+            .register_type::<PlayerState>()
+            .register_type::<Clock>()
+            .register_type::<PlayerVelocity>()
+            .register_type::<ConstantVelocity>()
+            .register_type::<Pushbox>()
+            .register_type::<Hurtbox>()
+            .register_type::<Hitbox>()
+            .register_type::<MoveBuffer>()
             .add_system(generic_test_system)
             .add_system(cycle_game_state.after(generic_test_system))
             .add_system(input_leniency_test_system.after(cycle_game_state))
             .add_system(box_visualization::spawn_boxes.after(input_leniency_test_system))
-            .add_system(box_visualization::size_adjustment.after(box_visualization::spawn_boxes))
-            .world
-            .resource_mut::<InspectableRegistry>();
-
-        registry.register::<Player>();
-        registry.register::<Resources>();
-        registry.register::<Health>();
-        registry.register::<PlayerState>();
-        registry.register::<Clock>();
-        registry.register::<PlayerVelocity>();
-        registry.register::<ConstantVelocity>();
-        registry.register::<Pushbox>();
-        registry.register::<Hurtbox>();
-        registry.register::<Hitbox>();
-        registry.register::<MoveBuffer>();
+            .add_system(box_visualization::size_adjustment.after(box_visualization::spawn_boxes));
     }
 }
 

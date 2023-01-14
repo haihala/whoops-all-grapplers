@@ -1,6 +1,8 @@
-use bevy_inspector_egui::Inspectable;
+use bevy::prelude::*;
 
-#[derive(Inspectable, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default)]
+#[derive(
+    Reflect, FromReflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default,
+)]
 pub enum MoveId {
     #[default]
     Default, // To satisfy Inspectable.

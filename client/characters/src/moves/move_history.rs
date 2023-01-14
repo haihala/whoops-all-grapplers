@@ -1,19 +1,19 @@
-use bevy_inspector_egui::Inspectable;
+use bevy::prelude::*;
 use wag_core::MoveId;
 
 use crate::{Action, Move};
 
 use super::FlowControl;
-#[derive(Debug, Default, Clone, Inspectable)]
+#[derive(Debug, Default, Clone, Reflect, FromReflect)]
 pub struct MoveHistory {
     pub move_id: MoveId,
-    #[inspectable(ignore)]
+    #[reflect(ignore)]
     pub move_data: Move,
     pub frame_skip: usize,
     pub started: usize,
-    #[inspectable(ignore)]
+    #[reflect(ignore)]
     pub past: Vec<FlowControl>,
-    #[inspectable(ignore)]
+    #[reflect(ignore)]
     pub unprocessed_events: Vec<Action>,
     pub has_hit: bool,
 }
@@ -91,7 +91,6 @@ mod test {
     use crate::moves::CancelPolicy;
 
     use super::*;
-    use bevy::prelude::*;
     use wag_core::Animation;
 
     #[test]

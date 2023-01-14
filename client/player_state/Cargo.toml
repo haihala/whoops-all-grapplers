@@ -6,7 +6,6 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
 bevy = { workspace = true }
-bevy-inspector-egui = { workspace = true }
 strum = { workspace = true }
 strum_macros = { workspace = true }
 

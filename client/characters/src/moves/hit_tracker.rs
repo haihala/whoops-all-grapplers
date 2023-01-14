@@ -1,9 +1,8 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
 const FRAMES_BETWEEN_HITS: usize = 10;
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Inspectable, Component)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Reflect, Component)]
 pub struct HitTracker {
     pub hits: usize,
     pub last_hit_frame: Option<usize>,

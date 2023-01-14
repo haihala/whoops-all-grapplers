@@ -1,15 +1,15 @@
+use bevy::prelude::*;
 use std::cmp::Ordering;
 
-use bevy_inspector_egui::Inspectable;
 use wag_core::MoveId;
 
-#[derive(Debug, Default, Inspectable)]
+#[derive(Debug, Default, Reflect, FromReflect)]
 pub(super) struct MoveActivation {
     pub kind: ActivationType,
     pub id: MoveId,
 }
 
-#[derive(Debug, Default, Inspectable)]
+#[derive(Debug, Default, Reflect, FromReflect)]
 pub(super) enum ActivationType {
     Continuation,
     #[default]
@@ -22,7 +22,7 @@ pub(super) enum ActivationType {
 const PERFECT_TIMING_DELTA: i32 = 0;
 const GOOD_TIMING_DELTA: i32 = 3;
 
-#[derive(Debug, Default, Inspectable)]
+#[derive(Debug, Default, Reflect, FromReflect)]
 enum ErrorDirection {
     Late,
     #[default]
@@ -38,7 +38,7 @@ impl From<i32> for ErrorDirection {
     }
 }
 
-#[derive(Debug, Default, Inspectable)]
+#[derive(Debug, Default, Reflect, FromReflect)]
 enum LinkPrecision {
     #[default]
     Perfect,
@@ -73,7 +73,7 @@ impl LinkPrecision {
     }
 }
 
-#[derive(Debug, Default, Inspectable)]
+#[derive(Debug, Default, Reflect, FromReflect)]
 pub(super) struct Link {
     pub correction: usize,
     precision: LinkPrecision,
@@ -97,7 +97,7 @@ impl Link {
     }
 }
 
-#[derive(Debug, Default, Inspectable)]
+#[derive(Debug, Default, Reflect, FromReflect)]
 pub(super) struct Cancellation {
     pub message: String,
 }

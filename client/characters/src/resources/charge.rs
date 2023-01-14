@@ -1,7 +1,6 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
-#[derive(Inspectable, Component, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Reflect, Component, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Charge {
     /// Last tick charge was updated (keep track of when to decay)
     pub last_update: usize,

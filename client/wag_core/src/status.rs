@@ -1,6 +1,6 @@
-use bevy_inspector_egui::Inspectable;
+use bevy::prelude::*;
 
-#[derive(Inspectable, Debug, Clone, Copy, Default, PartialEq)]
+#[derive(Reflect, FromReflect, Debug, Clone, Copy, Default, PartialEq)]
 pub struct StatusEffect {
     pub animation_speed_multiplier: f32,
     pub walk_speed_multiplier: f32,
@@ -23,14 +23,14 @@ impl StatusEffect {
     }
 }
 
-#[derive(Inspectable, Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Reflect, FromReflect, Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Status {
     #[default]
     Default, // Not in use, here to satisfy inspectable
     Dodge,
 }
 
-#[derive(Inspectable, Debug, Clone, Copy, Default, PartialEq)]
+#[derive(Reflect, FromReflect, Debug, Clone, Copy, Default, PartialEq)]
 pub struct StatusCondition {
     pub name: Status,
     pub effect: Option<StatusEffect>,

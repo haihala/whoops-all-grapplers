@@ -1,12 +1,11 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
 use characters::{Action, MoveHistory, Situation};
 use wag_core::{AnimationType, Facing, Status, StatusCondition, StatusEffect};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 
-#[derive(Inspectable, Debug, Component, Clone)]
+#[derive(Reflect, FromReflect, Debug, Component, Clone)]
 enum MainState {
     Air(AirState),
     Stand(StandState),
@@ -14,7 +13,7 @@ enum MainState {
     Ground(usize),
 }
 
-#[derive(Inspectable, Debug, Component, Clone)]
+#[derive(Reflect, Debug, Component, Clone)]
 pub struct PlayerState {
     main: MainState,
     pub free_since: Option<usize>,

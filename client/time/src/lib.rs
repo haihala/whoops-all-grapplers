@@ -1,5 +1,4 @@
 use bevy::{ecs::schedule::ShouldRun, prelude::*, time::FixedTimestep};
-use bevy_inspector_egui::Inspectable;
 
 mod game_flow;
 pub use game_flow::{GameState, OnlyShowInGameState, RoundResult};
@@ -7,7 +6,7 @@ pub use game_flow::{GameState, OnlyShowInGameState, RoundResult};
 pub const ROUND_TIME: f32 = 99.0;
 
 /// The component for measuring time in frames
-#[derive(Inspectable, Default, Resource)]
+#[derive(Reflect, Default, Resource)]
 pub struct Clock {
     pub frame: usize,
     start_time: f32,

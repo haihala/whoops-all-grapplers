@@ -1,14 +1,13 @@
 use std::collections::HashSet;
 
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 use wag_core::ItemId;
 
-#[derive(Debug, Default, Component, Eq, PartialEq, Inspectable, Clone)]
+#[derive(Debug, Default, Component, Eq, PartialEq, Reflect, Clone)]
 pub struct Inventory {
     pub tier: usize,
     pub money: usize,
-    #[inspectable(ignore)]
+    #[reflect(ignore)]
     pub items: HashSet<ItemId>,
 }
 impl Inventory {

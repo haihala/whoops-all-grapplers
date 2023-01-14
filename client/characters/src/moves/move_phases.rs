@@ -1,13 +1,12 @@
 use bevy::prelude::*;
 
-use bevy_inspector_egui::Inspectable;
 use wag_core::{Animation, DummyAnimation, MoveId, SoundEffect, StatusCondition};
 
 use crate::{resources::Cost, Attack};
 
 use super::Situation;
 
-#[derive(Debug, Clone, Copy, PartialEq, Default, Inspectable)]
+#[derive(Debug, Clone, Copy, PartialEq, Default, Reflect, FromReflect)]
 pub struct Movement {
     pub amount: Vec2,
     pub duration: usize,
@@ -21,7 +20,7 @@ impl Movement {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Inspectable, Default)]
+#[derive(Debug, Clone, PartialEq, Reflect, FromReflect, Default)]
 pub enum Action {
     // TODO: Figure out a better way to handle actions that change depending on game state
     // Maybe hoist AnimationRequest?
@@ -40,7 +39,6 @@ pub enum Action {
     TakeDamage(usize),
     SnapToOpponent,
     SideSwitch,
-    // TODO
     HitStun(usize),
     BlockStun(usize),
     Launch,

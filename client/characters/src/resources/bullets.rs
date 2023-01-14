@@ -1,7 +1,6 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
-#[derive(Inspectable, Component, Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Reflect, Component, Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Bullets {
     available: i32,
 }

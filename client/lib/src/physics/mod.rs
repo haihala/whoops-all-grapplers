@@ -2,7 +2,6 @@ mod player_velocity;
 pub use player_velocity::PlayerVelocity;
 
 use bevy::{ecs::query::WorldQuery, prelude::*};
-use bevy_inspector_egui::Inspectable;
 
 use characters::{Action, Character, HitTracker};
 use player_state::PlayerState;
@@ -17,7 +16,7 @@ use crate::{
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
 pub const ARENA_WIDTH: f32 = 10.0;
 
-#[derive(Debug, Default, Inspectable, Component)]
+#[derive(Debug, Default, Reflect, Component)]
 pub struct ConstantVelocity {
     pub shift: Vec3,
     pub speed: Vec3,
@@ -31,7 +30,7 @@ impl ConstantVelocity {
     }
 }
 
-#[derive(Debug, Default, Inspectable, Component, Deref, DerefMut)]
+#[derive(Debug, Default, Reflect, Component, Deref, DerefMut)]
 pub struct Pushbox(pub Area);
 
 pub struct PhysicsPlugin;

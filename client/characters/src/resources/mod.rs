@@ -9,9 +9,8 @@ pub use cost::Cost;
 pub use meter::Meter;
 
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
-#[derive(Inspectable, Debug, Component, Clone, Copy, Default, PartialEq, Eq)]
+#[derive(Reflect, Debug, Component, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Resources {
     pub bullets: Bullets,
     pub charge: Charge,

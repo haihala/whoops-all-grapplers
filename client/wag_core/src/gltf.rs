@@ -1,12 +1,14 @@
-use bevy_inspector_egui::Inspectable;
+use bevy::prelude::*;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Inspectable)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect, FromReflect)]
 pub enum Model {
     Dummy,
     Fireball,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Inspectable)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect, FromReflect,
+)]
 pub enum DummyAnimation {
     // Basics
     #[default]
@@ -46,7 +48,9 @@ pub enum DummyAnimation {
     AirThrowRecipient,
 }
 
-#[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Inspectable)]
+#[derive(
+    Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect, FromReflect,
+)]
 pub enum Animation {
     #[default]
     TPose,

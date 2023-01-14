@@ -1,4 +1,3 @@
-use bevy_inspector_egui::Inspectable;
 use std::fmt::{Debug, Display};
 use strum_macros::EnumIter;
 
@@ -31,7 +30,7 @@ impl Players {
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Owner(pub Player);
 
-#[derive(EnumIter, Inspectable, PartialEq, Eq, Clone, Copy, Debug, Hash, Component)]
+#[derive(EnumIter, Reflect, PartialEq, Eq, Clone, Copy, Debug, Hash, Component)]
 pub enum Player {
     One,
     Two,

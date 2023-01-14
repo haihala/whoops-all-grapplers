@@ -1,6 +1,8 @@
-use bevy_inspector_egui::Inspectable;
+use bevy::prelude::*;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Inspectable)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect, FromReflect,
+)]
 pub enum SoundEffect {
     Whoosh,
     Clash,

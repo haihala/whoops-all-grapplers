@@ -1,12 +1,11 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
 use characters::Action;
 use player_state::PlayerState;
 use time::{Clock, GameState, RoundResult};
 use wag_core::Player;
 
-#[derive(Inspectable, Component, Clone, Copy)]
+#[derive(Reflect, Component, Clone, Copy)]
 pub struct Health {
     value: usize,
     max: usize,

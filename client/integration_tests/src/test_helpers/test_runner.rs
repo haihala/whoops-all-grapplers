@@ -7,7 +7,6 @@ use bevy::{
     app::ScheduleRunnerSettings, asset::AssetPlugin, input::InputPlugin, prelude::*,
     render::RenderPlugin,
 };
-use bevy_hanabi::HanabiPlugin;
 
 use input_parsing::testing::{parse_input, PreWrittenStream};
 use time::GameState;
@@ -51,7 +50,7 @@ impl TestRunner {
         app.add_plugin(RenderPlugin::default());
         app.add_plugin(ImagePlugin::default());
 
-        app.add_plugins(WAGLib.build().disable::<HanabiPlugin>());
+        app.add_plugins(WAGLib::integration().build());
         app.add_system(parse_input::<PreWrittenStream>);
         app.update();
 

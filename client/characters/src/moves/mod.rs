@@ -1,4 +1,4 @@
-use bevy_inspector_egui::Inspectable;
+use bevy::prelude::*;
 
 mod attack;
 pub use attack::{Attack, CommonAttackProps, StunType};
@@ -27,7 +27,7 @@ pub use hit_tracker::*;
 mod targets;
 pub use targets::Hurtbox;
 
-#[derive(PartialEq, PartialOrd, Debug, Inspectable, Clone, Copy, Eq, Default)]
+#[derive(PartialEq, PartialOrd, Debug, Reflect, Clone, Copy, Eq, Default)]
 pub enum MoveType {
     #[default]
     Normal,

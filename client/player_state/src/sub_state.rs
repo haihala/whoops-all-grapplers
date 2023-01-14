@@ -1,9 +1,9 @@
-use bevy_inspector_egui::Inspectable;
+use bevy::prelude::*;
 
 use characters::MoveHistory;
 use wag_core::Facing;
 
-#[derive(Inspectable, Clone, Debug)]
+#[derive(Reflect, FromReflect, Clone, Debug)]
 pub enum Stun {
     Block(usize),
     Hit(usize),
@@ -22,7 +22,7 @@ impl Stun {
     }
 }
 
-#[derive(Inspectable, Clone, Debug, Default)]
+#[derive(Reflect, FromReflect, Clone, Debug, Default)]
 pub enum AirState {
     Freefall,
     Move(MoveHistory),
@@ -30,7 +30,7 @@ pub enum AirState {
     Idle,
 }
 
-#[derive(Inspectable, Clone, Debug, Default)]
+#[derive(Reflect, FromReflect, Clone, Debug, Default)]
 pub enum StandState {
     Stun(Stun),
     Move(MoveHistory),
@@ -39,7 +39,7 @@ pub enum StandState {
     Idle,
 }
 
-#[derive(Inspectable, Clone, Debug, Default)]
+#[derive(Reflect, FromReflect, Clone, Debug, Default)]
 pub enum CrouchState {
     Stun(Stun),
     Move(MoveHistory),

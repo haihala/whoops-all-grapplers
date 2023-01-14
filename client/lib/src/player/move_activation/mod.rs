@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 
-use bevy_inspector_egui::Inspectable;
 use characters::{Action, Character, Inventory, Move, MoveHistory, Resources, Situation};
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -14,7 +13,7 @@ use helper_types::{ActivationType, Cancellation, Link, MoveActivation};
 
 const AUTOCORRECT: usize = (0.2 * wag_core::FPS) as usize;
 
-#[derive(Debug, Default, Component, Inspectable)]
+#[derive(Debug, Default, Component, Reflect)]
 pub struct MoveBuffer {
     buffer: Vec<(usize, MoveId)>,
     activation: Option<MoveActivation>,

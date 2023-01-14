@@ -12,11 +12,40 @@ mod ui;
 use bevy::{app::PluginGroupBuilder, prelude::*};
 
 // Only thing exported out of this crate
-pub struct WAGLib;
+#[derive(Debug)]
+pub struct WAGLib {
+    enable_dev_plugins: bool,
+    enable_hanabi: bool,
+}
+
+impl WAGLib {
+    pub fn integration() -> Self {
+        Self {
+            enable_dev_plugins: false,
+            enable_hanabi: false,
+        }
+    }
+}
+
+impl Default for WAGLib {
+    fn default() -> Self {
+        Self {
+            enable_dev_plugins: true,
+            enable_hanabi: true,
+        }
+    }
+}
+
 impl PluginGroup for WAGLib {
     fn build(self) -> PluginGroupBuilder {
-        PluginGroupBuilder::start::<Self>() // Order matters here, loaded in the defined order
-            .add(bevy_hanabi::HanabiPlugin)
+        let mut group = PluginGroupBuilder::start::<Self>();
+
+        // Order matters here, loaded in the defined order
+        if self.enable_hanabi {
+            group = group.add(bevy_hanabi::HanabiPlugin);
+        }
+
+        group = group
             .add(time::TimePlugin) // Has to be first, since it defines labels for ordering other systems
             .add(assets::AssetsPlugin) // Has to be before those assets are used
             .add(ui::UIPlugin)
@@ -24,9 +53,13 @@ impl PluginGroup for WAGLib {
             .add(player::PlayerPlugin)
             .add(economy::EconomyPlugin)
             .add(damage::DamagePlugin)
-            .add(dev::DevPlugin)
             .add(physics::PhysicsPlugin)
             .add(input_parsing::InputParsingPlugin)
-            .add(stage::StagePlugin)
+            .add(stage::StagePlugin);
+
+        if self.enable_dev_plugins {
+            group = group.add(dev::DevPlugin);
+        }
+        group
     }
 }

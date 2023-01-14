@@ -1,9 +1,8 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
 use crate::{Action, Movement, ToHit};
 
-#[derive(Debug, Clone, PartialEq, Component, Inspectable)]
+#[derive(Debug, Clone, PartialEq, Component, Reflect, FromReflect)]
 pub struct Attack {
     pub to_hit: ToHit,
     pub self_on_hit: Vec<Action>,
@@ -57,13 +56,13 @@ impl Attack {
     }
 }
 
-#[derive(Debug, Clone, Copy, Inspectable)]
+#[derive(Debug, Clone, Copy, Reflect)]
 pub enum StunType {
     Launcher,
     Stun(usize),
 }
 
-#[derive(Debug, Clone, Copy, Inspectable)]
+#[derive(Debug, Clone, Copy, Reflect)]
 pub struct CommonAttackProps {
     pub damage: usize,
     pub knock_back: Vec2,

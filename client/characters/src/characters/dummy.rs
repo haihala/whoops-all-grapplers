@@ -14,7 +14,9 @@ use crate::{
     },
     AttackHeight::*,
     BlockType::*,
-    Cost, Hitbox, Item, Lifetime, Move, ToHit,
+    Cost, Hitbox, Item,
+    ItemCategory::*,
+    Lifetime, Move, ToHit,
 };
 
 use super::{
@@ -163,12 +165,12 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             CommonAttackProps {
                                 damage: 20,
                                 on_hit: Stun(20),
-                                knock_back: if situation.inventory.contains(&ItemId::Drugs) {
+                                knock_back: if situation.inventory.contains(&ItemId::Roids) {
                                     1.0
                                 } else {
                                     -3.0
                                 } * Vec2::X,
-                                push_back: if situation.inventory.contains(&ItemId::Drugs) {
+                                push_back: if situation.inventory.contains(&ItemId::Roids) {
                                     0.0
                                 } else {
                                     -2.0
@@ -594,35 +596,32 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
 fn dummy_items() -> HashMap<ItemId, Item> {
     vec![
         (
-            ItemId::Drugs,
+            ItemId::Roids,
             Item {
                 cost: 100,
-                tier: 1,
-                is_starter: false,
+                category: Consumable,
+                ..default()
             },
         ),
         (
             ItemId::HandMeDownKen,
             Item {
-                cost: 0,
-                tier: 0,
-                is_starter: true,
+                cost: 10,
+                ..default()
             },
         ),
         (
             ItemId::Gi,
             Item {
                 cost: 100,
-                tier: 2,
-                is_starter: true,
+                ..default()
             },
         ),
         (
             ItemId::Gun,
             Item {
                 cost: 100,
-                tier: 2,
-                is_starter: true,
+                ..default()
             },
         ),
     ]

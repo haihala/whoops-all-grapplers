@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-use characters::{Character, Hitbox, Hurtbox, Inventory, Resources};
+use characters::{Hitbox, Hurtbox, Resources};
 use player_state::PlayerState;
 use wag_core::{Clock, GameState, Player, SoundEffect};
 
@@ -38,20 +38,8 @@ impl Plugin for DevPlugin {
     }
 }
 
-fn generic_test_system(
-    keys: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Inventory, &Character)>,
-    mut sounds: ResMut<Sounds>,
-) {
-    // B for Buy
-    if keys.just_pressed(KeyCode::B) {
-        for (mut inventory, character) in &mut query {
-            if let Some((id, _)) = character.roll_items(1, &inventory).first() {
-                dbg!(id);
-                inventory.add_item(*id);
-            }
-        }
-    } else if keys.just_pressed(KeyCode::S) {
+fn generic_test_system(keys: Res<Input<KeyCode>>, mut sounds: ResMut<Sounds>) {
+    if keys.just_pressed(KeyCode::S) {
         dbg!("Playing");
         sounds.play(SoundEffect::Whoosh)
     }

@@ -9,8 +9,7 @@ use bevy::{
 };
 
 use input_parsing::testing::{parse_input, PreWrittenStream};
-use time::GameState;
-use wag_core::Players;
+use wag_core::{GameState, Players};
 use whoops_all_grapplers_lib::WAGLib;
 
 use super::{AppWrapper, TestSpec};

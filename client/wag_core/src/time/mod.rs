@@ -61,7 +61,7 @@ impl Plugin for TimePlugin {
         .add_system_set_to_stage(WAGStage::Physics, State::<GameState>::get_driver())
         .add_system_to_stage(
             CoreStage::First,
-            update_clock.with_run_criteria(FixedTimestep::steps_per_second(wag_core::FPS as f64)),
+            update_clock.with_run_criteria(FixedTimestep::steps_per_second(crate::FPS as f64)),
         )
         .add_system_to_stage(
             CoreStage::First,

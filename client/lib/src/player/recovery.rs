@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use player_state::PlayerState;
-use time::Clock;
+use wag_core::Clock;
 
 use crate::damage::Combo;
 

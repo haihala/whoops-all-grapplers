@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::Situation;
-use time::Clock;
+use wag_core::Clock;
 
 use super::PlayerQuery;
 

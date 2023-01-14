@@ -6,8 +6,9 @@ use characters::{
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use time::Clock;
-use wag_core::{Area, Facing, Owner, Player, Players, SoundEffect, StickPosition, VisualEffect};
+use wag_core::{
+    Area, Clock, Facing, Owner, Player, Players, SoundEffect, StickPosition, VisualEffect,
+};
 
 use crate::{
     assets::{AnimationHelper, ParticleRequest, Particles, Sounds},

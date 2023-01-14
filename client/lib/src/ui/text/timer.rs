@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use time::{RoundTimer, ROUND_TIME};
+use wag_core::{RoundTimer, ROUND_TIME};
 
 use crate::ui::utils::{div, div_style, FULL};
 

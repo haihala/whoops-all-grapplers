@@ -1968,7 +1968,6 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "map-macro",
- "time",
  "wag_core",
 ]
 
@@ -1991,7 +1990,6 @@ dependencies = [
  "bevy",
  "characters",
  "input_parsing",
- "time",
  "wag_core",
  "whoops-all-grapplers-lib",
 ]
@@ -3310,14 +3308,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "time"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "wag_core",
-]
-
-[[package]]
 name = "tinyvec"
 version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3745,7 +3735,6 @@ dependencies = [
  "player_state",
  "rand",
  "strum",
- "time",
  "wag_core",
 ]
 

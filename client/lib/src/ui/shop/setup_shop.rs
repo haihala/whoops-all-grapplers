@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use characters::{Character, Item, ItemCategory::*};
 use wag_core::{GameState, ItemId, OnlyShowInGameState, Player, Players};
 
-use super::shop_root::ShopRootBuilder;
+use super::shops::{ShopComponents, ShopComponentsBuilder, Shops};
 use crate::assets::{Colors, Fonts};
 
 pub fn setup_shop(
@@ -13,6 +13,9 @@ pub fn setup_shop(
     fonts: Res<Fonts>,
     colors: Res<Colors>,
 ) {
+    let mut player_one = None;
+    let mut player_two = None;
+
     commands
         .spawn((
             NodeBundle {
@@ -36,21 +39,27 @@ pub fn setup_shop(
             Name::new("Shop ui container"),
         ))
         .with_children(|child_builder| {
-            setup_shop_root(
+            player_one = Some(setup_shop_root(
                 child_builder,
                 Player::One,
                 characters.get(players.one).unwrap(),
                 &colors,
                 &fonts,
-            );
-            setup_shop_root(
+            ));
+
+            player_two = Some(setup_shop_root(
                 child_builder,
                 Player::Two,
                 characters.get(players.two).unwrap(),
                 &colors,
                 &fonts,
-            );
+            ));
         });
+
+    commands.insert_resource(Shops {
+        player_one: player_one.unwrap(),
+        player_two: player_two.unwrap(),
+    });
 }
 
 fn setup_shop_root(
@@ -59,7 +68,7 @@ fn setup_shop_root(
     character: &Character,
     colors: &Colors,
     fonts: &Fonts,
-) {
+) -> ShopComponents {
     let margin = match owner {
         Player::One => UiRect {
             right: Val::Px(5.0),
@@ -70,9 +79,9 @@ fn setup_shop_root(
             ..default()
         },
     };
-    let mut shop_root_builder = ShopRootBuilder::default();
+    let mut shop_root_builder = ShopComponentsBuilder::default();
 
-    let mut binding = root.spawn(NodeBundle {
+    root.spawn(NodeBundle {
         background_color: Color::GRAY.into(),
         style: Style {
             size: Size {
@@ -84,20 +93,19 @@ fn setup_shop_root(
             ..default()
         },
         ..default()
-    });
-
-    let shop = binding.with_children(|shop_root| {
+    })
+    .with_children(|shop_root| {
         setup_info_panel(shop_root, &mut shop_root_builder, colors, fonts);
-        setup_owned_slots(shop_root, &mut shop_root_builder);
+        setup_inventory(shop_root, &mut shop_root_builder, colors, fonts);
         setup_available_items(shop_root, &mut shop_root_builder, colors, fonts, character);
     });
 
-    shop.insert(shop_root_builder.build(owner));
+    shop_root_builder.build()
 }
 
 fn setup_info_panel(
     root: &mut ChildBuilder,
-    shop_root: &mut ShopRootBuilder,
+    shop_root: &mut ShopComponentsBuilder,
     colors: &Colors,
     fonts: &Fonts,
 ) {
@@ -160,15 +168,50 @@ fn setup_info_panel(
     });
 }
 
-fn setup_owned_slots(root: &mut ChildBuilder, shop_root: &mut ShopRootBuilder) {
+fn setup_inventory(
+    root: &mut ChildBuilder,
+    shop_root: &mut ShopComponentsBuilder,
+    colors: &Colors,
+    fonts: &Fonts,
+) {
     let margin = UiRect::all(Val::Px(3.0));
 
     root.spawn(NodeBundle {
         background_color: Color::DARK_GRAY.into(),
         style: Style {
             size: Size::AUTO,
+            align_items: AlignItems::Center,
             margin,
             padding: margin,
+            justify_content: JustifyContent::SpaceBetween,
+            ..default()
+        },
+        ..default()
+    })
+    .with_children(|inventory_container| {
+        setup_owned_slots(inventory_container, shop_root);
+        shop_root.money_text = Some(
+            inventory_container
+                .spawn(TextBundle::from_section(
+                    "$0",
+                    TextStyle {
+                        font: fonts.basic.clone(),
+                        font_size: 24.0,
+                        color: colors.text,
+                    },
+                ))
+                .id(),
+        );
+    });
+}
+
+fn setup_owned_slots(root: &mut ChildBuilder, shop_root: &mut ShopComponentsBuilder) {
+    let margin = UiRect::all(Val::Px(3.0));
+
+    root.spawn(NodeBundle {
+        style: Style {
+            size: Size::AUTO,
+            margin,
             ..default()
         },
         ..default()
@@ -203,7 +246,7 @@ fn create_empty_inventory_slot(root: &mut ChildBuilder) -> Entity {
 
 fn setup_available_items(
     root: &mut ChildBuilder,
-    shop_root: &mut ShopRootBuilder,
+    shop_root: &mut ShopComponentsBuilder,
     colors: &Colors,
     fonts: &Fonts,
     character: &Character,

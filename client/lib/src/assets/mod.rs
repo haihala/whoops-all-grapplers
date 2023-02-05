@@ -23,6 +23,9 @@ pub struct Colors {
     pub hurtbox: Color,
     pub pushbox: Color,
     pub text: Color,
+    pub default_item_slot: Color,
+    pub highlighted_item_slot: Color,
+    pub disabled_item_slot: Color,
 }
 
 #[derive(Debug, Resource)]

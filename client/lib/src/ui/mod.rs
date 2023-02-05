@@ -33,12 +33,17 @@ impl Plugin for UIPlugin {
         app.add_system_set_to_stage(
             CoreStage::Last,
             SystemSet::new()
+                .with_run_criteria(State::on_update(GameState::Combat))
                 .with_system(bars::update)
                 .with_system(notifications::update)
-                .with_system(
-                    text::update_timer.with_run_criteria(State::on_update(GameState::Combat)),
-                )
-                .with_system(text::update_round_text.after(text::update_timer)),
+                .with_system(text::update_timer)
+                .with_system(text::update_round_text),
+        )
+        .add_system_set(
+            SystemSet::new()
+                .with_run_criteria(State::on_update(GameState::Shop))
+                .with_system(shop::navigate_shop)
+                .with_system(shop::update_slot_visuals.after(shop::navigate_shop)),
         )
         .add_startup_system_set_to_stage(
             StartupStage::PostStartup,

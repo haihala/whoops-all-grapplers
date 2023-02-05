@@ -1,4 +1,7 @@
 use bevy::prelude::*;
+use wag_core::Player;
+
+use super::navigation::{ShopCategory, ShopNavigation};
 
 #[derive(Default)]
 pub struct ShopComponentsBuilder {
@@ -51,8 +54,42 @@ pub struct ShopComponents {
     pub upgrades: Vec<Entity>,
 }
 
+#[derive(Debug)]
+pub struct Shop {
+    pub components: ShopComponents,
+    pub navigation: ShopNavigation,
+}
+impl Shop {
+    pub fn get_selected_slot(&self) -> Entity {
+        match self.navigation {
+            ShopNavigation::Owned(index) => self.components.owned_slots[index],
+            ShopNavigation::Available(category, index) => match category {
+                ShopCategory::Consumable => self.components.consumables[index],
+                ShopCategory::Basic => self.components.basics[index],
+                ShopCategory::Upgrade => self.components.upgrades[index],
+            },
+        }
+    }
+
+    pub fn category_size(&self, category: ShopCategory) -> usize {
+        match category {
+            ShopCategory::Consumable => self.components.consumables.len(),
+            ShopCategory::Basic => self.components.basics.len(),
+            ShopCategory::Upgrade => self.components.upgrades.len(),
+        }
+    }
+}
+
 #[derive(Debug, Resource)]
 pub struct Shops {
-    pub player_one: ShopComponents,
-    pub player_two: ShopComponents,
+    pub player_one: Shop,
+    pub player_two: Shop,
+}
+impl Shops {
+    pub fn get_mut_shop(&mut self, player: &Player) -> &mut Shop {
+        match player {
+            Player::One => &mut self.player_one,
+            Player::Two => &mut self.player_two,
+        }
+    }
 }

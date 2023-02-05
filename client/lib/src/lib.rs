@@ -1,4 +1,5 @@
 #![feature(drain_filter)]
+#![feature(exclusive_range_pattern)]
 mod assets;
 mod camera;
 mod damage;

@@ -10,8 +10,9 @@ pub enum MoveId {
     Down,
     Left,
     Right,
-    Fast,
-    Strong,
+    Primary,
+    Secondary,
+    Back,
 
     // Universal
     DashForward,

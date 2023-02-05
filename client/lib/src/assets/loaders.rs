@@ -27,6 +27,9 @@ pub fn colors(mut commands: Commands) {
         hurtbox: Color::rgba(0.0, 1.0, 0.0, 0.5),
         pushbox: Color::rgba(0.0, 0.0, 1.0, 0.5),
         text: Color::WHITE,
+        default_item_slot: Color::CYAN,
+        highlighted_item_slot: Color::GOLD,
+        disabled_item_slot: Color::BISQUE,
     })
 }
 

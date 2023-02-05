@@ -3,8 +3,11 @@ use bevy::prelude::*;
 use characters::{Character, Item, ItemCategory::*};
 use wag_core::{GameState, ItemId, OnlyShowInGameState, Player, Players};
 
-use super::shops::{ShopComponents, ShopComponentsBuilder, Shops};
 use crate::assets::{Colors, Fonts};
+
+use super::navigation::{ShopNavigation, ShopSlotState};
+use super::shops_resource::{Shop, ShopComponents, ShopComponentsBuilder, Shops};
+use super::INVENTORY_SLOTS;
 
 pub fn setup_shop(
     mut commands: Commands,
@@ -57,8 +60,14 @@ pub fn setup_shop(
         });
 
     commands.insert_resource(Shops {
-        player_one: player_one.unwrap(),
-        player_two: player_two.unwrap(),
+        player_one: Shop {
+            components: player_one.unwrap(),
+            navigation: ShopNavigation::default(),
+        },
+        player_two: Shop {
+            components: player_two.unwrap(),
+            navigation: ShopNavigation::default(),
+        },
     });
 }
 
@@ -81,19 +90,22 @@ fn setup_shop_root(
     };
     let mut shop_root_builder = ShopComponentsBuilder::default();
 
-    root.spawn(NodeBundle {
-        background_color: Color::GRAY.into(),
-        style: Style {
-            size: Size {
-                height: Val::Percent(100.0),
-                width: Val::Percent(50.0),
+    root.spawn((
+        NodeBundle {
+            background_color: Color::GRAY.into(),
+            style: Style {
+                size: Size {
+                    height: Val::Percent(100.0),
+                    width: Val::Percent(50.0),
+                },
+                flex_direction: FlexDirection::Column,
+                margin,
+                ..default()
             },
-            flex_direction: FlexDirection::Column,
-            margin,
             ..default()
         },
-        ..default()
-    })
+        Name::new(format!("Player {} shop root", &owner)),
+    ))
     .with_children(|shop_root| {
         setup_info_panel(shop_root, &mut shop_root_builder, colors, fonts);
         setup_inventory(shop_root, &mut shop_root_builder, colors, fonts);
@@ -112,40 +124,46 @@ fn setup_info_panel(
     let margin = UiRect::all(Val::Px(3.0));
     let icon_size = 200.0;
 
-    root.spawn(NodeBundle {
-        background_color: Color::DARK_GRAY.into(),
-        style: Style {
-            size: Size {
-                height: Val::Auto,
-                width: Val::Auto,
+    root.spawn((
+        NodeBundle {
+            background_color: Color::DARK_GRAY.into(),
+            style: Style {
+                size: Size {
+                    height: Val::Auto,
+                    width: Val::Auto,
+                },
+                margin,
+                padding: margin,
+                justify_content: JustifyContent::SpaceBetween,
+                ..default()
             },
-            margin,
-            padding: margin,
-            justify_content: JustifyContent::SpaceBetween,
             ..default()
         },
-        ..default()
-    })
+        Name::new("Info panel"),
+    ))
     .with_children(|info_panel| {
         shop_root.big_icon = Some(
             info_panel
-                .spawn(ImageBundle {
-                    style: Style {
-                        size: Size {
-                            height: Val::Px(icon_size),
-                            width: Val::Px(icon_size),
+                .spawn((
+                    ImageBundle {
+                        style: Style {
+                            size: Size {
+                                height: Val::Px(icon_size),
+                                width: Val::Px(icon_size),
+                            },
+                            flex_shrink: 0.0,
+                            ..default()
                         },
-                        flex_shrink: 0.0,
                         ..default()
                     },
-                    ..default()
-                })
+                    Name::new("Big icon"),
+                ))
                 .id(),
         );
 
         shop_root.explanation_box = Some(
             info_panel
-                .spawn(
+                .spawn((
                     TextBundle::from_section(
                         "Lorem ipsum",
                         TextStyle {
@@ -162,7 +180,8 @@ fn setup_info_panel(
                         flex_grow: 1.0,
                         ..default()
                     }),
-                )
+                    Name::new("Info text box"),
+                ))
                 .id(),
         );
     });
@@ -176,29 +195,35 @@ fn setup_inventory(
 ) {
     let margin = UiRect::all(Val::Px(3.0));
 
-    root.spawn(NodeBundle {
-        background_color: Color::DARK_GRAY.into(),
-        style: Style {
-            size: Size::AUTO,
-            align_items: AlignItems::Center,
-            margin,
-            padding: margin,
-            justify_content: JustifyContent::SpaceBetween,
+    root.spawn((
+        NodeBundle {
+            background_color: Color::DARK_GRAY.into(),
+            style: Style {
+                size: Size::AUTO,
+                align_items: AlignItems::Center,
+                margin,
+                padding: margin,
+                justify_content: JustifyContent::SpaceBetween,
+                ..default()
+            },
             ..default()
         },
-        ..default()
-    })
+        Name::new("Inventory root"),
+    ))
     .with_children(|inventory_container| {
         setup_owned_slots(inventory_container, shop_root);
         shop_root.money_text = Some(
             inventory_container
-                .spawn(TextBundle::from_section(
-                    "$0",
-                    TextStyle {
-                        font: fonts.basic.clone(),
-                        font_size: 24.0,
-                        color: colors.text,
-                    },
+                .spawn((
+                    TextBundle::from_section(
+                        "$0",
+                        TextStyle {
+                            font: fonts.basic.clone(),
+                            font_size: 24.0,
+                            color: colors.text,
+                        },
+                    ),
+                    Name::new("Money"),
                 ))
                 .id(),
         );
@@ -208,39 +233,47 @@ fn setup_inventory(
 fn setup_owned_slots(root: &mut ChildBuilder, shop_root: &mut ShopComponentsBuilder) {
     let margin = UiRect::all(Val::Px(3.0));
 
-    root.spawn(NodeBundle {
-        style: Style {
-            size: Size::AUTO,
-            margin,
+    root.spawn((
+        NodeBundle {
+            style: Style {
+                size: Size::AUTO,
+                margin,
+                ..default()
+            },
             ..default()
         },
-        ..default()
-    })
+        Name::new("Owned slots"),
+    ))
     .with_children(|owned_container| {
-        let inventory_slots = 6;
-
-        for i in 0..inventory_slots {
-            dbg!(format!("Creating slot {}", i));
+        for i in 0..INVENTORY_SLOTS {
             shop_root
                 .owned_slots
-                .push(create_empty_inventory_slot(owned_container));
+                .push(create_empty_inventory_slot(owned_container, i));
         }
     });
 }
 
-fn create_empty_inventory_slot(root: &mut ChildBuilder) -> Entity {
-    root.spawn(NodeBundle {
-        background_color: Color::GRAY.into(),
-        style: Style {
-            size: Size {
-                height: Val::Px(50.0),
-                width: Val::Px(50.0),
+fn create_empty_inventory_slot(root: &mut ChildBuilder, index: usize) -> Entity {
+    root.spawn((
+        NodeBundle {
+            background_color: Color::GRAY.into(),
+            style: Style {
+                size: Size {
+                    height: Val::Px(50.0),
+                    width: Val::Px(50.0),
+                },
+                margin: UiRect::all(Val::Px(3.0)),
+                ..default()
             },
-            margin: UiRect::all(Val::Px(3.0)),
             ..default()
         },
-        ..default()
-    })
+        if index == 0 {
+            ShopSlotState::Highlighted
+        } else {
+            ShopSlotState::Default
+        },
+        Name::new(format!("Inventory slot {}", index)),
+    ))
     .id()
 }
 
@@ -254,23 +287,26 @@ fn setup_available_items(
     let items = get_prepared_items(character);
     dbg!(&items);
 
-    root.spawn(NodeBundle {
-        background_color: Color::DARK_GRAY.into(),
-        style: Style {
-            size: Size::AUTO,
-            justify_content: JustifyContent::SpaceBetween,
-            flex_grow: 1.0,
-            margin: UiRect::all(Val::Px(3.0)),
+    root.spawn((
+        NodeBundle {
+            background_color: Color::DARK_GRAY.into(),
+            style: Style {
+                size: Size::AUTO,
+                justify_content: JustifyContent::SpaceBetween,
+                flex_grow: 1.0,
+                margin: UiRect::all(Val::Px(3.0)),
+                ..default()
+            },
             ..default()
         },
-        ..default()
-    })
+        Name::new("Available items root"),
+    ))
     .with_children(|available_container| {
         shop_root.consumables = setup_category(
             available_container,
             colors,
             fonts,
-            String::from("Consumables"),
+            "Consumables".into(),
             items.consumables,
         );
 
@@ -278,7 +314,7 @@ fn setup_available_items(
             available_container,
             colors,
             fonts,
-            String::from("Basics"),
+            "Basics".into(),
             items.basics,
         );
 
@@ -286,7 +322,7 @@ fn setup_available_items(
             available_container,
             colors,
             fonts,
-            String::from("Upgrades"),
+            "Upgrades".into(),
             items.upgrades,
         );
     });
@@ -337,17 +373,20 @@ fn setup_category(
 ) -> Vec<Entity> {
     let mut item_entities = vec![];
 
-    root.spawn(NodeBundle {
-        background_color: Color::GRAY.into(),
-        style: Style {
-            size: Size::AUTO,
-            flex_direction: FlexDirection::Column,
-            margin: UiRect::all(Val::Px(3.0)),
-            flex_grow: 1.0,
+    root.spawn((
+        NodeBundle {
+            background_color: Color::GRAY.into(),
+            style: Style {
+                size: Size::AUTO,
+                flex_direction: FlexDirection::Column,
+                margin: UiRect::all(Val::Px(3.0)),
+                flex_grow: 1.0,
+                ..default()
+            },
             ..default()
         },
-        ..default()
-    })
+        Name::new(format!("Available {} root", &title)),
+    ))
     .with_children(|category_root| {
         category_root.spawn((
             TextBundle::from_section(
@@ -379,18 +418,21 @@ fn setup_category(
 fn setup_shop_item(root: &mut ChildBuilder, colors: &Colors, fonts: &Fonts, id: ItemId) -> Entity {
     let margin = UiRect::all(Val::Px(3.0));
 
-    root.spawn(NodeBundle {
-        background_color: Color::DARK_GRAY.into(),
-        style: Style {
-            size: Size::AUTO,
-            justify_content: JustifyContent::FlexStart,
-            align_items: AlignItems::Center,
-            margin,
-            padding: margin,
+    root.spawn((
+        NodeBundle {
+            background_color: Color::DARK_GRAY.into(),
+            style: Style {
+                size: Size::AUTO,
+                justify_content: JustifyContent::FlexStart,
+                align_items: AlignItems::Center,
+                margin,
+                padding: margin,
+                ..default()
+            },
             ..default()
         },
-        ..default()
-    })
+        ShopSlotState::Default,
+    ))
     .with_children(|item_root| {
         let base_style = TextStyle {
             font: fonts.basic.clone(),

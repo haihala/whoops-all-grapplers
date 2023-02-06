@@ -1,12 +1,27 @@
 use bevy::prelude::*;
 
-#[derive(Reflect, FromReflect, Debug, Clone, Copy, Default, PartialEq)]
+#[derive(Reflect, FromReflect, Debug, Clone, Copy, PartialEq)]
 pub struct StatusEffect {
+    // TODO: These do nothing
     pub animation_speed_multiplier: f32,
-    pub walk_speed_multiplier: f32,
     pub damage_multiplier: f32,
     pub projectile_speed_multiplier: f32,
+
+    // These work
+    pub walk_speed_multiplier: f32,
     pub max_health: i32,
+}
+
+impl Default for StatusEffect {
+    fn default() -> Self {
+        Self {
+            animation_speed_multiplier: 1.0,
+            walk_speed_multiplier: 1.0,
+            damage_multiplier: 1.0,
+            projectile_speed_multiplier: 1.0,
+            max_health: 0,
+        }
+    }
 }
 
 impl StatusEffect {

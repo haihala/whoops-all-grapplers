@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-use wag_core::{ItemId, INVENTORY_SIZE};
+use wag_core::{ItemId, StatusEffect, INVENTORY_SIZE};
 
-use crate::{Item, ItemCategory};
+use crate::{Character, Item, ItemCategory};
 
 #[derive(Debug, Component, Eq, PartialEq, Reflect, Clone)]
 pub struct Inventory {
@@ -33,10 +33,7 @@ impl Inventory {
         }
 
         if let ItemCategory::Upgrade(dependencies) = &item.category {
-            if !dependencies
-                .iter()
-                .all(|dependency| self.items.contains(dependency))
-            {
+            if filter_out(&self.items, dependencies).is_err() {
                 return false;
             }
         }
@@ -46,6 +43,12 @@ impl Inventory {
 
     pub fn buy(&mut self, id: ItemId, item: Item) {
         self.money -= item.cost;
+
+        // Remove dependencies from inventory
+        if let ItemCategory::Upgrade(dependencies) = &item.category {
+            self.items = filter_out(&self.items, dependencies).unwrap();
+        }
+
         self.items.push(id);
     }
 
@@ -54,4 +57,39 @@ impl Inventory {
         self.money += refund;
         self.items.remove(index);
     }
+
+    pub fn get_effects(&self, character: &Character) -> StatusEffect {
+        self.items
+            .iter()
+            .fold(StatusEffect::default(), |accumulator, id| {
+                accumulator.combine(&get_recursive_effects(id, character))
+            })
+    }
+}
+
+fn get_recursive_effects(item_id: &ItemId, character: &Character) -> StatusEffect {
+    let item = character.items.get(item_id).unwrap();
+
+    if let ItemCategory::Upgrade(dependencies) = &item.category {
+        dependencies.iter().fold(item.effect, |accumulator, item| {
+            accumulator.combine(&get_recursive_effects(item, character))
+        })
+    } else {
+        item.effect
+    }
+}
+
+// Could move elsewhere if need be. Written this way to handle duplicates.
+fn filter_out<T: PartialEq + Clone>(container: &Vec<T>, to_remove: &Vec<T>) -> Result<Vec<T>, ()> {
+    let mut temp = container.to_owned();
+
+    for dependency in to_remove {
+        if let Some(index) = temp.iter().position(|owned_item| owned_item == dependency) {
+            temp.remove(index);
+        } else {
+            return Err(());
+        }
+    }
+
+    Ok(temp)
 }

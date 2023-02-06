@@ -148,6 +148,8 @@ fn setup_combat(
     mut commands: Commands,
     mut query: Query<(
         &Player,
+        &Inventory,
+        &Character,
         &mut Health,
         &mut Resources,
         &mut Transform,
@@ -164,6 +166,8 @@ fn setup_combat(
 
     for (
         player,
+        inventory,
+        character,
         mut health,
         mut resources,
         mut tf,
@@ -173,12 +177,14 @@ fn setup_combat(
         mut velocity,
     ) in &mut query
     {
-        health.reset();
+        let items = inventory.get_effects(character);
+
+        health.reset(items.max_health);
         resources.reset();
         player_state.reset();
         buffer.clear_all();
         parser.clear();
-        velocity.reset();
+        velocity.reset(items.walk_speed_multiplier);
 
         tf.translation = Vec3::new(
             match *player {

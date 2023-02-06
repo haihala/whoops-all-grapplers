@@ -4,6 +4,7 @@ use bevy::prelude::*;
 
 use wag_core::{
     Animation, AnimationType, Area, DummyAnimation, ItemId, Model, MoveId, Status, StatusCondition,
+    StatusEffect,
 };
 
 use crate::{
@@ -628,6 +629,10 @@ fn dummy_items() -> HashMap<ItemId, Item> {
             ItemId::Boots,
             Item {
                 cost: 80,
+                effect: StatusEffect {
+                    walk_speed_multiplier: 1.3,
+                    ..default()
+                },
                 ..default()
             },
         ),
@@ -636,7 +641,10 @@ fn dummy_items() -> HashMap<ItemId, Item> {
             Item {
                 category: Upgrade(vec![ItemId::Boots]),
                 cost: 100,
-                ..default()
+                effect: StatusEffect {
+                    max_health: 20,
+                    ..default()
+                },
             },
         ),
     ]

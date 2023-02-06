@@ -22,8 +22,10 @@ impl Health {
         (self.value as f32 / self.max as f32) * 100.0
     }
 
-    pub fn reset(&mut self) {
-        *self = Health::default();
+    pub fn reset(&mut self, modifier: i32) {
+        let def = Health::default();
+        self.max = (def.max as i32 + modifier) as usize;
+        self.value = (def.value as i32 + modifier) as usize;
     }
 
     pub fn apply_damage(&mut self, amount: usize) {

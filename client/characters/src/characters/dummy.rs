@@ -624,6 +624,21 @@ fn dummy_items() -> HashMap<ItemId, Item> {
                 ..default()
             },
         ),
+        (
+            ItemId::Boots,
+            Item {
+                cost: 80,
+                ..default()
+            },
+        ),
+        (
+            ItemId::SafetyBoots,
+            Item {
+                category: Upgrade(vec![ItemId::Boots]),
+                cost: 100,
+                ..default()
+            },
+        ),
     ]
     .into_iter()
     .collect()

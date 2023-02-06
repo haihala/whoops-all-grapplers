@@ -43,7 +43,8 @@ impl Plugin for UIPlugin {
             SystemSet::new()
                 .with_run_criteria(State::on_update(GameState::Shop))
                 .with_system(shop::navigate_shop)
-                .with_system(shop::update_slot_visuals.after(shop::navigate_shop)),
+                .with_system(shop::update_slot_visuals.after(shop::navigate_shop))
+                .with_system(shop::update_inventory_ui.after(shop::navigate_shop)),
         )
         .add_startup_system_set_to_stage(
             StartupStage::PostStartup,

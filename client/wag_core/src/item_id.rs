@@ -8,6 +8,8 @@ pub enum ItemId {
     Gun,
     HandMeDownKen,
     Roids,
+    Boots,
+    SafetyBoots,
 
     #[default]
     Default,
@@ -16,7 +18,8 @@ pub enum ItemId {
 impl ItemId {
     pub fn display_name(&self) -> String {
         match self {
-            Self::HandMeDownKen => String::from("Hand me down -ken"),
+            Self::HandMeDownKen => "Hand me down -ken".into(),
+            Self::SafetyBoots => "Safety boots".into(),
             _ => format!("{:?}", self),
         }
     }

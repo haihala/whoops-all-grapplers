@@ -11,12 +11,10 @@ Interlocked with [[Items and the shop]]
 			- Kinda requires [[CLI args]]
 
 # Other todos
-- Gray out items you can't afford
 - Update info view
-- Buying and selling
+- End shopping
+- Apply effects when shopping ends (like increased health from new items)
 - Notifications for when the user does something weird
-- One upgrade item
-- Could you maybe simplify and set slot highlighting directly without the intermediate component?
 
 # Architecture brainstorming
 - Centralized component to store/write/read state would be cool

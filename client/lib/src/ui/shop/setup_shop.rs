@@ -1,13 +1,27 @@
 use bevy::prelude::*;
 
 use characters::{Character, Item, ItemCategory::*};
-use wag_core::{GameState, ItemId, OnlyShowInGameState, Player, Players};
+use wag_core::{GameState, ItemId, OnlyShowInGameState, Owner, Player, Players, INVENTORY_SIZE};
 
 use crate::assets::{Colors, Fonts};
 
-use super::navigation::{ShopNavigation, ShopSlotState};
+use super::shop_usage::{ShopNavigation, ShopSlotState};
 use super::shops_resource::{Shop, ShopComponents, ShopComponentsBuilder, Shops};
-use super::INVENTORY_SLOTS;
+
+#[derive(Debug, Component)]
+pub struct MoneyMarker;
+
+#[derive(Debug, Component)]
+pub struct ShopItem {
+    pub id: ItemId,
+    pub item: Item,
+}
+
+#[derive(Debug, Component)]
+pub struct InventorySlot {
+    pub index: usize,
+    pub id: Option<ItemId>,
+}
 
 pub fn setup_shop(
     mut commands: Commands,
@@ -108,8 +122,15 @@ fn setup_shop_root(
     ))
     .with_children(|shop_root| {
         setup_info_panel(shop_root, &mut shop_root_builder, colors, fonts);
-        setup_inventory(shop_root, &mut shop_root_builder, colors, fonts);
-        setup_available_items(shop_root, &mut shop_root_builder, colors, fonts, character);
+        setup_inventory(shop_root, &mut shop_root_builder, colors, fonts, owner);
+        setup_available_items(
+            shop_root,
+            &mut shop_root_builder,
+            colors,
+            fonts,
+            character,
+            owner,
+        );
     });
 
     shop_root_builder.build()
@@ -192,6 +213,7 @@ fn setup_inventory(
     shop_root: &mut ShopComponentsBuilder,
     colors: &Colors,
     fonts: &Fonts,
+    player: Player,
 ) {
     let margin = UiRect::all(Val::Px(3.0));
 
@@ -211,7 +233,7 @@ fn setup_inventory(
         Name::new("Inventory root"),
     ))
     .with_children(|inventory_container| {
-        setup_owned_slots(inventory_container, shop_root);
+        setup_owned_slots(inventory_container, shop_root, player);
         shop_root.money_text = Some(
             inventory_container
                 .spawn((
@@ -224,13 +246,19 @@ fn setup_inventory(
                         },
                     ),
                     Name::new("Money"),
+                    Owner(player),
+                    MoneyMarker,
                 ))
                 .id(),
         );
     });
 }
 
-fn setup_owned_slots(root: &mut ChildBuilder, shop_root: &mut ShopComponentsBuilder) {
+fn setup_owned_slots(
+    root: &mut ChildBuilder,
+    shop_root: &mut ShopComponentsBuilder,
+    player: Player,
+) {
     let margin = UiRect::all(Val::Px(3.0));
 
     root.spawn((
@@ -245,15 +273,15 @@ fn setup_owned_slots(root: &mut ChildBuilder, shop_root: &mut ShopComponentsBuil
         Name::new("Owned slots"),
     ))
     .with_children(|owned_container| {
-        for i in 0..INVENTORY_SLOTS {
+        for i in 0..INVENTORY_SIZE {
             shop_root
                 .owned_slots
-                .push(create_empty_inventory_slot(owned_container, i));
+                .push(create_empty_inventory_slot(owned_container, player, i));
         }
     });
 }
 
-fn create_empty_inventory_slot(root: &mut ChildBuilder, index: usize) -> Entity {
+fn create_empty_inventory_slot(root: &mut ChildBuilder, player: Player, index: usize) -> Entity {
     root.spawn((
         NodeBundle {
             background_color: Color::GRAY.into(),
@@ -272,6 +300,8 @@ fn create_empty_inventory_slot(root: &mut ChildBuilder, index: usize) -> Entity 
         } else {
             ShopSlotState::Default
         },
+        Owner(player),
+        InventorySlot { index, id: None },
         Name::new(format!("Inventory slot {}", index)),
     ))
     .id()
@@ -283,6 +313,7 @@ fn setup_available_items(
     colors: &Colors,
     fonts: &Fonts,
     character: &Character,
+    player: Player,
 ) {
     let items = get_prepared_items(character);
     dbg!(&items);
@@ -306,6 +337,7 @@ fn setup_available_items(
             available_container,
             colors,
             fonts,
+            player,
             "Consumables".into(),
             items.consumables,
         );
@@ -314,6 +346,7 @@ fn setup_available_items(
             available_container,
             colors,
             fonts,
+            player,
             "Basics".into(),
             items.basics,
         );
@@ -322,18 +355,18 @@ fn setup_available_items(
             available_container,
             colors,
             fonts,
+            player,
             "Upgrades".into(),
             items.upgrades,
         );
     });
 }
 
-// For now there are no icons or anything so the Item parts are not necessary. Easy to add later.
 #[derive(Debug)]
 struct PreparedItems {
-    consumables: Vec<ItemId>,
-    basics: Vec<ItemId>,
-    upgrades: Vec<ItemId>,
+    consumables: Vec<(ItemId, Item)>,
+    basics: Vec<(ItemId, Item)>,
+    upgrades: Vec<(ItemId, Item)>,
 }
 
 fn get_prepared_items(character: &Character) -> PreparedItems {
@@ -351,9 +384,9 @@ fn get_prepared_items(character: &Character) -> PreparedItems {
 
     for (id, item) in items {
         match item.category {
-            Consumable => consumables.push(id),
-            Basic => basics.push(id),
-            Upgrade(_) => upgrades.push(id),
+            Consumable => consumables.push((id, item)),
+            Basic => basics.push((id, item)),
+            Upgrade(_) => upgrades.push((id, item)),
         }
     }
 
@@ -368,8 +401,9 @@ fn setup_category(
     root: &mut ChildBuilder,
     colors: &Colors,
     fonts: &Fonts,
+    player: Player,
     title: String,
-    items: Vec<ItemId>,
+    items: Vec<(ItemId, Item)>,
 ) -> Vec<Entity> {
     let mut item_entities = vec![];
 
@@ -407,15 +441,29 @@ fn setup_category(
             BackgroundColor(Color::DARK_GRAY),
         ));
 
-        for id in items.into_iter() {
-            item_entities.push(setup_shop_item(category_root, colors, fonts, id));
+        for (id, item) in items.into_iter() {
+            item_entities.push(setup_shop_item(
+                category_root,
+                colors,
+                fonts,
+                player,
+                id,
+                item,
+            ));
         }
     });
 
     item_entities
 }
 
-fn setup_shop_item(root: &mut ChildBuilder, colors: &Colors, fonts: &Fonts, id: ItemId) -> Entity {
+fn setup_shop_item(
+    root: &mut ChildBuilder,
+    colors: &Colors,
+    fonts: &Fonts,
+    player: Player,
+    id: ItemId,
+    item: Item,
+) -> Entity {
     let margin = UiRect::all(Val::Px(3.0));
 
     root.spawn((
@@ -432,6 +480,8 @@ fn setup_shop_item(root: &mut ChildBuilder, colors: &Colors, fonts: &Fonts, id: 
             ..default()
         },
         ShopSlotState::Default,
+        ShopItem { id, item },
+        Owner(player),
     ))
     .with_children(|item_root| {
         let base_style = TextStyle {
@@ -441,16 +491,14 @@ fn setup_shop_item(root: &mut ChildBuilder, colors: &Colors, fonts: &Fonts, id: 
         };
 
         // Icon
-        item_root.spawn((
-            TextBundle::from_section(
-                id.display_name().chars().next().unwrap(),
-                TextStyle {
-                    font_size: 24.0,
-                    ..base_style.clone()
-                },
-            ),
-            BackgroundColor(Color::GRAY),
-        ));
+        render_item_icon(
+            item_root,
+            TextStyle {
+                font_size: 24.0,
+                ..base_style.clone()
+            },
+            id,
+        );
 
         // Name
         item_root.spawn(
@@ -465,4 +513,11 @@ fn setup_shop_item(root: &mut ChildBuilder, colors: &Colors, fonts: &Fonts, id: 
         );
     })
     .id()
+}
+
+pub fn render_item_icon(root: &mut ChildBuilder, style: TextStyle, id: ItemId) {
+    root.spawn((
+        TextBundle::from_section(id.display_name().chars().next().unwrap(), style),
+        BackgroundColor(Color::GRAY),
+    ));
 }

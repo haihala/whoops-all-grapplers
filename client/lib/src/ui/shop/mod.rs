@@ -1,9 +1,7 @@
-mod navigation;
 mod setup_shop;
+mod shop_usage;
 mod shops_resource;
 
-pub(super) use navigation::{navigate_shop, update_slot_visuals};
 pub(super) use setup_shop::setup_shop;
+pub(super) use shop_usage::{navigate_shop, update_inventory_ui, update_slot_visuals};
 pub use shops_resource::{ShopComponents, Shops};
-
-const INVENTORY_SLOTS: usize = 6;

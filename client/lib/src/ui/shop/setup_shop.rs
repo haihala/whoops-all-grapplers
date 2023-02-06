@@ -316,7 +316,6 @@ fn setup_available_items(
     player: Player,
 ) {
     let items = get_prepared_items(character);
-    dbg!(&items);
 
     root.spawn((
         NodeBundle {

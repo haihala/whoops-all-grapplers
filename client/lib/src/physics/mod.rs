@@ -111,9 +111,7 @@ fn player_input(
 
         if let Some(walk_direction) = state.get_walk_direction() {
             velocity.handle_walking_velocity(walk_direction);
-        }
-
-        if state.is_grounded() {
+        } else if state.is_grounded() {
             velocity.drag();
         }
 

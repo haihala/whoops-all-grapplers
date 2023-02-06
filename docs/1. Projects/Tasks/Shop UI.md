@@ -13,7 +13,6 @@ Interlocked with [[Items and the shop]]
 # Other todos
 - Update info view
 - End shopping
-- Apply effects when shopping ends (like increased health from new items)
 - Notifications for when the user does something weird
 
 # Architecture brainstorming

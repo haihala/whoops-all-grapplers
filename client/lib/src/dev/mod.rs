@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-use characters::{Hitbox, Hurtbox, Resources};
+use characters::{Hitbox, Hurtbox, Inventory, Resources};
 use player_state::PlayerState;
 use wag_core::{Clock, GameState, Player, SoundEffect};
 
@@ -30,6 +30,7 @@ impl Plugin for DevPlugin {
             .register_type::<Hurtbox>()
             .register_type::<Hitbox>()
             .register_type::<MoveBuffer>()
+            .register_type::<Inventory>()
             .add_system(generic_test_system)
             .add_system(cycle_game_state.after(generic_test_system))
             .add_system(input_leniency_test_system.after(cycle_game_state))

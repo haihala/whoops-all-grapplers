@@ -34,3 +34,4 @@ pub use time::*;
 // This crate will be as small as possible so that types are where they are used
 // It's meant for common universal types to circumvent circular dependencies.
 pub const FPS: f32 = 60.0;
+pub const INVENTORY_SIZE: usize = 7;

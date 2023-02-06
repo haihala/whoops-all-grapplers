@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use wag_core::Player;
 
-use super::navigation::{ShopCategory, ShopNavigation};
+use super::shop_usage::{ShopCategory, ShopNavigation};
 
 #[derive(Default)]
 pub struct ShopComponentsBuilder {

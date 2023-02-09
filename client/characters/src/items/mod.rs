@@ -16,4 +16,5 @@ pub struct Item {
     pub category: ItemCategory,
     pub cost: usize,
     pub effect: StatusEffect,
+    pub explanation: String,
 }

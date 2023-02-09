@@ -11,7 +11,6 @@ Interlocked with [[Items and the shop]]
 			- Kinda requires [[CLI args]]
 
 # Other todos
-- Update info view
 - End shopping
 - Notifications for when the user does something weird
 

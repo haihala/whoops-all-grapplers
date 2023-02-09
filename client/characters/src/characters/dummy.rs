@@ -629,6 +629,7 @@ fn dummy_items() -> HashMap<ItemId, Item> {
             ItemId::Boots,
             Item {
                 cost: 80,
+                explanation: "Bonus walk speed".into(),
                 effect: StatusEffect {
                     walk_speed_multiplier: 1.3,
                     ..default()
@@ -640,6 +641,7 @@ fn dummy_items() -> HashMap<ItemId, Item> {
             ItemId::SafetyBoots,
             Item {
                 category: Upgrade(vec![ItemId::Boots]),
+                explanation: "Gives more health in addition to boots' speed bonus".into(),
                 cost: 100,
                 effect: StatusEffect {
                     max_health: 20,

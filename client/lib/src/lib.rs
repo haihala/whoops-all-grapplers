@@ -1,5 +1,7 @@
 #![feature(drain_filter)]
 #![feature(exclusive_range_pattern)]
+#![feature(iter_intersperse)]
+
 mod assets;
 mod camera;
 mod damage;

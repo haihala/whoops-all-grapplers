@@ -7,7 +7,10 @@ use super::shop_usage::{ShopCategory, ShopNavigation};
 pub struct ShopComponentsBuilder {
     // Top
     pub big_icon: Option<Entity>,
-    pub explanation_box: Option<Entity>,
+    pub item_name: Option<Entity>,
+    pub explanation: Option<Entity>,
+    pub cost: Option<Entity>,
+    pub dependencies: Option<Entity>,
 
     // Middle
     pub owned_slots: Vec<Entity>,
@@ -28,7 +31,10 @@ impl ShopComponentsBuilder {
 
         ShopComponents {
             big_icon: self.big_icon.expect("fully built UI"),
-            explanation_box: self.explanation_box.expect("fully built UI"),
+            item_name: self.item_name.expect("fully built UI"),
+            explanation: self.explanation.expect("fully built UI"),
+            cost: self.cost.expect("fully built UI"),
+            dependencies: self.dependencies.expect("fully built UI"),
             owned_slots: self.owned_slots,
             money_text: self.money_text.expect("fully built UI"),
             consumables: self.consumables,
@@ -42,7 +48,10 @@ impl ShopComponentsBuilder {
 pub struct ShopComponents {
     // Top
     pub big_icon: Entity,
-    pub explanation_box: Entity,
+    pub item_name: Entity,
+    pub explanation: Entity,
+    pub cost: Entity,
+    pub dependencies: Entity,
 
     // Middle
     pub owned_slots: Vec<Entity>,
@@ -90,6 +99,13 @@ impl Shops {
         match player {
             Player::One => &mut self.player_one,
             Player::Two => &mut self.player_two,
+        }
+    }
+
+    pub fn get_shop(&self, player: &Player) -> &Shop {
+        match player {
+            Player::One => &self.player_one,
+            Player::Two => &self.player_two,
         }
     }
 }

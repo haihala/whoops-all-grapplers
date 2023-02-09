@@ -9,12 +9,8 @@ use super::shop_usage::{ShopNavigation, ShopSlotState};
 use super::shops_resource::{Shop, ShopComponents, ShopComponentsBuilder, Shops};
 
 #[derive(Debug, Component)]
-pub struct MoneyMarker;
-
-#[derive(Debug, Component)]
 pub struct ShopItem {
     pub id: ItemId,
-    pub item: Item,
 }
 
 #[derive(Debug, Component)]
@@ -92,7 +88,7 @@ fn setup_shop_root(
     colors: &Colors,
     fonts: &Fonts,
 ) -> ShopComponents {
-    let margin = match owner {
+    let padding = match owner {
         Player::One => UiRect {
             right: Val::Px(5.0),
             ..default()
@@ -113,7 +109,7 @@ fn setup_shop_root(
                     width: Val::Percent(50.0),
                 },
                 flex_direction: FlexDirection::Column,
-                margin,
+                padding,
                 ..default()
             },
             ..default()
@@ -142,7 +138,8 @@ fn setup_info_panel(
     colors: &Colors,
     fonts: &Fonts,
 ) {
-    let margin = UiRect::all(Val::Px(3.0));
+    let absolute_margin = 3.0;
+    let margin = UiRect::all(Val::Px(absolute_margin));
     let icon_size = 200.0;
 
     root.spawn((
@@ -150,12 +147,11 @@ fn setup_info_panel(
             background_color: Color::DARK_GRAY.into(),
             style: Style {
                 size: Size {
-                    height: Val::Auto,
+                    height: Val::Px(icon_size + absolute_margin * 4.0), // Top and bottom, margin and padding
                     width: Val::Auto,
                 },
                 margin,
                 padding: margin,
-                justify_content: JustifyContent::SpaceBetween,
                 ..default()
             },
             ..default()
@@ -163,49 +159,105 @@ fn setup_info_panel(
         Name::new("Info panel"),
     ))
     .with_children(|info_panel| {
-        shop_root.big_icon = Some(
-            info_panel
-                .spawn((
-                    ImageBundle {
-                        style: Style {
-                            size: Size {
-                                height: Val::Px(icon_size),
-                                width: Val::Px(icon_size),
-                            },
-                            flex_shrink: 0.0,
-                            ..default()
-                        },
-                        ..default()
-                    },
-                    Name::new("Big icon"),
-                ))
-                .id(),
-        );
-
-        shop_root.explanation_box = Some(
-            info_panel
-                .spawn((
-                    TextBundle::from_section(
-                        "Lorem ipsum",
-                        TextStyle {
-                            font: fonts.basic.clone(),
-                            font_size: 12.0,
-                            color: colors.text,
-                        },
-                    )
-                    .with_style(Style {
-                        margin: UiRect {
-                            left: Val::Px(10.0),
-                            ..default()
-                        },
-                        flex_grow: 1.0,
-                        ..default()
-                    }),
-                    Name::new("Info text box"),
-                ))
-                .id(),
-        );
+        shop_root.big_icon = Some(big_icon(info_panel, icon_size));
+        setup_explanation_box(info_panel, shop_root, colors, fonts);
     });
+}
+
+fn big_icon(root: &mut ChildBuilder, size: f32) -> Entity {
+    root.spawn((
+        ImageBundle {
+            style: Style {
+                size: Size {
+                    height: Val::Percent(100.0),
+                    width: Val::Px(size),
+                },
+                flex_shrink: 0.0,
+                ..default()
+            },
+            ..default()
+        },
+        Name::new("Big icon"),
+    ))
+    .id()
+}
+
+fn setup_explanation_box(
+    root: &mut ChildBuilder,
+    shop_root: &mut ShopComponentsBuilder,
+    colors: &Colors,
+    fonts: &Fonts,
+) {
+    root.spawn((
+        NodeBundle {
+            style: Style {
+                margin: UiRect {
+                    left: Val::Px(10.0),
+                    ..default()
+                },
+                size: Size::AUTO,
+                flex_direction: FlexDirection::Column,
+                ..default()
+            },
+            ..default()
+        },
+        Name::new("Explanations"),
+    ))
+    .with_children(|explanation_box| {
+        let basic_style = TextStyle {
+            font: fonts.basic.clone(),
+            font_size: 12.0,
+            color: colors.text,
+        };
+
+        shop_root.item_name = Some(setup_text_sections(
+            explanation_box,
+            vec!["Item name"],
+            TextStyle {
+                font_size: 24.0,
+                ..basic_style.clone()
+            },
+            "Item name",
+        ));
+
+        shop_root.explanation = Some(setup_text_sections(
+            explanation_box,
+            vec!["Body"],
+            basic_style.clone(),
+            "Explanation",
+        ));
+
+        shop_root.cost = Some(setup_text_sections(
+            explanation_box,
+            vec!["Sell", " for: $", "0"],
+            basic_style.clone(),
+            "Costs",
+        ));
+
+        shop_root.dependencies = Some(setup_text_sections(
+            explanation_box,
+            vec!["Depends on: ", ""],
+            basic_style,
+            "Dependencies",
+        ));
+    });
+}
+
+fn setup_text_sections(
+    root: &mut ChildBuilder,
+    texts: Vec<impl Into<String>>,
+    style: TextStyle,
+    name: impl Into<String>,
+) -> Entity {
+    root.spawn((
+        TextBundle::from_sections(
+            texts
+                .into_iter()
+                .map(|text| TextSection::new(text, style.clone())),
+        ),
+        Name::new(name.into()),
+    ))
+    .id()
 }
 
 fn setup_inventory(
@@ -234,23 +286,16 @@ fn setup_inventory(
     ))
     .with_children(|inventory_container| {
         setup_owned_slots(inventory_container, shop_root, player);
-        shop_root.money_text = Some(
-            inventory_container
-                .spawn((
-                    TextBundle::from_section(
-                        "$0",
-                        TextStyle {
-                            font: fonts.basic.clone(),
-                            font_size: 24.0,
-                            color: colors.text,
-                        },
-                    ),
-                    Name::new("Money"),
-                    Owner(player),
-                    MoneyMarker,
-                ))
-                .id(),
-        );
+        shop_root.money_text = Some(setup_text_sections(
+            inventory_container,
+            vec!["$", "0"],
+            TextStyle {
+                font: fonts.basic.clone(),
+                font_size: 24.0,
+                color: colors.text,
+            },
+            "Money",
+        ));
     });
 }
 
@@ -363,9 +408,9 @@ fn setup_available_items(
 
 #[derive(Debug)]
 struct PreparedItems {
-    consumables: Vec<(ItemId, Item)>,
-    basics: Vec<(ItemId, Item)>,
-    upgrades: Vec<(ItemId, Item)>,
+    consumables: Vec<ItemId>,
+    basics: Vec<ItemId>,
+    upgrades: Vec<ItemId>,
 }
 
 fn get_prepared_items(character: &Character) -> PreparedItems {
@@ -383,9 +428,9 @@ fn get_prepared_items(character: &Character) -> PreparedItems {
 
     for (id, item) in items {
         match item.category {
-            Consumable => consumables.push((id, item)),
-            Basic => basics.push((id, item)),
-            Upgrade(_) => upgrades.push((id, item)),
+            Consumable => consumables.push(id),
+            Basic => basics.push(id),
+            Upgrade(_) => upgrades.push(id),
         }
     }
 
@@ -402,7 +447,7 @@ fn setup_category(
     fonts: &Fonts,
     player: Player,
     title: String,
-    items: Vec<(ItemId, Item)>,
+    items: Vec<ItemId>,
 ) -> Vec<Entity> {
     let mut item_entities = vec![];
 
@@ -440,15 +485,8 @@ fn setup_category(
             BackgroundColor(Color::DARK_GRAY),
         ));
 
-        for (id, item) in items.into_iter() {
-            item_entities.push(setup_shop_item(
-                category_root,
-                colors,
-                fonts,
-                player,
-                id,
-                item,
-            ));
+        for id in items.into_iter() {
+            item_entities.push(setup_shop_item(category_root, colors, fonts, player, id));
         }
     });
 
@@ -461,7 +499,6 @@ fn setup_shop_item(
     fonts: &Fonts,
     player: Player,
     id: ItemId,
-    item: Item,
 ) -> Entity {
     let margin = UiRect::all(Val::Px(3.0));
 
@@ -479,7 +516,7 @@ fn setup_shop_item(
             ..default()
         },
         ShopSlotState::Default,
-        ShopItem { id, item },
+        ShopItem { id },
         Owner(player),
     ))
     .with_children(|item_root| {

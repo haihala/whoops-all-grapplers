@@ -83,7 +83,7 @@ fn dashes() -> impl Iterator<Item = (MoveId, Move)> {
         (
             MoveId::DashForward,
             dash(
-                "656",
+                "5656",
                 DASH_DURATION,
                 DASH_IMPULSE,
                 DummyAnimation::DashForward.into(),
@@ -92,7 +92,7 @@ fn dashes() -> impl Iterator<Item = (MoveId, Move)> {
         (
             MoveId::DashBack,
             dash(
-                "454",
+                "5454",
                 DASH_DURATION,
                 -DASH_IMPULSE,
                 DummyAnimation::DashBack.into(),

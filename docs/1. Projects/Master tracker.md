@@ -1,6 +1,6 @@
 # Backlog
 ## High priority
-- [[Shop UI]] + [[Items and the shop]]
+- [[Dynamic hitboxes and hurtboxes]]
 
 ## Low priority
 - [[Rewards]]
@@ -9,7 +9,6 @@
 - Resource bars visible sections and use by section
 
 ## Nice to have
-- [[Dynamic hitboxes and hurtboxes]]
 - [[Move format refinement]]
 - [[Input parser refinement#Nice to have]]
 
@@ -24,6 +23,7 @@
 - [[Netplay]]
 - [[Try out egui]]
 - https://bevyengine.org/learn/book/migration-guides/0.8-0.9/#add-global-time-scaling for hitstop
+- [[Shop 2.0]]
 
 # Other trackers
 ![[Bug tracker]]

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
 use input_parsing::InputParser;
-use wag_core::{MoveId, Owner, Player, Players, INVENTORY_SIZE};
+use wag_core::{ItemId, MoveId, Owner, Player, Players, INVENTORY_SIZE};
 
 use crate::assets::{Colors, Fonts};
 
@@ -214,9 +214,21 @@ const SELL_RETURN: f32 = 0.5;
 
 fn sell(inventory: &mut Inventory, character: &Character, index: usize) {
     if let Some(id) = inventory.items.get(index) {
-        let cost = character.items.get(id).unwrap().cost;
-        inventory.sell(index, ((cost as f32) * SELL_RETURN) as usize);
+        let refund = ((get_recursive_cost(character, id) as f32) * SELL_RETURN) as usize;
+        inventory.sell(index, refund);
     }
+}
+
+fn get_recursive_cost(character: &Character, id: &ItemId) -> usize {
+    let item = character.items.get(id).unwrap();
+
+    (if let ItemCategory::Upgrade(deps) = &item.category {
+        deps.iter()
+            .map(|dependency| get_recursive_cost(character, dependency))
+            .sum()
+    } else {
+        0
+    }) + item.cost
 }
 
 fn buy(
@@ -384,7 +396,10 @@ fn inventory_slot_info(character: &Character, inventory_slot: &InventorySlot) ->
             item_name: Some(item_id.display_name()),
             explanation: Some(item.explanation),
             operation: Some("Sell".into()),
-            cost: Some((((item.cost as f32) * SELL_RETURN) as usize).to_string()),
+            cost: Some(
+                (((get_recursive_cost(character, &item_id) as f32) * SELL_RETURN) as usize)
+                    .to_string(),
+            ),
             dependencies: if let ItemCategory::Upgrade(deps) = item.category {
                 Some(
                     deps.into_iter()

@@ -1,0 +1,11 @@
+- Exiting the shop without dev binds
+- UI looks ugly AF
+	- Icons
+	- Colors
+	- Explanation box weird spacing
+	- Notifications for when the user does something weird
+		- Not enough money
+		- Missing dependency
+		- No slots to buy something
+- Random sales to encourage variation in builds
+- Automatic dependency purchase if you have the money for it

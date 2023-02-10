@@ -101,7 +101,7 @@ pub fn navigate_shop(
             let correct_state = if selected == entity {
                 ShopSlotState::Highlighted
             } else if shop_item
-                .map(|item| character.items.get(&item.id).unwrap().cost > inventory.money)
+                .map(|item| character.items.get(item).unwrap().cost > inventory.money)
                 .unwrap_or_default()
             {
                 ShopSlotState::Disabled
@@ -241,9 +241,9 @@ fn buy(
     let (_, _, selected_item, _) = slots.get(selected_slot).unwrap();
     let shop_item = selected_item.unwrap();
 
-    let item = character.items.get(&shop_item.id).unwrap().clone();
+    let item = character.items.get(shop_item).unwrap().clone();
     if inventory.can_buy(&item) {
-        inventory.buy(shop_item.id, item)
+        inventory.buy(**shop_item, item)
     }
 }
 
@@ -364,10 +364,10 @@ struct InfoPanelContents {
 }
 
 fn available_item_info(character: &Character, shop_item: &ShopItem) -> InfoPanelContents {
-    let item = character.items.get(&shop_item.id).unwrap().clone();
+    let item = character.items.get(shop_item).unwrap().clone();
 
     InfoPanelContents {
-        item_name: Some(shop_item.id.display_name()),
+        item_name: Some(shop_item.display_name()),
         explanation: if !item.explanation.is_empty() {
             Some(item.explanation)
         } else {

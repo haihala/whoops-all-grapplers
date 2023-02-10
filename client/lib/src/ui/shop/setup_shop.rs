@@ -8,10 +8,8 @@ use crate::assets::{Colors, Fonts};
 use super::shop_usage::{ShopNavigation, ShopSlotState};
 use super::shops_resource::{Shop, ShopComponents, ShopComponentsBuilder, Shops};
 
-#[derive(Debug, Component)]
-pub struct ShopItem {
-    pub id: ItemId,
-}
+#[derive(Debug, Component, Deref)]
+pub struct ShopItem(pub ItemId);
 
 #[derive(Debug, Component)]
 pub struct InventorySlot {
@@ -516,7 +514,7 @@ fn setup_shop_item(
             ..default()
         },
         ShopSlotState::Default,
-        ShopItem { id },
+        ShopItem(id),
         Owner(player),
     ))
     .with_children(|item_root| {

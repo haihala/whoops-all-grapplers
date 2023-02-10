@@ -21,9 +21,9 @@ opt-level = 3
 
 [workspace.dependencies]
 bevy = "0.9"
-bevy-inspector-egui = "0.16.5"
+bevy-inspector-egui = "0.17"
 bevy_hanabi = "0.5"
-rand = "0.8.5"
-map-macro = "0.2.3"
-strum = "0.24.1"
-strum_macros = "0.24.2"
+rand = "0.8"
+map-macro = "0.2"
+strum = "0.24"
+strum_macros = "0.24"

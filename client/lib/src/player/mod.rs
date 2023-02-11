@@ -11,7 +11,9 @@ mod size_adjustment;
 use characters::{dummy, Character, Hurtbox, Inventory, Resources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
-use wag_core::{once_per_combat_frame, Clock, Facing, GameState, Player, Players, RoundResult};
+use wag_core::{
+    once_per_combat_frame, Clock, Facing, GameState, Joints, Player, Players, RoundResult,
+};
 
 use crate::{
     assets::{AnimationHelperSetup, Models},
@@ -108,6 +110,7 @@ struct PlayerDefaults {
     spawner: HitboxSpawner,
     player_velocity: PlayerVelocity,
     move_buffer: MoveBuffer,
+    joints: Joints,
 }
 
 fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: Player) -> Entity {

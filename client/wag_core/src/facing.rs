@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::StickPosition;
 
-#[derive(Reflect, FromReflect, PartialEq, Eq, Clone, Copy, Debug, Component, Default)]
+#[derive(Reflect, FromReflect, PartialEq, Eq, Clone, Copy, Debug, Component, Default, Hash)]
 pub enum Facing {
     #[default]
     Right,

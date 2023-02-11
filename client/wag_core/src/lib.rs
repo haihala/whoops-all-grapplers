@@ -16,6 +16,9 @@ pub use inputs::{GameButton, StickPosition};
 mod item_id;
 pub use item_id::ItemId;
 
+mod joints;
+pub use joints::{Joint, Joints};
+
 mod move_id;
 pub use move_id::MoveId;
 

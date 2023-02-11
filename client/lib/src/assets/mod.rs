@@ -52,6 +52,7 @@ impl Plugin for AssetsPlugin {
             .add_system(animations::setup_helpers)
             .add_system(animations::update_animation)
             .add_system(animations::mirror_after_load)
+            .add_system(models::connect_joints)
             .add_system(sounds::play_queued)
             .add_system(particles::handle_requests);
     }

@@ -1,3 +1,42 @@
+# 2023-02-11 implementation starts
+Needs:
+- Visualization
+- Not setting hit and hurtboxes separately for each frame of each move
+
+Wants:
+- Fold to 2D so that you can't mystery dodge by going to the background/foreground
+
+## Implementation: Joint anchors
+- On load
+	- [x] Initialize Joints component
+		- Will get a hold of every joint entity on the model
+		- Can be used later to anchor spawning stuff at the Joints
+	- [ ] Initialize JointColliders component
+		- Will take in descriptions on what joints form boxes
+			- Vec of joints => one axis aligned collider
+				- Based on min and max x and y
+	- [ ] Create an empty node to hold the colliders
+	- [ ] Spawn collider sprites in that with
+		- Area
+		- Marker component
+		- Sprite
+- Each tick
+	- [ ] Check joint positions and update areas
+	- [ ] Update sprites based on areas
+	- [ ] Check collision based on areas, get a link to the main
+
+### Upgrade (later)
+- Include a thickness
+- Instead of an axis aligned box, have a diagonal rectangle from one focus to the other with the given thickness.
+
+# Previous notes on the subject
+## Rejected implementations
+### Blender hitboxes
+- Define hitboxes and hurtboxes in blender
+
+Problems:
+- Blender is configured to only export visible models, can you export invisible things?
+
 # 2022-11-21 update:
 - You can find parts of the model and attach hitboxes to those parts
 - Maybe you could do this for hurboxes as well
@@ -5,7 +44,7 @@
 	- Expand `Area` to a multi-collider system
 	- Capsules and Rectangles. Circle is a capsule with both foci in the same spot
 
-- [bevy-scene-hook](https://github.com/nicopap/bevy-scene-hook "https://github.com/nicopap/bevy-scene-hook")
+- [bevy-scene-hook](https://github.com/nicopap/bevy-scene-hook "https://github.com/nicopap/bevy-scene-hook") - Way too green to be used
 - use a naming scheme 
 	- With another mesh attached to the same skeleton
 - gltfextras

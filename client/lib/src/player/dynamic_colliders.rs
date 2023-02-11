@@ -23,8 +23,7 @@ pub(super) fn create_colliders(
         for collider in &joints.colliders {
             if existing_colliders
                 .iter()
-                .find(|(jc, owner)| *jc == collider && ***owner == *player)
-                .is_some()
+                .any(|(jc, owner)| jc == collider && **owner == *player)
             {
                 // This one is already spawned
                 continue;

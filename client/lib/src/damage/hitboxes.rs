@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use characters::{Action, Attack, HitTracker, Hitbox, Lifetime};
 use player_state::PlayerState;
-use wag_core::{Area, Clock, Facing, Owner, Player};
+use wag_core::{Area, Clock, Facing, Joints, Owner, Player};
 
 use crate::{assets::Models, physics::ConstantVelocity};
 
@@ -111,16 +111,17 @@ pub(super) fn spawn_new(
     mut commands: Commands,
     clock: Res<Clock>,
     models: Res<Models>,
+    tfs: Query<&GlobalTransform>,
     mut query: Query<(
         &mut HitboxSpawner,
         &mut PlayerState,
+        &Joints,
         Entity,
         &Facing,
         &Player,
-        &Transform,
     )>,
 ) {
-    for (mut spawner, mut state, parent, facing, player, transform) in &mut query {
+    for (mut spawner, mut state, joints, parent, facing, player) in &mut query {
         for attack in state
             .drain_matching_actions(|action| {
                 if let Action::Attack(attack) = action {
@@ -131,15 +132,30 @@ pub(super) fn spawn_new(
             })
             .into_iter()
         {
+            let root = if let Some(joint) = attack.to_hit.joint {
+                // Attach to that joint if joint is presented
+                *joints
+                    .nodes
+                    // Need to use the opposite joint if model is flipped
+                    .get(&if facing.to_flipped() {
+                        joint.flip()
+                    } else {
+                        joint
+                    })
+                    .unwrap()
+            } else {
+                parent
+            };
+
             spawner.spawn_attack(
                 &mut commands,
                 &models,
                 attack,
                 clock.frame,
-                parent,
+                root,
                 facing,
                 *player,
-                transform.translation,
+                tfs.get(root).unwrap().translation(),
             );
         }
     }

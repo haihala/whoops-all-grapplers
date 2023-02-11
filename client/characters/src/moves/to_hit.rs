@@ -1,11 +1,14 @@
 use bevy::prelude::*;
 
-use wag_core::{Area, Model};
+use wag_core::{Area, Joint, Model};
 
 #[derive(Debug, Clone, Copy, PartialEq, Reflect, FromReflect)]
 pub struct ToHit {
     pub block_type: BlockType,
     pub hitbox: Hitbox,
+    // If joint is used, that will skew things, as those things can be rotated however
+    // Hitbox offset will behave strangely. TODO FIXME
+    pub joint: Option<Joint>,
     pub lifetime: Lifetime,
     pub velocity: Option<Vec2>,
     pub projectile: Option<Projectile>,
@@ -17,6 +20,7 @@ impl Default for ToHit {
         Self {
             block_type: Default::default(),
             hitbox: Hitbox(Area::new(1.0, 1.2, 0.2, 0.2)),
+            joint: None,
             lifetime: Lifetime::default(),
             velocity: Default::default(),
             projectile: Default::default(),

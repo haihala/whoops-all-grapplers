@@ -3,12 +3,13 @@ use strum_macros::EnumIter;
 
 use bevy::{
     prelude::{Component, Deref, DerefMut, Entity},
+    reflect::{FromReflect, Reflect},
     utils::HashMap,
 };
 
 // For the Dummy model
 // Using facing was considered, but that has an issue with creating the iterator so we can map nodes to the joints
-#[derive(Debug, EnumIter, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, EnumIter, Copy, Clone, PartialEq, Eq, Hash, Reflect, FromReflect)]
 pub enum Joint {
     Abdomen,
     Chest,
@@ -38,6 +39,34 @@ pub enum Joint {
 }
 
 impl Joint {
+    // This would be somewhat cleaner if the format wasn't so bad
+    pub fn flip(self) -> Self {
+        match self {
+            Abdomen => Abdomen,
+            Chest => Chest,
+            Neck => Neck,
+            Head => Head,
+            ShoulderR => ShoulderL,
+            ShoulderL => ShoulderR,
+            UpperArmR => UpperArmL,
+            UpperArmL => UpperArmR,
+            ForeArmR => ForeArmL,
+            ForeArmL => ForeArmR,
+            HandR => HandL,
+            HandL => HandR,
+            HipR => HipL,
+            HipL => HipR,
+            ThighR => ThighL,
+            ThighL => ThighR,
+            ShinR => ShinL,
+            ShinL => ShinR,
+            FootR => FootL,
+            FootL => FootR,
+            ToesR => ToesL,
+            ToesL => ToesR,
+        }
+    }
+
     pub fn from_model_string(input: impl Into<String>) -> Option<Self> {
         let str_input: String = input.into();
 

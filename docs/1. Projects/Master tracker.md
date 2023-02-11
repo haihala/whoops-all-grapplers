@@ -1,9 +1,8 @@
 # Backlog
 ## High priority
-- [[Dynamic hitboxes and hurtboxes]]
+- [[Rewards]]
 
 ## Low priority
-- [[Rewards]]
 - [[Resources between rounds]]
 - [[Toasts in various spots]]
 - Resource bars visible sections and use by section

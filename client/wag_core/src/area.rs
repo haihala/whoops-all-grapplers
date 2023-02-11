@@ -8,6 +8,10 @@ pub struct Area {
 }
 
 impl Area {
+    pub fn of_size(width: f32, height: f32) -> Self {
+        Self::new(0.0, 0.0, width, height)
+    }
+
     pub fn new(x: f32, y: f32, width: f32, height: f32) -> Self {
         Self {
             center: Vec2::new(x, y),

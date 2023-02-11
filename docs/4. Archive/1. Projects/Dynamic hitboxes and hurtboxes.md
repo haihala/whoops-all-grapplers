@@ -29,7 +29,7 @@ Clean up:
 	- From player spawning
 	- From character
 Other:
-- [ ] Allow spawning projectiles / hitboxes not with a hardcoded offset but on a joint.
+- [x] Allow spawning projectiles / hitboxes not with a hardcoded offset but on a joint.
 
 
 ### Upgrade (later)

@@ -40,7 +40,6 @@ pub(super) struct Hit {
 /// Used for querying all the components that are required when a player is hit.
 pub struct HitPlayerQuery<'a> {
     defense: &'a mut Defense,
-    hurtbox: &'a Hurtbox,
     tf: &'a mut Transform,
     health: &'a mut Health,
     resources: &'a mut Resources,
@@ -120,29 +119,36 @@ pub(super) fn detect_hits(
         &mut HitTracker,
     )>,
     players: Res<Players>,
-    hurtboxes: Query<(&Transform, &Hurtbox, &PlayerState, &Character, &InputParser)>,
+    hurtboxes: Query<(&Hurtbox, &Owner)>,
+    defenders: Query<(&Transform, &PlayerState, &Character, &InputParser)>,
     mut spawners: Query<&mut HitboxSpawner>,
 ) -> Vec<Hit> {
     hitboxes
         .iter_mut()
         .filter_map(
-            |(hitbox_entity, owner, attack, hitbox_tf, hitbox, mut hit_tracker)| {
+            |(hitbox_entity, hit_owner, attack, hitbox_tf, hitbox, mut hit_tracker)| {
                 if !hit_tracker.active(clock.frame) {
                     return None;
                 }
 
-                let attacking_player = **owner;
-                let defending_player = owner.other();
+                let attacking_player = **hit_owner;
+                let defending_player = hit_owner.other();
 
                 let defender = players.get(defending_player);
-                let attacker = players.get(**owner);
-                let (defender_tf, hurtbox, state, character, parser) =
-                    hurtboxes.get(defender).unwrap();
+                let attacker = players.get(**hit_owner);
+                let (defender_tf, state, character, parser) = defenders.get(defender).unwrap();
 
-                let Some(overlap) = hurtbox
-                    .with_offset(defender_tf.translation.truncate())
-                    .intersection(&hitbox.with_offset(hitbox_tf.translation().truncate()))
-                else {
+                let offset_hitbox = hitbox.with_offset(hitbox_tf.translation().truncate());
+
+                // This technically doesn't get the actual overlap, as it just gets some overlap with one of the hitboxes
+                let Some(overlap) = hurtboxes.iter().find_map(|(hurtbox, hurt_owner)| {
+                    if **hurt_owner == **hit_owner{
+                        None
+                    } else {
+                        // Different owners, hit can register
+                        hurtbox.with_offset(defender_tf.translation.truncate()).intersection(&offset_hitbox)
+                    }
+                }) else {
                     return None;
                 };
 

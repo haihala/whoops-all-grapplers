@@ -1,6 +1,7 @@
 mod asset_updater;
 mod charge_accumulator;
 mod condition_management;
+mod dynamic_colliders;
 mod move_activation;
 mod move_advancement;
 mod movement;
@@ -8,7 +9,7 @@ mod recovery;
 mod root_mover;
 mod size_adjustment;
 
-use characters::{dummy, Character, Hurtbox, Inventory, Resources};
+use characters::{dummy, Character, Inventory, Resources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
@@ -87,6 +88,14 @@ impl Plugin for PlayerPlugin {
                     .with_system(asset_updater::update_audio.after(asset_updater::update_animation))
                     .with_system(
                         root_mover::update_root_transform.after(asset_updater::update_audio),
+                    )
+                    .with_system(
+                        dynamic_colliders::create_colliders
+                            .after(root_mover::update_root_transform),
+                    )
+                    .with_system(
+                        dynamic_colliders::update_colliders
+                            .after(dynamic_colliders::create_colliders),
                     ),
             );
     }
@@ -128,7 +137,6 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
             Name::new(format!("Player {player}")),
             AnimationHelperSetup,
             Facing::from_flipped(offset.is_sign_positive()),
-            Hurtbox(character.get_hurtbox(false)),
             Pushbox(character.get_pushbox(false)),
             character.clone(),
             player,

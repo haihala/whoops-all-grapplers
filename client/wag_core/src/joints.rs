@@ -2,7 +2,7 @@ use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 use bevy::{
-    prelude::{Component, Entity},
+    prelude::{Component, Deref, DerefMut, Entity},
     utils::HashMap,
 };
 
@@ -75,8 +75,46 @@ impl Joint {
     }
 }
 
-#[derive(Debug, Default, Component)]
+use Joint::*;
+
+#[derive(Debug, Component, Clone, Deref, DerefMut, PartialEq)]
+pub struct JointCollider(pub Vec<Joint>);
+impl From<Vec<Joint>> for JointCollider {
+    fn from(value: Vec<Joint>) -> Self {
+        Self(value)
+    }
+}
+
+#[derive(Debug, Component)]
 pub struct Joints {
-    pub content: HashMap<Joint, Entity>,
-    pub initialized: bool,
+    pub nodes: HashMap<Joint, Entity>,
+    pub colliders: Vec<JointCollider>,
+}
+impl Default for Joints {
+    fn default() -> Self {
+        Self {
+            nodes: Default::default(),
+            colliders: vec![
+                // Head
+                vec![Head, Neck, ShoulderL, ShoulderR].into(),
+                // Torso
+                vec![
+                    Neck, Chest, Abdomen, ShoulderL, ShoulderR, HipL, HipR, UpperArmL, UpperArmR,
+                ]
+                .into(),
+                // Right arm
+                vec![UpperArmR, ForeArmR].into(),
+                vec![ForeArmR, HandR].into(),
+                // Left arm
+                vec![UpperArmL, ForeArmL].into(),
+                vec![ForeArmL, HandL].into(),
+                // Right leg
+                vec![ThighR, ShinR].into(),
+                vec![ShinR, FootR].into(),
+                // Left leg
+                vec![ThighL, ShinL].into(),
+                vec![ShinL, FootL].into(),
+            ],
+        }
+    }
 }

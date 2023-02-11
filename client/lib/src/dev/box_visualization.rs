@@ -92,15 +92,16 @@ fn handle_box_spawning(
 }
 
 pub(super) fn size_adjustment(
-    players: Query<(&Hurtbox, &Pushbox)>,
+    players: Query<&Pushbox>,
     hitboxes: Query<&Hitbox>,
+    hurtboxes: Query<&Hurtbox>,
     mut sprites: Query<(&mut Sprite, &mut Transform, &BoxVisual, &Parent)>,
 ) {
     for (mut sprite, mut tf, box_type, parent) in &mut sprites {
         let area = match box_type {
-            BoxVisual::Hurtbox => players.get(**parent).unwrap().0 .0,
+            BoxVisual::Hurtbox => hurtboxes.get(**parent).unwrap().0,
             BoxVisual::Hitbox => hitboxes.get(**parent).unwrap().0,
-            BoxVisual::Pushbox => players.get(**parent).unwrap().1 .0,
+            BoxVisual::Pushbox => players.get(**parent).unwrap().0,
         };
         sprite.custom_size = Some(area.size());
         tf.translation = area.center().extend(0.0);

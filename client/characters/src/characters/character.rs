@@ -14,8 +14,6 @@ pub struct Character {
     pub model: Model,
     pub low_block_height: f32,
     pub high_block_height: f32,
-    pub standing_hurtbox: Area,
-    pub crouching_hurtbox: Area,
     pub standing_pushbox: Area,
     pub crouching_pushbox: Area,
     pub charge_directions: Vec<StickPosition>,
@@ -47,8 +45,6 @@ impl Character {
                 StickPosition::SW,
                 StickPosition::W,
             ],
-            standing_hurtbox: Area::from_center_size(Vec2::Y * 0.9, Vec2::new(0.5, 1.8)),
-            crouching_hurtbox: Area::from_center_size(Vec2::Y * 0.6, Vec2::new(0.5, 1.2)),
             standing_pushbox: Area::from_center_size(Vec2::Y * 0.7, Vec2::new(0.4, 1.4)),
             crouching_pushbox: Area::from_center_size(Vec2::Y * 0.5, Vec2::new(0.4, 1.0)),
             gravity,
@@ -64,14 +60,6 @@ impl Character {
             self.crouching_pushbox
         } else {
             self.standing_pushbox
-        }
-    }
-
-    pub fn get_hurtbox(&self, crouching: bool) -> Area {
-        if crouching {
-            self.crouching_hurtbox
-        } else {
-            self.standing_hurtbox
         }
     }
 

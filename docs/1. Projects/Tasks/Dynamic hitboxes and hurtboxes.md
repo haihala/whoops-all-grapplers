@@ -11,21 +11,29 @@ Wants:
 	- [x] Initialize Joints component
 		- Will get a hold of every joint entity on the model
 		- Can be used later to anchor spawning stuff at the Joints
-	- [ ] Initialize JointColliders component
+	- [x] Initialize JointColliders component
 		- Will take in descriptions on what joints form boxes
 			- Vec of joints => one axis aligned collider
 				- Based on min and max x and y
-	- [ ] Create an empty node to hold the colliders
-	- [ ] Spawn collider sprites in that with
+	- [x] Spawn collider sprites in that with
 		- Area
 		- Marker component
 		- Sprite
 - Each tick
-	- [ ] Check joint positions and update areas
-	- [ ] Update sprites based on areas
-	- [ ] Check collision based on areas, get a link to the main
+	- [x] Check joint positions and update areas
+	- [x] Update sprites based on areas
+	- [x] Check collision based on areas, get a link to the main
+
+Clean up:
+- [x] Remove old hurtbox
+	- From player spawning
+	- From character
+Other:
+- [ ] Allow spawning projectiles / hitboxes not with a hardcoded offset but on a joint.
+
 
 ### Upgrade (later)
+See [[Dynamic hurtboxes 2.0]]
 - Include a thickness
 - Instead of an axis aligned box, have a diagonal rectangle from one focus to the other with the given thickness.
 

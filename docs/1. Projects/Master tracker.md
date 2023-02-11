@@ -24,6 +24,7 @@
 - [[Try out egui]]
 - https://bevyengine.org/learn/book/migration-guides/0.8-0.9/#add-global-time-scaling for hitstop
 - [[Shop 2.0]]
+- [[Dynamic hurtboxes 2.0]]
 
 # Other trackers
 ![[Bug tracker]]

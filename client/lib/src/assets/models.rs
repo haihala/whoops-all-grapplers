@@ -14,7 +14,7 @@ pub(super) fn model_paths() -> HashMap<Model, &'static str> {
     .collect()
 }
 
-pub(super) fn connect_joints(
+pub(super) fn find_joints(
     mut joints: Query<(Entity, &mut Joints)>,
     named_nodes: Query<(Entity, &Name)>,
     parents: Query<&Parent>,
@@ -31,7 +31,7 @@ pub(super) fn connect_joints(
 
     let mut all_done = true;
     for (root_entity, mut joints) in &mut joints {
-        joints.content.extend(
+        joints.nodes.extend(
             loaded_joints
                 .clone()
                 .into_iter()
@@ -43,7 +43,7 @@ pub(super) fn connect_joints(
                     }
                 }),
         );
-        if joints.content.is_empty() {
+        if joints.nodes.is_empty() {
             all_done = false;
         }
     }

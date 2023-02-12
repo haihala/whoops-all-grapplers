@@ -41,7 +41,8 @@ impl Plugin for DamagePlugin {
                 .with_system(
                     hitboxes::despawn_everything
                         .with_run_criteria(State::on_exit(GameState::Combat)),
-                ),
+                )
+                .with_system(hitboxes::update_followers.after(health::check_dead)),
         );
     }
 }

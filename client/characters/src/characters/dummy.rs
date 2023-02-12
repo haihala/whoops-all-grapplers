@@ -3,8 +3,8 @@ use std::{collections::HashMap, iter::empty};
 use bevy::prelude::*;
 
 use wag_core::{
-    Animation, AnimationType, Area, DummyAnimation, ItemId, Model, MoveId, Status, StatusCondition,
-    StatusEffect,
+    Animation, AnimationType, Area, DummyAnimation, ItemId, Joint, Model, MoveId, Status,
+    StatusCondition, StatusEffect,
 };
 
 use crate::{
@@ -114,7 +114,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     Wait(9, Never),
                     Attack::new(
                         ToHit {
-                            hitbox: Hitbox(Area::new(0.7, 1.35, 0.35, 0.25)),
+                            hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.35)),
+                            joint: Some(Joint::HandR),
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
@@ -136,7 +137,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     Wait(8, Never),
                     Attack::new(
                         ToHit {
-                            hitbox: Hitbox(Area::new(0.75, 0.2, 0.3, 0.2)),
+                            hitbox: Hitbox(Area::new(0.1, -0.2, 0.3, 0.2)),
+                            joint: Some(Joint::HandL),
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
@@ -159,7 +161,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     DynamicActions(|situation: Situation| {
                         vec![Attack::new(
                             ToHit {
-                                hitbox: Hitbox(Area::new(0.6, 1.35, 1.0, 0.2)),
+                                hitbox: Hitbox(Area::new(-0.3, 0.0, 1.0, 0.2)),
+                                joint: Some(Joint::HandR),
                                 lifetime: Lifetime::frames(8),
                                 ..default()
                             },
@@ -201,7 +204,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     Wait(13, Never),
                     Attack::new(
                         ToHit {
-                            hitbox: Hitbox(Area::new(0.75, 1.9, 0.3, 0.5)),
+                            hitbox: Hitbox(Area::of_size(0.3, 0.5)),
+                            joint: Some(Joint::HandR),
                             lifetime: Lifetime::frames(4),
                             ..default()
                         },
@@ -226,7 +230,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     Wait(8, Never),
                     Attack::new(
                         ToHit {
-                            hitbox: Hitbox(Area::new(0.7, 1.3, 0.35, 0.25)),
+                            hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.25)),
+                            joint: Some(Joint::HandR),
                             lifetime: Lifetime::frames(5),
                             block_type: Constant(High),
                             ..default()
@@ -249,7 +254,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     Wait(5, Never),
                     Attack::new(
                         ToHit {
-                            hitbox: Hitbox(Area::new(0.6, 0.1, 0.35, 0.25)),
+                            hitbox: Hitbox(Area::of_size(0.35, 0.25)),
+                            joint: Some(Joint::FootR),
                             lifetime: Lifetime::frames(10),
                             block_type: Constant(High),
                             ..default()
@@ -273,7 +279,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     Attack::new(
                         ToHit {
                             block_type: Grab,
-                            hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.5)),
+                            hitbox: Hitbox(Area::of_size(0.5, 0.5)),
+                            joint: Some(Joint::HandL),
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
@@ -304,7 +311,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     Attack::new(
                         ToHit {
                             block_type: Grab,
-                            hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.5)),
+                            hitbox: Hitbox(Area::of_size(0.5, 0.5)),
+                            joint: Some(Joint::HandL),
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
@@ -336,7 +344,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     Attack::new(
                         ToHit {
                             block_type: Grab,
-                            hitbox: Hitbox(Area::new(0.7, 0.2, 1.0, 0.2)),
+                            hitbox: Hitbox(Area::new(-0.3, 0.0, 1.0, 0.2)),
+                            joint: Some(Joint::HandR),
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },
@@ -363,7 +372,8 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                     Attack::new(
                         ToHit {
                             block_type: Grab,
-                            hitbox: Hitbox(Area::new(0.75, 1.0, 0.8, 0.8)),
+                            hitbox: Hitbox(Area::of_size(0.8, 0.8)),
+                            joint: Some(Joint::HandR),
                             lifetime: Lifetime::frames(5),
                             ..default()
                         },

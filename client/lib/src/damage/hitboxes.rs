@@ -16,6 +16,10 @@ struct DespawnRequest {
 pub struct HitboxSpawner {
     despawn_requests: Vec<DespawnRequest>,
 }
+
+#[derive(Debug, Component, Deref)]
+pub struct Follow(pub Entity);
+
 impl HitboxSpawner {
     #[allow(clippy::too_many_arguments)]
     pub fn spawn_attack(
@@ -31,11 +35,19 @@ impl HitboxSpawner {
     ) {
         let offset = facing.mirror_vec3(attack.to_hit.hitbox.center().extend(0.0));
         let absolute_position = parent_position + offset;
-        let transform = Transform::from_translation(if attack.to_hit.projectile.is_none() {
-            offset
+        let (transform, hitbox) = if attack.to_hit.projectile.is_some() {
+            (
+                Transform::from_translation(absolute_position),
+                Hitbox(Area::from_center_size(
+                    Vec2::ZERO, // Position is set into the object directly
+                    attack.to_hit.hitbox.size(),
+                )),
+            )
         } else {
-            absolute_position
-        });
+            // There is a follow script on these, which sets the transform value to match the joint
+            // That will override the translation here.
+            (Transform::default(), attack.to_hit.hitbox)
+        };
 
         let mut builder = commands.spawn((
             SpatialBundle {
@@ -45,10 +57,7 @@ impl HitboxSpawner {
             },
             HitTracker::new(attack.to_hit.hits),
             Owner(player),
-            Hitbox(Area::from_center_size(
-                Vec2::ZERO, // Position is set into the object directly
-                attack.to_hit.hitbox.size(),
-            )),
+            hitbox,
             attack.clone(),
         ));
 
@@ -69,8 +78,9 @@ impl HitboxSpawner {
 
         let new_hitbox = builder.id();
         if attack.to_hit.projectile.is_none() {
-            commands.entity(parent).push_children(&[new_hitbox]);
+            builder.insert(Follow(parent));
         }
+
         let mut lifetime = attack.to_hit.lifetime;
         lifetime.frames = lifetime.frames.map(|lifetime| lifetime + frame);
 
@@ -180,5 +190,15 @@ pub(super) fn despawn_expired(
 pub(super) fn despawn_everything(mut commands: Commands, mut spawners: Query<&mut HitboxSpawner>) {
     for mut spawner in &mut spawners {
         spawner.despawn_matching(&mut commands, |_| true);
+    }
+}
+
+// TODO: Think of a better place for this
+pub(super) fn update_followers(
+    mut followers: Query<(&Follow, &mut Transform)>,
+    targets: Query<&GlobalTransform>,
+) {
+    for (target, mut tf) in &mut followers {
+        tf.translation = targets.get(**target).unwrap().translation();
     }
 }

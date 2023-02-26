@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-use characters::Action;
+use characters::{Action, Inventory};
 use player_state::PlayerState;
-use wag_core::{Clock, GameState, Player, RoundResult};
+use wag_core::{Clock, GameState, Player, RoundResult, ROUND_MONEY, VICTORY_BONUS};
 
 #[derive(Reflect, Component, Clone, Copy)]
 pub struct Health {
@@ -41,35 +41,58 @@ impl Health {
 pub fn check_dead(
     mut commands: Commands,
     clock: Res<Clock>,
-    query: Query<(&Health, &Player)>,
+    mut players: Query<(&Health, &Player, &mut Inventory)>,
     mut state: ResMut<State<GameState>>,
 ) {
     if *state.current() != GameState::Combat {
         return;
     }
 
-    let living_players: Vec<Player> = query
+    let round_over = players
         .iter()
-        .filter_map(|(health, player)| {
-            if health.value > 0 {
-                Some(player.to_owned())
-            } else {
-                None
-            }
-        })
-        .collect();
-
-    let round_over = living_players.len() != 2 || clock.time_out();
+        .filter_map(
+            |(health, player, _)| {
+                if health.value > 0 {
+                    Some(player)
+                } else {
+                    None
+                }
+            },
+        )
+        .count()
+        != 2
+        || clock.time_out();
 
     if round_over {
-        commands.insert_resource(if living_players.len() == 1 {
-            RoundResult {
-                winner: Some(living_players[0]),
-            }
-        } else {
-            RoundResult { winner: None }
+        let mut ordered_healths = (&mut players).into_iter().collect::<Vec<_>>();
+
+        ordered_healths.sort_by(|(a, _, _), (b, _, _)| {
+            a.get_percentage()
+                .partial_cmp(&b.get_percentage())
+                .unwrap()
+                .reverse()
         });
 
+        assert!(ordered_healths.len() == 2);
+        let [(winner_health, winner, winner_inventory), (loser_health, _, loser_inventory)] = &mut ordered_healths[..] else {
+            panic!("Couldn't unpack players");
+        };
+        winner_inventory.money += ROUND_MONEY;
+        loser_inventory.money += ROUND_MONEY;
+
+        let result = if winner_health.get_percentage() == loser_health.get_percentage() {
+            // Tie
+            RoundResult { winner: None }
+        } else {
+            winner_inventory.money += VICTORY_BONUS;
+
+            RoundResult {
+                winner: Some(**winner),
+            }
+        };
+        dbg!(winner_inventory.money, loser_inventory.money);
+
+        commands.insert_resource(result);
         state.set(GameState::PostRound).unwrap();
     }
 }

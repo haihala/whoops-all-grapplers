@@ -13,8 +13,12 @@ pub struct Clock {
     pub elapsed_time: f32,
 }
 impl Clock {
-    pub fn time_out(&self) -> bool {
+    pub fn done(&self) -> bool {
         self.elapsed_time >= ROUND_TIME - 1.0
+    }
+
+    pub fn time_out(&mut self) {
+        self.elapsed_time = ROUND_TIME;
     }
 
     pub fn reset(&mut self, time: f64) {

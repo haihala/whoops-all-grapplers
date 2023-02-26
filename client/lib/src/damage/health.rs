@@ -61,7 +61,7 @@ pub fn check_dead(
         )
         .count()
         != 2
-        || clock.time_out();
+        || clock.done();
 
     if round_over {
         let mut ordered_healths = (&mut players).into_iter().collect::<Vec<_>>();
@@ -90,7 +90,6 @@ pub fn check_dead(
                 winner: Some(**winner),
             }
         };
-        dbg!(winner_inventory.money, loser_inventory.money);
 
         commands.insert_resource(result);
         state.set(GameState::PostRound).unwrap();

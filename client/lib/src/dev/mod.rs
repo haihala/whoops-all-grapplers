@@ -108,10 +108,19 @@ fn log_diff(
     }
 }
 
-fn cycle_game_state(keys: Res<Input<KeyCode>>, mut game_state: ResMut<State<GameState>>) {
+fn cycle_game_state(
+    keys: Res<Input<KeyCode>>,
+    mut game_state: ResMut<State<GameState>>,
+    mut clock: ResMut<Clock>,
+) {
     // Can be converted to a non-dev system eventually (to start game press start type of deal)
     if keys.just_pressed(KeyCode::Return) {
-        let next_state = game_state.current().next();
-        game_state.set(next_state).unwrap();
+        if *game_state.current() == GameState::Combat {
+            // Set clock to zero to go through the same route as time out
+            clock.time_out();
+        } else {
+            let next_state = game_state.current().next();
+            game_state.set(next_state).unwrap();
+        }
     }
 }

@@ -3,10 +3,10 @@ Progress:
 	- [x] Timing
 	- [x] Defense
 	- [ ] [[#Parry]]
-- [ ] Money
+- [x] Money
 	- [x] Basic payout after each round
 	- [x] Winning bonus
-	- [ ] CS like loss bonus
+	- [x] CS like loss bonus
 - [ ] [[#Opener]]
 - [ ] [[#Timing bonus]] gives more stun frames?
 

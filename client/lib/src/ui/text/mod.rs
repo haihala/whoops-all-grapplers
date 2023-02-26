@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{Clock, GameState, OnlyShowInGameState, RoundResult, RoundTimer, ROUND_TIME};
+use wag_core::{Clock, GameState, OnlyShowInGameState, RoundLog, RoundTimer, ROUND_TIME};
 
 use crate::assets::{Colors, Fonts};
 
@@ -17,9 +17,9 @@ pub fn update_timer(mut query: Query<&mut Text, With<RoundTimer>>, clock: Res<Cl
 
 pub fn update_round_text(
     mut query: Query<(&mut Visibility, &mut Text), With<RoundText>>,
-    round_result: Option<Res<RoundResult>>,
+    round_log: Res<RoundLog>,
 ) {
-    if let Some(result) = round_result {
+    if let Some(result) = round_log.last() {
         let (mut visible, mut text) = query.single_mut();
 
         visible.is_visible = true;

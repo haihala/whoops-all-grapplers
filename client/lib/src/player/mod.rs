@@ -12,9 +12,7 @@ mod size_adjustment;
 use characters::{dummy, Character, Inventory, Resources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
-use wag_core::{
-    once_per_combat_frame, Clock, Facing, GameState, Joints, Player, Players, RoundResult,
-};
+use wag_core::{once_per_combat_frame, Clock, Facing, GameState, Joints, Player, Players};
 
 use crate::{
     assets::{AnimationHelperSetup, Models},
@@ -156,7 +154,6 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
 
 #[allow(clippy::type_complexity)]
 fn setup_combat(
-    mut commands: Commands,
     mut query: Query<(
         &Player,
         &Inventory,
@@ -173,7 +170,6 @@ fn setup_combat(
     bevy_time: Res<Time>,
 ) {
     clock.reset(bevy_time.elapsed_seconds_f64());
-    commands.remove_resource::<RoundResult>();
 
     for (
         player,

@@ -1,7 +1,7 @@
 use bevy::{ecs::schedule::ShouldRun, prelude::*, time::FixedTimestep};
 
 mod game_flow;
-pub use game_flow::{GameState, OnlyShowInGameState, RoundResult};
+pub use game_flow::{GameState, OnlyShowInGameState, RoundLog, RoundResult};
 
 pub const ROUND_TIME: f32 = 99.0;
 
@@ -72,7 +72,8 @@ impl Plugin for TimePlugin {
             reset_clock
                 .with_run_criteria(State::on_enter(GameState::Combat))
                 .after(update_clock),
-        );
+        )
+        .insert_resource(RoundLog::default());
     }
 }
 

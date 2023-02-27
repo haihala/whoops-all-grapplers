@@ -20,6 +20,7 @@ impl ItemId {
         match self {
             Self::HandMeDownKen => "Hand me down -ken".into(),
             Self::SafetyBoots => "Safety boots".into(),
+            Self::Gi => "Gi of the old masters".into(),
             _ => format!("{:?}", self),
         }
     }

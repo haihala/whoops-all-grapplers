@@ -27,8 +27,8 @@ pub fn colors(mut commands: Commands) {
         hurtbox: Color::rgba(0.0, 1.0, 0.0, 0.5),
         pushbox: Color::rgba(0.0, 0.0, 1.0, 0.5),
         text: Color::WHITE,
-        default_item_slot: Color::CYAN,
-        highlighted_item_slot: Color::GOLD,
+        default_item_slot: Color::GRAY,
+        highlighted_item_slot: Color::rgb_u8(195, 24, 24), // WWE Raw red
         disabled_item_slot: Color::BISQUE,
     })
 }

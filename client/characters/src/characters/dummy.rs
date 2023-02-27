@@ -611,6 +611,7 @@ fn dummy_items() -> HashMap<ItemId, Item> {
             Item {
                 cost: 100,
                 category: Consumable,
+                explanation: "Get yoked".into(),
                 ..default()
             },
         ),
@@ -618,6 +619,7 @@ fn dummy_items() -> HashMap<ItemId, Item> {
             ItemId::HandMeDownKen,
             Item {
                 cost: 10,
+                explanation: "Haduu ken".into(),
                 ..default()
             },
         ),
@@ -625,6 +627,7 @@ fn dummy_items() -> HashMap<ItemId, Item> {
             ItemId::Gi,
             Item {
                 cost: 100,
+                explanation: "Lesgo justin".into(),
                 ..default()
             },
         ),
@@ -632,6 +635,7 @@ fn dummy_items() -> HashMap<ItemId, Item> {
             ItemId::Gun,
             Item {
                 cost: 100,
+                explanation: "Goes pew pew".into(),
                 ..default()
             },
         ),

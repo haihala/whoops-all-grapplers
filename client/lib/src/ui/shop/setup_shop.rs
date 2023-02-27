@@ -30,7 +30,7 @@ pub fn setup_shop(
     commands
         .spawn((
             NodeBundle {
-                background_color: Color::BLACK.into(),
+                background_color: Color::BLACK.into(), // This will color the divider between the sides
                 style: Style {
                     size: Size {
                         height: Val::Percent(100.0),
@@ -42,6 +42,7 @@ pub fn setup_shop(
                         top: Val::Percent(0.0),
                         ..default()
                     },
+                    justify_content: JustifyContent::SpaceBetween,
                     ..default()
                 },
                 ..default()
@@ -86,28 +87,17 @@ fn setup_shop_root(
     colors: &Colors,
     fonts: &Fonts,
 ) -> ShopComponents {
-    let padding = match owner {
-        Player::One => UiRect {
-            right: Val::Px(5.0),
-            ..default()
-        },
-        Player::Two => UiRect {
-            left: Val::Px(5.0),
-            ..default()
-        },
-    };
     let mut shop_root_builder = ShopComponentsBuilder::default();
 
     root.spawn((
         NodeBundle {
-            background_color: Color::GRAY.into(),
+            background_color: Color::BLACK.into(),
             style: Style {
                 size: Size {
                     height: Val::Percent(100.0),
-                    width: Val::Percent(50.0),
+                    width: Val::Percent(49.9), // Not quite 50 so there is a gap between them
                 },
                 flex_direction: FlexDirection::Column,
-                padding,
                 ..default()
             },
             ..default()
@@ -193,8 +183,8 @@ fn setup_explanation_box(
                     left: Val::Px(10.0),
                     ..default()
                 },
-                size: Size::AUTO,
                 flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::SpaceBetween,
                 ..default()
             },
             ..default()
@@ -234,7 +224,7 @@ fn setup_explanation_box(
 
         shop_root.dependencies = Some(setup_text_sections(
             explanation_box,
-            vec!["Depends on: ", ""],
+            vec!["Depends on: ", " "],
             basic_style,
             "Dependencies",
         ));
@@ -333,6 +323,8 @@ fn create_empty_inventory_slot(root: &mut ChildBuilder, player: Player, index: u
                     height: Val::Px(50.0),
                     width: Val::Px(50.0),
                 },
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 margin: UiRect::all(Val::Px(3.0)),
                 ..default()
             },
@@ -362,12 +354,10 @@ fn setup_available_items(
 
     root.spawn((
         NodeBundle {
-            background_color: Color::DARK_GRAY.into(),
             style: Style {
                 size: Size::AUTO,
-                justify_content: JustifyContent::SpaceBetween,
+                justify_content: JustifyContent::SpaceEvenly,
                 flex_grow: 1.0,
-                margin: UiRect::all(Val::Px(3.0)),
                 ..default()
             },
             ..default()
@@ -451,7 +441,7 @@ fn setup_category(
 
     root.spawn((
         NodeBundle {
-            background_color: Color::GRAY.into(),
+            background_color: Color::DARK_GRAY.into(),
             style: Style {
                 size: Size::AUTO,
                 flex_direction: FlexDirection::Column,
@@ -478,6 +468,11 @@ fn setup_category(
                     height: Val::Px(30.0),
                     width: Val::Auto,
                 },
+                margin: UiRect {
+                    top: Val::Px(5.0),
+                    left: Val::Px(5.0),
+                    ..default()
+                },
                 ..default()
             }),
             BackgroundColor(Color::DARK_GRAY),
@@ -502,7 +497,6 @@ fn setup_shop_item(
 
     root.spawn((
         NodeBundle {
-            background_color: Color::DARK_GRAY.into(),
             style: Style {
                 size: Size::AUTO,
                 justify_content: JustifyContent::FlexStart,
@@ -549,9 +543,12 @@ fn setup_shop_item(
     .id()
 }
 
-pub fn render_item_icon(root: &mut ChildBuilder, style: TextStyle, id: ItemId) {
+pub fn render_item_icon(root: &mut ChildBuilder, text_style: TextStyle, id: ItemId) {
+    // Tried for a while, but couldn't figure out a way to get the text box to be wider than it needed to be
+    let text = format!(" {} ", id.display_name().chars().next().unwrap());
+
     root.spawn((
-        TextBundle::from_section(id.display_name().chars().next().unwrap(), style),
+        TextBundle::from_section(text, text_style),
         BackgroundColor(Color::GRAY),
     ));
 }

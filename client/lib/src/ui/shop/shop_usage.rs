@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
 use input_parsing::InputParser;
-use wag_core::{ItemId, MoveId, Owner, Player, Players, INVENTORY_SIZE};
+use wag_core::{ItemId, MoveId, Owner, Player, Players, INVENTORY_SIZE, SELL_RETURN};
 
 use crate::assets::{Colors, Fonts};
 
@@ -209,8 +209,6 @@ fn primary_button_pressed(
         ShopNavigation::Available(_, _) => buy(shop, inventory, character, slots),
     }
 }
-
-const SELL_RETURN: f32 = 0.5;
 
 fn sell(inventory: &mut Inventory, character: &Character, index: usize) {
     if let Some(id) = inventory.items.get(index) {

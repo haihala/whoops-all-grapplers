@@ -1,6 +1,9 @@
 mod area;
 pub use area::Area;
 
+mod economy;
+pub use economy::*;
+
 mod effects;
 pub use effects::{SoundEffect, VisualEffect};
 
@@ -24,9 +27,6 @@ pub use move_id::MoveId;
 
 mod player;
 pub use player::{Owner, Player, Players};
-
-mod rewards;
-pub use rewards::*;
 
 mod status;
 pub use status::{Status, StatusCondition, StatusEffect};

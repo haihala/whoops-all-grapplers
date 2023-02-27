@@ -11,7 +11,7 @@ use wag_core::{
 };
 
 use crate::{
-    assets::{AnimationHelper, ParticleRequest, Particles, Sounds},
+    assets::{ParticleRequest, Particles, Sounds},
     physics::{PlayerVelocity, Pushbox},
     ui::Notifications,
 };
@@ -49,7 +49,6 @@ pub struct HitPlayerQuery<'a> {
     velocity: &'a mut PlayerVelocity,
     facing: &'a Facing,
     spawner: &'a mut HitboxSpawner,
-    animation_helper: &'a mut AnimationHelper,
     pushbox: &'a Pushbox,
 }
 

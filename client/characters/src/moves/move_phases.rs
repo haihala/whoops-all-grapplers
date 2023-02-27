@@ -27,7 +27,7 @@ pub enum Action {
     Animation(Animation),
     RecipientAnimation(Animation),
     AnimationAtFrame(Animation, usize),
-    OffsetAnimationAtFrame(Animation, usize),
+    RecipientAnimationAtFrame(Animation, usize),
     Sound(SoundEffect),
     Move(MoveId),
     Attack(Attack),

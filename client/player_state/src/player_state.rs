@@ -291,3 +291,39 @@ impl PlayerState {
         self.otg_since().is_some() || self.has_condition(Status::Dodge)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use characters::Move;
+    use wag_core::MoveId;
+
+    use super::*;
+
+    #[test]
+    fn generic_animation_mid_move() {
+        // TODO: Creating testing states should be easier
+        let mut move_state = PlayerState {
+            main: MainState::Stand(StandState::Move(MoveHistory {
+                move_id: MoveId::TestMove,
+                move_data: Move::default(),
+                frame_skip: 0,
+                started: 0,
+                past: vec![],
+                unprocessed_events: vec![],
+                has_hit: false,
+            })),
+            free_since: Some(2),
+            conditions: vec![],
+            external_actions: vec![],
+        };
+
+        assert_eq!(move_state.get_generic_animation(Facing::Left), None);
+
+        move_state.main = MainState::Stand(StandState::Idle);
+
+        assert_eq!(
+            move_state.get_generic_animation(Facing::Left),
+            Some(AnimationType::StandIdle)
+        );
+    }
+}

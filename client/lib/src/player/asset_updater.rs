@@ -26,11 +26,15 @@ pub fn update_animation(
             .get_many([entity, players.get_other_entity(entity)])
             .unwrap();
         let position_offset = (opponent.translation - active.translation).truncate();
-
         if let Some(request) = state
             .drain_matching_actions(|action| match action {
                 Action::Animation(animation) => Some(AnimationRequest {
                     animation: *animation,
+                    ..default()
+                }),
+                Action::AnimationAtFrame(animation, frame) => Some(AnimationRequest {
+                    animation: *animation,
+                    time_offset: *frame,
                     ..default()
                 }),
                 Action::RecipientAnimation(animation) => Some(AnimationRequest {
@@ -39,12 +43,7 @@ pub fn update_animation(
                     invert: true,
                     ..default()
                 }),
-                Action::AnimationAtFrame(animation, frame) => Some(AnimationRequest {
-                    animation: *animation,
-                    time_offset: *frame,
-                    ..default()
-                }),
-                Action::OffsetAnimationAtFrame(animation, frame) => Some(AnimationRequest {
+                Action::RecipientAnimationAtFrame(animation, frame) => Some(AnimationRequest {
                     animation: *animation,
                     time_offset: *frame,
                     position_offset,
@@ -63,13 +62,11 @@ pub fn update_animation(
                 .unwrap()
                 .to_owned();
 
-            if helper.current != animation {
-                helper.play(AnimationRequest {
-                    animation,
-                    looping: true,
-                    ..default()
-                });
-            }
+            helper.play_if_new(AnimationRequest {
+                animation,
+                looping: true,
+                ..default()
+            });
         }
     }
 }

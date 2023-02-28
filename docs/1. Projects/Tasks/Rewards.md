@@ -1,8 +1,8 @@
 Progress:
-- [ ] Meter
+- [x] Meter
 	- [x] Timing
 	- [x] Defense
-	- [ ] [[#Parry]]
+	- [x] [[#Parry]]
 - [x] Money
 	- [x] Basic payout after each round
 	- [x] Winning bonus
@@ -28,9 +28,7 @@ Meter is for rewarding stuff immediately. Players have 4 bars of meter, used in 
 
 ### Parry
 - [[Clash parry]]
-	- Projectiles clashing does nothing
-	- The player whose move activated later gets the defense stack
-- [[Gi of the old masters]] later, maybe gives 2x as well as frame advantage
+- [[Gi of the old masters]]
 
 # Opener
 As a replacement to combo scaling, the first hit gets a boost.

@@ -1,4 +1,4 @@
-- Hitbox transparency
-- Dev systems enabled
-- Character selection
-- Start in a mode (ignore [[Menus]] and get straight into testing)
+- [x] Dev systems enabled
+- [ ] Hitbox transparency
+- [ ] Character selection
+- [ ] Start in a mode (ignore [[Menus]] and get straight into testing)

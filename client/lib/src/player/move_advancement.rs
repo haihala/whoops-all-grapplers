@@ -22,10 +22,8 @@ pub(super) fn move_advancement(clock: Res<Clock>, mut query: Query<PlayerQuery>)
         player.state.proceed_move(situation);
 
         // Recover from the move if it's over
-        if let Some(handled) = player.state.current_move_fully_handled() {
-            if handled {
-                player.state.recover(clock.frame)
-            }
+        if player.state.current_move_fully_handled() == Some(true) {
+            player.state.recover(clock.frame)
         }
     }
 }

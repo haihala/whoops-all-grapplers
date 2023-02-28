@@ -33,6 +33,7 @@ pub enum Action {
     Attack(Attack),
     Movement(Movement),
     Pay(Cost),
+    GainMeter(i32), // Fix these in resource rework
     Condition(StatusCondition),
     #[default]
     ForceStand,

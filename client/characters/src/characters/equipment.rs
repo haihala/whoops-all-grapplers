@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{Area, GameButton, ItemId, MoveId};
+use wag_core::{Area, GameButton, ItemId, MoveId, Status, StatusCondition};
 
 use crate::{
     moves::{
@@ -80,6 +80,31 @@ pub(crate) fn get_shot() -> Move {
             situation.inventory.contains(&ItemId::Gun) && situation.grounded
         },
         phases: vec![Wait(30, Never), Action::Move(MoveId::Gunshot).into()],
+        ..default()
+    }
+}
+
+pub(crate) fn get_high_gi_parry() -> Move {
+    Move {
+        input: Some("56"),
+        move_type: Normal,
+        requirement: |situation: Situation| {
+            situation.inventory.contains(&ItemId::Gi) && situation.grounded
+        },
+        phases: vec![
+            vec![
+                Action::ForceStand,
+                Action::Condition(StatusCondition {
+                    name: Status::Parry,
+                    effect: None,
+                    expiration: Some(20), // TODO tone down, this is for testing
+                }),
+            ]
+            .into(),
+            // 0f moves will end on the same system they are processed and their events will get cleared before those get handled
+            // Could be fixed, but likely not severe enough to.
+            Wait(1, Never),
+        ],
         ..default()
     }
 }

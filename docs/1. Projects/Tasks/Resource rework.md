@@ -1,0 +1,30 @@
+# Todo
+- Make resources more generic
+	- Allowing it to be specified in the character struct
+	- Character specific things can be put in there
+- Types of resources
+	- Health?
+	- [[meter]]
+		- Rendered as a bar of four segments at the bottom of the screen
+		- Used in sections
+		- Bar can wrap around with items later on
+	- Charge
+		- Rendered as a bar of four segments on top of [[meter]]
+		- Has
+			- A function that returns an a signal enum
+				- Clear
+				- Retain current level
+				- Build (Amount)
+				- Drain (Amount)
+			- Clear delay (wait this long with just clear signals before clearing)
+			- Max charge level
+		- Never used as much as it's cleared
+		- Moves get a percentage of how much charge you have
+	- Stacks
+		- Character specific stacks of something
+		- Positive integer with an optional max
+		- Rendered as a number and an icon
+	- Cooldown
+		- Not rendered
+		- Prevent you from doing a move two times too fast
+		- Mostly for [[Gi of the old masters]] spam

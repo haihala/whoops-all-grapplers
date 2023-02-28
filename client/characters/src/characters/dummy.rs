@@ -22,7 +22,7 @@ use crate::{
 
 use super::{
     dash,
-    equipment::{get_gunshot, get_handmedownken, get_shot},
+    equipment::{get_gunshot, get_handmedownken, get_high_gi_parry, get_shot},
     Character,
 };
 
@@ -74,6 +74,7 @@ fn items() -> impl Iterator<Item = (MoveId, Move)> {
         (MoveId::HandMeDownKen, get_handmedownken()),
         (MoveId::Gunshot, get_gunshot()),
         (MoveId::Shoot, get_shot()),
+        (MoveId::HighGiParry, get_high_gi_parry()),
     ]
     .into_iter()
 }

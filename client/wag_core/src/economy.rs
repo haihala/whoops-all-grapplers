@@ -1,5 +1,6 @@
 // Meter
 pub const CLASH_PARRY_METER_GAIN: i32 = 20;
+pub const GI_PARRY_METER_GAIN: i32 = 40;
 
 // Money
 pub const VICTORY_BONUS: usize = 200;

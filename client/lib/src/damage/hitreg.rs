@@ -7,8 +7,8 @@ use characters::{
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{
-    Area, Clock, Facing, Owner, Player, Players, SoundEffect, StickPosition, VisualEffect,
-    CLASH_PARRY_METER_GAIN,
+    Area, Clock, Facing, Owner, Player, Players, SoundEffect, Status, StickPosition, VisualEffect,
+    CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
 };
 
 use crate::{
@@ -23,6 +23,7 @@ use super::{Combo, Defense, Health, HitboxSpawner};
 pub(super) enum HitType {
     Strike,
     Block,
+    Parry,
     Throw,
 }
 
@@ -189,6 +190,8 @@ pub(super) fn detect_hits(
                         },
                         "Busy".into(),
                     )
+                } else if state.has_condition(Status::Parry) && attack.to_hit.block_type != BlockType::Grab {
+                    (HitType::Parry, "Parry!".into())
                 } else {
                     match attack.to_hit.block_type {
                         BlockType::Constant(height) => {
@@ -245,41 +248,47 @@ pub(super) fn apply_hits(
     for hit in hits {
         let [mut attacker, mut defender] =
             players.get_many_mut([hit.attacker, hit.defender]).unwrap();
-        let blocked = hit.hit_type == HitType::Block;
 
         // Hit has happened
         if combo.is_none() {
             commands.insert_resource(Combo);
         }
 
-        // Handle blocking and state transitions here
-        attacker.state.register_hit();
-        attacker.state.add_actions(if blocked {
-            hit.attack.self_on_block
-        } else {
-            hit.attack.self_on_hit
-        });
-        defender.state.add_actions(if blocked {
-            hit.attack.target_on_block
-        } else {
-            hit.attack.target_on_hit
-        });
+        let (attacker_actions, defender_actions, sound, particle) = match hit.hit_type {
+            HitType::Strike | HitType::Throw => {
+                // Handle blocking and state transitions here
+                attacker.state.register_hit();
+                defender.defense.reset();
 
-        // Defense
-        if blocked {
-            defender.defense.bump_streak(clock.frame);
-            defender.resources.meter.gain(defender.defense.get_reward());
-        } else {
-            defender.defense.reset()
-        }
+                (
+                    hit.attack.self_on_hit,
+                    hit.attack.target_on_hit,
+                    SoundEffect::Hit,
+                    VisualEffect::Hit,
+                )
+            }
+            HitType::Block => {
+                attacker.state.register_hit(); // TODO: Specify it was blocked
+                defender.defense.bump_streak(clock.frame);
+                defender.resources.meter.gain(defender.defense.get_reward());
 
-        // Effects
-        let (sound, particle) = match hit.hit_type {
-            HitType::Block => (SoundEffect::Block, VisualEffect::Block),
-            HitType::Strike => (SoundEffect::Hit, VisualEffect::Hit),
-            HitType::Throw => (SoundEffect::Hit, VisualEffect::Hit), // TODO custom effects
+                (
+                    hit.attack.self_on_block,
+                    hit.attack.target_on_block,
+                    SoundEffect::Block,
+                    VisualEffect::Block,
+                )
+            }
+            HitType::Parry => (
+                vec![],
+                vec![Action::GainMeter(GI_PARRY_METER_GAIN)],
+                SoundEffect::Clash,
+                VisualEffect::Clash,
+            ),
         };
 
+        attacker.state.add_actions(attacker_actions);
+        defender.state.add_actions(defender_actions);
         sounds.play(sound);
         particles.spawn(ParticleRequest {
             effect: particle,

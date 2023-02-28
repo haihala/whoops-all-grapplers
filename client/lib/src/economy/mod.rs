@@ -6,7 +6,7 @@ pub struct EconomyPlugin;
 
 impl Plugin for EconomyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(pay_resources);
+        app.add_system(pay_resources).add_system(gain_meter);
     }
 }
 
@@ -20,6 +20,20 @@ fn pay_resources(mut query: Query<(&mut PlayerState, &mut Resources)>) {
             }
         }) {
             resources.pay(bill);
+        }
+    }
+}
+
+fn gain_meter(mut query: Query<(&mut PlayerState, &mut Resources)>) {
+    for (mut state, mut resources) in &mut query {
+        for amount in state.drain_matching_actions(|action| {
+            if let Action::GainMeter(amount) = action {
+                Some(*amount)
+            } else {
+                None
+            }
+        }) {
+            resources.meter.gain(amount);
         }
     }
 }

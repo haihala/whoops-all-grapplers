@@ -5,7 +5,7 @@
 ## Low priority
 - [[Resources between rounds]]
 - [[Toasts in various spots]]
-- [[Resource bar rework]]
+- [[Resource rework]]
 - Show win record at the top
 
 ## Nice to have

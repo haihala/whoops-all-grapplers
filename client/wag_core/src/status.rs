@@ -43,6 +43,7 @@ pub enum Status {
     #[default]
     Default, // Not in use, here to satisfy inspectable
     Dodge,
+    Parry,
 }
 
 #[derive(Reflect, FromReflect, Debug, Clone, Copy, Default, PartialEq)]

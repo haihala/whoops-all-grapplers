@@ -87,7 +87,6 @@ pub(crate) fn get_shot() -> Move {
 pub(crate) fn get_high_gi_parry() -> Move {
     Move {
         input: Some("56"),
-        move_type: Normal,
         requirement: |situation: Situation| {
             situation.inventory.contains(&ItemId::Gi) && situation.grounded
         },

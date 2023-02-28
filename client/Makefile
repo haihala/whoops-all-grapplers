@@ -5,6 +5,9 @@ run:
 	@echo "cargo run --features bevy/dynamic	# Speedup on non-windows"
 	cargo run
 
+dev:
+	cargo run -- --dev
+
 build:
 	cargo build $(release)
 

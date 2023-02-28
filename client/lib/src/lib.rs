@@ -32,8 +32,10 @@ impl WAGLib {
 
 impl Default for WAGLib {
     fn default() -> Self {
+        let args = wag_args::parse();
+
         Self {
-            enable_dev_plugins: true,
+            enable_dev_plugins: args.dev,
             enable_hanabi: true,
         }
     }

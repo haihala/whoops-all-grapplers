@@ -8,6 +8,7 @@ members = [
     "lib",
     "main",
     "player_state",
+    "wag_args",
     "wag_core",
 ]
 
@@ -27,3 +28,4 @@ rand = "0.8"
 map-macro = "0.2"
 strum = "0.24"
 strum_macros = "0.24"
+clap = {version = "4.1.7", features = ["derive"] }

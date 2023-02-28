@@ -16,3 +16,4 @@ input_parsing = { path = "../input_parsing" }
 characters = { path = "../characters" }
 player_state = { path = "../player_state" }
 wag_core = { path = "../wag_core" }
+wag_args = { path = "../wag_args" }

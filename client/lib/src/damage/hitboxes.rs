@@ -34,8 +34,8 @@ impl HitboxSpawner {
         player: Player,
         parent_position: Vec3,
     ) {
-        let offset = facing.mirror_vec3(attack.to_hit.hitbox.center().extend(0.0));
-        let absolute_position = parent_position + offset;
+        let offset = facing.mirror_vec2(attack.to_hit.hitbox.center());
+        let absolute_position = parent_position + offset.extend(0.0);
         let (transform, hitbox) = if attack.to_hit.projectile.is_some() {
             (
                 Transform::from_translation(absolute_position),
@@ -46,8 +46,11 @@ impl HitboxSpawner {
             )
         } else {
             // There is a follow script on these, which sets the transform value to match the joint
-            // That will override the translation here.
-            (Transform::default(), attack.to_hit.hitbox)
+            // That will override the translation here, which is why hitbox is not centered.
+            (
+                Transform::default(),
+                Hitbox(Area::from_center_size(offset, attack.to_hit.hitbox.size())),
+            )
         };
 
         let mut builder = commands.spawn((
@@ -68,17 +71,14 @@ impl HitboxSpawner {
             ));
         }
 
-        if let Some(model) = attack.to_hit.projectile.map(|p| p.model) {
+        if let Some(projectile) = attack.to_hit.projectile {
             builder.with_children(|parent| {
                 parent.spawn(SceneBundle {
-                    scene: models[&model].clone(),
+                    scene: models[&projectile.model].clone(),
                     ..default()
                 });
             });
-        }
-
-        let new_hitbox = builder.id();
-        if attack.to_hit.projectile.is_none() {
+        } else {
             builder.insert(Follow(parent));
         }
 
@@ -86,7 +86,7 @@ impl HitboxSpawner {
         lifetime.frames = lifetime.frames.map(|lifetime| lifetime + frame);
 
         self.despawn_requests.push(DespawnRequest {
-            entity: new_hitbox,
+            entity: builder.id(),
             lifetime,
             projectile: attack.to_hit.projectile.is_some(),
         });

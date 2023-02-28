@@ -26,17 +26,17 @@
 	- [x] Throw
 		- [x] Can throw
 		- [x] Yomi counter
-- [ ] One character ([[Lex]])
+- [x] One character
 	- [x] 4 normals
-	- [ ] 2 specials
+	- [x] 2 specials
 	- [x] Visuals (Box)
 	- [x] Animations (moving boxes)
 	- [x] SFX (POC)
 - [ ] Items
 	- [x] Projectile
 	- [ ] Parry
-	- [ ] Unlock a move
-	- [ ] Passive items that grants something like startup reduction
-- [ ] Buy menu
+	- [x] Unlock a move
+	- [x] Passive item
+- [x] Buy menu
 - [x] Background
 - [x] Camera

@@ -8,11 +8,11 @@ pub enum MoveId {
     Default, // To satisfy Inspectable.
     Up,
     Down,
-    Left,
-    Right,
+    Back,
+    Forward,
     Primary,
     Secondary,
-    Back,
+    Cancel,
 
     // Universal
     DashForward,

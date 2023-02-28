@@ -66,11 +66,11 @@ fn generic_inputs() -> impl Iterator<Item = (MoveId, &'static str)> {
     vec![
         (MoveId::Up, "58"),
         (MoveId::Down, "52"),
-        (MoveId::Left, "54"),
-        (MoveId::Right, "56"),
+        (MoveId::Back, "54"),
+        (MoveId::Forward, "56"),
         (MoveId::Primary, "f"),
         (MoveId::Secondary, "e"),
-        (MoveId::Back, "s"),
+        (MoveId::Cancel, "s"),
     ]
     .into_iter()
 }

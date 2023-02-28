@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
 use input_parsing::InputParser;
-use wag_core::{ItemId, MoveId, Owner, Player, Players, INVENTORY_SIZE, SELL_RETURN};
+use wag_core::{Facing, ItemId, MoveId, Owner, Player, Players, INVENTORY_SIZE, SELL_RETURN};
 
 use crate::assets::{Colors, Fonts};
 
@@ -65,11 +65,17 @@ pub enum ShopSlotState {
 }
 
 pub fn navigate_shop(
-    mut parsers: Query<(&mut InputParser, &Player, &mut Inventory, &Character)>,
+    mut parsers: Query<(
+        &mut InputParser,
+        &Player,
+        &mut Inventory,
+        &Character,
+        &Facing,
+    )>,
     mut slots: Query<(Entity, &Owner, Option<&ShopItem>, &mut ShopSlotState)>,
     mut shops: ResMut<Shops>,
 ) {
-    for (mut parser, player, mut inventory, character) in &mut parsers {
+    for (mut parser, player, mut inventory, character, facing) in &mut parsers {
         let events = parser.get_events();
         if events.is_empty() {
             continue;
@@ -81,8 +87,8 @@ pub fn navigate_shop(
             match event {
                 MoveId::Up => move_selection(shop, Up),
                 MoveId::Down => move_selection(shop, Down),
-                MoveId::Left => move_selection(shop, Left),
-                MoveId::Right => move_selection(shop, Right),
+                MoveId::Back => move_selection(shop, Left.mirror_if(facing.to_flipped())),
+                MoveId::Forward => move_selection(shop, Right.mirror_if(facing.to_flipped())),
                 MoveId::Primary => primary_button_pressed(shop, &mut inventory, character, &slots),
                 // MoveId::Secondary => todo!(),
                 // MoveId::Back => todo!(),
@@ -122,6 +128,19 @@ enum CardinalDiretion {
     Down,
     Left,
     Right,
+}
+impl CardinalDiretion {
+    fn mirror_if(self, condition: bool) -> Self {
+        if !condition {
+            self
+        } else {
+            match self {
+                Left => Right,
+                Right => Left,
+                other => other,
+            }
+        }
+    }
 }
 use CardinalDiretion::*;
 

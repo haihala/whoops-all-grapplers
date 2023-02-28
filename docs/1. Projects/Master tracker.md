@@ -5,7 +5,8 @@
 ## Low priority
 - [[Resources between rounds]]
 - [[Toasts in various spots]]
-- Resource bars visible sections and use by section
+- [[Resource bar rework]]
+- Show win record at the top
 
 ## Nice to have
 - [[Move format refinement]]

@@ -8,6 +8,7 @@ use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{
     Area, Clock, Facing, Owner, Player, Players, SoundEffect, StickPosition, VisualEffect,
+    CLASH_PARRY_METER_GAIN,
 };
 
 use crate::{
@@ -58,7 +59,7 @@ pub(super) fn clash_parry(
     mut sounds: ResMut<Sounds>,
     mut particles: ResMut<Particles>,
     mut hitboxes: Query<(Entity, &Owner, &GlobalTransform, &Hitbox, &mut HitTracker)>,
-    mut owners: Query<&mut HitboxSpawner>,
+    mut owners: Query<(&mut HitboxSpawner, &mut Resources)>,
     players: Res<Players>,
 ) {
     let mut iter = hitboxes.iter_combinations_mut();
@@ -86,15 +87,23 @@ pub(super) fn clash_parry(
                 position: overlap.center().extend(0.0),
             });
 
-            // Despawn projectiles
             for (mut tracker, entity, owner) in
                 [(tracker1, entity1, owner1), (tracker2, entity2, owner2)]
             {
+                let (mut spawner, mut resources) = owners.get_mut(players.get(**owner)).unwrap();
+
+                // Pay up
+                let is_projectile = spawner
+                    .is_projectile(entity)
+                    .expect("to only check projectiles that have been spawned by this spawner");
+
+                if !is_projectile {
+                    resources.meter.gain(CLASH_PARRY_METER_GAIN);
+                }
+
+                // Despawn projectiles and consume hits
                 if tracker.hits <= 1 {
-                    owners
-                        .get_mut(players.get(**owner))
-                        .unwrap()
-                        .despawn(&mut commands, entity);
+                    spawner.despawn(&mut commands, entity);
                 } else {
                     tracker.register_hit(clock.frame);
                 }

@@ -10,6 +10,7 @@ use crate::{assets::Models, physics::ConstantVelocity};
 struct DespawnRequest {
     entity: Entity,
     lifetime: Lifetime,
+    projectile: bool,
 }
 
 #[derive(Default, Component)]
@@ -87,6 +88,7 @@ impl HitboxSpawner {
         self.despawn_requests.push(DespawnRequest {
             entity: new_hitbox,
             lifetime,
+            projectile: attack.to_hit.projectile.is_some(),
         });
     }
 
@@ -102,6 +104,11 @@ impl HitboxSpawner {
         {
             commands.entity(id).despawn_recursive();
         }
+    }
+
+    pub fn is_projectile(&self, entity: Entity) -> Option<bool> {
+        let request = self.despawn_requests.iter().find(|r| r.entity == entity)?;
+        Some(request.projectile)
     }
 
     pub fn despawn(&mut self, commands: &mut Commands, entity: Entity) {

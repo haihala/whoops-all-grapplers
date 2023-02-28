@@ -19,7 +19,6 @@ pub struct InputParser {
     moves: HashMap<&'static str, Vec<MoveId>>,
     inputs: HashMap<&'static str, MotionInput>,
     head: Frame,
-    relative_stick: StickPosition,
 }
 impl InputParser {
     pub(crate) fn new(new_inputs: HashMap<MoveId, &'static str>) -> Self {
@@ -48,12 +47,9 @@ impl InputParser {
         self.head.pressed.clone()
     }
 
-    pub fn get_absolute_stick_position(&self) -> StickPosition {
-        self.head.stick_position
-    }
-
     pub fn get_relative_stick_position(&self) -> StickPosition {
-        self.relative_stick
+        // Because the parser is never aware of side, it will always think the player is looking to the right
+        self.head.stick_position
     }
 
     pub fn get_events(&self) -> Vec<MoveId> {
@@ -64,18 +60,19 @@ impl InputParser {
         self.head.stick_position == StickPosition::Neutral && self.head.pressed.is_empty()
     }
 
-    fn add_frame(&mut self, diff: Diff, facing: &Facing) {
-        // This needs to happen before relative_stick is set to enable inputs that permit holding a direction as the first requirement
-        self.parse_inputs(
-            Diff {
-                stick_move: diff.stick_move.map(|stick| facing.mirror_stick(stick)),
-                ..diff.clone()
-            },
-            self.head.clone(),
-        );
+    fn flip(&mut self) {
+        let diff = Diff {
+            stick_move: Some(self.head.stick_position.mirror()),
+            ..default()
+        };
 
+        self.add_frame(diff);
+    }
+
+    fn add_frame(&mut self, diff: Diff) {
+        // This needs to happen before relative_stick is set to enable inputs that permit holding a direction as the first requirement
+        self.parse_inputs(diff.clone(), self.head.clone());
         self.head.apply(diff);
-        self.relative_stick = facing.mirror_stick(self.head.stick_position);
     }
 
     fn parse_inputs(&mut self, diff: Diff, old_head: Frame) {
@@ -103,8 +100,20 @@ pub fn parse_input<T: InputStream + Component>(
 ) {
     for (mut parser, mut reader, facing) in &mut characters {
         if let Some(diff) = reader.read() {
-            parser.add_frame(diff, facing);
+            parser.add_frame(if facing.to_flipped() {
+                // Flip the inputs
+                diff.mirrored()
+            } else {
+                diff
+            });
         }
+    }
+}
+
+// Since the parser doesn't get events if the inputs don't change, it's good to give a pseudo event when sides change
+pub fn flip_parsers_on_side_change(mut parsers: Query<&mut InputParser, Changed<Facing>>) {
+    for mut parser in &mut parsers {
+        parser.flip();
     }
 }
 
@@ -216,10 +225,21 @@ mod test {
     }
 
     #[test]
-    fn multidirection_permits_skipping() {
+    fn multidirection_permits_skipping_first() {
         let mut interface = TestInterface::with_input("[41]6f");
 
         interface.add_stick_and_tick(StickPosition::SW);
+        interface.add_stick_and_tick(StickPosition::E);
+        interface.assert_no_events();
+        interface.add_button_and_tick(GameButton::Fast);
+        interface.assert_test_event_is_present();
+    }
+
+    #[test]
+    fn multidirection_permits_skipping_second() {
+        let mut interface = TestInterface::with_input("[41]6f");
+
+        interface.add_stick_and_tick(StickPosition::W);
         interface.add_stick_and_tick(StickPosition::E);
         interface.assert_no_events();
         interface.add_button_and_tick(GameButton::Fast);

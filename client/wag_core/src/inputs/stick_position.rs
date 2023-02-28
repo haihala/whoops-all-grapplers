@@ -16,7 +16,12 @@ pub enum StickPosition {
     S,
     SE,
 }
-
+impl StickPosition {
+    pub fn mirror(self) -> Self {
+        let vector: IVec2 = self.into();
+        IVec2::new(-vector.x, vector.y).into()
+    }
+}
 impl std::fmt::Display for StickPosition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(self, f)
@@ -101,6 +106,25 @@ mod test {
             let int: i32 = sp1.into();
             let sp2: StickPosition = int.into();
             assert!(sp1 == sp2)
+        }
+    }
+
+    #[test]
+    fn test_mirroring() {
+        for horizontally_neutral in [StickPosition::N, StickPosition::Neutral, StickPosition::S] {
+            assert_eq!(horizontally_neutral.clone(), horizontally_neutral.mirror());
+        }
+
+        for (left, right) in [
+            (StickPosition::NW, StickPosition::NE),
+            (StickPosition::W, StickPosition::E),
+            (StickPosition::SW, StickPosition::SE),
+        ] {
+            assert_eq!(left.mirror(), right);
+            assert_eq!(left, right.mirror());
+
+            assert_eq!(left.mirror().mirror(), left);
+            assert_eq!(right.mirror().mirror(), right);
         }
     }
 }

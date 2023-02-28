@@ -59,6 +59,11 @@ impl Diff {
             false
         }
     }
+
+    pub fn mirrored(mut self) -> Self {
+        self.stick_move = self.stick_move.map(StickPosition::mirror);
+        self
+    }
 }
 fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet<GameButton> {
     if let Some(mut pressed) = base {

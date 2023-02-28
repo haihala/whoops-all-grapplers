@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-use crate::StickPosition;
-
 #[derive(Reflect, FromReflect, PartialEq, Eq, Clone, Copy, Debug, Component, Default, Hash)]
 pub enum Facing {
     #[default]
@@ -71,16 +69,6 @@ impl Facing {
             Facing::Left => Vec2::new(-vector.x, vector.y),
         }
     }
-
-    pub fn mirror_stick(&self, stick: StickPosition) -> StickPosition {
-        let vector: IVec2 = stick.into();
-
-        match self {
-            Facing::Right => vector,
-            Facing::Left => IVec2::new(-vector.x, vector.y),
-        }
-        .into()
-    }
 }
 
 #[cfg(test)]
@@ -110,16 +98,5 @@ mod test {
         assert!(Facing::Right.mirror_vec3(right) == right);
         assert!(Facing::Left.mirror_vec3(left) == right);
         assert!(Facing::Left.mirror_vec3(right) == left);
-    }
-
-    #[test]
-    fn test_mirroring_stick() {
-        assert!(Facing::Right.mirror_stick(StickPosition::E) == StickPosition::E);
-        assert!(Facing::Right.mirror_stick(StickPosition::Neutral) == StickPosition::Neutral);
-        assert!(Facing::Right.mirror_stick(StickPosition::W) == StickPosition::W);
-
-        assert!(Facing::Left.mirror_stick(StickPosition::E) == StickPosition::W);
-        assert!(Facing::Left.mirror_stick(StickPosition::Neutral) == StickPosition::Neutral);
-        assert!(Facing::Left.mirror_stick(StickPosition::W) == StickPosition::E);
     }
 }

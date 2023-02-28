@@ -36,6 +36,10 @@ impl Plugin for InputParsingPlugin {
                     .with_system(
                         input_parser::parse_input::<ParrotStream>
                             .after(update_parrots::<PadStream>),
+                    )
+                    .with_system(
+                        input_parser::flip_parsers_on_side_change
+                            .after(update_parrots::<ParrotStream>),
                     ),
             );
     }

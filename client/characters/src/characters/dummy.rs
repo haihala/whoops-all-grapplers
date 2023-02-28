@@ -489,7 +489,6 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
             MoveId::BudgetBoom,
             Move {
                 input: Some("[41]6f"),
-                requirement: standing,
                 move_type: Special,
                 phases: vec![
                     ForceStand.into(),
@@ -509,6 +508,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                     .into(),
                     Wait(5, IfHit),
                 ],
+                ..default()
             },
         ),
         (

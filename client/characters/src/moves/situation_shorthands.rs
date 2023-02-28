@@ -10,7 +10,7 @@ pub fn airborne(situation: Situation) -> bool {
 
 fn holding_down(situation: Situation) -> bool {
     let down_inputs = 1..3;
-    down_inputs.contains(&situation.parser.get_absolute_stick_position().into())
+    down_inputs.contains(&situation.parser.get_relative_stick_position().into())
 }
 
 pub fn standing(situation: Situation) -> bool {

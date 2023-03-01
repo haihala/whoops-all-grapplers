@@ -7,6 +7,9 @@ use wag_core::{Clock, GameState, Player, RoundLog, RoundResult, ROUND_MONEY, VIC
 #[derive(Reflect, Component, Clone, Copy)]
 pub struct Health {
     value: usize,
+
+    // As this is also stored elsewhere (StatusEffect), could maybe be removed from here in the future
+    // TODO: Think about it
     max: usize,
 }
 impl Default for Health {
@@ -22,10 +25,9 @@ impl Health {
         (self.value as f32 / self.max as f32) * 100.0
     }
 
-    pub fn reset(&mut self, modifier: i32) {
-        let def = Health::default();
-        self.max = (def.max as i32 + modifier) as usize;
-        self.value = (def.value as i32 + modifier) as usize;
+    pub fn reset(&mut self, max_health: i32) {
+        self.max = max_health as usize;
+        self.value = max_health as usize;
     }
 
     pub fn apply_damage(&mut self, amount: usize) {

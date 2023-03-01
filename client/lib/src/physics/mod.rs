@@ -5,7 +5,7 @@ use bevy::{ecs::query::WorldQuery, prelude::*};
 
 use characters::{Action, Character, HitTracker};
 use player_state::PlayerState;
-use wag_core::{once_per_combat_frame, Area, Clock, Facing, Players, WAGStage};
+use wag_core::{once_per_combat_frame, Area, Clock, Facing, Players, StatusEffect, WAGStage};
 
 use crate::{
     camera::{WorldCamera, VIEWPORT_HALFWIDTH},
@@ -96,9 +96,14 @@ fn player_gravity(
 
 fn player_input(
     clock: Res<Clock>,
-    mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &Facing)>,
+    mut query: Query<(
+        &mut PlayerState,
+        &mut PlayerVelocity,
+        &StatusEffect,
+        &Facing,
+    )>,
 ) {
-    for (mut state, mut velocity, facing) in &mut query {
+    for (mut state, mut velocity, status_effects, facing) in &mut query {
         for movement in state.drain_matching_actions(|action| {
             if let Action::Movement(movement) = action {
                 Some(movement.to_owned())
@@ -110,7 +115,7 @@ fn player_input(
         }
 
         if let Some(walk_direction) = state.get_walk_direction() {
-            velocity.handle_walking_velocity(walk_direction);
+            velocity.handle_walking_velocity(status_effects.walk_speed_multiplier, walk_direction);
         } else if state.is_grounded() {
             velocity.drag();
         }

@@ -1,7 +1,9 @@
 use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::prelude::*;
-use wag_core::{Animation, AnimationType, Area, ItemId, Model, MoveId, StickPosition};
+use wag_core::{
+    Animation, AnimationType, Area, ItemId, Model, MoveId, StatusEffect, StickPosition,
+};
 
 use crate::{Item, Move};
 
@@ -19,6 +21,7 @@ pub struct Character {
     pub charge_directions: Vec<StickPosition>,
     pub generic_animations: HashMap<AnimationType, Animation>,
     pub gravity: f32,
+    pub base_stats: StatusEffect,
 }
 impl Character {
     pub(crate) fn new(
@@ -48,6 +51,10 @@ impl Character {
             standing_pushbox: Area::from_center_size(Vec2::Y * 0.7, Vec2::new(0.4, 1.4)),
             crouching_pushbox: Area::from_center_size(Vec2::Y * 0.5, Vec2::new(0.4, 1.0)),
             gravity,
+            base_stats: StatusEffect {
+                walk_speed_multiplier: 1.0,
+                max_health: 100,
+            },
         }
     }
 

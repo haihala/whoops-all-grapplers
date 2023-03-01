@@ -14,7 +14,6 @@ pub struct PlayerVelocity {
     movements: Vec<AppliedMovement>,
     /// Keep track of if pushing is currently happening for wall clamp reasons
     pub(super) pushing: bool,
-    walk_speed_multiplier: f32,
 }
 // Drag
 const MINIMUM_WALK_SPEED: f32 = 3.0;
@@ -28,9 +27,8 @@ const PROPORTIONAL_DRAG: f32 = 0.03;
 const LINEAR_DRAG: f32 = 0.3;
 
 impl PlayerVelocity {
-    pub fn reset(&mut self, walk_speed_multiplier: f32) {
+    pub fn reset(&mut self) {
         *self = Self::default();
-        self.walk_speed_multiplier = walk_speed_multiplier;
     }
     pub fn sync_with(&mut self, other: &PlayerVelocity) {
         self.velocity = other.velocity;
@@ -51,13 +49,17 @@ impl PlayerVelocity {
             until_frame: frame + movement.duration,
         });
     }
-    pub(super) fn handle_walking_velocity(&mut self, direction: Facing) {
-        let proposed_walk_velocity = self.velocity.x
-            + direction.mirror_f32(PLAYER_ACCELERATION * self.walk_speed_multiplier);
+    pub(super) fn handle_walking_velocity(
+        &mut self,
+        walk_speed_multiplier: f32,
+        direction: Facing,
+    ) {
+        let proposed_walk_velocity =
+            self.velocity.x + direction.mirror_f32(PLAYER_ACCELERATION * walk_speed_multiplier);
 
         self.velocity.x = direction.mirror_f32(proposed_walk_velocity.abs().clamp(
             MINIMUM_WALK_SPEED,
-            MAXIMUM_WALK_SPEED * self.walk_speed_multiplier,
+            MAXIMUM_WALK_SPEED * walk_speed_multiplier,
         ));
     }
     pub(super) fn drag(&mut self) {

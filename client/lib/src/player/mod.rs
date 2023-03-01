@@ -12,7 +12,9 @@ mod size_adjustment;
 use characters::{dummy, Character, Inventory, Resources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
-use wag_core::{once_per_combat_frame, Clock, Facing, GameState, Joints, Player, Players};
+use wag_core::{
+    once_per_combat_frame, Clock, Facing, GameState, Joints, Player, Players, StatusEffect,
+};
 
 use crate::{
     assets::{AnimationHelperSetup, Models},
@@ -49,6 +51,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
             .add_system(setup_combat.with_run_criteria(State::on_enter(GameState::Combat)))
+            .add_system(condition_management::update_combined_status_effect) // This is here so it's up to date when the game starts
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(once_per_combat_frame)
@@ -81,7 +84,7 @@ impl Plugin for PlayerPlugin {
                     )
                     .with_system(
                         asset_updater::update_animation
-                            .after(condition_management::manage_conditions),
+                            .after(condition_management::update_combined_status_effect),
                     )
                     .with_system(asset_updater::update_audio.after(asset_updater::update_animation))
                     .with_system(
@@ -118,6 +121,7 @@ struct PlayerDefaults {
     player_velocity: PlayerVelocity,
     move_buffer: MoveBuffer,
     joints: Joints,
+    status_effects: StatusEffect,
 }
 
 fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: Player) -> Entity {
@@ -156,8 +160,7 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
 fn setup_combat(
     mut query: Query<(
         &Player,
-        &Inventory,
-        &Character,
+        &StatusEffect,
         &mut Health,
         &mut Resources,
         &mut Transform,
@@ -173,8 +176,7 @@ fn setup_combat(
 
     for (
         player,
-        inventory,
-        character,
+        status_effect,
         mut health,
         mut resources,
         mut tf,
@@ -184,14 +186,12 @@ fn setup_combat(
         mut velocity,
     ) in &mut query
     {
-        let items = inventory.get_effects(character);
-
-        health.reset(items.max_health);
+        health.reset(status_effect.max_health);
         resources.reset();
         player_state.reset();
         buffer.clear_all();
         parser.clear();
-        velocity.reset(items.walk_speed_multiplier);
+        velocity.reset();
 
         tf.translation = Vec3::new(
             match *player {

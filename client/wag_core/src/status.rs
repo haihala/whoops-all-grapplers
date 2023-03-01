@@ -4,6 +4,9 @@ use bevy::prelude::*;
 pub struct StatusEffect {
     pub walk_speed_multiplier: f32,
     pub max_health: i32,
+    // Opener
+    pub opener_damage_multiplier: f32,
+    pub opener_meter_gain: i32,
     // TODO: Add more fields
 }
 
@@ -12,16 +15,20 @@ impl Default for StatusEffect {
         Self {
             walk_speed_multiplier: 1.0,
             max_health: 0,
+            opener_damage_multiplier: 1.0,
+            opener_meter_gain: 0,
         }
     }
 }
 
 impl StatusEffect {
-    pub fn combine(self, rhs: &Self) -> Self {
-        Self {
-            walk_speed_multiplier: self.walk_speed_multiplier * rhs.walk_speed_multiplier,
-            max_health: self.max_health + rhs.max_health,
-        }
+    pub fn combine(mut self, rhs: &Self) -> Self {
+        self.walk_speed_multiplier *= rhs.walk_speed_multiplier;
+        self.max_health += rhs.max_health;
+        self.opener_damage_multiplier *= rhs.opener_damage_multiplier;
+        self.opener_meter_gain += rhs.opener_meter_gain;
+
+        self
     }
 }
 

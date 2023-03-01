@@ -169,7 +169,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                             },
                             CommonAttackProps {
                                 damage: 20,
-                                on_hit: Stun(20),
+                                on_hit: Stun(25),
                                 knock_back: if situation.inventory.contains(&ItemId::Roids) {
                                     1.0
                                 } else {

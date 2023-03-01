@@ -53,7 +53,9 @@ impl Character {
             gravity,
             base_stats: StatusEffect {
                 walk_speed_multiplier: 1.0,
-                max_health: 100,
+                max_health: 250,
+                opener_damage_multiplier: 1.5,
+                opener_meter_gain: 50,
             },
         }
     }

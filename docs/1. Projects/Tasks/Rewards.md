@@ -7,7 +7,7 @@ Progress:
 	- [x] Basic payout after each round
 	- [x] Winning bonus
 	- [x] CS like loss bonus
-- [ ] [[#Opener]]
+- [x] [[#Opener]]
 - [ ] [[#Timing bonus]] gives more stun frames?
 
 # Meter

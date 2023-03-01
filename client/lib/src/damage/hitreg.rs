@@ -7,8 +7,8 @@ use characters::{
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{
-    Area, Clock, Facing, Owner, Player, Players, SoundEffect, Status, StickPosition, VisualEffect,
-    CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
+    Area, Clock, Facing, Owner, Player, Players, SoundEffect, Status, StatusEffect, StickPosition,
+    VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
 };
 
 use crate::{
@@ -35,6 +35,7 @@ pub(super) struct Hit {
     overlap: Area,
     hit_type: HitType,
     attack: Attack,
+    is_opener: bool,
 }
 
 #[derive(WorldQuery)]
@@ -52,6 +53,7 @@ pub struct HitPlayerQuery<'a> {
     facing: &'a Facing,
     spawner: &'a mut HitboxSpawner,
     pushbox: &'a Pushbox,
+    status_effect: &'a StatusEffect,
 }
 
 pub(super) fn clash_parry(
@@ -219,8 +221,21 @@ pub(super) fn detect_hits(
                     }
                 };
 
+                // TODO: This could be moved into hit processing, as it's not really relevant to hit recognition
+                let is_opener = combo.is_none() &&  hit_type == HitType::Strike;
                 if combo.is_none() {
-                    notifications.add(defending_player, notification);
+                    notifications.add(
+                        defending_player,
+                        format!(
+                            "{} - {}",
+                            if is_opener {
+                                "Opener!"
+                            } else {
+                                "Avoid"
+                            },
+                            notification,
+                        )
+                    );
                 }
 
                 Some(Hit {
@@ -229,6 +244,7 @@ pub(super) fn detect_hits(
                     hitbox: hitbox_entity,
                     overlap,
                     hit_type,
+                    is_opener,
                     attack: attack.to_owned(),
                 })
             },
@@ -254,7 +270,7 @@ pub(super) fn apply_hits(
             commands.insert_resource(Combo);
         }
 
-        let (attacker_actions, defender_actions, sound, particle) = match hit.hit_type {
+        let (mut attacker_actions, mut defender_actions, sound, particle) = match hit.hit_type {
             HitType::Strike | HitType::Throw => {
                 // Handle blocking and state transitions here
                 attacker.state.register_hit();
@@ -286,6 +302,13 @@ pub(super) fn apply_hits(
                 VisualEffect::Clash,
             ),
         };
+
+        if hit.is_opener {
+            sounds.play(SoundEffect::Whoosh); // TODO change sound effect
+            attacker_actions = handle_opener(attacker_actions, attacker.status_effect);
+            attacker_actions.push(Action::GainMeter(attacker.status_effect.opener_meter_gain));
+            defender_actions = handle_opener(defender_actions, attacker.status_effect);
+        }
 
         attacker.state.add_actions(attacker_actions);
         defender.state.add_actions(defender_actions);
@@ -319,6 +342,18 @@ fn handle_blocking(height: AttackHeight, stick: StickPosition) -> (HitType, Stri
 
 fn teched(parser: &InputParser) -> bool {
     parser.head_is_clear()
+}
+
+fn handle_opener(actions: Vec<Action>, status_effect: &StatusEffect) -> Vec<Action> {
+    actions
+        .into_iter()
+        .map(|action| match action {
+            Action::TakeDamage(amount) => Action::TakeDamage(
+                (amount as f32 * status_effect.opener_damage_multiplier) as usize,
+            ),
+            other => other,
+        })
+        .collect()
 }
 
 pub(super) fn snap_and_switch(

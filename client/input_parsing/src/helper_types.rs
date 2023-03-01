@@ -98,12 +98,10 @@ impl From<char> for InputEvent {
                 'F' => InputEvent::Release(GameButton::Fast),
                 's' => InputEvent::Press(GameButton::Strong),
                 'S' => InputEvent::Release(GameButton::Strong),
-                'g' => InputEvent::Press(GameButton::Grab),
-                'G' => InputEvent::Release(GameButton::Grab),
-                'e' => InputEvent::Press(GameButton::Equipment),
-                'E' => InputEvent::Release(GameButton::Equipment),
-                't' => InputEvent::Press(GameButton::Taunt),
-                'T' => InputEvent::Release(GameButton::Taunt),
+                'w' => InputEvent::Press(GameButton::Wrestling),
+                'W' => InputEvent::Release(GameButton::Wrestling),
+                'g' => InputEvent::Press(GameButton::Gimmick),
+                'G' => InputEvent::Release(GameButton::Gimmick),
                 _ => panic!("Invalid character {ch}"),
             }
         }

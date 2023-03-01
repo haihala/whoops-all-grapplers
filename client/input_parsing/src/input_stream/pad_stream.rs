@@ -194,9 +194,8 @@ fn button_change(
     match button {
         GamepadButtonType::South => handle_gamebutton(reader, GameButton::Fast),
         GamepadButtonType::East => handle_gamebutton(reader, GameButton::Strong),
-        GamepadButtonType::North => handle_gamebutton(reader, GameButton::Grab),
-        GamepadButtonType::West => handle_gamebutton(reader, GameButton::Equipment),
-        GamepadButtonType::LeftTrigger => handle_gamebutton(reader, GameButton::Taunt),
+        GamepadButtonType::North => handle_gamebutton(reader, GameButton::Wrestling),
+        GamepadButtonType::West => handle_gamebutton(reader, GameButton::Gimmick),
 
         GamepadButtonType::DPadUp => reader.update_dpad(press, None, Some(1)),
         GamepadButtonType::DPadDown => reader.update_dpad(press, None, Some(-1)),

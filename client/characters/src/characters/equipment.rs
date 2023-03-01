@@ -10,7 +10,7 @@ use crate::{
 
 pub(crate) fn get_handmedownken() -> Move {
     Move {
-        input: Some("236e"),
+        input: Some("236g"),
         move_type: Special,
         requirement: |situation: Situation| {
             situation.inventory.contains(&ItemId::HandMeDownKen) && situation.grounded
@@ -60,7 +60,7 @@ pub(crate) fn get_gunshot() -> Move {
                 if situation
                     .parser
                     .get_pressed()
-                    .contains(&GameButton::Equipment)
+                    .contains(&GameButton::Gimmick)
                 {
                     vec![Action::Move(MoveId::Gunshot)]
                 } else {
@@ -75,7 +75,7 @@ pub(crate) fn get_gunshot() -> Move {
 
 pub(crate) fn get_shot() -> Move {
     Move {
-        input: Some("e"),
+        input: Some("g"),
         requirement: |situation: Situation| {
             situation.inventory.contains(&ItemId::Gun) && situation.grounded
         },

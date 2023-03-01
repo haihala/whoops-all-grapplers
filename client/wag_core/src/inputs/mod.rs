@@ -11,9 +11,8 @@ pub enum GameButton {
     #[default]
     Default, // To satisfy Inspectable
 
-    Grab,
-    Strong,
     Fast,
-    Equipment,
-    Taunt,
+    Strong,
+    Wrestling,
+    Gimmick,
 }

@@ -272,7 +272,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
         (
             MoveId::ForwardThrow,
             Move {
-                input: Some("g"),
+                input: Some("w"),
                 requirement: standing,
                 phases: vec![
                     DummyAnimation::NormalThrow.into(),
@@ -337,7 +337,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
         (
             MoveId::Sweep,
             Move {
-                input: Some("g"),
+                input: Some("w"),
                 requirement: crouching,
                 phases: vec![
                     DummyAnimation::Sweep.into(),
@@ -365,7 +365,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
         (
             MoveId::AirThrow,
             Move {
-                input: Some("g"),
+                input: Some("w"),
                 requirement: airborne,
                 phases: vec![
                     DummyAnimation::AirThrow.into(),

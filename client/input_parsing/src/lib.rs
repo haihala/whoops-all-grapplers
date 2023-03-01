@@ -69,7 +69,7 @@ fn generic_inputs() -> impl Iterator<Item = (MoveId, &'static str)> {
         (MoveId::Back, "54"),
         (MoveId::Forward, "56"),
         (MoveId::Primary, "f"),
-        (MoveId::Secondary, "e"),
+        (MoveId::Secondary, "g"),
         (MoveId::Cancel, "s"),
     ]
     .into_iter()

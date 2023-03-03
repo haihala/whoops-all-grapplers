@@ -646,7 +646,7 @@ fn dummy_items() -> HashMap<ItemId, Item> {
                 cost: 80,
                 explanation: "Bonus walk speed".into(),
                 effect: Stats {
-                    walk_speed_multiplier: 1.3,
+                    walk_speed: 0.2,
                     ..default()
                 },
                 ..default()

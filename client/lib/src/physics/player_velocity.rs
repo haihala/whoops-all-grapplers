@@ -15,16 +15,10 @@ pub struct PlayerVelocity {
     /// Keep track of if pushing is currently happening for wall clamp reasons
     pub(super) pushing: bool,
 }
-// Drag
-const MINIMUM_WALK_SPEED: f32 = 3.0;
-const MAXIMUM_WALK_SPEED: f32 = 4.0;
-const ACCELERATION_TIME: f32 = 1.0;
-
-const ACCELERATION_DELTA: f32 = MAXIMUM_WALK_SPEED - MINIMUM_WALK_SPEED;
-const PLAYER_ACCELERATION: f32 = ACCELERATION_DELTA / ACCELERATION_TIME / wag_core::FPS;
 
 const PROPORTIONAL_DRAG: f32 = 0.03;
 const LINEAR_DRAG: f32 = 0.3;
+const WALK_BACK_SPEED_MULTIPLIER: f32 = 0.7;
 
 impl PlayerVelocity {
     pub fn reset(&mut self) {
@@ -51,16 +45,21 @@ impl PlayerVelocity {
     }
     pub(super) fn handle_walking_velocity(
         &mut self,
-        walk_speed_multiplier: f32,
+        walk_speed: f32,
+        facing: Facing,
         direction: Facing,
     ) {
-        let proposed_walk_velocity =
-            self.velocity.x + direction.mirror_f32(PLAYER_ACCELERATION * walk_speed_multiplier);
+        // Makes the change go the right way
+        let direction_multiplier = if direction == Facing::Left { -1.0 } else { 1.0 };
 
-        self.velocity.x = direction.mirror_f32(proposed_walk_velocity.abs().clamp(
-            MINIMUM_WALK_SPEED,
-            MAXIMUM_WALK_SPEED * walk_speed_multiplier,
-        ));
+        // Makes you walk slower backwards
+        let magnitude_multiplier = if direction != facing {
+            WALK_BACK_SPEED_MULTIPLIER
+        } else {
+            1.0
+        };
+
+        self.velocity.x = direction_multiplier * magnitude_multiplier * walk_speed;
     }
     pub(super) fn drag(&mut self) {
         let abs_x = self.velocity.x.abs() * (1.0 - PROPORTIONAL_DRAG);

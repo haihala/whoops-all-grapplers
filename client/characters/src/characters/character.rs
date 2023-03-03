@@ -50,7 +50,7 @@ impl Character {
             crouching_pushbox: Area::from_center_size(Vec2::Y * 0.5, Vec2::new(0.4, 1.0)),
             gravity,
             base_stats: Stats {
-                walk_speed_multiplier: 1.0,
+                walk_speed: 3.0,
                 max_health: 250,
                 opener_damage_multiplier: 1.5,
                 opener_meter_gain: 50,

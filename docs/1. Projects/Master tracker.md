@@ -1,7 +1,5 @@
 # Backlog
 ## Before playtest
-- Add stun frames on opener hit
-- [[Move speed improvements]]
 - [[Match flow]]
 - [[Resource rework]]
 - [[Stackable items]]

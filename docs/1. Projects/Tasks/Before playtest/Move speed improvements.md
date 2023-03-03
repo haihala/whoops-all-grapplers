@@ -1,4 +1,0 @@
-- Make player movement feel better with more speed
-	- Get rid of walk acceleration
-- Move walk speed from a multiplier to a static number like health
-- Add base move speed to the character

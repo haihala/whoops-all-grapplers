@@ -29,7 +29,7 @@ mod player;
 pub use player::{Owner, Player, Players};
 
 mod status;
-pub use status::{Status, StatusCondition, StatusEffect};
+pub use status::{Stats, StatusCondition, StatusFlag};
 
 mod time;
 pub use time::*;

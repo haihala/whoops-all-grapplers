@@ -1,6 +1,6 @@
 mod inventory;
 pub use inventory::Inventory;
-use wag_core::{ItemId, StatusEffect};
+use wag_core::{ItemId, Stats};
 
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum ItemCategory {
@@ -15,6 +15,6 @@ pub struct Item {
     // TODO: Icons here
     pub category: ItemCategory,
     pub cost: usize,
-    pub effect: StatusEffect,
+    pub effect: Stats,
     pub explanation: String,
 }

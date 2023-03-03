@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{Action, Character, Inventory};
 use player_state::PlayerState;
-use wag_core::{Clock, StatusCondition, StatusEffect};
+use wag_core::{Clock, Stats, StatusCondition};
 
 pub fn manage_conditions(mut query: Query<&mut PlayerState>, clock: Res<Clock>) {
     // Could be split in two if need arises
@@ -25,7 +25,7 @@ pub fn manage_conditions(mut query: Query<&mut PlayerState>, clock: Res<Clock>) 
 }
 
 pub fn update_combined_status_effect(
-    mut query: Query<(&mut StatusEffect, &PlayerState, &Inventory, &Character)>,
+    mut query: Query<(&mut Stats, &PlayerState, &Inventory, &Character)>,
 ) {
     for (mut effect, state, inventory, character) in &mut query {
         *effect = state

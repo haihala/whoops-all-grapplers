@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 #[derive(Reflect, FromReflect, Debug, Clone, Copy, PartialEq, Component)]
-pub struct StatusEffect {
+pub struct Stats {
     pub walk_speed_multiplier: f32,
     pub max_health: i32,
     // Opener
@@ -10,7 +10,7 @@ pub struct StatusEffect {
     // TODO: Add more fields
 }
 
-impl Default for StatusEffect {
+impl Default for Stats {
     fn default() -> Self {
         Self {
             walk_speed_multiplier: 1.0,
@@ -21,7 +21,7 @@ impl Default for StatusEffect {
     }
 }
 
-impl StatusEffect {
+impl Stats {
     pub fn combine(mut self, rhs: &Self) -> Self {
         self.walk_speed_multiplier *= rhs.walk_speed_multiplier;
         self.max_health += rhs.max_health;
@@ -33,16 +33,16 @@ impl StatusEffect {
 }
 
 #[derive(Reflect, FromReflect, Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum Status {
+pub enum StatusFlag {
     #[default]
     Default, // Not in use, here to satisfy inspectable
-    Dodge,
+    Intangible,
     Parry,
 }
 
 #[derive(Reflect, FromReflect, Debug, Clone, Copy, Default, PartialEq)]
 pub struct StatusCondition {
-    pub name: Status,
-    pub effect: Option<StatusEffect>,
+    pub flag: StatusFlag,
+    pub effect: Option<Stats>,
     pub expiration: Option<usize>,
 }

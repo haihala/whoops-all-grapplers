@@ -12,9 +12,7 @@ mod size_adjustment;
 use characters::{dummy, Character, Inventory, Resources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
-use wag_core::{
-    once_per_combat_frame, Clock, Facing, GameState, Joints, Player, Players, StatusEffect,
-};
+use wag_core::{once_per_combat_frame, Clock, Facing, GameState, Joints, Player, Players, Stats};
 
 use crate::{
     assets::{AnimationHelperSetup, Models},
@@ -121,7 +119,7 @@ struct PlayerDefaults {
     player_velocity: PlayerVelocity,
     move_buffer: MoveBuffer,
     joints: Joints,
-    status_effects: StatusEffect,
+    status_effects: Stats,
 }
 
 fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: Player) -> Entity {
@@ -160,7 +158,7 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
 fn setup_combat(
     mut query: Query<(
         &Player,
-        &StatusEffect,
+        &Stats,
         &mut Health,
         &mut Resources,
         &mut Transform,

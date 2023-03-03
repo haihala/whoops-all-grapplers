@@ -7,7 +7,7 @@ use characters::{
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{
-    Area, Clock, Facing, Owner, Player, Players, SoundEffect, Status, StatusEffect, StickPosition,
+    Area, Clock, Facing, Owner, Player, Players, SoundEffect, Stats, StatusFlag, StickPosition,
     VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
 };
 
@@ -53,7 +53,7 @@ pub struct HitPlayerQuery<'a> {
     facing: &'a Facing,
     spawner: &'a mut HitboxSpawner,
     pushbox: &'a Pushbox,
-    status_effect: &'a StatusEffect,
+    status_effect: &'a Stats,
 }
 
 pub(super) fn clash_parry(
@@ -192,7 +192,7 @@ pub(super) fn detect_hits(
                         },
                         "Busy".into(),
                     )
-                } else if state.has_condition(Status::Parry) && attack.to_hit.block_type != BlockType::Grab {
+                } else if state.has_flag(StatusFlag::Parry) && attack.to_hit.block_type != BlockType::Grab {
                     (HitType::Parry, "Parry!".into())
                 } else {
                     match attack.to_hit.block_type {
@@ -344,7 +344,7 @@ fn teched(parser: &InputParser) -> bool {
     parser.head_is_clear()
 }
 
-fn handle_opener(actions: Vec<Action>, status_effect: &StatusEffect) -> Vec<Action> {
+fn handle_opener(actions: Vec<Action>, status_effect: &Stats) -> Vec<Action> {
     actions
         .into_iter()
         .map(|action| match action {

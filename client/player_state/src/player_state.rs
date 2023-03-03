@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use characters::{Action, MoveHistory, Situation};
-use wag_core::{AnimationType, Facing, Status, StatusCondition, StatusEffect};
+use wag_core::{AnimationType, Facing, Stats, StatusCondition, StatusFlag};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 
@@ -268,27 +268,25 @@ impl PlayerState {
     pub fn get_conditions(&self) -> &Vec<StatusCondition> {
         &self.conditions
     }
-    pub fn has_condition(&self, condition: Status) -> bool {
-        self.conditions.iter().any(|cond| cond.name == condition)
+    pub fn has_flag(&self, condition: StatusFlag) -> bool {
+        self.conditions.iter().any(|cond| cond.flag == condition)
     }
-    pub fn combined_status_effects(&self) -> StatusEffect {
+    pub fn combined_status_effects(&self) -> Stats {
         // TODO: Cache for later
-        self.conditions
-            .iter()
-            .fold(StatusEffect::default(), |acc, cond| {
-                if let Some(effect) = &cond.effect {
-                    acc.combine(effect)
-                } else {
-                    acc
-                }
-            })
+        self.conditions.iter().fold(Stats::default(), |acc, cond| {
+            if let Some(effect) = &cond.effect {
+                acc.combine(effect)
+            } else {
+                acc
+            }
+        })
     }
     pub fn expire_conditions(&mut self, frame: usize) {
         self.conditions
             .retain(|cond| cond.expiration.is_none() || cond.expiration.unwrap() > frame);
     }
     pub fn is_intangible(&self) -> bool {
-        self.otg_since().is_some() || self.has_condition(Status::Dodge)
+        self.otg_since().is_some() || self.has_flag(StatusFlag::Intangible)
     }
 }
 

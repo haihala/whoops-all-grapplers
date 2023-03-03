@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{ItemId, StatusEffect, INVENTORY_SIZE};
+use wag_core::{ItemId, Stats, INVENTORY_SIZE};
 
 use crate::{Character, Item, ItemCategory};
 
@@ -58,16 +58,14 @@ impl Inventory {
         self.items.remove(index);
     }
 
-    pub fn get_effects(&self, character: &Character) -> StatusEffect {
-        self.items
-            .iter()
-            .fold(StatusEffect::default(), |accumulator, id| {
-                accumulator.combine(&get_recursive_effects(id, character))
-            })
+    pub fn get_effects(&self, character: &Character) -> Stats {
+        self.items.iter().fold(Stats::default(), |accumulator, id| {
+            accumulator.combine(&get_recursive_effects(id, character))
+        })
     }
 }
 
-fn get_recursive_effects(item_id: &ItemId, character: &Character) -> StatusEffect {
+fn get_recursive_effects(item_id: &ItemId, character: &Character) -> Stats {
     let item = character.items.get(item_id).unwrap();
 
     if let ItemCategory::Upgrade(dependencies) = &item.category {

@@ -3,8 +3,8 @@ use std::{collections::HashMap, iter::empty};
 use bevy::prelude::*;
 
 use wag_core::{
-    Animation, AnimationType, Area, DummyAnimation, ItemId, Joint, Model, MoveId, Status,
-    StatusCondition, StatusEffect,
+    Animation, AnimationType, Area, DummyAnimation, ItemId, Joint, Model, MoveId, Stats,
+    StatusCondition, StatusFlag,
 };
 
 use crate::{
@@ -411,7 +411,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         ForceStand,
                         DummyAnimation::Dodge.into(),
                         Condition(StatusCondition {
-                            name: Status::Dodge,
+                            flag: StatusFlag::Intangible,
                             effect: None,
                             expiration: Some(20),
                         }),
@@ -645,7 +645,7 @@ fn dummy_items() -> HashMap<ItemId, Item> {
             Item {
                 cost: 80,
                 explanation: "Bonus walk speed".into(),
-                effect: StatusEffect {
+                effect: Stats {
                     walk_speed_multiplier: 1.3,
                     ..default()
                 },
@@ -658,7 +658,7 @@ fn dummy_items() -> HashMap<ItemId, Item> {
                 category: Upgrade(vec![ItemId::Boots]),
                 explanation: "Gives more health in addition to boots' speed bonus".into(),
                 cost: 100,
-                effect: StatusEffect {
+                effect: Stats {
                     max_health: 20,
                     ..default()
                 },

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{Area, GameButton, ItemId, MoveId, Status, StatusCondition};
+use wag_core::{Area, GameButton, ItemId, MoveId, StatusCondition, StatusFlag};
 
 use crate::{
     moves::{
@@ -94,7 +94,7 @@ pub(crate) fn get_high_gi_parry() -> Move {
             vec![
                 Action::ForceStand,
                 Action::Condition(StatusCondition {
-                    name: Status::Parry,
+                    flag: StatusFlag::Parry,
                     effect: None,
                     expiration: Some(20), // TODO tone down, this is for testing
                 }),

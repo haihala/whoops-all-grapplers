@@ -7,6 +7,7 @@ pub struct Stats {
     // Opener
     pub opener_damage_multiplier: f32,
     pub opener_meter_gain: i32,
+    pub opener_stun_frames: i32,
     // TODO: Add more fields
 }
 
@@ -17,6 +18,7 @@ impl Default for Stats {
             max_health: 0,
             opener_damage_multiplier: 1.0,
             opener_meter_gain: 0,
+            opener_stun_frames: 0,
         }
     }
 }
@@ -27,6 +29,7 @@ impl Stats {
         self.max_health += rhs.max_health;
         self.opener_damage_multiplier *= rhs.opener_damage_multiplier;
         self.opener_meter_gain += rhs.opener_meter_gain;
+        self.opener_stun_frames += rhs.opener_stun_frames;
 
         self
     }

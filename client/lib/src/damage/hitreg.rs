@@ -351,6 +351,9 @@ fn handle_opener(actions: Vec<Action>, status_effect: &Stats) -> Vec<Action> {
             Action::TakeDamage(amount) => Action::TakeDamage(
                 (amount as f32 * status_effect.opener_damage_multiplier) as usize,
             ),
+            Action::HitStun(amount) => {
+                Action::HitStun((amount as i32 + status_effect.opener_stun_frames) as usize)
+            }
             other => other,
         })
         .collect()

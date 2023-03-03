@@ -1,4 +1,4 @@
-- [ ] Show win record at the top
+- [x] Show win record at the top
 - [ ] End the game when a player reaches 5 won rounds
 - [ ] Allow proceeding between screens without dev plugin
 	- [ ] Start the game

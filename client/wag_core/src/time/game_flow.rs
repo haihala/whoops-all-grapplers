@@ -44,6 +44,13 @@ impl RoundLog {
         // This makes it so the last loss doesn't add to the streak.
         LOSS_BONUS * if streak > 0 { streak - 1 } else { 0 }
     }
+
+    pub fn wins(&self, player: Player) -> usize {
+        self.log
+            .iter()
+            .filter(|round| round.winner == Some(player))
+            .count()
+    }
 }
 
 #[derive(Debug, Clone, Copy)]

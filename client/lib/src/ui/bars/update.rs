@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 use characters::Resources;
-use wag_core::Player;
+use wag_core::{Player, RoundLog};
 
 use crate::{assets::Colors, damage::Health};
 
-use super::{ChargeBar, HealthBar, MeterBar};
+use super::{ChargeBar, HealthBar, MeterBar, ScoreText};
 
 #[allow(clippy::type_complexity)]
 pub fn update(
@@ -12,8 +12,10 @@ pub fn update(
         Query<(&mut Style, &HealthBar)>,
         Query<(&mut Style, &MeterBar)>,
         Query<(&mut Style, &mut BackgroundColor, &ChargeBar)>,
+        Query<(&mut Text, &ScoreText)>,
     )>,
     players: Query<(&Player, &Health, &Resources)>,
+    round_log: Res<RoundLog>,
     colors: Res<Colors>,
 ) {
     for (player, health, resources) in &players {
@@ -35,6 +37,13 @@ pub fn update(
                 } else {
                     colors.charge_default.into()
                 };
+            }
+        }
+        for (mut text, score_text) in &mut bars.p3() {
+            // TODO This could be moved elsewhere, but that is true for the others as well
+            // Don't want to optimize prematurely
+            if *player == **score_text {
+                text.sections[0].value = round_log.wins(*player).to_string();
             }
         }
     }

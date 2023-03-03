@@ -73,6 +73,7 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
                 style: Style {
                     position_type: PositionType::Absolute,
                     align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
                     size: Size::new(
                         Val::Percent(TOP_CONTAINER_WIDTH),
                         Val::Percent(TOP_CONTAINER_HEIGHT),
@@ -90,9 +91,9 @@ fn setup_top_bars(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
             OnlyShowInGameState(vec![GameState::Combat]),
         ))
         .with_children(|top_bar_wrapper| {
-            spawn_health_bar(top_bar_wrapper, colors.health, Player::One);
+            spawn_health_bar(top_bar_wrapper, colors, fonts, Player::One);
             spawn_timer(top_bar_wrapper, fonts.basic.clone());
-            spawn_health_bar(top_bar_wrapper, colors.health, Player::Two);
+            spawn_health_bar(top_bar_wrapper, colors, fonts, Player::Two);
         });
 }
 

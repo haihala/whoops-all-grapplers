@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use wag_core::Player;
 
 use crate::{
-    assets::Colors,
+    assets::{Colors, Fonts},
     ui::{
         text::TIMER_WIDTH,
         utils::{div, div_style},
@@ -10,22 +10,23 @@ use crate::{
     },
 };
 
-use super::{ChargeBar, HealthBar, MeterBar};
+use super::{ChargeBar, HealthBar, MeterBar, ScoreText};
 
 const HEALTH_BAR_WIDTH: f32 = (100.0 - TIMER_WIDTH) / 2.0; // Relative to wrapper
 const HEALTH_BAR_HEIGHT: f32 = 50.0; // Relative to wrapper
 const RESOURCE_BAR_WIDTH: f32 = 30.0; // Relative to wrapper
 const RESOURCE_BAR_HEIGHT: f32 = 5.0; // Relative to wrapper
 
-pub fn spawn_health_bar(parent: &mut ChildBuilder, color: Color, player: Player) {
+pub fn spawn_health_bar(parent: &mut ChildBuilder, colors: &Colors, fonts: &Fonts, player: Player) {
     parent
         .spawn((
             NodeBundle {
                 style: Style {
-                    flex_direction: match player {
+                    flex_direction: FlexDirection::Column,
+                    align_items: match player {
                         // to drain to the middle
-                        Player::One => FlexDirection::RowReverse,
-                        Player::Two => FlexDirection::Row,
+                        Player::One => AlignItems::FlexEnd,
+                        Player::Two => AlignItems::FlexStart,
                     },
                     size: Size::new(
                         Val::Percent(HEALTH_BAR_WIDTH),
@@ -44,10 +45,21 @@ pub fn spawn_health_bar(parent: &mut ChildBuilder, color: Color, player: Player)
                         size: Size::new(FULL, FULL),
                         ..default()
                     },
-                    background_color: color.into(),
+                    background_color: colors.health.into(),
                     ..default()
                 },
                 HealthBar(player),
+            ));
+            health_bar_wrapper.spawn((
+                TextBundle::from_section(
+                    "0",
+                    TextStyle {
+                        font: fonts.basic.clone(),
+                        font_size: 18.0,
+                        color: colors.text,
+                    },
+                ),
+                ScoreText(player),
             ));
         });
 }

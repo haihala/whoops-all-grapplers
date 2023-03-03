@@ -33,16 +33,11 @@ impl Plugin for DamagePlugin {
                 .with_system(hitreg::snap_and_switch.after(hitreg::stun_actions))
                 .with_system(defense::timeout_defense_streak.after(hitreg::snap_and_switch))
                 .with_system(health::take_damage.after(defense::timeout_defense_streak))
-                .with_system(
-                    health::check_dead
-                        .after(health::take_damage)
-                        .with_run_criteria(State::on_update(GameState::Combat)),
-                )
+                .with_system(hitboxes::update_followers.after(health::take_damage))
                 .with_system(
                     hitboxes::despawn_everything
                         .with_run_criteria(State::on_exit(GameState::Combat)),
-                )
-                .with_system(hitboxes::update_followers.after(health::check_dead)),
+                ),
         );
     }
 }

@@ -10,6 +10,7 @@ mod economy;
 mod physics;
 mod player;
 mod stage;
+mod state_transitions;
 mod ui;
 
 use bevy::{app::PluginGroupBuilder, prelude::*};
@@ -60,7 +61,8 @@ impl PluginGroup for WAGLib {
             .add(damage::DamagePlugin)
             .add(physics::PhysicsPlugin)
             .add(input_parsing::InputParsingPlugin)
-            .add(stage::StagePlugin);
+            .add(stage::StagePlugin)
+            .add(state_transitions::StateTransitionPlugin);
 
         if self.enable_dev_plugins {
             group = group.add(dev::DevPlugin);

@@ -70,7 +70,7 @@ fn create_notification_container(commands: &mut Commands, side: Player) -> Entit
                 },
                 ..div()
             },
-            OnlyShowInGameState(vec![GameState::Combat]),
+            OnlyShowInGameState(vec![GameState::Combat, GameState::PostRound]),
         ))
         .id()
 }

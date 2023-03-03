@@ -1,6 +1,5 @@
 # Backlog
 ## Before playtest
-- [[Resources between rounds]]
 - Add stun frames on opener hit
 - [[Move speed improvements]]
 - [[Match flow]]

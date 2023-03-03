@@ -1,14 +1,13 @@
 use bevy::prelude::*;
 
-use characters::{Action, Inventory};
+use characters::Action;
 use player_state::PlayerState;
-use wag_core::{Clock, GameState, Player, RoundLog, RoundResult, ROUND_MONEY, VICTORY_BONUS};
 
 #[derive(Reflect, Component, Clone, Copy)]
 pub struct Health {
     value: usize,
 
-    // As this is also stored elsewhere (StatusEffect), could maybe be removed from here in the future
+    // As this is also stored elsewhere (Stats), could maybe be removed from here in the future
     // TODO: Think about it
     max: usize,
 }
@@ -37,66 +36,6 @@ impl Health {
         } else {
             self.value -= amount;
         }
-    }
-}
-
-pub fn check_dead(
-    clock: Res<Clock>,
-    mut round_log: ResMut<RoundLog>,
-    mut players: Query<(&Health, &Player, &mut Inventory)>,
-    mut state: ResMut<State<GameState>>,
-) {
-    if *state.current() != GameState::Combat {
-        return;
-    }
-
-    let round_over = players
-        .iter()
-        .filter_map(
-            |(health, player, _)| {
-                if health.value > 0 {
-                    Some(player)
-                } else {
-                    None
-                }
-            },
-        )
-        .count()
-        != 2
-        || clock.done();
-
-    if round_over {
-        let mut ordered_healths = (&mut players).into_iter().collect::<Vec<_>>();
-
-        ordered_healths.sort_by(|(a, _, _), (b, _, _)| {
-            a.get_percentage()
-                .partial_cmp(&b.get_percentage())
-                .unwrap()
-                .reverse()
-        });
-
-        assert!(ordered_healths.len() == 2);
-        let [(winner_health, winner, winner_inventory), (loser_health, loser, loser_inventory)] = &mut ordered_healths[..] else {
-            panic!("Couldn't unpack players");
-        };
-
-        let result = if winner_health.get_percentage() == loser_health.get_percentage() {
-            // Tie
-            RoundResult { winner: None }
-        } else {
-            winner_inventory.money += VICTORY_BONUS;
-
-            RoundResult {
-                winner: Some(**winner),
-            }
-        };
-
-        round_log.add(result);
-
-        winner_inventory.money += ROUND_MONEY + round_log.loss_bonus(**winner);
-        loser_inventory.money += ROUND_MONEY + round_log.loss_bonus(**loser);
-
-        state.set(GameState::PostRound).unwrap();
     }
 }
 

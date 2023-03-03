@@ -35,9 +35,9 @@ impl Plugin for UIPlugin {
             SystemSet::new()
                 .with_run_criteria(State::on_update(GameState::Combat))
                 .with_system(bars::update)
-                .with_system(notifications::update)
                 .with_system(text::update_timer),
         )
+        .add_system(notifications::update)
         .add_system(
             // State::on_enter doesn't work for some reason.
             text::update_round_text.with_run_criteria(State::on_update(GameState::PostRound)),

@@ -8,7 +8,7 @@ Progress:
 	- [x] Winning bonus
 	- [x] CS like loss bonus
 - [x] [[#Opener]]
-- [ ] [[#Timing bonus]] gives more stun frames?
+- [x] [[#Timing bonus]]
 
 # Meter
 Meter is for rewarding stuff immediately. Players have 4 bars of meter, used in chunks, but gained slowly.
@@ -27,7 +27,7 @@ Meter is for rewarding stuff immediately. Players have 4 bars of meter, used in 
 - Aims to emphasize varying your options over knowing where the gaps in a sequence are.
 
 ### Parry
-- [[Clash parry]]
+- [[Add clash parry]]
 - [[Gi of the old masters]]
 
 # Opener
@@ -54,7 +54,7 @@ Ideas / Todo:
 			- ewgf
 	- Bottle opener
 		- Like a beer bottle opener
-		- Gives you [[meter]]
+		- Gives you [[Meter]]
 	- Crowbar
 		- Gives you a bit of everything to the opener, but the main point is damage
 		- And other benefits

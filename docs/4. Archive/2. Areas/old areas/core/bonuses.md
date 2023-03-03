@@ -2,7 +2,7 @@
 Instead of combo scaling, the initial hit gets a damage buff (2x damage).
 
 # Timing
-If a button is timed instead of spammed, the player gets the timing bonus, which gives some [[meter]]. 
+If a button is timed instead of spammed, the player gets the timing bonus, which gives some [[Meter]]. 
 
 # What to reward
 Events that can happen in a fighting game:

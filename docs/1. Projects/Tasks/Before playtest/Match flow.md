@@ -1,0 +1,10 @@
+- [ ] Show win record at the top
+- [ ] End the game when a player reaches 5 won rounds
+- [ ] Allow proceeding between screens without dev plugin
+	- [ ] Start the game
+		- [ ] Press start to claim a character
+		- [ ] Once both characters are claimed, go to pre-round
+	- [ ] Pre-round (2s coundown)
+	- [ ] End shopping
+		- [ ] Start timer when a player presses start
+		- [ ] When both have pressed start or timer runs out, go to pre-round

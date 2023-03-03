@@ -1,0 +1,4 @@
+- "Gi of the old masters"
+- Universal basic item
+- Gives you a 3S like parry.
+- Simultaneously referring to Daigo and Ken.

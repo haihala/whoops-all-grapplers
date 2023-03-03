@@ -1,0 +1,2 @@
+- Universal basic item
+- Increases walk speed of the owner

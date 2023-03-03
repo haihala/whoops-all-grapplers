@@ -1,15 +1,15 @@
-# Todo
 - Make resources more generic
 	- Allowing it to be specified in the character struct
 	- Character specific things can be put in there
+- Maybe have a common struct for resources and restrict the unique behaviours to a field in that struct?
 - Types of resources
 	- Health?
-	- [[meter]]
+	- [[Meter]]
 		- Rendered as a bar of four segments at the bottom of the screen
 		- Used in sections
 		- Bar can wrap around with items later on
 	- Charge
-		- Rendered as a bar of four segments on top of [[meter]]
+		- Rendered as a solid bar on top of [[Meter]] that changes colour when full
 		- Has
 			- A function that returns an a signal enum
 				- Clear
@@ -28,3 +28,4 @@
 		- Not rendered
 		- Prevent you from doing a move two times too fast
 		- Mostly for [[Gi of the old masters]] spam
+		- Can be saved for later

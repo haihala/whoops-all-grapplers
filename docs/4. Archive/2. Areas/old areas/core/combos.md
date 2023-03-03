@@ -101,7 +101,7 @@ Consequences:
 Like in smash, if the defender can have some influence on how knockback affects their character. You can't control the distance, but you can control the angle. Leads to guessing for the attacker.
 
 Maybe limit how often you can do it so it can be more influential.
-- [[meter]] cost
+- [[Meter]] cost
 - Every third hit or something like that.
 - Mini air dash that resets [[bonuses#Opener]] (if you are wrong it costs health)
 

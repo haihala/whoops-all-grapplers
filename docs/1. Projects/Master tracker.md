@@ -1,18 +1,27 @@
 # Backlog
-## High priority
-- [[Rewards]]
-
-## Low priority
+## Before playtest
 - [[Resources between rounds]]
-- [[Toasts in various spots]]
+- Add stun frames on opener hit
+- [[Move speed improvements]]
+- [[Match flow]]
 - [[Resource rework]]
-- Show win record at the top
+- [[Stackable items]]
+- [[Items for playtest]]
+- [[Character 2]]
 
 ## Nice to have
+- [[Toasts in various spots]]
 - [[Move format refinement]]
 - [[Input parser refinement#Nice to have]]
 
+### Spec update
+- Get idea dumps from archive
+	- Character
+	- Move
+- Investigate what good can you get from the archive
+
 ## Not a priority
+- [[Rewards 2.0]]
 - [[CLI args]]
 - Delay wakeup on knockdown
 - [[Menus]]

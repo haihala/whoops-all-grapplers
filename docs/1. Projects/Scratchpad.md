@@ -7,7 +7,7 @@
 	- quarter+f+s should override quarter+f if it comes in early enough
 - Cumulative hitstun?
 	- Paritally cumulative hitstun?
-	- Attach to an [[item]]?
+	- Attach to an [[Items]]?
 - A proper system for setting animations rolling
 	- Checking for overlap should be done at source, not in the helper
 	- Looping, speed, start frame and the animation itself all in one struct

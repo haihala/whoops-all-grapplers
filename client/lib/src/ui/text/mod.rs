@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{Clock, GameState, OnlyShowInGameState, RoundLog, RoundTimer, ROUND_TIME};
+use wag_core::{Clock, GameState, OnlyShowInGameState, RoundLog, RoundTimer, COMBAT_DURATION};
 
 use crate::assets::{Colors, Fonts};
 
@@ -12,7 +12,8 @@ use super::utils::{div, div_style, FULL};
 pub struct RoundText;
 
 pub fn update_timer(mut query: Query<&mut Text, With<RoundTimer>>, clock: Res<Clock>) {
-    query.single_mut().sections[0].value = (ROUND_TIME - clock.elapsed_time).floor().to_string();
+    query.single_mut().sections[0].value =
+        (COMBAT_DURATION - clock.elapsed_time).floor().to_string();
 }
 
 pub fn update_round_text(

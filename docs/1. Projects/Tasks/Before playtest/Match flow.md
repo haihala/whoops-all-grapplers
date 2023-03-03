@@ -1,10 +1,15 @@
 - [x] Show win record at the top
-- [ ] End the game when a player reaches 5 won rounds
-- [ ] Allow proceeding between screens without dev plugin
-	- [ ] Start the game
-		- [ ] Press start to claim a character
-		- [ ] Once both characters are claimed, go to pre-round
-	- [ ] Pre-round (2s coundown)
-	- [ ] End shopping
+- [x] End the game when a player reaches 5 won rounds
+- [ ] Add new GameStates
+	- [ ] Post shop
 		- [ ] Start timer when a player presses start
 		- [ ] When both have pressed start or timer runs out, go to pre-round
+	- [ ] Loading (exists but does nothing)
+		- [ ] Press start to claim a character
+- [ ] Allow proceeding between screens without dev plugin
+	- [ ] Loading->Pre-round (Once both characters have been claimed)
+	- [ ] Pre-round -> Combat
+	- [x] Combat -> Post-round
+	- [x] Post round -> Shop
+	- [ ] Shop -> Post shop
+	- [ ] Post shop -> Pre-round

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{RoundTimer, ROUND_TIME};
+use wag_core::{RoundTimer, COMBAT_DURATION};
 
 use crate::ui::utils::{div, div_style, FULL};
 
@@ -24,7 +24,7 @@ pub fn spawn_timer(parent: &mut ChildBuilder, font: Handle<Font>) {
             timer_wrapper.spawn((
                 TextBundle {
                     text: Text::from_section(
-                        ROUND_TIME.round().to_string(),
+                        COMBAT_DURATION.round().to_string(),
                         TextStyle {
                             font,
                             font_size: 100.0,

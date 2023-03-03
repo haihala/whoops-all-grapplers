@@ -1,7 +1,10 @@
-use bevy::prelude::*;
+use bevy::{app::AppExit, prelude::*};
 
 use characters::Inventory;
-use wag_core::{Clock, GameState, Player, RoundLog, RoundResult, ROUND_MONEY, VICTORY_BONUS};
+use wag_core::{
+    Clock, GameState, Player, RoundLog, RoundResult, POST_ROUND_DURATION, ROUNDS_TO_WIN,
+    ROUND_MONEY, VICTORY_BONUS,
+};
 
 use crate::{damage::Health, ui::Notifications};
 
@@ -9,11 +12,19 @@ pub struct StateTransitionPlugin;
 
 impl Plugin for StateTransitionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(end_combat.with_run_criteria(State::on_update(GameState::Combat)));
+        app.add_system(end_combat.with_run_criteria(State::on_update(GameState::Combat)))
+            .add_system(transition_after_timer);
     }
 }
 
+#[derive(Debug, Resource)]
+struct TransitionTimer {
+    timer: Timer,
+    exit_game: bool,
+}
+
 pub fn end_combat(
+    mut commands: Commands,
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
     mut round_log: ResMut<RoundLog>,
@@ -76,5 +87,31 @@ pub fn end_combat(
         round_log.add(result);
 
         state.set(GameState::PostRound).unwrap();
+        commands.insert_resource(TransitionTimer {
+            timer: Timer::from_seconds(POST_ROUND_DURATION, TimerMode::Once),
+            exit_game: round_log.wins(**winner) >= ROUNDS_TO_WIN,
+        })
+    }
+}
+
+fn transition_after_timer(
+    mut commands: Commands,
+    timer_resource: Option<ResMut<TransitionTimer>>,
+    mut game_state: ResMut<State<GameState>>,
+    time: Res<Time>,
+    mut exit: EventWriter<AppExit>,
+) {
+    if let Some(mut transition) = timer_resource {
+        transition.timer.tick(time.delta());
+
+        if transition.timer.finished() {
+            if transition.exit_game {
+                exit.send(AppExit);
+            } else {
+                let next_state = game_state.current().next();
+                game_state.set(next_state).unwrap();
+                commands.remove_resource::<TransitionTimer>()
+            }
+        }
     }
 }

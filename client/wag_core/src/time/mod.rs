@@ -3,7 +3,9 @@ use bevy::{ecs::schedule::ShouldRun, prelude::*, time::FixedTimestep};
 mod game_flow;
 pub use game_flow::{GameState, OnlyShowInGameState, RoundLog, RoundResult};
 
-pub const ROUND_TIME: f32 = 99.0;
+pub const ROUNDS_TO_WIN: usize = 5;
+pub const COMBAT_DURATION: f32 = 99.0;
+pub const POST_ROUND_DURATION: f32 = 4.0;
 
 /// The component for measuring time in frames
 #[derive(Reflect, Default, Resource)]
@@ -14,11 +16,11 @@ pub struct Clock {
 }
 impl Clock {
     pub fn done(&self) -> bool {
-        self.elapsed_time >= ROUND_TIME - 1.0
+        self.elapsed_time >= COMBAT_DURATION - 1.0
     }
 
     pub fn time_out(&mut self) {
-        self.elapsed_time = ROUND_TIME;
+        self.elapsed_time = COMBAT_DURATION;
     }
 
     pub fn reset(&mut self, time: f64) {

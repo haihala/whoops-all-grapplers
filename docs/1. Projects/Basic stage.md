@@ -1,0 +1,4 @@
+- [ ] 3D model in blender
+- [ ] Spawn in in the game
+- [ ] Lighting
+- [ ] Other adjustments 

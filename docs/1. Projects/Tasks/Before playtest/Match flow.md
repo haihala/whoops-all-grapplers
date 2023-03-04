@@ -5,7 +5,7 @@
 		- [ ] Start timer when a player presses start
 		- [ ] When both have pressed start or timer runs out, go to pre-round
 	- [ ] Loading (exists but does nothing)
-		- [ ] Press start to claim a character
+		- [x] Press start to claim a character
 - [ ] Allow proceeding between screens without dev plugin
 	- [ ] Loading->Pre-round (Once both characters have been claimed)
 	- [ ] Pre-round -> Combat

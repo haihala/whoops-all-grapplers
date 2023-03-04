@@ -19,6 +19,11 @@ pub struct InputParsingPlugin;
 
 #[derive(Debug, Default, Resource, Deref, DerefMut)]
 struct PadReserve(VecDeque<Gamepad>);
+impl PadReserve {
+    fn remove_pad(&mut self, pad: &Gamepad) {
+        self.0.retain(|p| p != pad);
+    }
+}
 
 impl Plugin for InputParsingPlugin {
     fn build(&self, app: &mut App) {

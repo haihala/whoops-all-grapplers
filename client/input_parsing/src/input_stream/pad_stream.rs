@@ -1,5 +1,3 @@
-use std::collections::VecDeque;
-
 use bevy::prelude::*;
 use wag_core::{GameButton, StickPosition};
 
@@ -104,51 +102,43 @@ pub(crate) fn update_pads(
         event_type,
     } in gamepad_events.iter()
     {
-        let matching_components = readers
-            .iter_mut()
-            .find(|(reader, _)| reader.pad_id.is_some() && reader.pad_id.unwrap() == *gamepad);
+        for (mut pad, mut parrot) in &mut readers {
+            let pad_in_question = pad.pad_id.is_some() && pad.pad_id.unwrap() == *gamepad;
+            let unclaimed_pad = pad.pad_id.is_none();
 
-        match event_type {
-            GamepadEventType::Connected(_) => {
-                // The & seems to be an error with rust analyzer.
-                pad_connection(gamepad, &mut unused_pads, &mut readers);
+            match event_type {
+                GamepadEventType::Connected(_) => {
+                    println!("Connected controller {}", gamepad.id);
+                    unused_pads.push_back(*gamepad);
+                }
+                GamepadEventType::Disconnected => {
+                    if pad_in_question {
+                        pad.pad_id = None;
+                    }
+                    if unused_pads.contains(gamepad) {
+                        println!("Unplugged controller {}", gamepad.id);
+                        unused_pads.remove_pad(gamepad);
+                    }
+                }
+                GamepadEventType::AxisChanged(axis, new_value) => {
+                    if pad_in_question {
+                        axis_change(&mut pad, *axis, *new_value);
+                    }
+                }
+                GamepadEventType::ButtonChanged(button, new_value) => {
+                    let pressed_start = *button == GamepadButtonType::Start && *new_value == 1.0;
+                    if unused_pads.contains(gamepad) && unclaimed_pad && pressed_start {
+                        // Pressed start, claim the pad
+                        println!("Claimed controller {}", gamepad.id);
+                        pad.pad_id = Some(*gamepad);
+                        unused_pads.remove_pad(gamepad);
+                    } else if pad_in_question {
+                        button_change(&mut pad, &mut parrot, *button, *new_value);
+                    }
+                }
             }
-            GamepadEventType::Disconnected => {
-                pad_disconnection(&mut matching_components.unwrap().0, &mut unused_pads);
-            }
-            GamepadEventType::AxisChanged(axis, new_value) => {
-                axis_change(&mut matching_components.unwrap().0, *axis, *new_value);
-            }
-            GamepadEventType::ButtonChanged(button, new_value) => {
-                let (mut reader, mut parrot) = matching_components.unwrap();
-                button_change(&mut reader, &mut parrot, *button, *new_value);
-            }
-        };
+        }
     }
-}
-
-fn pad_connection(
-    pad_id: &Gamepad,
-    unused_pads: &mut VecDeque<Gamepad>,
-    readers: &mut Query<(&mut PadStream, &mut ParrotStream)>,
-) {
-    println!("New gamepad connected with ID: {:?}", pad_id);
-    let unused_reader = readers
-        .iter_mut()
-        .find(|(reader, _)| reader.pad_id.is_none());
-
-    if let Some((mut reader, _)) = unused_reader {
-        // There is a free character
-        reader.pad_id = Some(*pad_id);
-    } else {
-        unused_pads.push_back(*pad_id);
-    }
-}
-
-fn pad_disconnection(reader: &mut Mut<PadStream>, unused_pads: &mut VecDeque<Gamepad>) {
-    println!("Gamepad disconnected with ID: {:?}", reader.pad_id);
-
-    reader.pad_id = unused_pads.pop_front();
 }
 
 fn axis_change(reader: &mut Mut<PadStream>, axis: GamepadAxisType, new_value: f32) {

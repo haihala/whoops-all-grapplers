@@ -4,6 +4,7 @@ use bevy::prelude::*;
 #[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
 pub enum GameState {
     Loading,
+    PreRound,
     Combat,
     PostRound,
     Shop,
@@ -11,12 +12,17 @@ pub enum GameState {
 impl GameState {
     pub fn next(self) -> GameState {
         match self {
-            GameState::Loading => GameState::Combat,
+            GameState::Loading => GameState::PreRound,
 
+            GameState::PreRound => GameState::Combat,
             GameState::Combat => GameState::PostRound,
             GameState::PostRound => GameState::Shop,
-            GameState::Shop => GameState::Combat,
+            GameState::Shop => GameState::PreRound,
         }
+    }
+
+    pub fn show_round_text(&self) -> bool {
+        !matches!(self, GameState::Loading | GameState::Combat)
     }
 }
 

@@ -38,10 +38,7 @@ impl Plugin for UIPlugin {
                 .with_system(text::update_timer),
         )
         .add_system(notifications::update)
-        .add_system(
-            // State::on_enter doesn't work for some reason.
-            text::update_round_text.with_run_criteria(State::on_update(GameState::PostRound)),
-        )
+        .add_system(text::update_round_text)
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(State::on_update(GameState::Shop))

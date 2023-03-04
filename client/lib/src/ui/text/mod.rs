@@ -19,11 +19,19 @@ pub fn update_timer(mut query: Query<&mut Text, With<RoundTimer>>, clock: Res<Cl
 pub fn update_round_text(
     mut query: Query<(&mut Visibility, &mut Text), With<RoundText>>,
     round_log: Res<RoundLog>,
+    game_state: Res<State<GameState>>,
 ) {
-    if let Some(result) = round_log.last() {
-        let (mut visible, mut text) = query.single_mut();
+    let (mut visible, mut text) = query.single_mut();
 
-        visible.is_visible = true;
+    if !game_state.current().show_round_text() {
+        visible.is_visible = false;
+        return;
+    }
+
+    visible.is_visible = true;
+    if *game_state.current() == GameState::PreRound {
+        text.sections[0].value = "New round".to_string();
+    } else if let Some(result) = round_log.last() {
         text.sections[0].value = if let Some(winner) = result.winner {
             format!("{winner} won the round")
         } else {
@@ -50,13 +58,13 @@ pub(super) fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fo
                 ..div()
             },
             Name::new("Round info text"),
-            OnlyShowInGameState(vec![GameState::Loading, GameState::PostRound]),
+            OnlyShowInGameState(vec![GameState::PreRound, GameState::PostRound]),
         ))
         .with_children(|parent| {
             parent.spawn((
                 TextBundle {
                     text: Text::from_section(
-                        "New round",
+                        "",
                         TextStyle {
                             font: fonts.basic.clone(),
                             font_size: 100.0,

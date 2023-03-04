@@ -1,9 +1,10 @@
 use bevy::{app::AppExit, prelude::*};
 
 use characters::Inventory;
+use input_parsing::InputParser;
 use wag_core::{
-    Clock, GameState, Player, RoundLog, RoundResult, POST_ROUND_DURATION, ROUNDS_TO_WIN,
-    ROUND_MONEY, VICTORY_BONUS,
+    Clock, GameState, Player, RoundLog, RoundResult, POST_ROUND_DURATION, PRE_ROUND_DURATION,
+    ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
 };
 
 use crate::{damage::Health, ui::Notifications};
@@ -12,7 +13,8 @@ pub struct StateTransitionPlugin;
 
 impl Plugin for StateTransitionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(end_combat.with_run_criteria(State::on_update(GameState::Combat)))
+        app.add_system(end_loading.with_run_criteria(State::on_update(GameState::Loading)))
+            .add_system(end_combat.with_run_criteria(State::on_update(GameState::Combat)))
             .add_system(transition_after_timer);
     }
 }
@@ -113,5 +115,19 @@ fn transition_after_timer(
                 commands.remove_resource::<TransitionTimer>()
             }
         }
+    }
+}
+
+fn end_loading(
+    mut commands: Commands,
+    parsers: Query<&InputParser>,
+    mut game_state: ResMut<State<GameState>>,
+) {
+    if parsers.iter().all(|parser| parser.is_ready()) {
+        game_state.set(GameState::PreRound).unwrap();
+        commands.insert_resource(TransitionTimer {
+            timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),
+            exit_game: false,
+        })
     }
 }

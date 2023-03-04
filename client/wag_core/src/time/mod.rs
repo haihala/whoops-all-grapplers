@@ -4,6 +4,7 @@ mod game_flow;
 pub use game_flow::{GameState, OnlyShowInGameState, RoundLog, RoundResult};
 
 pub const ROUNDS_TO_WIN: usize = 5;
+pub const PRE_ROUND_DURATION: f32 = 2.0;
 pub const COMBAT_DURATION: f32 = 99.0;
 pub const POST_ROUND_DURATION: f32 = 4.0;
 

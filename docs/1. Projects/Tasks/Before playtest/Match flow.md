@@ -4,11 +4,11 @@
 	- [ ] Post shop
 		- [ ] Start timer when a player presses start
 		- [ ] When both have pressed start or timer runs out, go to pre-round
-	- [ ] Loading (exists but does nothing)
+	- [x] Loading (exists but does nothing)
 		- [x] Press start to claim a character
 - [ ] Allow proceeding between screens without dev plugin
-	- [ ] Loading->Pre-round (Once both characters have been claimed)
-	- [ ] Pre-round -> Combat
+	- [x] Loading->Pre-round (Once both characters have been claimed)
+	- [x] Pre-round -> Combat
 	- [x] Combat -> Post-round
 	- [x] Post round -> Shop
 	- [ ] Shop -> Post shop

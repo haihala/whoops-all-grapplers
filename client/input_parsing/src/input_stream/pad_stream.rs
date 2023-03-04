@@ -90,6 +90,10 @@ impl InputStream for PadStream {
             None
         }
     }
+
+    fn is_ready(&self) -> bool {
+        self.pad_id.is_some()
+    }
 }
 
 pub(crate) fn update_pads(

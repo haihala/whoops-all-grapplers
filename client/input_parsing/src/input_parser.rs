@@ -19,6 +19,7 @@ pub struct InputParser {
     moves: HashMap<&'static str, Vec<MoveId>>,
     inputs: HashMap<&'static str, MotionInput>,
     head: Frame,
+    ready: bool,
 }
 impl InputParser {
     pub(crate) fn new(new_inputs: HashMap<MoveId, &'static str>) -> Self {
@@ -93,12 +94,17 @@ impl InputParser {
     pub fn clear(&mut self) {
         self.events.clear();
     }
+
+    pub fn is_ready(&self) -> bool {
+        self.ready
+    }
 }
 
 pub fn parse_input<T: InputStream + Component>(
     mut characters: Query<(&mut InputParser, &mut T, &Facing)>,
 ) {
     for (mut parser, mut reader, facing) in &mut characters {
+        parser.ready = reader.is_ready();
         if let Some(diff) = reader.read() {
             parser.add_frame(if facing.to_flipped() {
                 // Flip the inputs

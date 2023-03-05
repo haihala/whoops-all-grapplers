@@ -65,12 +65,7 @@ pub fn setup_round_info_text(mut commands: Commands, colors: Res<Colors>, fonts:
                             font_size: 48.0,
                             color: colors.text,
                         },
-                    )
-                    // TODO: Check if this alignment is necessary
-                    .with_alignment(TextAlignment {
-                        horizontal: HorizontalAlign::Center,
-                        ..default()
-                    }),
+                    ),
                     ..default()
                 },
                 RoundText,

@@ -60,8 +60,8 @@ pub fn update_notifications(
         commands.entity(expired_toast.entity).despawn_recursive();
     }
 
-    for (container, marker) in &containers {
-        for (player, content) in toasts.requests.drain(..).collect::<Vec<_>>().into_iter() {
+    for (player, content) in toasts.requests.drain(..).collect::<Vec<_>>().into_iter() {
+        for (container, marker) in &containers {
             if player == **marker {
                 commands.entity(container).with_children(|parent| {
                     toasts.spawned.push(Notification {
@@ -71,7 +71,7 @@ pub fn update_notifications(
                             fonts.basic.clone(),
                             colors.notification_background,
                             colors.notification_text,
-                            content,
+                            content.clone(), // Not necessary technically, but the compiler can't know that each message will only be used once
                         ),
                     })
                 });
@@ -90,7 +90,7 @@ fn spawn_notification(
     parent
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(50.0), Val::Auto),
+                size: Size::new(Val::Percent(40.0), Val::Auto),
                 margin: UiRect::all(Val::Px(7.0)),
                 justify_content: JustifyContent::Center,
                 ..default()
@@ -107,12 +107,7 @@ fn spawn_notification(
                         font_size: 18.0,
                         color: text_color,
                     },
-                )
-                // TODO: Do these alignments do anything?
-                .with_alignment(TextAlignment {
-                    horizontal: HorizontalAlign::Center,
-                    vertical: VerticalAlign::Center,
-                }),
+                ),
                 style: Style {
                     align_self: AlignSelf::Center,
                     ..default()

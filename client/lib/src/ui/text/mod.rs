@@ -47,6 +47,7 @@ pub(super) fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fo
                 style: Style {
                     position_type: PositionType::Absolute,
                     justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
                     size: Size::new(FULL, Val::Percent(10.0)),
                     position: UiRect {
                         top: Val::Percent(40.0),
@@ -58,16 +59,20 @@ pub(super) fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fo
                 ..div()
             },
             Name::new("Round info text"),
-            OnlyShowInGameState(vec![GameState::PreRound, GameState::PostRound]),
+            OnlyShowInGameState(vec![
+                GameState::Loading,
+                GameState::PreRound,
+                GameState::PostRound,
+            ]),
         ))
         .with_children(|parent| {
             parent.spawn((
                 TextBundle {
                     text: Text::from_section(
-                        "",
+                        "Press start to claim characters (first press = p1)",
                         TextStyle {
                             font: fonts.basic.clone(),
-                            font_size: 100.0,
+                            font_size: 48.0,
                             color: colors.text,
                         },
                     )

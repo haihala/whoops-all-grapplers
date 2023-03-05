@@ -22,7 +22,7 @@ impl GameState {
     }
 
     pub fn show_round_text(&self) -> bool {
-        !matches!(self, GameState::Loading | GameState::Combat)
+        !matches!(self, GameState::Shop | GameState::Combat)
     }
 }
 

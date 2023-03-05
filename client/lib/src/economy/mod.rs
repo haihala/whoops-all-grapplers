@@ -1,39 +1,42 @@
 use bevy::prelude::*;
-use characters::{Action, Resources};
+use characters::{Action, Properties};
 use player_state::PlayerState;
 
 pub struct EconomyPlugin;
 
 impl Plugin for EconomyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(pay_resources).add_system(gain_meter);
+        app.add_system(modify_properties);
     }
 }
 
-fn pay_resources(mut query: Query<(&mut PlayerState, &mut Resources)>) {
-    for (mut state, mut resources) in &mut query {
-        for bill in state.drain_matching_actions(|action| {
-            if let Action::Pay(cost) = action {
-                Some(*cost)
-            } else {
-                None
+fn modify_properties(mut query: Query<(&mut PlayerState, &mut Properties)>) {
+    for (mut state, mut properties) in &mut query {
+        for prop in state.drain_matching_actions(|action| match action {
+            Action::ModifyResource(resource_index, amount) => {
+                Some(Action::ModifyResource(*resource_index, *amount))
             }
+            Action::ClearResource(resource_index) => Some(Action::ClearResource(*resource_index)),
+            Action::ModifyMeter(amount) => Some(Action::ModifyMeter(*amount)),
+            Action::ModifyHealth(amount) => Some(Action::ModifyHealth(*amount)),
+            _ => None,
         }) {
-            resources.pay(bill);
-        }
-    }
-}
-
-fn gain_meter(mut query: Query<(&mut PlayerState, &mut Resources)>) {
-    for (mut state, mut resources) in &mut query {
-        for amount in state.drain_matching_actions(|action| {
-            if let Action::GainMeter(amount) = action {
-                Some(*amount)
-            } else {
-                None
+            // Moved outside to avoid double borrow
+            match prop {
+                Action::ModifyResource(resource_index, amount) => {
+                    properties.special_properties[resource_index].change(amount);
+                }
+                Action::ClearResource(resource_index) => {
+                    properties.special_properties[resource_index].clear();
+                }
+                Action::ModifyMeter(amount) => {
+                    properties.meter.change(amount);
+                }
+                Action::ModifyHealth(amount) => {
+                    properties.health.change(amount);
+                }
+                _ => panic!("Filter failed"),
             }
-        }) {
-            resources.meter.gain(amount);
         }
     }
 }

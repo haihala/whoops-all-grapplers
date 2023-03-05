@@ -2,13 +2,11 @@ use bevy::prelude::*;
 
 mod combo;
 mod defense;
-mod health;
 mod hitboxes;
 mod hitreg;
 
 pub use combo::Combo;
 pub use defense::Defense;
-pub use health::Health;
 pub use hitboxes::HitboxSpawner;
 
 use wag_core::{GameState, WAGStage};
@@ -32,8 +30,7 @@ impl Plugin for DamagePlugin {
                 .with_system(hitreg::stun_actions.after("autolabels don't work for this"))
                 .with_system(hitreg::snap_and_switch.after(hitreg::stun_actions))
                 .with_system(defense::timeout_defense_streak.after(hitreg::snap_and_switch))
-                .with_system(health::take_damage.after(defense::timeout_defense_streak))
-                .with_system(hitboxes::update_followers.after(health::take_damage))
+                .with_system(hitboxes::update_followers.after(defense::timeout_defense_streak))
                 .with_system(
                     hitboxes::despawn_everything
                         .with_run_criteria(State::on_exit(GameState::Combat)),

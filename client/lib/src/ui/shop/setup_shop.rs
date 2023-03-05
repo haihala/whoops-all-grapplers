@@ -155,7 +155,7 @@ fn setup_countdown_number(
                         text: Text::from_section(
                             "10",
                             TextStyle {
-                                color: colors.text.into(),
+                                color: colors.text,
                                 font: fonts.basic.clone(),
                                 font_size: 256.0,
                             },

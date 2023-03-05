@@ -13,5 +13,5 @@ pub struct HealthBar(pub Player);
 pub struct ScoreText(pub Player);
 #[derive(Debug, Component, Deref)]
 pub struct MeterBar(pub Player);
-#[derive(Debug, Component, Deref)]
-pub struct ChargeBar(pub Player);
+#[derive(Debug, Component)]
+pub struct SpecialResourceBar(pub Player, usize);

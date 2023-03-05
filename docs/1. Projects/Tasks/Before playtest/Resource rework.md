@@ -1,3 +1,11 @@
+# Todo
+- Take character into account when creating UI
+- Render meter as quadrants
+	- Color changes
+	- Divider lines
+- Allow Items to affect special resources
+
+# Original plan
 - Make resources more generic
 	- Allowing it to be specified in the character struct
 	- Character specific things can be put in there

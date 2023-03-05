@@ -1,13 +1,13 @@
 use bevy::{app::AppExit, prelude::*};
 
-use characters::Inventory;
+use characters::{Inventory, Properties};
 use input_parsing::InputParser;
 use wag_core::{
     Clock, GameState, Player, RoundLog, RoundResult, POST_ROUND_DURATION, PRE_ROUND_DURATION,
     ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
 };
 
-use crate::{damage::Health, ui::Notifications};
+use crate::ui::Notifications;
 
 pub struct StateTransitionPlugin;
 
@@ -38,16 +38,16 @@ pub fn end_combat(
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
     mut round_log: ResMut<RoundLog>,
-    mut players: Query<(&Health, &Player, &mut Inventory)>,
+    mut players: Query<(&Properties, &Player, &mut Inventory)>,
     mut state: ResMut<State<GameState>>,
 ) {
     let round_over = players
         .iter()
-        .filter_map(|(health, player, _)| {
-            if health.get_percentage() > 0.0 {
-                Some(player)
-            } else {
+        .filter_map(|(properties, player, _)| {
+            if properties.health.is_empty() {
                 None
+            } else {
+                Some(player)
             }
         })
         .count()
@@ -58,14 +58,15 @@ pub fn end_combat(
         let mut ordered_healths = (&mut players).into_iter().collect::<Vec<_>>();
 
         ordered_healths.sort_by(|(a, _, _), (b, _, _)| {
-            a.get_percentage()
-                .partial_cmp(&b.get_percentage())
+            a.health
+                .get_percentage()
+                .partial_cmp(&b.health.get_percentage())
                 .unwrap()
                 .reverse()
         });
 
         assert!(ordered_healths.len() == 2);
-        let [(winner_health, winner, winner_inventory), (loser_health, loser, loser_inventory)] = &mut ordered_healths[..] else {
+        let [(winner_props, winner, winner_inventory), (loser_props, loser, loser_inventory)] = &mut ordered_healths[..] else {
             panic!("Couldn't unpack players");
         };
 
@@ -76,7 +77,8 @@ pub fn end_combat(
         winner_inventory.money += ROUND_MONEY;
         loser_inventory.money += ROUND_MONEY;
 
-        let result = if winner_health.get_percentage() == loser_health.get_percentage() {
+        let result = if winner_props.health.get_percentage() == loser_props.health.get_percentage()
+        {
             // Tie
             RoundResult { winner: None }
         } else {

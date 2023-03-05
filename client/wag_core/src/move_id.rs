@@ -27,8 +27,6 @@ pub enum MoveId {
 
     // Equipment
     HandMeDownKen,
-    Gunshot,
-    Shoot,
     HighGiParry,
 
     // Test moves

@@ -9,14 +9,14 @@ mod recovery;
 mod root_mover;
 mod size_adjustment;
 
-use characters::{dummy, Character, Inventory, Resources};
+use characters::{dummy, Character, Inventory, Properties};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{once_per_combat_frame, Clock, Facing, GameState, Joints, Player, Players, Stats};
 
 use crate::{
     assets::{AnimationHelperSetup, Models},
-    damage::{Defense, Health, HitboxSpawner},
+    damage::{Defense, HitboxSpawner},
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
 
@@ -37,7 +37,7 @@ struct PlayerQuery<'a> {
     character: &'a Character,
     tf: &'a Transform,
     buffer: &'a mut MoveBuffer,
-    resources: &'a mut Resources,
+    properties: &'a mut Properties,
     inventory: &'a mut Inventory,
     input_parser: &'a mut InputParser,
     player: &'a Player,
@@ -112,8 +112,6 @@ fn setup(mut commands: Commands, models: Res<Models>) {
 #[derive(Bundle, Default)]
 struct PlayerDefaults {
     defense: Defense,
-    health: Health,
-    resources: Resources,
     inventory: Inventory,
     spawner: HitboxSpawner,
     player_velocity: PlayerVelocity,
@@ -132,6 +130,8 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
                 transform: Transform::from_translation((offset, PLAYER_SPAWN_HEIGHT, 0.0).into()),
                 ..default()
             },
+            Properties::from_stats(&character.base_stats)
+                .with_specials(character.special_properties.clone()),
             PlayerDefaults::default(),
             PadBundle::new(character.get_inputs()),
             Name::new(format!("Player {player}")),
@@ -159,8 +159,7 @@ fn setup_combat(
     mut query: Query<(
         &Player,
         &Stats,
-        &mut Health,
-        &mut Resources,
+        &mut Properties,
         &mut Transform,
         &mut PlayerState,
         &mut MoveBuffer,
@@ -175,8 +174,7 @@ fn setup_combat(
     for (
         player,
         status_effect,
-        mut health,
-        mut resources,
+        mut properties,
         mut tf,
         mut player_state,
         mut buffer,
@@ -184,8 +182,8 @@ fn setup_combat(
         mut velocity,
     ) in &mut query
     {
-        health.reset(status_effect.max_health);
-        resources.reset();
+        *properties = Properties::from_stats(status_effect)
+            .with_specials(properties.special_properties.clone()); // TODO: Figure out a way to make stats change special properties.
         player_state.reset();
         buffer.clear_all();
         parser.clear();

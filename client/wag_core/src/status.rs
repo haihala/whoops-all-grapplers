@@ -36,6 +36,16 @@ impl Stats {
 
         self
     }
+
+    pub fn testing_default() -> Self {
+        Self {
+            walk_speed: 3.0,
+            max_health: 200,
+            opener_damage_multiplier: 1.5,
+            opener_meter_gain: 20,
+            opener_stun_frames: 5,
+        }
+    }
 }
 
 #[derive(Reflect, FromReflect, Debug, Clone, Copy, PartialEq, Eq, Default)]

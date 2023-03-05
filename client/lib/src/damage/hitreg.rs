@@ -2,7 +2,7 @@ use bevy::{ecs::query::WorldQuery, prelude::*};
 use strum::IntoEnumIterator;
 
 use characters::{
-    Action, Attack, AttackHeight, BlockType, Character, HitTracker, Hitbox, Hurtbox, Resources,
+    Action, Attack, AttackHeight, BlockType, Character, HitTracker, Hitbox, Hurtbox, Properties,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -17,7 +17,7 @@ use crate::{
     ui::Notifications,
 };
 
-use super::{Combo, Defense, Health, HitboxSpawner};
+use super::{Combo, Defense, HitboxSpawner};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub(super) enum HitType {
@@ -44,8 +44,7 @@ pub(super) struct Hit {
 pub struct HitPlayerQuery<'a> {
     defense: &'a mut Defense,
     tf: &'a mut Transform,
-    health: &'a mut Health,
-    resources: &'a mut Resources,
+    properties: &'a mut Properties,
     player: &'a Player,
     parser: &'a InputParser,
     state: &'a mut PlayerState,
@@ -62,7 +61,7 @@ pub(super) fn clash_parry(
     mut sounds: ResMut<Sounds>,
     mut particles: ResMut<Particles>,
     mut hitboxes: Query<(Entity, &Owner, &GlobalTransform, &Hitbox, &mut HitTracker)>,
-    mut owners: Query<(&mut HitboxSpawner, &mut Resources)>,
+    mut owners: Query<(&mut HitboxSpawner, &mut Properties)>,
     players: Res<Players>,
 ) {
     let mut iter = hitboxes.iter_combinations_mut();
@@ -93,7 +92,7 @@ pub(super) fn clash_parry(
             for (mut tracker, entity, owner) in
                 [(tracker1, entity1, owner1), (tracker2, entity2, owner2)]
             {
-                let (mut spawner, mut resources) = owners.get_mut(players.get(**owner)).unwrap();
+                let (mut spawner, mut properties) = owners.get_mut(players.get(**owner)).unwrap();
 
                 // Pay up
                 let is_projectile = spawner
@@ -101,7 +100,7 @@ pub(super) fn clash_parry(
                     .expect("to only check projectiles that have been spawned by this spawner");
 
                 if !is_projectile {
-                    resources.meter.gain(CLASH_PARRY_METER_GAIN);
+                    properties.meter.gain(CLASH_PARRY_METER_GAIN);
                 }
 
                 // Despawn projectiles and consume hits
@@ -286,7 +285,10 @@ pub(super) fn apply_hits(
             HitType::Block => {
                 attacker.state.register_hit(); // TODO: Specify it was blocked
                 defender.defense.bump_streak(clock.frame);
-                defender.resources.meter.gain(defender.defense.get_reward());
+                defender
+                    .properties
+                    .meter
+                    .gain(defender.defense.get_reward());
 
                 (
                     hit.attack.self_on_block,
@@ -297,7 +299,7 @@ pub(super) fn apply_hits(
             }
             HitType::Parry => (
                 vec![],
-                vec![Action::GainMeter(GI_PARRY_METER_GAIN)],
+                vec![Action::ModifyMeter(GI_PARRY_METER_GAIN)],
                 SoundEffect::Clash,
                 VisualEffect::Clash,
             ),
@@ -306,7 +308,9 @@ pub(super) fn apply_hits(
         if hit.is_opener {
             sounds.play(SoundEffect::Whoosh); // TODO change sound effect
             attacker_actions = handle_opener(attacker_actions, attacker.status_effect);
-            attacker_actions.push(Action::GainMeter(attacker.status_effect.opener_meter_gain));
+            attacker_actions.push(Action::ModifyMeter(
+                attacker.status_effect.opener_meter_gain,
+            ));
             defender_actions = handle_opener(defender_actions, attacker.status_effect);
         }
 
@@ -348,8 +352,8 @@ fn handle_opener(actions: Vec<Action>, status_effect: &Stats) -> Vec<Action> {
     actions
         .into_iter()
         .map(|action| match action {
-            Action::TakeDamage(amount) => Action::TakeDamage(
-                (amount as f32 * status_effect.opener_damage_multiplier) as usize,
+            Action::ModifyHealth(amount) => Action::ModifyHealth(
+                (amount as f32 * status_effect.opener_damage_multiplier) as i32,
             ),
             Action::HitStun(amount) => {
                 Action::HitStun((amount as i32 + status_effect.opener_stun_frames) as usize)

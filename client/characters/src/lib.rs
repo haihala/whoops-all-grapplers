@@ -1,9 +1,7 @@
-mod characters; // Where character specifics live
-mod items; // Defines things for items
+mod characters;
+mod items;
 mod moves;
-mod resources; // Defines things for moves
-
-use resources::Cost;
+mod properties;
 
 pub use self::characters::{dummy, Character};
 pub use items::{Inventory, Item, ItemCategory};
@@ -11,4 +9,4 @@ pub use moves::{
     Action, Attack, AttackHeight, BlockType, HitTracker, Hitbox, Hurtbox, Lifetime, Move,
     MoveHistory, Movement, Situation, ToHit,
 };
-pub use resources::Resources;
+pub use properties::{ChargeProperty, Properties, Property, SpecialProperty};

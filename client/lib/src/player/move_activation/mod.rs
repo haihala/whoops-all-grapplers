@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use characters::{Action, Character, Inventory, Move, MoveHistory, Resources, Situation};
+use characters::{Action, Character, Inventory, Move, MoveHistory, Properties, Situation};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{Clock, MoveId, Player};
@@ -101,12 +101,12 @@ pub(super) fn raw_or_link(
         &Character,
         &PlayerState,
         &Inventory,
-        &Resources,
+        &Properties,
         &InputParser,
     )>,
 ) {
     // Set activating move if one in the buffer can start raw or be linked into
-    for (mut buffer, character, state, inventory, resources, parser) in &mut query {
+    for (mut buffer, character, state, inventory, properties, parser) in &mut query {
         if let Some(freedom_frame) = state.free_since {
             // Character has recently been freed
 
@@ -117,7 +117,7 @@ pub(super) fn raw_or_link(
                         inventory,
                         history: state.get_move_history().map(|history| history.to_owned()),
                         grounded: state.is_grounded(),
-                        resources,
+                        properties,
                         parser,
                         current_frame: clock.frame,
                         conditions: state.get_conditions(),
@@ -145,12 +145,12 @@ pub(super) fn special_cancel(
         &Character,
         &PlayerState,
         &Inventory,
-        &Resources,
+        &Properties,
         &InputParser,
     )>,
 ) {
     // Set activating move if one in the buffer can be cancelled into
-    for (mut buffer, character, state, inventory, resources, parser) in &mut query {
+    for (mut buffer, character, state, inventory, properties, parser) in &mut query {
         if state.free_since.is_none() {
             if let Some(history) = state.get_move_history() {
                 // Not free because a move is happening
@@ -162,7 +162,7 @@ pub(super) fn special_cancel(
                             inventory,
                             history: state.get_move_history().map(|history| history.to_owned()),
                             grounded: state.is_grounded(),
-                            resources,
+                            properties,
                             parser,
                             current_frame: clock.frame,
                             conditions: state.get_conditions(),
@@ -193,13 +193,13 @@ pub(super) fn move_activator(
     mut query: Query<(
         &mut MoveBuffer,
         &mut PlayerState,
-        &mut Resources,
+        &mut Properties,
         &Player,
         &Character,
     )>,
 ) {
     // Activate and clear activating move
-    for (mut buffer, mut state, mut resources, player, character) in &mut query {
+    for (mut buffer, mut state, mut properties, player, character) in &mut query {
         if let Some(activation) = buffer.activation.take() {
             let started = match activation.kind {
                 ActivationType::Link(link) => {
@@ -207,7 +207,7 @@ pub(super) fn move_activator(
                         notifications.add(*player, link.message());
 
                         if let Some(meter_gain) = link.meter_gain() {
-                            resources.meter.gain(meter_gain);
+                            properties.meter.gain(meter_gain);
                         }
                     }
 

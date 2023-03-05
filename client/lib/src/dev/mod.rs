@@ -1,13 +1,12 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-use characters::{Hitbox, Hurtbox, Inventory, Resources};
+use characters::{Hitbox, Hurtbox, Inventory};
 use player_state::PlayerState;
 use wag_core::{Clock, GameState, Player, SoundEffect, Stats};
 
 use crate::{
     assets::Sounds,
-    damage::Health,
     physics::{ConstantVelocity, PlayerVelocity, Pushbox},
     player::MoveBuffer,
 };
@@ -20,8 +19,6 @@ impl Plugin for DevPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(WorldInspectorPlugin)
             .register_type::<Player>()
-            .register_type::<Resources>()
-            .register_type::<Health>()
             .register_type::<PlayerState>()
             .register_type::<Clock>()
             .register_type::<PlayerVelocity>()

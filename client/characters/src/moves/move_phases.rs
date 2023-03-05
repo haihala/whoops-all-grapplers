@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use wag_core::{Animation, DummyAnimation, MoveId, SoundEffect, StatusCondition};
 
-use crate::{resources::Cost, Attack};
+use crate::Attack;
 
 use super::Situation;
 
@@ -32,12 +32,13 @@ pub enum Action {
     Move(MoveId),
     Attack(Attack),
     Movement(Movement),
-    Pay(Cost),
-    GainMeter(i32), // Fix these in resource rework
     Condition(StatusCondition),
     #[default]
     ForceStand,
-    TakeDamage(usize),
+    ModifyHealth(i32),
+    ModifyMeter(i32),
+    ModifyResource(usize, i32),
+    ClearResource(usize),
     SnapToOpponent,
     SideSwitch,
     HitStun(usize),

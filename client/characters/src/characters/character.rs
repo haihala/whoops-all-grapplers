@@ -1,9 +1,9 @@
 use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::prelude::*;
-use wag_core::{Animation, AnimationType, Area, ItemId, Model, MoveId, Stats, StickPosition};
+use wag_core::{Animation, AnimationType, Area, ItemId, Model, MoveId, Stats};
 
-use crate::{Item, Move};
+use crate::{Item, Move, Property};
 
 use super::jump;
 
@@ -16,12 +16,14 @@ pub struct Character {
     pub high_block_height: f32,
     pub standing_pushbox: Area,
     pub crouching_pushbox: Area,
-    pub charge_directions: Vec<StickPosition>,
     pub generic_animations: HashMap<AnimationType, Animation>,
     pub gravity: f32,
     pub base_stats: Stats,
+    pub special_properties: Vec<Property>,
 }
 impl Character {
+    // TODO: Consider making a builder for this
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
         model: Model,
         generic_animations: HashMap<AnimationType, Animation>,
@@ -29,6 +31,8 @@ impl Character {
         items: HashMap<ItemId, Item>,
         jump_height: f32,
         jump_duration: f32,
+        base_stats: Stats,
+        special_properties: Vec<Property>,
     ) -> Character {
         let (jumps, gravity) = Self::jumps(jump_height, jump_duration);
         moves.extend(jumps);
@@ -40,22 +44,11 @@ impl Character {
             items,
             low_block_height: 0.5,
             high_block_height: 1.2,
-            charge_directions: vec![
-                StickPosition::SE,
-                StickPosition::S,
-                StickPosition::SW,
-                StickPosition::W,
-            ],
             standing_pushbox: Area::from_center_size(Vec2::Y * 0.7, Vec2::new(0.4, 1.4)),
             crouching_pushbox: Area::from_center_size(Vec2::Y * 0.5, Vec2::new(0.4, 1.0)),
             gravity,
-            base_stats: Stats {
-                walk_speed: 3.0,
-                max_health: 250,
-                opener_damage_multiplier: 1.5,
-                opener_meter_gain: 50,
-                opener_stun_frames: 5,
-            },
+            special_properties,
+            base_stats,
         }
     }
 

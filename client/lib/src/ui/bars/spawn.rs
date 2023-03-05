@@ -10,7 +10,7 @@ use crate::{
     },
 };
 
-use super::{ChargeBar, HealthBar, MeterBar, ScoreText};
+use super::{HealthBar, MeterBar, ScoreText, SpecialResourceBar};
 
 const HEALTH_BAR_WIDTH: f32 = (100.0 - TIMER_WIDTH) / 2.0; // Relative to wrapper
 const HEALTH_BAR_HEIGHT: f32 = 50.0; // Relative to wrapper
@@ -74,11 +74,13 @@ pub fn spawn_meter_bars(parent: &mut ChildBuilder, colors: &Colors) {
 }
 
 pub fn spawn_charge_bars(parent: &mut ChildBuilder, colors: &Colors) {
+    // TODO: This will work for now but not when there are non-mirror matches
+    // Should take character into account in UI generation.
     resource_bars(
         parent,
         colors.charge_default.into(),
-        ChargeBar(Player::One),
-        ChargeBar(Player::Two),
+        SpecialResourceBar(Player::One, 0),
+        SpecialResourceBar(Player::Two, 0),
     );
 }
 

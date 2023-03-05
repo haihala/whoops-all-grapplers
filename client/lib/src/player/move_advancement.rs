@@ -13,7 +13,7 @@ pub(super) fn move_advancement(clock: Res<Clock>, mut query: Query<PlayerQuery>)
                 .get_move_history()
                 .map(|history| history.to_owned()),
             grounded: player.state.is_grounded(),
-            resources: &player.resources,
+            properties: &player.properties,
             parser: &player.input_parser,
             current_frame: clock.frame,
             conditions: &player.state.get_conditions().to_owned(), // There is probably a smarter way to do this, but I can't really be bothered to think of it at this moment

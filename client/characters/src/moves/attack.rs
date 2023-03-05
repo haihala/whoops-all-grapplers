@@ -64,7 +64,7 @@ pub enum StunType {
 
 #[derive(Debug, Clone, Copy, Reflect)]
 pub struct CommonAttackProps {
-    pub damage: usize,
+    pub damage: i32,
     pub knock_back: Vec2,
     pub push_back: Vec2,
     pub on_hit: StunType,
@@ -93,7 +93,7 @@ impl CommonAttackProps {
 
     pub fn target_on_hit(self) -> Vec<Action> {
         vec![
-            Action::TakeDamage(self.damage),
+            Action::ModifyHealth(-self.damage),
             self.get_stun(false),
             Movement::impulse(self.knock_back).into(),
         ]
@@ -101,7 +101,7 @@ impl CommonAttackProps {
 
     pub fn target_on_block(self) -> Vec<Action> {
         vec![
-            Action::TakeDamage(1), // Chip
+            Action::ModifyHealth(-1), // Chip
             self.get_stun(true),
             Movement::impulse(0.5 * self.knock_back).into(),
         ]

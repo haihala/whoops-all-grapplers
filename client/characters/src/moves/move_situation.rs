@@ -3,7 +3,7 @@ use std::vec;
 use input_parsing::InputParser;
 use wag_core::StatusCondition;
 
-use crate::{Action, Inventory, MoveHistory, Resources};
+use crate::{Action, Inventory, MoveHistory, Properties};
 
 use super::{CancelPolicy, FlowControl};
 
@@ -12,7 +12,7 @@ pub struct Situation<'a> {
     pub inventory: &'a Inventory,
     pub history: Option<MoveHistory>,
     pub grounded: bool,
-    pub resources: &'a Resources,
+    pub properties: &'a Properties,
     pub parser: &'a InputParser,
     pub conditions: &'a Vec<StatusCondition>,
     pub current_frame: usize,
@@ -126,7 +126,7 @@ mod test {
         inventory: Inventory,
         history: Option<MoveHistory>,
         grounded: bool,
-        resources: Resources,
+        properties: Properties,
         parser: InputParser,
         conditions: Vec<StatusCondition>,
         current_frame: usize,
@@ -138,7 +138,7 @@ mod test {
                 history: Default::default(),
                 grounded: true,
                 conditions: vec![],
-                resources: Default::default(),
+                properties: Properties::testing_default(),
                 parser: Default::default(),
                 current_frame: 1, // So that history can start at 0 and all initial actions are drained
             }
@@ -167,7 +167,7 @@ mod test {
                 inventory: &self.inventory,
                 history: self.history.clone(),
                 grounded: self.grounded,
-                resources: &self.resources,
+                properties: &self.properties,
                 parser: &self.parser,
                 current_frame: self.current_frame,
                 conditions: &self.conditions,

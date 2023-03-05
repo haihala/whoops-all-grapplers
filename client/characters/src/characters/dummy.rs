@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use wag_core::{
     Animation, AnimationType, Area, DummyAnimation, ItemId, Joint, Model, MoveId, Stats,
-    StatusCondition, StatusFlag,
+    StatusCondition, StatusFlag, FPS,
 };
 
 use crate::{
@@ -15,14 +15,14 @@ use crate::{
     },
     AttackHeight::*,
     BlockType::*,
-    Cost, Hitbox, Item,
+    ChargeProperty, Hitbox, Item,
     ItemCategory::*,
-    Lifetime, Move, ToHit,
+    Lifetime, Move, Property, SpecialProperty, ToHit,
 };
 
 use super::{
     dash,
-    equipment::{get_gunshot, get_handmedownken, get_high_gi_parry, get_shot},
+    equipment::{get_handmedownken, get_high_gi_parry},
     Character,
 };
 
@@ -34,6 +34,18 @@ pub fn dummy() -> Character {
         dummy_items(),
         2.0,
         1.0,
+        Stats {
+            walk_speed: 3.0,
+            max_health: 250,
+            opener_damage_multiplier: 1.5,
+            opener_meter_gain: 50,
+            opener_stun_frames: 5,
+        },
+        vec![Property {
+            max: FPS as i32, // Frames to full,
+            special: Some(SpecialProperty::Charge(ChargeProperty::default())),
+            ..default()
+        }],
     )
 }
 
@@ -72,8 +84,6 @@ fn dummy_moves() -> HashMap<MoveId, Move> {
 fn items() -> impl Iterator<Item = (MoveId, Move)> {
     vec![
         (MoveId::HandMeDownKen, get_handmedownken()),
-        (MoveId::Gunshot, get_gunshot()),
-        (MoveId::Shoot, get_shot()),
         (MoveId::HighGiParry, get_high_gi_parry()),
     ]
     .into_iter()
@@ -518,10 +528,11 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 input: Some("[41]6f"),
                 move_type: Special,
                 requirement: |situation: Situation| {
-                    situation.resources.can_afford(Cost::charge()) && grounded(situation)
+                    // Charge check
+                    situation.properties.special_properties[0].is_full() && grounded(situation)
                 },
                 phases: vec![
-                    vec![ForceStand, Pay(Cost::charge())].into(),
+                    vec![ForceStand, ModifyResource(0, -10000)].into(),
                     Wait(10, Never),
                     Attack::new(
                         ToHit {
@@ -576,9 +587,9 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
             Move {
                 input: Some("236s"),
                 move_type: Special,
-                requirement: |situation: Situation| situation.resources.can_afford(Cost::meter(30)),
+                requirement: |situation: Situation| situation.properties.meter.current >= 30,
                 phases: vec![
-                    vec![ForceStand, Pay(Cost::meter(30))].into(),
+                    vec![ForceStand, ModifyMeter(-30)].into(),
                     Wait(30, Never),
                     Attack::new(
                         ToHit {
@@ -629,14 +640,6 @@ fn dummy_items() -> HashMap<ItemId, Item> {
             Item {
                 cost: 100,
                 explanation: "Lesgo justin".into(),
-                ..default()
-            },
-        ),
-        (
-            ItemId::Gun,
-            Item {
-                cost: 100,
-                explanation: "Goes pew pew".into(),
                 ..default()
             },
         ),

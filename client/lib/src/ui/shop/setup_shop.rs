@@ -5,7 +5,7 @@ use wag_core::{GameState, ItemId, OnlyShowInGameState, Owner, Player, Players, I
 
 use crate::assets::{Colors, Fonts};
 
-use super::shop_usage::{ShopNavigation, ShopSlotState};
+use super::shop_inputs::{ShopNavigation, ShopSlotState};
 use super::shops_resource::{Shop, ShopComponents, ShopComponentsBuilder, Shops};
 
 #[derive(Debug, Component, Deref)]
@@ -72,10 +72,12 @@ pub fn setup_shop(
         player_one: Shop {
             components: player_one.unwrap(),
             navigation: ShopNavigation::default(),
+            closed: false,
         },
         player_two: Shop {
             components: player_two.unwrap(),
             navigation: ShopNavigation::default(),
+            closed: false,
         },
     });
 }
@@ -115,9 +117,56 @@ fn setup_shop_root(
             character,
             owner,
         );
+        setup_countdown_number(shop_root, &mut shop_root_builder, colors, fonts);
     });
 
     shop_root_builder.build()
+}
+
+fn setup_countdown_number(
+    root: &mut ChildBuilder,
+    shop_root: &mut ShopComponentsBuilder,
+    colors: &Colors,
+    fonts: &Fonts,
+) {
+    shop_root.countdown = Some(
+        root.spawn((
+            NodeBundle {
+                background_color: colors.shop_timer_background.into(),
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    size: Size {
+                        width: Val::Percent(100.0),
+                        height: Val::Percent(100.0),
+                    },
+                    ..default()
+                },
+                visibility: Visibility::INVISIBLE,
+                ..default()
+            },
+            Name::new("Countdown"),
+        ))
+        .with_children(|child_builder| {
+            shop_root.countdown_text = Some(
+                child_builder
+                    .spawn(TextBundle {
+                        text: Text::from_section(
+                            "10",
+                            TextStyle {
+                                color: colors.text.into(),
+                                font: fonts.basic.clone(),
+                                font_size: 256.0,
+                            },
+                        ),
+                        ..default()
+                    })
+                    .id(),
+            );
+        })
+        .id(),
+    );
 }
 
 fn setup_info_panel(

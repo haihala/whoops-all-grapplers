@@ -48,7 +48,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
-            .add_system(setup_combat.with_run_criteria(State::on_enter(GameState::Combat)))
+            .add_system(setup_combat.with_run_criteria(State::on_enter(GameState::PreRound)))
             .add_system(condition_management::update_combined_status_effect) // This is here so it's up to date when the game starts
             .add_system_set(
                 SystemSet::new()

@@ -13,6 +13,7 @@ pub enum MoveId {
     Primary,
     Secondary,
     Cancel,
+    Start,
 
     // Universal
     DashForward,

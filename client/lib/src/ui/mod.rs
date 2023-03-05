@@ -45,7 +45,8 @@ impl Plugin for UIPlugin {
                 .with_system(shop::navigate_shop)
                 .with_system(shop::update_slot_visuals.after(shop::navigate_shop))
                 .with_system(shop::update_info_panel.after(shop::navigate_shop))
-                .with_system(shop::update_inventory_ui.after(shop::navigate_shop)),
+                .with_system(shop::update_inventory_ui.after(shop::navigate_shop))
+                .with_system(shop::handle_shop_ending.after(shop::navigate_shop)),
         )
         .add_startup_system_set_to_stage(
             StartupStage::PostStartup,

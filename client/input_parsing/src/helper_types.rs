@@ -102,6 +102,8 @@ impl From<char> for InputEvent {
                 'W' => InputEvent::Release(GameButton::Wrestling),
                 'g' => InputEvent::Press(GameButton::Gimmick),
                 'G' => InputEvent::Release(GameButton::Gimmick),
+                // There is no need for negative edge on start, this whole thing is mighty sus so let's not get caught up on that shall we
+                '.' => InputEvent::Press(GameButton::Start),
                 _ => panic!("Invalid character {ch}"),
             }
         }

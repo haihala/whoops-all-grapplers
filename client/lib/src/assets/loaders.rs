@@ -30,6 +30,7 @@ pub fn colors(mut commands: Commands) {
         default_item_slot: Color::GRAY,
         highlighted_item_slot: Color::rgb_u8(195, 24, 24), // WWE Raw red
         disabled_item_slot: Color::BISQUE,
+        shop_timer_background: Color::rgba(0.0, 0.0, 0.0, 0.8),
     })
 }
 

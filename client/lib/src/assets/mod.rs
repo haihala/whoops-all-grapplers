@@ -26,6 +26,7 @@ pub struct Colors {
     pub default_item_slot: Color,
     pub highlighted_item_slot: Color,
     pub disabled_item_slot: Color,
+    pub shop_timer_background: Color,
 }
 
 #[derive(Debug, Resource)]

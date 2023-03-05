@@ -186,6 +186,8 @@ fn button_change(
     };
 
     match button {
+        GamepadButtonType::Start => handle_gamebutton(reader, GameButton::Start),
+
         GamepadButtonType::South => handle_gamebutton(reader, GameButton::Fast),
         GamepadButtonType::East => handle_gamebutton(reader, GameButton::Strong),
         GamepadButtonType::North => handle_gamebutton(reader, GameButton::Wrestling),

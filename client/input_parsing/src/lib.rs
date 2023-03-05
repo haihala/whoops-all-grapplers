@@ -76,6 +76,7 @@ fn generic_inputs() -> impl Iterator<Item = (MoveId, &'static str)> {
         (MoveId::Primary, "f"),
         (MoveId::Secondary, "g"),
         (MoveId::Cancel, "s"),
+        (MoveId::Start, "."), // It was at this point when I realized this shit was stupid for the UI thingies.
     ]
     .into_iter()
 }

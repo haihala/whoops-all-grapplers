@@ -1,6 +1,5 @@
 # Backlog
 ## Before playtest
-- [[Match flow]]
 - [[Resource rework]]
 - [[Stackable items]]
 - [[Items for playtest]]

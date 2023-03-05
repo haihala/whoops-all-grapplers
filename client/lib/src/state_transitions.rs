@@ -20,9 +20,17 @@ impl Plugin for StateTransitionPlugin {
 }
 
 #[derive(Debug, Resource)]
-struct TransitionTimer {
+pub struct TransitionTimer {
     timer: Timer,
     exit_game: bool,
+}
+impl From<Timer> for TransitionTimer {
+    fn from(timer: Timer) -> Self {
+        Self {
+            timer,
+            exit_game: false,
+        }
+    }
 }
 
 pub fn end_combat(
@@ -125,9 +133,9 @@ fn end_loading(
 ) {
     if parsers.iter().all(|parser| parser.is_ready()) {
         game_state.set(GameState::PreRound).unwrap();
-        commands.insert_resource(TransitionTimer {
-            timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),
-            exit_game: false,
-        })
+        commands.insert_resource(TransitionTimer::from(Timer::from_seconds(
+            PRE_ROUND_DURATION,
+            TimerMode::Once,
+        )))
     }
 }

@@ -7,6 +7,7 @@ pub const ROUNDS_TO_WIN: usize = 5;
 pub const PRE_ROUND_DURATION: f32 = 2.0;
 pub const COMBAT_DURATION: f32 = 99.0;
 pub const POST_ROUND_DURATION: f32 = 4.0;
+pub const POST_SHOP_DURATION: f32 = 11.0;
 
 /// The component for measuring time in frames
 #[derive(Reflect, Default, Resource)]

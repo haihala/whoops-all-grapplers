@@ -11,6 +11,8 @@ pub enum GameButton {
     #[default]
     Default, // To satisfy Inspectable
 
+    Start,
+
     Fast,
     Strong,
     Wrestling,

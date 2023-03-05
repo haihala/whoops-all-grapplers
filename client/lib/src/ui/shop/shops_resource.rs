@@ -1,10 +1,14 @@
 use bevy::prelude::*;
 use wag_core::Player;
 
-use super::shop_usage::{ShopCategory, ShopNavigation};
+use super::shop_inputs::{ShopCategory, ShopNavigation};
 
 #[derive(Default)]
 pub struct ShopComponentsBuilder {
+    // Countdown
+    pub countdown: Option<Entity>,
+    pub countdown_text: Option<Entity>,
+
     // Top
     pub big_icon: Option<Entity>,
     pub item_name: Option<Entity>,
@@ -27,9 +31,11 @@ impl ShopComponentsBuilder {
         assert!(!self.owned_slots.is_empty());
         assert!(!self.consumables.is_empty());
         assert!(!self.basics.is_empty());
-        // assert!(self.upgrades.len() > 1);
+        assert!(!self.upgrades.is_empty());
 
         ShopComponents {
+            countdown: self.countdown.expect("fully built UI"),
+            countdown_text: self.countdown_text.expect("fully built UI"),
             big_icon: self.big_icon.expect("fully built UI"),
             item_name: self.item_name.expect("fully built UI"),
             explanation: self.explanation.expect("fully built UI"),
@@ -46,6 +52,10 @@ impl ShopComponentsBuilder {
 
 #[derive(Debug)]
 pub struct ShopComponents {
+    // Countdown
+    pub countdown: Entity,
+    pub countdown_text: Entity,
+
     // Top
     pub big_icon: Entity,
     pub item_name: Entity,
@@ -67,6 +77,7 @@ pub struct ShopComponents {
 pub struct Shop {
     pub components: ShopComponents,
     pub navigation: ShopNavigation,
+    pub closed: bool,
 }
 impl Shop {
     pub fn get_selected_slot(&self) -> Entity {

@@ -1,5 +1,4 @@
 # Todo
-- Take character into account when creating UI
 - Render meter as quadrants
 	- Color changes
 	- Divider lines

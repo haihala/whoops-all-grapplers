@@ -14,11 +14,13 @@ impl Properties {
             health: Property {
                 max: stats.max_health,
                 current: stats.max_health,
+                render_instructions: BarRenderInstructions::default_health(),
                 ..default()
             },
             meter: Property {
                 // TODO: Add more stats attributes here
                 max: 100,
+                render_instructions: BarRenderInstructions::default_meter(),
                 ..default()
             },
             special_properties: vec![],
@@ -40,6 +42,7 @@ pub struct Property {
     pub max: i32,
     pub min: i32,
     pub current: i32,
+    pub render_instructions: BarRenderInstructions,
     pub special: Option<SpecialProperty>,
 }
 impl Property {
@@ -71,6 +74,43 @@ impl Property {
 
     pub fn clear(&mut self) {
         self.current = self.min;
+    }
+}
+
+#[derive(Debug, Clone, Component)]
+pub struct BarRenderInstructions {
+    pub height: f32,
+    pub default_color: Color,
+    pub full_color: Option<Color>,
+    pub segments: Option<i32>, // TODO: This does nothing for now
+}
+
+impl Default for BarRenderInstructions {
+    fn default() -> Self {
+        Self {
+            height: 4.0,
+            default_color: Default::default(),
+            full_color: Default::default(),
+            segments: Default::default(),
+        }
+    }
+}
+impl BarRenderInstructions {
+    pub fn default_health() -> Self {
+        Self {
+            height: 50.0,
+            default_color: Color::rgb(0.9, 0.0, 0.0),
+            ..default()
+        }
+    }
+
+    pub fn default_meter() -> Self {
+        Self {
+            default_color: Color::rgb(0.04, 0.5, 0.55),
+            full_color: Some(Color::rgb(0.14, 0.7, 0.8)),
+            segments: Some(25),
+            ..default()
+        }
     }
 }
 

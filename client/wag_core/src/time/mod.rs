@@ -31,9 +31,6 @@ impl Clock {
         self.start_time = time as f32;
     }
 }
-/// The component for the round timer
-#[derive(Debug, Component)]
-pub struct RoundTimer;
 
 #[derive(Debug, StageLabel, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum WAGStage {

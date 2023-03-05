@@ -9,4 +9,6 @@ pub use moves::{
     Action, Attack, AttackHeight, BlockType, HitTracker, Hitbox, Hurtbox, Lifetime, Move,
     MoveHistory, Movement, Situation, ToHit,
 };
-pub use properties::{ChargeProperty, Properties, Property, SpecialProperty};
+pub use properties::{
+    BarRenderInstructions, ChargeProperty, Properties, Property, SpecialProperty,
+};

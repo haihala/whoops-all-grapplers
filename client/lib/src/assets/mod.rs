@@ -15,10 +15,6 @@ pub use sounds::Sounds;
 pub struct Colors {
     pub notification_text: Color,
     pub notification_background: Color,
-    pub health: Color,
-    pub meter: Color,
-    pub charge_default: Color,
-    pub charge_full: Color,
     pub hitbox: Color,
     pub hurtbox: Color,
     pub pushbox: Color,

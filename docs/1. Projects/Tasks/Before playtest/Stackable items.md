@@ -1,1 +1,0 @@
-Some items should stack on top of themselves.

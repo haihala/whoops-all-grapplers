@@ -14,6 +14,7 @@ use crate::{
         StunType::*,
     },
     AttackHeight::*,
+    BarRenderInstructions,
     BlockType::*,
     ChargeProperty, Hitbox, Item,
     ItemCategory::*,
@@ -44,6 +45,11 @@ pub fn dummy() -> Character {
         vec![Property {
             max: FPS as i32, // Frames to full,
             special: Some(SpecialProperty::Charge(ChargeProperty::default())),
+            render_instructions: BarRenderInstructions {
+                default_color: Color::rgb(0.05, 0.4, 0.55),
+                full_color: Some(Color::rgb(0.9, 0.1, 0.3)),
+                ..default()
+            },
             ..default()
         }],
     )

@@ -1,7 +1,7 @@
 # Backlog
 ## Before playtest
 - [[Resource rework]]
-- [[Stackable items]]
+- [[Extending items]]
 - [[Items for playtest]]
 - [[Character 2]]
 - [[Basic stage]]

@@ -1,20 +1,10 @@
 use bevy::prelude::*;
-use wag_core::{Clock, GameState, OnlyShowInGameState, RoundLog, RoundTimer, COMBAT_DURATION};
+use wag_core::{GameState, OnlyShowInGameState, RoundLog};
 
 use crate::assets::{Colors, Fonts};
 
-mod timer;
-pub use timer::{spawn_timer, TIMER_WIDTH};
-
-use super::utils::{div, div_style, FULL};
-
 #[derive(Component)]
 pub struct RoundText;
-
-pub fn update_timer(mut query: Query<&mut Text, With<RoundTimer>>, clock: Res<Clock>) {
-    query.single_mut().sections[0].value =
-        (COMBAT_DURATION - clock.elapsed_time).floor().to_string();
-}
 
 pub fn update_round_text(
     mut query: Query<(&mut Visibility, &mut Text), With<RoundText>>,
@@ -40,7 +30,7 @@ pub fn update_round_text(
     }
 }
 
-pub(super) fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fonts: &Fonts) {
+pub fn setup_round_info_text(mut commands: Commands, colors: Res<Colors>, fonts: Res<Fonts>) {
     commands
         .spawn((
             NodeBundle {
@@ -48,15 +38,15 @@ pub(super) fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fo
                     position_type: PositionType::Absolute,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
-                    size: Size::new(FULL, Val::Percent(10.0)),
+                    size: Size::new(Val::Percent(100.0), Val::Percent(10.0)),
                     position: UiRect {
                         top: Val::Percent(40.0),
                         left: Val::Px(0.0),
                         ..default()
                     },
-                    ..div_style()
+                    ..default()
                 },
-                ..div()
+                ..default()
             },
             Name::new("Round info text"),
             OnlyShowInGameState(vec![
@@ -76,6 +66,7 @@ pub(super) fn setup_round_info_text(commands: &mut Commands, colors: &Colors, fo
                             color: colors.text,
                         },
                     )
+                    // TODO: Check if this alignment is necessary
                     .with_alignment(TextAlignment {
                         horizontal: HorizontalAlign::Center,
                         ..default()

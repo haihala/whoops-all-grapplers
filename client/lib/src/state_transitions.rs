@@ -1,6 +1,6 @@
 use bevy::{app::AppExit, prelude::*};
 
-use characters::{Inventory, Properties};
+use characters::{Inventory, Properties, PropertyType};
 use input_parsing::InputParser;
 use wag_core::{
     Clock, GameState, Player, RoundLog, RoundResult, POST_ROUND_DURATION, PRE_ROUND_DURATION,
@@ -44,7 +44,7 @@ pub fn end_combat(
     let round_over = players
         .iter()
         .filter_map(|(properties, player, _)| {
-            if properties.health.is_empty() {
+            if properties.get(&PropertyType::Health).unwrap().is_empty() {
                 None
             } else {
                 Some(player)
@@ -57,10 +57,12 @@ pub fn end_combat(
     if round_over {
         let mut ordered_healths = (&mut players).into_iter().collect::<Vec<_>>();
 
+        // TODO: There has to be a cleaner way
         ordered_healths.sort_by(|(a, _, _), (b, _, _)| {
-            a.health
+            a.get(&PropertyType::Health)
+                .unwrap()
                 .get_percentage()
-                .partial_cmp(&b.health.get_percentage())
+                .partial_cmp(&b.get(&PropertyType::Health).unwrap().get_percentage())
                 .unwrap()
                 .reverse()
         });
@@ -77,7 +79,14 @@ pub fn end_combat(
         winner_inventory.money += ROUND_MONEY;
         loser_inventory.money += ROUND_MONEY;
 
-        let result = if winner_props.health.get_percentage() == loser_props.health.get_percentage()
+        let result = if winner_props
+            .get(&PropertyType::Health)
+            .unwrap()
+            .get_percentage()
+            == loser_props
+                .get(&PropertyType::Health)
+                .unwrap()
+                .get_percentage()
         {
             // Tie
             RoundResult { winner: None }

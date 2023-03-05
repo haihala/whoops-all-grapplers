@@ -1,39 +1,62 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{GameButton, Stats, StickPosition};
 
-#[derive(Debug, Component)]
-pub struct Properties {
-    pub health: Property,
-    pub meter: Property,
-    pub special_properties: Vec<Property>,
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Reflect, FromReflect)]
+pub enum PropertyType {
+    Health,
+    Meter,
+    Charge,
 }
+
+#[derive(Debug, Component, Deref, DerefMut)]
+pub struct Properties(HashMap<PropertyType, Property>);
+
 impl Properties {
-    pub fn from_stats(stats: &Stats) -> Self {
-        Self {
-            health: Property {
-                max: stats.max_health,
-                current: stats.max_health,
-                render_instructions: BarRenderInstructions::default_health(),
-                ..default()
-            },
-            meter: Property {
-                // TODO: Add more stats attributes here
-                max: 100,
-                render_instructions: BarRenderInstructions::default_meter(),
-                ..default()
-            },
-            special_properties: vec![],
+    pub fn from_stats(stats: &Stats, additional_properties: Vec<(PropertyType, Property)>) -> Self {
+        Properties(
+            vec![
+                (
+                    PropertyType::Health,
+                    Property {
+                        max: stats.max_health,
+                        current: stats.max_health,
+                        render_instructions: BarRenderInstructions::default_health(),
+                        ..default()
+                    },
+                ),
+                (
+                    PropertyType::Meter,
+                    Property {
+                        // TODO: Add more stats attributes here and in reset
+                        max: 100,
+                        render_instructions: BarRenderInstructions::default_meter(),
+                        ..default()
+                    },
+                ),
+            ]
+            .into_iter()
+            .chain(additional_properties.into_iter())
+            .collect(),
+        )
+    }
+
+    pub fn reset(&mut self, stats: &Stats) {
+        for (prop_type, prop) in self.iter_mut() {
+            match prop_type {
+                PropertyType::Health => {
+                    prop.max = stats.max_health;
+                    prop.current = stats.max_health;
+                }
+                _ => {
+                    prop.current = prop.min;
+                }
+            }
         }
     }
 
-    pub fn with_specials(mut self, specials: Vec<Property>) -> Self {
-        self.special_properties = specials;
-        self
-    }
-
     pub fn testing_default() -> Self {
-        Self::from_stats(&Stats::testing_default())
+        Self::from_stats(&Stats::testing_default(), vec![])
     }
 }
 

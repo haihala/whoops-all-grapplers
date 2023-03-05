@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{Action, Movement, ToHit};
+use crate::{Action, Movement, PropertyType, ToHit};
 
 #[derive(Debug, Clone, PartialEq, Component, Reflect, FromReflect)]
 pub struct Attack {
@@ -93,7 +93,7 @@ impl CommonAttackProps {
 
     pub fn target_on_hit(self) -> Vec<Action> {
         vec![
-            Action::ModifyHealth(-self.damage),
+            Action::ModifyProperty(PropertyType::Health, -self.damage),
             self.get_stun(false),
             Movement::impulse(self.knock_back).into(),
         ]
@@ -101,7 +101,7 @@ impl CommonAttackProps {
 
     pub fn target_on_block(self) -> Vec<Action> {
         vec![
-            Action::ModifyHealth(-1), // Chip
+            Action::ModifyProperty(PropertyType::Health, -1), // Chip
             self.get_stun(true),
             Movement::impulse(0.5 * self.knock_back).into(),
         ]

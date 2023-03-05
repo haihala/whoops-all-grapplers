@@ -1,15 +1,12 @@
 use bevy::prelude::*;
-use characters::{BarRenderInstructions, Properties, Property};
+use characters::{BarRenderInstructions, Properties, PropertyType};
 use wag_core::{Player, RoundLog};
 
 #[derive(Debug, Component, Deref)]
-pub struct HealthBar(pub Player);
-#[derive(Debug, Component, Deref)]
 pub struct ScoreText(pub Player); // TODO: Move this
-#[derive(Debug, Component, Deref)]
-pub struct MeterBar(pub Player);
+
 #[derive(Debug, Component)]
-pub struct SpecialResourceBar(pub Player, pub usize);
+pub struct PropertyBar(pub Player, pub PropertyType);
 
 pub fn setup_bar(
     root: &mut ChildBuilder,
@@ -43,19 +40,7 @@ pub fn update_bars(
             &mut Style,
             &mut BackgroundColor,
             &BarRenderInstructions,
-            &HealthBar,
-        )>,
-        Query<(
-            &mut Style,
-            &mut BackgroundColor,
-            &BarRenderInstructions,
-            &MeterBar,
-        )>,
-        Query<(
-            &mut Style,
-            &mut BackgroundColor,
-            &BarRenderInstructions,
-            &SpecialResourceBar,
+            &PropertyBar,
         )>,
         Query<(&mut Text, &ScoreText)>,
     )>,
@@ -63,42 +48,33 @@ pub fn update_bars(
     round_log: Res<RoundLog>,
 ) {
     for (player, properties) in &players {
-        update_bar(&mut bars.p0(), |bar| bar.0 == *player, &properties.health);
-        update_bar(&mut bars.p1(), |bar| bar.0 == *player, &properties.meter);
+        for (key, property) in properties.iter() {
+            for (mut style, mut color, render_instructions, bar) in &mut bars.p0() {
+                if bar.0 != *player || bar.1 != *key {
+                    continue;
+                }
 
-        for property in &properties.special_properties {
-            update_bar(&mut bars.p2(), |bar| bar.0 == *player, property);
+                style.size.width = Val::Percent(property.get_percentage());
+
+                *color = if property.is_full() {
+                    if let Some(full_color) = render_instructions.full_color {
+                        full_color
+                    } else {
+                        render_instructions.default_color
+                    }
+                } else {
+                    render_instructions.default_color
+                }
+                .into();
+            }
         }
 
-        for (mut text, score_text) in &mut bars.p3() {
+        for (mut text, score_text) in &mut bars.p1() {
             // TODO This could be moved elsewhere, but that is true for the others as well
             // Don't want to optimize prematurely
             if *player == **score_text {
                 text.sections[0].value = round_log.wins(*player).to_string();
             }
-        }
-    }
-}
-
-fn update_bar<T: Component>(
-    query: &mut Query<(&mut Style, &mut BackgroundColor, &BarRenderInstructions, &T)>,
-    matching_player: impl Fn(&T) -> bool,
-    value: &Property,
-) {
-    for (mut style, mut color, render_instructions, bar) in query {
-        if matching_player(bar) {
-            style.size.width = Val::Percent(value.get_percentage());
-
-            *color = if value.is_full() {
-                if let Some(full_color) = render_instructions.full_color {
-                    full_color
-                } else {
-                    render_instructions.default_color
-                }
-            } else {
-                render_instructions.default_color
-            }
-            .into();
         }
     }
 }

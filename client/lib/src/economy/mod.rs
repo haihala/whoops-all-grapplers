@@ -13,27 +13,17 @@ impl Plugin for EconomyPlugin {
 fn modify_properties(mut query: Query<(&mut PlayerState, &mut Properties)>) {
     for (mut state, mut properties) in &mut query {
         for prop in state.drain_matching_actions(|action| match action {
-            Action::ModifyResource(resource_index, amount) => {
-                Some(Action::ModifyResource(*resource_index, *amount))
-            }
-            Action::ClearResource(resource_index) => Some(Action::ClearResource(*resource_index)),
-            Action::ModifyMeter(amount) => Some(Action::ModifyMeter(*amount)),
-            Action::ModifyHealth(amount) => Some(Action::ModifyHealth(*amount)),
+            Action::ModifyProperty(prop, amount) => Some(Action::ModifyProperty(*prop, *amount)),
+            Action::ClearProperty(prop) => Some(Action::ClearProperty(*prop)),
             _ => None,
         }) {
             // Moved outside to avoid double borrow
             match prop {
-                Action::ModifyResource(resource_index, amount) => {
-                    properties.special_properties[resource_index].change(amount);
+                Action::ModifyProperty(prop, amount) => {
+                    properties.get_mut(&prop).unwrap().change(amount);
                 }
-                Action::ClearResource(resource_index) => {
-                    properties.special_properties[resource_index].clear();
-                }
-                Action::ModifyMeter(amount) => {
-                    properties.meter.change(amount);
-                }
-                Action::ModifyHealth(amount) => {
-                    properties.health.change(amount);
+                Action::ClearProperty(prop) => {
+                    properties.get_mut(&prop).unwrap().clear();
                 }
                 _ => panic!("Filter failed"),
             }

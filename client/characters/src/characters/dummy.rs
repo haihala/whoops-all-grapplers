@@ -13,6 +13,7 @@ use crate::{
         CommonAttackProps, FlowControl::*, MoveType::*, Movement, Projectile, Situation,
         StunType::*,
     },
+    properties::PropertyType,
     AttackHeight::*,
     BarRenderInstructions,
     BlockType::*,
@@ -42,16 +43,19 @@ pub fn dummy() -> Character {
             opener_meter_gain: 50,
             opener_stun_frames: 5,
         },
-        vec![Property {
-            max: FPS as i32, // Frames to full,
-            special: Some(SpecialProperty::Charge(ChargeProperty::default())),
-            render_instructions: BarRenderInstructions {
-                default_color: Color::rgb(0.05, 0.4, 0.55),
-                full_color: Some(Color::rgb(0.9, 0.1, 0.3)),
+        vec![(
+            PropertyType::Charge,
+            Property {
+                max: FPS as i32, // Frames to full,
+                special: Some(SpecialProperty::Charge(ChargeProperty::default())),
+                render_instructions: BarRenderInstructions {
+                    default_color: Color::rgb(0.05, 0.4, 0.55),
+                    full_color: Some(Color::rgb(0.9, 0.1, 0.3)),
+                    ..default()
+                },
                 ..default()
             },
-            ..default()
-        }],
+        )],
     )
 }
 
@@ -535,10 +539,15 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                 move_type: Special,
                 requirement: |situation: Situation| {
                     // Charge check
-                    situation.properties.special_properties[0].is_full() && grounded(situation)
+                    situation
+                        .properties
+                        .get(&PropertyType::Charge)
+                        .unwrap()
+                        .is_full()
+                        && grounded(situation)
                 },
                 phases: vec![
-                    vec![ForceStand, ModifyResource(0, -10000)].into(),
+                    vec![ForceStand, ClearProperty(PropertyType::Charge)].into(),
                     Wait(10, Never),
                     Attack::new(
                         ToHit {
@@ -593,9 +602,16 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
             Move {
                 input: Some("236s"),
                 move_type: Special,
-                requirement: |situation: Situation| situation.properties.meter.current >= 30,
+                requirement: |situation: Situation| {
+                    situation
+                        .properties
+                        .get(&PropertyType::Meter)
+                        .unwrap()
+                        .current
+                        >= 30
+                },
                 phases: vec![
-                    vec![ForceStand, ModifyMeter(-30)].into(),
+                    vec![ForceStand, ModifyProperty(PropertyType::Meter, -30)].into(),
                     Wait(30, Never),
                     Attack::new(
                         ToHit {

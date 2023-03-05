@@ -5,11 +5,11 @@ use wag_core::Clock;
 
 pub fn manage_charge(mut query: Query<(&mut Properties, &InputParser)>, clock: Res<Clock>) {
     for (mut properties, parser) in &mut query {
-        for property in &mut properties.special_properties {
+        for (_, prop) in &mut properties.iter_mut() {
             let mut clear = false;
             let mut gain = 0;
 
-            if let Some(SpecialProperty::Charge(ref mut charge_props)) = property.special {
+            if let Some(SpecialProperty::Charge(ref mut charge_props)) = prop.special {
                 let direction_held = !charge_props.directions.is_empty()
                     && charge_props
                         .directions
@@ -34,7 +34,7 @@ pub fn manage_charge(mut query: Query<(&mut Properties, &InputParser)>, clock: R
             // Moved here to avoid a double mutable borrow.
             // The elements being borrowed would be mutually exclusive but rust can't see it
             if gain > 0 {
-                property.gain(if property.is_empty() {
+                prop.gain(if prop.is_empty() {
                     // First frame of charge
                     // if this isn't hear, it will charge to full always after about a second in the round.
                     1
@@ -42,7 +42,7 @@ pub fn manage_charge(mut query: Query<(&mut Properties, &InputParser)>, clock: R
                     gain
                 });
             } else if clear {
-                property.clear();
+                prop.clear();
             }
         }
     }

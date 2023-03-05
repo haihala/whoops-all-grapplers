@@ -10,5 +10,5 @@ pub use moves::{
     MoveHistory, Movement, Situation, ToHit,
 };
 pub use properties::{
-    BarRenderInstructions, ChargeProperty, Properties, Property, SpecialProperty,
+    BarRenderInstructions, ChargeProperty, Properties, Property, PropertyType, SpecialProperty,
 };

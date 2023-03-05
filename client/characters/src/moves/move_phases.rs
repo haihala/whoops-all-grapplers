@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use wag_core::{Animation, DummyAnimation, MoveId, SoundEffect, StatusCondition};
 
-use crate::Attack;
+use crate::{Attack, PropertyType};
 
 use super::Situation;
 
@@ -35,10 +35,8 @@ pub enum Action {
     Condition(StatusCondition),
     #[default]
     ForceStand,
-    ModifyHealth(i32),
-    ModifyMeter(i32),
-    ModifyResource(usize, i32),
-    ClearResource(usize),
+    ModifyProperty(PropertyType, i32),
+    ClearProperty(PropertyType),
     SnapToOpponent,
     SideSwitch,
     HitStun(usize),

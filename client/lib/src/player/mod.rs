@@ -130,8 +130,7 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
                 transform: Transform::from_translation((offset, PLAYER_SPAWN_HEIGHT, 0.0).into()),
                 ..default()
             },
-            Properties::from_stats(&character.base_stats)
-                .with_specials(character.special_properties.clone()),
+            Properties::from_stats(&character.base_stats, character.special_properties.clone()),
             PlayerDefaults::default(),
             PadBundle::new(character.get_inputs()),
             Name::new(format!("Player {player}")),
@@ -182,8 +181,7 @@ fn setup_combat(
         mut velocity,
     ) in &mut query
     {
-        *properties = Properties::from_stats(status_effect)
-            .with_specials(properties.special_properties.clone()); // TODO: Figure out a way to make stats change special properties.
+        properties.reset(status_effect);
         player_state.reset();
         buffer.clear_all();
         parser.clear();

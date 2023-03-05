@@ -3,6 +3,7 @@ use strum::IntoEnumIterator;
 
 use characters::{
     Action, Attack, AttackHeight, BlockType, Character, HitTracker, Hitbox, Hurtbox, Properties,
+    PropertyType,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -100,7 +101,10 @@ pub(super) fn clash_parry(
                     .expect("to only check projectiles that have been spawned by this spawner");
 
                 if !is_projectile {
-                    properties.meter.gain(CLASH_PARRY_METER_GAIN);
+                    properties
+                        .get_mut(&PropertyType::Meter)
+                        .unwrap()
+                        .gain(CLASH_PARRY_METER_GAIN);
                 }
 
                 // Despawn projectiles and consume hits
@@ -287,7 +291,8 @@ pub(super) fn apply_hits(
                 defender.defense.bump_streak(clock.frame);
                 defender
                     .properties
-                    .meter
+                    .get_mut(&PropertyType::Meter)
+                    .unwrap()
                     .gain(defender.defense.get_reward());
 
                 (
@@ -299,7 +304,10 @@ pub(super) fn apply_hits(
             }
             HitType::Parry => (
                 vec![],
-                vec![Action::ModifyMeter(GI_PARRY_METER_GAIN)],
+                vec![Action::ModifyProperty(
+                    PropertyType::Meter,
+                    GI_PARRY_METER_GAIN,
+                )],
                 SoundEffect::Clash,
                 VisualEffect::Clash,
             ),
@@ -308,7 +316,8 @@ pub(super) fn apply_hits(
         if hit.is_opener {
             sounds.play(SoundEffect::Whoosh); // TODO change sound effect
             attacker_actions = handle_opener(attacker_actions, attacker.status_effect);
-            attacker_actions.push(Action::ModifyMeter(
+            attacker_actions.push(Action::ModifyProperty(
+                PropertyType::Meter,
                 attacker.status_effect.opener_meter_gain,
             ));
             defender_actions = handle_opener(defender_actions, attacker.status_effect);
@@ -352,7 +361,8 @@ fn handle_opener(actions: Vec<Action>, status_effect: &Stats) -> Vec<Action> {
     actions
         .into_iter()
         .map(|action| match action {
-            Action::ModifyHealth(amount) => Action::ModifyHealth(
+            Action::ModifyProperty(PropertyType::Health, amount) => Action::ModifyProperty(
+                PropertyType::Health,
                 (amount as f32 * status_effect.opener_damage_multiplier) as i32,
             ),
             Action::HitStun(amount) => {

@@ -9,21 +9,18 @@ pub use notifications::{update_notifications, Notifications};
 mod round_timer;
 pub use round_timer::update_timer;
 
-use characters::{BarRenderInstructions, Character};
+use characters::{BarRenderInstructions, Properties, PropertyType};
 use wag_core::{GameState, OnlyShowInGameState, Player, Players};
 
-use crate::{
-    assets::{Colors, Fonts},
-    ui::combat::bars::HealthBar,
-};
+use crate::assets::{Colors, Fonts};
 
-use self::bars::{MeterBar, ScoreText, SpecialResourceBar};
+use self::bars::{PropertyBar, ScoreText};
 
 pub fn setup_combat_hud(
     mut commands: Commands,
     colors: Res<Colors>,
     fonts: Res<Fonts>,
-    characters: Query<&Character>,
+    properties: Query<&Properties>,
     players: Res<Players>,
 ) {
     commands
@@ -58,7 +55,7 @@ pub fn setup_combat_hud(
                 &colors,
                 &fonts,
                 Player::One,
-                characters.get(players.one).unwrap(),
+                properties.get(players.one).unwrap(),
             );
             round_timer::setup_timer(root, fonts.basic.clone(), timer_width);
             setup_player_hud(
@@ -67,7 +64,7 @@ pub fn setup_combat_hud(
                 &colors,
                 &fonts,
                 Player::Two,
-                characters.get(players.two).unwrap(),
+                properties.get(players.two).unwrap(),
             );
         });
 }
@@ -78,7 +75,7 @@ fn setup_player_hud(
     colors: &Colors,
     fonts: &Fonts,
     player: Player,
-    character: &Character,
+    properties: &Properties,
 ) {
     root.spawn(NodeBundle {
         style: Style {
@@ -94,7 +91,7 @@ fn setup_player_hud(
     .with_children(|cb| {
         setup_top_hud(cb, colors, fonts, player);
         notifications::setup_toasts(cb, player);
-        setup_bottom_hud(cb, player, character);
+        setup_bottom_hud(cb, player, properties);
     });
 }
 
@@ -120,7 +117,7 @@ fn setup_top_hud(root: &mut ChildBuilder, colors: &Colors, fonts: &Fonts, player
         bars::setup_bar(
             cb,
             BarRenderInstructions::default_health(),
-            HealthBar(player),
+            PropertyBar(player, PropertyType::Health),
             "Health bar",
         );
         setup_round_counter(cb, colors, fonts, player);
@@ -142,7 +139,7 @@ fn setup_round_counter(root: &mut ChildBuilder, colors: &Colors, fonts: &Fonts, 
     ));
 }
 
-fn setup_bottom_hud(root: &mut ChildBuilder, player: Player, character: &Character) {
+fn setup_bottom_hud(root: &mut ChildBuilder, player: Player, properties: &Properties) {
     root.spawn(NodeBundle {
         style: Style {
             flex_direction: FlexDirection::Column,
@@ -158,19 +155,23 @@ fn setup_bottom_hud(root: &mut ChildBuilder, player: Player, character: &Charact
         ..default()
     })
     .with_children(|cb| {
-        for (index, property) in character.special_properties.iter().enumerate() {
+        for (prop_type, property) in properties.iter() {
+            if matches!(prop_type, PropertyType::Health | PropertyType::Meter) {
+                continue;
+            }
+
             bars::setup_bar(
                 cb,
                 property.render_instructions.clone(),
-                SpecialResourceBar(player, index),
-                format!("Special resource bar {}", index),
+                PropertyBar(player, *prop_type),
+                format!("Special resource bar {:?}", prop_type),
             );
         }
 
         bars::setup_bar(
             cb,
             BarRenderInstructions::default_meter(),
-            MeterBar(player),
+            PropertyBar(player, PropertyType::Meter),
             "Meter bar",
         );
     });

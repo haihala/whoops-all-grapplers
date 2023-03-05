@@ -3,7 +3,7 @@ use std::{collections::HashMap, f32::consts::PI};
 use bevy::prelude::*;
 use wag_core::{Animation, AnimationType, Area, ItemId, Model, MoveId, Stats};
 
-use crate::{Item, Move, Property};
+use crate::{properties::PropertyType, Item, Move, Property};
 
 use super::jump;
 
@@ -19,7 +19,7 @@ pub struct Character {
     pub generic_animations: HashMap<AnimationType, Animation>,
     pub gravity: f32,
     pub base_stats: Stats,
-    pub special_properties: Vec<Property>,
+    pub special_properties: Vec<(PropertyType, Property)>,
 }
 impl Character {
     // TODO: Consider making a builder for this
@@ -32,7 +32,7 @@ impl Character {
         jump_height: f32,
         jump_duration: f32,
         base_stats: Stats,
-        special_properties: Vec<Property>,
+        special_properties: Vec<(PropertyType, Property)>,
     ) -> Character {
         let (jumps, gravity) = Self::jumps(jump_height, jump_duration);
         moves.extend(jumps);

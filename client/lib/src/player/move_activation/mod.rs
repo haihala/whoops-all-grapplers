@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-use characters::{Action, Character, Inventory, Move, MoveHistory, Properties, Situation};
+use characters::{
+    Action, Character, Inventory, Move, MoveHistory, Properties, PropertyType, Situation,
+};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{Clock, MoveId, Player};
@@ -207,7 +209,10 @@ pub(super) fn move_activator(
                         notifications.add(*player, link.message());
 
                         if let Some(meter_gain) = link.meter_gain() {
-                            properties.meter.gain(meter_gain);
+                            properties
+                                .get_mut(&PropertyType::Meter)
+                                .unwrap()
+                                .gain(meter_gain);
                         }
                     }
 

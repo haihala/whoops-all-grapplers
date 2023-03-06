@@ -1,6 +1,7 @@
 # Backlog
 ## Before playtest
 - [[Resource rework]]
+- [[Bevy 0.10]]
 - [[Extending items]]
 - [[Items for playtest]]
 - [[Character 2]]

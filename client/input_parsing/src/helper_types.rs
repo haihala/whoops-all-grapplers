@@ -16,7 +16,7 @@ impl Frame {
         }
 
         if let Some(pressed) = diff.pressed {
-            self.pressed = self.pressed.union(&pressed).into_iter().cloned().collect();
+            self.pressed = self.pressed.union(&pressed).cloned().collect();
         }
 
         if let Some(released) = diff.released {

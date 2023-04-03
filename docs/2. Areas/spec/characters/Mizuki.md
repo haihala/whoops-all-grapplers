@@ -1,14 +1,16 @@
 **Mizuki**. In Japanese the word _mizu_ means “felicitous omen, auspicious” and the word ki means “hope,” forming this very cool and beautiful girls’ name.
 
 # Lore
-She is a young but competent Asian American fighter. She's a rookie in [[W.A.G.]] and thus often agrees to do stuff that she really shouldn't
+She is a young but competent Asian American fighter. She's a rookie in [[W.A.G.]] and thus often agrees to do stuff that she really shouldn't. 
 
 # Motifs
 - Dual origin between her Asian heritage and American environment
 	- Her parents are never mentioned in any more specificity and they are just "Asian"
+	- It's a commentary on how "Asian" is really broad and it probably shouldn't be used
 - Asian side
-	- Visual indicators of everything Asian, especially samurai stuff
+	- Visual indicators of everything Asian
 		- Samurai outfit
+		- Oni mask
 		- [[#Kunai]]s
 	- Effectiveness through effort and practice
 		- [[#Sharpness]] mechanic
@@ -21,7 +23,7 @@ She is a young but competent Asian American fighter. She's a rookie in [[W.A.G.]
 		- A lot of her staple items are consumable
 		- Her permanent upgrades are comparatively expensive
 	- Occasionally brash
-		- [[#Back step]] works by making you taunt her
+		- [[#Back step]] is essentially a taunt
 		- Can bite her in the ass and be a bit cocky
 
 # Place in the roster
@@ -44,8 +46,8 @@ She is a young but competent Asian American fighter. She's a rookie in [[W.A.G.]
 - [[#Sharpen]] adds one stack
 - Having stacks makes sword moves like [[#Upwards slice]] and some [[#Back step]] follow-ups do
 	- More damage on hit and block
-	- Less knockback
-- Stacks lost (on hit / on block)
+	- Less horizontal knockback
+- Stacks lost (on hit or [[Clash parry]] / on block)
 	- `f`: Up to 2 / Up to 5
 	- `s`: Up to 3 / all
 
@@ -56,18 +58,20 @@ She is a young but competent Asian American fighter. She's a rookie in [[W.A.G.]
 - Visual: Baiken 5k, but higher. Heel first roundhouse
 - Function: Poke
 
-#### Handle jab
-- Input: `f` while crouching
-- Visual: Baiken 5p + Jetstream Sam sword eject
-- Function: Check, pressure starter
-- Fantastic if it hits, alright on whiff
 
-#### Kickflip
+#### Low poke
+- Input: `f` while crouching
+- Visual: Urien cr.lk
+- Function: Low check
+- Special cancel combo on hit
+	- Not hit-confirmable
+
+#### Falcon knee
 - Input: `f` while in the air
-- Visual: Johnny j.D
-- Function: Alters jump arc, air-to-air
-- She does a mini double jump
-	- Use the stick to change the direction
+- Visual: Nago j.k
+- Function: Jump-in, pressure, combo starter
+- Can be used to air to air to an extent
+- Quite active, but hits harder during a specific frame
 
 #### Right hook
 - Input: `s` while standing
@@ -76,27 +80,29 @@ She is a young but competent Asian American fighter. She's a rookie in [[W.A.G.]
 - Doesn't go that far vertically
 - Slightly - on block
 
-#### Low poke
+#### Pommel pummel
 - Input: `s` while crouching
-- Visual: Urien cr.lk
-- Neutral on block
-- Special cancel combo on hit
-	- Not hit-confirmable
+- Visual: Baiken 5p + Jetstream Sam sword eject
+- Function: Anti-air, launcher
+- Fantastic if it hits, alright on block, will get you punished on whiff
+- Not the best in terms of horizontal range
 
-#### Falcon knee
-- Input: `s` while in the air
-- Visual: Nago j.k
-- Function: Jump-in, pressure, combo starter
-- Can be used to air to air to an extent
-- Quite active, but hits harder during a specific frame
+#### Kickflip
+- Input: `f` while in the air
+- Visual: Johnny j.D + Guile flash kick
+- Function: Alters jump arc, air-to-air
+- She does a mini double jump
+- Can hit cross up
 
 #### Ground throw
 - Input: `w` while standing
-- Visual: Grab the collar and sweep the leg
+- Visual: Grab the collar, drag it down and sweep the leg
+- Keeps you close for oki
 
 #### Back throw
 - Input: `4w` while standing
 - Visual: She jumps on top of you, knees to the shoulders, pushes you down and rolls away
+- Target remains about where they were, but she rolls relatively far away
 
 #### Sweep
 - Input: `w` while crouching
@@ -104,10 +110,11 @@ She is a young but competent Asian American fighter. She's a rookie in [[W.A.G.]
 - Punishable on block
 - Knockdown on hit
 - Reaches relatively far
+- Aight damage for a single hit
 
 #### Air throw
 - Input: `w` while in the air
-- Like [[#Back throw]], but in the air
+- Like [[#Back throw]], but hold the knees on lapels pose until landing
 
 #### Sharpen
 - Input: `g` while on the ground
@@ -118,34 +125,37 @@ She is a young but competent Asian American fighter. She's a rookie in [[W.A.G.]
 #### Upwards slice
 - Input: `[123]4[89]` + `f` or `s`
 - Visual: Falke SFV reversal
-- Functions: Anti-air, combo ender, hard read, punish
-- Air and ground versions, the ground version is stronger
+- Functions: Anti-air, combo ender, hard read, whiff punish
+	- `f` version is faster, but less damaging, leaning into anti-air / whiff punish
+		- Can maybe block punish some things
+	- `s` version is slower, leaning more into combo ender / hard read tool
+- Air and ground versions
+	- Air version exists to lessen the frustration on upwards motions
+	- Ground version will recover faster, giving you oki or [[#Sharpen]]
 - Death on block and whiff
+	- Decent range, not trivial to whiff punish
+- Pretty nice chip damage
 
 #### Back step
+Conveniently, shortened to bs (bullshit)
+
 - Input: `214` + `f` or `s`
 - Visual: Dandy step, but she has a coat that follows the motion
-- Versions
-	- f version
-		- Really fast
-		- Doesn't go that far back, maybe 1m
-		- Main function: Bait whiffs
-	- s version
-		- Slower
-		- Goes further back, maybe 2m
-		- More damage on damaging follow-ups
-		- Main function: Extend combos
-- Steps back, can do follow-ups
+- Function: Bait whiffs, extend combos
+- Step back, hang back a bit, lunge forward
+	- She can perform a follow up at any point during that
+- Follow-ups
 	- You can activate follow ups whenever in the animation
 	- This means you can use the follow-ups on frame 1 and even gain forward momentum
 	- All of the follow ups exit the stance where you can do them
 	- **Some of the follow-up ideas should be made into items**
 	- Options
 		- X = release the button you started the move with
-		- `[147]X` - Stop in place
+		- `[147]X` - Cancel
 			- Can be used like a mist finer cancel
-			- Has some lag so you can call it out
 			- Done automatically after a second in stance
+			- Will persist your momentum somewhat
+				- If you do nothing, she'll slide forward after the move
 		- `[56]X` - Vertical sword slice
 			- Fast and has great reach
 		- `[23]X` - Downwards sword slice
@@ -153,32 +163,76 @@ She is a young but competent Asian American fighter. She's a rookie in [[W.A.G.]
 		- `[89]X` - Upwards sword slice
 			- Covers a lot of space
 			- Most punishable of them all
+- Versions
+	- `f` version
+		- Doesn't go that far back, maybe 1m
+		- Can be immediately cancelled out of
+			- If cancelled out of immediately, doesn't move you back
+		- Main function: "Mist finer cancel"
+		- Core skill of playing her: When can you get away with doing a `f` version
+			- As it moves you back less, you have better control over your movements if you use it over the `s` version
+			- Won't go as far, you can get clipped by things you're trying to whiff punish
+	- `s` version
+		- Goes further back, maybe 2m
+			- Can't be cancelled out of before moving back like half of that
+		- Main function: Bait and punish whiffs
+		- More damage on follow-ups
 
-## Items
-### Kunai
+# Items
+## Kunai
 - Consumable item that stacks up to 5
-- Gives her access to a move
-- She can throw them as projectiles
-	- Air version
-		- Diagonal angle
-		- Bounces her up some, altering her jump arc
-	- Ground versions
-		- Relatively fast and small projectile with a slight arc to it
+- Gives her access to [[#Kunai throw]]
 
-### Armguards
-- Basic item
+## Armguards
+- Upgrade from hockey pads (see [[Idea dump#Items]])
 - One hit of [[Armor]] to [[#Upwards slice]]
 
-### Dancing shoes
+## Dancing shoes
 - Upgrade from [[Boots]]
 - Add a follow up to [[#Back step]], where you can cancel into the other version of [[#Back step]]
+- This is the fastest way to move back if done optimally
+	- How the variants have different animation lengths, that's not trivial
 
-### Travel whetstone
+## Travel whetstone
 - Basic item
-- Can cancel [[#Back step]] into [[#Sharpen]] similarly to other follow-ups
+- Can special cancel into [[#Sharpen]]
+	- Doing so will end your turn, good option when it's not clear if a starter will hit
 
-# Idea dump before re-examination
-- What if [[#Back step]] was her back dash?
-	- Change follow ups to be more button oriented
-	- Hold back to not sway back forward
-- How is [[Clash parry]] treated with [[#Sharpness]] loss?
+## Turtle holster
+- Upgrade from feather (see [[Idea dump#Items]])
+- Can input a direction when using [[#Kickflip]] to change the angle
+- Could use a better name, current one is referencing Oro
+
+## Vampire coffin
+- Upgrades from jar of ectoplasm (see [[Idea dump#Items]])
+- You gain [[Intangible]] when moving back with [[#Back step]]
+- Name is referencing Slayer and keeping with the spooky theme of [[Intangible]] items
+
+## Bag of marshmallow
+- Basic item
+- If you have down charge, [[#Upwards slice]] gains
+	- More damage
+	- Better vertical knockback for juggles
+- Charge is a sliding scale
+- With the added juggle height, you get more time
+	- Without charge
+		- Ground - You have enough time to get oki or [[#Sharpen]]
+		- Air - You're safe, but get no oki
+	- With max charge
+		- Air - Same as chargeless ground version
+		- Ground - You can juggle into something on sufficiently high hits
+			- One of those cases where you can get a hit in, but it's probably just better to use the time to setup a real mix on oki
+			- As a combo tool, instantly cancelled `f`[[#Back step]] should be better
+- Item name is referencing the marshmallow test
+
+# Moves from [[#Items]]
+## Kunai throw
+- Input: `236g`
+- Visual: Ibuki kunai throw in SFV
+- Function: Projectile
+- Consumes a [[#Kunai]] on use, can't use if you have none
+- Air version
+	- Diagonal angle
+	- Bounces her up some and slightly back
+- Ground versions
+	- Relatively fast and small projectile with a slight arc to it

@@ -10,7 +10,6 @@
 		- Cost ineffective, but sometimes it'll let you snowball
 - Basics with no upgrades
 - Basics with upgrades
-	- Defence increase ([[Health]])
 	- Damage increase (+1 damage per hit ought to be plenty)
 	- Feather - Gives you some air control
 		- Influence lessens over air time
@@ -20,6 +19,10 @@
 	- Shield - Makes you not able to die to chip damage
 	- Stopwatch - Better [[Link bonus]]
 		- Minimal effect on the less precise levels
+	- Hockey pads - Increases [[Health]]
+		- Base for [[Armor]] moves
+	- Jar of ectoplasm - [[Intangible]] on the first few frames of a back dash
+		- Base for things that make you [[Intangible]]
 - Upgrades
 	- Shield + Feather => Feathered shield 
 		- Lets you air-block one hit

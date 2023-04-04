@@ -125,6 +125,7 @@ pub fn flip_parsers_on_side_change(mut parsers: Query<&mut InputParser, Changed<
 
 #[cfg(test)]
 mod test {
+    use bevy::ecs::schedule::ScheduleLabel;
     use std::thread::sleep;
     use std::time::Duration;
     use wag_core::GameButton;
@@ -262,9 +263,11 @@ mod test {
         interface.assert_both_test_events_are_present();
     }
 
+    #[derive(ScheduleLabel, Hash, Debug, PartialEq, Eq, Clone, Copy)]
+    struct TestSchedule;
+
     struct TestInterface {
-        world: World,
-        stage: SystemStage,
+        app: App,
     }
     impl TestInterface {
         fn with_input(input: &'static str) -> TestInterface {
@@ -279,24 +282,22 @@ mod test {
         }
 
         fn new(moves: Vec<(MoveId, &'static str)>) -> TestInterface {
-            let mut world = World::default();
+            let mut app = App::new();
+            app.add_system(parse_input::<TestStream>);
 
-            let mut stage = SystemStage::parallel();
-            stage.add_system(parse_input::<TestStream>);
-
-            world.spawn((
+            app.world.spawn((
                 TestInputBundle::new(moves.into_iter().collect()),
                 Facing::Right,
             ));
 
-            let mut tester = TestInterface { world, stage };
+            let mut tester = TestInterface { app };
             tester.tick();
 
             tester
         }
 
         fn tick(&mut self) {
-            self.stage.run(&mut self.world);
+            self.app.update();
         }
 
         fn add_button_and_tick(&mut self, button: GameButton) {
@@ -311,9 +312,10 @@ mod test {
 
         fn add_input(&mut self, change: InputEvent) {
             for mut reader in self
+                .app
                 .world
                 .query::<&mut TestStream>()
-                .iter_mut(&mut self.world)
+                .iter_mut(&mut self.app.world)
             {
                 reader.push(change.clone());
             }
@@ -334,33 +336,25 @@ mod test {
         }
 
         fn assert_event_is_present(&mut self, id: MoveId) {
-            let parser = self
-                .world
-                .query::<&InputParser>()
-                .iter(&self.world)
-                .next()
-                .unwrap();
-
-            assert!(
-                parser.events.contains(&id),
-                "Event {:?} was not present",
-                &id
-            );
+            let events = self.get_parser_events();
+            assert!(events.contains(&id), "Event {:?} was not present", &id);
         }
 
         fn assert_no_events(&mut self) {
-            let parser = self
+            let events = self.get_parser_events();
+            assert!(events.is_empty(), "Expected no events, found {:?}", events,);
+        }
+
+        // Running a query requires mutable access I guess?
+        fn get_parser_events(&mut self) -> Vec<MoveId> {
+            self.app
                 .world
                 .query::<&InputParser>()
-                .iter(&self.world)
+                .iter(&self.app.world)
                 .next()
-                .unwrap();
-
-            assert!(
-                parser.events.is_empty(),
-                "Expected no events, found {:?}",
-                parser.events,
-            );
+                .unwrap()
+                .events
+                .clone()
         }
     }
 }

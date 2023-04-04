@@ -9,28 +9,31 @@ pub struct ScoreText(pub Player); // TODO: Move this
 pub struct PropertyBar(pub Player, pub PropertyType);
 
 pub fn setup_bar(
-    root: &mut ChildBuilder,
+    commands: &mut Commands,
+    parent: Entity,
     instructions: BarRenderInstructions,
     marker: impl Component,
     name: impl Into<std::borrow::Cow<'static, str>>,
 ) {
-    root.spawn((
-        NodeBundle {
-            style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(instructions.height)),
-                margin: UiRect {
-                    bottom: Val::Percent(1.0),
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(100.0), Val::Percent(instructions.height)),
+                    margin: UiRect {
+                        bottom: Val::Percent(1.0),
+                        ..default()
+                    },
                     ..default()
                 },
+                background_color: instructions.default_color.into(),
                 ..default()
             },
-            background_color: instructions.default_color.into(),
-            ..default()
-        },
-        instructions,
-        marker,
-        Name::new(name),
-    ));
+            instructions,
+            marker,
+            Name::new(name),
+        ))
+        .set_parent(parent);
 }
 
 #[allow(clippy::type_complexity)]

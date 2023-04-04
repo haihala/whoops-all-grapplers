@@ -5,7 +5,7 @@ use bevy::{ecs::query::WorldQuery, prelude::*};
 
 use characters::{Action, Character, HitTracker};
 use player_state::PlayerState;
-use wag_core::{once_per_combat_frame, Area, Clock, Facing, Players, Stats, WAGStage};
+use wag_core::{Area, Clock, Facing, Players, Stats, WAGStage};
 
 use crate::{
     camera::{WorldCamera, VIEWPORT_HALFWIDTH},
@@ -35,33 +35,29 @@ pub struct Pushbox(pub Area);
 pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set_to_stage(
-            WAGStage::Physics,
-            SystemSet::new()
-                .with_run_criteria(once_per_combat_frame)
-                .with_system(sideswitcher)
-                .with_system(player_gravity.after(sideswitcher))
-                .with_system(player_input.after(player_gravity))
-                .with_system(move_players.after(player_input))
-                .with_system(push_players.after(move_players))
-                .with_system(clamp_players.after(push_players))
-                .with_system(move_constants.after(clamp_players)),
+        app.add_systems(
+            (
+                sideswitcher,
+                player_gravity,
+                player_input,
+                move_players,
+                push_players,
+                clamp_players,
+                move_constants,
+            )
+                .in_set(WAGStage::Physics),
         );
     }
 }
 
-#[derive(WorldQuery)]
-#[world_query(mutable)]
-struct SideswitcherQuery<'a> {
-    tf: &'a Transform,
-    direction: &'a mut Facing,
-}
-fn sideswitcher(players: Res<Players>, mut query: Query<SideswitcherQuery>) {
-    if let Ok([mut p1, mut p2]) = query.get_many_mut([players.one, players.two]) {
-        let p1_flipped = p1.tf.translation.x > p2.tf.translation.x;
-        if p1.direction.to_flipped() != p1_flipped {
-            p1.direction.set_flipped(p1_flipped);
-            p2.direction.set_flipped(!p1_flipped);
+fn sideswitcher(players: Res<Players>, mut query: Query<(&Transform, &mut Facing)>) {
+    if let Ok([(tf1, mut facing1), (tf2, mut facing2)]) =
+        query.get_many_mut([players.one, players.two])
+    {
+        let p1_flipped = tf1.translation.x > tf2.translation.x;
+        if facing1.to_flipped() != p1_flipped {
+            facing1.set_flipped(p1_flipped);
+            facing2.set_flipped(!p1_flipped);
         }
     }
 }

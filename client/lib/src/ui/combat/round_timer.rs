@@ -10,8 +10,13 @@ pub fn update_timer(mut query: Query<&mut Text, With<RoundTimer>>, clock: Res<Cl
         (COMBAT_DURATION - clock.elapsed_time).floor().to_string();
 }
 
-pub fn setup_timer(parent: &mut ChildBuilder, font: Handle<Font>, width_percentage: f32) {
-    parent
+pub fn setup_timer(
+    commands: &mut Commands,
+    parent: Entity,
+    font: Handle<Font>,
+    width_percentage: f32,
+) {
+    let container = commands
         .spawn((
             NodeBundle {
                 style: Style {
@@ -28,24 +33,24 @@ pub fn setup_timer(parent: &mut ChildBuilder, font: Handle<Font>, width_percenta
             },
             Name::new("Timer"),
         ))
-        .with_children(|timer_wrapper| {
-            timer_wrapper.spawn((
-                TextBundle {
-                    text: Text::from_section(
-                        COMBAT_DURATION.round().to_string(),
-                        TextStyle {
-                            font,
-                            font_size: 100.0,
-                            color: Color::WHITE,
-                        },
-                    )
-                    .with_alignment(TextAlignment {
-                        horizontal: HorizontalAlign::Center,
-                        vertical: VerticalAlign::Center,
-                    }),
-                    ..default()
-                },
-                RoundTimer,
-            ));
-        });
+        .set_parent(parent)
+        .id();
+
+    commands
+        .spawn((
+            TextBundle {
+                text: Text::from_section(
+                    COMBAT_DURATION.round().to_string(),
+                    TextStyle {
+                        font,
+                        font_size: 100.0,
+                        color: Color::WHITE,
+                    },
+                )
+                .with_alignment(TextAlignment::Center),
+                ..default()
+            },
+            RoundTimer,
+        ))
+        .set_parent(container);
 }

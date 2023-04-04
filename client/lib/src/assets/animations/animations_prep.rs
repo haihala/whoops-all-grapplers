@@ -1,5 +1,4 @@
-use bevy::prelude::*;
-use std::collections::HashMap;
+use bevy::{prelude::*, utils::HashMap}; // Need to use this one for reflect to work
 
 use wag_core::{Animation, DummyAnimation, Facing};
 
@@ -55,16 +54,30 @@ pub fn mirror_after_load(
             .normal
             .iter()
             .map(|(animation, handle)| {
-                let mirrored = assets.get(handle).unwrap().curves().into_iter().fold(
+                let clip = assets.get(handle).unwrap();
+
+                let reflected: Box<dyn Struct> = Box::new(clip.to_owned());
+                let ref_paths = reflected.field("paths").unwrap();
+                let paths = ref_paths
+                    .downcast_ref::<HashMap<EntityPath, usize>>()
+                    .unwrap();
+
+                let mirrored = paths.into_iter().fold(
                     AnimationClip::default(),
-                    |clip, (path, curves)| {
+                    |mut clip_acc, (path, curves_index)| {
                         let mirrored_path = mirror_path(path.to_owned());
-                        curves.iter().cloned().fold(clip, |mut acc, curve| {
-                            acc.add_curve_to_path(mirrored_path.clone(), mirror_curve(curve));
-                            acc
-                        })
+
+                        for curve in clip.get_curves(*curves_index).unwrap().iter() {
+                            clip_acc.add_curve_to_path(
+                                mirrored_path.clone(),
+                                mirror_curve(curve.to_owned()),
+                            );
+                        }
+
+                        clip_acc
                     },
                 );
+
                 (animation.to_owned(), assets.add(mirrored))
             })
             .collect();

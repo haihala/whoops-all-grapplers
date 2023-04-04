@@ -23,24 +23,26 @@ impl Notifications {
 #[derive(Debug, Component, Deref)]
 pub struct NotificationContainer(Player);
 
-pub fn setup_toasts(root: &mut ChildBuilder, player: Player) {
-    root.spawn((
-        NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::Column,
-                align_items: match player {
-                    // Align towards the edge of the screen
-                    Player::One => AlignItems::FlexStart,
-                    Player::Two => AlignItems::FlexEnd,
+pub fn setup_toasts(commands: &mut Commands, parent: Entity, player: Player) {
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    flex_direction: FlexDirection::Column,
+                    align_items: match player {
+                        // Align towards the edge of the screen
+                        Player::One => AlignItems::FlexStart,
+                        Player::Two => AlignItems::FlexEnd,
+                    },
+                    size: Size::new(Val::Percent(100.0), Val::Percent(40.0)),
+                    ..default()
                 },
-                size: Size::new(Val::Percent(100.0), Val::Percent(40.0)),
                 ..default()
             },
-            ..default()
-        },
-        OnlyShowInGameState(vec![GameState::Combat, GameState::PostRound]),
-        NotificationContainer(player),
-    ));
+            OnlyShowInGameState(vec![GameState::Combat, GameState::PostRound]),
+            NotificationContainer(player),
+        ))
+        .set_parent(parent);
 }
 
 const TIME_TO_LIVE: usize = 3 * wag_core::FPS as usize;

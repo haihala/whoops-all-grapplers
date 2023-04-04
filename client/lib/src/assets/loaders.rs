@@ -159,15 +159,19 @@ fn particle_explosion(
             spawner,
             ..default()
         }
-        .init(PositionSphereModifier {
+        .init(InitPositionSphereModifier {
             dimension: ShapeDimension::Surface,
             radius: 0.2,
-            speed: speed.into(),
             ..default()
         })
-        .update(AccelModifier {
-            accel: Vec3::new(0.0, -2.0, 0.0),
+        .init(InitVelocitySphereModifier {
+            center: Vec3::ZERO,
+            speed: speed.into(),
         })
+        .init(InitLifetimeModifier {
+            lifetime: Value::Single(1.0),
+        })
+        .update(AccelModifier::constant(Vec3::new(0.0, -2.0, 0.0)))
         .render(ColorOverLifetimeModifier {
             gradient: color_gradient,
         })

@@ -27,26 +27,18 @@ impl PadReserve {
 
 impl Plugin for InputParsingPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(PadReserve::default())
-            .add_system_set_to_stage(
-                WAGStage::Inputs,
-                SystemSet::new()
-                    .with_system(update_pads)
-                    .with_system(update_parrots::<PadStream>.after(update_pads))
-                    .with_system(
-                        // Very important for this to happen after we've updated parrots
-                        // If an entity has a parrot stream, it will drain the basic pad stream
-                        input_parser::parse_input::<PadStream>.after(update_parrots::<PadStream>),
-                    )
-                    .with_system(
-                        input_parser::parse_input::<ParrotStream>
-                            .after(update_parrots::<PadStream>),
-                    )
-                    .with_system(
-                        input_parser::flip_parsers_on_side_change
-                            .after(update_parrots::<ParrotStream>),
-                    ),
-            );
+        app.insert_resource(PadReserve::default()).add_systems(
+            (
+                update_pads,
+                update_parrots::<PadStream>,
+                // Very important for this to happen after we've updated parrots
+                // If an entity has a parrot stream, it will drain the basic pad stream
+                input_parser::parse_input::<PadStream>,
+                input_parser::parse_input::<ParrotStream>,
+                input_parser::flip_parsers_on_side_change,
+            )
+                .in_set(WAGStage::Inputs),
+        );
     }
 }
 

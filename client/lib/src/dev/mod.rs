@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use characters::{Hitbox, Hurtbox, Inventory};
-use player_state::PlayerState;
 use wag_core::{Clock, GameState, Player, SoundEffect, Stats};
 
 use crate::{
@@ -17,9 +16,10 @@ pub struct DevPlugin;
 
 impl Plugin for DevPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(WorldInspectorPlugin)
+        app.add_plugin(WorldInspectorPlugin::new())
             .register_type::<Player>()
-            .register_type::<PlayerState>()
+            // TODO FIXME Recursive type definition problem
+            // .register_type::<PlayerState>()
             .register_type::<Clock>()
             .register_type::<PlayerVelocity>()
             .register_type::<ConstantVelocity>()
@@ -108,17 +108,17 @@ fn log_diff(
 
 fn cycle_game_state(
     keys: Res<Input<KeyCode>>,
-    mut game_state: ResMut<State<GameState>>,
+    game_state: Res<State<GameState>>,
+    mut next_state: ResMut<NextState<GameState>>,
     mut clock: ResMut<Clock>,
 ) {
     // Can be converted to a non-dev system eventually (to start game press start type of deal)
     if keys.just_pressed(KeyCode::Return) {
-        if *game_state.current() == GameState::Combat {
+        if game_state.0 == GameState::Combat {
             // Set clock to zero to go through the same route as time out
             clock.time_out();
         } else {
-            let next_state = game_state.current().next();
-            game_state.set(next_state).unwrap();
+            next_state.set(game_state.0.next());
         }
     }
 }

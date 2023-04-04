@@ -13,13 +13,13 @@ pub fn update_round_text(
 ) {
     let (mut visible, mut text) = query.single_mut();
 
-    if !game_state.current().show_round_text() {
-        visible.is_visible = false;
+    if !game_state.0.show_round_text() {
+        *visible = Visibility::Hidden;
         return;
     }
 
-    visible.is_visible = true;
-    if *game_state.current() == GameState::PreRound {
+    *visible = Visibility::Inherited;
+    if game_state.0 == GameState::PreRound {
         text.sections[0].value = "New round".to_string();
     } else if let Some(result) = round_log.last() {
         text.sections[0].value = if let Some(winner) = result.winner {

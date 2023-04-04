@@ -15,26 +15,19 @@ pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set_to_stage(
-            WAGStage::HitReg,
-            SystemSet::new()
-                .with_system(hitboxes::spawn_new)
-                .with_system(hitboxes::despawn_expired.after(hitboxes::spawn_new))
-                .with_system(hitreg::clash_parry.after(hitboxes::despawn_expired))
-                .with_system(
-                    hitreg::detect_hits
-                        .pipe(hitreg::apply_hits)
-                        .after(hitreg::clash_parry)
-                        .label("autolabels don't work for this"),
-                )
-                .with_system(hitreg::stun_actions.after("autolabels don't work for this"))
-                .with_system(hitreg::snap_and_switch.after(hitreg::stun_actions))
-                .with_system(defense::timeout_defense_streak.after(hitreg::snap_and_switch))
-                .with_system(hitboxes::update_followers.after(defense::timeout_defense_streak))
-                .with_system(
-                    hitboxes::despawn_everything
-                        .with_run_criteria(State::on_exit(GameState::Combat)),
-                ),
-        );
+        app.add_systems(
+            (
+                hitboxes::spawn_new,
+                hitboxes::despawn_expired,
+                hitreg::clash_parry,
+                hitreg::detect_hits.pipe(hitreg::apply_hits),
+                hitreg::stun_actions,
+                hitreg::snap_and_switch,
+                defense::timeout_defense_streak,
+                hitboxes::update_followers,
+            )
+                .in_set(WAGStage::HitReg),
+        )
+        .add_system(hitboxes::despawn_everything.in_schedule(OnExit(GameState::Combat)));
     }
 }

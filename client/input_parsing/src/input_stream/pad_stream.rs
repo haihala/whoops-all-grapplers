@@ -1,4 +1,10 @@
-use bevy::prelude::*;
+use bevy::{
+    input::gamepad::{
+        GamepadAxisChangedEvent, GamepadButtonChangedEvent, GamepadConnection,
+        GamepadConnectionEvent, GamepadEvent,
+    },
+    prelude::*,
+};
 use wag_core::{GameButton, StickPosition};
 
 use crate::{
@@ -101,43 +107,53 @@ pub(crate) fn update_pads(
     mut unused_pads: ResMut<PadReserve>,
     mut readers: Query<(&mut PadStream, &mut ParrotStream)>,
 ) {
-    for GamepadEvent {
-        gamepad,
-        event_type,
-    } in gamepad_events.iter()
-    {
+    for event in gamepad_events.iter() {
         for (mut pad, mut parrot) in &mut readers {
-            let pad_in_question = pad.pad_id.is_some() && pad.pad_id.unwrap() == *gamepad;
             let unclaimed_pad = pad.pad_id.is_none();
 
-            match event_type {
-                GamepadEventType::Connected(_) => {
-                    println!("Connected controller {}", gamepad.id);
-                    unused_pads.push_back(*gamepad);
-                }
-                GamepadEventType::Disconnected => {
-                    if pad_in_question {
-                        pad.pad_id = None;
+            match event {
+                GamepadEvent::Connection(GamepadConnectionEvent {
+                    gamepad,
+                    connection,
+                }) => {
+                    if let GamepadConnection::Connected(info) = connection {
+                        println!("Connected controller {}", info.name);
+                        unused_pads.push_back(*gamepad);
+                    } else {
+                        // Disconnect
+                        if pad.pad_id.is_some() && pad.pad_id.unwrap() == *gamepad {
+                            pad.pad_id = None;
+                        }
+
+                        if unused_pads.contains(gamepad) {
+                            println!("Unplugged controller {}", gamepad.id);
+                            unused_pads.remove_pad(gamepad);
+                        }
                     }
-                    if unused_pads.contains(gamepad) {
-                        println!("Unplugged controller {}", gamepad.id);
-                        unused_pads.remove_pad(gamepad);
+                }
+                GamepadEvent::Axis(GamepadAxisChangedEvent {
+                    axis_type,
+                    gamepad,
+                    value,
+                }) => {
+                    if pad.pad_id.is_some() && pad.pad_id.unwrap() == *gamepad {
+                        axis_change(&mut pad, *axis_type, *value);
                     }
                 }
-                GamepadEventType::AxisChanged(axis, new_value) => {
-                    if pad_in_question {
-                        axis_change(&mut pad, *axis, *new_value);
-                    }
-                }
-                GamepadEventType::ButtonChanged(button, new_value) => {
-                    let pressed_start = *button == GamepadButtonType::Start && *new_value == 1.0;
+                GamepadEvent::Button(GamepadButtonChangedEvent {
+                    button_type,
+                    gamepad,
+                    value,
+                }) => {
+                    let pressed_start = *button_type == GamepadButtonType::Start && *value == 1.0;
+
                     if unused_pads.contains(gamepad) && unclaimed_pad && pressed_start {
                         // Pressed start, claim the pad
                         println!("Claimed controller {}", gamepad.id);
                         pad.pad_id = Some(*gamepad);
                         unused_pads.remove_pad(gamepad);
-                    } else if pad_in_question {
-                        button_change(&mut pad, &mut parrot, *button, *new_value);
+                    } else if pad.pad_id.is_some() && pad.pad_id.unwrap() == *gamepad {
+                        button_change(&mut pad, &mut parrot, *button_type, *value);
                     }
                 }
             }

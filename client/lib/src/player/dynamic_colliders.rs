@@ -36,18 +36,18 @@ pub(super) fn create_colliders(
 
             all_ready = false;
 
-            commands.entity(entity).add_children(|root| {
-                let hitbox = Hurtbox(bounding_box);
+            let hitbox = Hurtbox(bounding_box);
+            let name = format!("{:?}", collider);
 
-                let name = format!("{:?}", collider);
-                root.spawn((
+            commands
+                .spawn((
                     SpatialBundle::default(),
                     hitbox,
                     collider.to_owned(),
                     Name::new(name),
                     Owner(*player),
-                ));
-            });
+                ))
+                .set_parent(entity);
         }
     }
 

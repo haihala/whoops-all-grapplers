@@ -23,7 +23,7 @@ pub fn setup_combat_hud(
     properties: Query<&Properties>,
     players: Res<Players>,
 ) {
-    commands
+    let container = commands
         .spawn((
             NodeBundle {
                 style: Style {
@@ -45,134 +45,165 @@ pub fn setup_combat_hud(
             OnlyShowInGameState(vec![GameState::Combat, GameState::PostRound]),
             Name::new("Combat UI container"),
         ))
-        .with_children(|root| {
-            let timer_width = 15.0;
-            let side_width = (100.0 - timer_width) / 2.0;
+        .id();
 
-            setup_player_hud(
-                root,
-                side_width,
-                &colors,
-                &fonts,
-                Player::One,
-                properties.get(players.one).unwrap(),
-            );
-            round_timer::setup_timer(root, fonts.basic.clone(), timer_width);
-            setup_player_hud(
-                root,
-                side_width,
-                &colors,
-                &fonts,
-                Player::Two,
-                properties.get(players.two).unwrap(),
-            );
-        });
+    let timer_width = 15.0;
+    let side_width = (100.0 - timer_width) / 2.0;
+
+    setup_player_hud(
+        &mut commands,
+        container,
+        side_width,
+        &colors,
+        &fonts,
+        Player::One,
+        properties.get(players.one).unwrap(),
+    );
+    round_timer::setup_timer(&mut commands, container, fonts.basic.clone(), timer_width);
+    setup_player_hud(
+        &mut commands,
+        container,
+        side_width,
+        &colors,
+        &fonts,
+        Player::Two,
+        properties.get(players.two).unwrap(),
+    );
 }
 
 fn setup_player_hud(
-    root: &mut ChildBuilder,
+    commands: &mut Commands,
+    parent: Entity,
     width_percentage: f32,
     colors: &Colors,
     fonts: &Fonts,
     player: Player,
     properties: &Properties,
 ) {
-    root.spawn(NodeBundle {
-        style: Style {
-            flex_direction: FlexDirection::Column,
-            justify_content: JustifyContent::SpaceBetween,
-            align_items: AlignItems::Center,
-            margin: UiRect::all(Val::Px(3.0)),
-            size: Size::new(Val::Percent(width_percentage), Val::Percent(100.0)),
-            ..default()
-        },
-        ..default()
-    })
-    .with_children(|cb| {
-        setup_top_hud(cb, colors, fonts, player);
-        notifications::setup_toasts(cb, player);
-        setup_bottom_hud(cb, player, properties);
-    });
-}
-
-fn setup_top_hud(root: &mut ChildBuilder, colors: &Colors, fonts: &Fonts, player: Player) {
-    root.spawn((
-        NodeBundle {
+    let container = commands
+        .spawn(NodeBundle {
             style: Style {
                 flex_direction: FlexDirection::Column,
-                justify_content: JustifyContent::FlexStart,
-                align_items: match player {
-                    // Align towards the center
-                    Player::One => AlignItems::FlexEnd,
-                    Player::Two => AlignItems::FlexStart,
-                },
-                size: Size::new(Val::Percent(100.0), Val::Percent(10.0)),
+                justify_content: JustifyContent::SpaceBetween,
+                align_items: AlignItems::Center,
+                margin: UiRect::all(Val::Px(3.0)),
+                size: Size::new(Val::Percent(width_percentage), Val::Percent(100.0)),
                 ..default()
             },
             ..default()
-        },
-        Name::new(format!("Player {player} health bar wrapper")),
-    ))
-    .with_children(|cb| {
-        bars::setup_bar(
-            cb,
-            BarRenderInstructions::default_health(),
-            PropertyBar(player, PropertyType::Health),
-            "Health bar",
-        );
-        setup_round_counter(cb, colors, fonts, player);
-    });
+        })
+        .set_parent(parent)
+        .id();
+
+    setup_top_hud(commands, container, colors, fonts, player);
+    notifications::setup_toasts(commands, container, player);
+    setup_bottom_hud(commands, container, player, properties);
 }
 
-fn setup_round_counter(root: &mut ChildBuilder, colors: &Colors, fonts: &Fonts, player: Player) {
-    root.spawn((
-        TextBundle::from_section(
-            "0",
-            TextStyle {
-                font: fonts.basic.clone(),
-                font_size: 18.0,
-                color: colors.text,
+fn setup_top_hud(
+    commands: &mut Commands,
+    parent: Entity,
+    colors: &Colors,
+    fonts: &Fonts,
+    player: Player,
+) {
+    let container = commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::FlexStart,
+                    align_items: match player {
+                        // Align towards the center
+                        Player::One => AlignItems::FlexEnd,
+                        Player::Two => AlignItems::FlexStart,
+                    },
+                    size: Size::new(Val::Percent(100.0), Val::Percent(10.0)),
+                    ..default()
+                },
+                ..default()
             },
-        ),
-        ScoreText(player),
-        Name::new("Round counter"),
-    ));
+            Name::new(format!("Player {player} health bar wrapper")),
+        ))
+        .set_parent(parent)
+        .id();
+
+    bars::setup_bar(
+        commands,
+        container,
+        BarRenderInstructions::default_health(),
+        PropertyBar(player, PropertyType::Health),
+        "Health bar",
+    );
+    setup_round_counter(commands, container, colors, fonts, player);
 }
 
-fn setup_bottom_hud(root: &mut ChildBuilder, player: Player, properties: &Properties) {
-    root.spawn(NodeBundle {
-        style: Style {
-            flex_direction: FlexDirection::Column,
-            justify_content: JustifyContent::FlexEnd,
-            align_items: match player {
-                // Align towards the side of the screen
-                Player::One => AlignItems::FlexStart,
-                Player::Two => AlignItems::FlexEnd,
+fn setup_round_counter(
+    commands: &mut Commands,
+    parent: Entity,
+    colors: &Colors,
+    fonts: &Fonts,
+    player: Player,
+) {
+    commands
+        .spawn((
+            TextBundle::from_section(
+                "0",
+                TextStyle {
+                    font: fonts.basic.clone(),
+                    font_size: 18.0,
+                    color: colors.text,
+                },
+            ),
+            ScoreText(player),
+            Name::new("Round counter"),
+        ))
+        .set_parent(parent);
+}
+
+fn setup_bottom_hud(
+    commands: &mut Commands,
+    parent: Entity,
+    player: Player,
+    properties: &Properties,
+) {
+    let container = commands
+        .spawn(NodeBundle {
+            style: Style {
+                flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::FlexEnd,
+                align_items: match player {
+                    // Align towards the side of the screen
+                    Player::One => AlignItems::FlexStart,
+                    Player::Two => AlignItems::FlexEnd,
+                },
+                size: Size::new(Val::Percent(100.0), Val::Percent(50.0)),
+                ..default()
             },
-            size: Size::new(Val::Percent(100.0), Val::Percent(50.0)),
             ..default()
-        },
-        ..default()
-    })
-    .with_children(|cb| {
-        for (prop_type, property) in properties.iter() {
-            if matches!(prop_type, PropertyType::Health | PropertyType::Meter) {
-                continue;
-            }
+        })
+        .set_parent(parent)
+        .id();
 
-            bars::setup_bar(
-                cb,
-                property.render_instructions.clone(),
-                PropertyBar(player, *prop_type),
-                format!("Special resource bar {:?}", prop_type),
-            );
+    for (prop_type, property) in properties.iter() {
+        if matches!(prop_type, PropertyType::Health | PropertyType::Meter) {
+            continue;
         }
 
         bars::setup_bar(
-            cb,
-            BarRenderInstructions::default_meter(),
-            PropertyBar(player, PropertyType::Meter),
-            "Meter bar",
+            commands,
+            container,
+            property.render_instructions.clone(),
+            PropertyBar(player, *prop_type),
+            format!("Special resource bar {:?}", prop_type),
         );
-    });
+    }
+
+    bars::setup_bar(
+        commands,
+        container,
+        BarRenderInstructions::default_meter(),
+        PropertyBar(player, PropertyType::Meter),
+        "Meter bar",
+    );
 }

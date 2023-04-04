@@ -1,3 +1,4 @@
+#![feature(trivial_bounds)]
 #![feature(drain_filter)]
 #![feature(exclusive_range_pattern)]
 #![feature(iter_intersperse)]

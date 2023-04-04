@@ -55,9 +55,8 @@ impl TestRunner {
 
         // Go to combat
         app.world
-            .resource_mut::<State<GameState>>()
-            .set(GameState::Combat)
-            .unwrap();
+            .resource_mut::<NextState<GameState>>()
+            .set(GameState::Combat);
         app.update();
 
         let players = app.world.resource::<Players>();

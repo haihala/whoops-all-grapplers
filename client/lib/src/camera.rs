@@ -16,7 +16,7 @@ pub struct CustomCameraPlugin;
 impl Plugin for CustomCameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(add_cameras)
-            .add_system_to_stage(CoreStage::PostUpdate, center_camera);
+            .add_system(center_camera);
     }
 }
 
@@ -26,7 +26,7 @@ fn add_cameras(mut commands: Commands) {
         ..default()
     };
 
-    commands
+    let camera_container = commands
         .spawn((
             SpatialBundle {
                 transform: Transform::from_xyz(0.0, 1.8, 10.0),
@@ -35,32 +35,37 @@ fn add_cameras(mut commands: Commands) {
             Name::new("Cameras"),
             WorldCamera,
         ))
-        .with_children(|parent| {
-            parent.spawn((
-                Camera3dBundle {
-                    projection: projection.clone().into(),
+        .id();
+
+    commands
+        .spawn((
+            Camera3dBundle {
+                projection: projection.clone().into(),
+                ..default()
+            },
+            Name::new("3d Cam"),
+        ))
+        .set_parent(camera_container);
+
+    commands
+        .spawn((
+            Camera2dBundle {
+                transform: Transform::from_translation(Vec3::ZERO),
+                camera: Camera {
+                    // Higher is rendered later
+                    order: 1,
                     ..default()
                 },
-                Name::new("3d Cam"),
-            ));
-            parent.spawn((
-                Camera2dBundle {
-                    transform: Transform::from_translation(Vec3::ZERO),
-                    camera: Camera {
-                        // Higher is rendered later
-                        priority: 1,
-                        ..default()
-                    },
-                    camera_2d: Camera2d {
-                        // Don't draw a clear color on top of the 3d stuff
-                        clear_color: ClearColorConfig::None,
-                    },
-                    projection,
-                    ..default()
+                camera_2d: Camera2d {
+                    // Don't draw a clear color on top of the 3d stuff
+                    clear_color: ClearColorConfig::None,
                 },
-                Name::new("2d Cam"),
-            ));
-        });
+                projection,
+                ..default()
+            },
+            Name::new("2d Cam"),
+        ))
+        .set_parent(camera_container);
 }
 
 #[allow(clippy::type_complexity)]

@@ -1,3 +1,4 @@
+#![feature(trivial_bounds)]
 #![feature(drain_filter)]
 mod sub_state;
 

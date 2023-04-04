@@ -1,8 +1,9 @@
 use crate::{Player, LOSS_BONUS};
 use bevy::prelude::*;
 
-#[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Hash, Debug, PartialEq, Eq, Default, States)]
 pub enum GameState {
+    #[default]
     Loading,
     PreRound,
     Combat,

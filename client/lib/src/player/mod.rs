@@ -12,7 +12,7 @@ mod size_adjustment;
 use characters::{dummy, Character, Inventory, Properties};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
-use wag_core::{once_per_combat_frame, Clock, Facing, GameState, Joints, Player, Players, Stats};
+use wag_core::{Clock, Facing, GameState, Joints, Player, Players, Stats, WAGStage};
 
 use crate::{
     assets::{AnimationHelperSetup, Models},
@@ -48,54 +48,36 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
-            .add_system(setup_combat.with_run_criteria(State::on_enter(GameState::PreRound)))
-            .add_system(condition_management::update_combined_status_effect) // This is here so it's up to date when the game starts
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(once_per_combat_frame)
-                    .with_system(move_activation::manage_buffer)
-                    .with_system(
-                        move_activation::move_continuation.after(move_activation::manage_buffer),
-                    )
-                    .with_system(
-                        move_activation::raw_or_link.after(move_activation::move_continuation),
-                    )
-                    .with_system(
-                        move_activation::special_cancel.after(move_activation::raw_or_link),
-                    )
-                    .with_system(
-                        move_activation::move_activator.after(move_activation::special_cancel),
-                    )
-                    .with_system(
-                        move_advancement::move_advancement.after(move_activation::move_activator),
-                    )
-                    .with_system(recovery::stun_recovery.after(move_advancement::move_advancement))
-                    .with_system(recovery::ground_recovery.after(recovery::stun_recovery))
-                    .with_system(movement::movement.after(recovery::ground_recovery))
-                    .with_system(size_adjustment::size_adjustment.after(movement::movement))
-                    .with_system(
-                        charge_accumulator::manage_charge.after(size_adjustment::size_adjustment),
-                    )
-                    .with_system(
-                        condition_management::manage_conditions
-                            .after(charge_accumulator::manage_charge),
-                    )
-                    .with_system(
-                        asset_updater::update_animation
-                            .after(condition_management::update_combined_status_effect),
-                    )
-                    .with_system(asset_updater::update_audio.after(asset_updater::update_animation))
-                    .with_system(
-                        root_mover::update_root_transform.after(asset_updater::update_audio),
-                    )
-                    .with_system(
-                        dynamic_colliders::create_colliders
-                            .after(root_mover::update_root_transform),
-                    )
-                    .with_system(
-                        dynamic_colliders::update_colliders
-                            .after(dynamic_colliders::create_colliders),
-                    ),
+            .add_system(setup_combat.in_schedule(OnEnter(GameState::PreRound)))
+            // This is here so it's up to date when the round starts
+            .add_system(condition_management::update_combined_status_effect)
+            .add_systems(
+                (
+                    move_activation::manage_buffer,
+                    move_activation::move_continuation,
+                    move_activation::raw_or_link,
+                    move_activation::special_cancel,
+                    move_activation::move_activator,
+                    move_advancement::move_advancement,
+                    recovery::stun_recovery,
+                    recovery::ground_recovery,
+                    movement::movement,
+                    size_adjustment::size_adjustment,
+                    charge_accumulator::manage_charge,
+                    condition_management::manage_conditions,
+                    asset_updater::update_animation,
+                    asset_updater::update_audio,
+                    root_mover::update_root_transform,
+                )
+                    .in_set(WAGStage::PlayerUpdates),
+            )
+            // There is a max of 15 systems per call to add_systems
+            .add_systems(
+                (
+                    dynamic_colliders::create_colliders,
+                    dynamic_colliders::update_colliders,
+                )
+                    .in_set(WAGStage::PlayerUpdates),
             );
     }
 }
@@ -168,6 +150,7 @@ fn setup_combat(
     mut clock: ResMut<Clock>,
     bevy_time: Res<Time>,
 ) {
+    dbg!("Reset");
     clock.reset(bevy_time.elapsed_seconds_f64());
 
     for (

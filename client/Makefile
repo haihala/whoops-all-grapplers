@@ -2,7 +2,7 @@ release ?=
 RUST_BACKTRACE := 1
 
 run:
-	@echo "cargo run --features bevy/dynamic	# Speedup on non-windows"
+	@echo "cargo run --features bevy/dynamic_linking	# Speedup on non-windows"
 	cargo run
 
 dev:

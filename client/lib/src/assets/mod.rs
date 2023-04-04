@@ -39,18 +39,25 @@ pub struct AssetsPlugin;
 
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system_to_stage(StartupStage::PreStartup, loaders::colors)
-            .add_startup_system_to_stage(StartupStage::PreStartup, loaders::fonts)
-            .add_startup_system_to_stage(StartupStage::PreStartup, loaders::sprites)
-            .add_startup_system_to_stage(StartupStage::PreStartup, loaders::models)
-            .add_startup_system_to_stage(StartupStage::PreStartup, loaders::animations)
-            .add_startup_system_to_stage(StartupStage::PreStartup, loaders::sounds)
-            .add_startup_system_to_stage(StartupStage::PreStartup, loaders::particles)
-            .add_system(animations::setup_helpers)
-            .add_system(animations::update_animation)
-            .add_system(animations::mirror_after_load)
-            .add_system(models::find_joints)
-            .add_system(sounds::play_queued)
-            .add_system(particles::handle_requests);
+        app.add_startup_systems(
+            (
+                loaders::colors,
+                loaders::fonts,
+                loaders::sprites,
+                loaders::models,
+                loaders::animations,
+                loaders::sounds,
+                loaders::particles,
+            )
+                .in_base_set(StartupSet::PreStartup),
+        )
+        .add_systems((
+            animations::setup_helpers,
+            animations::update_animation,
+            animations::mirror_after_load,
+            models::find_joints,
+            sounds::play_queued,
+            particles::handle_requests,
+        ));
     }
 }

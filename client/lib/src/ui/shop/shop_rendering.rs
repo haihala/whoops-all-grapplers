@@ -58,17 +58,16 @@ pub fn update_inventory_ui(
                 }
 
                 if old_item.is_none() || different_item {
-                    commands.entity(entity).add_children(|root| {
-                        render_item_icon(
-                            root,
-                            TextStyle {
-                                font: fonts.basic.clone(),
-                                font_size: 36.0,
-                                color: colors.text,
-                            },
-                            *id,
-                        );
-                    });
+                    render_item_icon(
+                        &mut commands,
+                        entity,
+                        TextStyle {
+                            font: fonts.basic.clone(),
+                            font_size: 36.0,
+                            color: colors.text,
+                        },
+                        *id,
+                    );
 
                     slot.id = Some(*id);
                 }
@@ -113,9 +112,9 @@ pub fn update_info_panel(
             let (mut text, mut visibility) = texts.get_mut(entity).unwrap();
             if let Some(content) = maybe_content {
                 text.sections[section].value = content;
-                visibility.is_visible = true;
+                *visibility = Visibility::Inherited;
             } else {
-                visibility.is_visible = false;
+                *visibility = Visibility::Hidden;
             }
         }
     }
@@ -190,14 +189,14 @@ fn inventory_slot_info(character: &Character, inventory_slot: &InventorySlot) ->
 pub fn handle_shop_ending(
     mut commands: Commands,
     mut shops: ResMut<Shops>,
-    mut game_state: ResMut<State<GameState>>,
+    mut next_state: ResMut<NextState<GameState>>,
     mut local_timer: Local<Option<Timer>>,
     mut countdown_roots: Query<&mut Visibility>,
     mut countdown_texts: Query<&mut Text>,
     time: Res<Time>,
 ) {
     if shops.player_one.closed && shops.player_two.closed {
-        end_shopping(&mut shops, &mut game_state, &mut commands);
+        end_shopping(&mut shops, &mut next_state, &mut commands);
         return;
     }
 
@@ -218,24 +217,26 @@ pub fn handle_shop_ending(
                     .value = value;
             } else {
                 *local_timer = Some(Timer::from_seconds(POST_SHOP_DURATION, TimerMode::Once));
-                countdown_roots
-                    .get_mut(shop.components.countdown)
-                    .unwrap()
-                    .is_visible = true;
+                *countdown_roots.get_mut(shop.components.countdown).unwrap() =
+                    Visibility::Inherited;
             }
         }
     }
 
     if end {
-        end_shopping(&mut shops, &mut game_state, &mut commands);
+        end_shopping(&mut shops, &mut next_state, &mut commands);
     }
 
     // If one is closed and timer has ran out -> pre-combat
     // If one is closed and timer is not yet out -> make sure the counter is visible and up to date
 }
 
-fn end_shopping(shops: &mut Shops, game_state: &mut State<GameState>, commands: &mut Commands) {
-    game_state.set(GameState::PreRound).unwrap();
+fn end_shopping(
+    shops: &mut Shops,
+    next_state: &mut ResMut<NextState<GameState>>,
+    commands: &mut Commands,
+) {
+    next_state.set(GameState::PreRound);
 
     commands.insert_resource(TransitionTimer::from(Timer::from_seconds(
         PRE_ROUND_DURATION,

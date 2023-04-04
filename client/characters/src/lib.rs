@@ -1,3 +1,5 @@
+#![feature(trivial_bounds)]
+
 mod characters;
 mod items;
 mod moves;

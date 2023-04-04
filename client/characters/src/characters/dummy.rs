@@ -324,7 +324,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
         (
             MoveId::BackThrow,
             Move {
-                input: Some("4g"),
+                input: Some("4w"),
                 requirement: standing,
                 phases: vec![
                     DummyAnimation::NormalThrow.into(),

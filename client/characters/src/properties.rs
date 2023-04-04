@@ -149,6 +149,7 @@ pub struct ChargeProperty {
 
     pub clear_time: usize,
     pub last_gain_frame: usize,
+    pub charging: bool,
 }
 impl Default for ChargeProperty {
     fn default() -> Self {
@@ -157,6 +158,7 @@ impl Default for ChargeProperty {
             buttons: vec![],
             clear_time: 20,
             last_gain_frame: 0,
+            charging: false,
         }
     }
 }

@@ -21,26 +21,29 @@ pub fn manage_charge(mut query: Query<(&mut Properties, &InputParser)>, clock: R
                         .iter()
                         .all(|button| parser.get_pressed().contains(button));
 
-                let frames_since = clock.frame - charge_props.last_gain_frame;
+                let charging = direction_held || buttons_pressed;
+                let frames_since_last_gain = if clock.frame > charge_props.last_gain_frame {
+                    clock.frame - charge_props.last_gain_frame
+                } else {
+                    0
+                };
 
-                if direction_held || buttons_pressed {
-                    gain = frames_since as i32;
+                // Done this way to normalize frame skips but not allow repeatedly tapping back to build charge at the same pace as holding back
+                if charging {
+                    if charge_props.charging {
+                        gain = frames_since_last_gain;
+                    }
                     charge_props.last_gain_frame = clock.frame;
-                } else if frames_since > charge_props.clear_time {
+                } else if frames_since_last_gain > charge_props.clear_time {
                     clear = true;
                 }
+                charge_props.charging = charging;
             }
 
             // Moved here to avoid a double mutable borrow.
             // The elements being borrowed would be mutually exclusive but rust can't see it
             if gain > 0 {
-                prop.gain(if prop.is_empty() {
-                    // First frame of charge
-                    // if this isn't hear, it will charge to full always after about a second in the round.
-                    1
-                } else {
-                    gain
-                });
+                prop.gain(gain as i32);
             } else if clear {
                 prop.clear();
             }

@@ -1,7 +1,6 @@
 # Backlog
 ## Before playtest
 - [[Resource rework]]
-- [[Bevy 0.10]]
 - [[Extending items]]
 - [[Items for playtest]]
 - [[Character 2]]
@@ -19,6 +18,7 @@
 - Investigate what good can you get from the archive
 
 ## Not a priority
+- [[New toys from 0.10]]
 - [[Rewards 2.0]]
 - [[CLI args]]
 - Delay wakeup on knockdown

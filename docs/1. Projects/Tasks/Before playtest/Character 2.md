@@ -2,7 +2,6 @@
 
 #blocked by 
 - [[Design documentation cleanup]]
-- Time
 - [[Items for playtest]]
 
 See [[Mizuki]] for designs
@@ -12,11 +11,12 @@ See [[Mizuki]] for designs
 	- [x] Moves
 	- [x] Items / [[Items for playtest]]
 	- [x] Visual identifiers / Themes
-- [ ] Revisit design a few days later to see if you still think it's good
+- [x] Revisit design a few days later to see if you still think it's good
 - [ ] Model
 	- [ ] Sketches
 	- [ ] Sculpt
-	- [ ] Retopologize
+	- [ ] Re-topologize
+	- [ ] Colorize
 	- [ ] Rig
 	- [ ] Animate
 - [ ] Implement required new mechanics

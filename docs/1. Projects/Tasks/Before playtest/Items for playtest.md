@@ -3,3 +3,4 @@
 - [ ] Add
 	- [ ]  [[Mizuki#Items]] 
 	- [ ] Some of [[Idea dump#Items]]
+		- [ ] These should have pages in the spec

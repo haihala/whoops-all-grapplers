@@ -13,11 +13,11 @@ See [[Mizuki]] for designs
 	- [x] Visual identifiers / Themes
 - [x] Revisit design a few days later to see if you still think it's good
 - [ ] Model
-	- [ ] Sketches
-	- [ ] Sculpt
-	- [ ] Re-topologize
-	- [ ] Colorize
-	- [ ] Rig
+	- [x] Sketches
+	- [x] Sculpt
+	- [x] Re-topologize
+	- [x] Colorize
+	- [x] Rig
 	- [ ] Animate
 - [ ] Implement required new mechanics
 - [ ] Add moves in the game

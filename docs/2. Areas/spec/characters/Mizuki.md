@@ -1,30 +1,28 @@
 **Mizuki**. In Japanese the word _mizu_ means “felicitous omen, auspicious” and the word ki means “hope,” forming this very cool and beautiful girls’ name.
 
 # Lore
-She is a young but competent Asian American fighter. She's a rookie in [[W.A.G.]] and thus often agrees to do stuff that she really shouldn't. 
+She is a young but competent second generation Korean American immigrant. She's a rookie in [[W.A.G.]] and thus often agrees to do stuff that she really shouldn't including her Japanese samurai gimmick. 
 
 # Motifs
-- Dual origin between her Asian heritage and American environment
-	- Her parents are never mentioned in any more specificity and they are just "Asian"
-	- It's a commentary on how "Asian" is really broad and it probably shouldn't be used
-- Asian side
-	- Visual indicators of everything Asian
+- Samurai gimmick
+	- Visual indicators
 		- Samurai outfit
 		- Oni mask
 		- [[#Kunai]]s
+		- Katana
 	- Effectiveness through effort and practice
 		- [[#Sharpness]] mechanic
-- American side
-	- Individualism and freedom
-		- Her samurai gimmick comes in part from [[W.A.G.]], she is clearly rebelling against it
-		- Her own touches around her outfit
-		- [[#Place in the roster]] indicates she's "the Ryu", but she has a very non-Ryu kit
+		- Kurosawa-esque staredowns
+- Born and raised in the states
 	- Millennial economy
 		- A lot of her staple items are consumable
 		- Her permanent upgrades are comparatively expensive
 	- Occasionally brash
 		- [[#Back step]] is essentially a taunt
+		- **Laid back**, take cues from Baiken in animations.
 		- Can bite her in the ass and be a bit cocky
+- Her samurai gimmick comes in part from [[W.A.G.]], she is clearly rebelling against it
+- [[#Place in the roster]] indicates she's "the Ryu", but she has a very non-Ryu kit
 
 # Place in the roster
 - She will be the anchor in terms of balance.
@@ -33,7 +31,7 @@ She is a young but competent Asian American fighter. She's a rookie in [[W.A.G.]
 	- Hard reads => hit hard
 	- Can grind meter with [[Link bonus]] on [[#Sharpen]]
 	- She's good at making you play her game
-		- If you spam projectiles full screen because that gives her time to [[#Sharpen]]
+		- If you spam projectiles full screen, she has time to [[#Sharpen]]
 		- If you approach, you'll have to play the close range game with high stakes
 - Weaknesses
 	- Effectiveness depends on [[#Sharpness]] stacks
@@ -57,7 +55,6 @@ She is a young but competent Asian American fighter. She's a rookie in [[W.A.G.]
 - Input: `f` while standing
 - Visual: Baiken 5k, but higher. Heel first roundhouse
 - Function: Poke
-
 
 #### Low poke
 - Input: `f` while crouching

@@ -85,7 +85,7 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Not the best in terms of horizontal range
 
 #### Kickflip
-- Input: `f` while in the air
+- Input: `s` while in the air
 - Visual: Johnny j.D + Guile flash kick
 - Function: Alters jump arc, air-to-air
 - She does a mini double jump

@@ -98,11 +98,6 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Visual: Grab the collar, drag it down and sweep the leg
 - Keeps you close for oki
 
-#### Back throw
-- Input: `4w` while standing
-- Visual: She jumps on top of you, knees to the shoulders, pushes you down and rolls away
-- Target remains about where they were, but she rolls relatively far away
-
 #### Sweep
 - Input: `w` while crouching
 - Hits low

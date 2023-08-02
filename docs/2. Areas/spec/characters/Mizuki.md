@@ -51,45 +51,47 @@ She is a young but competent second generation Korean American immigrant. She's 
 
 # Moves (built-in)
 ### Normals
-#### High kick
+#### Knee thrust
 - Input: `f` while standing
-- Visual: Baiken 5k, but higher. Heel first roundhouse
-- Function: Poke
+- Visual: Lily st.lk, but goes a bit higher
+- Function: Abare, Clash parry trigger
 
 #### Low poke
 - Input: `f` while crouching
 - Visual: Urien cr.lk
 - Function: Low check
-- Special cancel combo on hit
-	- Not hit-confirmable
 
 #### Falcon knee
 - Input: `f` while in the air
 - Visual: Nago j.k
-- Function: Jump-in, pressure, combo starter
-- Can be used to air to air to an extent
-- Quite active, but hits harder during a specific frame
+- Function: Jump-in, pressure, air to air, combo starter
+- Two hitboxes, knee and back leg
+	- Knee
+		- Quite active
+		- Hits harder during the first active frame
+		- Due to the angle, hits rather low -> Easy to anti-air
+	- Back leg
+		- Can hit cross up similar to Kum j.d
 
-#### Right hook
+#### Roundhouse
 - Input: `s` while standing
-- Visual: Upwards angled punch that can anti-air
+- Visual: Baiken 5k, but higher. Heel first roundhouse
+- Function: Poke
+
+#### Uppercut
+- Input: `s` while Crouching
+- Visual: Step back leg forward into back arm uppercut
 - Function: Anti-air, combo starter
 - Doesn't go that far vertically
 - Slightly - on block
 
-#### Pommel pummel
-- Input: `s` while crouching
-- Visual: Baiken 5p + Jetstream Sam sword eject
-- Function: Anti-air, launcher
-- Fantastic if it hits, alright on block, will get you punished on whiff
-- Not the best in terms of horizontal range
-
-#### Kickflip
+#### Foot dive
 - Input: `s` while in the air
-- Visual: Johnny j.D + Guile flash kick
-- Function: Alters jump arc, air-to-air
-- She does a mini double jump
-- Can hit cross up
+- Visual: Dr Doom foot dive
+- Function: Alters jump arc, combo and pressure starter
+- Can be held
+	- Hangs in the air a bit
+	- Can bait anti-airs
 
 #### Ground throw
 - Input: `w` while standing

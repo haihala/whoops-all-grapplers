@@ -224,9 +224,6 @@ Conveniently, shortened to bs (bullshit)
 - Input: `236g`
 - Visual: Ibuki kunai throw in SFV
 - Function: Projectile
-- Consumes a [[#Kunai]] on use, can't use if you have none
-- Air version
-	- Diagonal angle
-	- Bounces her up some and slightly back
-- Ground versions
 	- Relatively fast and small projectile with a slight arc to it
+	- Consumes a [[#Kunai]] on use, can't use if you have none
+- Maybe add an air version later?

@@ -139,24 +139,27 @@ Conveniently, shortened to bs (bullshit)
 - Step back, hang back a bit, lunge forward
 	- She can perform a follow up at any point during that
 - Follow-ups
-	- You can activate follow ups whenever in the animation
-	- This means you can use the follow-ups on frame 1 and even gain forward momentum
-	- All of the follow ups exit the stance where you can do them
+	- Follow ups come out almost immediately
+		- There is a bit of a delay, but not long enough for the buffer to not take care of it
 	- **Some of the follow-up ideas should be made into items**
 	- Options
 		- X = release the button you started the move with
-		- `[147]X` - Cancel
-			- Can be used like a mist finer cancel
-			- Done automatically after a second in stance
-			- Will persist your momentum somewhat
-				- If you do nothing, she'll slide forward after the move
-		- `[56]X` - Vertical sword slice
+		- `[456]X` - Vertical sword slice
 			- Fast and has great reach
-		- `[23]X` - Downwards sword slice
+		- `[123]X` - Downwards sword slice
 			- Hits low, knocks down
-		- `[89]X` - Upwards sword slice
+		- `[789]X` - Upwards sword slice
 			- Covers a lot of space
 			- Most punishable of them all
+		- `6` - Sway forward
+			- Ends up a bit closer than the sway started from
+			- Exits stance
+				- Other follow ups can be done mid-dash
+		- Press the other attack button - Cancel
+			- Can be used like a mist finer cancel
+			- Will persist your momentum somewhat
+				- If you do nothing, she'll slide forward after the move
+	- Initiating the move and holding the inputs will hold the furthest point in the swing
 - Versions
 	- `f` version
 		- Doesn't go that far back, maybe 1m
@@ -192,11 +195,6 @@ Conveniently, shortened to bs (bullshit)
 - Can special cancel into [[#Sharpen]]
 	- Doing so will end your turn, good option when it's not clear if a starter will hit
 
-## Turtle holster
-- Upgrade from feather (see [[Idea dump#Items]])
-- Can input a direction when using [[#Kickflip]] to change the angle
-- Could use a better name, current one is referencing Oro
-
 ## Vampire coffin
 - Upgrades from jar of ectoplasm (see [[Idea dump#Items]])
 - You gain [[Intangible]] when moving back with [[#Back step]]
@@ -218,6 +216,16 @@ Conveniently, shortened to bs (bullshit)
 			- One of those cases where you can get a hit in, but it's probably just better to use the time to setup a real mix on oki
 			- As a combo tool, instantly cancelled `f`[[#Back step]] should be better
 - Item name is referencing the marshmallow test
+	- Not exactly great
+
+## Four tiger sword
+- While holding [[#Back step]], follow up attacks charge up in power
+- Hold for 1s for max power, can release early for partial buff
+- Variants
+	- Mid becomes unblockable at max charge
+	- Low launches
+	- All variants gain a damage boost
+- Item is referencing Kum (this name fits better even if the reference is hayabusa)
 
 # Moves from [[#Items]]
 ## Kunai throw

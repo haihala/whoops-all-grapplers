@@ -149,11 +149,7 @@ fn move_selection(shop: &mut Shop, direction: CardinalDiretion) {
 const LOW_BOUND: usize = INVENTORY_SIZE / 2 - 1;
 const MID_BOUND: usize = INVENTORY_SIZE / 2 + 2;
 
-fn owned_slot_navigation(
-    shop: &mut Shop,
-    direction: CardinalDiretion,
-    index: usize,
-) -> ShopNavigation {
+fn owned_slot_navigation(shop: &Shop, direction: CardinalDiretion, index: usize) -> ShopNavigation {
     let category = match index {
         0..LOW_BOUND => ShopCategory::Consumable,
         LOW_BOUND..MID_BOUND => ShopCategory::Basic,
@@ -178,7 +174,7 @@ fn owned_slot_navigation(
 }
 
 fn available_slot_navigation(
-    shop: &mut Shop,
+    shop: &Shop,
     direction: CardinalDiretion,
     category: ShopCategory,
     index: usize,
@@ -211,7 +207,7 @@ fn switch_category(shop: &Shop, new_category: ShopCategory, old_index: usize) ->
 }
 
 fn primary_button_pressed(
-    shop: &mut Shop,
+    shop: &Shop,
     inventory: &mut Inventory,
     character: &Character,
     slots: &Query<(Entity, &Owner, Option<&ShopItem>, &mut ShopSlotState)>,
@@ -242,7 +238,7 @@ pub fn get_recursive_cost(character: &Character, id: &ItemId) -> usize {
 }
 
 fn buy(
-    shop: &mut Shop,
+    shop: &Shop,
     inventory: &mut Inventory,
     character: &Character,
     slots: &Query<(Entity, &Owner, Option<&ShopItem>, &mut ShopSlotState)>,

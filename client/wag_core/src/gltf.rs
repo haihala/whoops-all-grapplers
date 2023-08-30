@@ -1,14 +1,12 @@
 use bevy::prelude::*;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect, FromReflect)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect)]
 pub enum Model {
     Dummy,
     Fireball,
 }
 
-#[derive(
-    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect, FromReflect,
-)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect)]
 pub enum DummyAnimation {
     // Basics
     #[default]
@@ -48,9 +46,7 @@ pub enum DummyAnimation {
     AirThrowRecipient,
 }
 
-#[derive(
-    Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect, FromReflect,
-)]
+#[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect)]
 pub enum Animation {
     #[default]
     TPose,

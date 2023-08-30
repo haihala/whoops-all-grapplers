@@ -13,13 +13,13 @@ pub fn update_round_text(
 ) {
     let (mut visible, mut text) = query.single_mut();
 
-    if !game_state.0.show_round_text() {
+    if !game_state.get().show_round_text() {
         *visible = Visibility::Hidden;
         return;
     }
 
     *visible = Visibility::Inherited;
-    if game_state.0 == GameState::PreRound {
+    if game_state.get() == &GameState::PreRound {
         text.sections[0].value = "New round".to_string();
     } else if let Some(result) = round_log.last() {
         text.sections[0].value = if let Some(winner) = result.winner {
@@ -38,12 +38,10 @@ pub fn setup_round_info_text(mut commands: Commands, colors: Res<Colors>, fonts:
                     position_type: PositionType::Absolute,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
-                    size: Size::new(Val::Percent(100.0), Val::Percent(10.0)),
-                    position: UiRect {
-                        top: Val::Percent(40.0),
-                        left: Val::Px(0.0),
-                        ..default()
-                    },
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(10.0),
+                    top: Val::Percent(40.0),
+                    left: Val::Px(0.0),
                     ..default()
                 },
                 ..default()

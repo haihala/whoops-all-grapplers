@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{Action, Movement, PropertyType, ToHit};
 
-#[derive(Debug, Clone, PartialEq, Component, Reflect, FromReflect)]
+#[derive(Debug, Clone, PartialEq, Component, Reflect)]
 pub struct Attack {
     pub to_hit: ToHit,
     pub self_on_hit: Vec<Action>,

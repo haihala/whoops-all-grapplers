@@ -152,32 +152,36 @@ fn particle_explosion(
     amount: f32,
 ) -> Entity {
     let spawner = Spawner::once(amount.into(), false);
+    let mut module = Module::default();
+
+    let position_modifier = SetPositionSphereModifier {
+        dimension: ShapeDimension::Surface,
+        radius: module.lit(0.2),
+        center: module.lit(Vec3::ZERO),
+    };
+
+    let velocity_modifier = SetVelocitySphereModifier {
+        center: module.lit(Vec3::ZERO),
+        speed: module.lit(speed),
+    };
+
+    let lifetime = SetAttributeModifier::new(Attribute::LIFETIME, module.lit(1.0));
+
+    let gravity = AccelModifier::new(module.lit(Vec3::new(0.0, -2.0, 0.0)));
+
     let effect = effects.add(
-        EffectAsset {
-            name: name.into(),
-            capacity: 1000,
-            spawner,
-            ..default()
-        }
-        .init(InitPositionSphereModifier {
-            dimension: ShapeDimension::Surface,
-            radius: 0.2,
-            ..default()
-        })
-        .init(InitVelocitySphereModifier {
-            center: Vec3::ZERO,
-            speed: speed.into(),
-        })
-        .init(InitLifetimeModifier {
-            lifetime: Value::Single(1.0),
-        })
-        .update(AccelModifier::constant(Vec3::new(0.0, -2.0, 0.0)))
-        .render(ColorOverLifetimeModifier {
-            gradient: color_gradient,
-        })
-        .render(SizeOverLifetimeModifier {
-            gradient: size_gradient,
-        }),
+        EffectAsset::new(1000, spawner, module)
+            .init(position_modifier)
+            .init(velocity_modifier)
+            .init(lifetime)
+            .update(gravity)
+            .render(ColorOverLifetimeModifier {
+                gradient: color_gradient,
+            })
+            .render(SizeOverLifetimeModifier {
+                gradient: size_gradient,
+                ..default()
+            }),
     );
 
     commands

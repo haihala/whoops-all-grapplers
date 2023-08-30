@@ -34,7 +34,8 @@ pub fn setup_toasts(commands: &mut Commands, parent: Entity, player: Player) {
                         Player::One => AlignItems::FlexStart,
                         Player::Two => AlignItems::FlexEnd,
                     },
-                    size: Size::new(Val::Percent(100.0), Val::Percent(40.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(40.0),
                     ..default()
                 },
                 ..default()
@@ -57,7 +58,7 @@ pub fn update_notifications(
 ) {
     for expired_toast in toasts
         .spawned
-        .drain_filter(|notification| notification.created_at + TIME_TO_LIVE < clock.frame)
+        .extract_if(|notification| notification.created_at + TIME_TO_LIVE < clock.frame)
     {
         commands.entity(expired_toast.entity).despawn_recursive();
     }
@@ -92,7 +93,8 @@ fn spawn_notification(
     parent
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(40.0), Val::Auto),
+                width: Val::Percent(40.0),
+                height: Val::Auto,
                 margin: UiRect::all(Val::Px(7.0)),
                 justify_content: JustifyContent::Center,
                 ..default()

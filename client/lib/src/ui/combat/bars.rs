@@ -19,7 +19,8 @@ pub fn setup_bar(
         .spawn((
             NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Percent(instructions.height)),
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(instructions.height),
                     margin: UiRect {
                         bottom: Val::Percent(1.0),
                         ..default()
@@ -57,7 +58,7 @@ pub fn update_bars(
                     continue;
                 }
 
-                style.size.width = Val::Percent(property.get_percentage());
+                style.width = Val::Percent(property.get_percentage());
 
                 *color = if property.is_full() {
                     if let Some(full_color) = render_instructions.full_color {

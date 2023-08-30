@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(
-    Reflect, FromReflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default,
-)]
+#[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum ItemId {
     Gi,
     Gun,

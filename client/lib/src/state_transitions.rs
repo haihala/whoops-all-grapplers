@@ -13,9 +13,14 @@ pub struct StateTransitionPlugin;
 
 impl Plugin for StateTransitionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(end_loading.in_set(OnUpdate(GameState::Loading)))
-            .add_system(end_combat.in_set(OnUpdate(GameState::Combat)))
-            .add_system(transition_after_timer);
+        app.add_systems(
+            Update,
+            (
+                end_loading.run_if(in_state(GameState::Loading)),
+                end_combat.run_if(in_state(GameState::Combat)),
+                transition_after_timer,
+            ),
+        );
     }
 }
 
@@ -71,9 +76,11 @@ pub fn end_combat(
     });
 
     assert!(ordered_healths.len() == 2);
-    let [(winner_props, winner, winner_inventory), (loser_props, loser, loser_inventory)] = &mut ordered_healths[..] else {
-            panic!("Couldn't unpack players");
-        };
+    let [(winner_props, winner, winner_inventory), (loser_props, loser, loser_inventory)] =
+        &mut ordered_healths[..]
+    else {
+        panic!("Couldn't unpack players");
+    };
 
     for player in [Player::One, Player::Two] {
         notifications.add(player, format!("Round payout: ${}", ROUND_MONEY));
@@ -132,7 +139,7 @@ fn transition_after_timer(
             if transition.exit_game {
                 exit.send(AppExit);
             } else {
-                next_state.set(game_state.0.next());
+                next_state.set(game_state.get().next());
                 commands.remove_resource::<TransitionTimer>()
             }
         }

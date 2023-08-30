@@ -4,7 +4,10 @@ use std::{
 };
 
 use bevy::{
-    app::ScheduleRunnerSettings, asset::AssetPlugin, input::InputPlugin, prelude::*,
+    app::{RunMode, ScheduleRunnerPlugin},
+    asset::AssetPlugin,
+    input::InputPlugin,
+    prelude::*,
     render::RenderPlugin,
 };
 
@@ -39,18 +42,21 @@ impl TestRunner {
     /// Setup the game env for a test case
     fn setup(&self, spec: TestSpec) -> App {
         let mut app = App::new();
-        app.add_plugins(MinimalPlugins);
-        app.insert_resource(ScheduleRunnerSettings {
-            run_mode: bevy::app::RunMode::Loop { wait: None },
-        });
-        app.add_plugin(AssetPlugin::default());
-        app.add_plugin(WindowPlugin::default());
-        app.add_plugin(InputPlugin::default());
-        app.add_plugin(RenderPlugin::default());
-        app.add_plugin(ImagePlugin::default());
+        app.add_plugins(MinimalPlugins.build().disable::<ScheduleRunnerPlugin>());
 
-        app.add_plugins(WAGLib::integration().build());
-        app.add_system(parse_input::<PreWrittenStream>);
+        app.add_plugins((
+            ScheduleRunnerPlugin {
+                run_mode: RunMode::Loop { wait: None },
+            },
+            AssetPlugin::default(),
+            WindowPlugin::default(),
+            InputPlugin::default(),
+            RenderPlugin::default(),
+            ImagePlugin::default(),
+            WAGLib::integration().build(),
+        ));
+
+        app.add_systems(Update, parse_input::<PreWrittenStream>);
         app.update();
 
         // Go to combat
@@ -62,7 +68,8 @@ impl TestRunner {
         let players = app.world.resource::<Players>();
         let p1 = players.one;
         let p2 = players.two;
-        drop(players); // Needs to drop because couldn't figure out how to get the Players resource without by value.
+        // TODO: Migration to bevy 0.11.2 broke this
+        // drop(players); // Needs to drop because couldn't figure out how to get the Players resource without by value.
 
         app.world.entity_mut(p1).insert(spec.p1_bundle);
         app.world.entity_mut(p2).insert(spec.p2_bundle);

@@ -99,7 +99,7 @@ impl HitboxSpawner {
     ) {
         for id in self
             .despawn_requests
-            .drain_filter(predicate)
+            .extract_if(predicate)
             .map(|event| event.entity)
         {
             commands.entity(id).despawn_recursive();

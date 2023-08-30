@@ -6,7 +6,7 @@ use crate::{Attack, PropertyType};
 
 use super::Situation;
 
-#[derive(Debug, Clone, Copy, PartialEq, Default, Reflect, FromReflect)]
+#[derive(Debug, Clone, Copy, PartialEq, Default, Reflect)]
 pub struct Movement {
     pub amount: Vec2,
     pub duration: usize,
@@ -20,7 +20,7 @@ impl Movement {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Default, Reflect, FromReflect)]
+#[derive(Debug, Clone, PartialEq, Default, Reflect)]
 pub enum Action {
     // TODO: Figure out a better way to handle actions that change depending on game state
     // Maybe hoist AnimationRequest?

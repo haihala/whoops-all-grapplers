@@ -156,11 +156,13 @@ pub(super) fn detect_hits(
 
                 // This technically doesn't get the actual overlap, as it just gets some overlap with one of the hitboxes
                 let Some(overlap) = hurtboxes.iter().find_map(|(hurtbox, hurt_owner)| {
-                    if **hurt_owner == **hit_owner{
+                    if **hurt_owner == **hit_owner {
                         None
                     } else {
                         // Different owners, hit can register
-                        hurtbox.with_offset(defender_tf.translation.truncate()).intersection(&offset_hitbox)
+                        hurtbox
+                            .with_offset(defender_tf.translation.truncate())
+                            .intersection(&offset_hitbox)
                     }
                 }) else {
                     return None;
@@ -195,7 +197,9 @@ pub(super) fn detect_hits(
                         },
                         "Busy".into(),
                     )
-                } else if state.has_flag(StatusFlag::Parry) && attack.to_hit.block_type != BlockType::Grab {
+                } else if state.has_flag(StatusFlag::Parry)
+                    && attack.to_hit.block_type != BlockType::Grab
+                {
                     (HitType::Parry, "Parry!".into())
                 } else {
                     match attack.to_hit.block_type {
@@ -225,19 +229,15 @@ pub(super) fn detect_hits(
                 };
 
                 // TODO: This could be moved into hit processing, as it's not really relevant to hit recognition
-                let is_opener = combo.is_none() &&  hit_type == HitType::Strike;
+                let is_opener = combo.is_none() && hit_type == HitType::Strike;
                 if combo.is_none() {
                     notifications.add(
                         defending_player,
                         format!(
                             "{} - {}",
-                            if is_opener {
-                                "Opener!"
-                            } else {
-                                "Avoid"
-                            },
+                            if is_opener { "Opener!" } else { "Avoid" },
                             notification,
-                        )
+                        ),
                     );
                 }
 

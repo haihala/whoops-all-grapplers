@@ -29,7 +29,9 @@ pub(super) fn create_colliders(
                 continue;
             }
 
-            let Some(bounding_box) = collider_joints_bounding_box(collider, &joints.nodes, &joint_tfs) else {
+            let Some(bounding_box) =
+                collider_joints_bounding_box(collider, &joints.nodes, &joint_tfs)
+            else {
                 // Nodes not yet linked and can't find a neat bounding box
                 continue;
             };

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Reflect, FromReflect, Debug, Clone, Copy, PartialEq, Component)]
+#[derive(Reflect, Debug, Clone, Copy, PartialEq, Component)]
 pub struct Stats {
     pub walk_speed: f32,
     pub max_health: i32,
@@ -48,7 +48,7 @@ impl Stats {
     }
 }
 
-#[derive(Reflect, FromReflect, Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Reflect, Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum StatusFlag {
     #[default]
     Default, // Not in use, here to satisfy inspectable
@@ -56,7 +56,7 @@ pub enum StatusFlag {
     Parry,
 }
 
-#[derive(Reflect, FromReflect, Debug, Clone, Copy, Default, PartialEq)]
+#[derive(Reflect, Debug, Clone, Copy, Default, PartialEq)]
 pub struct StatusCondition {
     pub flag: StatusFlag,
     pub effect: Option<Stats>,

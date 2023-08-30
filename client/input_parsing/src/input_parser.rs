@@ -283,7 +283,7 @@ mod test {
 
         fn new(moves: Vec<(MoveId, &'static str)>) -> TestInterface {
             let mut app = App::new();
-            app.add_system(parse_input::<TestStream>);
+            app.add_systems(Update, parse_input::<TestStream>);
 
             app.world.spawn((
                 TestInputBundle::new(moves.into_iter().collect()),

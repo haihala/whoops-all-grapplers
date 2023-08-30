@@ -1,4 +1,4 @@
-use map_macro::set;
+use map_macro::hash_set;
 use std::collections::HashSet;
 
 use wag_core::{GameButton, StickPosition};
@@ -70,7 +70,7 @@ fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet
         pressed.insert(button);
         pressed
     } else {
-        set! {button}
+        hash_set! {button}
     }
 }
 

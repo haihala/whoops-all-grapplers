@@ -4,7 +4,8 @@ use wag_core::MoveId;
 use crate::{Action, Move};
 
 use super::FlowControl;
-#[derive(Debug, Default, Clone, Reflect, FromReflect)]
+
+#[derive(Debug, Default, Clone, Reflect)]
 pub struct MoveHistory {
     pub move_id: MoveId,
     #[reflect(ignore)]

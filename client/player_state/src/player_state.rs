@@ -5,7 +5,7 @@ use wag_core::{AnimationType, Facing, Stats, StatusCondition, StatusFlag};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 
-#[derive(Reflect, FromReflect, Debug, Component, Clone)]
+#[derive(Reflect, Debug, Component, Clone)]
 enum MainState {
     Air(AirState),
     Stand(StandState),
@@ -60,14 +60,14 @@ impl PlayerState {
     ) -> Vec<T> {
         let mut actions: Vec<T> = self
             .external_actions
-            .drain_filter(|action| (predicate)(action).is_some())
+            .extract_if(|action| (predicate)(action).is_some())
             .map(|mut action| (predicate)(&mut action).unwrap())
             .collect();
 
         if let Some(ref mut history) = self.get_move_history_mut() {
             let history_actions = history
                 .unprocessed_events
-                .drain_filter(|action| (predicate)(action).is_some())
+                .extract_if(|action| (predicate)(action).is_some())
                 .map(|mut action| (predicate)(&mut action).unwrap());
             actions.extend(history_actions);
         }

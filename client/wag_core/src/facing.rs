@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Reflect, FromReflect, PartialEq, Eq, Clone, Copy, Debug, Component, Default, Hash)]
+#[derive(Reflect, PartialEq, Eq, Clone, Copy, Debug, Component, Default, Hash)]
 pub enum Facing {
     #[default]
     Right,

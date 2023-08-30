@@ -28,6 +28,7 @@ impl PadReserve {
 impl Plugin for InputParsingPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(PadReserve::default()).add_systems(
+            Update,
             (
                 update_pads,
                 update_parrots::<PadStream>,

@@ -39,7 +39,8 @@ pub struct AssetsPlugin;
 
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_systems(
+        app.add_systems(
+            PreStartup,
             (
                 loaders::colors,
                 loaders::fonts,
@@ -48,16 +49,18 @@ impl Plugin for AssetsPlugin {
                 loaders::animations,
                 loaders::sounds,
                 loaders::particles,
-            )
-                .in_base_set(StartupSet::PreStartup),
+            ),
         )
-        .add_systems((
-            animations::setup_helpers,
-            animations::update_animation,
-            animations::mirror_after_load,
-            models::find_joints,
-            sounds::play_queued,
-            particles::handle_requests,
-        ));
+        .add_systems(
+            Update,
+            (
+                animations::setup_helpers,
+                animations::update_animation,
+                animations::mirror_after_load,
+                models::find_joints,
+                sounds::play_queued,
+                particles::handle_requests,
+            ),
+        );
     }
 }

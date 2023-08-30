@@ -52,14 +52,17 @@ pub struct TimePlugin;
 
 impl Plugin for TimePlugin {
     fn build(&self, app: &mut App) {
-        app.configure_set(WAGStage::Physics.run_if(once_per_combat_frame))
-            .configure_set(WAGStage::HitReg.run_if(once_per_combat_frame))
-            .configure_set(WAGStage::PlayerUpdates.run_if(once_per_combat_frame))
+        app.configure_set(Update, WAGStage::Physics.run_if(once_per_combat_frame))
+            .configure_set(Update, WAGStage::HitReg.run_if(once_per_combat_frame))
+            .configure_set(
+                Update,
+                WAGStage::PlayerUpdates.run_if(once_per_combat_frame),
+            )
             .add_state::<GameState>()
-            .add_system(update_visibility_on_state_change)
+            .add_systems(Update, update_visibility_on_state_change)
             .init_resource::<Clock>()
             .insert_resource(FixedTime::new_from_secs(1.0 / crate::FPS))
-            .add_system(update_clock.in_schedule(CoreSchedule::FixedUpdate))
+            .add_systems(FixedUpdate, update_clock)
             .insert_resource(RoundLog::default());
     }
 }
@@ -76,7 +79,7 @@ fn update_visibility_on_state_change(
     // TODO FIXME: This is broken, and happens on every frame which is not performant
     if state.is_changed() {
         for (mut visibility, restriction) in &mut query {
-            *visibility = if restriction.contains(&state.0) {
+            *visibility = if restriction.contains(state.get()) {
                 Visibility::Visible
             } else {
                 Visibility::Hidden
@@ -86,11 +89,11 @@ fn update_visibility_on_state_change(
 }
 
 pub fn in_combat(state: Res<State<GameState>>) -> bool {
-    state.0 == GameState::Combat
+    state.get() == &GameState::Combat
 }
 
 pub fn not_in_combat(state: Res<State<GameState>>) -> bool {
-    state.0 != GameState::Combat
+    state.get() != &GameState::Combat
 }
 
 pub fn once_per_combat_frame(
@@ -98,7 +101,7 @@ pub fn once_per_combat_frame(
     clock: Res<Clock>,
     state: Res<State<GameState>>,
 ) -> bool {
-    let value = state.0 == GameState::Combat && *last_frame < clock.frame;
+    let value = state.get() == &GameState::Combat && *last_frame < clock.frame;
     *last_frame = clock.frame;
     value
 }

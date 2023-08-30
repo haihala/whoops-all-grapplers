@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_hanabi::ParticleEffect;
+use bevy_hanabi::EffectSpawner;
 use std::collections::HashMap;
 
 use wag_core::VisualEffect;
@@ -33,16 +33,16 @@ impl Particles {
 }
 
 pub fn handle_requests(
-    mut transforms: Query<(&mut ParticleEffect, &mut Transform)>,
+    mut transforms: Query<(&mut EffectSpawner, &mut Transform)>,
     mut particles: ResMut<Particles>,
 ) {
     for ParticleRequest { effect, position } in
         particles.queue.drain(..).collect::<Vec<_>>().into_iter()
     {
         let emitter = particles.get(effect);
-        if let Ok((mut effect, mut tf)) = transforms.get_mut(emitter) {
+        if let Ok((mut spawner, mut tf)) = transforms.get_mut(emitter) {
             tf.translation = position;
-            effect.maybe_spawner().unwrap().reset();
+            spawner.reset();
         }
     }
 }

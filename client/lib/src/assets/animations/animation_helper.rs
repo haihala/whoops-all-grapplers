@@ -1,3 +1,5 @@
+use std::mem::take;
+
 use bevy::{prelude::*, scene::SceneInstance};
 
 use wag_core::{Animation, Facing};
@@ -82,7 +84,7 @@ fn find_animation_player_entity(
         let mut next_candidates: Vec<Entity> = candidates.iter().map(|e| e.to_owned()).collect();
         let mut scene_root = None;
         while !next_candidates.is_empty() {
-            for candidate in next_candidates.drain(..).collect::<Vec<Entity>>() {
+            for candidate in take(&mut next_candidates) {
                 if players.get(candidate).is_ok() {
                     return (Some(candidate), scene_root);
                 } else if let Ok(new) = children.get(candidate) {

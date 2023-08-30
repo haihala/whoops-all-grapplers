@@ -3,13 +3,13 @@ use std::cmp::Ordering;
 
 use wag_core::MoveId;
 
-#[derive(Debug, Default, Reflect, FromReflect)]
+#[derive(Debug, Default, Reflect)]
 pub(super) struct MoveActivation {
     pub kind: ActivationType,
     pub id: MoveId,
 }
 
-#[derive(Debug, Default, Reflect, FromReflect)]
+#[derive(Debug, Default, Reflect)]
 pub(super) enum ActivationType {
     Continuation,
     #[default]
@@ -22,7 +22,7 @@ pub(super) enum ActivationType {
 const PERFECT_TIMING_DELTA: i32 = 0;
 const GOOD_TIMING_DELTA: i32 = 3;
 
-#[derive(Debug, Default, Reflect, FromReflect)]
+#[derive(Debug, Default, Reflect)]
 enum ErrorDirection {
     Late,
     #[default]
@@ -38,7 +38,7 @@ impl From<i32> for ErrorDirection {
     }
 }
 
-#[derive(Debug, Default, Reflect, FromReflect)]
+#[derive(Debug, Default, Reflect)]
 enum LinkPrecision {
     #[default]
     Perfect,
@@ -73,7 +73,7 @@ impl LinkPrecision {
     }
 }
 
-#[derive(Debug, Default, Reflect, FromReflect)]
+#[derive(Debug, Default, Reflect)]
 pub(super) struct Link {
     pub correction: usize,
     precision: LinkPrecision,
@@ -97,7 +97,7 @@ impl Link {
     }
 }
 
-#[derive(Debug, Default, Reflect, FromReflect)]
+#[derive(Debug, Default, Reflect)]
 pub(super) struct Cancellation {
     pub message: String,
 }

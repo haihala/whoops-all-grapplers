@@ -15,8 +15,8 @@ pub struct CustomCameraPlugin;
 
 impl Plugin for CustomCameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(add_cameras)
-            .add_system(center_camera);
+        app.add_systems(Startup, add_cameras)
+            .add_systems(Update, center_camera);
     }
 }
 

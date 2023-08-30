@@ -22,11 +22,9 @@ pub fn setup_timer(
                 style: Style {
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::FlexStart,
-                    size: Size::new(Val::Percent(width_percentage), Val::Percent(100.0)),
-                    position: UiRect {
-                        top: Val::Percent(2.0),
-                        ..default()
-                    },
+                    width: Val::Percent(width_percentage),
+                    height: Val::Percent(100.0),
+                    top: Val::Percent(2.0),
                     ..default()
                 },
                 ..default()

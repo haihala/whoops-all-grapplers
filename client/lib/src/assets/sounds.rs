@@ -25,14 +25,12 @@ impl Sounds {
     }
 }
 
-pub fn play_queued(mut sounds: ResMut<Sounds>, audio: Option<Res<Audio>>) {
-    // audio is not present in unit tests
-    // This way the sound system behaves the same despite this.
-    let clips = sounds.queue.drain(..);
-    if let Some(player) = audio {
-        for clip in clips {
-            player.play(clip);
-        }
+pub fn play_queued(mut commands: Commands, mut sounds: ResMut<Sounds>) {
+    for source in sounds.queue.drain(..) {
+        commands.spawn(AudioBundle {
+            source,
+            ..default()
+        });
     }
 }
 

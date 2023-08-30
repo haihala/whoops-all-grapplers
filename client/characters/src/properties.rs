@@ -2,7 +2,7 @@ use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{GameButton, Stats, StickPosition};
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Reflect, FromReflect)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Reflect)]
 pub enum PropertyType {
     Health,
     Meter,
@@ -36,7 +36,7 @@ impl Properties {
                 ),
             ]
             .into_iter()
-            .chain(additional_properties.into_iter())
+            .chain(additional_properties)
             .collect(),
         )
     }

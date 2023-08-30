@@ -16,6 +16,7 @@ pub struct DamagePlugin;
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
+            Update,
             (
                 hitboxes::spawn_new,
                 hitboxes::despawn_expired,
@@ -28,6 +29,6 @@ impl Plugin for DamagePlugin {
             )
                 .in_set(WAGStage::HitReg),
         )
-        .add_system(hitboxes::despawn_everything.in_schedule(OnExit(GameState::Combat)));
+        .add_systems(OnExit(GameState::Combat), hitboxes::despawn_everything);
     }
 }

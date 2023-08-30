@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(
-    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect, FromReflect,
-)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect)]
 pub enum SoundEffect {
     Whoosh,
     Clash,

@@ -14,13 +14,15 @@ impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(Notifications::default())
             .add_systems(
-                (combat::update_bars, combat::update_timer)
-                    .in_base_set(CoreSet::Last)
-                    .distributive_run_if(in_combat),
+                Last,
+                (combat::update_bars, combat::update_timer).distributive_run_if(in_combat),
             )
-            .add_system(combat::update_notifications)
-            .add_system(round_text::update_round_text)
             .add_systems(
+                Update,
+                (combat::update_notifications, round_text::update_round_text),
+            )
+            .add_systems(
+                Update,
                 (
                     shop::navigate_shop,
                     shop::update_slot_visuals,
@@ -28,15 +30,15 @@ impl Plugin for UIPlugin {
                     shop::update_inventory_ui,
                     shop::handle_shop_ending,
                 )
-                    .in_set(OnUpdate(GameState::Shop)),
+                    .run_if(in_state(GameState::Shop)),
             )
-            .add_startup_systems(
+            .add_systems(
+                PostStartup,
                 (
                     combat::setup_combat_hud,
                     round_text::setup_round_info_text,
                     shop::setup_shop,
-                )
-                    .in_base_set(StartupSet::PostStartup),
+                ),
             );
     }
 }

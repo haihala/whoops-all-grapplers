@@ -47,11 +47,12 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup)
-            .add_system(setup_combat.in_schedule(OnEnter(GameState::PreRound)))
+        app.add_systems(Startup, setup)
+            .add_systems(OnEnter(GameState::PreRound), setup_combat)
             // This is here so it's up to date when the round starts
-            .add_system(condition_management::update_combined_status_effect)
+            .add_systems(Update, condition_management::update_combined_status_effect)
             .add_systems(
+                Update,
                 (
                     move_activation::manage_buffer,
                     move_activation::move_continuation,
@@ -73,6 +74,7 @@ impl Plugin for PlayerPlugin {
             )
             // There is a max of 15 systems per call to add_systems
             .add_systems(
+                Update,
                 (
                     dynamic_colliders::create_colliders,
                     dynamic_colliders::update_colliders,

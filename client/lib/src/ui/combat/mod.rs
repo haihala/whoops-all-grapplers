@@ -27,16 +27,11 @@ pub fn setup_combat_hud(
         .spawn((
             NodeBundle {
                 style: Style {
-                    size: Size {
-                        height: Val::Percent(100.0),
-                        width: Val::Percent(100.0),
-                    },
+                    height: Val::Percent(100.0),
+                    width: Val::Percent(100.0),
                     position_type: PositionType::Absolute,
-                    position: UiRect {
-                        left: Val::Percent(0.0),
-                        top: Val::Percent(0.0),
-                        ..default()
-                    },
+                    left: Val::Percent(0.0),
+                    top: Val::Percent(0.0),
                     justify_content: JustifyContent::SpaceBetween,
                     ..default()
                 },
@@ -87,7 +82,8 @@ fn setup_player_hud(
                 justify_content: JustifyContent::SpaceBetween,
                 align_items: AlignItems::Center,
                 margin: UiRect::all(Val::Px(3.0)),
-                size: Size::new(Val::Percent(width_percentage), Val::Percent(100.0)),
+                width: Val::Percent(width_percentage),
+                height: Val::Percent(100.0),
                 ..default()
             },
             ..default()
@@ -118,7 +114,8 @@ fn setup_top_hud(
                         Player::One => AlignItems::FlexEnd,
                         Player::Two => AlignItems::FlexStart,
                     },
-                    size: Size::new(Val::Percent(100.0), Val::Percent(10.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(10.0),
                     ..default()
                 },
                 ..default()
@@ -177,7 +174,8 @@ fn setup_bottom_hud(
                     Player::One => AlignItems::FlexStart,
                     Player::Two => AlignItems::FlexEnd,
                 },
-                size: Size::new(Val::Percent(100.0), Val::Percent(50.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(50.0),
                 ..default()
             },
             ..default()

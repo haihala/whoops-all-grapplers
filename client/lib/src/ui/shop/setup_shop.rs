@@ -29,16 +29,11 @@ pub fn setup_shop(
             NodeBundle {
                 background_color: Color::BLACK.into(), // This will color the divider between the sides
                 style: Style {
-                    size: Size {
-                        height: Val::Percent(100.0),
-                        width: Val::Percent(100.0),
-                    },
+                    height: Val::Percent(100.0),
+                    width: Val::Percent(100.0),
                     position_type: PositionType::Absolute,
-                    position: UiRect {
-                        left: Val::Percent(0.0),
-                        top: Val::Percent(0.0),
-                        ..default()
-                    },
+                    left: Val::Percent(0.0),
+                    top: Val::Percent(0.0),
                     justify_content: JustifyContent::SpaceBetween,
                     ..default()
                 },
@@ -96,10 +91,8 @@ fn setup_shop_root(
             NodeBundle {
                 background_color: Color::BLACK.into(),
                 style: Style {
-                    size: Size {
-                        height: Val::Percent(100.0),
-                        width: Val::Percent(49.9), // Not quite 50 so there is a gap between them
-                    },
+                    height: Val::Percent(100.0),
+                    width: Val::Percent(49.9), // Not quite 50 so there is a gap between them
                     flex_direction: FlexDirection::Column,
                     ..default()
                 },
@@ -148,10 +141,8 @@ fn setup_countdown_number(
                     position_type: PositionType::Absolute,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
-                    size: Size {
-                        width: Val::Percent(100.0),
-                        height: Val::Percent(100.0),
-                    },
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
                     ..default()
                 },
                 visibility: Visibility::Hidden,
@@ -197,10 +188,8 @@ fn setup_info_panel(
             NodeBundle {
                 background_color: Color::DARK_GRAY.into(),
                 style: Style {
-                    size: Size {
-                        height: Val::Px(icon_size + absolute_margin * 4.0), // Top and bottom, margin and padding
-                        width: Val::Auto,
-                    },
+                    height: Val::Px(icon_size + absolute_margin * 4.0), // Top and bottom, margin and padding
+                    width: Val::Auto,
                     margin,
                     padding: margin,
                     ..default()
@@ -221,10 +210,8 @@ fn big_icon(commands: &mut Commands, parent: Entity, size: f32) -> Entity {
         .spawn((
             ImageBundle {
                 style: Style {
-                    size: Size {
-                        height: Val::Percent(100.0),
-                        width: Val::Px(size),
-                    },
+                    height: Val::Percent(100.0),
+                    width: Val::Px(size),
                     flex_shrink: 0.0,
                     ..default()
                 },
@@ -339,7 +326,7 @@ fn setup_inventory(
             NodeBundle {
                 background_color: Color::DARK_GRAY.into(),
                 style: Style {
-                    size: Size::AUTO,
+                    // size: Size::AUTO,
                     align_items: AlignItems::Center,
                     margin,
                     padding: margin,
@@ -379,7 +366,7 @@ fn setup_owned_slots(
         .spawn((
             NodeBundle {
                 style: Style {
-                    size: Size::AUTO,
+                    // size: Size::AUTO,
                     margin,
                     ..default()
                 },
@@ -408,10 +395,8 @@ fn create_empty_inventory_slot(
             NodeBundle {
                 background_color: Color::GRAY.into(),
                 style: Style {
-                    size: Size {
-                        height: Val::Px(50.0),
-                        width: Val::Px(50.0),
-                    },
+                    height: Val::Px(50.0),
+                    width: Val::Px(50.0),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     margin: UiRect::all(Val::Px(3.0)),
@@ -447,7 +432,7 @@ fn setup_available_items(
         .spawn((
             NodeBundle {
                 style: Style {
-                    size: Size::AUTO,
+                    // size: Size::AUTO,
                     justify_content: JustifyContent::SpaceEvenly,
                     flex_grow: 1.0,
                     ..default()
@@ -541,7 +526,7 @@ fn setup_category(
             NodeBundle {
                 background_color: Color::DARK_GRAY.into(),
                 style: Style {
-                    size: Size::AUTO,
+                    // size: Size::AUTO,
                     flex_direction: FlexDirection::Column,
                     margin: UiRect::all(Val::Px(3.0)),
                     flex_grow: 1.0,
@@ -567,10 +552,8 @@ fn setup_category(
                 },
             )
             .with_style(Style {
-                size: Size {
-                    height: Val::Px(30.0),
-                    width: Val::Auto,
-                },
+                height: Val::Px(30.0),
+                width: Val::Auto,
                 margin: UiRect {
                     top: Val::Px(5.0),
                     left: Val::Px(5.0),
@@ -604,7 +587,7 @@ fn setup_shop_item(
         .spawn((
             NodeBundle {
                 style: Style {
-                    size: Size::AUTO,
+                    // size: Size::AUTO,
                     justify_content: JustifyContent::FlexStart,
                     align_items: AlignItems::Center,
                     margin,
@@ -645,7 +628,7 @@ fn setup_shop_item(
                     left: Val::Px(10.0),
                     ..default()
                 },
-                overflow: Overflow::Hidden,
+                overflow: Overflow::clip(),
                 ..default()
             }),
         )

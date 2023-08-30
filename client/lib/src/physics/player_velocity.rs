@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use characters::Movement;
 use wag_core::Facing;
 
-#[derive(Debug, Reflect, FromReflect, Clone, Default, Copy)]
+#[derive(Debug, Reflect, Clone, Default, Copy)]
 pub struct AppliedMovement {
     amount: Vec2,
     until_frame: usize,

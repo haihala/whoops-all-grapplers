@@ -1,15 +1,11 @@
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-use bevy::{
-    prelude::{Component, Deref, DerefMut, Entity},
-    reflect::{FromReflect, Reflect},
-    utils::HashMap,
-};
+use bevy::{prelude::*, utils::HashMap};
 
 // For the Dummy model
 // Using facing was considered, but that has an issue with creating the iterator so we can map nodes to the joints
-#[derive(Debug, EnumIter, Copy, Clone, PartialEq, Eq, Hash, Reflect, FromReflect)]
+#[derive(Debug, EnumIter, Copy, Clone, PartialEq, Eq, Hash, Reflect)]
 pub enum Joint {
     Abdomen,
     Chest,

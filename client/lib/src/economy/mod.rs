@@ -6,7 +6,7 @@ pub struct EconomyPlugin;
 
 impl Plugin for EconomyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(modify_properties);
+        app.add_systems(Update, modify_properties);
     }
 }
 

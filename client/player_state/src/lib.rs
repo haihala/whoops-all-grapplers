@@ -1,5 +1,5 @@
 #![feature(trivial_bounds)]
-#![feature(drain_filter)]
+#![feature(extract_if)]
 mod sub_state;
 
 mod player_state;

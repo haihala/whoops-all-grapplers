@@ -8,8 +8,7 @@ pub struct StagePlugin;
 
 impl Plugin for StagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(light::setup)
-            .add_startup_system(add_stage);
+        app.add_systems(Startup, (light::setup, add_stage));
     }
 }
 

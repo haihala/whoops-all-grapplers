@@ -19,7 +19,8 @@ impl AppWrapper {
         let players = self.world().resource::<Players>();
         let p1 = players.one;
         let p2 = players.two;
-        drop(players);
+        // TODO: Migration to bevy 0.11.2 broke this
+        // drop(players);
         (p1, p2)
     }
 

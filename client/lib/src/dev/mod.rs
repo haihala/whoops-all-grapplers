@@ -16,7 +16,7 @@ pub struct DevPlugin;
 
 impl Plugin for DevPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(WorldInspectorPlugin::new())
+        app.add_plugins(WorldInspectorPlugin::new())
             .register_type::<Player>()
             // TODO FIXME Recursive type definition problem
             // .register_type::<PlayerState>()
@@ -29,11 +29,17 @@ impl Plugin for DevPlugin {
             .register_type::<MoveBuffer>()
             .register_type::<Inventory>()
             .register_type::<Stats>()
-            .add_system(generic_test_system)
-            .add_system(cycle_game_state.after(generic_test_system))
-            .add_system(input_leniency_test_system.after(cycle_game_state))
-            .add_system(box_visualization::spawn_boxes.after(input_leniency_test_system))
-            .add_system(box_visualization::size_adjustment.after(box_visualization::spawn_boxes));
+            .add_systems(
+                Update,
+                (
+                    generic_test_system,
+                    cycle_game_state,
+                    input_leniency_test_system,
+                    box_visualization::spawn_boxes,
+                    box_visualization::size_adjustment,
+                )
+                    .chain(),
+            );
     }
 }
 
@@ -114,11 +120,11 @@ fn cycle_game_state(
 ) {
     // Can be converted to a non-dev system eventually (to start game press start type of deal)
     if keys.just_pressed(KeyCode::Return) {
-        if game_state.0 == GameState::Combat {
+        if game_state.get() == &GameState::Combat {
             // Set clock to zero to go through the same route as time out
             clock.time_out();
         } else {
-            next_state.set(game_state.0.next());
+            next_state.set(game_state.get().next());
         }
     }
 }

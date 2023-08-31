@@ -78,7 +78,7 @@ fn get_recursive_effects(item_id: &ItemId, character: &Character) -> Stats {
 }
 
 // Could move elsewhere if need be. Written this way to handle duplicates.
-fn filter_out<T: PartialEq + Clone>(container: &Vec<T>, to_remove: &Vec<T>) -> Result<Vec<T>, ()> {
+fn filter_out<T: PartialEq + Clone>(container: &[T], to_remove: &[T]) -> Result<Vec<T>, ()> {
     let mut temp = container.to_owned();
 
     for dependency in to_remove {

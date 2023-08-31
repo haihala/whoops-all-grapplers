@@ -122,7 +122,7 @@ pub(super) fn raw_or_link(
                         properties,
                         parser,
                         current_frame: clock.frame,
-                        conditions: state.get_conditions(),
+                        conditions: state.get_conditions().to_owned(),
                     },
                 )
                 .into_iter()
@@ -167,7 +167,7 @@ pub(super) fn special_cancel(
                             properties,
                             parser,
                             current_frame: clock.frame,
-                            conditions: state.get_conditions(),
+                            conditions: state.get_conditions().to_owned(),
                         },
                     )
                     .into_iter()

@@ -14,7 +14,7 @@ pub struct Situation<'a> {
     pub grounded: bool,
     pub properties: &'a Properties,
     pub parser: &'a InputParser,
-    pub conditions: &'a Vec<StatusCondition>,
+    pub conditions: Vec<StatusCondition>,
     pub current_frame: usize,
 }
 
@@ -170,7 +170,7 @@ mod test {
                 properties: &self.properties,
                 parser: &self.parser,
                 current_frame: self.current_frame,
-                conditions: &self.conditions,
+                conditions: self.conditions.clone(),
             }
             .new_fcs()
         }

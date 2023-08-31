@@ -266,7 +266,7 @@ impl PlayerState {
     pub fn add_condition(&mut self, condition: StatusCondition) {
         self.conditions.push(condition);
     }
-    pub fn get_conditions(&self) -> &Vec<StatusCondition> {
+    pub fn get_conditions(&self) -> &[StatusCondition] {
         &self.conditions
     }
     pub fn has_flag(&self, condition: StatusFlag) -> bool {

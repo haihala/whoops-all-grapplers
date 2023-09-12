@@ -2,6 +2,10 @@
 
 [Bevy cookbook](https://bevy-cheatbook.github.io)
 
-[Egui bevy inspector](https://docs.rs/crate/bevy-inspector-egui/) for debugging
-
 [[Change detection]]
+
+For debugging: [Egui bevy inspector](https://docs.rs/crate/bevy-inspector-egui/)
+
+UI Polish:
+[bevy easings](https://github.com/vleue/bevy_easings "https://github.com/vleue/bevy_easings")
+[Bevy tweening](https://github.com/djeedai/bevy_tweening "https://github.com/djeedai/bevy_tweening")

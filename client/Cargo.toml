@@ -28,4 +28,4 @@ rand = "0.8"
 map-macro = "0.2"
 strum = "0.25.0"
 strum_macros = "0.25.2"
-clap = {version = "4.1.7", features = ["derive"] }
+clap = { version = "4.1.7", features = ["derive"] }

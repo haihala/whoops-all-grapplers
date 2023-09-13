@@ -3,7 +3,7 @@ use std::vec;
 use input_parsing::InputParser;
 use wag_core::StatusCondition;
 
-use crate::{Action, Inventory, MoveHistory, Properties};
+use crate::{ActionEvent, Inventory, MoveHistory, Properties};
 
 use super::{CancelPolicy, FlowControl};
 
@@ -54,11 +54,15 @@ impl Situation<'_> {
                                     .map(|action| {
                                         if history.frame_skip == 0 {
                                             action
-                                        } else if let Action::Animation(animation) = action {
-                                            Action::AnimationAtFrame(animation, history.frame_skip)
-                                        } else if let Action::RecipientAnimation(animation) = action
+                                        } else if let ActionEvent::Animation(animation) = action {
+                                            ActionEvent::AnimationAtFrame(
+                                                animation,
+                                                history.frame_skip,
+                                            )
+                                        } else if let ActionEvent::RecipientAnimation(animation) =
+                                            action
                                         {
-                                            Action::RecipientAnimationAtFrame(
+                                            ActionEvent::RecipientAnimationAtFrame(
                                                 animation,
                                                 history.frame_skip,
                                             )
@@ -116,7 +120,7 @@ impl Situation<'_> {
 
 #[cfg(test)]
 mod test {
-    use crate::{moves::Attack, Action, Move};
+    use crate::{moves::Attack, ActionEvent, Move};
 
     use super::*;
     use bevy::prelude::*;
@@ -222,7 +226,7 @@ mod test {
 
     #[test]
     fn single_action() {
-        let phases = vec![Action::Animation(Animation::TPose).into()];
+        let phases = vec![ActionEvent::Animation(Animation::TPose).into()];
         let sw = SituationWrapper::with_phases(phases.clone());
 
         sw.assert_actions(&phases);
@@ -232,7 +236,7 @@ mod test {
     #[test]
     fn multiple_actions() {
         let phases = vec![
-            Action::Animation(Animation::TPose).into(),
+            ActionEvent::Animation(Animation::TPose).into(),
             Attack::default().into(),
         ];
         let sw = SituationWrapper::with_phases(phases.clone());
@@ -244,10 +248,10 @@ mod test {
     #[test]
     fn wait_gate() {
         let phases = vec![
-            Action::Animation(Animation::TPose).into(),
+            ActionEvent::Animation(Animation::TPose).into(),
             Attack::default().into(),
             FlowControl::Wait(10, CancelPolicy::never()),
-            Action::Animation(Animation::TPose).into(),
+            ActionEvent::Animation(Animation::TPose).into(),
         ];
         let mut sw = SituationWrapper::with_phases(phases.clone());
 
@@ -262,10 +266,10 @@ mod test {
     #[test]
     fn wait_gate_partial() {
         let phases = vec![
-            Action::Animation(Animation::TPose).into(),
+            ActionEvent::Animation(Animation::TPose).into(),
             Attack::default().into(),
             FlowControl::Wait(10, CancelPolicy::never()),
-            Action::Animation(Animation::TPose).into(),
+            ActionEvent::Animation(Animation::TPose).into(),
         ];
 
         let mut sw = SituationWrapper::with_phases(phases.clone());
@@ -283,7 +287,7 @@ mod test {
     fn dynamics() {
         let phases = vec![FlowControl::DynamicActions(|situation: Situation| {
             vec![if situation.history.unwrap().has_hit {
-                Action::Animation(Animation::TPose)
+                ActionEvent::Animation(Animation::TPose)
             } else {
                 Attack::default().into()
             }]
@@ -294,6 +298,6 @@ mod test {
         sw.assert_actions(&[Attack::default().into()]);
 
         sw.register_hit();
-        sw.assert_actions(&[Action::Animation(Animation::TPose).into()]);
+        sw.assert_actions(&[ActionEvent::Animation(Animation::TPose).into()]);
     }
 }

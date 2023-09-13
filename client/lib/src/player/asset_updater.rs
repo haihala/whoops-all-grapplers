@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use characters::{Action, Character};
+use characters::{ActionEvent, Character};
 use player_state::PlayerState;
 use wag_core::{Facing, Players};
 
@@ -28,28 +28,30 @@ pub fn update_animation(
         let position_offset = (opponent.translation - active.translation).truncate();
         if let Some(request) = state
             .drain_matching_actions(|action| match action {
-                Action::Animation(animation) => Some(AnimationRequest {
+                ActionEvent::Animation(animation) => Some(AnimationRequest {
                     animation: *animation,
                     ..default()
                 }),
-                Action::AnimationAtFrame(animation, frame) => Some(AnimationRequest {
+                ActionEvent::AnimationAtFrame(animation, frame) => Some(AnimationRequest {
                     animation: *animation,
                     time_offset: *frame,
                     ..default()
                 }),
-                Action::RecipientAnimation(animation) => Some(AnimationRequest {
+                ActionEvent::RecipientAnimation(animation) => Some(AnimationRequest {
                     animation: *animation,
                     position_offset,
                     invert: true,
                     ..default()
                 }),
-                Action::RecipientAnimationAtFrame(animation, frame) => Some(AnimationRequest {
-                    animation: *animation,
-                    time_offset: *frame,
-                    position_offset,
-                    invert: true,
-                    ..default()
-                }),
+                ActionEvent::RecipientAnimationAtFrame(animation, frame) => {
+                    Some(AnimationRequest {
+                        animation: *animation,
+                        time_offset: *frame,
+                        position_offset,
+                        invert: true,
+                        ..default()
+                    })
+                }
                 _ => None,
             })
             .last()
@@ -74,7 +76,7 @@ pub fn update_animation(
 pub(super) fn update_audio(mut query: Query<&mut PlayerState>, mut sounds: ResMut<Sounds>) {
     for mut state in &mut query {
         for clip in state.drain_matching_actions(|animation| {
-            if let Action::Sound(clip) = animation {
+            if let ActionEvent::Sound(clip) = animation {
                 Some(*clip)
             } else {
                 None

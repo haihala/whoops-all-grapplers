@@ -2,7 +2,7 @@ use wag_core::Animation;
 
 use crate::Situation;
 
-use super::{airborne, grounded, move_phases::CancelCategory, CancelPolicy, FlowControl};
+use super::{airborne, grounded, CancelCategory, CancelPolicy, FlowControl};
 
 #[derive(Clone)]
 pub struct Move {

@@ -50,6 +50,9 @@ pub struct Projectile {
     pub model: Model,
 }
 
+#[derive(Debug, Clone, Copy, Default, Component, DerefMut, Deref, Reflect)]
+pub struct Hurtbox(pub Area);
+
 #[derive(Default, Clone, Copy, Deref, DerefMut, Debug, Component, Reflect, PartialEq)]
 pub struct Hitbox(pub Area);
 

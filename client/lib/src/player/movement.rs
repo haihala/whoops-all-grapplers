@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use characters::Action;
+use characters::ActionEvent;
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{Facing, StickPosition};
@@ -24,7 +24,7 @@ pub fn movement(mut query: Query<(&InputParser, &mut PlayerState, &Facing)>) {
         }
 
         for _ in state.drain_matching_actions(|action| {
-            if *action == Action::ForceStand {
+            if *action == ActionEvent::ForceStand {
                 Some(action.to_owned())
             } else {
                 None

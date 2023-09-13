@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use wag_core::MoveId;
 
-use crate::{Action, Move};
+use crate::{ActionEvent, Move};
 
 use super::{CancelCategory, FlowControl};
 
@@ -15,7 +15,7 @@ pub struct MoveHistory {
     #[reflect(ignore)]
     pub past: Vec<FlowControl>,
     #[reflect(ignore)]
-    pub unprocessed_events: Vec<Action>,
+    pub unprocessed_events: Vec<ActionEvent>,
     pub has_hit: bool,
 }
 
@@ -101,7 +101,7 @@ mod test {
 
         assert!(!history.is_done());
         assert!(!history.has_hit);
-        assert!(history.next_phase() == Some(Action::Animation(Animation::TPose).into()));
+        assert!(history.next_phase() == Some(ActionEvent::Animation(Animation::TPose).into()));
         assert!(history.cancellable_since(CancelCategory::Everything) == None)
     }
 
@@ -110,7 +110,7 @@ mod test {
         let started = 69;
         let duration = 10;
         let phases = vec![
-            Action::Animation(Animation::TPose).into(),
+            ActionEvent::Animation(Animation::TPose).into(),
             FlowControl::Wait(duration, CancelPolicy::any()),
         ];
 

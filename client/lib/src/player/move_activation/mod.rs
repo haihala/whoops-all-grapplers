@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use characters::{
-    Action, Character, Inventory, Move, MoveHistory, Properties, PropertyType, Situation,
+    ActionEvent, Character, Inventory, Move, MoveHistory, Properties, PropertyType, Situation,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -74,7 +74,7 @@ pub(super) fn move_continuation(mut query: Query<(&mut MoveBuffer, &mut PlayerSt
     // Read from state, set activating move if an Action demands it
     for (mut buffer, mut state) in &mut query {
         let move_continuations = state.drain_matching_actions(|action| {
-            if let Action::Move(move_id) = action {
+            if let ActionEvent::Move(move_id) = action {
                 Some(*move_id)
             } else {
                 None

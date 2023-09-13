@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use characters::{Action, MoveHistory, Situation};
+use characters::{ActionEvent, MoveHistory, Situation};
 use wag_core::{AnimationType, Facing, Stats, StatusCondition, StatusFlag};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
@@ -19,7 +19,7 @@ pub struct PlayerState {
     main: MainState,
     pub free_since: Option<usize>,
     conditions: Vec<StatusCondition>,
-    external_actions: Vec<Action>,
+    external_actions: Vec<ActionEvent>,
 }
 
 impl Default for PlayerState {
@@ -56,7 +56,7 @@ impl PlayerState {
 
     pub fn drain_matching_actions<T>(
         &mut self,
-        predicate: impl Fn(&mut Action) -> Option<T>,
+        predicate: impl Fn(&mut ActionEvent) -> Option<T>,
     ) -> Vec<T> {
         let mut actions: Vec<T> = self
             .external_actions
@@ -74,7 +74,7 @@ impl PlayerState {
         actions
     }
 
-    pub fn add_actions(&mut self, mut actions: Vec<Action>) {
+    pub fn add_actions(&mut self, mut actions: Vec<ActionEvent>) {
         self.external_actions.append(&mut actions);
     }
 

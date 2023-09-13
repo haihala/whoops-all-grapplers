@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use characters::{Action, Properties};
+use characters::{ActionEvent, Properties};
 use player_state::PlayerState;
 
 pub struct EconomyPlugin;
@@ -13,16 +13,18 @@ impl Plugin for EconomyPlugin {
 fn modify_properties(mut query: Query<(&mut PlayerState, &mut Properties)>) {
     for (mut state, mut properties) in &mut query {
         for prop in state.drain_matching_actions(|action| match action {
-            Action::ModifyProperty(prop, amount) => Some(Action::ModifyProperty(*prop, *amount)),
-            Action::ClearProperty(prop) => Some(Action::ClearProperty(*prop)),
+            ActionEvent::ModifyProperty(prop, amount) => {
+                Some(ActionEvent::ModifyProperty(*prop, *amount))
+            }
+            ActionEvent::ClearProperty(prop) => Some(ActionEvent::ClearProperty(*prop)),
             _ => None,
         }) {
             // Moved outside to avoid double borrow
             match prop {
-                Action::ModifyProperty(prop, amount) => {
+                ActionEvent::ModifyProperty(prop, amount) => {
                     properties.get_mut(&prop).unwrap().change(amount);
                 }
-                Action::ClearProperty(prop) => {
+                ActionEvent::ClearProperty(prop) => {
                     properties.get_mut(&prop).unwrap().clear();
                 }
                 _ => panic!("Filter failed"),

@@ -3,7 +3,8 @@ use wag_core::{Area, ItemId, StatusCondition, StatusFlag};
 
 use crate::{
     moves::{
-        Action, Attack, CancelCategory, CancelPolicy, CommonAttackProps, FlowControl::*, Situation,
+        ActionEvent, Attack, CancelCategory, CancelPolicy, CommonAttackProps, FlowControl::*,
+        Situation,
     },
     Hitbox, Lifetime, Move, ToHit,
 };
@@ -38,8 +39,8 @@ pub(crate) fn get_high_gi_parry() -> Move {
         CancelCategory::Any,
         vec![
             vec![
-                Action::ForceStand,
-                Action::Condition(StatusCondition {
+                ActionEvent::ForceStand,
+                ActionEvent::Condition(StatusCondition {
                     flag: StatusFlag::Parry,
                     effect: None,
                     expiration: Some(10),

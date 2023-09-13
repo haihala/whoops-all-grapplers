@@ -3,13 +3,13 @@ pub use player_velocity::PlayerVelocity;
 
 use bevy::{ecs::query::WorldQuery, prelude::*};
 
-use characters::{Action, Character, HitTracker};
+use characters::{ActionEvent, Character};
 use player_state::PlayerState;
 use wag_core::{Area, Clock, Facing, Players, Stats, WAGStage};
 
 use crate::{
     camera::{WorldCamera, VIEWPORT_HALFWIDTH},
-    damage::HitboxSpawner,
+    damage::{HitTracker, HitboxSpawner},
 };
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
@@ -97,7 +97,7 @@ fn player_input(
 ) {
     for (mut state, mut velocity, status_effects, facing) in &mut query {
         for movement in state.drain_matching_actions(|action| {
-            if let Action::Movement(movement) = action {
+            if let ActionEvent::Movement(movement) = action {
                 Some(movement.to_owned())
             } else {
                 None

@@ -21,7 +21,7 @@ impl Movement {
 }
 
 #[derive(Debug, Clone, PartialEq, Default, Reflect)]
-pub enum Action {
+pub enum ActionEvent {
     // TODO: Figure out a better way to handle actions that change depending on game state
     // Maybe hoist AnimationRequest?
     Animation(Animation),
@@ -43,24 +43,24 @@ pub enum Action {
     BlockStun(usize),
     Launch,
 }
-impl From<Attack> for Action {
+impl From<Attack> for ActionEvent {
     fn from(value: Attack) -> Self {
-        Action::Attack(value)
+        ActionEvent::Attack(value)
     }
 }
-impl From<Animation> for Action {
+impl From<Animation> for ActionEvent {
     fn from(value: Animation) -> Self {
-        Action::Animation(value)
+        ActionEvent::Animation(value)
     }
 }
-impl From<Movement> for Action {
+impl From<Movement> for ActionEvent {
     fn from(value: Movement) -> Self {
-        Action::Movement(value)
+        ActionEvent::Movement(value)
     }
 }
-impl From<DummyAnimation> for Action {
+impl From<DummyAnimation> for ActionEvent {
     fn from(value: DummyAnimation) -> Self {
-        Action::Animation(Animation::Dummy(value))
+        ActionEvent::Animation(Animation::Dummy(value))
     }
 }
 
@@ -119,8 +119,8 @@ impl CancelPolicy {
 #[derive(Clone)]
 pub enum FlowControl {
     Wait(usize, CancelPolicy),
-    Actions(Vec<Action>),
-    DynamicActions(fn(Situation) -> Vec<Action>),
+    Actions(Vec<ActionEvent>),
+    DynamicActions(fn(Situation) -> Vec<ActionEvent>),
     WaitUntil(fn(Situation) -> bool, Option<usize>),
 }
 
@@ -152,37 +152,37 @@ impl PartialEq for FlowControl {
         }
     }
 }
-impl From<Action> for FlowControl {
-    fn from(action: Action) -> Self {
+impl From<ActionEvent> for FlowControl {
+    fn from(action: ActionEvent) -> Self {
         FlowControl::Actions(vec![action])
     }
 }
-impl From<Vec<Action>> for FlowControl {
-    fn from(actions: Vec<Action>) -> Self {
+impl From<Vec<ActionEvent>> for FlowControl {
+    fn from(actions: Vec<ActionEvent>) -> Self {
         FlowControl::Actions(actions)
     }
 }
 
 impl From<Attack> for FlowControl {
     fn from(value: Attack) -> Self {
-        Action::Attack(value).into()
+        ActionEvent::Attack(value).into()
     }
 }
 
 impl From<Animation> for FlowControl {
     fn from(value: Animation) -> Self {
-        Action::Animation(value).into()
+        ActionEvent::Animation(value).into()
     }
 }
 
 impl From<Movement> for FlowControl {
     fn from(value: Movement) -> Self {
-        Action::Movement(value).into()
+        ActionEvent::Movement(value).into()
     }
 }
 impl From<DummyAnimation> for FlowControl {
     fn from(value: DummyAnimation) -> Self {
-        Action::Animation(Animation::Dummy(value)).into()
+        ActionEvent::Animation(Animation::Dummy(value)).into()
     }
 }
 

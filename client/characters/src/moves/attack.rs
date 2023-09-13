@@ -1,14 +1,14 @@
 use bevy::prelude::*;
 
-use crate::{Action, Movement, PropertyType, ToHit};
+use crate::{ActionEvent, Movement, PropertyType, ToHit};
 
 #[derive(Debug, Clone, PartialEq, Component, Reflect)]
 pub struct Attack {
     pub to_hit: ToHit,
-    pub self_on_hit: Vec<Action>,
-    pub self_on_block: Vec<Action>,
-    pub target_on_hit: Vec<Action>,
-    pub target_on_block: Vec<Action>,
+    pub self_on_hit: Vec<ActionEvent>,
+    pub self_on_block: Vec<ActionEvent>,
+    pub target_on_hit: Vec<ActionEvent>,
+    pub target_on_block: Vec<ActionEvent>,
 }
 
 impl Default for Attack {
@@ -27,28 +27,28 @@ impl Attack {
         }
     }
 
-    pub fn with_to_self_on_hit(self, additional_actions: Vec<Action>) -> Attack {
+    pub fn with_to_self_on_hit(self, additional_actions: Vec<ActionEvent>) -> Attack {
         Attack {
             self_on_hit: [self.self_on_hit.clone(), additional_actions].concat(),
             ..self
         }
     }
 
-    pub fn with_to_self_on_block(self, additional_actions: Vec<Action>) -> Attack {
+    pub fn with_to_self_on_block(self, additional_actions: Vec<ActionEvent>) -> Attack {
         Attack {
             self_on_block: [self.self_on_block.clone(), additional_actions].concat(),
             ..self
         }
     }
 
-    pub fn with_to_target_on_hit(self, additional_actions: Vec<Action>) -> Attack {
+    pub fn with_to_target_on_hit(self, additional_actions: Vec<ActionEvent>) -> Attack {
         Attack {
             target_on_hit: [self.target_on_hit.clone(), additional_actions].concat(),
             ..self
         }
     }
 
-    pub fn with_to_target_on_block(self, additional_actions: Vec<Action>) -> Attack {
+    pub fn with_to_target_on_block(self, additional_actions: Vec<ActionEvent>) -> Attack {
         Attack {
             target_on_block: [self.target_on_block.clone(), additional_actions].concat(),
             ..self
@@ -84,42 +84,42 @@ impl Default for CommonAttackProps {
 }
 
 impl CommonAttackProps {
-    pub fn self_on_hit(self) -> Vec<Action> {
+    pub fn self_on_hit(self) -> Vec<ActionEvent> {
         vec![Movement::impulse(self.push_back).into()]
     }
-    pub fn self_on_block(self) -> Vec<Action> {
+    pub fn self_on_block(self) -> Vec<ActionEvent> {
         vec![Movement::impulse(2.0 * self.push_back).into()]
     }
 
-    pub fn target_on_hit(self) -> Vec<Action> {
+    pub fn target_on_hit(self) -> Vec<ActionEvent> {
         vec![
-            Action::ModifyProperty(PropertyType::Health, -self.damage),
+            ActionEvent::ModifyProperty(PropertyType::Health, -self.damage),
             self.get_stun(false),
             Movement::impulse(self.knock_back).into(),
         ]
     }
 
-    pub fn target_on_block(self) -> Vec<Action> {
+    pub fn target_on_block(self) -> Vec<ActionEvent> {
         vec![
-            Action::ModifyProperty(PropertyType::Health, -1), // Chip
+            ActionEvent::ModifyProperty(PropertyType::Health, -1), // Chip
             self.get_stun(true),
             Movement::impulse(0.5 * self.knock_back).into(),
         ]
     }
 
-    fn get_stun(&self, blocked: bool) -> Action {
+    fn get_stun(&self, blocked: bool) -> ActionEvent {
         if blocked {
             match self.on_block {
                 StunType::Launcher => {
                     warn!("Launch on block?");
-                    Action::Launch
+                    ActionEvent::Launch
                 }
-                StunType::Stun(frames) => Action::BlockStun(frames),
+                StunType::Stun(frames) => ActionEvent::BlockStun(frames),
             }
         } else {
             match self.on_hit {
-                StunType::Launcher => Action::Launch,
-                StunType::Stun(frames) => Action::HitStun(frames),
+                StunType::Launcher => ActionEvent::Launch,
+                StunType::Stun(frames) => ActionEvent::HitStun(frames),
             }
         }
     }

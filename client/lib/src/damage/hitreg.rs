@@ -2,7 +2,7 @@ use bevy::{ecs::query::WorldQuery, prelude::*};
 use strum::IntoEnumIterator;
 
 use characters::{
-    Action, Attack, AttackHeight, BlockType, Character, HitTracker, Hitbox, Hurtbox, Properties,
+    ActionEvent, Attack, AttackHeight, BlockType, Character, Hitbox, Hurtbox, Properties,
     PropertyType,
 };
 use input_parsing::InputParser;
@@ -18,7 +18,7 @@ use crate::{
     ui::Notifications,
 };
 
-use super::{Combo, Defense, HitboxSpawner};
+use super::{Combo, Defense, HitTracker, HitboxSpawner};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub(super) enum HitType {
@@ -304,7 +304,7 @@ pub(super) fn apply_hits(
             }
             HitType::Parry => (
                 vec![],
-                vec![Action::ModifyProperty(
+                vec![ActionEvent::ModifyProperty(
                     PropertyType::Meter,
                     GI_PARRY_METER_GAIN,
                 )],
@@ -316,7 +316,7 @@ pub(super) fn apply_hits(
         if hit.is_opener {
             sounds.play(SoundEffect::Whoosh); // TODO change sound effect
             attacker_actions = handle_opener(attacker_actions, attacker.status_effect);
-            attacker_actions.push(Action::ModifyProperty(
+            attacker_actions.push(ActionEvent::ModifyProperty(
                 PropertyType::Meter,
                 attacker.status_effect.opener_meter_gain,
             ));
@@ -357,16 +357,18 @@ fn teched(parser: &InputParser) -> bool {
     parser.head_is_clear()
 }
 
-fn handle_opener(actions: Vec<Action>, status_effect: &Stats) -> Vec<Action> {
+fn handle_opener(actions: Vec<ActionEvent>, status_effect: &Stats) -> Vec<ActionEvent> {
     actions
         .into_iter()
         .map(|action| match action {
-            Action::ModifyProperty(PropertyType::Health, amount) => Action::ModifyProperty(
-                PropertyType::Health,
-                (amount as f32 * status_effect.opener_damage_multiplier) as i32,
-            ),
-            Action::HitStun(amount) => {
-                Action::HitStun((amount as i32 + status_effect.opener_stun_frames) as usize)
+            ActionEvent::ModifyProperty(PropertyType::Health, amount) => {
+                ActionEvent::ModifyProperty(
+                    PropertyType::Health,
+                    (amount as f32 * status_effect.opener_damage_multiplier) as i32,
+                )
+            }
+            ActionEvent::HitStun(amount) => {
+                ActionEvent::HitStun((amount as i32 + status_effect.opener_stun_frames) as usize)
             }
             other => other,
         })
@@ -388,15 +390,18 @@ pub(super) fn snap_and_switch(
                 .get_many_mut([players.get(player), players.get(player.other())])
                 .unwrap();
         let actions = state.drain_matching_actions(|action| {
-            if matches!(*action, Action::SnapToOpponent | Action::SideSwitch) {
+            if matches!(
+                *action,
+                ActionEvent::SnapToOpponent | ActionEvent::SideSwitch
+            ) {
                 Some(action.to_owned())
             } else {
                 None
             }
         });
 
-        if actions.contains(&Action::SnapToOpponent) {
-            let switch = actions.contains(&Action::SideSwitch) as i32 as f32;
+        if actions.contains(&ActionEvent::SnapToOpponent) {
+            let switch = actions.contains(&ActionEvent::SideSwitch) as i32 as f32;
 
             let raw_diff = self_tf.translation.x - other_tf.translation.x; // This ought to be positive when attacker is on the left
             let width_between = (self_pushbox.width() + other_pushbox.width()) / 2.0;
@@ -415,7 +420,7 @@ pub(super) fn stun_actions(mut query: Query<&mut PlayerState>, clock: Res<Clock>
         for action in state.drain_matching_actions(|action| {
             if matches!(
                 *action,
-                Action::Launch | Action::HitStun(_) | Action::BlockStun(_)
+                ActionEvent::Launch | ActionEvent::HitStun(_) | ActionEvent::BlockStun(_)
             ) {
                 Some(action.to_owned())
             } else {
@@ -423,9 +428,9 @@ pub(super) fn stun_actions(mut query: Query<&mut PlayerState>, clock: Res<Clock>
             }
         }) {
             match action {
-                Action::HitStun(frames) => state.stun(clock.frame + frames),
-                Action::BlockStun(frames) => state.block(clock.frame + frames),
-                Action::Launch => state.launch(),
+                ActionEvent::HitStun(frames) => state.stun(clock.frame + frames),
+                ActionEvent::BlockStun(frames) => state.block(clock.frame + frames),
+                ActionEvent::Launch => state.launch(),
                 _ => panic!("Leaking"),
             }
         }

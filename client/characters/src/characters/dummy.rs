@@ -9,7 +9,7 @@ use wag_core::{
 
 use crate::{
     moves::{
-        grounded, Action::*, Attack, CancelCategory, CancelPolicy, CommonAttackProps,
+        grounded, ActionEvent::*, Attack, CancelCategory, CancelPolicy, CommonAttackProps,
         FlowControl::*, Movement, Projectile, Situation, StunType::*,
     },
     properties::PropertyType,

@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 
-use characters::{Action, Attack, HitTracker, Hitbox, Lifetime};
+use characters::{ActionEvent, Attack, Hitbox, Lifetime};
 use player_state::PlayerState;
 use wag_core::{Area, Clock, Facing, Joints, Owner, Player};
 
 use crate::{assets::Models, physics::ConstantVelocity};
+
+use super::HitTracker;
 
 #[derive(Debug)]
 struct DespawnRequest {
@@ -141,7 +143,7 @@ pub(super) fn spawn_new(
     for (mut spawner, mut state, joints, parent, facing, player) in &mut query {
         for attack in state
             .drain_matching_actions(|action| {
-                if let Action::Attack(attack) = action {
+                if let ActionEvent::Attack(attack) = action {
                     Some(attack.to_owned())
                 } else {
                     None

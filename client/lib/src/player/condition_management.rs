@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use characters::{Action, Character, Inventory};
+use characters::{ActionEvent, Character, Inventory};
 use player_state::PlayerState;
 use wag_core::{Clock, Stats, StatusCondition};
 
@@ -10,7 +10,7 @@ pub fn manage_conditions(mut query: Query<&mut PlayerState>, clock: Res<Clock>) 
         state.expire_conditions(clock.frame);
 
         for new_condition in state.drain_matching_actions(|action| {
-            if let Action::Condition(cond) = action {
+            if let ActionEvent::Condition(cond) = action {
                 Some(*cond)
             } else {
                 None

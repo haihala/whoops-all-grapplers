@@ -104,7 +104,7 @@ impl Situation<'_> {
                 if timed_out || fun(self.clone()) {
                     // We've hit a timeout or the wait condition has been met
                     // Store it in move history as a constant wait
-                    Some(FlowControl::Wait(unused_time, CancelPolicy::Never))
+                    Some(FlowControl::Wait(unused_time, CancelPolicy::never()))
                 } else {
                     None
                 }
@@ -246,7 +246,7 @@ mod test {
         let phases = vec![
             Action::Animation(Animation::TPose).into(),
             Attack::default().into(),
-            FlowControl::Wait(10, CancelPolicy::Never),
+            FlowControl::Wait(10, CancelPolicy::never()),
             Action::Animation(Animation::TPose).into(),
         ];
         let mut sw = SituationWrapper::with_phases(phases.clone());
@@ -264,7 +264,7 @@ mod test {
         let phases = vec![
             Action::Animation(Animation::TPose).into(),
             Attack::default().into(),
-            FlowControl::Wait(10, CancelPolicy::Never),
+            FlowControl::Wait(10, CancelPolicy::never()),
             Action::Animation(Animation::TPose).into(),
         ];
 

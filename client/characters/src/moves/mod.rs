@@ -1,5 +1,3 @@
-use bevy::prelude::*;
-
 mod attack;
 pub use attack::{Attack, CommonAttackProps, StunType};
 
@@ -19,22 +17,10 @@ mod move_data;
 pub use move_data::Move;
 
 mod move_phases;
-pub use move_phases::{Action, CancelPolicy, FlowControl, Movement};
+pub use move_phases::{Action, CancelCategory, CancelPolicy, CancelRule, FlowControl, Movement};
 
 mod hit_tracker;
 pub use hit_tracker::*;
 
 mod targets;
 pub use targets::Hurtbox;
-
-#[derive(PartialEq, PartialOrd, Debug, Reflect, Clone, Copy, Eq, Default)]
-pub enum MoveType {
-    #[default]
-    Normal,
-    Special,
-}
-
-#[test]
-fn move_type_ord() {
-    assert!(MoveType::Normal < MoveType::Special)
-}

@@ -27,8 +27,7 @@ impl InputParser {
         let mut inputs: HashMap<&'static str, MotionInput> = HashMap::new();
 
         for (move_id, input_str) in new_inputs.into_iter() {
-            let input = input_str.into();
-            inputs.insert(input_str, input);
+            inputs.insert(input_str, input_str.into());
 
             if let Some(ids) = moves.get_mut(input_str) {
                 ids.push(move_id);

@@ -1,23 +1,59 @@
+use wag_core::Animation;
+
 use crate::Situation;
 
-use super::{grounded, FlowControl, MoveType};
+use super::{airborne, grounded, move_phases::CancelCategory, CancelPolicy, FlowControl};
 
 #[derive(Clone)]
 pub struct Move {
     pub input: Option<&'static str>,
-    pub move_type: MoveType,
+    pub cancel_category: CancelCategory,
     pub phases: Vec<FlowControl>,
     pub requirement: fn(Situation) -> bool,
+}
+impl Move {
+    pub fn new(
+        input: Option<&'static str>,
+        cancel_category: CancelCategory,
+        phases: Vec<FlowControl>,
+        requirement: fn(Situation) -> bool,
+    ) -> Self {
+        Self {
+            input,
+            cancel_category,
+            phases,
+            requirement,
+        }
+    }
+
+    pub fn grounded(
+        input: Option<&'static str>,
+        cancel_category: CancelCategory,
+        phases: Vec<FlowControl>,
+    ) -> Self {
+        Self::new(input, cancel_category, phases, grounded)
+    }
+
+    pub fn airborne(
+        input: Option<&'static str>,
+        cancel_category: CancelCategory,
+        phases: Vec<FlowControl>,
+    ) -> Self {
+        Self::new(input, cancel_category, phases, airborne)
+    }
 }
 
 impl Default for Move {
     fn default() -> Self {
-        Self {
-            input: Default::default(),
-            move_type: Default::default(),
-            phases: Default::default(),
-            requirement: grounded,
-        }
+        Self::grounded(
+            None,
+            CancelCategory::Any,
+            vec![
+                Animation::TPose.into(),
+                // The wait is here to indicate if this default is actually being executed
+                FlowControl::Wait(100, CancelPolicy::never()),
+            ],
+        )
     }
 }
 
@@ -26,7 +62,7 @@ impl std::fmt::Debug for Move {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Move")
             .field("input", &self.input)
-            .field("move_type", &self.move_type)
+            .field("cancel category", &self.cancel_category)
             .finish()
     }
 }

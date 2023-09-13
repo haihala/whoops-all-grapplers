@@ -3,7 +3,7 @@ use wag_core::MoveId;
 
 use crate::{Action, Move};
 
-use super::FlowControl;
+use super::{CancelCategory, FlowControl};
 
 #[derive(Debug, Default, Clone, Reflect)]
 pub struct MoveHistory {
@@ -24,13 +24,13 @@ impl MoveHistory {
         self.move_data.phases.get(self.past.len()).cloned()
     }
 
-    fn cancellable_since(&self) -> Option<usize> {
+    fn cancellable_since(&self, target_category: CancelCategory) -> Option<usize> {
         self.past
             .iter()
             .chain(self.next_phase().iter())
             .filter_map(|fc| {
-                if let &FlowControl::Wait(frames, cancellable) = fc {
-                    Some((frames, cancellable))
+                if let FlowControl::Wait(frames, cancel_policy) = fc.clone() {
+                    Some((frames, cancel_policy))
                 } else {
                     None
                 }
@@ -39,7 +39,8 @@ impl MoveHistory {
                 (None, self.started),
                 |(output, fc_start_frame), (frames, cancel_policy)| {
                     let next_start_frame = fc_start_frame + frames;
-                    let updated_output = if cancel_policy.can_cancel(self.has_hit) {
+                    let updated_output = if cancel_policy.can_cancel(self.has_hit, target_category)
+                    {
                         if output.is_some() {
                             // Still cancellable, keep on trucking
                             output
@@ -58,17 +59,14 @@ impl MoveHistory {
             .0
     }
 
-    pub fn cancellable_into(&self, other_move: &Move) -> bool {
-        // TODO: This only allows normal to special cancelling
-        self.move_data.move_type < other_move.move_type
-    }
-
     pub fn cancellable_into_since(&self, other_move: &Move) -> Option<usize> {
-        if self.cancellable_into(other_move) {
-            self.cancellable_since()
-        } else {
-            None
+        if let Some(FlowControl::Wait(_, rule)) = self.past.last() {
+            if rule.can_cancel(self.has_hit, other_move.cancel_category) {
+                return self.cancellable_since(other_move.cancel_category);
+            }
         }
+
+        None
     }
 
     pub fn is_done(&self) -> bool {
@@ -98,17 +96,13 @@ mod test {
     fn sanity_check() {
         let history = MoveHistory {
             move_id: MoveId::TestMove,
-            move_data: Move {
-                phases: vec![Action::Animation(Animation::TPose).into()],
-                ..default()
-            },
             ..default()
         };
 
         assert!(!history.is_done());
         assert!(!history.has_hit);
         assert!(history.next_phase() == Some(Action::Animation(Animation::TPose).into()));
-        assert!(history.cancellable_since() == None)
+        assert!(history.cancellable_since(CancelCategory::Everything) == None)
     }
 
     #[test]
@@ -117,7 +111,7 @@ mod test {
         let duration = 10;
         let phases = vec![
             Action::Animation(Animation::TPose).into(),
-            FlowControl::Wait(duration, CancelPolicy::Always),
+            FlowControl::Wait(duration, CancelPolicy::any()),
         ];
 
         let history = MoveHistory {
@@ -132,6 +126,6 @@ mod test {
         };
 
         assert!(history.is_done());
-        assert!(history.cancellable_since() == Some(started));
+        assert!(history.cancellable_since(CancelCategory::Everything) == Some(started));
     }
 }

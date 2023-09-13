@@ -9,9 +9,8 @@ use wag_core::{
 
 use crate::{
     moves::{
-        airborne, crouching, grounded, standing, Action::*, Attack, CancelPolicy::*,
-        CommonAttackProps, FlowControl::*, MoveType::*, Movement, Projectile, Situation,
-        StunType::*,
+        grounded, Action::*, Attack, CancelCategory, CancelPolicy, CommonAttackProps,
+        FlowControl::*, Movement, Projectile, Situation, StunType::*,
     },
     properties::PropertyType,
     AttackHeight::*,
@@ -127,12 +126,12 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
     vec![
         (
             MoveId::Slap,
-            Move {
-                input: Some("f"),
-                requirement: standing,
-                phases: vec![
+            Move::grounded(
+                Some("f"),
+                CancelCategory::Normal,
+                vec![
                     DummyAnimation::Slap.into(),
-                    Wait(9, Never),
+                    Wait(9, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.35)),
@@ -143,19 +142,18 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         CommonAttackProps::default(),
                     )
                     .into(),
-                    Wait(10, IfHit),
+                    Wait(10, CancelPolicy::neutral_normal_recovery()),
                 ],
-                ..default()
-            },
+            ),
         ),
         (
             MoveId::LowChop,
-            Move {
-                input: Some("f"),
-                requirement: crouching,
-                phases: vec![
+            Move::grounded(
+                Some("[123]f"),
+                CancelCategory::CommandNormal,
+                vec![
                     DummyAnimation::CrouchChop.into(),
-                    Wait(8, Never),
+                    Wait(8, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             hitbox: Hitbox(Area::new(0.1, -0.2, 0.3, 0.2)),
@@ -166,19 +164,18 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         CommonAttackProps::default(),
                     )
                     .into(),
-                    Wait(7, IfHit),
+                    Wait(7, CancelPolicy::command_normal_recovery()),
                 ],
-                ..default()
-            },
+            ),
         ),
         (
             MoveId::BurnStraight,
-            Move {
-                input: Some("s"),
-                requirement: standing,
-                phases: vec![
+            Move::grounded(
+                Some("s"),
+                CancelCategory::Normal,
+                vec![
                     DummyAnimation::BurnStraight.into(),
-                    Wait(10, Never),
+                    Wait(10, CancelPolicy::never()),
                     DynamicActions(|situation: Situation| {
                         vec![Attack::new(
                             ToHit {
@@ -210,19 +207,18 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         duration: 1,
                     }
                     .into(),
-                    Wait(10, IfHit),
+                    Wait(10, CancelPolicy::neutral_normal_recovery()),
                 ],
-                ..default()
-            },
+            ),
         ),
         (
             MoveId::AntiAir,
-            Move {
-                input: Some("s"),
-                requirement: crouching,
-                phases: vec![
+            Move::grounded(
+                Some("[123]s"),
+                CancelCategory::CommandNormal,
+                vec![
                     DummyAnimation::AntiAir.into(),
-                    Wait(13, Never),
+                    Wait(13, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             hitbox: Hitbox(Area::of_size(0.3, 0.5)),
@@ -236,19 +232,18 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         },
                     )
                     .into(),
-                    Wait(13, IfHit),
+                    Wait(13, CancelPolicy::command_normal_recovery()),
                 ],
-                ..default()
-            },
+            ),
         ),
         (
             MoveId::AirSlap,
-            Move {
-                input: Some("f"),
-                requirement: airborne,
-                phases: vec![
+            Move::airborne(
+                Some("f"),
+                CancelCategory::Normal,
+                vec![
                     DummyAnimation::AirSlap.into(),
-                    Wait(8, Never),
+                    Wait(8, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.25)),
@@ -260,19 +255,18 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         CommonAttackProps::default(),
                     )
                     .into(),
-                    Wait(10, IfHit),
+                    Wait(10, CancelPolicy::neutral_normal_recovery()),
                 ],
-                ..default()
-            },
+            ),
         ),
         (
             MoveId::Divekick,
-            Move {
-                input: Some("s"),
-                requirement: airborne,
-                phases: vec![
+            Move::airborne(
+                Some("s"),
+                CancelCategory::Normal,
+                vec![
                     DummyAnimation::Divekick.into(),
-                    Wait(5, Never),
+                    Wait(5, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             hitbox: Hitbox(Area::of_size(0.35, 0.25)),
@@ -284,19 +278,18 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         CommonAttackProps::default(),
                     )
                     .into(),
-                    Wait(10, IfHit),
+                    Wait(10, CancelPolicy::neutral_normal_recovery()),
                 ],
-                ..default()
-            },
+            ),
         ),
         (
             MoveId::ForwardThrow,
-            Move {
-                input: Some("w"),
-                requirement: standing,
-                phases: vec![
+            Move::grounded(
+                Some("w"),
+                CancelCategory::Normal,
+                vec![
                     DummyAnimation::NormalThrow.into(),
-                    Wait(5, Never),
+                    Wait(5, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             block_type: Grab,
@@ -316,19 +309,18 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         RecipientAnimation(DummyAnimation::NormalThrowRecipient.into()),
                     ])
                     .into(),
-                    Wait(40, Never),
+                    Wait(40, CancelPolicy::never()),
                 ],
-                ..default()
-            },
+            ),
         ),
         (
             MoveId::BackThrow,
-            Move {
-                input: Some("4w"),
-                requirement: standing,
-                phases: vec![
+            Move::grounded(
+                Some("4w"),
+                CancelCategory::CommandNormal,
+                vec![
                     DummyAnimation::NormalThrow.into(),
-                    Wait(5, Never),
+                    Wait(5, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             block_type: Grab,
@@ -349,19 +341,18 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         RecipientAnimation(DummyAnimation::NormalThrowRecipient.into()),
                     ])
                     .into(),
-                    Wait(40, Never),
+                    Wait(40, CancelPolicy::never()),
                 ],
-                ..default()
-            },
+            ),
         ),
         (
             MoveId::Sweep,
-            Move {
-                input: Some("w"),
-                requirement: crouching,
-                phases: vec![
+            Move::grounded(
+                Some("[123]w"),
+                CancelCategory::CommandNormal,
+                vec![
                     DummyAnimation::Sweep.into(),
-                    Wait(10, Never),
+                    Wait(10, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             block_type: Grab,
@@ -377,19 +368,18 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         },
                     )
                     .into(),
-                    Wait(15, IfHit),
+                    Wait(15, CancelPolicy::command_normal_recovery()),
                 ],
-                ..default()
-            },
+            ),
         ),
         (
             MoveId::AirThrow,
-            Move {
-                input: Some("w"),
-                requirement: airborne,
-                phases: vec![
+            Move::airborne(
+                Some("w"),
+                CancelCategory::Normal,
+                vec![
                     DummyAnimation::AirThrow.into(),
-                    Wait(9, Never),
+                    Wait(9, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             block_type: Grab,
@@ -410,10 +400,9 @@ fn normals() -> impl Iterator<Item = (MoveId, Move)> {
                         RecipientAnimation(DummyAnimation::AirThrowRecipient.into()),
                     ])
                     .into(),
-                    Wait(30, Never),
+                    Wait(30, CancelPolicy::never()),
                 ],
-                ..default()
-            },
+            ),
         ),
     ]
     .into_iter()
@@ -423,10 +412,10 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
     vec![
         (
             MoveId::Dodge,
-            Move {
-                input: Some("252"),
-                move_type: Normal,
-                phases: vec![
+            Move::grounded(
+                Some("252"),
+                CancelCategory::Special,
+                vec![
                     vec![
                         ForceStand,
                         DummyAnimation::Dodge.into(),
@@ -437,20 +426,18 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         }),
                     ]
                     .into(),
-                    Wait(45, Never),
+                    Wait(45, CancelPolicy::never()),
                 ],
-                ..default()
-            },
+            ),
         ),
         (
             MoveId::GroundSlam,
-            Move {
-                input: Some("[789]6s"),
-                move_type: Special,
-                requirement: grounded,
-                phases: vec![
+            Move::grounded(
+                Some("[789]6s"),
+                CancelCategory::Special,
+                vec![
                     DummyAnimation::GroundSlam.into(),
-                    Wait(14, Never),
+                    Wait(14, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             hitbox: Hitbox(Area::new(0.7, 1.25, 0.8, 0.8)),
@@ -470,19 +457,18 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         duration: 1,
                     }
                     .into(),
-                    Wait(20, IfHit),
+                    Wait(20, CancelPolicy::never()),
                 ],
-            },
+            ),
         ),
         (
             MoveId::AirSlam,
-            Move {
-                input: Some("[789]6s"),
-                move_type: Special,
-                requirement: airborne,
-                phases: vec![
+            Move::airborne(
+                Some("[789]6s"),
+                CancelCategory::Special,
+                vec![
                     DummyAnimation::AirSlam.into(),
-                    Wait(14, Never),
+                    Wait(14, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             hitbox: Hitbox(Area::new(0.9, 1.25, 0.8, 0.8)),
@@ -502,18 +488,18 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         duration: 2,
                     }
                     .into(),
-                    Wait(35, IfHit),
+                    Wait(35, CancelPolicy::never()),
                 ],
-            },
+            ),
         ),
         (
             MoveId::BudgetBoom,
-            Move {
-                input: Some("[41]6f"),
-                move_type: Special,
-                phases: vec![
+            Move::grounded(
+                Some("[41]6f"),
+                CancelCategory::Special,
+                vec![
                     ForceStand.into(),
-                    Wait(10, Never),
+                    Wait(10, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
@@ -527,28 +513,18 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         CommonAttackProps::default(),
                     )
                     .into(),
-                    Wait(5, IfHit),
+                    Wait(5, CancelPolicy::never()),
                 ],
-                ..default()
-            },
+            ),
         ),
         (
             MoveId::SonicBoom,
-            Move {
-                input: Some("[41]6f"),
-                move_type: Special,
-                requirement: |situation: Situation| {
-                    // Charge check
-                    situation
-                        .properties
-                        .get(&PropertyType::Charge)
-                        .unwrap()
-                        .is_full()
-                        && grounded(situation)
-                },
-                phases: vec![
+            Move::new(
+                Some("[41]6f"),
+                CancelCategory::Special,
+                vec![
                     vec![ForceStand, ClearProperty(PropertyType::Charge)].into(),
-                    Wait(10, Never),
+                    Wait(10, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             hitbox: Hitbox(Area::new(0.5, 1.2, 0.4, 0.3)),
@@ -566,18 +542,27 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         },
                     )
                     .into(),
-                    Wait(5, IfHit),
+                    Wait(5, CancelPolicy::never()),
                 ],
-            },
+                |situation: Situation| {
+                    // Charge check
+                    situation
+                        .properties
+                        .get(&PropertyType::Charge)
+                        .unwrap()
+                        .is_full()
+                        && grounded(situation)
+                },
+            ),
         ),
         (
             MoveId::Hadouken,
-            Move {
-                input: Some("236f"),
-                move_type: Special,
-                phases: vec![
+            Move::grounded(
+                Some("236f"),
+                CancelCategory::Special,
+                vec![
                     ForceStand.into(),
-                    Wait(30, Never),
+                    Wait(30, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
@@ -592,27 +577,18 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         CommonAttackProps::default(),
                     )
                     .into(),
-                    Wait(30, IfHit),
+                    Wait(30, CancelPolicy::never()),
                 ],
-                ..default()
-            },
+            ),
         ),
         (
             MoveId::HeavyHadouken,
-            Move {
-                input: Some("236s"),
-                move_type: Special,
-                requirement: |situation: Situation| {
-                    situation
-                        .properties
-                        .get(&PropertyType::Meter)
-                        .unwrap()
-                        .current
-                        >= 30
-                },
-                phases: vec![
+            Move::new(
+                Some("236s"),
+                CancelCategory::Special,
+                vec![
                     vec![ForceStand, ModifyProperty(PropertyType::Meter, -30)].into(),
-                    Wait(30, Never),
+                    Wait(30, CancelPolicy::never()),
                     Attack::new(
                         ToHit {
                             hitbox: Hitbox(Area::new(0.5, 1.0, 0.4, 0.5)),
@@ -630,9 +606,17 @@ fn specials() -> impl Iterator<Item = (MoveId, Move)> {
                         },
                     )
                     .into(),
-                    Wait(20, IfHit),
+                    Wait(20, CancelPolicy::never()),
                 ],
-            },
+                |situation: Situation| {
+                    situation
+                        .properties
+                        .get(&PropertyType::Meter)
+                        .unwrap()
+                        .current
+                        >= 30
+                },
+            ),
         ),
     ]
     .into_iter()

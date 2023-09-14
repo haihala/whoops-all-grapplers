@@ -1313,8 +1313,6 @@ name = "characters"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "input_parsing",
- "map-macro",
  "wag_core",
 ]
 

@@ -3,22 +3,25 @@ use bevy::{prelude::*, utils::HashMap};
 use wag_core::{GameButton, Stats, StickPosition};
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Reflect)]
-pub enum PropertyType {
+pub enum ResourceType {
     Health,
     Meter,
     Charge,
 }
 
-#[derive(Debug, Component, Deref, DerefMut)]
-pub struct Properties(HashMap<PropertyType, Property>);
+#[derive(Debug, Clone, Component, Deref, DerefMut)]
+pub struct WAGResources(pub HashMap<ResourceType, WAGResource>);
 
-impl Properties {
-    pub fn from_stats(stats: &Stats, additional_properties: Vec<(PropertyType, Property)>) -> Self {
-        Properties(
+impl WAGResources {
+    pub fn from_stats(
+        stats: &Stats,
+        additional_properties: Vec<(ResourceType, WAGResource)>,
+    ) -> Self {
+        WAGResources(
             vec![
                 (
-                    PropertyType::Health,
-                    Property {
+                    ResourceType::Health,
+                    WAGResource {
                         max: stats.max_health,
                         current: stats.max_health,
                         render_instructions: BarRenderInstructions::default_health(),
@@ -26,8 +29,8 @@ impl Properties {
                     },
                 ),
                 (
-                    PropertyType::Meter,
-                    Property {
+                    ResourceType::Meter,
+                    WAGResource {
                         // TODO: Add more stats attributes here and in reset
                         max: 100,
                         render_instructions: BarRenderInstructions::default_meter(),
@@ -44,7 +47,7 @@ impl Properties {
     pub fn reset(&mut self, stats: &Stats) {
         for (prop_type, prop) in self.iter_mut() {
             match prop_type {
-                PropertyType::Health => {
+                ResourceType::Health => {
                     prop.max = stats.max_health;
                     prop.current = stats.max_health;
                 }
@@ -61,14 +64,14 @@ impl Properties {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct Property {
+pub struct WAGResource {
     pub max: i32,
     pub min: i32,
     pub current: i32,
     pub render_instructions: BarRenderInstructions,
     pub special: Option<SpecialProperty>,
 }
-impl Property {
+impl WAGResource {
     pub fn is_full(&self) -> bool {
         self.current == self.max
     }

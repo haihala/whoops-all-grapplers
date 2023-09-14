@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use characters::{
-    ActionEvent, Character, Inventory, Move, MoveHistory, Properties, PropertyType, Situation,
+    Action, ActionEvent, Character, Inventory, ResourceType, Situation, WAGResources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -44,13 +44,13 @@ impl MoveBuffer {
         &self,
         character: &Character,
         situation: Situation,
-    ) -> Vec<(usize, MoveId, Move)> {
+    ) -> Vec<(usize, MoveId, Action)> {
         self.buffer
             .iter()
             .filter_map(|(frame, id)| {
-                if let Some(move_data) = character.get_move(*id) {
-                    if (move_data.requirement)(situation.to_owned()) {
-                        return Some((*frame, *id, move_data));
+                if let Some(action) = character.get_move(*id) {
+                    if (action.requirement)(situation.to_owned()) {
+                        return Some((*frame, *id, action));
                     }
                 }
                 None
@@ -103,27 +103,18 @@ pub(super) fn raw_or_link(
         &Character,
         &PlayerState,
         &Inventory,
-        &Properties,
-        &InputParser,
+        &WAGResources,
     )>,
 ) {
     // Set activating move if one in the buffer can start raw or be linked into
-    for (mut buffer, character, state, inventory, properties, parser) in &mut query {
+    for (mut buffer, character, state, inventory, resources) in &mut query {
         if let Some(freedom_frame) = state.free_since {
             // Character has recently been freed
 
             if let Some((stored, id, _)) = buffer
                 .get_situation_moves(
                     character,
-                    Situation {
-                        inventory,
-                        history: state.get_move_history().map(|history| history.to_owned()),
-                        grounded: state.is_grounded(),
-                        properties,
-                        parser,
-                        current_frame: clock.frame,
-                        conditions: state.get_conditions().to_owned(),
-                    },
+                    state.build_situation(inventory.clone(), resources.clone(), clock.frame),
                 )
                 .into_iter()
                 .min_by(|(_, id1, _), (_, id2, _)| id1.cmp(id2))
@@ -147,33 +138,24 @@ pub(super) fn special_cancel(
         &Character,
         &PlayerState,
         &Inventory,
-        &Properties,
-        &InputParser,
+        &WAGResources,
     )>,
 ) {
     // Set activating move if one in the buffer can be cancelled into
-    for (mut buffer, character, state, inventory, properties, parser) in &mut query {
+    for (mut buffer, character, state, inventory, resources) in &mut query {
         if state.free_since.is_none() {
-            if let Some(history) = state.get_move_history() {
+            if let Some(tracker) = state.get_action_tracker() {
                 // Not free because a move is happening
                 // Is current move cancellable, if so, since when
                 if let Some((stored, id, cancellable_since)) = buffer
                     .get_situation_moves(
                         character,
-                        Situation {
-                            inventory,
-                            history: state.get_move_history().map(|history| history.to_owned()),
-                            grounded: state.is_grounded(),
-                            properties,
-                            parser,
-                            current_frame: clock.frame,
-                            conditions: state.get_conditions().to_owned(),
-                        },
+                        state.build_situation(inventory.clone(), resources.clone(), clock.frame),
                     )
                     .into_iter()
-                    .filter_map(|(frame, id, data)| {
-                        history
-                            .cancellable_into_since(&data)
+                    .filter_map(|(frame, id, action)| {
+                        tracker
+                            .cancellable_into_since(action.clone())
                             .map(|freedom| (frame, id, freedom))
                     })
                     .min_by(|(_, id1, _), (_, id2, _)| id1.cmp(id2))
@@ -195,7 +177,7 @@ pub(super) fn move_activator(
     mut query: Query<(
         &mut MoveBuffer,
         &mut PlayerState,
-        &mut Properties,
+        &mut WAGResources,
         &Player,
         &Character,
     )>,
@@ -210,7 +192,7 @@ pub(super) fn move_activator(
 
                         if let Some(meter_gain) = link.meter_gain() {
                             properties
-                                .get_mut(&PropertyType::Meter)
+                                .get_mut(&ResourceType::Meter)
                                 .unwrap()
                                 .gain(meter_gain);
                         }
@@ -227,13 +209,7 @@ pub(super) fn move_activator(
                 _ => clock.frame,
             };
 
-            state.start_move(MoveHistory {
-                move_id: activation.id,
-                move_data: character.get_move(activation.id).unwrap(),
-                started,
-                frame_skip: clock.frame - started,
-                ..default()
-            });
+            state.start_move(character.get_move(activation.id).unwrap(), started);
             buffer.buffer.clear();
         }
     }

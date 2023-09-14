@@ -6,7 +6,5 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
 bevy = { workspace = true }
-map-macro = { workspace = true }
 
-input_parsing = { path = "../input_parsing"}
 wag_core = { path = "../wag_core" }

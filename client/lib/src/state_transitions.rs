@@ -1,6 +1,6 @@
 use bevy::{app::AppExit, prelude::*};
 
-use characters::{Inventory, Properties, PropertyType};
+use characters::{Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
     Clock, GameState, Player, RoundLog, RoundResult, POST_ROUND_DURATION, PRE_ROUND_DURATION,
@@ -43,13 +43,13 @@ pub fn end_combat(
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
     mut round_log: ResMut<RoundLog>,
-    mut players: Query<(&Properties, &Player, &mut Inventory)>,
+    mut players: Query<(&WAGResources, &Player, &mut Inventory)>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     let round_over = players
         .iter()
         .filter_map(|(properties, player, _)| {
-            if properties.get(&PropertyType::Health).unwrap().is_empty() {
+            if properties.get(&ResourceType::Health).unwrap().is_empty() {
                 None
             } else {
                 Some(player)
@@ -67,10 +67,10 @@ pub fn end_combat(
 
     // TODO: There has to be a cleaner way
     ordered_healths.sort_by(|(a, _, _), (b, _, _)| {
-        a.get(&PropertyType::Health)
+        a.get(&ResourceType::Health)
             .unwrap()
             .get_percentage()
-            .partial_cmp(&b.get(&PropertyType::Health).unwrap().get_percentage())
+            .partial_cmp(&b.get(&ResourceType::Health).unwrap().get_percentage())
             .unwrap()
             .reverse()
     });
@@ -90,11 +90,11 @@ pub fn end_combat(
     loser_inventory.money += ROUND_MONEY;
 
     let result = if winner_props
-        .get(&PropertyType::Health)
+        .get(&ResourceType::Health)
         .unwrap()
         .get_percentage()
         == loser_props
-            .get(&PropertyType::Health)
+            .get(&ResourceType::Health)
             .unwrap()
             .get_percentage()
     {

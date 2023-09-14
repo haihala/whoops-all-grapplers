@@ -9,7 +9,7 @@ mod recovery;
 mod root_mover;
 mod size_adjustment;
 
-use characters::{dummy, Character, Inventory, Properties};
+use characters::{dummy, Character, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{Clock, Facing, GameState, Joints, Player, Players, Stats, WAGStage};
@@ -37,7 +37,7 @@ struct PlayerQuery<'a> {
     character: &'a Character,
     tf: &'a Transform,
     buffer: &'a mut MoveBuffer,
-    properties: &'a mut Properties,
+    properties: &'a mut WAGResources,
     inventory: &'a mut Inventory,
     input_parser: &'a mut InputParser,
     player: &'a Player,
@@ -114,7 +114,7 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
                 transform: Transform::from_translation((offset, PLAYER_SPAWN_HEIGHT, 0.0).into()),
                 ..default()
             },
-            Properties::from_stats(&character.base_stats, character.special_properties.clone()),
+            WAGResources::from_stats(&character.base_stats, character.special_properties.clone()),
             PlayerDefaults::default(),
             PadBundle::new(character.get_inputs()),
             Name::new(format!("Player {player}")),
@@ -142,7 +142,7 @@ fn setup_combat(
     mut query: Query<(
         &Player,
         &Stats,
-        &mut Properties,
+        &mut WAGResources,
         &mut Transform,
         &mut PlayerState,
         &mut MoveBuffer,

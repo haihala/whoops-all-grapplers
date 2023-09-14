@@ -9,7 +9,7 @@ pub use notifications::{update_notifications, Notifications};
 mod round_timer;
 pub use round_timer::update_timer;
 
-use characters::{BarRenderInstructions, Properties, PropertyType};
+use characters::{BarRenderInstructions, ResourceType, WAGResources};
 use wag_core::{GameState, OnlyShowInGameState, Player, Players};
 
 use crate::assets::{Colors, Fonts};
@@ -20,7 +20,7 @@ pub fn setup_combat_hud(
     mut commands: Commands,
     colors: Res<Colors>,
     fonts: Res<Fonts>,
-    properties: Query<&Properties>,
+    properties: Query<&WAGResources>,
     players: Res<Players>,
 ) {
     let container = commands
@@ -73,7 +73,7 @@ fn setup_player_hud(
     colors: &Colors,
     fonts: &Fonts,
     player: Player,
-    properties: &Properties,
+    properties: &WAGResources,
 ) {
     let container = commands
         .spawn(NodeBundle {
@@ -129,7 +129,7 @@ fn setup_top_hud(
         commands,
         container,
         BarRenderInstructions::default_health(),
-        PropertyBar(player, PropertyType::Health),
+        PropertyBar(player, ResourceType::Health),
         "Health bar",
     );
     setup_round_counter(commands, container, colors, fonts, player);
@@ -162,7 +162,7 @@ fn setup_bottom_hud(
     commands: &mut Commands,
     parent: Entity,
     player: Player,
-    properties: &Properties,
+    properties: &WAGResources,
 ) {
     let container = commands
         .spawn(NodeBundle {
@@ -184,7 +184,7 @@ fn setup_bottom_hud(
         .id();
 
     for (prop_type, property) in properties.iter() {
-        if matches!(prop_type, PropertyType::Health | PropertyType::Meter) {
+        if matches!(prop_type, ResourceType::Health | ResourceType::Meter) {
             continue;
         }
 
@@ -201,7 +201,7 @@ fn setup_bottom_hud(
         commands,
         container,
         BarRenderInstructions::default_meter(),
-        PropertyBar(player, PropertyType::Meter),
+        PropertyBar(player, ResourceType::Meter),
         "Meter bar",
     );
 }

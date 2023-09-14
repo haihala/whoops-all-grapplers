@@ -3,13 +3,13 @@ use std::{collections::HashMap, f32::consts::PI};
 use bevy::prelude::*;
 use wag_core::{Animation, AnimationType, Area, ItemId, Model, MoveId, Stats};
 
-use crate::{properties::PropertyType, Item, Move, Property};
+use crate::{resources::ResourceType, Action, Item, WAGResource};
 
 use super::jump;
 
 #[derive(Debug, Component, Clone)]
 pub struct Character {
-    moves: HashMap<MoveId, Move>,
+    moves: HashMap<MoveId, Action>,
     pub items: HashMap<ItemId, Item>,
     pub model: Model,
     pub low_block_height: f32,
@@ -19,7 +19,7 @@ pub struct Character {
     pub generic_animations: HashMap<AnimationType, Animation>,
     pub gravity: f32,
     pub base_stats: Stats,
-    pub special_properties: Vec<(PropertyType, Property)>,
+    pub special_properties: Vec<(ResourceType, WAGResource)>,
 }
 impl Character {
     // TODO: Consider making a builder for this
@@ -27,12 +27,12 @@ impl Character {
     pub(crate) fn new(
         model: Model,
         generic_animations: HashMap<AnimationType, Animation>,
-        mut moves: HashMap<MoveId, Move>,
+        mut moves: HashMap<MoveId, Action>,
         items: HashMap<ItemId, Item>,
         jump_height: f32,
         jump_duration: f32,
         base_stats: Stats,
-        special_properties: Vec<(PropertyType, Property)>,
+        special_properties: Vec<(ResourceType, WAGResource)>,
     ) -> Character {
         let (jumps, gravity) = Self::jumps(jump_height, jump_duration);
         moves.extend(jumps);
@@ -52,7 +52,7 @@ impl Character {
         }
     }
 
-    pub fn get_move(&self, id: MoveId) -> Option<Move> {
+    pub fn get_move(&self, id: MoveId) -> Option<Action> {
         self.moves.get(&id).map(|opt| opt.to_owned())
     }
 
@@ -71,7 +71,7 @@ impl Character {
             .collect()
     }
 
-    fn jumps(height: f32, duration: f32) -> (impl Iterator<Item = (MoveId, Move)>, f32) {
+    fn jumps(height: f32, duration: f32) -> (impl Iterator<Item = (MoveId, Action)>, f32) {
         /*
         // Math for gravity
         x = x0 + v0*t + 1/2*a*t^2

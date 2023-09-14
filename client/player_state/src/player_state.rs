@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use characters::{ActionEvent, MoveHistory, Situation};
+use characters::{Action, ActionEvent, ActionTracker, Inventory, Situation, WAGResources};
 use wag_core::{AnimationType, Facing, Stats, StatusCondition, StatusFlag};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
@@ -19,7 +19,7 @@ pub struct PlayerState {
     main: MainState,
     pub free_since: Option<usize>,
     conditions: Vec<StatusCondition>,
-    external_actions: Vec<ActionEvent>,
+    unprocessed_events: Vec<ActionEvent>,
 }
 
 impl Default for PlayerState {
@@ -28,7 +28,7 @@ impl Default for PlayerState {
             main: MainState::Stand(StandState::default()),
             free_since: Some(0),
             conditions: vec![],
-            external_actions: vec![],
+            unprocessed_events: vec![],
         }
     }
 }
@@ -37,45 +37,18 @@ impl PlayerState {
         *self = PlayerState::default();
     }
 
-    pub fn proceed_move(&mut self, situation: Situation) {
-        if let Some(ref mut history) = self.get_move_history_mut() {
-            if !history.unprocessed_events.is_empty() {
-                warn!("Leftover events");
-                dbg!(&history.unprocessed_events);
-            }
-
-            let new_fcs = situation.new_fcs();
-            history.add_actions_from(new_fcs.clone());
-            history.past.extend(new_fcs);
-        }
-    }
-
-    pub fn current_move_fully_handled(&self) -> Option<bool> {
-        self.get_move_history().map(|history| history.is_done())
-    }
-
     pub fn drain_matching_actions<T>(
         &mut self,
         predicate: impl Fn(&mut ActionEvent) -> Option<T>,
     ) -> Vec<T> {
-        let mut actions: Vec<T> = self
-            .external_actions
+        self.unprocessed_events
             .extract_if(|action| (predicate)(action).is_some())
             .map(|mut action| (predicate)(&mut action).unwrap())
-            .collect();
-
-        if let Some(ref mut history) = self.get_move_history_mut() {
-            let history_actions = history
-                .unprocessed_events
-                .extract_if(|action| (predicate)(action).is_some())
-                .map(|mut action| (predicate)(&mut action).unwrap());
-            actions.extend(history_actions);
-        }
-        actions
+            .collect()
     }
 
     pub fn add_actions(&mut self, mut actions: Vec<ActionEvent>) {
-        self.external_actions.append(&mut actions);
+        self.unprocessed_events.append(&mut actions);
     }
 
     pub fn get_generic_animation(&self, facing: Facing) -> Option<AnimationType> {
@@ -103,16 +76,48 @@ impl PlayerState {
     }
 
     // Moves
-    pub fn start_move(&mut self, history: MoveHistory) {
+    pub fn start_move(&mut self, action: Action, frame: usize) {
+        self.unprocessed_events
+            .append(action.script[0].events.clone().as_mut()); // This can't be the best way to merge Vecs
+        let tracker = ActionTracker::new(action, frame);
+
         self.main = match self.main {
-            MainState::Stand(_) => MainState::Stand(StandState::Move(history)),
-            MainState::Crouch(_) => MainState::Crouch(CrouchState::Move(history)),
-            MainState::Air(_) => MainState::Air(AirState::Move(history)),
+            MainState::Stand(_) => MainState::Stand(StandState::Move(tracker)),
+            MainState::Crouch(_) => MainState::Crouch(CrouchState::Move(tracker)),
+            MainState::Air(_) => MainState::Air(AirState::Move(tracker)),
             MainState::Ground(_) => panic!("Starting a move on the ground"),
         };
         self.free_since = None;
     }
-    pub fn get_move_history(&self) -> Option<&MoveHistory> {
+    pub fn proceed_move(&mut self, inventory: Inventory, resources: WAGResources, frame: usize) {
+        let situation = self.build_situation(inventory, resources, frame);
+        let tracker = self.get_action_tracker_mut().unwrap();
+
+        if tracker.blocker.fulfilled(situation) {
+            if let Some(next_block) = tracker.pop_next(frame) {
+                tracker.blocker = next_block.exit_requirement;
+                tracker.cancel_policy = next_block.cancel_policy;
+                self.unprocessed_events.extend(next_block.events);
+            } else {
+                self.recover(frame);
+            }
+        }
+    }
+    pub fn build_situation(
+        &self,
+        inventory: Inventory,
+        resources: WAGResources,
+        frame: usize,
+    ) -> Situation {
+        Situation {
+            inventory,
+            frame,
+            resources: resources.0,
+            grounded: self.is_grounded(),
+            tracker: self.get_action_tracker().cloned(),
+        }
+    }
+    pub fn get_action_tracker(&self) -> Option<&ActionTracker> {
         match self.main {
             MainState::Stand(StandState::Move(ref history))
             | MainState::Crouch(CrouchState::Move(ref history))
@@ -120,7 +125,7 @@ impl PlayerState {
             _ => None,
         }
     }
-    pub fn get_move_history_mut(&mut self) -> Option<&mut MoveHistory> {
+    pub fn get_action_tracker_mut(&mut self) -> Option<&mut ActionTracker> {
         match self.main {
             MainState::Stand(StandState::Move(ref mut history))
             | MainState::Crouch(CrouchState::Move(ref mut history))
@@ -128,13 +133,13 @@ impl PlayerState {
             _ => None,
         }
     }
-    pub fn is_free(&self) -> bool {
-        self.get_move_history().is_none()
+    pub fn action_in_progress(&self) -> bool {
+        self.get_action_tracker().is_some()
     }
 
     pub fn register_hit(&mut self) {
-        if let Some(ref mut history) = self.get_move_history_mut() {
-            history.has_hit = true;
+        if let Some(ref mut tracker) = self.get_action_tracker_mut() {
+            tracker.has_hit = true;
         }
     }
 
@@ -293,8 +298,7 @@ impl PlayerState {
 
 #[cfg(test)]
 mod test {
-    use characters::Move;
-    use wag_core::MoveId;
+    use characters::Action;
 
     use super::*;
 
@@ -302,18 +306,8 @@ mod test {
     fn generic_animation_mid_move() {
         // TODO: Creating testing states should be easier
         let mut move_state = PlayerState {
-            main: MainState::Stand(StandState::Move(MoveHistory {
-                move_id: MoveId::TestMove,
-                move_data: Move::default(),
-                frame_skip: 0,
-                started: 0,
-                past: vec![],
-                unprocessed_events: vec![],
-                has_hit: false,
-            })),
-            free_since: Some(2),
-            conditions: vec![],
-            external_actions: vec![],
+            main: MainState::Stand(StandState::Move(ActionTracker::new(Action::default(), 0))),
+            ..default()
         };
 
         assert_eq!(move_state.get_generic_animation(Facing::Left), None);

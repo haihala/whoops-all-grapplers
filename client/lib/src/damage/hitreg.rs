@@ -2,8 +2,8 @@ use bevy::{ecs::query::WorldQuery, prelude::*};
 use strum::IntoEnumIterator;
 
 use characters::{
-    ActionEvent, Attack, AttackHeight, BlockType, Character, Hitbox, Hurtbox, Properties,
-    PropertyType,
+    ActionEvent, Attack, AttackHeight, BlockType, Character, Hitbox, Hurtbox, ResourceType,
+    WAGResources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -45,7 +45,7 @@ pub(super) struct Hit {
 pub struct HitPlayerQuery<'a> {
     defense: &'a mut Defense,
     tf: &'a mut Transform,
-    properties: &'a mut Properties,
+    properties: &'a mut WAGResources,
     player: &'a Player,
     parser: &'a InputParser,
     state: &'a mut PlayerState,
@@ -62,7 +62,7 @@ pub(super) fn clash_parry(
     mut sounds: ResMut<Sounds>,
     mut particles: ResMut<Particles>,
     mut hitboxes: Query<(Entity, &Owner, &GlobalTransform, &Hitbox, &mut HitTracker)>,
-    mut owners: Query<(&mut HitboxSpawner, &mut Properties)>,
+    mut owners: Query<(&mut HitboxSpawner, &mut WAGResources)>,
     players: Res<Players>,
 ) {
     let mut iter = hitboxes.iter_combinations_mut();
@@ -102,7 +102,7 @@ pub(super) fn clash_parry(
 
                 if !is_projectile {
                     properties
-                        .get_mut(&PropertyType::Meter)
+                        .get_mut(&ResourceType::Meter)
                         .unwrap()
                         .gain(CLASH_PARRY_METER_GAIN);
                 }
@@ -189,7 +189,7 @@ pub(super) fn detect_hits(
                     hit_tracker.register_hit(clock.frame)
                 }
 
-                let (hit_type, notification) = if !state.is_free() {
+                let (hit_type, notification) = if state.action_in_progress() {
                     (
                         match attack.to_hit.block_type {
                             BlockType::Constant(_) | BlockType::Dynamic => HitType::Strike,
@@ -291,7 +291,7 @@ pub(super) fn apply_hits(
                 defender.defense.bump_streak(clock.frame);
                 defender
                     .properties
-                    .get_mut(&PropertyType::Meter)
+                    .get_mut(&ResourceType::Meter)
                     .unwrap()
                     .gain(defender.defense.get_reward());
 
@@ -305,7 +305,7 @@ pub(super) fn apply_hits(
             HitType::Parry => (
                 vec![],
                 vec![ActionEvent::ModifyProperty(
-                    PropertyType::Meter,
+                    ResourceType::Meter,
                     GI_PARRY_METER_GAIN,
                 )],
                 SoundEffect::Clash,
@@ -317,7 +317,7 @@ pub(super) fn apply_hits(
             sounds.play(SoundEffect::Whoosh); // TODO change sound effect
             attacker_actions = handle_opener(attacker_actions, attacker.status_effect);
             attacker_actions.push(ActionEvent::ModifyProperty(
-                PropertyType::Meter,
+                ResourceType::Meter,
                 attacker.status_effect.opener_meter_gain,
             ));
             defender_actions = handle_opener(defender_actions, attacker.status_effect);
@@ -361,9 +361,9 @@ fn handle_opener(actions: Vec<ActionEvent>, status_effect: &Stats) -> Vec<Action
     actions
         .into_iter()
         .map(|action| match action {
-            ActionEvent::ModifyProperty(PropertyType::Health, amount) => {
+            ActionEvent::ModifyProperty(ResourceType::Health, amount) => {
                 ActionEvent::ModifyProperty(
-                    PropertyType::Health,
+                    ResourceType::Health,
                     (amount as f32 * status_effect.opener_damage_multiplier) as i32,
                 )
             }

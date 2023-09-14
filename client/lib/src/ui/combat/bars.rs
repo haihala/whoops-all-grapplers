@@ -1,12 +1,12 @@
 use bevy::prelude::*;
-use characters::{BarRenderInstructions, Properties, PropertyType};
+use characters::{BarRenderInstructions, ResourceType, WAGResources};
 use wag_core::{Player, RoundLog};
 
 #[derive(Debug, Component, Deref)]
 pub struct ScoreText(pub Player); // TODO: Move this
 
 #[derive(Debug, Component)]
-pub struct PropertyBar(pub Player, pub PropertyType);
+pub struct PropertyBar(pub Player, pub ResourceType);
 
 pub fn setup_bar(
     commands: &mut Commands,
@@ -48,7 +48,7 @@ pub fn update_bars(
         )>,
         Query<(&mut Text, &ScoreText)>,
     )>,
-    players: Query<(&Player, &Properties)>,
+    players: Query<(&Player, &WAGResources)>,
     round_log: Res<RoundLog>,
 ) {
     for (player, properties) in &players {

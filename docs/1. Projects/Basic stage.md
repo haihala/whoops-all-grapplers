@@ -1,3 +1,3 @@
-- [ ] 3D model in blender
-- [ ] Spawn in in the game
+- [x] 3D model in blender
+- [x] Spawn in in the game
 - [ ] Lighting

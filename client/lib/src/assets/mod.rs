@@ -30,11 +30,6 @@ pub struct Fonts {
     pub basic: Handle<Font>,
 }
 
-#[derive(Debug, Resource)]
-pub struct Sprites {
-    pub background_image: Handle<Image>,
-}
-
 pub struct AssetsPlugin;
 
 impl Plugin for AssetsPlugin {
@@ -44,7 +39,6 @@ impl Plugin for AssetsPlugin {
             (
                 loaders::colors,
                 loaders::fonts,
-                loaders::sprites,
                 loaders::models,
                 loaders::animations,
                 loaders::sounds,

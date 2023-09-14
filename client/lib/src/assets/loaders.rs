@@ -7,7 +7,7 @@ use super::{
     animations::animation_paths,
     models::model_paths,
     sounds::{get_sound_paths, Sounds},
-    Animations, Colors, Fonts, Models, Particles, Sprites,
+    Animations, Colors, Fonts, Models, Particles,
 };
 
 pub fn colors(mut commands: Commands) {
@@ -34,12 +34,6 @@ pub fn fonts(mut commands: Commands, asset_server: Res<AssetServer>) {
     let basic = asset_server.load("FiraSans-Bold.ttf");
 
     commands.insert_resource(Fonts { basic })
-}
-
-pub fn sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(Sprites {
-        background_image: asset_server.load("CPT-2018-Stage.png"),
-    });
 }
 
 pub fn models(mut commands: Commands, asset_server: Res<AssetServer>) {

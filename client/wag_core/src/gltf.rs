@@ -4,6 +4,7 @@ use bevy::prelude::*;
 pub enum Model {
     Dummy,
     Fireball,
+    TrainingStage,
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect)]

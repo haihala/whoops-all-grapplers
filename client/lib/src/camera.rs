@@ -1,6 +1,5 @@
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::*;
-use bevy::render::camera::ScalingMode;
 use wag_core::Player;
 
 use crate::physics::ARENA_WIDTH;
@@ -21,10 +20,7 @@ impl Plugin for CustomCameraPlugin {
 }
 
 fn add_cameras(mut commands: Commands) {
-    let projection = OrthographicProjection {
-        scaling_mode: ScalingMode::FixedHorizontal(VIEWPORT_HALFWIDTH * 2.0),
-        ..default()
-    };
+    let projection = PerspectiveProjection { ..default() };
 
     let camera_container = commands
         .spawn((
@@ -60,7 +56,6 @@ fn add_cameras(mut commands: Commands) {
                     // Don't draw a clear color on top of the 3d stuff
                     clear_color: ClearColorConfig::None,
                 },
-                projection,
                 ..default()
             },
             Name::new("2d Cam"),

@@ -13,7 +13,7 @@ use crate::{
 };
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
-pub const ARENA_WIDTH: f32 = 10.0;
+pub const ARENA_WIDTH: f32 = 9.0;
 
 #[derive(Debug, Default, Reflect, Component)]
 pub struct ConstantVelocity {

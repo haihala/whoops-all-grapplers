@@ -1,4 +1,3 @@
-use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::*;
 use wag_core::Player;
 
@@ -14,53 +13,21 @@ pub struct CustomCameraPlugin;
 
 impl Plugin for CustomCameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, add_cameras)
+        app.add_systems(Startup, add_camera)
             .add_systems(Update, center_camera);
     }
 }
 
-fn add_cameras(mut commands: Commands) {
-    let projection = PerspectiveProjection { ..default() };
-
-    let camera_container = commands
-        .spawn((
-            SpatialBundle {
-                transform: Transform::from_xyz(0.0, 1.8, 10.0),
-                ..default()
-            },
-            Name::new("Cameras"),
-            WorldCamera,
-        ))
-        .id();
-
-    commands
-        .spawn((
-            Camera3dBundle {
-                projection: projection.clone().into(),
-                ..default()
-            },
-            Name::new("3d Cam"),
-        ))
-        .set_parent(camera_container);
-
-    commands
-        .spawn((
-            Camera2dBundle {
-                transform: Transform::from_translation(Vec3::ZERO),
-                camera: Camera {
-                    // Higher is rendered later
-                    order: 1,
-                    ..default()
-                },
-                camera_2d: Camera2d {
-                    // Don't draw a clear color on top of the 3d stuff
-                    clear_color: ClearColorConfig::None,
-                },
-                ..default()
-            },
-            Name::new("2d Cam"),
-        ))
-        .set_parent(camera_container);
+fn add_camera(mut commands: Commands) {
+    commands.spawn((
+        Camera3dBundle {
+            transform: Transform::from_xyz(0.0, 1.8, 5.0),
+            projection: PerspectiveProjection { ..default() }.into(),
+            ..default()
+        },
+        Name::new("Cameras"),
+        WorldCamera,
+    ));
 }
 
 #[allow(clippy::type_complexity)]

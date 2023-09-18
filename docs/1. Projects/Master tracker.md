@@ -4,7 +4,6 @@
 - [[Extending items]]
 - [[Items for playtest]]
 - [[Character 2]]
-- [[Basic stage]]
 
 ## Nice to have
 - [[Toasts in various spots]]

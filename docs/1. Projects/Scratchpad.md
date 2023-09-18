@@ -1,3 +1,5 @@
+- Add a button where the character says "Nice"
+	- Could have variations for when you are blocking or getting hit
 - Taunting is how you cash out combo damage to money
 - Polish: make parser heads peek one forward and maybe remember that and/or skip requirements
 - Just put all moves in a massive enum

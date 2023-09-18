@@ -1,6 +1,6 @@
 - [ ] Check / remove existing items that don't make sense
 - [ ] Universal items architecture
 - [ ] Add
-	- [ ]  [[Mizuki#Items]] 
+	- [ ]  [[Mizku#Items]] 
 	- [ ] Some of [[Idea dump#Items]]
 		- [ ] These should have pages in the spec

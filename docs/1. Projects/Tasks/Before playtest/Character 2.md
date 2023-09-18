@@ -5,7 +5,7 @@
 - [[Items for playtest]]
 - [[Bevy 0.12]] (Can't import model, can't run master build because Hanabi doesn't support it)
 
-See [[Mizuki]] for designs
+See [[Mizku]] for designs
 
 - [x] Design
 	- [x] Core concept

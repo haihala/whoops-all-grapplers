@@ -1,5 +1,6 @@
 **Mizuki**. In Japanese the word _mizu_ means “felicitous omen, auspicious” and the word ki means “hope,” forming this very cool and beautiful girls’ name.
 
+Nicknamed Mizku because it sounds like Masku which is funny Tekken meme.
 # Lore
 She is a young but competent second generation Korean American immigrant. She's a rookie in [[W.A.G.]] and thus often agrees to do stuff that she really shouldn't including her Japanese samurai gimmick. 
 
@@ -235,3 +236,6 @@ Conveniently, shortened to bs (bullshit)
 	- Relatively fast and small projectile with a slight arc to it
 	- Consumes a [[#Kunai]] on use, can't use if you have none
 - Maybe add an air version later?
+
+## Rope dart
+- Very raw idea, not sure how it would work, but it fits the visual identity and could be interesting

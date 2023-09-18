@@ -10,6 +10,7 @@ pub(super) enum BoxVisual {
     Pushbox,
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(super) fn spawn_boxes(
     mut commands: Commands,
     mut mesh_assets: ResMut<Assets<Mesh>>,

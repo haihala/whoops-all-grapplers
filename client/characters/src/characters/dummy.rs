@@ -46,7 +46,7 @@ pub fn dummy() -> Character {
             (
                 ResourceType::Charge,
                 WAGResource {
-                    max: FPS as i32, // Frames to full,
+                    max: Some(FPS as i32), // Frames to full,
                     special: Some(SpecialProperty::Charge(ChargeProperty::default())),
                     render_instructions: RenderInstructions::Bar(ResourceBarVisual {
                         default_color: Color::rgb(0.05, 0.4, 0.55),
@@ -59,8 +59,6 @@ pub fn dummy() -> Character {
             (
                 ResourceType::ItemCount(ItemId::Boots),
                 WAGResource {
-                    max: 100, // Unused for counters, TODO: Refactor
-                    special: Some(SpecialProperty::ItemCounter(ItemId::Boots)),
                     render_instructions: RenderInstructions::Counter(CounterVisual {
                         label: "Boots",
                     }),

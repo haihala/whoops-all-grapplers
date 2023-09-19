@@ -5,6 +5,7 @@ use wag_core::{GameButton, ItemId, Stats, StickPosition};
 use crate::Inventory;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Reflect)]
+/// This is a quick handle that can be referred to in requirement checks
 pub enum ResourceType {
     Health,
     Meter,
@@ -25,7 +26,7 @@ impl WAGResources {
                 (
                     ResourceType::Health,
                     WAGResource {
-                        max: stats.max_health,
+                        max: Some(stats.max_health),
                         current: stats.max_health,
                         render_instructions: RenderInstructions::Bar(
                             ResourceBarVisual::default_health(),
@@ -37,7 +38,7 @@ impl WAGResources {
                     ResourceType::Meter,
                     WAGResource {
                         // TODO: Add more stats attributes here and in reset
-                        max: 100,
+                        max: Some(100),
                         render_instructions: RenderInstructions::Bar(
                             ResourceBarVisual::default_meter(),
                         ),
@@ -55,7 +56,7 @@ impl WAGResources {
         for (prop_type, prop) in self.iter_mut() {
             match prop_type {
                 ResourceType::Health => {
-                    prop.max = stats.max_health;
+                    prop.max = Some(stats.max_health);
                     prop.current = stats.max_health;
                 }
                 ResourceType::ItemCount(item_id) => {
@@ -87,7 +88,7 @@ impl Default for RenderInstructions {
 
 #[derive(Debug, Default, Clone)]
 pub struct WAGResource {
-    pub max: i32,
+    pub max: Option<i32>,
     pub min: i32,
     pub current: i32,
     pub render_instructions: RenderInstructions,
@@ -95,7 +96,7 @@ pub struct WAGResource {
 }
 impl WAGResource {
     pub fn is_full(&self) -> bool {
-        self.current == self.max
+        self.current == self.max.unwrap_or(i32::MAX)
     }
 
     pub fn is_empty(&self) -> bool {
@@ -103,11 +104,12 @@ impl WAGResource {
     }
 
     pub fn get_percentage(&self) -> f32 {
-        100.0 * ((self.current - self.min) as f32) / ((self.max - self.min) as f32)
+        100.0 * ((self.current - self.min) as f32)
+            / ((self.max.unwrap_or(i32::MAX) - self.min) as f32)
     }
 
     pub fn change(&mut self, amount: i32) {
-        self.current = (self.current + amount).clamp(self.min, self.max);
+        self.current = (self.current + amount).clamp(self.min, self.max.unwrap_or(i32::MAX));
     }
 
     pub fn gain(&mut self, amount: i32) {
@@ -174,9 +176,9 @@ pub struct CounterVisual {
 }
 
 #[derive(Debug, Clone)]
+/// This is for adding properties that cannot be included in the ResourceType
 pub enum SpecialProperty {
     Charge(ChargeProperty),
-    ItemCounter(ItemId),
 }
 
 #[derive(Debug, Clone)]

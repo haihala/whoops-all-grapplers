@@ -191,7 +191,7 @@ fn setup_bottom_hud(
         bars::setup_bar(
             commands,
             container,
-            property.render_instructions.clone(),
+            property.render_instructions,
             PropertyBar(player, *prop_type),
             format!("Special resource bar {:?}", prop_type),
         );

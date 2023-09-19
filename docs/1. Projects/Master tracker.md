@@ -1,6 +1,5 @@
 # Backlog
 ## Before playtest
-- [[Resource rework]]
 - [[Extending items]]
 - [[Items for playtest]]
 - [[Character 2]]

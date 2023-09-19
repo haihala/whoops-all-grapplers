@@ -1,8 +1,7 @@
-# Todo
-- Allow Items to affect special resources
-	- What if resources are mostly stored as vectors of two part tuples and then folded together in the end, merging all with the same key?
+Notes for re-refrence:
+- Didn't implement cooldown or specific counters, but the mechanics for those ought to be somewhat easy.
 
-# Original plan
+# Original note
 - Make resources more generic
 	- Allowing it to be specified in the character struct
 	- Character specific things can be put in there
@@ -34,3 +33,8 @@
 		- Prevent you from doing a move two times too fast
 		- Mostly for [[Gi of the old masters]] spam
 		- Can be saved for later
+- Render meter as quadrants
+	- Add divider lines
+	- If a segment is full, color it with the full color.
+- Allow Items to affect special resources
+	- What if resources are mostly stored as vectors of two part tuples and then folded together in the end, merging all with the same key?

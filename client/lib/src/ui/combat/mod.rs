@@ -212,6 +212,7 @@ fn setup_bottom_hud(
                     format!("Special resource counter {:?}", prop_type),
                 );
             }
+            RenderInstructions::None => {}
         }
     }
 

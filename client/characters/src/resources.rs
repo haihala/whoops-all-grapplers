@@ -78,6 +78,7 @@ impl WAGResources {
 pub enum RenderInstructions {
     Bar(ResourceBarVisual),
     Counter(CounterVisual),
+    None,
 }
 
 impl Default for RenderInstructions {

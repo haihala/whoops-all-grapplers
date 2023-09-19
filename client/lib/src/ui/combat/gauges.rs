@@ -25,11 +25,9 @@ pub fn setup_bar(
                     width: Val::Percent(100.0),
                     height: Val::Percent(instructions.height),
                     column_gap: Val::Px(instructions.segment_gap),
-                    flex_direction: FlexDirection::Row,
-                    justify_content: match player {
-                        // Align towards the center
-                        Player::One => JustifyContent::FlexEnd,
-                        Player::Two => JustifyContent::FlexStart,
+                    flex_direction: match player {
+                        Player::One => FlexDirection::RowReverse,
+                        Player::Two => FlexDirection::Row,
                     },
                     margin: UiRect {
                         bottom: Val::Percent(1.0),
@@ -151,10 +149,7 @@ pub fn update_bars(
                 let mut percentage = property.get_percentage();
                 let per_segment = 100.0 / bar_visual.segments as f32;
 
-                for child in match player {
-                    Player::One => children.iter().rev().collect::<Vec<_>>(),
-                    Player::Two => children.iter().collect::<Vec<_>>(),
-                } {
+                for child in children {
                     let (mut style, mut color) = segments.get_mut(*child).unwrap();
 
                     (*color, style.width) = if percentage >= per_segment {

@@ -127,6 +127,7 @@ fn setup_top_hud(
 
     bars::setup_bar(
         commands,
+        player,
         container,
         ResourceBarVisual::default_health(),
         PropertyBar(player, ResourceType::Health),
@@ -190,6 +191,7 @@ fn setup_bottom_hud(
 
         bars::setup_bar(
             commands,
+            player,
             container,
             property.render_instructions,
             PropertyBar(player, *prop_type),
@@ -199,6 +201,7 @@ fn setup_bottom_hud(
 
     bars::setup_bar(
         commands,
+        player,
         container,
         ResourceBarVisual::default_meter(),
         PropertyBar(player, ResourceType::Meter),

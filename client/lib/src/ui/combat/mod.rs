@@ -9,7 +9,7 @@ pub use notifications::{update_notifications, Notifications};
 mod round_timer;
 pub use round_timer::update_timer;
 
-use characters::{BarRenderInstructions, ResourceType, WAGResources};
+use characters::{ResourceBarVisual, ResourceType, WAGResources};
 use wag_core::{GameState, OnlyShowInGameState, Player, Players};
 
 use crate::assets::{Colors, Fonts};
@@ -128,7 +128,7 @@ fn setup_top_hud(
     bars::setup_bar(
         commands,
         container,
-        BarRenderInstructions::default_health(),
+        ResourceBarVisual::default_health(),
         PropertyBar(player, ResourceType::Health),
         "Health bar",
     );
@@ -200,7 +200,7 @@ fn setup_bottom_hud(
     bars::setup_bar(
         commands,
         container,
-        BarRenderInstructions::default_meter(),
+        ResourceBarVisual::default_meter(),
         PropertyBar(player, ResourceType::Meter),
         "Meter bar",
     );

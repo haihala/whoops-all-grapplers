@@ -17,6 +17,6 @@ pub use actions::{
 pub use characters::{dummy, Character};
 pub use items::{Inventory, Item, ItemCategory};
 pub use resources::{
-    BarRenderInstructions, ChargeProperty, ResourceType, SpecialProperty, WAGResource, WAGResources,
+    ChargeProperty, ResourceBarVisual, ResourceType, SpecialProperty, WAGResource, WAGResources,
 };
 pub use situation::Situation;

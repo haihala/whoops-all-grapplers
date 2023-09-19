@@ -24,7 +24,7 @@ impl WAGResources {
                     WAGResource {
                         max: stats.max_health,
                         current: stats.max_health,
-                        render_instructions: BarRenderInstructions::default_health(),
+                        render_instructions: ResourceBarVisual::default_health(),
                         ..default()
                     },
                 ),
@@ -33,7 +33,7 @@ impl WAGResources {
                     WAGResource {
                         // TODO: Add more stats attributes here and in reset
                         max: 100,
-                        render_instructions: BarRenderInstructions::default_meter(),
+                        render_instructions: ResourceBarVisual::default_meter(),
                         ..default()
                     },
                 ),
@@ -68,7 +68,7 @@ pub struct WAGResource {
     pub max: i32,
     pub min: i32,
     pub current: i32,
-    pub render_instructions: BarRenderInstructions,
+    pub render_instructions: ResourceBarVisual,
     pub special: Option<SpecialProperty>,
 }
 impl WAGResource {
@@ -89,12 +89,12 @@ impl WAGResource {
     }
 
     pub fn gain(&mut self, amount: i32) {
-        assert!(amount > 0);
+        assert!(amount >= 0);
         self.change(amount)
     }
 
     pub fn drain(&mut self, amount: i32) {
-        assert!(amount > 0);
+        assert!(amount >= 0);
         self.change(-amount)
     }
 
@@ -103,25 +103,26 @@ impl WAGResource {
     }
 }
 
-#[derive(Debug, Clone, Component)]
-pub struct BarRenderInstructions {
+#[derive(Debug, Clone, Copy, Component)]
+pub struct ResourceBarVisual {
     pub height: f32,
     pub default_color: Color,
     pub full_color: Option<Color>,
-    pub segments: Option<i32>, // TODO: This does nothing for now
+    pub segments: usize,
+    // TODO: Padding between segments
 }
 
-impl Default for BarRenderInstructions {
+impl Default for ResourceBarVisual {
     fn default() -> Self {
         Self {
             height: 4.0,
+            segments: 1,
             default_color: Default::default(),
             full_color: Default::default(),
-            segments: Default::default(),
         }
     }
 }
-impl BarRenderInstructions {
+impl ResourceBarVisual {
     pub fn default_health() -> Self {
         Self {
             height: 50.0,
@@ -134,7 +135,7 @@ impl BarRenderInstructions {
         Self {
             default_color: Color::rgb(0.04, 0.5, 0.55),
             full_color: Some(Color::rgb(0.14, 0.7, 0.8)),
-            segments: Some(25),
+            segments: 5,
             ..default()
         }
     }

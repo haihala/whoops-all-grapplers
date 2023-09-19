@@ -9,9 +9,9 @@ use wag_core::{
 
 use crate::{
     resources::ResourceType, Action, ActionBlock, ActionEvent::*, Attack, AttackHeight::*,
-    BarRenderInstructions, BlockType::*, CancelCategory, CancelPolicy, ChargeProperty,
-    CommonAttackProps, Hitbox, Item, ItemCategory::*, Lifetime, Movement, Projectile, Requirement,
-    Situation, SpecialProperty, StunType::*, ToHit, WAGResource,
+    BlockType::*, CancelCategory, CancelPolicy, ChargeProperty, CommonAttackProps, Hitbox, Item,
+    ItemCategory::*, Lifetime, Movement, Projectile, Requirement, ResourceBarVisual, Situation,
+    SpecialProperty, StunType::*, ToHit, WAGResource,
 };
 
 use super::{
@@ -40,7 +40,7 @@ pub fn dummy() -> Character {
             WAGResource {
                 max: FPS as i32, // Frames to full,
                 special: Some(SpecialProperty::Charge(ChargeProperty::default())),
-                render_instructions: BarRenderInstructions {
+                render_instructions: ResourceBarVisual {
                     default_color: Color::rgb(0.05, 0.4, 0.55),
                     full_color: Some(Color::rgb(0.9, 0.1, 0.3)),
                     ..default()

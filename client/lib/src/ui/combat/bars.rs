@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use characters::{BarRenderInstructions, ResourceType, WAGResources};
+use characters::{ResourceBarVisual, ResourceType, WAGResources};
 use wag_core::{Player, RoundLog};
 
 #[derive(Debug, Component, Deref)]
@@ -11,7 +11,7 @@ pub struct PropertyBar(pub Player, pub ResourceType);
 pub fn setup_bar(
     commands: &mut Commands,
     parent: Entity,
-    instructions: BarRenderInstructions,
+    instructions: ResourceBarVisual,
     marker: impl Component,
     name: impl Into<std::borrow::Cow<'static, str>>,
 ) {
@@ -27,49 +27,63 @@ pub fn setup_bar(
                     },
                     ..default()
                 },
-                background_color: instructions.default_color.into(),
                 ..default()
             },
             instructions,
             marker,
             Name::new(name),
         ))
-        .set_parent(parent);
+        .set_parent(parent)
+        .with_children(|root_bar| {
+            for _ in 0..instructions.segments {
+                root_bar.spawn(NodeBundle {
+                    style: Style {
+                        width: Val::Percent(100.0 / instructions.segments as f32),
+                        height: Val::Percent(100.0),
+                        ..default()
+                    },
+                    background_color: instructions.default_color.into(),
+                    ..default()
+                });
+            }
+        });
 }
 
 #[allow(clippy::type_complexity)]
 pub fn update_bars(
     mut bars: ParamSet<(
-        Query<(
-            &mut Style,
-            &mut BackgroundColor,
-            &BarRenderInstructions,
-            &PropertyBar,
-        )>,
+        Query<(&Children, &ResourceBarVisual, &PropertyBar)>,
         Query<(&mut Text, &ScoreText)>,
     )>,
+    mut segments: Query<(&mut Style, &mut BackgroundColor)>,
     players: Query<(&Player, &WAGResources)>,
     round_log: Res<RoundLog>,
 ) {
     for (player, properties) in &players {
         for (key, property) in properties.iter() {
-            for (mut style, mut color, render_instructions, bar) in &mut bars.p0() {
+            for (children, bar_visual, bar) in &bars.p0() {
                 if bar.0 != *player || bar.1 != *key {
                     continue;
                 }
 
-                style.width = Val::Percent(property.get_percentage());
+                let mut percentage = property.get_percentage();
+                let per_segment = 100.0 / bar_visual.segments as f32;
 
-                *color = if property.is_full() {
-                    if let Some(full_color) = render_instructions.full_color {
-                        full_color
+                for child in children {
+                    let (mut style, mut color) = segments.get_mut(*child).unwrap();
+                    style.width = Val::Percent(percentage);
+
+                    *color = if percentage >= per_segment {
+                        percentage -= per_segment;
+                        bar_visual.full_color.unwrap_or(bar_visual.default_color)
+                    } else if percentage > 0.0 {
+                        percentage = 0.0;
+                        bar_visual.default_color
                     } else {
-                        render_instructions.default_color
+                        Color::NONE
                     }
-                } else {
-                    render_instructions.default_color
+                    .into();
                 }
-                .into();
             }
         }
 

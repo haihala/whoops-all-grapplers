@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 
-mod bars;
-pub use bars::update_bars;
+mod gauges;
+pub use gauges::{
+    update_bars, update_counters, update_score, ResourceCounter, ResourceGauge, ScoreText,
+};
 
 mod notifications;
 pub use notifications::{update_notifications, Notifications};
@@ -9,12 +11,10 @@ pub use notifications::{update_notifications, Notifications};
 mod round_timer;
 pub use round_timer::update_timer;
 
-use characters::{ResourceBarVisual, ResourceType, WAGResources};
+use characters::{RenderInstructions, ResourceBarVisual, ResourceType, WAGResources};
 use wag_core::{GameState, OnlyShowInGameState, Player, Players};
 
 use crate::assets::{Colors, Fonts};
-
-use self::bars::{PropertyBar, ScoreText};
 
 pub fn setup_combat_hud(
     mut commands: Commands,
@@ -93,7 +93,7 @@ fn setup_player_hud(
 
     setup_top_hud(commands, container, colors, fonts, player);
     notifications::setup_toasts(commands, container, player);
-    setup_bottom_hud(commands, container, player, properties);
+    setup_bottom_hud(commands, fonts, container, player, properties);
 }
 
 fn setup_top_hud(
@@ -125,12 +125,12 @@ fn setup_top_hud(
         .set_parent(parent)
         .id();
 
-    bars::setup_bar(
+    gauges::setup_bar(
         commands,
         player,
         container,
         ResourceBarVisual::default_health(),
-        PropertyBar(player, ResourceType::Health),
+        ResourceGauge(player, ResourceType::Health),
         "Health bar",
     );
     setup_round_counter(commands, container, colors, fonts, player);
@@ -161,6 +161,7 @@ fn setup_round_counter(
 
 fn setup_bottom_hud(
     commands: &mut Commands,
+    fonts: &Fonts,
     parent: Entity,
     player: Player,
     properties: &WAGResources,
@@ -189,22 +190,37 @@ fn setup_bottom_hud(
             continue;
         }
 
-        bars::setup_bar(
-            commands,
-            player,
-            container,
-            property.render_instructions,
-            PropertyBar(player, *prop_type),
-            format!("Special resource bar {:?}", prop_type),
-        );
+        match property.render_instructions {
+            RenderInstructions::Bar(bar) => {
+                gauges::setup_bar(
+                    commands,
+                    player,
+                    container,
+                    bar,
+                    ResourceGauge(player, *prop_type),
+                    format!("Special resource bar {:?}", prop_type),
+                );
+            }
+            RenderInstructions::Counter(counter) => {
+                gauges::setup_counter(
+                    commands,
+                    player,
+                    container,
+                    fonts.basic.clone(),
+                    counter,
+                    ResourceCounter(player, *prop_type),
+                    format!("Special resource counter {:?}", prop_type),
+                );
+            }
+        }
     }
 
-    bars::setup_bar(
+    gauges::setup_bar(
         commands,
         player,
         container,
         ResourceBarVisual::default_meter(),
-        PropertyBar(player, ResourceType::Meter),
+        ResourceGauge(player, ResourceType::Meter),
         "Meter bar",
     );
 }

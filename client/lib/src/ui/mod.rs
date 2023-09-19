@@ -6,7 +6,7 @@ mod combat;
 mod round_text;
 mod shop;
 
-pub use combat::Notifications;
+pub use combat::{Notifications, ResourceCounter};
 
 pub struct UIPlugin;
 
@@ -15,7 +15,13 @@ impl Plugin for UIPlugin {
         app.insert_resource(Notifications::default())
             .add_systems(
                 Last,
-                (combat::update_bars, combat::update_timer).distributive_run_if(in_combat),
+                (
+                    combat::update_bars,
+                    combat::update_counters,
+                    combat::update_score,
+                    combat::update_timer,
+                )
+                    .distributive_run_if(in_combat),
             )
             .add_systems(
                 Update,

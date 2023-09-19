@@ -142,6 +142,7 @@ fn setup_combat(
     mut query: Query<(
         &Player,
         &Stats,
+        &Inventory,
         &mut WAGResources,
         &mut Transform,
         &mut PlayerState,
@@ -158,6 +159,7 @@ fn setup_combat(
     for (
         player,
         status_effect,
+        inventory,
         mut resources,
         mut tf,
         mut player_state,
@@ -166,7 +168,7 @@ fn setup_combat(
         mut velocity,
     ) in &mut query
     {
-        resources.reset(status_effect);
+        resources.reset(status_effect, inventory);
         player_state.reset();
         buffer.clear_all();
         parser.clear();

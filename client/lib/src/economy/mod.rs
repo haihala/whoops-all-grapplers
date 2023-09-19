@@ -1,3 +1,4 @@
+mod item_costs;
 use bevy::prelude::*;
 use characters::{ActionEvent, WAGResources};
 use player_state::PlayerState;
@@ -6,7 +7,10 @@ pub struct EconomyPlugin;
 
 impl Plugin for EconomyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, modify_properties);
+        app.add_systems(
+            Update,
+            (modify_properties, item_costs::manage_item_consumption),
+        );
     }
 }
 

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use wag_core::{Animation, DummyAnimation, MoveId, SoundEffect, StatusCondition};
+use wag_core::{Animation, DummyAnimation, ItemId, MoveId, SoundEffect, StatusCondition};
 
 use crate::{Attack, Movement, ResourceType};
 
@@ -9,6 +9,7 @@ pub enum ActionEvent {
     // TODO: Figure out a better way to handle actions that change depending on game state
     // Maybe hoist AnimationRequest?
     Animation(Animation),
+    Consume(ItemId),
     RecipientAnimation(Animation),
     AnimationAtFrame(Animation, usize),
     RecipientAnimationAtFrame(Animation, usize),

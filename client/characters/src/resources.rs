@@ -1,12 +1,15 @@
 use bevy::{prelude::*, utils::HashMap};
 
-use wag_core::{GameButton, Stats, StickPosition};
+use wag_core::{GameButton, ItemId, Stats, StickPosition};
+
+use crate::Inventory;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Reflect)]
 pub enum ResourceType {
     Health,
     Meter,
     Charge,
+    ItemCount(ItemId),
 }
 
 #[derive(Debug, Clone, Component, Deref, DerefMut)]
@@ -24,7 +27,9 @@ impl WAGResources {
                     WAGResource {
                         max: stats.max_health,
                         current: stats.max_health,
-                        render_instructions: ResourceBarVisual::default_health(),
+                        render_instructions: RenderInstructions::Bar(
+                            ResourceBarVisual::default_health(),
+                        ),
                         ..default()
                     },
                 ),
@@ -33,7 +38,9 @@ impl WAGResources {
                     WAGResource {
                         // TODO: Add more stats attributes here and in reset
                         max: 100,
-                        render_instructions: ResourceBarVisual::default_meter(),
+                        render_instructions: RenderInstructions::Bar(
+                            ResourceBarVisual::default_meter(),
+                        ),
                         ..default()
                     },
                 ),
@@ -44,12 +51,15 @@ impl WAGResources {
         )
     }
 
-    pub fn reset(&mut self, stats: &Stats) {
+    pub fn reset(&mut self, stats: &Stats, inventory: &Inventory) {
         for (prop_type, prop) in self.iter_mut() {
             match prop_type {
                 ResourceType::Health => {
                     prop.max = stats.max_health;
                     prop.current = stats.max_health;
+                }
+                ResourceType::ItemCount(item_id) => {
+                    prop.current = inventory.count(*item_id) as i32;
                 }
                 _ => {
                     prop.current = prop.min;
@@ -63,12 +73,24 @@ impl WAGResources {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum RenderInstructions {
+    Bar(ResourceBarVisual),
+    Counter(CounterVisual),
+}
+
+impl Default for RenderInstructions {
+    fn default() -> Self {
+        Self::Bar(ResourceBarVisual::default())
+    }
+}
+
 #[derive(Debug, Default, Clone)]
 pub struct WAGResource {
     pub max: i32,
     pub min: i32,
     pub current: i32,
-    pub render_instructions: ResourceBarVisual,
+    pub render_instructions: RenderInstructions,
     pub special: Option<SpecialProperty>,
 }
 impl WAGResource {
@@ -146,9 +168,15 @@ impl ResourceBarVisual {
     }
 }
 
+#[derive(Debug, Clone, Copy, Component)]
+pub struct CounterVisual {
+    pub label: &'static str,
+}
+
 #[derive(Debug, Clone)]
 pub enum SpecialProperty {
     Charge(ChargeProperty),
+    ItemCounter(ItemId),
 }
 
 #[derive(Debug, Clone)]

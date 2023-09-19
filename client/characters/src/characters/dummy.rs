@@ -8,10 +8,17 @@ use wag_core::{
 };
 
 use crate::{
-    resources::ResourceType, Action, ActionBlock, ActionEvent::*, Attack, AttackHeight::*,
-    BlockType::*, CancelCategory, CancelPolicy, ChargeProperty, CommonAttackProps, Hitbox, Item,
-    ItemCategory::*, Lifetime, Movement, Projectile, Requirement, ResourceBarVisual, Situation,
-    SpecialProperty, StunType::*, ToHit, WAGResource,
+    resources::{RenderInstructions, ResourceType},
+    Action, ActionBlock,
+    ActionEvent::*,
+    Attack,
+    AttackHeight::*,
+    BlockType::*,
+    CancelCategory, CancelPolicy, ChargeProperty, CommonAttackProps, CounterVisual, Hitbox, Item,
+    ItemCategory::*,
+    Lifetime, Movement, Projectile, Requirement, ResourceBarVisual, Situation, SpecialProperty,
+    StunType::*,
+    ToHit, WAGResource,
 };
 
 use super::{
@@ -35,19 +42,32 @@ pub fn dummy() -> Character {
             opener_meter_gain: 50,
             opener_stun_frames: 5,
         },
-        vec![(
-            ResourceType::Charge,
-            WAGResource {
-                max: FPS as i32, // Frames to full,
-                special: Some(SpecialProperty::Charge(ChargeProperty::default())),
-                render_instructions: ResourceBarVisual {
-                    default_color: Color::rgb(0.05, 0.4, 0.55),
-                    full_color: Some(Color::rgb(0.9, 0.1, 0.3)),
+        vec![
+            (
+                ResourceType::Charge,
+                WAGResource {
+                    max: FPS as i32, // Frames to full,
+                    special: Some(SpecialProperty::Charge(ChargeProperty::default())),
+                    render_instructions: RenderInstructions::Bar(ResourceBarVisual {
+                        default_color: Color::rgb(0.05, 0.4, 0.55),
+                        full_color: Some(Color::rgb(0.9, 0.1, 0.3)),
+                        ..default()
+                    }),
                     ..default()
                 },
-                ..default()
-            },
-        )],
+            ),
+            (
+                ResourceType::ItemCount(ItemId::Boots),
+                WAGResource {
+                    max: 100, // Unused for counters, TODO: Refactor
+                    special: Some(SpecialProperty::ItemCounter(ItemId::Boots)),
+                    render_instructions: RenderInstructions::Counter(CounterVisual {
+                        label: "Boots",
+                    }),
+                    ..default()
+                },
+            ),
+        ],
     )
 }
 
@@ -319,12 +339,12 @@ fn normals() -> impl Iterator<Item = (MoveId, Action)> {
         ),
         (
             MoveId::Divekick,
-            Action::airborne(
+            Action::new(
                 Some("s"),
                 CancelCategory::Normal,
                 vec![
                     ActionBlock {
-                        events: vec![DummyAnimation::Divekick.into()],
+                        events: vec![DummyAnimation::Divekick.into(), Consume(ItemId::Boots)],
                         exit_requirement: Requirement::Time(5),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
@@ -346,6 +366,10 @@ fn normals() -> impl Iterator<Item = (MoveId, Action)> {
                         mutator: None,
                     },
                 ],
+                |situation: Situation| {
+                    !situation.resources[&ResourceType::ItemCount(ItemId::Boots)].is_empty()
+                        && situation.airborne()
+                },
             ),
         ),
         (

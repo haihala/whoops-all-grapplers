@@ -63,6 +63,21 @@ impl Inventory {
             accumulator.combine(&get_recursive_effects(id, character))
         })
     }
+
+    pub fn count(&self, item: ItemId) -> usize {
+        self.items
+            .iter()
+            .filter(|owned_item| owned_item == &&item)
+            .count()
+    }
+
+    pub fn consume(&mut self, item: ItemId) {
+        if let Some(index) = self.items.iter().position(|owned_item| owned_item == &item) {
+            self.items.remove(index);
+        } else {
+            panic!("Item not found in inventory");
+        }
+    }
 }
 
 fn get_recursive_effects(item_id: &ItemId, character: &Character) -> Stats {

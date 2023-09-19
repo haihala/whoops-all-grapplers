@@ -1,7 +1,4 @@
 # Todo
-- Render meter as quadrants
-	- Add divider lines
-	- If a segment is full, color it with the full color.
 - Allow Items to affect special resources
 	- What if resources are mostly stored as vectors of two part tuples and then folded together in the end, merging all with the same key?
 

@@ -21,6 +21,7 @@ pub fn setup_bar(
                 style: Style {
                     width: Val::Percent(100.0),
                     height: Val::Percent(instructions.height),
+                    column_gap: Val::Px(instructions.segment_gap),
                     margin: UiRect {
                         bottom: Val::Percent(1.0),
                         ..default()
@@ -38,7 +39,7 @@ pub fn setup_bar(
             for _ in 0..instructions.segments {
                 root_bar.spawn(NodeBundle {
                     style: Style {
-                        width: Val::Percent(100.0 / instructions.segments as f32),
+                        width: Val::Percent(instructions.segment_width()),
                         height: Val::Percent(100.0),
                         ..default()
                     },
@@ -71,18 +72,24 @@ pub fn update_bars(
 
                 for child in children {
                     let (mut style, mut color) = segments.get_mut(*child).unwrap();
-                    style.width = Val::Percent(percentage);
 
-                    *color = if percentage >= per_segment {
+                    (*color, style.width) = if percentage >= per_segment {
                         percentage -= per_segment;
-                        bar_visual.full_color.unwrap_or(bar_visual.default_color)
+                        (
+                            bar_visual
+                                .full_color
+                                .unwrap_or(bar_visual.default_color)
+                                .into(),
+                            Val::Percent(bar_visual.segment_width()),
+                        )
                     } else if percentage > 0.0 {
+                        let width =
+                            Val::Percent(bar_visual.segment_width() * percentage / per_segment);
                         percentage = 0.0;
-                        bar_visual.default_color
+                        (bar_visual.default_color.into(), width)
                     } else {
-                        Color::NONE
-                    }
-                    .into();
+                        (Color::NONE.into(), Val::Percent(0.0))
+                    };
                 }
             }
         }

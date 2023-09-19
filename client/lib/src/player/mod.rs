@@ -158,7 +158,7 @@ fn setup_combat(
     for (
         player,
         status_effect,
-        mut properties,
+        mut resources,
         mut tf,
         mut player_state,
         mut buffer,
@@ -166,7 +166,7 @@ fn setup_combat(
         mut velocity,
     ) in &mut query
     {
-        properties.reset(status_effect);
+        resources.reset(status_effect);
         player_state.reset();
         buffer.clear_all();
         parser.clear();

@@ -109,7 +109,7 @@ pub struct ResourceBarVisual {
     pub default_color: Color,
     pub full_color: Option<Color>,
     pub segments: usize,
-    // TODO: Padding between segments
+    pub segment_gap: f32,
 }
 
 impl Default for ResourceBarVisual {
@@ -117,6 +117,7 @@ impl Default for ResourceBarVisual {
         Self {
             height: 4.0,
             segments: 1,
+            segment_gap: 3.0,
             default_color: Default::default(),
             full_color: Default::default(),
         }
@@ -138,6 +139,10 @@ impl ResourceBarVisual {
             segments: 5,
             ..default()
         }
+    }
+
+    pub fn segment_width(&self) -> f32 {
+        (100.0 - (self.segments as f32 - 1.0) * self.segment_gap) / self.segments as f32
     }
 }
 

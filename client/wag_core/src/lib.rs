@@ -1,6 +1,9 @@
 mod area;
 pub use area::Area;
 
+mod character_id;
+pub use character_id::CharacterId;
+
 mod economy;
 pub use economy::*;
 

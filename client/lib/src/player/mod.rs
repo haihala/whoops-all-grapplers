@@ -12,7 +12,8 @@ mod size_adjustment;
 use characters::{dummy, Character, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
-use wag_core::{Clock, Facing, GameState, Joints, Player, Players, Stats, WAGStage};
+use wag_args::CliArgs;
+use wag_core::{CharacterId, Clock, Facing, GameState, Joints, Player, Players, Stats, WAGStage};
 
 use crate::{
     assets::{AnimationHelperSetup, Models},
@@ -84,10 +85,22 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn setup(mut commands: Commands, models: Res<Models>) {
+fn setup(mut commands: Commands, models: Res<Models>, args: Res<CliArgs>) {
     let players = Players {
-        one: spawn_player(&mut commands, &models, -PLAYER_SPAWN_DISTANCE, Player::One),
-        two: spawn_player(&mut commands, &models, PLAYER_SPAWN_DISTANCE, Player::Two),
+        one: spawn_player(
+            &mut commands,
+            &models,
+            -PLAYER_SPAWN_DISTANCE,
+            Player::One,
+            args.character1,
+        ),
+        two: spawn_player(
+            &mut commands,
+            &models,
+            PLAYER_SPAWN_DISTANCE,
+            Player::Two,
+            args.character2,
+        ),
     };
 
     commands.insert_resource(players);
@@ -104,9 +117,16 @@ struct PlayerDefaults {
     status_effects: Stats,
 }
 
-fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: Player) -> Entity {
-    let state = PlayerState::default();
-    let character = dummy();
+fn spawn_player(
+    commands: &mut Commands,
+    models: &Models,
+    offset: f32,
+    player: Player,
+    character: CharacterId,
+) -> Entity {
+    let character = match character {
+        CharacterId::Dummy => dummy(),
+    };
 
     commands
         .spawn((
@@ -122,8 +142,8 @@ fn spawn_player(commands: &mut Commands, models: &Models, offset: f32, player: P
             Facing::from_flipped(offset.is_sign_positive()),
             Pushbox(character.get_pushbox(false)),
             character.clone(),
+            PlayerState::default(),
             player,
-            state,
         ))
         .with_children(|parent| {
             parent.spawn((

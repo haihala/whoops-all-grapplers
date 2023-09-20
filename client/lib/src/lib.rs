@@ -19,14 +19,14 @@ use bevy::{app::PluginGroupBuilder, prelude::*};
 // Only thing exported out of this crate
 #[derive(Debug)]
 pub struct WAGLib {
-    enable_dev_plugins: bool,
     enable_hanabi: bool,
+    args: wag_args::CliArgs,
 }
 
 impl WAGLib {
     pub fn integration() -> Self {
         Self {
-            enable_dev_plugins: false,
+            args: wag_args::CliArgs::default(),
             enable_hanabi: false,
         }
     }
@@ -37,7 +37,7 @@ impl Default for WAGLib {
         let args = wag_args::parse();
 
         Self {
-            enable_dev_plugins: args.dev,
+            args,
             enable_hanabi: true,
         }
     }
@@ -63,11 +63,27 @@ impl PluginGroup for WAGLib {
             .add(physics::PhysicsPlugin)
             .add(input_parsing::InputParsingPlugin)
             .add(stage::StagePlugin)
-            .add(state_transitions::StateTransitionPlugin);
+            .add(state_transitions::StateTransitionPlugin)
+            .add(ArgsPlugin::new(self.args.clone()));
 
-        if self.enable_dev_plugins {
+        if self.args.dev {
             group = group.add(dev::DevPlugin);
         }
         group
+    }
+}
+
+// This exists so we can make args to a resource, as you can't do that in the plugin group builder.
+struct ArgsPlugin {
+    args: wag_args::CliArgs,
+}
+impl ArgsPlugin {
+    fn new(args: wag_args::CliArgs) -> Self {
+        Self { args }
+    }
+}
+impl Plugin for ArgsPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(self.args.clone());
     }
 }

@@ -22,7 +22,7 @@ See [[Mizku]] for designs
 	- [x] Animate
 - [ ] Implement required new mechanics
 	- [ ] Directional projectiles (Kunai flips to face forward)
-	- [ ] Items as cost
-	- [ ] Sharpness resource
+	- [x] Items as cost
+	- [x] Sharpness resource
 - [ ] Add moves in the game
-- [ ] Use [[CLI args]] to select characters
+- [x] Use [[CLI args]] to select characters

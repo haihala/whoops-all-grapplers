@@ -1,12 +1,11 @@
 release ?=
 RUST_BACKTRACE := 1
 
-run:
-	@echo "cargo run --features bevy/dynamic_linking	# Speedup on non-windows"
-	cargo run
-
 dev:
-	cargo run -- --dev
+	cargo run -- --dev dummy dummy
+
+prod:
+	cargo run -- dummy dummy
 
 build:
 	cargo build $(release)

@@ -1,3 +1,6 @@
+mod action_id;
+pub use action_id::ActionId;
+
 mod area;
 pub use area::Area;
 
@@ -24,9 +27,6 @@ pub use item_id::ItemId;
 
 mod joints;
 pub use joints::{Joint, JointCollider, Joints};
-
-mod move_id;
-pub use move_id::MoveId;
 
 mod player;
 pub use player::{Owner, Player, Players};

@@ -8,22 +8,22 @@ use crate::{
 
 use bevy::prelude::*;
 
-use wag_core::{Facing, GameButton, MoveId, StickPosition};
+use wag_core::{ActionId, Facing, GameButton, StickPosition};
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
 #[derive(Debug, Default, Component)]
 pub struct InputParser {
-    events: Vec<MoveId>,
+    events: Vec<ActionId>,
 
-    moves: HashMap<&'static str, Vec<MoveId>>,
+    moves: HashMap<&'static str, Vec<ActionId>>,
     inputs: HashMap<&'static str, MotionInput>,
     head: Frame,
     ready: bool,
 }
 impl InputParser {
-    pub(crate) fn new(new_inputs: HashMap<MoveId, &'static str>) -> Self {
-        let mut moves: HashMap<&'static str, Vec<MoveId>> = HashMap::new();
+    pub(crate) fn new(new_inputs: HashMap<ActionId, &'static str>) -> Self {
+        let mut moves: HashMap<&'static str, Vec<ActionId>> = HashMap::new();
         let mut inputs: HashMap<&'static str, MotionInput> = HashMap::new();
 
         for (move_id, input_str) in new_inputs.into_iter() {
@@ -52,7 +52,7 @@ impl InputParser {
         self.head.stick_position
     }
 
-    pub fn get_events(&self) -> Vec<MoveId> {
+    pub fn get_events(&self) -> Vec<ActionId> {
         self.events.clone()
     }
 
@@ -270,17 +270,17 @@ mod test {
     }
     impl TestInterface {
         fn with_input(input: &'static str) -> TestInterface {
-            TestInterface::new(vec![(MoveId::TestMove, input)])
+            TestInterface::new(vec![(ActionId::TestMove, input)])
         }
 
         fn with_inputs(input: &'static str, second_input: &'static str) -> TestInterface {
             TestInterface::new(vec![
-                (MoveId::TestMove, input),
-                (MoveId::SecondTestMove, second_input),
+                (ActionId::TestMove, input),
+                (ActionId::SecondTestMove, second_input),
             ])
         }
 
-        fn new(moves: Vec<(MoveId, &'static str)>) -> TestInterface {
+        fn new(moves: Vec<(ActionId, &'static str)>) -> TestInterface {
             let mut app = App::new();
             app.add_systems(Update, parse_input::<TestStream>);
 
@@ -326,15 +326,15 @@ mod test {
         }
 
         fn assert_test_event_is_present(&mut self) {
-            self.assert_event_is_present(MoveId::TestMove);
+            self.assert_event_is_present(ActionId::TestMove);
         }
 
         fn assert_both_test_events_are_present(&mut self) {
-            self.assert_event_is_present(MoveId::TestMove);
-            self.assert_event_is_present(MoveId::SecondTestMove);
+            self.assert_event_is_present(ActionId::TestMove);
+            self.assert_event_is_present(ActionId::SecondTestMove);
         }
 
-        fn assert_event_is_present(&mut self, id: MoveId) {
+        fn assert_event_is_present(&mut self, id: ActionId) {
             let events = self.get_parser_events();
             assert!(events.contains(&id), "Event {:?} was not present", &id);
         }
@@ -345,7 +345,7 @@ mod test {
         }
 
         // Running a query requires mutable access I guess?
-        fn get_parser_events(&mut self) -> Vec<MoveId> {
+        fn get_parser_events(&mut self) -> Vec<ActionId> {
             self.app
                 .world
                 .query::<&InputParser>()

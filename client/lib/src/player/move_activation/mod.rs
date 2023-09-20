@@ -5,7 +5,7 @@ use characters::{
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{Clock, MoveId, Player};
+use wag_core::{ActionId, Clock, Player};
 
 use crate::{damage::Combo, ui::Notifications};
 
@@ -16,11 +16,11 @@ const AUTOCORRECT: usize = (0.2 * wag_core::FPS) as usize;
 
 #[derive(Debug, Default, Component, Reflect)]
 pub struct MoveBuffer {
-    buffer: Vec<(usize, MoveId)>,
+    buffer: Vec<(usize, ActionId)>,
     activation: Option<MoveActivation>,
 }
 impl MoveBuffer {
-    fn add_events(&mut self, events: Vec<MoveId>, frame: usize) {
+    fn add_events(&mut self, events: Vec<ActionId>, frame: usize) {
         self.buffer.extend(events.into_iter().map(|id| (frame, id)));
     }
 
@@ -44,7 +44,7 @@ impl MoveBuffer {
         &self,
         character: &Character,
         situation: Situation,
-    ) -> Vec<(usize, MoveId, Action)> {
+    ) -> Vec<(usize, ActionId, Action)> {
         self.buffer
             .iter()
             .filter_map(|(frame, id)| {

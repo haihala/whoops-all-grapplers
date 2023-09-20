@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
 use input_parsing::InputParser;
-use wag_core::{Facing, ItemId, MoveId, Owner, Player, INVENTORY_SIZE, SELL_RETURN};
+use wag_core::{ActionId, Facing, ItemId, Owner, Player, INVENTORY_SIZE, SELL_RETURN};
 
 use super::{setup_shop::ShopItem, shops_resource::Shop, Shops};
 
@@ -79,12 +79,14 @@ pub fn navigate_shop(
 
         for event in events {
             match event {
-                MoveId::Up => move_selection(shop, Up),
-                MoveId::Down => move_selection(shop, Down),
-                MoveId::Back => move_selection(shop, Left.mirror_if(facing.to_flipped())),
-                MoveId::Forward => move_selection(shop, Right.mirror_if(facing.to_flipped())),
-                MoveId::Primary => primary_button_pressed(shop, &mut inventory, character, &slots),
-                MoveId::Start => shop.closed = true,
+                ActionId::Up => move_selection(shop, Up),
+                ActionId::Down => move_selection(shop, Down),
+                ActionId::Back => move_selection(shop, Left.mirror_if(facing.to_flipped())),
+                ActionId::Forward => move_selection(shop, Right.mirror_if(facing.to_flipped())),
+                ActionId::Primary => {
+                    primary_button_pressed(shop, &mut inventory, character, &slots)
+                }
+                ActionId::Start => shop.closed = true,
                 _ => {}
             };
         }

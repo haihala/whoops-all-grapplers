@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use wag_core::{Animation, DummyAnimation, ItemId, MoveId, SoundEffect, StatusCondition};
+use wag_core::{ActionId, Animation, DummyAnimation, ItemId, SoundEffect, StatusCondition};
 
 use crate::{Attack, Movement, ResourceType};
 
@@ -14,7 +14,7 @@ pub enum ActionEvent {
     AnimationAtFrame(Animation, usize),
     RecipientAnimationAtFrame(Animation, usize),
     Sound(SoundEffect),
-    Move(MoveId),
+    Move(ActionId),
     Attack(Attack),
     Movement(Movement),
     Condition(StatusCondition),

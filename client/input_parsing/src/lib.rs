@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use std::collections::{HashMap, VecDeque};
-use wag_core::{MoveId, WAGStage};
+use wag_core::{ActionId, WAGStage};
 
 mod helper_types;
 mod input_parser;
@@ -50,7 +50,7 @@ pub struct PadBundle {
     parrot: ParrotStream,
 }
 impl PadBundle {
-    pub fn new(mut inputs: HashMap<MoveId, &'static str>) -> Self {
+    pub fn new(mut inputs: HashMap<ActionId, &'static str>) -> Self {
         inputs.extend(generic_inputs());
         Self {
             reader: PadStream::default(),
@@ -60,16 +60,16 @@ impl PadBundle {
     }
 }
 
-fn generic_inputs() -> impl Iterator<Item = (MoveId, &'static str)> {
+fn generic_inputs() -> impl Iterator<Item = (ActionId, &'static str)> {
     vec![
-        (MoveId::Up, "58"),
-        (MoveId::Down, "52"),
-        (MoveId::Back, "54"),
-        (MoveId::Forward, "56"),
-        (MoveId::Primary, "f"),
-        (MoveId::Secondary, "g"),
-        (MoveId::Cancel, "s"),
-        (MoveId::Start, "."), // It was at this point when I realized this shit was stupid for the UI thingies.
+        (ActionId::Up, "58"),
+        (ActionId::Down, "52"),
+        (ActionId::Back, "54"),
+        (ActionId::Forward, "56"),
+        (ActionId::Primary, "f"),
+        (ActionId::Secondary, "g"),
+        (ActionId::Cancel, "s"),
+        (ActionId::Start, "."), // It was at this point when I realized this shit was stupid for the UI thingies.
     ]
     .into_iter()
 }
@@ -86,7 +86,10 @@ pub mod testing {
         parrot: ParrotStream,
     }
     impl PreWrittenInputBundle {
-        pub fn new(events: Vec<Option<InputEvent>>, inputs: HashMap<MoveId, &'static str>) -> Self {
+        pub fn new(
+            events: Vec<Option<InputEvent>>,
+            inputs: HashMap<ActionId, &'static str>,
+        ) -> Self {
             Self {
                 reader: PreWrittenStream::new(events),
                 parser: InputParser::new(inputs),
@@ -102,7 +105,7 @@ pub mod testing {
         parrot: ParrotStream,
     }
     impl TestInputBundle {
-        pub fn new(inputs: HashMap<MoveId, &'static str>) -> Self {
+        pub fn new(inputs: HashMap<ActionId, &'static str>) -> Self {
             Self {
                 reader: TestStream::default(),
                 parser: InputParser::new(inputs),

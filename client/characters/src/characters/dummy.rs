@@ -3,7 +3,7 @@ use std::{collections::HashMap, iter::empty};
 use bevy::prelude::*;
 
 use wag_core::{
-    Animation, AnimationType, Area, DummyAnimation, ItemId, Joint, Model, MoveId, Stats,
+    ActionId, Animation, AnimationType, Area, DummyAnimation, ItemId, Joint, Model, Stats,
     StatusCondition, StatusFlag, FPS,
 };
 
@@ -92,7 +92,7 @@ fn dummy_animations() -> HashMap<AnimationType, Animation> {
 const DASH_DURATION: usize = (0.5 * wag_core::FPS) as usize;
 const DASH_IMPULSE: f32 = 10.0;
 
-fn dummy_moves() -> HashMap<MoveId, Action> {
+fn dummy_moves() -> HashMap<ActionId, Action> {
     empty()
         .chain(items())
         .chain(dashes())
@@ -101,18 +101,18 @@ fn dummy_moves() -> HashMap<MoveId, Action> {
         .collect()
 }
 
-fn items() -> impl Iterator<Item = (MoveId, Action)> {
+fn items() -> impl Iterator<Item = (ActionId, Action)> {
     vec![
-        (MoveId::HandMeDownKen, get_handmedownken()),
-        (MoveId::HighGiParry, get_high_gi_parry()),
+        (ActionId::HandMeDownKen, get_handmedownken()),
+        (ActionId::HighGiParry, get_high_gi_parry()),
     ]
     .into_iter()
 }
 
-fn dashes() -> impl Iterator<Item = (MoveId, Action)> {
+fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
     vec![
         (
-            MoveId::DashForward,
+            ActionId::DashForward,
             dash(
                 "5656",
                 DASH_DURATION,
@@ -121,7 +121,7 @@ fn dashes() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::DashBack,
+            ActionId::DashBack,
             dash(
                 "5454",
                 DASH_DURATION,
@@ -133,10 +133,10 @@ fn dashes() -> impl Iterator<Item = (MoveId, Action)> {
     .into_iter()
 }
 
-fn normals() -> impl Iterator<Item = (MoveId, Action)> {
+fn normals() -> impl Iterator<Item = (ActionId, Action)> {
     vec![
         (
-            MoveId::Slap,
+            ActionId::Slap,
             Action::grounded(
                 Some("f"),
                 CancelCategory::Normal,
@@ -166,7 +166,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::LowChop,
+            ActionId::LowChop,
             Action::grounded(
                 Some("[123]f"),
                 CancelCategory::CommandNormal,
@@ -196,7 +196,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::BurnStraight,
+            ActionId::BurnStraight,
             Action::grounded(
                 Some("s"),
                 CancelCategory::Normal,
@@ -272,7 +272,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::AntiAir,
+            ActionId::AntiAir,
             Action::grounded(
                 Some("[123]s"),
                 CancelCategory::CommandNormal,
@@ -305,7 +305,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::AirSlap,
+            ActionId::AirSlap,
             Action::airborne(
                 Some("f"),
                 CancelCategory::Normal,
@@ -336,7 +336,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::Divekick,
+            ActionId::Divekick,
             Action::new(
                 Some("s"),
                 CancelCategory::Normal,
@@ -371,7 +371,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::ForwardThrow,
+            ActionId::ForwardThrow,
             Action::grounded(
                 Some("w"),
                 CancelCategory::Normal,
@@ -410,7 +410,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::BackThrow,
+            ActionId::BackThrow,
             Action::grounded(
                 Some("4w"),
                 CancelCategory::CommandNormal,
@@ -450,7 +450,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::Sweep,
+            ActionId::Sweep,
             Action::grounded(
                 Some("[123]w"),
                 CancelCategory::CommandNormal,
@@ -485,7 +485,7 @@ fn normals() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::AirThrow,
+            ActionId::AirThrow,
             Action::airborne(
                 Some("w"),
                 CancelCategory::Normal,
@@ -528,10 +528,10 @@ fn normals() -> impl Iterator<Item = (MoveId, Action)> {
     .into_iter()
 }
 
-fn specials() -> impl Iterator<Item = (MoveId, Action)> {
+fn specials() -> impl Iterator<Item = (ActionId, Action)> {
     vec![
         (
-            MoveId::Dodge,
+            ActionId::Dodge,
             Action::grounded(
                 Some("252"),
                 CancelCategory::Special,
@@ -552,7 +552,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::GroundSlam,
+            ActionId::GroundSlam,
             Action::grounded(
                 Some("[789]6s"),
                 CancelCategory::Special,
@@ -593,7 +593,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::AirSlam,
+            ActionId::AirSlam,
             Action::airborne(
                 Some("[789]6s"),
                 CancelCategory::Special,
@@ -634,7 +634,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::BudgetBoom,
+            ActionId::BudgetBoom,
             Action::grounded(
                 Some("[41]6f"),
                 CancelCategory::Special,
@@ -667,7 +667,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::SonicBoom,
+            ActionId::SonicBoom,
             Action::new(
                 Some("[41]6f"),
                 CancelCategory::Special,
@@ -708,7 +708,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::Hadouken,
+            ActionId::Hadouken,
             Action::grounded(
                 Some("236f"),
                 CancelCategory::Special,
@@ -742,7 +742,7 @@ fn specials() -> impl Iterator<Item = (MoveId, Action)> {
             ),
         ),
         (
-            MoveId::HeavyHadouken,
+            ActionId::HeavyHadouken,
             Action::new(
                 Some("236s"),
                 CancelCategory::Special,

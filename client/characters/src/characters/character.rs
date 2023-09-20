@@ -1,7 +1,7 @@
 use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::prelude::*;
-use wag_core::{Animation, AnimationType, Area, ItemId, Model, MoveId, Stats};
+use wag_core::{ActionId, Animation, AnimationType, Area, ItemId, Model, Stats};
 
 use crate::{resources::ResourceType, Action, Item, WAGResource};
 
@@ -9,7 +9,7 @@ use super::jump;
 
 #[derive(Debug, Component, Clone)]
 pub struct Character {
-    moves: HashMap<MoveId, Action>,
+    moves: HashMap<ActionId, Action>,
     pub items: HashMap<ItemId, Item>,
     pub model: Model,
     pub low_block_height: f32,
@@ -27,7 +27,7 @@ impl Character {
     pub(crate) fn new(
         model: Model,
         generic_animations: HashMap<AnimationType, Animation>,
-        mut moves: HashMap<MoveId, Action>,
+        mut moves: HashMap<ActionId, Action>,
         items: HashMap<ItemId, Item>,
         jump_height: f32,
         jump_duration: f32,
@@ -52,7 +52,7 @@ impl Character {
         }
     }
 
-    pub fn get_move(&self, id: MoveId) -> Option<Action> {
+    pub fn get_move(&self, id: ActionId) -> Option<Action> {
         self.moves.get(&id).map(|opt| opt.to_owned())
     }
 
@@ -64,14 +64,14 @@ impl Character {
         }
     }
 
-    pub fn get_inputs(&self) -> HashMap<MoveId, &'static str> {
+    pub fn get_inputs(&self) -> HashMap<ActionId, &'static str> {
         self.moves
             .iter()
             .filter_map(|(key, move_data)| move_data.input.map(|input| (*key, input)))
             .collect()
     }
 
-    fn jumps(height: f32, duration: f32) -> (impl Iterator<Item = (MoveId, Action)>, f32) {
+    fn jumps(height: f32, duration: f32) -> (impl Iterator<Item = (ActionId, Action)>, f32) {
         /*
         // Math for gravity
         x = x0 + v0*t + 1/2*a*t^2
@@ -113,27 +113,27 @@ impl Character {
 
         let jumps = vec![
             (
-                MoveId::BackJump,
+                ActionId::BackJump,
                 jump("7", Vec2::new(-diagonal_jump_x, diagonal_jump_y)),
             ),
-            (MoveId::NeutralJump, jump("8", Vec2::Y * neutral_jump_y)),
+            (ActionId::NeutralJump, jump("8", Vec2::Y * neutral_jump_y)),
             (
-                MoveId::ForwardJump,
+                ActionId::ForwardJump,
                 jump("9", Vec2::new(diagonal_jump_x, diagonal_jump_y)),
             ),
             (
-                MoveId::BackSuperJump,
+                ActionId::BackSuperJump,
                 jump(
                     "[123]7",
                     Vec2::new(-diagonal_superjump_x, diagonal_superjump_y),
                 ),
             ),
             (
-                MoveId::NeutralSuperJump,
+                ActionId::NeutralSuperJump,
                 jump("[123]8", Vec2::Y * neutral_superjump_y),
             ),
             (
-                MoveId::ForwardSuperJump,
+                ActionId::ForwardSuperJump,
                 jump(
                     "[123]9",
                     Vec2::new(diagonal_superjump_x, diagonal_superjump_y),

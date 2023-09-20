@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 use std::cmp::Ordering;
 
-use wag_core::MoveId;
+use wag_core::ActionId;
 
 #[derive(Debug, Default, Reflect)]
 pub(super) struct MoveActivation {
     pub kind: ActivationType,
-    pub id: MoveId,
+    pub id: ActionId,
 }
 
 #[derive(Debug, Default, Reflect)]

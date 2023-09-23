@@ -1,0 +1,2 @@
+- Universal upgrade of [[Boots]] and [[Hockey pads]]
+- Max health and movement speed to the owner

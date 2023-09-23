@@ -40,7 +40,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             ItemId::Gi,
             Item {
                 cost: 100,
-                explanation: "Lesgo justin".into(),
+                explanation: "Tap forward to parry\n\nLesgo justin".into(),
                 ..default()
             },
         ),
@@ -57,15 +57,24 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
-            ItemId::SafetyBoots,
+            ItemId::HockeyPads,
             Item {
-                category: Upgrade(vec![ItemId::Boots]),
-                explanation: "Gives more health in addition to boots' speed bonus".into(),
-                cost: 100,
+                cost: 50,
+                explanation: "Bonus max health\n\nI am wearing hockey pads".into(),
                 effect: Stats {
                     max_health: 20,
                     ..default()
                 },
+                ..default()
+            },
+        ),
+        (
+            ItemId::SafetyBoots,
+            Item {
+                category: Upgrade(vec![ItemId::Boots, ItemId::HockeyPads]),
+                explanation: "Speed and health!\n\nSafe and fashionable".into(),
+                cost: 100,
+                ..default()
             },
         ),
     ]

@@ -4,9 +4,12 @@ use bevy::prelude::*;
 pub enum ItemId {
     Gi,
     Gun,
-    Roids,
     Boots,
     SafetyBoots,
+    HockeyPads,
+
+    // Character specific
+    Roids,
 
     #[default]
     Default,
@@ -15,6 +18,7 @@ pub enum ItemId {
 impl ItemId {
     pub fn display_name(&self) -> String {
         match self {
+            Self::HockeyPads => "Hockey pads".into(),
             Self::SafetyBoots => "Safety boots".into(),
             Self::Gi => "Gi of the old masters".into(),
             _ => format!("{:?}", self),

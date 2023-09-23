@@ -1,0 +1,2 @@
+- Universal basic item
+- Max health of the owner

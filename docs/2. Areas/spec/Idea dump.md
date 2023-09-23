@@ -66,8 +66,6 @@
 	- Shield - Makes you not able to die to chip damage
 	- Stopwatch - Better [[Link bonus]]
 		- Minimal effect on the less precise levels
-	- Hockey pads - Increases [[Health]]
-		- Base for [[Armor]] moves
 	- Jar of ectoplasm - [[Intangible]] on the first few frames of a back dash
 		- Base for things that make you [[Intangible]]
 - Upgrades
@@ -81,8 +79,6 @@
 			- Not thrilled about using the shield for this, as it's less blocking and more evading
 		- +Feather = Air jordans
 			- Double jump
-		- +Defence item = Steel tipped boots
-			- Less damage from low attacks
 		-  +Stopwatch = Full assault
 			- Allow you to dash cancel by spending as much meter as the cancel requires
 			- Full Assault Dash Cancel is conveniently fadc

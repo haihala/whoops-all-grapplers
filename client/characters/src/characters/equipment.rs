@@ -1,9 +1,9 @@
 use bevy::prelude::*;
-use wag_core::{Area, ItemId, StatusCondition, StatusFlag};
+use wag_core::{Area, ItemId, Stats, StatusCondition, StatusFlag};
 
 use crate::{
     Action, ActionBlock, ActionEvent, Attack, CancelCategory, CancelPolicy, CommonAttackProps,
-    Hitbox, Lifetime, Requirement, Situation, ToHit,
+    Hitbox, Item, ItemCategory::*, Lifetime, Requirement, Situation, ToHit,
 };
 
 pub(crate) fn get_handmedownken() -> Action {
@@ -61,4 +61,50 @@ pub(crate) fn get_high_gi_parry() -> Action {
         }],
         |situation: Situation| situation.inventory.contains(&ItemId::Gi) && situation.grounded,
     )
+}
+
+pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
+    vec![
+        (
+            ItemId::HandMeDownKen,
+            Item {
+                cost: 10,
+                explanation: "Haduu ken".into(),
+                ..default()
+            },
+        ),
+        (
+            ItemId::Gi,
+            Item {
+                cost: 100,
+                explanation: "Lesgo justin".into(),
+                ..default()
+            },
+        ),
+        (
+            ItemId::Boots,
+            Item {
+                cost: 80,
+                explanation: "Bonus walk speed".into(),
+                effect: Stats {
+                    walk_speed: 0.2,
+                    ..default()
+                },
+                ..default()
+            },
+        ),
+        (
+            ItemId::SafetyBoots,
+            Item {
+                category: Upgrade(vec![ItemId::Boots]),
+                explanation: "Gives more health in addition to boots' speed bonus".into(),
+                cost: 100,
+                effect: Stats {
+                    max_health: 20,
+                    ..default()
+                },
+            },
+        ),
+    ]
+    .into_iter()
 }

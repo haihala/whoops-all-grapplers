@@ -1,5 +1,5 @@
 - [ ] Check / remove existing items that don't make sense
-- [ ] Universal items architecture
+- [x] Universal items architecture
 - [ ] Add
 	- [ ]  [[Mizku#Items]] 
 	- [ ] Some of [[Idea dump#Items]]

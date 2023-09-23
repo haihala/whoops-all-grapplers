@@ -23,7 +23,7 @@ use crate::{
 
 use super::{
     dash,
-    equipment::{get_handmedownken, get_high_gi_parry},
+    equipment::{get_handmedownken, get_high_gi_parry, universal_items},
     Character,
 };
 
@@ -784,57 +784,16 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
 }
 
 fn dummy_items() -> HashMap<ItemId, Item> {
-    vec![
-        (
-            ItemId::Roids,
-            Item {
-                cost: 100,
-                category: Consumable,
-                explanation: "Get yoked".into(),
-                ..default()
-            },
-        ),
-        (
-            ItemId::HandMeDownKen,
-            Item {
-                cost: 10,
-                explanation: "Haduu ken".into(),
-                ..default()
-            },
-        ),
-        (
-            ItemId::Gi,
-            Item {
-                cost: 100,
-                explanation: "Lesgo justin".into(),
-                ..default()
-            },
-        ),
-        (
-            ItemId::Boots,
-            Item {
-                cost: 80,
-                explanation: "Bonus walk speed".into(),
-                effect: Stats {
-                    walk_speed: 0.2,
-                    ..default()
-                },
-                ..default()
-            },
-        ),
-        (
-            ItemId::SafetyBoots,
-            Item {
-                category: Upgrade(vec![ItemId::Boots]),
-                explanation: "Gives more health in addition to boots' speed bonus".into(),
-                cost: 100,
-                effect: Stats {
-                    max_health: 20,
-                    ..default()
-                },
-            },
-        ),
-    ]
+    vec![(
+        ItemId::Roids,
+        Item {
+            cost: 100,
+            category: Consumable,
+            explanation: "Get yoked".into(),
+            ..default()
+        },
+    )]
     .into_iter()
+    .chain(universal_items())
     .collect()
 }

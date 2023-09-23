@@ -25,12 +25,21 @@ impl Sounds {
     }
 }
 
-pub fn play_queued(mut commands: Commands, mut sounds: ResMut<Sounds>) {
+pub fn play_queued(
+    mut commands: Commands,
+    mut sounds: ResMut<Sounds>,
+    spanwed: Query<(Entity, &AudioSink)>,
+) {
     for source in sounds.queue.drain(..) {
-        commands.spawn(AudioBundle {
+        commands.spawn((AudioBundle {
             source,
             ..default()
-        });
+        },));
+    }
+    for (entity, sink) in &spanwed {
+        if sink.empty() {
+            commands.entity(entity).despawn();
+        }
     }
 }
 

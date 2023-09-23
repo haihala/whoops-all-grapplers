@@ -2,6 +2,6 @@
 
 Fighting game built in rust.
 
-Name is shortened to oag, pronounced 'waag'.
+Name is shortened to wag, pronounced 'waag'.
 
 Read [docs](docs/Docs.md) for more information.

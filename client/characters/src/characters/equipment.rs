@@ -1,12 +1,12 @@
 use bevy::prelude::*;
-use wag_core::{Area, ItemId, Stats, StatusCondition, StatusFlag};
+use wag_core::{ActionId, Area, ItemId, Stats, StatusCondition, StatusFlag};
 
 use crate::{
     Action, ActionBlock, ActionEvent, Attack, CancelCategory, CancelPolicy, CommonAttackProps,
     Hitbox, Item, ItemCategory::*, Lifetime, Requirement, Situation, ToHit,
 };
 
-pub(crate) fn get_handmedownken() -> Action {
+fn get_handmedownken() -> Action {
     Action::new(
         Some("236g"),
         CancelCategory::Special,
@@ -39,7 +39,7 @@ pub(crate) fn get_handmedownken() -> Action {
     )
 }
 
-pub(crate) fn get_high_gi_parry() -> Action {
+fn get_high_gi_parry() -> Action {
     Action::new(
         Some("56"),
         CancelCategory::Any,
@@ -61,6 +61,14 @@ pub(crate) fn get_high_gi_parry() -> Action {
         }],
         |situation: Situation| situation.inventory.contains(&ItemId::Gi) && situation.grounded,
     )
+}
+
+pub fn universal_item_actions() -> impl Iterator<Item = (ActionId, Action)> {
+    vec![
+        (ActionId::HandMeDownKen, get_handmedownken()),
+        (ActionId::HighGiParry, get_high_gi_parry()),
+    ]
+    .into_iter()
 }
 
 pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {

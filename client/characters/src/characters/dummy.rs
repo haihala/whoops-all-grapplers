@@ -23,7 +23,7 @@ use crate::{
 
 use super::{
     dash,
-    equipment::{get_handmedownken, get_high_gi_parry, universal_items},
+    equipment::{universal_item_actions, universal_items},
     Character,
 };
 
@@ -94,19 +94,11 @@ const DASH_IMPULSE: f32 = 10.0;
 
 fn dummy_moves() -> HashMap<ActionId, Action> {
     empty()
-        .chain(items())
+        .chain(item_actions())
         .chain(dashes())
         .chain(normals())
         .chain(specials())
         .collect()
-}
-
-fn items() -> impl Iterator<Item = (ActionId, Action)> {
-    vec![
-        (ActionId::HandMeDownKen, get_handmedownken()),
-        (ActionId::HighGiParry, get_high_gi_parry()),
-    ]
-    .into_iter()
 }
 
 fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
@@ -781,6 +773,10 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
         ),
     ]
     .into_iter()
+}
+
+fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
+    empty().chain(universal_item_actions())
 }
 
 fn dummy_items() -> HashMap<ItemId, Item> {

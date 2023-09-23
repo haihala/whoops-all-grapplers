@@ -74,14 +74,6 @@ impl Default for Lifetime {
 }
 
 impl Lifetime {
-    pub(crate) fn eternal() -> Self {
-        Self {
-            despawn_on_hit: false,
-            despawn_on_landing: false,
-            frames: None,
-        }
-    }
-
     pub(crate) fn until_owner_hit() -> Self {
         Self {
             despawn_on_hit: true,

@@ -24,7 +24,6 @@ pub enum ActionId {
     BackJump,
 
     // Equipment
-    HandMeDownKen,
     HighGiParry,
 
     // Test moves

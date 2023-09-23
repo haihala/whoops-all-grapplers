@@ -1,4 +1,4 @@
-- [ ] Check / remove existing items that don't make sense
+- [x] Check / remove existing items that don't make sense
 - [x] Universal items architecture
 - [ ] Add
 	- [ ]  [[Mizku#Items]] 

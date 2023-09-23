@@ -1,43 +1,10 @@
 use bevy::prelude::*;
-use wag_core::{ActionId, Area, ItemId, Stats, StatusCondition, StatusFlag};
+use wag_core::{ActionId, ItemId, Stats, StatusCondition, StatusFlag};
 
 use crate::{
-    Action, ActionBlock, ActionEvent, Attack, CancelCategory, CancelPolicy, CommonAttackProps,
-    Hitbox, Item, ItemCategory::*, Lifetime, Requirement, Situation, ToHit,
+    Action, ActionBlock, ActionEvent, CancelCategory, CancelPolicy, Item, ItemCategory::*,
+    Requirement, Situation,
 };
-
-fn get_handmedownken() -> Action {
-    Action::new(
-        Some("236g"),
-        CancelCategory::Special,
-        vec![
-            ActionBlock {
-                events: vec![],
-                exit_requirement: Requirement::Time(30),
-                cancel_policy: CancelPolicy::never(),
-                mutator: None,
-            },
-            ActionBlock {
-                events: vec![Attack::new(
-                    ToHit {
-                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
-                        velocity: Some(3.0 * Vec2::X),
-                        lifetime: Lifetime::eternal(),
-                        ..default()
-                    },
-                    CommonAttackProps::default(),
-                )
-                .into()],
-                exit_requirement: Requirement::Time(10),
-                cancel_policy: CancelPolicy::never(),
-                mutator: None,
-            },
-        ],
-        |situation: Situation| {
-            situation.inventory.contains(&ItemId::HandMeDownKen) && situation.grounded
-        },
-    )
-}
 
 fn get_high_gi_parry() -> Action {
     Action::new(
@@ -64,23 +31,11 @@ fn get_high_gi_parry() -> Action {
 }
 
 pub fn universal_item_actions() -> impl Iterator<Item = (ActionId, Action)> {
-    vec![
-        (ActionId::HandMeDownKen, get_handmedownken()),
-        (ActionId::HighGiParry, get_high_gi_parry()),
-    ]
-    .into_iter()
+    vec![(ActionId::HighGiParry, get_high_gi_parry())].into_iter()
 }
 
 pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
     vec![
-        (
-            ItemId::HandMeDownKen,
-            Item {
-                cost: 10,
-                explanation: "Haduu ken".into(),
-                ..default()
-            },
-        ),
         (
             ItemId::Gi,
             Item {

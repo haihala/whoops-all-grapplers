@@ -11,8 +11,6 @@ pub enum ActionEvent {
     Animation(Animation),
     Consume(ItemId),
     RecipientAnimation(Animation),
-    AnimationAtFrame(Animation, usize),
-    RecipientAnimationAtFrame(Animation, usize),
     Sound(SoundEffect),
     Move(ActionId),
     Attack(Attack),

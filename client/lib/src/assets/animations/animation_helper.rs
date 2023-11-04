@@ -2,7 +2,7 @@ use std::mem::take;
 
 use bevy::{prelude::*, scene::SceneInstance};
 
-use wag_core::{Animation, Facing};
+use wag_core::{Animation, Facing, Stats};
 
 use super::Animations;
 
@@ -13,6 +13,7 @@ pub struct AnimationRequest {
     pub position_offset: Vec2,
     pub invert: bool,
     pub looping: bool,
+    pub ignore_action_speed: bool,
 }
 impl From<Animation> for AnimationRequest {
     fn from(animation: Animation) -> Self {
@@ -101,11 +102,11 @@ fn find_animation_player_entity(
 
 pub fn update_animation(
     animations: Res<Animations>,
-    mut main: Query<(&mut AnimationHelper, &Facing)>,
+    mut main: Query<(&mut AnimationHelper, &Facing, &Stats)>,
     mut players: Query<&mut AnimationPlayer>,
     mut scenes: Query<&mut Transform, With<Handle<Scene>>>,
 ) {
-    for (mut helper, facing) in &mut main {
+    for (mut helper, facing, stats) in &mut main {
         let mut player = players.get_mut(helper.player_entity).unwrap();
         let mut scene_root = scenes.get_mut(helper.scene_root).unwrap();
 
@@ -122,7 +123,12 @@ pub fn update_animation(
 
             player
                 .start(handle)
-                .set_elapsed(request.time_offset as f32 / wag_core::FPS);
+                .set_elapsed(request.time_offset as f32 / wag_core::FPS)
+                .set_speed(if request.ignore_action_speed {
+                    1.0
+                } else {
+                    stats.action_speed_multiplier
+                });
 
             if request.looping {
                 player.repeat();

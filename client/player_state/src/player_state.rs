@@ -47,6 +47,15 @@ impl PlayerState {
             .collect()
     }
 
+    pub fn last_breakpoint_frame(&self) -> Option<usize> {
+        match self.main {
+            MainState::Stand(StandState::Move(ref tracker))
+            | MainState::Crouch(CrouchState::Move(ref tracker))
+            | MainState::Air(AirState::Move(ref tracker)) => tracker.last_breakpoint_frame(),
+            _ => None,
+        }
+    }
+
     pub fn add_actions(&mut self, mut actions: Vec<ActionEvent>) {
         self.unprocessed_events.append(&mut actions);
     }
@@ -89,8 +98,14 @@ impl PlayerState {
         };
         self.free_since = None;
     }
-    pub fn proceed_move(&mut self, inventory: Inventory, resources: WAGResources, frame: usize) {
-        let situation = self.build_situation(inventory, resources, frame);
+    pub fn proceed_move(
+        &mut self,
+        inventory: Inventory,
+        resources: WAGResources,
+        stats: Stats,
+        frame: usize,
+    ) {
+        let situation = self.build_situation(inventory, resources, stats, frame);
         let tracker = self.get_action_tracker_mut().unwrap();
 
         if tracker.blocker.fulfilled(situation) {
@@ -107,11 +122,13 @@ impl PlayerState {
         &self,
         inventory: Inventory,
         resources: WAGResources,
+        stats: Stats,
         frame: usize,
     ) -> Situation {
         Situation {
             inventory,
             frame,
+            stats,
             resources: resources.0,
             grounded: self.is_grounded(),
             tracker: self.get_action_tracker().cloned(),
@@ -279,7 +296,7 @@ impl PlayerState {
     }
     pub fn combined_status_effects(&self) -> Stats {
         // TODO: Cache for later
-        self.conditions.iter().fold(Stats::default(), |acc, cond| {
+        self.conditions.iter().fold(Stats::identity(), |acc, cond| {
             if let Some(effect) = &cond.effect {
                 acc.combine(effect)
             } else {

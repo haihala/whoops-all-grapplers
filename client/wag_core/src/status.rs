@@ -8,11 +8,25 @@ pub struct Stats {
     pub opener_damage_multiplier: f32,
     pub opener_meter_gain: i32,
     pub opener_stun_frames: i32,
-    // TODO: Add more fields
+    // Actions
+    pub action_speed_multiplier: f32,
 }
 
 impl Default for Stats {
     fn default() -> Self {
+        Self {
+            walk_speed: 3.0,
+            max_health: 250,
+            opener_damage_multiplier: 1.5,
+            opener_meter_gain: 50,
+            opener_stun_frames: 5,
+            ..Self::identity()
+        }
+    }
+}
+
+impl Stats {
+    pub fn identity() -> Self {
         Self {
             // These are meant to be identity values, you should be able to
             // combine them with another Stats instance and get the other instance out.
@@ -22,17 +36,17 @@ impl Default for Stats {
             opener_damage_multiplier: 1.0,
             opener_meter_gain: 0,
             opener_stun_frames: 0,
+            action_speed_multiplier: 1.0,
         }
     }
-}
 
-impl Stats {
     pub fn combine(mut self, rhs: &Self) -> Self {
         self.walk_speed += rhs.walk_speed;
         self.max_health += rhs.max_health;
         self.opener_damage_multiplier *= rhs.opener_damage_multiplier;
         self.opener_meter_gain += rhs.opener_meter_gain;
         self.opener_stun_frames += rhs.opener_stun_frames;
+        self.action_speed_multiplier *= rhs.action_speed_multiplier;
 
         self
     }
@@ -44,6 +58,7 @@ impl Stats {
             opener_damage_multiplier: 1.5,
             opener_meter_gain: 20,
             opener_stun_frames: 5,
+            action_speed_multiplier: 1.0,
         }
     }
 }

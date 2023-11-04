@@ -22,7 +22,7 @@ impl Requirement {
             Self::Condition(condition) => condition(situation),
             Self::Time(duration) => {
                 (situation.frame - situation.tracker.unwrap().current_block_start_frame)
-                    >= *duration
+                    >= ((*duration as f32 / situation.stats.action_speed_multiplier) as usize)
             }
         }
     }

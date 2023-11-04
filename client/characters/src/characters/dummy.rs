@@ -35,13 +35,7 @@ pub fn dummy() -> Character {
         dummy_items(),
         2.0,
         1.0,
-        Stats {
-            walk_speed: 3.0,
-            max_health: 250,
-            opener_damage_multiplier: 1.5,
-            opener_meter_gain: 50,
-            opener_stun_frames: 5,
-        },
+        Stats::default(),
         vec![
             (
                 ResourceType::Charge,
@@ -786,7 +780,10 @@ fn dummy_items() -> HashMap<ItemId, Item> {
             cost: 100,
             category: Consumable,
             explanation: "Get yoked".into(),
-            ..default()
+            effect: Stats {
+                action_speed_multiplier: 1.1,
+                ..Stats::identity()
+            },
         },
     )]
     .into_iter()

@@ -1,4 +1,5 @@
 use bevy::utils::HashMap;
+use wag_core::Stats;
 
 use crate::{ActionTracker, Inventory, ResourceType, WAGResource};
 
@@ -9,6 +10,7 @@ pub struct Situation {
     pub inventory: Inventory,
     pub resources: HashMap<ResourceType, WAGResource>,
     pub frame: usize,
+    pub stats: Stats,
     // Kept minimal so far, but will grow as needed
 }
 impl Situation {

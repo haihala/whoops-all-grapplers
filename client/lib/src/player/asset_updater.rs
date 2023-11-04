@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{ActionEvent, Character};
 use player_state::PlayerState;
-use wag_core::{Facing, Players};
+use wag_core::{Clock, Facing, Players};
 
 use crate::assets::{AnimationHelper, AnimationRequest, Sounds};
 
@@ -19,22 +19,23 @@ pub fn update_animation(
     >,
     tfs: Query<&Transform>,
     players: Res<Players>,
+    clock: Res<Clock>,
 ) {
     // TODO: This is somewhat faulty as a concept, fix at some point.
     for (character, mut state, facing, mut helper, entity) in &mut query {
+        let base_offset = state
+            .last_breakpoint_frame()
+            .map(|frame| clock.frame - frame)
+            .unwrap_or_default();
+
         let [active, opponent] = tfs
             .get_many([entity, players.get_other_entity(entity)])
             .unwrap();
         let position_offset = (opponent.translation - active.translation).truncate();
-        if let Some(request) = state
+        if let Some(req) = state
             .drain_matching_actions(|action| match action {
                 ActionEvent::Animation(animation) => Some(AnimationRequest {
                     animation: *animation,
-                    ..default()
-                }),
-                ActionEvent::AnimationAtFrame(animation, frame) => Some(AnimationRequest {
-                    animation: *animation,
-                    time_offset: *frame,
                     ..default()
                 }),
                 ActionEvent::RecipientAnimation(animation) => Some(AnimationRequest {
@@ -43,20 +44,13 @@ pub fn update_animation(
                     invert: true,
                     ..default()
                 }),
-                ActionEvent::RecipientAnimationAtFrame(animation, frame) => {
-                    Some(AnimationRequest {
-                        animation: *animation,
-                        time_offset: *frame,
-                        position_offset,
-                        invert: true,
-                        ..default()
-                    })
-                }
                 _ => None,
             })
             .last()
         {
-            helper.play(request.to_owned());
+            let mut request = req.to_owned();
+            request.time_offset += base_offset;
+            helper.play(request);
         } else if let Some(generic) = state.get_generic_animation(*facing) {
             let animation = character
                 .generic_animations
@@ -67,6 +61,7 @@ pub fn update_animation(
             helper.play_if_new(AnimationRequest {
                 animation,
                 looping: true,
+                ignore_action_speed: true,
                 ..default()
             });
         }

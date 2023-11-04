@@ -57,6 +57,10 @@ impl ActionTracker {
 
         output
     }
+
+    pub fn last_breakpoint_frame(&self) -> Option<usize> {
+        self.cancel_breakpoints.last().map(|(_, frame)| *frame)
+    }
 }
 
 #[cfg(test)]

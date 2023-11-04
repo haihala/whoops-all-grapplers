@@ -5,7 +5,7 @@ use characters::{
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{ActionId, Clock, Player};
+use wag_core::{ActionId, Clock, Player, Stats};
 
 use crate::{damage::Combo, ui::Notifications};
 
@@ -104,17 +104,23 @@ pub(super) fn raw_or_link(
         &PlayerState,
         &Inventory,
         &WAGResources,
+        &Stats,
     )>,
 ) {
     // Set activating move if one in the buffer can start raw or be linked into
-    for (mut buffer, character, state, inventory, resources) in &mut query {
+    for (mut buffer, character, state, inventory, resources, stats) in &mut query {
         if let Some(freedom_frame) = state.free_since {
             // Character has recently been freed
 
             if let Some((stored, id, _)) = buffer
                 .get_situation_moves(
                     character,
-                    state.build_situation(inventory.clone(), resources.clone(), clock.frame),
+                    state.build_situation(
+                        inventory.to_owned(),
+                        resources.to_owned(),
+                        stats.to_owned(),
+                        clock.frame,
+                    ),
                 )
                 .into_iter()
                 .min_by(|(_, id1, _), (_, id2, _)| id1.cmp(id2))
@@ -139,10 +145,11 @@ pub(super) fn special_cancel(
         &PlayerState,
         &Inventory,
         &WAGResources,
+        &Stats,
     )>,
 ) {
     // Set activating move if one in the buffer can be cancelled into
-    for (mut buffer, character, state, inventory, resources) in &mut query {
+    for (mut buffer, character, state, inventory, resources, stats) in &mut query {
         if state.free_since.is_none() {
             if let Some(tracker) = state.get_action_tracker() {
                 // Not free because a move is happening
@@ -150,7 +157,12 @@ pub(super) fn special_cancel(
                 if let Some((stored, id, cancellable_since)) = buffer
                     .get_situation_moves(
                         character,
-                        state.build_situation(inventory.clone(), resources.clone(), clock.frame),
+                        state.build_situation(
+                            inventory.to_owned(),
+                            resources.to_owned(),
+                            stats.to_owned(),
+                            clock.frame,
+                        ),
                     )
                     .into_iter()
                     .filter_map(|(frame, id, action)| {

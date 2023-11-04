@@ -1,13 +1,15 @@
 # Backlog
 ## Before playtest
-- [[Extending items]]
 - [[Items for playtest]]
 - [[Character 2]]
+- [[Bevy 0.12]]
 
 ## Nice to have
+- [[Extending items]]
 - [[Toasts in various spots]]
 - [[Move format refinement]]
 - [[Input parser refinement#Nice to have]]
+- Use https://docs.rs/bevy/latest/bevy/gizmos/gizmos/struct.Gizmos.html#method.rect to visualize boxes
 
 ### Spec update
 - Get idea dumps from archive

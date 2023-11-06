@@ -107,7 +107,7 @@ pub(crate) fn update_pads(
     mut unused_pads: ResMut<PadReserve>,
     mut readers: Query<(&mut PadStream, &mut ParrotStream)>,
 ) {
-    for event in gamepad_events.iter() {
+    for event in gamepad_events.read() {
         for (mut pad, mut parrot) in &mut readers {
             let unclaimed_pad = pad.pad_id.is_none();
 

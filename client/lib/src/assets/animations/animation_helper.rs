@@ -123,7 +123,7 @@ pub fn update_animation(
 
             player
                 .start(handle)
-                .set_elapsed(request.time_offset as f32 / wag_core::FPS)
+                .seek_to(request.time_offset as f32 / wag_core::FPS)
                 .set_speed(if request.ignore_action_speed {
                     1.0
                 } else {
@@ -143,7 +143,7 @@ pub fn update_animation(
             // Sideswitch
             let handle = animations.get(helper.playing.animation, facing);
             let elapsed = player.elapsed();
-            player.start(handle).set_elapsed(elapsed).repeat();
+            player.start(handle).seek_to(elapsed).repeat();
             helper.facing = *facing;
         }
     }

@@ -1,7 +1,6 @@
 [Migration guide](https://bevyengine.org/learn/migration-guides/0.11-0.12/)
 
-[Blog post](https://bevyengine.org/news/bevy-0-12/)
-Picks:
+Interesting picks from [Blog post](https://bevyengine.org/news/bevy-0-12/):
 - https://bevyengine.org/news/bevy-0-12/#multiple-asset-sources allows loading assets through online sources. Could be big for net play.
 - https://bevyengine.org/news/bevy-0-12/#embedded-assets Old solution for assets in binary had problems
 	- What assets should one embed?
@@ -26,3 +25,8 @@ Picks:
 	- Add err logging in case future ambiguity is introduced
 - https://bevyengine.org/news/bevy-0-12/#reduced-tracing-overhead better tracking
 
+# Steps
+- [x] Builds
+- [x] Runs
+- [x] Clippy happy
+- [x] Udeps happy

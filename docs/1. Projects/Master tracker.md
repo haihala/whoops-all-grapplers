@@ -2,7 +2,6 @@
 ## Before playtest
 - [[Items for playtest]]
 - [[Character 2]]
-- [[Bevy 0.12]]
 
 ## Nice to have
 - [[Extending items]]

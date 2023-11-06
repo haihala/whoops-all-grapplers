@@ -52,18 +52,17 @@ pub struct TimePlugin;
 
 impl Plugin for TimePlugin {
     fn build(&self, app: &mut App) {
-        app.configure_set(Update, WAGStage::Physics.run_if(once_per_combat_frame))
-            .configure_set(Update, WAGStage::HitReg.run_if(once_per_combat_frame))
-            .configure_set(
-                Update,
-                WAGStage::PlayerUpdates.run_if(once_per_combat_frame),
-            )
-            .add_state::<GameState>()
-            .add_systems(Update, update_visibility_on_state_change)
-            .init_resource::<Clock>()
-            .insert_resource(FixedTime::new_from_secs(1.0 / crate::FPS))
-            .add_systems(FixedUpdate, update_clock)
-            .insert_resource(RoundLog::default());
+        app.configure_sets(
+            Update,
+            (WAGStage::Physics, WAGStage::HitReg, WAGStage::PlayerUpdates)
+                .run_if(once_per_combat_frame),
+        )
+        .add_state::<GameState>()
+        .add_systems(Update, update_visibility_on_state_change)
+        .init_resource::<Clock>()
+        .insert_resource(Time::<Fixed>::from_seconds(1.0 / crate::FPS as f64))
+        .add_systems(FixedUpdate, update_clock)
+        .insert_resource(RoundLog::default());
     }
 }
 

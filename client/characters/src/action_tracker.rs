@@ -1,12 +1,16 @@
+use bevy::prelude::*;
 use std::collections::VecDeque;
 
 use crate::{Action, ActionBlock, CancelPolicy, Requirement};
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Reflect)]
 pub struct ActionTracker {
     pub has_hit: bool,
+    // Stores a function pointer in a variant and reflect(ignore) doesn't work on that for some reason.
+    #[reflect(ignore)]
     pub blocker: Requirement,
     pub cancel_policy: CancelPolicy,
+    #[reflect(ignore)] // Recursive down there
     pub upcoming_blocks: VecDeque<ActionBlock>,
     pub start_frame: usize,
     pub current_block_start_frame: usize,
@@ -68,7 +72,6 @@ mod test_cancellable_into_since {
     use crate::actions::CancelCategory;
 
     use super::*;
-    use bevy::prelude::*;
 
     #[test]
     fn sanity_check() {

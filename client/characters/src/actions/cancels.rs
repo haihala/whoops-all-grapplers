@@ -1,4 +1,6 @@
-#[derive(Clone, Copy, PartialEq, Eq, Debug, PartialOrd, Ord)]
+use bevy::reflect::Reflect;
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug, PartialOrd, Ord, Reflect)]
 pub enum CancelCategory {
     Any,
     Jump,
@@ -9,13 +11,13 @@ pub enum CancelCategory {
     Everything, // Usable for tests as a "this is cancellable from anything that is cancellable"
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Reflect)]
 pub struct CancelRule {
     pub requires_hit: bool,
     pub category: CancelCategory,
 }
 
-#[derive(Clone, PartialEq, Debug, Default)]
+#[derive(Clone, PartialEq, Debug, Default, Reflect)]
 pub struct CancelPolicy(pub Vec<CancelRule>);
 impl CancelPolicy {
     pub fn never() -> Self {

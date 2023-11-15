@@ -5,8 +5,8 @@ edition = "2021"
 authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 
 [dependencies]
-bevy = { workspace = true, features=["mp3"]}
-bevy_hanabi  = { workspace = true }
+bevy = { workspace = true, features = ["mp3"] }
+bevy_hanabi = { workspace = true }
 bevy-inspector-egui = { workspace = true }
 rand = { workspace = true }
 strum = { workspace = true }
@@ -16,4 +16,3 @@ input_parsing = { path = "../input_parsing" }
 characters = { path = "../characters" }
 player_state = { path = "../player_state" }
 wag_core = { path = "../wag_core" }
-wag_args = { path = "../wag_args" }

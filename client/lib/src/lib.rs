@@ -15,18 +15,19 @@ mod state_transitions;
 mod ui;
 
 use bevy::{app::PluginGroupBuilder, prelude::*};
+use wag_core::WagArgs;
 
 // Only thing exported out of this crate
 #[derive(Debug)]
 pub struct WAGLib {
     enable_hanabi: bool,
-    args: wag_args::CliArgs,
+    args: WagArgs,
 }
 
 impl WAGLib {
     pub fn integration() -> Self {
         Self {
-            args: wag_args::CliArgs::default(),
+            args: WagArgs::default(),
             enable_hanabi: false,
         }
     }
@@ -34,7 +35,7 @@ impl WAGLib {
 
 impl Default for WAGLib {
     fn default() -> Self {
-        let args = wag_args::parse();
+        let args = WagArgs::from_cli();
 
         Self {
             args,
@@ -75,10 +76,10 @@ impl PluginGroup for WAGLib {
 
 // This exists so we can make args to a resource, as you can't do that in the plugin group builder.
 struct ArgsPlugin {
-    args: wag_args::CliArgs,
+    args: WagArgs,
 }
 impl ArgsPlugin {
-    fn new(args: wag_args::CliArgs) -> Self {
+    fn new(args: WagArgs) -> Self {
         Self { args }
     }
 }

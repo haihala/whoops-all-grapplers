@@ -8,3 +8,4 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 bevy = { workspace = true }
 strum = { workspace = true }
 strum_macros = { workspace = true }
+clap = { workspace = true }

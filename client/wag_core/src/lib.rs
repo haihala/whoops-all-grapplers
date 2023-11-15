@@ -4,6 +4,9 @@ pub use action_id::ActionId;
 mod area;
 pub use area::Area;
 
+mod args;
+pub use args::WagArgs;
+
 mod character_id;
 pub use character_id::CharacterId;
 

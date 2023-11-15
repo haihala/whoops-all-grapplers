@@ -8,7 +8,6 @@ members = [
     "lib",
     "main",
     "player_state",
-    "wag_args",
     "wag_core",
 ]
 

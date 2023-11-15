@@ -3827,19 +3827,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 
 [[package]]
-name = "wag_args"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "clap",
- "wag_core",
-]
-
-[[package]]
 name = "wag_core"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "clap",
  "strum",
  "strum_macros",
 ]
@@ -4096,7 +4088,6 @@ dependencies = [
  "player_state",
  "rand",
  "strum",
- "wag_args",
  "wag_core",
 ]
 

@@ -12,8 +12,9 @@ mod size_adjustment;
 use characters::{dummy, Character, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
-use wag_args::CliArgs;
-use wag_core::{CharacterId, Clock, Facing, GameState, Joints, Player, Players, Stats, WAGStage};
+use wag_core::{
+    CharacterId, Clock, Facing, GameState, Joints, Player, Players, Stats, WAGStage, WagArgs,
+};
 
 use crate::{
     assets::{AnimationHelperSetup, Models},
@@ -85,7 +86,7 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn setup(mut commands: Commands, models: Res<Models>, args: Res<CliArgs>) {
+fn setup(mut commands: Commands, models: Res<Models>, args: Res<WagArgs>) {
     let players = Players {
         one: spawn_player(
             &mut commands,

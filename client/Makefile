@@ -2,7 +2,7 @@ release ?=
 RUST_BACKTRACE := 1
 
 dev:
-	cargo run -- --dev dummy dummy
+	cargo run -- --dev mizku mizku
 
 prod:
 	cargo run -- dummy dummy

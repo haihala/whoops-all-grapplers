@@ -14,7 +14,7 @@ pub use actions::{
     Action, ActionEvent, Attack, AttackHeight, BlockType, Hitbox, Hurtbox, Lifetime, Movement,
     ToHit,
 };
-pub use characters::{dummy, Character};
+pub use characters::{dummy, mizku, Character};
 pub use items::{Inventory, Item, ItemCategory};
 pub use resources::{
     ChargeProperty, CounterVisual, RenderInstructions, ResourceBarVisual, ResourceType,

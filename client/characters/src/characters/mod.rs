@@ -4,6 +4,6 @@ mod equipment;
 mod helpers;
 
 pub use character::Character;
-pub use dummy::dummy;
+pub use dummy::{dummy, mizku};
 
 use helpers::{dash, jump};

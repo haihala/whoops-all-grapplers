@@ -1,9 +1,8 @@
 [[Character 1]] taught me a lot and I think I can do a better job this time.
 
-#blocked by 
+#blocked by
 - [[Design documentation cleanup]]
 - [[Items for playtest]]
-- [[Bevy 0.12]] (Can't import model, can't run master build because Hanabi doesn't support it)
 
 See [[Mizku]] for designs
 
@@ -20,6 +19,7 @@ See [[Mizku]] for designs
 	- [x] Colorize
 	- [x] Rig
 	- [x] Animate
+	- [x] Import into bevy
 - [ ] Implement required new mechanics
 	- [ ] Directional projectiles (Kunai flips to face forward)
 	- [x] Items as cost

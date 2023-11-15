@@ -9,7 +9,7 @@ mod recovery;
 mod root_mover;
 mod size_adjustment;
 
-use characters::{dummy, Character, Inventory, WAGResources};
+use characters::{dummy, mizku, Character, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
@@ -127,6 +127,7 @@ fn spawn_player(
 ) -> Entity {
     let character = match character {
         CharacterId::Dummy => dummy(),
+        CharacterId::Mizku => mizku(),
     };
 
     commands

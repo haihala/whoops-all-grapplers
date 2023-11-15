@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::HashMap}; // Need to use this one for reflect to work
 
-use wag_core::{Animation, DummyAnimation, Facing};
+use wag_core::{Animation, DummyAnimation, Facing, MizkuAnimation};
 
 #[derive(Debug, Default, Resource)]
 pub struct Animations {
@@ -91,12 +91,23 @@ fn mirror_path(original: EntityPath) -> EntityPath {
             .parts
             .into_iter()
             .map(|mut name| {
-                // Transforms Bone.L -> Bone.R and Bone.R -> Bone.L
+                // Transforms
+                // - Bone.L -> Bone.R
+                // - Bone.R -> Bone.L
+                // - Bone.L.001 -> Bone.R.001
+                // - Bone.R.001 -> Bone.L.001
+                // Could be smarter, but I think that risks false positive hits and those seem annoying.
+                // Assumes there are fewer than 100 bones with the same name
+
                 name.mutate(|old_name| {
                     if let Some(base_name) = old_name.strip_suffix(".L") {
                         *old_name = base_name.to_owned() + ".R";
                     } else if let Some(base_name) = old_name.strip_suffix(".R") {
                         *old_name = base_name.to_owned() + ".L";
+                    } else if old_name.contains(".R.0") {
+                        *old_name = old_name.replace(".R.0", ".L.0");
+                    } else if old_name.contains(".L.0") {
+                        *old_name = old_name.replace(".L.0", ".R.0");
                     }
                 });
                 name
@@ -167,6 +178,54 @@ pub fn animation_paths() -> HashMap<Animation, String> {
             Animation::Dummy(DummyAnimation::WalkForward),
         ],
     )
+    .into_iter()
+    .chain(load_glb_animations(
+        "mizuki.glb".to_owned(),
+        vec![
+            MizkuAnimation::Air,
+            MizkuAnimation::AirStagger,
+            MizkuAnimation::AirThrowHit,
+            MizkuAnimation::AirThrowStartup,
+            MizkuAnimation::AirThrowTarget,
+            MizkuAnimation::BackSway,
+            MizkuAnimation::Block,
+            MizkuAnimation::Crouch,
+            MizkuAnimation::CrouchBlock,
+            MizkuAnimation::CrouchStagger,
+            MizkuAnimation::DashBack,
+            MizkuAnimation::DashForward,
+            MizkuAnimation::FalconKnee,
+            MizkuAnimation::FootDiveHold,
+            MizkuAnimation::FootDiveRelease,
+            MizkuAnimation::Getup,
+            MizkuAnimation::GroundThrowHit,
+            MizkuAnimation::GroundThrowStartup,
+            MizkuAnimation::GroundThrowTarget,
+            MizkuAnimation::HeelKick,
+            MizkuAnimation::HighSlice,
+            MizkuAnimation::HorizontalSlice,
+            MizkuAnimation::Idle,
+            MizkuAnimation::Jump,
+            MizkuAnimation::KneeThrust,
+            MizkuAnimation::KunaiThrow,
+            MizkuAnimation::LowKick,
+            MizkuAnimation::LowSlice,
+            MizkuAnimation::Sharpen,
+            MizkuAnimation::Stagger,
+            MizkuAnimation::StandPose,
+            MizkuAnimation::SwayDash,
+            MizkuAnimation::Sweep,
+            MizkuAnimation::TPose,
+            MizkuAnimation::Uppercut,
+            MizkuAnimation::UpwardsSlash,
+            MizkuAnimation::WalkBack,
+            MizkuAnimation::WalkForward,
+        ]
+        .into_iter()
+        .map(Animation::from)
+        .collect(),
+    ))
+    .collect()
 }
 
 fn load_glb_animations(

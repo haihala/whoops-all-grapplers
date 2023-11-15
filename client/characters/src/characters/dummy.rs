@@ -3,8 +3,8 @@ use std::{collections::HashMap, iter::empty};
 use bevy::prelude::*;
 
 use wag_core::{
-    ActionId, Animation, AnimationType, Area, DummyAnimation, ItemId, Joint, Model, Stats,
-    StatusCondition, StatusFlag, FPS,
+    ActionId, Animation, AnimationType, Area, DummyAnimation, ItemId, Joint, MizkuAnimation, Model,
+    Stats, StatusCondition, StatusFlag, FPS,
 };
 
 use crate::{
@@ -26,6 +26,65 @@ use super::{
     equipment::{universal_item_actions, universal_items},
     Character,
 };
+
+pub fn mizku() -> Character {
+    //TODO: Move this to a separate file and add an actual moveset with real animations, atm it crashes if you do a move.
+    Character::new(
+        Model::Mizku,
+        mizku_animations(),
+        dummy_moves(),
+        dummy_items(),
+        2.0,
+        1.0,
+        Stats {
+            walk_speed: 1.1,
+            ..default()
+        },
+        vec![
+            (
+                ResourceType::Charge,
+                WAGResource {
+                    max: Some(FPS as i32), // Frames to full,
+                    special: Some(SpecialProperty::Charge(ChargeProperty::default())),
+                    render_instructions: RenderInstructions::Bar(ResourceBarVisual {
+                        default_color: Color::rgb(0.05, 0.4, 0.55),
+                        full_color: Some(Color::rgb(0.9, 0.1, 0.3)),
+                        ..default()
+                    }),
+                    ..default()
+                },
+            ),
+            (
+                ResourceType::ItemCount(ItemId::Boots),
+                WAGResource {
+                    render_instructions: RenderInstructions::Counter(CounterVisual {
+                        label: "Boots",
+                    }),
+                    ..default()
+                },
+            ),
+        ],
+    )
+}
+
+fn mizku_animations() -> HashMap<AnimationType, Animation> {
+    vec![
+        (AnimationType::AirIdle, MizkuAnimation::Air),
+        (AnimationType::AirStun, MizkuAnimation::AirStagger),
+        (AnimationType::StandIdle, MizkuAnimation::Idle),
+        (AnimationType::StandBlock, MizkuAnimation::Block),
+        (AnimationType::StandStun, MizkuAnimation::Stagger),
+        (AnimationType::WalkBack, MizkuAnimation::WalkBack),
+        (AnimationType::WalkForward, MizkuAnimation::WalkForward),
+        (AnimationType::CrouchIdle, MizkuAnimation::Crouch),
+        (AnimationType::CrouchBlock, MizkuAnimation::CrouchBlock),
+        (AnimationType::CrouchStun, MizkuAnimation::CrouchStagger),
+        (AnimationType::Getup, MizkuAnimation::Getup),
+    ]
+    .into_iter()
+    .map(|(k, v)| (k, Animation::from(v)))
+    .collect()
+}
 
 pub fn dummy() -> Character {
     Character::new(

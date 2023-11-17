@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use wag_core::{ActionId, ItemId, Stats, StatusCondition, StatusFlag};
 
 use crate::{
-    Action, ActionBlock, ActionEvent, CancelCategory, CancelPolicy, Item, ItemCategory::*,
-    Requirement, Situation,
+    actions::ActionRequirement, Action, ActionBlock, ActionEvent, BlockerRequirement,
+    CancelCategory, CancelPolicy, Item, ItemCategory::*,
 };
 
 fn get_high_gi_parry() -> Action {
@@ -22,11 +22,14 @@ fn get_high_gi_parry() -> Action {
             // 0f moves will end on the same system they are processed and their events will get cleared before those get handled
             // Could be fixed, but likely not severe enough to.
             // TODO: Previous comment is from previous implementation, may not be true anymore
-            exit_requirement: Requirement::Time(1),
+            exit_requirement: BlockerRequirement::Time(1),
             cancel_policy: CancelPolicy::never(),
             mutator: None,
         }],
-        |situation: Situation| situation.inventory.contains(&ItemId::Gi) && situation.grounded,
+        vec![
+            ActionRequirement::Grounded,
+            ActionRequirement::ItemsOwned(vec![ItemId::Gi]),
+        ],
     )
 }
 

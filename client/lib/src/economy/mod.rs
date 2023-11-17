@@ -17,18 +17,18 @@ impl Plugin for EconomyPlugin {
 fn modify_properties(mut query: Query<(&mut PlayerState, &mut WAGResources)>) {
     for (mut state, mut properties) in &mut query {
         for prop in state.drain_matching_actions(|action| match action {
-            ActionEvent::ModifyProperty(prop, amount) => {
-                Some(ActionEvent::ModifyProperty(*prop, *amount))
+            ActionEvent::ModifyResource(prop, amount) => {
+                Some(ActionEvent::ModifyResource(*prop, *amount))
             }
-            ActionEvent::ClearProperty(prop) => Some(ActionEvent::ClearProperty(*prop)),
+            ActionEvent::ClearResource(prop) => Some(ActionEvent::ClearResource(*prop)),
             _ => None,
         }) {
             // Moved outside to avoid double borrow
             match prop {
-                ActionEvent::ModifyProperty(prop, amount) => {
+                ActionEvent::ModifyResource(prop, amount) => {
                     properties.get_mut(&prop).unwrap().change(amount);
                 }
-                ActionEvent::ClearProperty(prop) => {
+                ActionEvent::ClearResource(prop) => {
                     properties.get_mut(&prop).unwrap().clear();
                 }
                 _ => panic!("Filter failed"),

@@ -93,7 +93,7 @@ impl CommonAttackProps {
 
     pub fn target_on_hit(self) -> Vec<ActionEvent> {
         vec![
-            ActionEvent::ModifyProperty(ResourceType::Health, -self.damage),
+            ActionEvent::ModifyResource(ResourceType::Health, -self.damage),
             self.get_stun(false),
             Movement::impulse(self.knock_back).into(),
         ]
@@ -101,7 +101,7 @@ impl CommonAttackProps {
 
     pub fn target_on_block(self) -> Vec<ActionEvent> {
         vec![
-            ActionEvent::ModifyProperty(ResourceType::Health, -1), // Chip
+            ActionEvent::ModifyResource(ResourceType::Health, -1), // Chip
             self.get_stun(true),
             Movement::impulse(0.5 * self.knock_back).into(),
         ]

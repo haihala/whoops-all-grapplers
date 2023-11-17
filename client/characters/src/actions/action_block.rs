@@ -1,25 +1,25 @@
-use crate::{ActionEvent, CancelPolicy, Situation};
+use crate::{ActionEvent, ActionRequirement, CancelPolicy, Situation};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct ActionBlock {
     pub events: Vec<ActionEvent>,
-    pub exit_requirement: Requirement, // To pass naturally
-    pub cancel_policy: CancelPolicy,   // To be cancelled out of
+    pub exit_requirement: BlockerRequirement, // To pass naturally
+    pub cancel_policy: CancelPolicy,          // To be cancelled out of
     pub mutator: Option<fn(&mut ActionBlock, &Situation) -> ActionBlock>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
-pub enum Requirement {
+pub enum BlockerRequirement {
     #[default]
     None,
-    Condition(fn(Situation) -> bool),
+    Conditions(Vec<ActionRequirement>),
     Time(usize),
 }
-impl Requirement {
+impl BlockerRequirement {
     pub fn fulfilled(&self, situation: Situation) -> bool {
         match self {
             Self::None => true,
-            Self::Condition(condition) => condition(situation),
+            Self::Conditions(conditions) => ActionRequirement::check(conditions, &situation),
             Self::Time(duration) => {
                 (situation.frame - situation.tracker.unwrap().current_block_start_frame)
                     >= ((*duration as f32 / situation.stats.action_speed_multiplier) as usize)
@@ -27,14 +27,20 @@ impl Requirement {
         }
     }
 }
-impl From<usize> for Requirement {
+impl From<usize> for BlockerRequirement {
     fn from(value: usize) -> Self {
         Self::Time(value)
     }
 }
 
-impl From<fn(Situation) -> bool> for Requirement {
-    fn from(value: fn(Situation) -> bool) -> Self {
-        Self::Condition(value)
+impl From<ActionRequirement> for BlockerRequirement {
+    fn from(value: ActionRequirement) -> Self {
+        Self::Conditions(vec![value])
+    }
+}
+
+impl From<Vec<ActionRequirement>> for BlockerRequirement {
+    fn from(value: Vec<ActionRequirement>) -> Self {
+        Self::Conditions(value)
     }
 }

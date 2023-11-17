@@ -304,7 +304,7 @@ pub(super) fn apply_hits(
             }
             HitType::Parry => (
                 vec![],
-                vec![ActionEvent::ModifyProperty(
+                vec![ActionEvent::ModifyResource(
                     ResourceType::Meter,
                     GI_PARRY_METER_GAIN,
                 )],
@@ -316,7 +316,7 @@ pub(super) fn apply_hits(
         if hit.is_opener {
             sounds.play(SoundEffect::Whoosh); // TODO change sound effect
             attacker_actions = handle_opener(attacker_actions, attacker.status_effect);
-            attacker_actions.push(ActionEvent::ModifyProperty(
+            attacker_actions.push(ActionEvent::ModifyResource(
                 ResourceType::Meter,
                 attacker.status_effect.opener_meter_gain,
             ));
@@ -361,8 +361,8 @@ fn handle_opener(actions: Vec<ActionEvent>, status_effect: &Stats) -> Vec<Action
     actions
         .into_iter()
         .map(|action| match action {
-            ActionEvent::ModifyProperty(ResourceType::Health, amount) => {
-                ActionEvent::ModifyProperty(
+            ActionEvent::ModifyResource(ResourceType::Health, amount) => {
+                ActionEvent::ModifyResource(
                     ResourceType::Health,
                     (amount as f32 * status_effect.opener_damage_multiplier) as i32,
                 )

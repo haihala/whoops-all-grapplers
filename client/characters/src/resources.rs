@@ -10,6 +10,7 @@ pub enum ResourceType {
     Health,
     Meter,
     Charge,
+    Sharpness,
     ItemCount(ItemId),
 }
 

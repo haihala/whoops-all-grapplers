@@ -1,29 +1,32 @@
 use bevy::prelude::*;
 use std::collections::VecDeque;
+use wag_core::ActionId;
 
-use crate::{Action, ActionBlock, CancelPolicy, Requirement};
+use crate::{Action, ActionBlock, BlockerRequirement, CancelPolicy};
 
 #[derive(Debug, Clone, Default, Reflect)]
 pub struct ActionTracker {
     pub has_hit: bool,
     // Stores a function pointer in a variant and reflect(ignore) doesn't work on that for some reason.
     #[reflect(ignore)]
-    pub blocker: Requirement,
+    pub blocker: BlockerRequirement,
     pub cancel_policy: CancelPolicy,
     #[reflect(ignore)] // Recursive down there
     pub upcoming_blocks: VecDeque<ActionBlock>,
     pub start_frame: usize,
     pub current_block_start_frame: usize,
+    pub action_id: ActionId,
     cancel_breakpoints: Vec<(CancelPolicy, usize)>,
 }
 impl ActionTracker {
     /// Assumes that the actions from the first block have been processed
     /// It's easier to type that way.
-    pub fn new(action: Action, start_frame: usize) -> Self {
+    pub fn new(action_id: ActionId, action: Action, start_frame: usize) -> Self {
         let first_action = action.script[0].clone();
 
         Self {
             has_hit: false,
+            action_id,
             blocker: first_action.exit_requirement,
             cancel_policy: first_action.cancel_policy.clone(),
             upcoming_blocks: action.script.into_iter().skip(1).collect(),
@@ -44,11 +47,12 @@ impl ActionTracker {
         None
     }
 
-    pub fn cancellable_into_since(&self, action: Action) -> Option<usize> {
+    pub fn cancellable_into_since(&self, action_id: ActionId, action: Action) -> Option<usize> {
         let mut output = None;
 
         for (policy, frame) in self.cancel_breakpoints.iter() {
-            let can_cancel = policy.can_cancel(self.has_hit, action.cancel_category);
+            let can_cancel =
+                policy.can_cancel(self.has_hit, action_id, action.cancel_category.clone());
             let was_cancellable = output.is_some();
 
             if can_cancel && !was_cancellable {
@@ -76,16 +80,17 @@ mod test_cancellable_into_since {
     #[test]
     fn sanity_check() {
         let mut tracker = ActionTracker::new(
+            ActionId::TestMove,
             Action {
                 script: vec![
                     ActionBlock {
                         cancel_policy: CancelPolicy::never(),
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
                         cancel_policy: CancelPolicy::any(),
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         ..default()
                     },
                 ],
@@ -95,20 +100,26 @@ mod test_cancellable_into_since {
         );
 
         assert_eq!(
-            tracker.cancellable_into_since(Action {
-                cancel_category: CancelCategory::Normal,
-                ..default()
-            }),
+            tracker.cancellable_into_since(
+                ActionId::TestMove,
+                Action {
+                    cancel_category: CancelCategory::Normal,
+                    ..default()
+                }
+            ),
             None
         );
 
         tracker.pop_next(12);
 
         assert_eq!(
-            tracker.cancellable_into_since(Action {
-                cancel_category: CancelCategory::Normal,
-                ..default()
-            }),
+            tracker.cancellable_into_since(
+                ActionId::TestMove,
+                Action {
+                    cancel_category: CancelCategory::Normal,
+                    ..default()
+                }
+            ),
             Some(12)
         );
     }
@@ -116,16 +127,17 @@ mod test_cancellable_into_since {
     #[test]
     fn sequential_windows() {
         let mut tracker = ActionTracker::new(
+            ActionId::TestMove,
             Action {
                 script: vec![
                     ActionBlock {
                         cancel_policy: CancelPolicy::any(),
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
                         cancel_policy: CancelPolicy::any(),
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         ..default()
                     },
                 ],
@@ -136,10 +148,13 @@ mod test_cancellable_into_since {
 
         tracker.pop_next(10);
         assert_eq!(
-            tracker.cancellable_into_since(Action {
-                cancel_category: CancelCategory::Normal,
-                ..default()
-            }),
+            tracker.cancellable_into_since(
+                ActionId::TestMove,
+                Action {
+                    cancel_category: CancelCategory::Normal,
+                    ..default()
+                }
+            ),
             Some(0)
         );
     }
@@ -152,21 +167,22 @@ mod test_cancellable_into_since {
         };
 
         let mut tracker = ActionTracker::new(
+            ActionId::TestMove,
             Action {
                 script: vec![
                     ActionBlock {
                         cancel_policy: CancelPolicy::never(),
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
                         cancel_policy: CancelPolicy::any(),
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
                         cancel_policy: CancelPolicy::never(),
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         ..default()
                     },
                 ],
@@ -175,38 +191,45 @@ mod test_cancellable_into_since {
             0,
         );
 
-        assert_eq!(tracker.cancellable_into_since(basic_normal.clone()), None);
+        assert_eq!(
+            tracker.cancellable_into_since(ActionId::TestMove, basic_normal.clone()),
+            None
+        );
 
         tracker.pop_next(12);
 
         assert_eq!(
-            tracker.cancellable_into_since(basic_normal.clone()),
+            tracker.cancellable_into_since(ActionId::TestMove, basic_normal.clone()),
             Some(12)
         );
 
         tracker.pop_next(20);
 
-        assert_eq!(tracker.cancellable_into_since(basic_normal), None);
+        assert_eq!(
+            tracker.cancellable_into_since(ActionId::TestMove, basic_normal),
+            None
+        );
     }
 
     #[test]
     fn depends_on_action() {
         let mut tracker = ActionTracker::new(
+            ActionId::TestMove,
             Action {
                 script: vec![
                     ActionBlock {
                         cancel_policy: CancelPolicy::command_normal_recovery(),
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
                         cancel_policy: CancelPolicy::neutral_normal_recovery(),
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
                         cancel_policy: CancelPolicy::any(),
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         ..default()
                     },
                 ],
@@ -220,26 +243,35 @@ mod test_cancellable_into_since {
         tracker.pop_next(20);
 
         assert_eq!(
-            tracker.cancellable_into_since(Action {
-                cancel_category: CancelCategory::Special,
-                ..default()
-            }),
+            tracker.cancellable_into_since(
+                ActionId::TestMove,
+                Action {
+                    cancel_category: CancelCategory::Special,
+                    ..default()
+                }
+            ),
             Some(0)
         );
 
         assert_eq!(
-            tracker.cancellable_into_since(Action {
-                cancel_category: CancelCategory::CommandNormal,
-                ..default()
-            }),
+            tracker.cancellable_into_since(
+                ActionId::TestMove,
+                Action {
+                    cancel_category: CancelCategory::CommandNormal,
+                    ..default()
+                }
+            ),
             Some(10)
         );
 
         assert_eq!(
-            tracker.cancellable_into_since(Action {
-                cancel_category: CancelCategory::Normal,
-                ..default()
-            }),
+            tracker.cancellable_into_since(
+                ActionId::TestMove,
+                Action {
+                    cancel_category: CancelCategory::Normal,
+                    ..default()
+                }
+            ),
             Some(20)
         );
     }

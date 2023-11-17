@@ -10,11 +10,22 @@ pub enum ItemCategory {
     Upgrade(Vec<ItemId>),
 }
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Item {
     // TODO: Icons here
     pub category: ItemCategory,
     pub cost: usize,
     pub effect: Stats,
     pub explanation: String,
+}
+
+impl Default for Item {
+    fn default() -> Self {
+        Self {
+            category: Default::default(),
+            cost: Default::default(),
+            effect: Stats::identity(),
+            explanation: "Description missing".into(),
+        }
+    }
 }

@@ -34,7 +34,14 @@ impl Character {
         base_stats: Stats,
         special_properties: Vec<(ResourceType, WAGResource)>,
     ) -> Character {
-        let (jumps, gravity) = Self::jumps(jump_height, jump_duration);
+        let (jumps, gravity) = Self::jumps(
+            jump_height,
+            jump_duration,
+            generic_animations
+                .get(&AnimationType::Jump)
+                .unwrap()
+                .to_owned(),
+        );
         moves.extend(jumps);
 
         Self {
@@ -71,7 +78,11 @@ impl Character {
             .collect()
     }
 
-    fn jumps(height: f32, duration: f32) -> (impl Iterator<Item = (ActionId, Action)>, f32) {
+    fn jumps(
+        height: f32,
+        duration: f32,
+        animation: Animation,
+    ) -> (impl Iterator<Item = (ActionId, Action)>, f32) {
         /*
         // Math for gravity
         x = x0 + v0*t + 1/2*a*t^2
@@ -114,29 +125,34 @@ impl Character {
         let jumps = vec![
             (
                 ActionId::BackJump,
-                jump("7", Vec2::new(-diagonal_jump_x, diagonal_jump_y)),
+                jump("7", Vec2::new(-diagonal_jump_x, diagonal_jump_y), animation),
             ),
-            (ActionId::NeutralJump, jump("8", Vec2::Y * neutral_jump_y)),
+            (
+                ActionId::NeutralJump,
+                jump("8", Vec2::Y * neutral_jump_y, animation),
+            ),
             (
                 ActionId::ForwardJump,
-                jump("9", Vec2::new(diagonal_jump_x, diagonal_jump_y)),
+                jump("9", Vec2::new(diagonal_jump_x, diagonal_jump_y), animation),
             ),
             (
                 ActionId::BackSuperJump,
                 jump(
                     "[123]7",
                     Vec2::new(-diagonal_superjump_x, diagonal_superjump_y),
+                    animation,
                 ),
             ),
             (
                 ActionId::NeutralSuperJump,
-                jump("[123]8", Vec2::Y * neutral_superjump_y),
+                jump("[123]8", Vec2::Y * neutral_superjump_y, animation),
             ),
             (
                 ActionId::ForwardSuperJump,
                 jump(
                     "[123]9",
                     Vec2::new(diagonal_superjump_x, diagonal_superjump_y),
+                    animation,
                 ),
             ),
         ]

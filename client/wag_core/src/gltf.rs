@@ -5,6 +5,7 @@ pub enum Model {
     Dummy,
     Mizku,
     Fireball,
+    Kunai,
     TrainingStage,
 }
 
@@ -126,4 +127,7 @@ pub enum AnimationType {
     CrouchStun,
 
     Getup,
+
+    // Not really used in the same way, but this is used to generate actions
+    Jump,
 }

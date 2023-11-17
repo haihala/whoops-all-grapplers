@@ -30,7 +30,14 @@ pub enum ActionId {
     TestMove,
     SecondTestMove,
 
-    // Dummy moves
+    Dummy(DummyActionId),
+    Mizku(MizkuActionId),
+}
+
+// Earlier = Higher priority = Will happen if both inputs present
+// This will get better once specificity based priorisation happens
+#[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub enum DummyActionId {
     SonicBoom,
     BudgetBoom,
     HeavyHadouken,
@@ -48,4 +55,40 @@ pub enum ActionId {
     Slap,
     Sweep,
     Dodge,
+}
+
+#[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub enum MizkuActionId {
+    Sharpen,
+
+    UpwardsSlash,
+    KunaiThrow,
+
+    // Throws
+    AirThrow,
+    AirThrowHit,
+    Sweep,
+    ForwardThrow,
+    BackThrow,
+    GroundThrowHit,
+
+    // Sway stuff
+    ShortBackSway,
+    LongBackSway,
+    SwayDash,
+    ShortHighSlice,
+    LongHighSlice,
+    ShortLowSlice,
+    LongLowSlice,
+    LongHorizontalSlice,
+    ShortHorizontalSlice,
+
+    // Normals
+    LowKick,
+    FalconKnee,
+    KneeThrust,
+    Uppercut,
+    FootDiveRelease,
+    FootDiveStart,
+    HeelKick,
 }

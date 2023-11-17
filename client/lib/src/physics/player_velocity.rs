@@ -34,6 +34,10 @@ impl PlayerVelocity {
     pub fn add_impulse(&mut self, impulse: Vec2) {
         self.velocity += impulse;
     }
+    pub(super) fn clear_movements(&mut self) {
+        self.movements.clear();
+        self.velocity = Vec2::ZERO; // TODO: This may be a mistake
+    }
     pub(super) fn handle_movement(&mut self, frame: usize, facing: Facing, movement: Movement) {
         // This will make it so that lengthening the duration of a movement will spread out the amount across the duration.
         // Basically, you can double the lenght and it shouldn't affect the total distance

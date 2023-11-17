@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-use wag_core::{ActionId, Animation, DummyAnimation, ItemId, SoundEffect, StatusCondition};
+use wag_core::{
+    ActionId, Animation, DummyAnimation, ItemId, MizkuAnimation, SoundEffect, StatusCondition,
+};
 
 use crate::{Attack, Movement, ResourceType};
 
@@ -12,14 +14,15 @@ pub enum ActionEvent {
     Consume(ItemId),
     RecipientAnimation(Animation),
     Sound(SoundEffect),
-    Move(ActionId),
+    StartAction(ActionId),
     Attack(Attack),
+    ClearMovement,
     Movement(Movement),
     Condition(StatusCondition),
     #[default]
     ForceStand,
-    ModifyProperty(ResourceType, i32),
-    ClearProperty(ResourceType),
+    ModifyResource(ResourceType, i32),
+    ClearResource(ResourceType),
     SnapToOpponent,
     SideSwitch,
     HitStun(usize),
@@ -41,8 +44,14 @@ impl From<Movement> for ActionEvent {
         ActionEvent::Movement(value)
     }
 }
+// This isn't a great way to do this, but it's the best I can think of for now
 impl From<DummyAnimation> for ActionEvent {
     fn from(value: DummyAnimation) -> Self {
-        ActionEvent::Animation(Animation::Dummy(value))
+        ActionEvent::Animation(value.into())
+    }
+}
+impl From<MizkuAnimation> for ActionEvent {
+    fn from(value: MizkuAnimation) -> Self {
+        ActionEvent::Animation(value.into())
     }
 }

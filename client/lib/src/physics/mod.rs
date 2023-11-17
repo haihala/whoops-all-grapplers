@@ -96,6 +96,16 @@ fn player_input(
     mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &Stats, &Facing)>,
 ) {
     for (mut state, mut velocity, status_effects, facing) in &mut query {
+        for _ in state.drain_matching_actions(|action| {
+            if ActionEvent::ClearMovement == *action {
+                Some(())
+            } else {
+                None
+            }
+        }) {
+            velocity.clear_movements();
+        }
+
         for movement in state.drain_matching_actions(|action| {
             if let ActionEvent::Movement(movement) = action {
                 Some(movement.to_owned())

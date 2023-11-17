@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
 use characters::{
-    Action, ActionEvent, Character, Inventory, ResourceType, Situation, WAGResources,
+    Action, ActionEvent, ActionRequirement, Character, Inventory, ResourceType, Situation,
+    WAGResources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -49,7 +50,7 @@ impl MoveBuffer {
             .iter()
             .filter_map(|(frame, id)| {
                 if let Some(action) = character.get_move(*id) {
-                    if (action.requirement)(situation.to_owned()) {
+                    if ActionRequirement::check(&action.requirements, &situation) {
                         return Some((*frame, *id, action));
                     }
                 }
@@ -74,7 +75,7 @@ pub(super) fn move_continuation(mut query: Query<(&mut MoveBuffer, &mut PlayerSt
     // Read from state, set activating move if an Action demands it
     for (mut buffer, mut state) in &mut query {
         let move_continuations = state.drain_matching_actions(|action| {
-            if let ActionEvent::Move(move_id) = action {
+            if let ActionEvent::StartAction(move_id) = action {
                 Some(*move_id)
             } else {
                 None
@@ -167,7 +168,7 @@ pub(super) fn special_cancel(
                     .into_iter()
                     .filter_map(|(frame, id, action)| {
                         tracker
-                            .cancellable_into_since(action.clone())
+                            .cancellable_into_since(id, action.clone())
                             .map(|freedom| (frame, id, freedom))
                     })
                     .min_by(|(_, id1, _), (_, id2, _)| id1.cmp(id2))
@@ -221,7 +222,11 @@ pub(super) fn move_activator(
                 _ => clock.frame,
             };
 
-            state.start_move(character.get_move(activation.id).unwrap(), started);
+            state.start_move(
+                activation.id,
+                character.get_move(activation.id).unwrap(),
+                started,
+            );
             buffer.buffer.clear();
         }
     }

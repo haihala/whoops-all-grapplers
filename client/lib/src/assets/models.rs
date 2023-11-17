@@ -10,6 +10,7 @@ pub(super) fn model_paths() -> HashMap<Model, &'static str> {
         (Model::Dummy, "dummy.glb#Scene0"),
         (Model::Mizku, "mizuki.glb#Scene0"),
         (Model::Fireball, "fireball.glb#Scene0"),
+        (Model::Kunai, "kunai.glb#Scene0"), // TODO: May not be aligned properly
         (Model::TrainingStage, "stage.glb#Scene0"),
     ]
     .into_iter()

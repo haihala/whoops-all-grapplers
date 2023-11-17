@@ -1,11 +1,6 @@
-use strum::IntoEnumIterator;
-use strum_macros::EnumIter;
-
 use bevy::{prelude::*, utils::HashMap};
 
-// For the Dummy model
-// Using facing was considered, but that has an issue with creating the iterator so we can map nodes to the joints
-#[derive(Debug, EnumIter, Copy, Clone, PartialEq, Eq, Hash, Reflect)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Reflect)]
 pub enum Joint {
     Abdomen,
     Chest,
@@ -32,6 +27,9 @@ pub enum Joint {
     FootL,
     ToesR,
     ToesL,
+
+    // Only on some models, will cause panics if not present
+    Katana,
 }
 
 impl Joint {
@@ -42,6 +40,7 @@ impl Joint {
             Chest => Chest,
             Neck => Neck,
             Head => Head,
+            Katana => Katana,
             ShoulderR => ShoulderL,
             ShoulderL => ShoulderR,
             UpperArmR => UpperArmL,
@@ -65,38 +64,38 @@ impl Joint {
 
     pub fn from_model_string(input: impl Into<String>) -> Option<Self> {
         let str_input: String = input.into();
+        Some(match str_input.as_str() {
+            // TODO: Later ones are from meta rig, untested
+            // Symmetrical, not sure about these at all
+            "Abdomen" | "DEF-spine" => Joint::Abdomen,
+            "Chest" | "DEF-spine.002" => Joint::Chest,
+            "Neck" | "DEF-spine.005" => Joint::Neck,
+            "Head" | "DEF-spine.006" => Joint::Head,
+            "DEF-sword-active" => Joint::Katana,
 
-        Self::iter().find(|&variant| str_input == variant.model_string())
-    }
+            // Hands
+            "Shoulder.R" | "DEF-shoulder.R" => Joint::ShoulderR,
+            "Shoulder.L" | "DEF-shoulder.L" => Joint::ShoulderL,
+            "UpperArm.R" | "DEF-upper_arm.R" => Joint::UpperArmR,
+            "UpperArm.L" | "DEF-upper_arm.L" => Joint::UpperArmL,
+            "ForeArm.R" | "DEF-forearm.R" => Joint::ForeArmR,
+            "ForeArm.L" | "DEF-forearm.L" => Joint::ForeArmL,
+            "Hand.R" | "DEF-hand.R" => Joint::HandR,
+            "Hand.L" | "DEF-hand.L" => Joint::HandL,
 
-    pub fn model_string(&self) -> String {
-        match self {
-            Joint::Abdomen => "Abdomen",
-            Joint::Chest => "Chest",
-            Joint::Neck => "Neck",
-            Joint::Head => "Head",
-
-            Joint::ShoulderR => "Shoulder.R",
-            Joint::ShoulderL => "Shoulder.L",
-            Joint::UpperArmR => "UpperArm.R",
-            Joint::UpperArmL => "UpperArm.L",
-            Joint::ForeArmR => "ForeArm.R",
-            Joint::ForeArmL => "ForeArm.L",
-            Joint::HandR => "Hand.R",
-            Joint::HandL => "Hand.L",
-
-            Joint::HipR => "Hip.R",
-            Joint::HipL => "Hip.L",
-            Joint::ThighR => "Thigh.R",
-            Joint::ThighL => "Thigh.L",
-            Joint::ShinR => "Shin.R",
-            Joint::ShinL => "Shin.L",
-            Joint::FootR => "Foot.R",
-            Joint::FootL => "Foot.L",
-            Joint::ToesR => "Toes.R",
-            Joint::ToesL => "Toes.L",
-        }
-        .into()
+            // Feet
+            "Hip.R" | "DEF-pelvis.R" => Joint::HipR,
+            "Hip.L" | "DEF-pelvis.L" => Joint::HipL,
+            "Thigh.R" | "DEF-thigh.R" => Joint::ThighR,
+            "Thigh.L" | "DEF-thigh.L" => Joint::ThighL,
+            "Shin.R" | "DEF-shin.R" => Joint::ShinR,
+            "Shin.L" | "DEF-shin.L" => Joint::ShinL,
+            "Foot.R" | "DEF-foot.R" => Joint::FootR,
+            "Foot.L" | "DEF-foot.L" => Joint::FootL,
+            "Toes.R" | "DEF-toe.R" => Joint::ToesR,
+            "Toes.L" | "DEF-toe.L" => Joint::ToesL,
+            _ => return None,
+        })
     }
 }
 

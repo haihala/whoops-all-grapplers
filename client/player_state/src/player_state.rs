@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use characters::{Action, ActionEvent, ActionTracker, Inventory, Situation, WAGResources};
-use wag_core::{AnimationType, Facing, Stats, StatusCondition, StatusFlag};
+use wag_core::{ActionId, AnimationType, Facing, Stats, StatusCondition, StatusFlag};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 
@@ -85,10 +85,10 @@ impl PlayerState {
     }
 
     // Moves
-    pub fn start_move(&mut self, action: Action, frame: usize) {
+    pub fn start_move(&mut self, action_id: ActionId, action: Action, frame: usize) {
         self.unprocessed_events
             .append(action.script[0].events.clone().as_mut()); // This can't be the best way to merge Vecs
-        let tracker = ActionTracker::new(action, frame);
+        let tracker = ActionTracker::new(action_id, action, frame);
 
         self.main = match self.main {
             MainState::Stand(_) => MainState::Stand(StandState::Move(tracker)),
@@ -323,7 +323,11 @@ mod test {
     fn generic_animation_mid_move() {
         // TODO: Creating testing states should be easier
         let mut move_state = PlayerState {
-            main: MainState::Stand(StandState::Move(ActionTracker::new(Action::default(), 0))),
+            main: MainState::Stand(StandState::Move(ActionTracker::new(
+                ActionId::TestMove,
+                Action::default(),
+                0,
+            ))),
             ..default()
         };
 

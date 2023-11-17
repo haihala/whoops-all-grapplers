@@ -9,7 +9,11 @@ pub enum ItemId {
     HockeyPads,
 
     // Character specific
+    // Dummy
     Roids,
+
+    // Mizku
+    Kunai,
 
     #[default]
     Default,

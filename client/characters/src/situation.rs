@@ -13,11 +13,3 @@ pub struct Situation {
     pub stats: Stats,
     // Kept minimal so far, but will grow as needed
 }
-impl Situation {
-    pub fn grounded(&self) -> bool {
-        self.grounded
-    }
-    pub fn airborne(&self) -> bool {
-        !self.grounded
-    }
-}

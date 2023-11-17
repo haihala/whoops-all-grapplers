@@ -1,5 +1,5 @@
 mod action_id;
-pub use action_id::ActionId;
+pub use action_id::{ActionId, DummyActionId, MizkuActionId};
 
 mod area;
 pub use area::Area;

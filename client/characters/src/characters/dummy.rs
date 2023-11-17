@@ -3,20 +3,22 @@ use std::{collections::HashMap, iter::empty};
 use bevy::prelude::*;
 
 use wag_core::{
-    ActionId, Animation, AnimationType, Area, DummyAnimation, ItemId, Joint, MizkuAnimation, Model,
+    ActionId, Animation, AnimationType, Area, DummyActionId, DummyAnimation, ItemId, Joint, Model,
     Stats, StatusCondition, StatusFlag, FPS,
 };
 
 use crate::{
+    actions::ActionRequirement,
     resources::{RenderInstructions, ResourceType},
     Action, ActionBlock,
     ActionEvent::*,
     Attack,
     AttackHeight::*,
     BlockType::*,
-    CancelCategory, CancelPolicy, ChargeProperty, CommonAttackProps, CounterVisual, Hitbox, Item,
+    BlockerRequirement, CancelCategory, CancelPolicy, ChargeProperty, CommonAttackProps,
+    CounterVisual, Hitbox, Item,
     ItemCategory::*,
-    Lifetime, Movement, Projectile, Requirement, ResourceBarVisual, Situation, SpecialProperty,
+    Lifetime, Movement, Projectile, ResourceBarVisual, SpecialProperty,
     StunType::*,
     ToHit, WAGResource,
 };
@@ -26,65 +28,6 @@ use super::{
     equipment::{universal_item_actions, universal_items},
     Character,
 };
-
-pub fn mizku() -> Character {
-    //TODO: Move this to a separate file and add an actual moveset with real animations, atm it crashes if you do a move.
-    Character::new(
-        Model::Mizku,
-        mizku_animations(),
-        dummy_moves(),
-        dummy_items(),
-        2.0,
-        1.0,
-        Stats {
-            walk_speed: 1.1,
-            ..default()
-        },
-        vec![
-            (
-                ResourceType::Charge,
-                WAGResource {
-                    max: Some(FPS as i32), // Frames to full,
-                    special: Some(SpecialProperty::Charge(ChargeProperty::default())),
-                    render_instructions: RenderInstructions::Bar(ResourceBarVisual {
-                        default_color: Color::rgb(0.05, 0.4, 0.55),
-                        full_color: Some(Color::rgb(0.9, 0.1, 0.3)),
-                        ..default()
-                    }),
-                    ..default()
-                },
-            ),
-            (
-                ResourceType::ItemCount(ItemId::Boots),
-                WAGResource {
-                    render_instructions: RenderInstructions::Counter(CounterVisual {
-                        label: "Boots",
-                    }),
-                    ..default()
-                },
-            ),
-        ],
-    )
-}
-
-fn mizku_animations() -> HashMap<AnimationType, Animation> {
-    vec![
-        (AnimationType::AirIdle, MizkuAnimation::Air),
-        (AnimationType::AirStun, MizkuAnimation::AirStagger),
-        (AnimationType::StandIdle, MizkuAnimation::Idle),
-        (AnimationType::StandBlock, MizkuAnimation::Block),
-        (AnimationType::StandStun, MizkuAnimation::Stagger),
-        (AnimationType::WalkBack, MizkuAnimation::WalkBack),
-        (AnimationType::WalkForward, MizkuAnimation::WalkForward),
-        (AnimationType::CrouchIdle, MizkuAnimation::Crouch),
-        (AnimationType::CrouchBlock, MizkuAnimation::CrouchBlock),
-        (AnimationType::CrouchStun, MizkuAnimation::CrouchStagger),
-        (AnimationType::Getup, MizkuAnimation::Getup),
-    ]
-    .into_iter()
-    .map(|(k, v)| (k, Animation::from(v)))
-    .collect()
-}
 
 pub fn dummy() -> Character {
     Character::new(
@@ -135,6 +78,7 @@ fn dummy_animations() -> HashMap<AnimationType, Animation> {
         (AnimationType::CrouchBlock, DummyAnimation::CrouchBlock),
         (AnimationType::CrouchStun, DummyAnimation::CrouchStun),
         (AnimationType::Getup, DummyAnimation::Getup),
+        (AnimationType::Jump, DummyAnimation::Jump),
     ]
     .into_iter()
     .map(|(k, v)| (k, Animation::Dummy(v)))
@@ -149,8 +93,11 @@ fn dummy_moves() -> HashMap<ActionId, Action> {
     empty()
         .chain(item_actions())
         .chain(dashes())
-        .chain(normals())
-        .chain(specials())
+        .chain(
+            normals()
+                .chain(specials())
+                .map(|(k, v)| (ActionId::Dummy(k), v)),
+        )
         .collect()
 }
 
@@ -162,7 +109,7 @@ fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
                 "5656",
                 DASH_DURATION,
                 DASH_IMPULSE,
-                DummyAnimation::DashForward.into(),
+                DummyAnimation::DashForward,
             ),
         ),
         (
@@ -171,24 +118,24 @@ fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
                 "5454",
                 DASH_DURATION,
                 -DASH_IMPULSE,
-                DummyAnimation::DashBack.into(),
+                DummyAnimation::DashBack,
             ),
         ),
     ]
     .into_iter()
 }
 
-fn normals() -> impl Iterator<Item = (ActionId, Action)> {
+fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
     vec![
         (
-            ActionId::Slap,
+            DummyActionId::Slap,
             Action::grounded(
                 Some("f"),
                 CancelCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::Slap.into()],
-                        exit_requirement: Requirement::Time(9),
+                        exit_requirement: BlockerRequirement::Time(9),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -203,7 +150,7 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
                             CommonAttackProps::default(),
                         )
                         .into()],
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         cancel_policy: CancelPolicy::neutral_normal_recovery(),
                         mutator: None,
                     },
@@ -211,14 +158,14 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
             ),
         ),
         (
-            ActionId::LowChop,
+            DummyActionId::LowChop,
             Action::grounded(
                 Some("[123]f"),
                 CancelCategory::CommandNormal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::CrouchChop.into()],
-                        exit_requirement: Requirement::Time(8),
+                        exit_requirement: BlockerRequirement::Time(8),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -233,7 +180,7 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
                             CommonAttackProps::default(),
                         )
                         .into()],
-                        exit_requirement: Requirement::Time(7),
+                        exit_requirement: BlockerRequirement::Time(7),
                         cancel_policy: CancelPolicy::command_normal_recovery(),
                         mutator: None,
                     },
@@ -241,14 +188,14 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
             ),
         ),
         (
-            ActionId::BurnStraight,
+            DummyActionId::BurnStraight,
             Action::grounded(
                 Some("s"),
                 CancelCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::BurnStraight.into()],
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -276,7 +223,7 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
                             }
                             .into(),
                         ],
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         cancel_policy: CancelPolicy::neutral_normal_recovery(),
                         mutator: Some(|block, situation| {
                             if !situation.inventory.contains(&ItemId::Roids) {
@@ -317,14 +264,14 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
             ),
         ),
         (
-            ActionId::AntiAir,
+            DummyActionId::AntiAir,
             Action::grounded(
                 Some("[123]s"),
                 CancelCategory::CommandNormal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::AntiAir.into()],
-                        exit_requirement: Requirement::Time(13),
+                        exit_requirement: BlockerRequirement::Time(13),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -342,7 +289,7 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
                             },
                         )
                         .into()],
-                        exit_requirement: Requirement::Time(13),
+                        exit_requirement: BlockerRequirement::Time(13),
                         cancel_policy: CancelPolicy::command_normal_recovery(),
                         mutator: None,
                     },
@@ -350,14 +297,14 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
             ),
         ),
         (
-            ActionId::AirSlap,
+            DummyActionId::AirSlap,
             Action::airborne(
                 Some("f"),
                 CancelCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::AirSlap.into()],
-                        exit_requirement: Requirement::Time(8),
+                        exit_requirement: BlockerRequirement::Time(8),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -373,7 +320,7 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
                             CommonAttackProps::default(),
                         )
                         .into()],
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         cancel_policy: CancelPolicy::neutral_normal_recovery(),
                         mutator: None,
                     },
@@ -381,14 +328,14 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
             ),
         ),
         (
-            ActionId::Divekick,
+            DummyActionId::Divekick,
             Action::new(
                 Some("s"),
                 CancelCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::Divekick.into(), Consume(ItemId::Boots)],
-                        exit_requirement: Requirement::Time(5),
+                        exit_requirement: BlockerRequirement::Time(5),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -404,26 +351,26 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
                             CommonAttackProps::default(),
                         )
                         .into()],
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         cancel_policy: CancelPolicy::neutral_normal_recovery(),
                         mutator: None,
                     },
                 ],
-                |situation: Situation| {
-                    !situation.resources[&ResourceType::ItemCount(ItemId::Boots)].is_empty()
-                        && situation.airborne()
-                },
+                vec![
+                    ActionRequirement::ItemsOwned(vec![ItemId::Boots]),
+                    ActionRequirement::Airborne,
+                ],
             ),
         ),
         (
-            ActionId::ForwardThrow,
+            DummyActionId::ForwardThrow,
             Action::grounded(
                 Some("w"),
                 CancelCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::NormalThrow.into()],
-                        exit_requirement: Requirement::Time(5),
+                        exit_requirement: BlockerRequirement::Time(5),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -447,7 +394,7 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
                             RecipientAnimation(DummyAnimation::NormalThrowRecipient.into()),
                         ])
                         .into()],
-                        exit_requirement: Requirement::Time(40),
+                        exit_requirement: BlockerRequirement::Time(40),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -455,14 +402,14 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
             ),
         ),
         (
-            ActionId::BackThrow,
+            DummyActionId::BackThrow,
             Action::grounded(
                 Some("4w"),
                 CancelCategory::CommandNormal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::NormalThrow.into()],
-                        exit_requirement: Requirement::Time(5),
+                        exit_requirement: BlockerRequirement::Time(5),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -487,7 +434,7 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
                             RecipientAnimation(DummyAnimation::NormalThrowRecipient.into()),
                         ])
                         .into()],
-                        exit_requirement: Requirement::Time(40),
+                        exit_requirement: BlockerRequirement::Time(40),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -495,14 +442,14 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
             ),
         ),
         (
-            ActionId::Sweep,
+            DummyActionId::Sweep,
             Action::grounded(
                 Some("[123]w"),
                 CancelCategory::CommandNormal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::Sweep.into()],
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -522,7 +469,7 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
                             },
                         )
                         .into()],
-                        exit_requirement: Requirement::Time(15),
+                        exit_requirement: BlockerRequirement::Time(15),
                         cancel_policy: CancelPolicy::command_normal_recovery(),
                         mutator: None,
                     },
@@ -530,14 +477,14 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
             ),
         ),
         (
-            ActionId::AirThrow,
+            DummyActionId::AirThrow,
             Action::airborne(
                 Some("w"),
                 CancelCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::AirThrow.into()],
-                        exit_requirement: Requirement::Time(9),
+                        exit_requirement: BlockerRequirement::Time(9),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -562,7 +509,7 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
                             RecipientAnimation(DummyAnimation::AirThrowRecipient.into()),
                         ])
                         .into()],
-                        exit_requirement: Requirement::Time(30),
+                        exit_requirement: BlockerRequirement::Time(30),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -573,10 +520,10 @@ fn normals() -> impl Iterator<Item = (ActionId, Action)> {
     .into_iter()
 }
 
-fn specials() -> impl Iterator<Item = (ActionId, Action)> {
+fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
     vec![
         (
-            ActionId::Dodge,
+            DummyActionId::Dodge,
             Action::grounded(
                 Some("252"),
                 CancelCategory::Special,
@@ -590,21 +537,21 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
                             expiration: Some(20),
                         }),
                     ],
-                    exit_requirement: Requirement::Time(45),
+                    exit_requirement: BlockerRequirement::Time(45),
                     cancel_policy: CancelPolicy::never(),
                     mutator: None,
                 }],
             ),
         ),
         (
-            ActionId::GroundSlam,
+            DummyActionId::GroundSlam,
             Action::grounded(
                 Some("[789]6s"),
                 CancelCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::GroundSlam.into()],
-                        exit_requirement: Requirement::Time(14),
+                        exit_requirement: BlockerRequirement::Time(14),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -630,7 +577,7 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
                             }
                             .into(),
                         ],
-                        exit_requirement: Requirement::Time(20),
+                        exit_requirement: BlockerRequirement::Time(20),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -638,14 +585,14 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
             ),
         ),
         (
-            ActionId::AirSlam,
+            DummyActionId::AirSlam,
             Action::airborne(
                 Some("[789]6s"),
                 CancelCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::AirSlam.into()],
-                        exit_requirement: Requirement::Time(14),
+                        exit_requirement: BlockerRequirement::Time(14),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -671,7 +618,7 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
                             }
                             .into(),
                         ],
-                        exit_requirement: Requirement::Time(35),
+                        exit_requirement: BlockerRequirement::Time(35),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -679,14 +626,14 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
             ),
         ),
         (
-            ActionId::BudgetBoom,
+            DummyActionId::BudgetBoom,
             Action::grounded(
                 Some("[41]6f"),
                 CancelCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![ForceStand],
-                        exit_requirement: Requirement::Time(10),
+                        exit_requirement: BlockerRequirement::Time(10),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -704,7 +651,7 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
                             CommonAttackProps::default(),
                         )
                         .into()],
-                        exit_requirement: Requirement::Time(5),
+                        exit_requirement: BlockerRequirement::Time(5),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -712,14 +659,14 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
             ),
         ),
         (
-            ActionId::SonicBoom,
+            DummyActionId::SonicBoom,
             Action::new(
                 Some("[41]6f"),
                 CancelCategory::Special,
                 vec![
                     ActionBlock {
-                        events: vec![ForceStand, ClearProperty(ResourceType::Charge)],
-                        exit_requirement: Requirement::Time(10),
+                        events: vec![ForceStand, ClearResource(ResourceType::Charge)],
+                        exit_requirement: BlockerRequirement::Time(10),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -741,26 +688,26 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
                             },
                         )
                         .into()],
-                        exit_requirement: Requirement::Time(5),
+                        exit_requirement: BlockerRequirement::Time(5),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
                 ],
-                |situation: Situation| {
-                    // Charge check
-                    situation.resources[&ResourceType::Charge].is_full() && situation.grounded()
-                },
+                vec![
+                    ActionRequirement::Grounded,
+                    ActionRequirement::ResourceFull(ResourceType::Charge),
+                ],
             ),
         ),
         (
-            ActionId::Hadouken,
+            DummyActionId::Hadouken,
             Action::grounded(
                 Some("236f"),
                 CancelCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![ForceStand],
-                        exit_requirement: Requirement::Time(30),
+                        exit_requirement: BlockerRequirement::Time(30),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -779,7 +726,7 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
                             CommonAttackProps::default(),
                         )
                         .into()],
-                        exit_requirement: Requirement::Time(30),
+                        exit_requirement: BlockerRequirement::Time(30),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -787,14 +734,14 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
             ),
         ),
         (
-            ActionId::HeavyHadouken,
+            DummyActionId::HeavyHadouken,
             Action::new(
                 Some("236s"),
                 CancelCategory::Special,
                 vec![
                     ActionBlock {
-                        events: vec![ForceStand, ModifyProperty(ResourceType::Meter, -30)],
-                        exit_requirement: Requirement::Time(30),
+                        events: vec![ForceStand, ModifyResource(ResourceType::Meter, -30)],
+                        exit_requirement: BlockerRequirement::Time(30),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -816,12 +763,12 @@ fn specials() -> impl Iterator<Item = (ActionId, Action)> {
                             },
                         )
                         .into()],
-                        exit_requirement: Requirement::Time(20),
+                        exit_requirement: BlockerRequirement::Time(20),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
                 ],
-                |situation: Situation| situation.resources[&ResourceType::Meter].current >= 30,
+                vec![ActionRequirement::ResourceValue(ResourceType::Meter, 30)],
             ),
         ),
     ]

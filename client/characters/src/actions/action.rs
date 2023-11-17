@@ -1,26 +1,26 @@
 use wag_core::Animation;
 
-use crate::{ActionBlock, CancelCategory, CancelPolicy, Requirement, Situation};
+use crate::{ActionBlock, ActionRequirement, BlockerRequirement, CancelCategory, CancelPolicy};
 
 #[derive(Clone)]
 pub struct Action {
     pub input: Option<&'static str>,
     pub cancel_category: CancelCategory,
     pub script: Vec<ActionBlock>,
-    pub requirement: fn(Situation) -> bool,
+    pub requirements: Vec<ActionRequirement>,
 }
 impl Action {
     pub fn new(
         input: Option<&'static str>,
         cancel_category: CancelCategory,
         script: Vec<ActionBlock>,
-        requirement: fn(Situation) -> bool,
+        requirements: Vec<ActionRequirement>,
     ) -> Self {
         Self {
             input,
             cancel_category,
             script,
-            requirement,
+            requirements,
         }
     }
 
@@ -29,7 +29,12 @@ impl Action {
         cancel_category: CancelCategory,
         script: Vec<ActionBlock>,
     ) -> Self {
-        Self::new(input, cancel_category, script, |s: Situation| s.grounded())
+        Self::new(
+            input,
+            cancel_category,
+            script,
+            vec![ActionRequirement::Grounded],
+        )
     }
 
     pub fn airborne(
@@ -37,7 +42,12 @@ impl Action {
         cancel_category: CancelCategory,
         script: Vec<ActionBlock>,
     ) -> Self {
-        Self::new(input, cancel_category, script, |s: Situation| s.airborne())
+        Self::new(
+            input,
+            cancel_category,
+            script,
+            vec![ActionRequirement::Airborne],
+        )
     }
 }
 
@@ -48,7 +58,7 @@ impl Default for Action {
             CancelCategory::Any,
             vec![ActionBlock {
                 events: vec![Animation::TPose.into()],
-                exit_requirement: Requirement::Time(100),
+                exit_requirement: BlockerRequirement::Time(100),
                 cancel_policy: CancelPolicy::never(),
                 mutator: None,
             }],

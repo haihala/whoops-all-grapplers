@@ -24,5 +24,11 @@ See [[Mizku]] for designs
 	- [ ] Directional projectiles (Kunai flips to face forward)
 	- [x] Items as cost
 	- [x] Sharpness resource
-- [ ] Add moves in the game
+- [x] Add moves in the game
+- [ ] Add items in the game
+- [ ] Fine tuning
+	- [ ] Hitboxes
+	- [ ] Damage numbers
+	- [ ] Stun values
+	- [ ] Obvious bug fixes
 - [x] Use [[CLI args]] to select characters

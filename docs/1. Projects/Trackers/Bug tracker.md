@@ -4,7 +4,12 @@
 - New box visualization occasionally panics
 	- Tends to happen when attacking
 	- It also somewhat flickers constantly
+- Kunai projectile is invisible (or just really small?)
+- In a mirror, opponents joints are used as spawn targets? Only happened once.
 
 # Possibly incidentally fixed?
 - Figure out how to get rid of panics while despawning hitboxes
 - Jumping makes you unable to do any moves
+
+# Investigable discoveries
+- Are mutators used?

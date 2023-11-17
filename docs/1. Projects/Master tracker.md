@@ -1,7 +1,11 @@
 # Backlog
 ## Before playtest
+Goal: This is ready by perinnepäivät
 - [[Items for playtest]]
 - [[Character 2]]
+- Lil things
+	- Bind to go fullscreen
+	- Add animation for [[Gi]]
 
 ## Nice to have
 - [[Extending items]]

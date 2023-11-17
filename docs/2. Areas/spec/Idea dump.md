@@ -66,8 +66,8 @@
 	- Shield - Makes you not able to die to chip damage
 	- Stopwatch - Better [[Link bonus]]
 		- Minimal effect on the less precise levels
-	- Jar of ectoplasm - [[Intangible]] on the first few frames of a back dash
-		- Base for things that make you [[Intangible]]
+	- Pack of cigs - [[Intangible]] on the first few frames of a back dash
+		- Base for things that make you [[Intangible]], generally smoking themed
 - Upgrades
 	- Shield + Feather => Feathered shield 
 		- Lets you air-block one hit

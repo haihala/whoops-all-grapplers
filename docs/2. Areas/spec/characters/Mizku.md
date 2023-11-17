@@ -197,7 +197,7 @@ Conveniently, shortened to bs (bullshit)
 	- Doing so will end your turn, good option when it's not clear if a starter will hit
 
 ## Vampire coffin
-- Upgrades from jar of ectoplasm (see [[Idea dump#Items]])
+- Upgrades from pack of cigs (see [[Idea dump#Items]])
 - You gain [[Intangible]] when moving back with [[#Back step]]
 - Name is referencing Slayer and keeping with the spooky theme of [[Intangible]] items
 

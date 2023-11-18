@@ -5,7 +5,7 @@ dev:
 	cargo run -- --dev mizku mizku
 
 prod:
-	cargo run -- dummy dummy
+	cargo run --  --fullscreen mizku mizku
 
 build:
 	cargo build $(release)

@@ -4072,6 +4072,7 @@ name = "whoops-all-grapplers"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "wag_core",
  "whoops-all-grapplers-lib",
 ]
 

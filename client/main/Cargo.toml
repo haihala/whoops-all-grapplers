@@ -8,4 +8,4 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 bevy = { workspace = true }
 
 whoops-all-grapplers-lib = { path = "../lib" }
-
+wag_core = { path = "../wag_core" }

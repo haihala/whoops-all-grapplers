@@ -9,6 +9,8 @@ pub struct WagArgs {
     /// Dev mode (shows hitboxes and dev binds)
     #[arg(short, long, default_value_t = false)]
     pub dev: bool,
+    #[arg(short, long, default_value_t = false)]
+    pub fullscreen: bool,
     pub character1: CharacterId,
     pub character2: CharacterId,
 }

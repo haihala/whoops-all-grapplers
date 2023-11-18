@@ -31,12 +31,7 @@ impl WAGLib {
             enable_hanabi: false,
         }
     }
-}
-
-impl Default for WAGLib {
-    fn default() -> Self {
-        let args = WagArgs::from_cli();
-
+    pub fn with_args(args: WagArgs) -> Self {
         Self {
             args,
             enable_hanabi: true,

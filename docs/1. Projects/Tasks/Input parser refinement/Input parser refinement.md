@@ -19,3 +19,4 @@ In order of most to least important
 - [[Parser batching]]
 - [[Generic moves]] - Needed for [[Shop UI]]
 - `+` in an input description modifies the previous one, so that it must still be active for the next one to register
+- Activate based on complexity (requirements list length)

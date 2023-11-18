@@ -109,6 +109,10 @@ impl MotionInput {
         self.heads.iter().any(|head| head.requirement.is_none())
     }
 
+    pub fn complexity(&self) -> usize {
+        self.requirements.len()
+    }
+
     pub fn advance(&mut self, diff: &Diff, prev_state: Frame) {
         if self.is_done() {
             return;

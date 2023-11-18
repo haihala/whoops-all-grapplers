@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use bevy::prelude::*;
 
 use characters::{
@@ -71,7 +73,7 @@ pub(super) fn manage_buffer(
         parser.clear();
     }
 }
-pub(super) fn move_continuation(mut query: Query<(&mut MoveBuffer, &mut PlayerState)>) {
+pub(super) fn automatic_activation(mut query: Query<(&mut MoveBuffer, &mut PlayerState)>) {
     // Read from state, set activating move if an Action demands it
     for (mut buffer, mut state) in &mut query {
         let move_continuations = state.drain_matching_actions(|action| {
@@ -106,10 +108,11 @@ pub(super) fn raw_or_link(
         &Inventory,
         &WAGResources,
         &Stats,
+        &InputParser,
     )>,
 ) {
     // Set activating move if one in the buffer can start raw or be linked into
-    for (mut buffer, character, state, inventory, resources, stats) in &mut query {
+    for (mut buffer, character, state, inventory, resources, stats, parser) in &mut query {
         if let Some(freedom_frame) = state.free_since {
             // Character has recently been freed
 
@@ -124,7 +127,15 @@ pub(super) fn raw_or_link(
                     ),
                 )
                 .into_iter()
-                .min_by(|(_, id1, _), (_, id2, _)| id1.cmp(id2))
+                .max_by(|(_, id1, _), (_, id2, _)| {
+                    match parser
+                        .get_complexity(*id1)
+                        .cmp(&parser.get_complexity(*id2))
+                    {
+                        Ordering::Equal => id1.cmp(id2).reverse(),
+                        other => other,
+                    }
+                })
             {
                 let error = stored as i32 - freedom_frame as i32;
                 let kind = if error.abs() < AUTOCORRECT as i32 {
@@ -147,10 +158,11 @@ pub(super) fn special_cancel(
         &Inventory,
         &WAGResources,
         &Stats,
+        &InputParser,
     )>,
 ) {
     // Set activating move if one in the buffer can be cancelled into
-    for (mut buffer, character, state, inventory, resources, stats) in &mut query {
+    for (mut buffer, character, state, inventory, resources, stats, parser) in &mut query {
         if state.free_since.is_none() {
             if let Some(tracker) = state.get_action_tracker() {
                 // Not free because a move is happening
@@ -171,7 +183,15 @@ pub(super) fn special_cancel(
                             .cancellable_into_since(id, action.clone())
                             .map(|freedom| (frame, id, freedom))
                     })
-                    .min_by(|(_, id1, _), (_, id2, _)| id1.cmp(id2))
+                    .max_by(|(_, id1, _), (_, id2, _)| {
+                        match parser
+                            .get_complexity(*id1)
+                            .cmp(&parser.get_complexity(*id2))
+                        {
+                            Ordering::Equal => id1.cmp(id2).reverse(),
+                            other => other,
+                        }
+                    })
                 {
                     buffer.activation = Some(MoveActivation {
                         id,

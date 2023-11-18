@@ -16,6 +16,7 @@ use wag_core::{ActionId, Facing, GameButton, StickPosition};
 pub struct InputParser {
     events: Vec<ActionId>,
 
+    // May need to take a look at why we need two hashmaps here
     moves: HashMap<&'static str, Vec<ActionId>>,
     inputs: HashMap<&'static str, MotionInput>,
     head: Frame,
@@ -41,6 +42,20 @@ impl InputParser {
             inputs,
             ..default()
         }
+    }
+
+    pub fn get_complexity(&self, action: ActionId) -> usize {
+        self.moves
+            .iter()
+            .find_map(|(input, ids)| {
+                if ids.contains(&action) {
+                    Some(input)
+                } else {
+                    None
+                }
+            })
+            .map(|input| self.inputs[input].complexity())
+            .unwrap()
     }
 
     pub fn get_pressed(&self) -> HashSet<GameButton> {

@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use characters::{Hitbox, Hurtbox, Inventory};
@@ -32,7 +32,8 @@ impl Plugin for DevPlugin {
             .add_systems(
                 Update,
                 (
-                    generic_test_system,
+                    sound_test_system,
+                    fullscreen_toggle,
                     cycle_game_state,
                     input_leniency_test_system,
                     box_visualization::spawn_boxes,
@@ -43,10 +44,22 @@ impl Plugin for DevPlugin {
     }
 }
 
-fn generic_test_system(keys: Res<Input<KeyCode>>, mut sounds: ResMut<Sounds>) {
+fn sound_test_system(keys: Res<Input<KeyCode>>, mut sounds: ResMut<Sounds>) {
     if keys.just_pressed(KeyCode::S) {
         dbg!("Playing");
         sounds.play(SoundEffect::Whoosh)
+    }
+}
+
+fn fullscreen_toggle(keys: Res<Input<KeyCode>>, mut windows: Query<&mut Window>) {
+    if keys.just_pressed(KeyCode::F) {
+        let mut win = windows.get_single_mut().unwrap();
+
+        win.mode = match win.mode {
+            WindowMode::Windowed => WindowMode::BorderlessFullscreen,
+            WindowMode::BorderlessFullscreen => WindowMode::Windowed,
+            _ => win.mode,
+        }
     }
 }
 

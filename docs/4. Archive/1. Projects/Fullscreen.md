@@ -1,3 +1,3 @@
 - [x] CLI arg for fullscreen
 - [x] Fullscreen by default in non-dev mode
-- [ ] Bind in dev mode
+- [x] Bind in dev mode

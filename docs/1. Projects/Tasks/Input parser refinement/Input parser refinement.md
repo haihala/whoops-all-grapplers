@@ -5,6 +5,7 @@ Some of these will be done on the parser, some will be done on the character.
 All of them have something to do with which move starts when
 
 # Do now
+- `+` in an input description modifies the previous one, so that it must still be active for the next one to register
 
 # Nice to have
 In order of most to least important

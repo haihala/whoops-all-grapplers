@@ -1,0 +1,2 @@
+- Basic item available to: [[Mizku]]
+- Speeds up [[Mizku#Sharpen]] and lets you cancel normals into it

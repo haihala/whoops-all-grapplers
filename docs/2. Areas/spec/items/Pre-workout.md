@@ -1,0 +1,4 @@
+- Universal consumable item
+	- Consumed at round start
+- Start the round with a full bar
+- Cost ineffective, but sometimes it'll let you snowball

@@ -1,0 +1,2 @@
+- Universal basic item
+- Gives the user the ability to influence their velocity in the air slightly at the start of a jump

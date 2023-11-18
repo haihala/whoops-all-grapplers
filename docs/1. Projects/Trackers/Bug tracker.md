@@ -4,8 +4,11 @@
 - New box visualization occasionally panics
 	- Tends to happen when attacking
 	- It also somewhat flickers constantly
-- Kunai projectile is invisible (or just really small?)
 - In a mirror, opponents joints are used as spawn targets? Only happened once.
+
+# Before playtest
+- Kunai projectile is invisible (or just really small?)
+
 
 # Possibly incidentally fixed?
 - Figure out how to get rid of panics while despawning hitboxes

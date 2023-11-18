@@ -1,0 +1,2 @@
+- Universal upgrade from [[Boots]] and [[Swan feather]]
+- Gives the user a double jump

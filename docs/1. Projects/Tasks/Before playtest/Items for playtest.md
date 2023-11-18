@@ -1,6 +1,15 @@
 - [x] Check / remove existing items that don't make sense
 - [x] Universal items architecture
+- [ ] Mechanism to auto-consume items at round start(or end) that need it.
 - [ ] Add
-	- [ ]  [[Mizku#Items]] 
-	- [ ] Some of [[Idea dump#Items]]
-		- [ ] These should have pages in the spec
+	- [ ] [[Pre-workout]]
+	- [ ] [[Armor of a goalee]]
+	- [ ] [[Travel whetstone]]
+	- [ ] [[Pack of cigs]]
+		- [ ] [[Gentleman's pipe]]
+	- [ ] [[Swan feather]]
+		- [ ] [[Air jordans]]
+	- [ ] [[Stopwatch]]
+		- [ ] [[Track spikes]]
+	- [ ] [[Brass knuckles]]
+		- [ ] [[Spiked shoes]]

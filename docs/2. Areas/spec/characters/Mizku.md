@@ -177,10 +177,12 @@ Conveniently, shortened to bs (bullshit)
 		- More damage on follow-ups
 
 # Items
-## Kunai
-- Consumable item that stacks up to 5
-- Gives her access to [[#Kunai throw]]
+- [[Kunai]]
+- [[Travel whetstone]]
+- [[Gentleman's pipe]]
+- [[Spiked shoes]]
 
+# Item ideas
 ## Armguards
 - Upgrade from hockey pads (see [[Idea dump#Items]])
 - One hit of [[Armor]] to [[#Upwards slice]]
@@ -190,16 +192,6 @@ Conveniently, shortened to bs (bullshit)
 - Add a follow up to [[#Back step]], where you can cancel into the other version of [[#Back step]]
 - This is the fastest way to move back if done optimally
 	- How the variants have different animation lengths, that's not trivial
-
-## Travel whetstone
-- Basic item
-- Can special cancel into [[#Sharpen]]
-	- Doing so will end your turn, good option when it's not clear if a starter will hit
-
-## Vampire coffin
-- Upgrades from pack of cigs (see [[Idea dump#Items]])
-- You gain [[Intangible]] when moving back with [[#Back step]]
-- Name is referencing Slayer and keeping with the spooky theme of [[Intangible]] items
 
 ## Bag of marshmallow
 - Basic item

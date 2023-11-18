@@ -1,0 +1,3 @@
+- Universal basic item
+- Increases [[Link bonus]]
+	- Better if more precise

@@ -1,0 +1,2 @@
+- Universal upgrade from [[Stopwatch]] + [[Boots]]
+- Allows owner to dash cancel any move at the cost of some meter

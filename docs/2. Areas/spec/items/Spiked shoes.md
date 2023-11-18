@@ -1,0 +1,2 @@
+- Upgrades from [[Boots]] + [[Brass knuckles]] for [[Mizku]]
+- Makes [[Mizku#Foot dive]] launch on full charge

@@ -1,0 +1,3 @@
+- Universal basic item
+- [[Intangible]] on the first few frames of a back dash
+	- Base for things that make you [[Intangible]], generally smoking themed

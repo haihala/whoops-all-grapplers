@@ -2,16 +2,18 @@
 ## Before playtest
 Goal: This is ready by perinnepäivät
 - [[Items for playtest]]
+- Add animation for [[Gi]]
 - [[Character 2]]
-- Lil things
-	- Bind to go fullscreen
-	- Add animation for [[Gi]]
+- [[Fullscreen]]
+- [[Input parser refinement#Do now]]
+- Default animations could be set when entering [[Shopping]] mode
+- [[First balance pass]]
+- [[Bug tracker#Before playtest]]
 
 ## Nice to have
 - [[Extending items]]
 - [[Toasts in various spots]]
 - [[Move format refinement]]
-- [[Input parser refinement#Nice to have]]
 - Use https://docs.rs/bevy/latest/bevy/gizmos/gizmos/struct.Gizmos.html#method.rect to visualize boxes
 
 ### Spec update

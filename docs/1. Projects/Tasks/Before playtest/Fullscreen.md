@@ -1,0 +1,2 @@
+- Fullscreen by default in non-dev mode
+- Bind in dev mode

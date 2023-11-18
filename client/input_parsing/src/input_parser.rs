@@ -211,26 +211,6 @@ mod test {
     }
 
     #[test]
-    fn multibutton_normal_recognized() {
-        let mut interface = TestInterface::with_input("[fs]");
-
-        interface.add_button_and_tick(GameButton::Fast);
-        interface.assert_no_events();
-        interface.add_button_and_tick(GameButton::Strong);
-        interface.assert_test_event_is_present();
-    }
-
-    #[test]
-    fn multibutton_normal_recognized_despite_order() {
-        let mut interface = TestInterface::with_input("[fs]");
-
-        interface.add_button_and_tick(GameButton::Strong);
-        interface.assert_no_events();
-        interface.add_button_and_tick(GameButton::Fast);
-        interface.assert_test_event_is_present();
-    }
-
-    #[test]
     fn multidirection_permits_skipping_first() {
         let mut interface = TestInterface::with_input("[41]6f");
 

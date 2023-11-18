@@ -5,8 +5,7 @@ Goal: This is ready by perinnepäivät
 - Add animation for [[Gi]]
 - [[Character 2]]
 - [[Fullscreen]]
-- [[Input parser refinement#Do now]]
-- Default animations could be set when entering [[Shopping]] mode
+- Default animations could be set when entering [[Shopping]] mode (so it does after reset)
 - [[First balance pass]]
 - [[Bug tracker#Before playtest]]
 

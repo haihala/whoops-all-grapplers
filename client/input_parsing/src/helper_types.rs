@@ -23,6 +23,18 @@ impl Frame {
             self.pressed.retain(|button| !released.contains(button));
         }
     }
+
+    pub fn diff_from_neutral(self) -> Diff {
+        Diff {
+            stick_move: Some(self.stick_position),
+            pressed: if self.pressed.is_empty() {
+                None
+            } else {
+                Some(self.pressed)
+            },
+            released: None,
+        }
+    }
 }
 
 #[derive(Default, Clone, PartialEq, Eq, Debug)]
@@ -38,8 +50,6 @@ impl Diff {
             InputEvent::Point(stick) => self.stick_move = Some(stick),
             InputEvent::Press(button) => self.pressed = Some(add_or_init(self.pressed, button)),
             InputEvent::Release(button) => self.released = Some(add_or_init(self.released, button)),
-            InputEvent::MultiPress(_) => panic!("Applying multipress to diff"),
-            InputEvent::Range(_) => panic!("Applying range to diff"),
         }
 
         self
@@ -74,18 +84,10 @@ fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet
     }
 }
 
-/// Enum used to define move inputs.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum InputEvent {
-    /// Stick must visit a point
     Point(StickPosition),
-    /// Stick must visit one of the following points
-    Range(Vec<StickPosition>),
-    /// Press a button
     Press(GameButton),
-    /// Press all of the following buttons
-    MultiPress(Vec<GameButton>),
-    /// Release a button
     Release(GameButton),
 }
 impl From<char> for InputEvent {
@@ -106,6 +108,20 @@ impl From<char> for InputEvent {
                 '.' => InputEvent::Press(GameButton::Start),
                 _ => panic!("Invalid character {ch}"),
             }
+        }
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct InputRequirement {
+    pub sticky: bool,
+    pub events: Vec<InputEvent>,
+}
+impl From<InputEvent> for InputRequirement {
+    fn from(event: InputEvent) -> InputRequirement {
+        InputRequirement {
+            sticky: false,
+            events: vec![event],
         }
     }
 }

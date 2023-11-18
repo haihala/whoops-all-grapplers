@@ -170,7 +170,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         (
             MizkuActionId::LowKick,
             Action::grounded(
-                Some("[123]f"),
+                Some("[123]+f"),
                 CancelCategory::CommandNormal,
                 vec![
                     ActionBlock {
@@ -243,7 +243,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         (
             MizkuActionId::Uppercut,
             Action::grounded(
-                Some("[123]s"),
+                Some("[123]+s"),
                 CancelCategory::CommandNormal,
                 vec![
                     ActionBlock {
@@ -424,7 +424,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         (
             MizkuActionId::BackThrow,
             Action::grounded(
-                Some("4w"),
+                Some("4+w"),
                 CancelCategory::CommandNormal,
                 vec![
                     ActionBlock {
@@ -481,7 +481,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         (
             MizkuActionId::Sweep,
             Action::grounded(
-                Some("[123]w"),
+                Some("[123]+w"),
                 CancelCategory::CommandNormal,
                 vec![
                     ActionBlock {
@@ -767,42 +767,42 @@ fn sway_slashes() -> impl Iterator<Item = (MizkuActionId, Action)> {
     vec![
         (
             MizkuActionId::ShortHighSlice,
-            "[789]F",
+            "[789]+F",
             MizkuAnimation::HighSlice,
             Area::new(1.0, 0.7, 2.0, 0.7),
             MizkuActionId::ShortBackSway,
         ),
         (
             MizkuActionId::LongHighSlice,
-            "[789]S",
+            "[789]+S",
             MizkuAnimation::HighSlice,
             Area::new(1.0, 0.7, 2.0, 0.7),
             MizkuActionId::LongBackSway,
         ),
         (
             MizkuActionId::ShortHorizontalSlice,
-            "[456]F",
+            "[456]+F",
             MizkuAnimation::HorizontalSlice,
             Area::new(1.0, 0.0, 2.0, 0.5),
             MizkuActionId::ShortBackSway,
         ),
         (
             MizkuActionId::LongHorizontalSlice,
-            "[456]S",
+            "[456]+S",
             MizkuAnimation::HorizontalSlice,
             Area::new(1.0, 0.0, 2.0, 0.5),
             MizkuActionId::LongBackSway,
         ),
         (
             MizkuActionId::ShortLowSlice,
-            "[123]F",
+            "[123]+F",
             MizkuAnimation::LowSlice,
             Area::new(1.0, -0.2, 2.0, 0.3),
             MizkuActionId::ShortBackSway,
         ),
         (
             MizkuActionId::LongLowSlice,
-            "[123]S",
+            "[123]+S",
             MizkuAnimation::LowSlice,
             Area::new(1.0, -0.2, 2.0, 0.3),
             MizkuActionId::LongBackSway,

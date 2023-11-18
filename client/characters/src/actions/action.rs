@@ -57,7 +57,7 @@ impl Default for Action {
             None,
             CancelCategory::Any,
             vec![ActionBlock {
-                events: vec![Animation::TPose.into()],
+                events: vec![Animation::default().into()],
                 exit_requirement: BlockerRequirement::Time(100),
                 cancel_policy: CancelPolicy::never(),
                 mutator: None,

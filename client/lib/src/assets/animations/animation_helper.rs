@@ -28,19 +28,29 @@ impl From<Animation> for AnimationRequest {
 pub struct AnimationHelper {
     pub player_entity: Entity,
     pub scene_root: Entity,
+    default_animation: Animation,
     facing: Facing,
     request: Option<AnimationRequest>,
     playing: AnimationRequest,
 }
 impl AnimationHelper {
-    fn new(player_entity: Entity, scene_root: Entity) -> AnimationHelper {
+    fn new(
+        player_entity: Entity,
+        scene_root: Entity,
+        default_animation: Animation,
+    ) -> AnimationHelper {
         AnimationHelper {
             player_entity,
             scene_root,
+            default_animation,
             facing: Facing::default(),
             request: None,
             playing: AnimationRequest::default(),
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.play(self.default_animation.into());
     }
 
     pub fn play(&mut self, new: AnimationRequest) {
@@ -54,23 +64,24 @@ impl AnimationHelper {
     }
 }
 #[derive(Debug, Component)]
-pub struct AnimationHelperSetup;
+pub struct AnimationHelperSetup(pub Animation);
 
 pub fn setup_helpers(
     mut commands: Commands,
-    to_setup: Query<Entity, With<AnimationHelperSetup>>,
+    to_setup: Query<(Entity, &AnimationHelperSetup)>,
     children: Query<&Children>,
     players: Query<&AnimationPlayer>,
     scenes: Query<&SceneInstance>,
 ) {
-    for host_entity in &to_setup {
+    for (host_entity, helper) in &to_setup {
         if let (Some(animation_player), Some(scene_root)) =
             find_animation_player_entity(host_entity, &children, &players, &scenes)
         {
             commands
                 .entity(host_entity)
                 .remove::<AnimationHelperSetup>()
-                .insert(AnimationHelper::new(animation_player, scene_root)); // This is how I find it later and what I query for
+                .insert(AnimationHelper::new(animation_player, scene_root, helper.0));
+            // This is how I find it later and what I query for
         }
     }
 }

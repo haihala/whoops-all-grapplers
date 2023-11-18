@@ -29,6 +29,9 @@ use super::{
     Character,
 };
 
+// Honestly, this character shouldn't really see use, but keep it around for testing
+// So it's meant to just be able to compile.
+// Could go back on that if that proves to be too much of a hassle
 pub fn dummy() -> Character {
     Character::new(
         Model::Dummy,
@@ -79,6 +82,7 @@ fn dummy_animations() -> HashMap<AnimationType, Animation> {
         (AnimationType::CrouchStun, DummyAnimation::CrouchStun),
         (AnimationType::Getup, DummyAnimation::Getup),
         (AnimationType::Jump, DummyAnimation::Jump),
+        (AnimationType::Default, DummyAnimation::TPose),
     ]
     .into_iter()
     .map(|(k, v)| (k, Animation::Dummy(v)))

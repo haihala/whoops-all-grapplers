@@ -13,6 +13,8 @@ pub enum Model {
 pub enum DummyAnimation {
     // Basics
     #[default]
+    TPose,
+
     Idle,
     Crouch,
     CrouchStun,
@@ -92,12 +94,16 @@ pub enum MizkuAnimation {
     WalkForward,
 }
 
-#[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect)]
 pub enum Animation {
-    #[default]
-    TPose,
     Dummy(DummyAnimation),
     Mizku(MizkuAnimation),
+}
+
+impl Default for Animation {
+    fn default() -> Self {
+        Animation::Dummy(DummyAnimation::TPose)
+    }
 }
 impl From<DummyAnimation> for Animation {
     fn from(value: DummyAnimation) -> Self {
@@ -111,7 +117,7 @@ impl From<MizkuAnimation> for Animation {
 }
 
 // For state to be able to return a generic animation
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default)]
 pub enum AnimationType {
     AirIdle,
     AirStun,
@@ -127,6 +133,9 @@ pub enum AnimationType {
     CrouchStun,
 
     Getup,
+
+    #[default]
+    Default,
 
     // Not really used in the same way, but this is used to generate actions
     Jump,

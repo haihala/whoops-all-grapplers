@@ -24,10 +24,10 @@ impl Animations {
     }
 
     pub(super) fn get(&self, animation: Animation, flipped: &Facing) -> Handle<AnimationClip> {
-        if animation == Animation::TPose {
-            // TPose is not mirrored and mirrored animations may not be ready by the time TPose is requested
+        if animation == Animation::default() {
+            // Default is not mirrored and mirrored animations may not be ready by the time it is requested
             // This should be irrelevant after a real loading screen.
-            return self.normal[&Animation::TPose].clone();
+            return self.normal[&Animation::default()].clone();
         }
 
         match flipped {
@@ -147,35 +147,35 @@ pub fn animation_paths() -> HashMap<Animation, String> {
     load_glb_animations(
         "dummy.glb".to_owned(),
         vec![
-            Animation::Dummy(DummyAnimation::AirIdle),
-            Animation::Dummy(DummyAnimation::AirSlam),
-            Animation::Dummy(DummyAnimation::AirSlap),
-            Animation::Dummy(DummyAnimation::AirStun),
-            Animation::Dummy(DummyAnimation::AirThrow),
-            Animation::Dummy(DummyAnimation::AirThrowRecipient),
-            Animation::Dummy(DummyAnimation::AntiAir),
-            Animation::Dummy(DummyAnimation::DashBack),
-            Animation::Dummy(DummyAnimation::BurnStraight),
-            Animation::Dummy(DummyAnimation::Crouch),
-            Animation::Dummy(DummyAnimation::CrouchBlock),
-            Animation::Dummy(DummyAnimation::CrouchChop),
-            Animation::Dummy(DummyAnimation::CrouchStun),
-            Animation::Dummy(DummyAnimation::Divekick),
-            Animation::Dummy(DummyAnimation::Dodge),
-            Animation::Dummy(DummyAnimation::DashForward),
-            Animation::Dummy(DummyAnimation::GroundSlam),
-            Animation::Dummy(DummyAnimation::Idle),
-            Animation::Dummy(DummyAnimation::Jump),
-            Animation::Dummy(DummyAnimation::NormalThrow),
-            Animation::Dummy(DummyAnimation::NormalThrowRecipient),
-            Animation::Dummy(DummyAnimation::Getup),
-            Animation::Dummy(DummyAnimation::Slap),
-            Animation::Dummy(DummyAnimation::StandBlock),
-            Animation::Dummy(DummyAnimation::StandStun),
-            Animation::Dummy(DummyAnimation::Sweep),
-            Animation::TPose,
-            Animation::Dummy(DummyAnimation::WalkBack),
-            Animation::Dummy(DummyAnimation::WalkForward),
+            DummyAnimation::AirIdle,
+            DummyAnimation::AirSlam,
+            DummyAnimation::AirSlap,
+            DummyAnimation::AirStun,
+            DummyAnimation::AirThrow,
+            DummyAnimation::AirThrowRecipient,
+            DummyAnimation::AntiAir,
+            DummyAnimation::DashBack,
+            DummyAnimation::BurnStraight,
+            DummyAnimation::Crouch,
+            DummyAnimation::CrouchBlock,
+            DummyAnimation::CrouchChop,
+            DummyAnimation::CrouchStun,
+            DummyAnimation::Divekick,
+            DummyAnimation::Dodge,
+            DummyAnimation::DashForward,
+            DummyAnimation::GroundSlam,
+            DummyAnimation::Idle,
+            DummyAnimation::Jump,
+            DummyAnimation::NormalThrow,
+            DummyAnimation::NormalThrowRecipient,
+            DummyAnimation::Getup,
+            DummyAnimation::Slap,
+            DummyAnimation::StandBlock,
+            DummyAnimation::StandStun,
+            DummyAnimation::Sweep,
+            DummyAnimation::TPose,
+            DummyAnimation::WalkBack,
+            DummyAnimation::WalkForward,
         ],
     )
     .into_iter()
@@ -220,21 +220,18 @@ pub fn animation_paths() -> HashMap<Animation, String> {
             MizkuAnimation::UpwardsSlash,
             MizkuAnimation::WalkBack,
             MizkuAnimation::WalkForward,
-        ]
-        .into_iter()
-        .map(Animation::from)
-        .collect(),
+        ],
     ))
     .collect()
 }
 
 fn load_glb_animations(
     file_path: String,
-    animations: Vec<Animation>,
+    animations: Vec<impl Into<Animation>>,
 ) -> HashMap<Animation, String> {
     animations
         .into_iter()
         .enumerate()
-        .map(|(index, animation)| (animation, format!("{file_path}#Animation{index}")))
+        .map(|(index, animation)| (animation.into(), format!("{file_path}#Animation{index}")))
         .collect()
 }

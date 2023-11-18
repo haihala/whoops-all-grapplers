@@ -8,6 +8,7 @@
 
 # Before playtest
 - Kunai projectile is invisible (or just really small?)
+- Timer value is not consistent (starts counting too early?)
 
 
 # Possibly incidentally fixed?

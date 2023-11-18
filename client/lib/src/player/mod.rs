@@ -13,11 +13,12 @@ use characters::{dummy, mizku, Character, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
-    CharacterId, Clock, Facing, GameState, Joints, Player, Players, Stats, WAGStage, WagArgs,
+    AnimationType, CharacterId, Clock, Facing, GameState, Joints, Player, Players, Stats, WAGStage,
+    WagArgs,
 };
 
 use crate::{
-    assets::{AnimationHelperSetup, Models},
+    assets::{AnimationHelper, AnimationHelperSetup, Models},
     damage::{Defense, HitboxSpawner},
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
@@ -140,7 +141,7 @@ fn spawn_player(
             PlayerDefaults::default(),
             PadBundle::new(character.get_inputs()),
             Name::new(format!("Player {player}")),
-            AnimationHelperSetup,
+            AnimationHelperSetup(character.generic_animations[&AnimationType::Default]),
             Facing::from_flipped(offset.is_sign_positive()),
             Pushbox(character.get_pushbox(false)),
             character.clone(),
@@ -171,6 +172,7 @@ fn setup_combat(
         &mut MoveBuffer,
         &mut InputParser,
         &mut PlayerVelocity,
+        &mut AnimationHelper,
     )>,
     mut clock: ResMut<Clock>,
     bevy_time: Res<Time>,
@@ -188,6 +190,7 @@ fn setup_combat(
         mut buffer,
         mut parser,
         mut velocity,
+        mut animation_helper,
     ) in &mut query
     {
         resources.reset(status_effect, inventory);
@@ -195,6 +198,7 @@ fn setup_combat(
         buffer.clear_all();
         parser.clear();
         velocity.reset();
+        animation_helper.reset();
 
         tf.translation = Vec3::new(
             match *player {

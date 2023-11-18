@@ -90,6 +90,7 @@ fn mizku_animations() -> HashMap<AnimationType, Animation> {
         (AnimationType::CrouchBlock, MizkuAnimation::CrouchBlock),
         (AnimationType::CrouchStun, MizkuAnimation::CrouchStagger),
         (AnimationType::Getup, MizkuAnimation::Getup),
+        (AnimationType::Default, MizkuAnimation::StandPose),
         (AnimationType::Jump, MizkuAnimation::Jump),
     ]
     .into_iter()

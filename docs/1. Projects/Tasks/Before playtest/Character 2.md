@@ -17,8 +17,8 @@ See [[Mizku]] for designs
 	- [x] Rig
 	- [x] Animate
 	- [x] Import into bevy
-- [ ] Implement required new mechanics
-	- [ ] Directional projectiles (Kunai flips to face forward)
+- [x] Implement required new mechanics
+	- [x] Directional projectiles (Kunai flips to face forward)
 	- [x] Items as cost
 	- [x] Sharpness resource
 - [x] Add moves in the game

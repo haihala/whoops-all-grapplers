@@ -8,7 +8,7 @@ mod movement;
 mod to_hit;
 
 pub use action::Action;
-pub use action_block::{ActionBlock, BlockerRequirement};
+pub use action_block::{ActionBlock, ContinuationRequirement};
 pub use action_event::ActionEvent;
 pub use action_requirement::ActionRequirement;
 pub use attack::{Attack, CommonAttackProps, StunType};

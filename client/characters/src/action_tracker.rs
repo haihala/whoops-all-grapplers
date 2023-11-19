@@ -2,14 +2,14 @@ use bevy::prelude::*;
 use std::collections::VecDeque;
 use wag_core::ActionId;
 
-use crate::{Action, ActionBlock, BlockerRequirement, CancelPolicy};
+use crate::{Action, ActionBlock, CancelPolicy, ContinuationRequirement};
 
 #[derive(Debug, Clone, Default, Reflect)]
 pub struct ActionTracker {
     pub has_hit: bool,
     // Stores a function pointer in a variant and reflect(ignore) doesn't work on that for some reason.
     #[reflect(ignore)]
-    pub blocker: BlockerRequirement,
+    pub blocker: ContinuationRequirement,
     pub cancel_policy: CancelPolicy,
     #[reflect(ignore)] // Recursive down there
     pub upcoming_blocks: VecDeque<ActionBlock>,
@@ -85,12 +85,12 @@ mod test_cancellable_into_since {
                 script: vec![
                     ActionBlock {
                         cancel_policy: CancelPolicy::never(),
-                        exit_requirement: BlockerRequirement::Time(10),
+                        exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
                         cancel_policy: CancelPolicy::any(),
-                        exit_requirement: BlockerRequirement::Time(10),
+                        exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                 ],
@@ -132,12 +132,12 @@ mod test_cancellable_into_since {
                 script: vec![
                     ActionBlock {
                         cancel_policy: CancelPolicy::any(),
-                        exit_requirement: BlockerRequirement::Time(10),
+                        exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
                         cancel_policy: CancelPolicy::any(),
-                        exit_requirement: BlockerRequirement::Time(10),
+                        exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                 ],
@@ -172,17 +172,17 @@ mod test_cancellable_into_since {
                 script: vec![
                     ActionBlock {
                         cancel_policy: CancelPolicy::never(),
-                        exit_requirement: BlockerRequirement::Time(10),
+                        exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
                         cancel_policy: CancelPolicy::any(),
-                        exit_requirement: BlockerRequirement::Time(10),
+                        exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
                         cancel_policy: CancelPolicy::never(),
-                        exit_requirement: BlockerRequirement::Time(10),
+                        exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                 ],
@@ -219,17 +219,17 @@ mod test_cancellable_into_since {
                 script: vec![
                     ActionBlock {
                         cancel_policy: CancelPolicy::command_normal_recovery(),
-                        exit_requirement: BlockerRequirement::Time(10),
+                        exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
                         cancel_policy: CancelPolicy::neutral_normal_recovery(),
-                        exit_requirement: BlockerRequirement::Time(10),
+                        exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
                         cancel_policy: CancelPolicy::any(),
-                        exit_requirement: BlockerRequirement::Time(10),
+                        exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                 ],

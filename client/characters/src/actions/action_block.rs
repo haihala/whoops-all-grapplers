@@ -3,19 +3,19 @@ use crate::{ActionEvent, ActionRequirement, CancelPolicy, Situation};
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct ActionBlock {
     pub events: Vec<ActionEvent>,
-    pub exit_requirement: BlockerRequirement, // To pass naturally
-    pub cancel_policy: CancelPolicy,          // To be cancelled out of
+    pub exit_requirement: ContinuationRequirement, // To pass naturally
+    pub cancel_policy: CancelPolicy,               // To be cancelled out of
     pub mutator: Option<fn(&mut ActionBlock, &Situation) -> ActionBlock>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
-pub enum BlockerRequirement {
+pub enum ContinuationRequirement {
     #[default]
     None,
     Conditions(Vec<ActionRequirement>),
     Time(usize),
 }
-impl BlockerRequirement {
+impl ContinuationRequirement {
     pub fn fulfilled(&self, situation: Situation) -> bool {
         match self {
             Self::None => true,
@@ -27,19 +27,19 @@ impl BlockerRequirement {
         }
     }
 }
-impl From<usize> for BlockerRequirement {
+impl From<usize> for ContinuationRequirement {
     fn from(value: usize) -> Self {
         Self::Time(value)
     }
 }
 
-impl From<ActionRequirement> for BlockerRequirement {
+impl From<ActionRequirement> for ContinuationRequirement {
     fn from(value: ActionRequirement) -> Self {
         Self::Conditions(vec![value])
     }
 }
 
-impl From<Vec<ActionRequirement>> for BlockerRequirement {
+impl From<Vec<ActionRequirement>> for ContinuationRequirement {
     fn from(value: Vec<ActionRequirement>) -> Self {
         Self::Conditions(value)
     }

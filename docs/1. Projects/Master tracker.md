@@ -4,9 +4,9 @@ Goal: This is ready by perinnepäivät
 - [[Items for playtest]]
 - [[Character 2]]
 - [[First balance pass]]
+- [[Bug tracker#Before playtest]]
 - Needs blender:
 	- Add animation for [[Gi]]
-	- [[Bug tracker#Before playtest]]
 
 ## Nice to have
 - [[Extending items]]

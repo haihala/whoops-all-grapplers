@@ -29,6 +29,7 @@ impl Plugin for DevPlugin {
             .register_type::<MoveBuffer>()
             .register_type::<Inventory>()
             .register_type::<Stats>()
+            .add_systems(Startup, setup)
             .add_systems(
                 Update,
                 (
@@ -36,12 +37,18 @@ impl Plugin for DevPlugin {
                     fullscreen_toggle,
                     cycle_game_state,
                     input_leniency_test_system,
-                    box_visualization::spawn_boxes,
-                    box_visualization::size_adjustment,
+                    box_visualization::visualize_hitboxes,
+                    box_visualization::visualize_hurtboxes,
+                    box_visualization::visualize_pushboxes,
                 )
                     .chain(),
             );
     }
+}
+
+// TODO: There is probably a better way to do this
+fn setup(mut config: ResMut<GizmoConfig>) {
+    config.depth_bias = -1.0;
 }
 
 fn sound_test_system(keys: Res<Input<KeyCode>>, mut sounds: ResMut<Sounds>) {

@@ -5,11 +5,6 @@
 
 # Before playtest
 - Timer value is not consistent (starts counting too early?)
-- New box visualization occasionally panics
-	- Tends to happen when attacking
-	- It also somewhat flickers constantly
-	- Fix by trying the gizmos
-
 
 # Possibly incidentally fixed?
 - Figure out how to get rid of panics while despawning hitboxes

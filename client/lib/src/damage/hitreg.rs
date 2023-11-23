@@ -8,8 +8,8 @@ use characters::{
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{
-    Area, Clock, Facing, Owner, Player, Players, SoundEffect, Stats, StatusFlag, StickPosition,
-    VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
+    ActionId, Area, Clock, Facing, Owner, Player, Players, SoundEffect, Stats, StatusFlag,
+    StickPosition, VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
 };
 
 use crate::{
@@ -304,10 +304,10 @@ pub(super) fn apply_hits(
             }
             HitType::Parry => (
                 vec![],
-                vec![ActionEvent::ModifyResource(
-                    ResourceType::Meter,
-                    GI_PARRY_METER_GAIN,
-                )],
+                vec![
+                    ActionEvent::ModifyResource(ResourceType::Meter, GI_PARRY_METER_GAIN),
+                    ActionEvent::StartAction(ActionId::ParryFlash),
+                ],
                 SoundEffect::Clash,
                 VisualEffect::Clash,
             ),

@@ -69,6 +69,7 @@ pub enum MizkuAnimation {
     FootDiveHold,
     FootDiveRelease,
     Getup,
+    GiParry,
     GroundThrowHit,
     GroundThrowStartup,
     GroundThrowTarget,

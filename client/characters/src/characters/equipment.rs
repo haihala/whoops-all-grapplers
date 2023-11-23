@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{ActionId, ItemId, Stats, StatusCondition, StatusFlag};
+use wag_core::{ActionId, Animation, ItemId, Stats, StatusCondition, StatusFlag};
 
 use crate::{
     actions::ActionRequirement, Action, ActionBlock, ActionEvent, CancelCategory, CancelPolicy,
@@ -16,7 +16,7 @@ fn get_high_gi_parry() -> Action {
                 ActionEvent::Condition(StatusCondition {
                     flag: StatusFlag::Parry,
                     effect: None,
-                    expiration: Some(10),
+                    expiration: Some(15),
                 }),
             ],
             // 0f moves will end on the same system they are processed and their events will get cleared before those get handled
@@ -33,8 +33,31 @@ fn get_high_gi_parry() -> Action {
     )
 }
 
-pub fn universal_item_actions() -> impl Iterator<Item = (ActionId, Action)> {
-    vec![(ActionId::HighGiParry, get_high_gi_parry())].into_iter()
+fn parry_flash(parry_animation: Animation) -> Action {
+    Action::new(
+        Some("56"),
+        CancelCategory::Any,
+        vec![ActionBlock {
+            events: vec![parry_animation.into()],
+            exit_requirement: ContinuationRequirement::Time(10),
+            cancel_policy: CancelPolicy::never(),
+            mutator: None,
+        }],
+        vec![
+            ActionRequirement::Grounded,
+            ActionRequirement::ItemsOwned(vec![ItemId::Gi]),
+        ],
+    )
+}
+
+pub fn universal_item_actions(
+    parry_animation: Animation,
+) -> impl Iterator<Item = (ActionId, Action)> {
+    vec![
+        (ActionId::HighGiParry, get_high_gi_parry()),
+        (ActionId::ParryFlash, parry_flash(parry_animation)),
+    ]
+    .into_iter()
 }
 
 pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {

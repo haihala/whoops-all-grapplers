@@ -198,6 +198,7 @@ pub fn animation_paths() -> HashMap<Animation, String> {
             MizkuAnimation::FootDiveHold,
             MizkuAnimation::FootDiveRelease,
             MizkuAnimation::Getup,
+            MizkuAnimation::GiParry,
             MizkuAnimation::GroundThrowHit,
             MizkuAnimation::GroundThrowStartup,
             MizkuAnimation::GroundThrowTarget,

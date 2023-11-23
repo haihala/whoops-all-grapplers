@@ -780,7 +780,9 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
 }
 
 fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
-    empty().chain(universal_item_actions())
+    empty().chain(universal_item_actions(Animation::Dummy(
+        DummyAnimation::TPose,
+    )))
 }
 
 fn dummy_items() -> HashMap<ItemId, Item> {

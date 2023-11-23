@@ -905,7 +905,9 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
     )]
     .into_iter()
     .map(|(k, v)| (ActionId::Mizku(k), v))
-    .chain(universal_item_actions())
+    .chain(universal_item_actions(Animation::Mizku(
+        MizkuAnimation::GiParry,
+    )))
 }
 
 fn mizku_items() -> HashMap<ItemId, Item> {

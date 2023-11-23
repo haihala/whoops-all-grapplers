@@ -38,6 +38,7 @@ impl Plugin for InputParsingPlugin {
                 input_parser::parse_input::<ParrotStream>,
                 input_parser::flip_parsers_on_side_change,
             )
+                .chain()
                 .in_set(WAGStage::Inputs),
         );
     }

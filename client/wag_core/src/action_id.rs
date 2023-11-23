@@ -25,6 +25,7 @@ pub enum ActionId {
 
     // Equipment
     HighGiParry,
+    ParryFlash,
 
     // Test moves
     TestMove,

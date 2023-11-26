@@ -13,29 +13,36 @@ pub const POST_SHOP_DURATION: f32 = 11.0;
 pub struct Clock {
     pub frame: usize,
     start_time: f32,
-    pub elapsed_time: f32,
+    done: bool,
+    timer_value: usize,
 }
 impl FromWorld for Clock {
     fn from_world(world: &mut World) -> Self {
         Self {
             start_time: world.get_resource::<Time>().unwrap().elapsed_seconds(),
             frame: 0,
-            elapsed_time: 0.0,
+            done: false,
+            timer_value: COMBAT_DURATION as usize,
         }
     }
 }
 impl Clock {
-    pub fn done(&self) -> bool {
-        self.elapsed_time >= COMBAT_DURATION - 1.0
+    // This is for dev binds
+    pub fn time_out(&mut self) {
+        self.done = true;
     }
 
-    pub fn time_out(&mut self) {
-        self.elapsed_time = COMBAT_DURATION;
+    pub fn done(&self) -> bool {
+        self.done
+    }
+
+    pub fn timer_value(&self) -> usize {
+        self.timer_value
     }
 
     pub fn reset(&mut self, time: f64) {
         self.frame = 0;
-        self.elapsed_time = 0.0;
+        self.done = false;
         self.start_time = time as f32;
     }
 }
@@ -67,8 +74,16 @@ impl Plugin for TimePlugin {
 }
 
 fn update_clock(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
+    if clock.done {
+        return;
+    }
+
     clock.frame += 1;
-    clock.elapsed_time = bevy_clock.elapsed_seconds() - clock.start_time;
+    let elapsed = bevy_clock.elapsed_seconds() - clock.start_time;
+    clock.timer_value = (COMBAT_DURATION + PRE_ROUND_DURATION - elapsed)
+        .clamp(0.0, COMBAT_DURATION)
+        .ceil() as usize;
+    clock.done = clock.timer_value == 0;
 }
 
 fn update_visibility_on_state_change(

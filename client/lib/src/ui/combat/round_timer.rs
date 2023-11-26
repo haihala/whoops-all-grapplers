@@ -6,8 +6,7 @@ use wag_core::{Clock, COMBAT_DURATION};
 pub struct RoundTimer;
 
 pub fn update_timer(mut query: Query<&mut Text, With<RoundTimer>>, clock: Res<Clock>) {
-    query.single_mut().sections[0].value =
-        (COMBAT_DURATION - clock.elapsed_time).floor().to_string();
+    query.single_mut().sections[0].value = clock.timer_value().to_string();
 }
 
 pub fn setup_timer(

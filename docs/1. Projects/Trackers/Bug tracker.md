@@ -4,7 +4,6 @@
 - In a mirror, opponents joints are used as spawn targets? Only happened once.
 
 # Before playtest
-- Timer value is not consistent (starts counting too early?)
 - There is something weird going on with the hitboxes (maybe with animation offset when link-correcting)
 
 # Possibly incidentally fixed?

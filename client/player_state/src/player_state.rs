@@ -85,10 +85,21 @@ impl PlayerState {
     }
 
     // Moves
-    pub fn start_move(&mut self, action_id: ActionId, action: Action, frame: usize) {
-        self.unprocessed_events
-            .append(action.script[0].events.clone().as_mut()); // This can't be the best way to merge Vecs
-        let tracker = ActionTracker::new(action_id, action, frame);
+    pub fn start_move(
+        &mut self,
+        action_id: ActionId,
+        action: Action,
+        start_frame: usize,
+        offset: usize,
+    ) {
+        self.unprocessed_events.extend(
+            action.script[0]
+                .events
+                .clone()
+                .into_iter()
+                .map(|x| x.add_offset(offset)),
+        ); // This can't be the best way to merge Vecs
+        let tracker = ActionTracker::new(action_id, action, start_frame);
 
         self.main = match self.main {
             MainState::Stand(_) => MainState::Stand(StandState::Move(tracker)),

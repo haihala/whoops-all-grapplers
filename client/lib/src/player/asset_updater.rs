@@ -1,9 +1,9 @@
 use bevy::prelude::*;
-use characters::{ActionEvent, Character};
+use characters::{ActionEvent, AnimationRequest, Character};
 use player_state::PlayerState;
-use wag_core::{Clock, Facing, Players};
+use wag_core::{Facing, Players};
 
-use crate::assets::{AnimationHelper, AnimationRequest, Sounds};
+use crate::assets::{AnimationHelper, Sounds};
 
 #[allow(clippy::type_complexity)]
 pub fn update_animation(
@@ -19,38 +19,34 @@ pub fn update_animation(
     >,
     tfs: Query<&Transform>,
     players: Res<Players>,
-    clock: Res<Clock>,
 ) {
     // TODO: This is somewhat faulty as a concept, fix at some point.
     for (character, mut state, facing, mut helper, entity) in &mut query {
-        let base_offset = state
-            .last_breakpoint_frame()
-            .map(|frame| clock.frame - frame)
-            .unwrap_or_default();
-
         let [active, opponent] = tfs
             .get_many([entity, players.get_other_entity(entity)])
             .unwrap();
         let position_offset = (opponent.translation - active.translation).truncate();
         if let Some(req) = state
             .drain_matching_actions(|action| match action {
-                ActionEvent::Animation(animation) => Some(AnimationRequest {
-                    animation: *animation,
-                    ..default()
-                }),
-                ActionEvent::RecipientAnimation(animation) => Some(AnimationRequest {
-                    animation: *animation,
-                    position_offset,
-                    invert: true,
-                    ..default()
-                }),
+                ActionEvent::Animation(animation_request) => {
+                    Some(if animation_request.invert {
+                        // Meant for targets
+                        AnimationRequest {
+                            animation: animation_request.animation,
+                            time_offset: animation_request.time_offset,
+                            position_offset,
+                            invert: true,
+                            ..default()
+                        }
+                    } else {
+                        animation_request.to_owned()
+                    })
+                }
                 _ => None,
             })
             .last()
         {
-            let mut request = req.to_owned();
-            request.time_offset += base_offset;
-            helper.play(request);
+            helper.play(req.to_owned());
         } else if let Some(generic) = state.get_generic_animation(*facing) {
             let animation = character
                 .generic_animations

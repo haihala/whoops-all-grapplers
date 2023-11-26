@@ -2,27 +2,10 @@ use std::mem::take;
 
 use bevy::{prelude::*, scene::SceneInstance};
 
+use characters::AnimationRequest;
 use wag_core::{Animation, Facing, Stats};
 
 use super::Animations;
-
-#[derive(Debug, Default, Clone, Copy, PartialEq)]
-pub struct AnimationRequest {
-    pub animation: Animation,
-    pub time_offset: usize,
-    pub position_offset: Vec2,
-    pub invert: bool,
-    pub looping: bool,
-    pub ignore_action_speed: bool,
-}
-impl From<Animation> for AnimationRequest {
-    fn from(animation: Animation) -> Self {
-        Self {
-            animation,
-            ..default()
-        }
-    }
-}
 
 #[derive(Debug, Component)]
 pub struct AnimationHelper {

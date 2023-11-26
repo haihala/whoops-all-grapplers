@@ -15,7 +15,7 @@ use crate::{damage::Combo, ui::Notifications};
 mod helper_types;
 use helper_types::{ActivationType, Cancellation, Link, MoveActivation};
 
-const AUTOCORRECT: usize = (0.2 * wag_core::FPS) as usize;
+const AUTOCORRECT: usize = (0.1 * wag_core::FPS) as usize;
 
 #[derive(Debug, Default, Component, Reflect)]
 pub struct MoveBuffer {
@@ -218,7 +218,7 @@ pub(super) fn move_activator(
     // Activate and clear activating move
     for (mut buffer, mut state, mut properties, player, character) in &mut query {
         if let Some(activation) = buffer.activation.take() {
-            let started = match activation.kind {
+            let start_frame = match activation.kind {
                 ActivationType::Link(link) => {
                     if combo.is_some() {
                         notifications.add(*player, link.message());
@@ -231,6 +231,7 @@ pub(super) fn move_activator(
                         }
                     }
 
+                    // Autocorrect so that the move starts sooner.
                     link.correction
                 }
                 ActivationType::Cancel(cancellation) => {
@@ -245,7 +246,8 @@ pub(super) fn move_activator(
             state.start_move(
                 activation.id,
                 character.get_move(activation.id).unwrap(),
-                started,
+                start_frame,
+                clock.frame - start_frame,
             );
             buffer.buffer.clear();
         }

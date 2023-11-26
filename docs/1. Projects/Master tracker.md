@@ -2,9 +2,10 @@
 ## Before playtest
 - [[Items for playtest]]
 - [[First balance pass]]
-- [[Bug tracker#Before playtest]]
 - Needs blender:
 	- [[Character 2]]
+
+More bugs may appear in [[Bug tracker#Before playtest]]
 
 ## [[Feedback round 1]]
 

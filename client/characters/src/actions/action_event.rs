@@ -6,13 +6,12 @@ use wag_core::{
 
 use crate::{Attack, Movement, ResourceType};
 
+use super::AnimationRequest;
+
 #[derive(Debug, Clone, PartialEq, Default, Reflect)]
 pub enum ActionEvent {
-    // TODO: Figure out a better way to handle actions that change depending on game state
-    // Maybe hoist AnimationRequest?
-    Animation(Animation),
+    Animation(AnimationRequest),
     Consume(ItemId),
-    RecipientAnimation(Animation),
     Sound(SoundEffect),
     StartAction(ActionId),
     Attack(Attack),
@@ -29,6 +28,20 @@ pub enum ActionEvent {
     BlockStun(usize),
     Launch,
 }
+impl ActionEvent {
+    pub fn add_offset(self, offset: usize) -> ActionEvent {
+        match self {
+            ActionEvent::Animation(mut request) => {
+                request.time_offset += offset;
+                ActionEvent::Animation(request)
+            }
+            // TODO: Sound and particles, maybe something to do with movement?
+            // Most can't meaningfully be offset
+            other => other,
+        }
+    }
+}
+
 impl From<Attack> for ActionEvent {
     fn from(value: Attack) -> Self {
         ActionEvent::Attack(value)
@@ -36,7 +49,7 @@ impl From<Attack> for ActionEvent {
 }
 impl From<Animation> for ActionEvent {
     fn from(value: Animation) -> Self {
-        ActionEvent::Animation(value)
+        ActionEvent::Animation(value.into())
     }
 }
 impl From<Movement> for ActionEvent {
@@ -47,11 +60,11 @@ impl From<Movement> for ActionEvent {
 // This isn't a great way to do this, but it's the best I can think of for now
 impl From<DummyAnimation> for ActionEvent {
     fn from(value: DummyAnimation) -> Self {
-        ActionEvent::Animation(value.into())
+        ActionEvent::Animation(Animation::from(value).into())
     }
 }
 impl From<MizkuAnimation> for ActionEvent {
     fn from(value: MizkuAnimation) -> Self {
-        ActionEvent::Animation(value.into())
+        ActionEvent::Animation(Animation::from(value).into())
     }
 }

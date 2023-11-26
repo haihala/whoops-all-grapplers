@@ -4,7 +4,6 @@
 - In a mirror, opponents joints are used as spawn targets? Only happened once.
 
 # Before playtest
-- There is something weird going on with the hitboxes (maybe with animation offset when link-correcting)
 
 # Possibly incidentally fixed?
 - Figure out how to get rid of panics while despawning hitboxes

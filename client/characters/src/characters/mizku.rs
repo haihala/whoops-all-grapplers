@@ -8,7 +8,7 @@ use wag_core::{
 };
 
 use crate::{
-    actions::{ActionRequirement, Projectile},
+    actions::{ActionRequirement, AnimationRequest, Projectile},
     resources::{RenderInstructions, ResourceType},
     Action, ActionBlock,
     ActionEvent::*,
@@ -412,7 +412,11 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ))])
                         .with_to_target_on_hit(vec![
                             SnapToOpponent,
-                            RecipientAnimation(MizkuAnimation::GroundThrowTarget.into()),
+                            Animation(AnimationRequest {
+                                animation: MizkuAnimation::GroundThrowTarget.into(),
+                                invert: true,
+                                ..default()
+                            }),
                         ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(13),
@@ -455,7 +459,11 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         .with_to_target_on_hit(vec![
                             SnapToOpponent,
                             SideSwitch,
-                            RecipientAnimation(MizkuAnimation::GroundThrowTarget.into()),
+                            Animation(AnimationRequest {
+                                animation: MizkuAnimation::GroundThrowTarget.into(),
+                                invert: true,
+                                ..default()
+                            }),
                         ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(40),
@@ -547,7 +555,11 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ))])
                         .with_to_target_on_hit(vec![
                             SnapToOpponent,
-                            RecipientAnimation(MizkuAnimation::AirThrowTarget.into()),
+                            Animation(AnimationRequest {
+                                animation: MizkuAnimation::AirThrowTarget.into(),
+                                invert: true,
+                                ..default()
+                            }),
                         ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(30),

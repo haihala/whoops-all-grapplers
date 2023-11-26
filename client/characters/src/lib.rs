@@ -11,8 +11,8 @@ pub(crate) use actions::*;
 
 pub use action_tracker::ActionTracker;
 pub use actions::{
-    Action, ActionEvent, ActionRequirement, Attack, AttackHeight, BlockType, Hitbox, Hurtbox,
-    Lifetime, Movement, ToHit,
+    Action, ActionEvent, ActionRequirement, AnimationRequest, Attack, AttackHeight, BlockType,
+    Hitbox, Hurtbox, Lifetime, Movement, ToHit,
 };
 pub use characters::{dummy, mizku, Character};
 pub use items::{Inventory, Item, ItemCategory};

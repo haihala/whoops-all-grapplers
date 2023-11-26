@@ -8,7 +8,7 @@ use wag_core::{
 };
 
 use crate::{
-    actions::ActionRequirement,
+    actions::{ActionRequirement, AnimationRequest},
     resources::{RenderInstructions, ResourceType},
     Action, ActionBlock,
     ActionEvent::*,
@@ -395,7 +395,11 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .with_to_target_on_hit(vec![
                             SnapToOpponent,
-                            RecipientAnimation(DummyAnimation::NormalThrowRecipient.into()),
+                            Animation(AnimationRequest {
+                                animation: DummyAnimation::NormalThrowRecipient.into(),
+                                invert: true,
+                                ..default()
+                            }),
                         ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(40),
@@ -435,7 +439,11 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         .with_to_target_on_hit(vec![
                             SnapToOpponent,
                             SideSwitch,
-                            RecipientAnimation(DummyAnimation::NormalThrowRecipient.into()),
+                            Animation(AnimationRequest {
+                                animation: DummyAnimation::NormalThrowRecipient.into(),
+                                invert: true,
+                                ..default()
+                            }),
                         ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(40),
@@ -510,7 +518,11 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .with_to_target_on_hit(vec![
                             SnapToOpponent,
-                            RecipientAnimation(DummyAnimation::AirThrowRecipient.into()),
+                            Animation(AnimationRequest {
+                                animation: DummyAnimation::AirThrowRecipient.into(),
+                                invert: true,
+                                ..default()
+                            }),
                         ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(30),

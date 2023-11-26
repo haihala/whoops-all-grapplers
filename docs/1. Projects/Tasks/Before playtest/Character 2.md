@@ -30,7 +30,8 @@ See [[Mizku]] for designs
 		- [ ] Immediately if button is not pressed
 - [ ] Fine tuning
 	- [ ] Hitboxes
-	- [ ] Obvious bug fixes
+	- [ ] Hurtboxes (padding)
 	- [ ] Animation once-over (Add recovery, remove jitter)
-	- [ ] [[First balance pass]]
+		- [ ] 5f (add recovery)
+		- [ ] 5h (make it into more of a donkey kick or have a clearer arc add recovery)
 - [x] Use [[CLI args]] to select characters

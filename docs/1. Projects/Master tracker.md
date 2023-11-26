@@ -1,11 +1,12 @@
 # Backlog
 ## Before playtest
-Goal: This is ready by perinnepäivät
 - [[Items for playtest]]
 - [[First balance pass]]
 - [[Bug tracker#Before playtest]]
 - Needs blender:
 	- [[Character 2]]
+
+## [[Feedback round 1]]
 
 ## Nice to have
 - [[Extending items]]

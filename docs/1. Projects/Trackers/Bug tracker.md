@@ -5,6 +5,7 @@
 
 # Before playtest
 - Timer value is not consistent (starts counting too early?)
+- There is something weird going on with the hitboxes (maybe with animation offset when link-correcting)
 
 # Possibly incidentally fixed?
 - Figure out how to get rid of panics while despawning hitboxes

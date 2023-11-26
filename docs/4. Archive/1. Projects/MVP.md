@@ -32,9 +32,9 @@
 	- [x] Visuals (Box)
 	- [x] Animations (moving boxes)
 	- [x] SFX (POC)
-- [ ] Items
+- [x] Items
 	- [x] Projectile
-	- [ ] Parry
+	- [x] Parry
 	- [x] Unlock a move
 	- [x] Passive item
 - [x] Buy menu

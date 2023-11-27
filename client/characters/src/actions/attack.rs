@@ -85,10 +85,16 @@ impl Default for CommonAttackProps {
 
 impl CommonAttackProps {
     pub fn self_on_hit(self) -> Vec<ActionEvent> {
-        vec![Movement::impulse(self.push_back).into()]
+        vec![
+            Movement::impulse(self.push_back).into(),
+            ActionEvent::Hitstop,
+        ]
     }
     pub fn self_on_block(self) -> Vec<ActionEvent> {
-        vec![Movement::impulse(2.0 * self.push_back).into()]
+        vec![
+            Movement::impulse(2.0 * self.push_back).into(),
+            ActionEvent::Hitstop,
+        ]
     }
 
     pub fn target_on_hit(self) -> Vec<ActionEvent> {

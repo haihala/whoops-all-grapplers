@@ -27,6 +27,7 @@ pub enum ActionEvent {
     HitStun(usize),
     BlockStun(usize),
     Launch,
+    Hitstop,
 }
 impl ActionEvent {
     pub fn add_offset(self, offset: usize) -> ActionEvent {

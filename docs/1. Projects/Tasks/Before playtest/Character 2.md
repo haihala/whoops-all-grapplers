@@ -7,7 +7,6 @@ See [[Mizku]] for designs
 	- [x] Moves
 	- [x] Items / [[Items for playtest]]
 	- [x] Visual identifiers / Themes
-	- [ ] Meter drain, no meter outlet atm
 - [x] Revisit design a few days later to see if you still think it's good
 - [x] Model
 	- [x] Sketches
@@ -28,6 +27,7 @@ See [[Mizku]] for designs
 	- [ ] [[Mizku#Foot dive]] needs to activate
 		- [ ] Automatically at the end
 		- [ ] Immediately if button is not pressed
+	- [ ] Stagger animations is pretty static
 - [ ] Fine tuning
 	- [ ] Hitboxes
 	- [ ] Hurtboxes (padding)

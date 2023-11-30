@@ -1,21 +1,19 @@
 use std::time::Duration;
 
-use bevy::{prelude::*, utils::Instant};
+use bevy::prelude::*;
 use characters::ActionEvent;
 use player_state::PlayerState;
+use wag_core::Hitstop;
 
-#[derive(Debug, Resource, Deref)]
-pub struct Hitstop(Instant);
-
-const HITSTOP_DURATION: Duration = Duration::from_millis(30);
+const HITSTOP_DURATION: Duration = Duration::from_millis(50);
 
 pub fn handle_hitstop_events(
     mut commands: Commands,
-    mut query: Query<&mut PlayerState>,
-    mut game_time: ResMut<Time<Virtual>>,
+    mut players: Query<&mut PlayerState>,
+    mut animation_players: Query<&mut AnimationPlayer>,
     real_time: Res<Time<Real>>,
 ) {
-    for mut state in &mut query {
+    for mut state in &mut players {
         for _ in state.drain_matching_actions(|action| {
             if matches!(*action, ActionEvent::Hitstop) {
                 Some(action.to_owned())
@@ -23,8 +21,10 @@ pub fn handle_hitstop_events(
                 None
             }
         }) {
-            game_time.set_relative_speed(0.001);
             commands.insert_resource(Hitstop(real_time.last_update().unwrap() + HITSTOP_DURATION));
+            animation_players.for_each_mut(|mut player| {
+                player.pause();
+            });
         }
     }
 }
@@ -32,7 +32,7 @@ pub fn handle_hitstop_events(
 pub fn clear_hitstop(
     mut commands: Commands,
     maybe_hitstop: Option<ResMut<Hitstop>>,
-    mut game_time: ResMut<Time<Virtual>>,
+    mut animation_players: Query<&mut AnimationPlayer>,
     real_time: Res<Time<Real>>,
 ) {
     let Some(hitstop) = maybe_hitstop else {
@@ -41,6 +41,8 @@ pub fn clear_hitstop(
 
     if hitstop.0 < real_time.last_update().unwrap() {
         commands.remove_resource::<Hitstop>();
-        game_time.set_relative_speed(1.0);
+        animation_players.for_each_mut(|mut player| {
+            player.resume();
+        });
     }
 }

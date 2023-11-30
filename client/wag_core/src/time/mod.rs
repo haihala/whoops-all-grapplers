@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use bevy::prelude::*;
 
 mod game_flow;
@@ -47,6 +49,9 @@ impl Clock {
     }
 }
 
+#[derive(Debug, Resource, Deref)]
+pub struct Hitstop(pub Instant);
+
 #[derive(Debug, SystemSet, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum WAGStage {
     Inputs,
@@ -73,8 +78,12 @@ impl Plugin for TimePlugin {
     }
 }
 
-fn update_clock(mut clock: ResMut<Clock>, bevy_clock: Res<Time>) {
-    if clock.done {
+fn update_clock(
+    mut clock: ResMut<Clock>,
+    bevy_clock: Res<Time>,
+    maybe_hitstop: Option<Res<Hitstop>>,
+) {
+    if clock.done || maybe_hitstop.is_some() {
         return;
     }
 

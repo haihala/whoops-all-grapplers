@@ -155,13 +155,13 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.35)),
                                 joint: Some(Joint::ShinL),
-                                lifetime: Lifetime::frames(2),
+                                lifetime: Lifetime::frames(3),
                                 ..default()
                             },
                             CommonAttackProps::default(),
                         )
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(5),
+                        exit_requirement: ContinuationRequirement::Time(16),
                         cancel_policy: CancelPolicy::neutral_normal_recovery(),
                         mutator: None,
                     },

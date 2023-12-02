@@ -76,7 +76,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 cost: 80,
                 explanation: "Bonus walk speed".into(),
                 effect: Stats {
-                    walk_speed: 0.2,
+                    walk_speed: 0.1,
                     ..default()
                 },
                 ..default()

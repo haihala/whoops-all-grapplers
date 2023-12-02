@@ -161,7 +161,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             CommonAttackProps::default(),
                         )
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(16),
+                        exit_requirement: ContinuationRequirement::Time(15),
                         cancel_policy: CancelPolicy::neutral_normal_recovery(),
                         mutator: None,
                     },
@@ -205,8 +205,15 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 CancelCategory::Normal,
                 vec![
                     ActionBlock {
-                        events: vec![MizkuAnimation::HeelKick.into()],
-                        exit_requirement: ContinuationRequirement::Time(7), // Todo: Could use more wind-up, depending on what I want to use it for
+                        events: vec![
+                            MizkuAnimation::HeelKick.into(),
+                            Movement {
+                                amount: Vec2::X * 10.0,
+                                duration: 20,
+                            }
+                            .into(),
+                        ],
+                        exit_requirement: ContinuationRequirement::Time(18),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
@@ -214,9 +221,9 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         events: vec![
                             Attack::new(
                                 ToHit {
-                                    hitbox: Hitbox(Area::new(-0.3, 0.0, 1.0, 0.2)),
-                                    joint: Some(Joint::FootR),
-                                    lifetime: Lifetime::frames(4),
+                                    hitbox: Hitbox(Area::new(-0.2, 0.0, 1.2, 0.2)),
+                                    joint: Some(Joint::FootL),
+                                    lifetime: Lifetime::frames(5),
                                     ..default()
                                 },
                                 CommonAttackProps {
@@ -229,12 +236,12 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             )
                             .into(),
                             Movement {
-                                amount: Vec2::X * 2.0,
-                                duration: 1,
+                                amount: Vec2::X * 3.0,
+                                duration: 10,
                             }
                             .into(),
                         ],
-                        exit_requirement: ContinuationRequirement::Time(11),
+                        exit_requirement: ContinuationRequirement::Time(26),
                         cancel_policy: CancelPolicy::neutral_normal_recovery(),
                         mutator: None,
                     },
@@ -874,47 +881,98 @@ fn sway_slashes() -> impl Iterator<Item = (MizkuActionId, Action)> {
 
 // TODO: Add items
 fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
-    vec![(
-        MizkuActionId::KunaiThrow,
-        Action::new(
-            Some("236f"),
-            CancelCategory::Special,
-            vec![
-                ActionBlock {
-                    events: vec![
-                        MizkuAnimation::KunaiThrow.into(),
-                        ForceStand,
-                        Consume(ItemId::Kunai),
-                    ],
-                    exit_requirement: ContinuationRequirement::Time(13),
-                    cancel_policy: CancelPolicy::never(),
-                    mutator: None,
-                },
-                ActionBlock {
-                    events: vec![Attack::new(
-                        ToHit {
-                            hitbox: Hitbox(Area::new(1.0, 1.2, 0.3, 0.3)),
-                            velocity: Some(Vec2::new(6.0, -0.4)),
-                            lifetime: Lifetime::until_owner_hit(),
-                            projectile: Some(Projectile {
-                                model: Model::Kunai,
-                            }),
-                            ..default()
-                        },
-                        CommonAttackProps::default(),
-                    )
-                    .into()],
-                    exit_requirement: ContinuationRequirement::Time(10),
-                    cancel_policy: CancelPolicy::never(),
-                    mutator: None,
-                },
-            ],
-            vec![
-                ActionRequirement::ItemsOwned(vec![ItemId::Kunai]),
-                ActionRequirement::Grounded,
-            ],
+    vec![
+        (
+            MizkuActionId::KunaiThrow,
+            Action::new(
+                Some("236f"),
+                CancelCategory::Special,
+                vec![
+                    ActionBlock {
+                        events: vec![
+                            MizkuAnimation::KunaiThrow.into(),
+                            ForceStand,
+                            Consume(ItemId::Kunai),
+                        ],
+                        exit_requirement: ContinuationRequirement::Time(13),
+                        cancel_policy: CancelPolicy::never(),
+                        mutator: None,
+                    },
+                    ActionBlock {
+                        events: vec![Attack::new(
+                            ToHit {
+                                hitbox: Hitbox(Area::new(1.0, 1.2, 0.3, 0.3)),
+                                velocity: Some(Vec2::new(6.0, -0.4)),
+                                lifetime: Lifetime::until_owner_hit(),
+                                projectile: Some(Projectile {
+                                    model: Model::Kunai,
+                                }),
+                                ..default()
+                            },
+                            CommonAttackProps::default(),
+                        )
+                        .into()],
+                        exit_requirement: ContinuationRequirement::Time(10),
+                        cancel_policy: CancelPolicy::never(),
+                        mutator: None,
+                    },
+                ],
+                vec![
+                    ActionRequirement::ItemsOwned(vec![ItemId::Kunai]),
+                    ActionRequirement::Grounded,
+                ],
+            ),
         ),
-    )]
+        (
+            MizkuActionId::Overhead,
+            Action::new(
+                Some("6+s"),
+                CancelCategory::Normal,
+                vec![
+                    ActionBlock {
+                        events: vec![
+                            MizkuAnimation::Overhead.into(),
+                            Movement {
+                                amount: Vec2::X * 10.0,
+                                duration: 20,
+                            }
+                            .into(),
+                        ],
+                        exit_requirement: ContinuationRequirement::Time(25),
+                        cancel_policy: CancelPolicy::never(),
+                        mutator: None,
+                    },
+                    ActionBlock {
+                        events: vec![
+                            Attack::new(
+                                ToHit {
+                                    hitbox: Hitbox(Area::new(-0.2, 0.0, 1.2, 0.2)),
+                                    joint: Some(Joint::FootR),
+                                    lifetime: Lifetime::frames(5),
+                                    block_type: Constant(High),
+                                    ..default()
+                                },
+                                CommonAttackProps { ..default() },
+                            )
+                            .into(),
+                            Movement {
+                                amount: Vec2::X * 3.0,
+                                duration: 10,
+                            }
+                            .into(),
+                        ],
+                        exit_requirement: ContinuationRequirement::Time(35),
+                        cancel_policy: CancelPolicy::command_normal_recovery(),
+                        mutator: None,
+                    },
+                ],
+                vec![
+                    ActionRequirement::ItemsOwned(vec![ItemId::SteelHeelBoots]),
+                    ActionRequirement::Grounded,
+                ],
+            ),
+        ),
+    ]
     .into_iter()
     .map(|(k, v)| (ActionId::Mizku(k), v))
     .chain(universal_item_actions(Animation::Mizku(
@@ -923,16 +981,27 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
 }
 
 fn mizku_items() -> HashMap<ItemId, Item> {
-    vec![(
-        ItemId::Kunai,
-        Item {
-            cost: 100,
-            explanation: "qcf+f to throw, comes in handy\n\nThat's the power...of a president!"
-                .into(),
-            category: ItemCategory::Consumable,
-            ..default()
-        },
-    )]
+    vec![
+        (
+            ItemId::Kunai,
+            Item {
+                cost: 100,
+                explanation: "qcf+f to throw, comes in handy\n\nThat's the power...of a president!"
+                    .into(),
+                category: ItemCategory::Consumable,
+                ..default()
+            },
+        ),
+        (
+            ItemId::SteelHeelBoots,
+            Item {
+                cost: 100,
+                explanation: "6s for an overhead".into(),
+                category: ItemCategory::Upgrade(vec![ItemId::SafetyBoots]),
+                ..default()
+            },
+        ),
+    ]
     .into_iter()
     .chain(universal_items())
     .collect()

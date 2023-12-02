@@ -1,10 +1,5 @@
 - Minor to no changes to the game
 
-# Interested casuals
-- Jahu
-- Lare
-- Soorya
-
 # Points of interest
 - Do they get the concept without explaining
 - [[Meter usage]]

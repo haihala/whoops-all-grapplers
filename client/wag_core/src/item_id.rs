@@ -14,6 +14,7 @@ pub enum ItemId {
 
     // Mizku
     Kunai,
+    SteelHeelBoots,
 
     #[default]
     Default,

@@ -211,6 +211,7 @@ pub fn animation_paths() -> HashMap<Animation, String> {
             MizkuAnimation::KunaiThrow,
             MizkuAnimation::LowKick,
             MizkuAnimation::LowSlice,
+            MizkuAnimation::Overhead,
             MizkuAnimation::Sharpen,
             MizkuAnimation::Stagger,
             MizkuAnimation::StandPose,

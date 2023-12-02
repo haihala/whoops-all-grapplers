@@ -82,6 +82,7 @@ pub enum MizkuAnimation {
     KunaiThrow,
     LowKick,
     LowSlice,
+    Overhead,
     Sharpen,
     Stagger,
     StandPose,

@@ -21,6 +21,7 @@ See [[Mizku]] for designs
 	- [x] Items as cost
 	- [x] Sharpness resource
 - [x] Add moves in the game
+- [ ] Air [[Mizku#Upwards slice]]
 - [ ] Adjustments
 	- [ ] [[Mizku#Sharpen]] needs to be slower
 	- [ ] [[Mizku#Back step]] needs to be holdable
@@ -28,10 +29,11 @@ See [[Mizku]] for designs
 		- [ ] Automatically at the end
 		- [ ] Immediately if button is not pressed
 	- [ ] Stagger animations is pretty static
+	- [ ] Jump height is mad high
 - [ ] Fine tuning
 	- [ ] Hitboxes
 	- [ ] Hurtboxes (padding)
-	- [ ] Animation once-over (Add recovery, remove jitter)
+	- [x] Animation once-over (Add recovery, remove jitter)
 		- [x] 5f (add recovery)
-		- [ ] 5h (make it into more of a donkey kick or have a clearer arc add recovery)
+		- [x] 5h (make it into more of a donkey kick or have a clearer arc add recovery)
 - [x] Use [[CLI args]] to select characters

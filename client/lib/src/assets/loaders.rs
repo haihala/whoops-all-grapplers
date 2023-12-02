@@ -19,9 +19,9 @@ pub fn colors(mut commands: Commands) {
             alpha: 0.3,
         },
         notification_text: Color::BLACK,
-        hitbox: Color::rgba(1.0, 0.0, 0.0, 0.5),
-        hurtbox: Color::rgba(0.0, 1.0, 0.0, 0.5),
-        pushbox: Color::rgba(0.0, 0.0, 1.0, 0.5),
+        hitbox: Color::rgb(1.0, 0.0, 0.0),
+        hurtbox: Color::rgb(0.0, 1.0, 0.0),
+        pushbox: Color::rgb(0.0, 0.0, 1.0),
         text: Color::WHITE,
         default_item_slot: Color::GRAY,
         highlighted_item_slot: Color::rgb_u8(195, 24, 24), // WWE Raw red

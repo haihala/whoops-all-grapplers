@@ -5,12 +5,11 @@ use characters::ActionEvent;
 use player_state::PlayerState;
 use wag_core::Hitstop;
 
-const HITSTOP_DURATION: Duration = Duration::from_millis(50);
+const HITSTOP_DURATION: Duration = Duration::from_millis(100);
 
 pub fn handle_hitstop_events(
     mut commands: Commands,
     mut players: Query<&mut PlayerState>,
-    mut animation_players: Query<&mut AnimationPlayer>,
     real_time: Res<Time<Real>>,
 ) {
     for mut state in &mut players {
@@ -22,9 +21,6 @@ pub fn handle_hitstop_events(
             }
         }) {
             commands.insert_resource(Hitstop(real_time.last_update().unwrap() + HITSTOP_DURATION));
-            animation_players.for_each_mut(|mut player| {
-                player.pause();
-            });
         }
     }
 }
@@ -32,7 +28,6 @@ pub fn handle_hitstop_events(
 pub fn clear_hitstop(
     mut commands: Commands,
     maybe_hitstop: Option<ResMut<Hitstop>>,
-    mut animation_players: Query<&mut AnimationPlayer>,
     real_time: Res<Time<Real>>,
 ) {
     let Some(hitstop) = maybe_hitstop else {
@@ -41,8 +36,5 @@ pub fn clear_hitstop(
 
     if hitstop.0 < real_time.last_update().unwrap() {
         commands.remove_resource::<Hitstop>();
-        animation_players.for_each_mut(|mut player| {
-            player.resume();
-        });
     }
 }

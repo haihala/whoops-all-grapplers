@@ -29,11 +29,17 @@ impl Plugin for DamagePlugin {
                 hitreg::snap_and_switch,
                 defense::timeout_defense_streak,
                 hitboxes::update_followers,
-                hitstop::handle_hitstop_events,
             )
+                .chain()
                 .in_set(WAGStage::HitReg),
         )
-        .add_systems(Update, hitstop::clear_hitstop)
+        .add_systems(
+            Update,
+            (
+                hitstop::clear_hitstop,
+                hitstop::handle_hitstop_events.after(WAGStage::PlayerUpdates),
+            ),
+        )
         .add_systems(OnExit(GameState::Combat), hitboxes::despawn_everything);
     }
 }

@@ -3,7 +3,7 @@ use std::mem::take;
 use bevy::{prelude::*, scene::SceneInstance};
 
 use characters::AnimationRequest;
-use wag_core::{Animation, Facing, Stats};
+use wag_core::{Animation, Facing, Hitstop, Stats};
 
 use super::Animations;
 
@@ -99,6 +99,7 @@ pub fn update_animation(
     mut main: Query<(&mut AnimationHelper, &Facing, &Stats)>,
     mut players: Query<&mut AnimationPlayer>,
     mut scenes: Query<&mut Transform, With<Handle<Scene>>>,
+    maybe_hitstop: Option<ResMut<Hitstop>>,
 ) {
     for (mut helper, facing, stats) in &mut main {
         let mut player = players.get_mut(helper.player_entity).unwrap();
@@ -114,7 +115,6 @@ pub fn update_animation(
                     *facing
                 },
             );
-
             player
                 .start(handle)
                 .seek_to(request.time_offset as f32 / wag_core::FPS)
@@ -124,6 +124,8 @@ pub fn update_animation(
                     stats.action_speed_multiplier
                 });
 
+            // FIXME: There is something wrong with this.
+            // First frames of the animation bleed through occasionally
             if request.looping {
                 player.repeat();
             }
@@ -139,6 +141,12 @@ pub fn update_animation(
             let elapsed = player.elapsed();
             player.start(handle).seek_to(elapsed).repeat();
             helper.facing = *facing;
+        } else if maybe_hitstop.is_none() && player.is_paused() {
+            // Hitstop is over, resume playing
+            player.resume();
+        } else if maybe_hitstop.is_some() && !player.is_paused() {
+            // Hitstop started, pause
+            player.pause();
         }
     }
 }

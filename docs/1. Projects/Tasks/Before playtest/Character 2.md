@@ -23,13 +23,13 @@ See [[Mizku]] for designs
 - [x] Add moves in the game
 - [ ] Air [[Mizku#Upwards slice]]
 - [ ] Adjustments
-	- [ ] [[Mizku#Sharpen]] needs to be slower
+	- [x] [[Mizku#Sharpen]] needs to be slower
 	- [ ] [[Mizku#Back step]] needs to be holdable
 	- [ ] [[Mizku#Foot dive]] needs to activate
-		- [ ] Automatically at the end
 		- [ ] Immediately if button is not pressed
-	- [ ] Stagger animations is pretty static
+	- [x] Stagger animations is pretty static
 	- [ ] Jump height is mad high
+	- [ ] Idle animation looks weird
 - [ ] Fine tuning
 	- [ ] Hitboxes
 	- [ ] Hurtboxes (padding)

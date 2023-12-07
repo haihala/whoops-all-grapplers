@@ -598,14 +598,16 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::Sharpen.into()],
-                        exit_requirement: ContinuationRequirement::Time(35),
+                        exit_requirement: ContinuationRequirement::Time(48),
                         cancel_policy: CancelPolicy::never(),
                         mutator: None,
                     },
                     ActionBlock {
                         events: vec![ModifyResource(ResourceType::Sharpness, 1)],
-                        exit_requirement: ContinuationRequirement::Time(15),
-                        cancel_policy: CancelPolicy::command_normal_recovery(),
+                        exit_requirement: ContinuationRequirement::Time(32),
+                        // Since there is no hitbox, you can't cancel this under normal circumstances
+                        // as it can never hit, which is requried for neutral normal cancellation.
+                        cancel_policy: CancelPolicy::neutral_normal_recovery(),
                         mutator: None,
                     },
                 ],

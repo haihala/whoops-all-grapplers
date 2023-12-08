@@ -65,7 +65,7 @@ pub fn end_combat(
 
     let mut ordered_healths = (&mut players).into_iter().collect::<Vec<_>>();
 
-    // TODO: There has to be a cleaner way
+    // TODO: There has to be a cleaner way This whole function could use a once-over. Many names seem outdated due to refactors elsewhere
     ordered_healths.sort_by(|(a, _, _), (b, _, _)| {
         a.get(&ResourceType::Health)
             .unwrap()
@@ -84,6 +84,18 @@ pub fn end_combat(
 
     for player in [Player::One, Player::Two] {
         notifications.add(player, format!("Round payout: ${}", ROUND_MONEY));
+
+        let meter_money = if player == **winner {
+            let meter_money = winner_props.get(&ResourceType::Meter).unwrap().current;
+            winner_inventory.money += meter_money as usize;
+            meter_money
+        } else {
+            let meter_money = loser_props.get(&ResourceType::Meter).unwrap().current;
+            loser_inventory.money += meter_money as usize;
+            meter_money
+        };
+
+        notifications.add(player, format!("Meter payout: ${}", meter_money));
     }
 
     winner_inventory.money += ROUND_MONEY;

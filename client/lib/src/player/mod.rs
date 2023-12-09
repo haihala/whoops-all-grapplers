@@ -143,7 +143,7 @@ fn spawn_player(
             Name::new(format!("Player {player}")),
             AnimationHelperSetup(character.generic_animations[&AnimationType::Default]),
             Facing::from_flipped(offset.is_sign_positive()),
-            Pushbox(character.get_pushbox(false)),
+            Pushbox(character.standing_pushbox),
             character.clone(),
             PlayerState::default(),
             player,

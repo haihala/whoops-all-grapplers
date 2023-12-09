@@ -8,7 +8,7 @@ use crate::physics::Pushbox;
 
 pub fn size_adjustment(mut query: Query<(&mut PlayerState, &mut Pushbox, &Character, &Facing)>) {
     for (state, mut pushbox, character, facing) in &mut query {
-        let pb = character.get_pushbox(state.is_crouching());
+        let pb = state.get_pushbox(character);
         **pushbox = Area::from_center_size(facing.mirror_vec2(pb.center()), pb.size());
     }
 }

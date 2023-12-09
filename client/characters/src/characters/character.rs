@@ -16,6 +16,7 @@ pub struct Character {
     pub high_block_height: f32,
     pub standing_pushbox: Area,
     pub crouching_pushbox: Area,
+    pub air_pushbox: Area,
     pub generic_animations: HashMap<AnimationType, Animation>,
     pub gravity: f32,
     pub base_stats: Stats,
@@ -53,6 +54,7 @@ impl Character {
             high_block_height: 1.2,
             standing_pushbox: Area::from_center_size(Vec2::Y * 0.7, Vec2::new(0.4, 1.4)),
             crouching_pushbox: Area::from_center_size(Vec2::new(0.2, 0.35), Vec2::new(0.6, 0.7)),
+            air_pushbox: Area::from_center_size(Vec2::new(0.0, 0.55), Vec2::new(0.4, 0.6)),
             gravity,
             special_properties,
             base_stats,
@@ -61,14 +63,6 @@ impl Character {
 
     pub fn get_move(&self, id: ActionId) -> Option<Action> {
         self.moves.get(&id).map(|opt| opt.to_owned())
-    }
-
-    pub fn get_pushbox(&self, crouching: bool) -> Area {
-        if crouching {
-            self.crouching_pushbox
-        } else {
-            self.standing_pushbox
-        }
     }
 
     pub fn get_inputs(&self) -> HashMap<ActionId, &'static str> {

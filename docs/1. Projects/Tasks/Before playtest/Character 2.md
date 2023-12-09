@@ -28,8 +28,8 @@ See [[Mizku]] for designs
 	- [ ] [[Mizku#Foot dive]] needs to activate
 		- [ ] Immediately if button is not pressed
 	- [x] Stagger animations is pretty static
-	- [ ] Jump height is mad high
-	- [ ] Idle animation looks weird
+	- [x] Jump height is mad high
+	- [x] Idle animation looks weird
 - [ ] Fine tuning
 	- [ ] Hitboxes
 	- [ ] Hurtboxes (padding)

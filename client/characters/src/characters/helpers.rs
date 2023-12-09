@@ -10,13 +10,13 @@ pub fn jump(input: &'static str, impulse: Vec2, animation: impl Into<Animation>)
         vec![
             ActionBlock {
                 events: vec![animation.into().into()],
-                exit_requirement: ContinuationRequirement::Time(5),
+                exit_requirement: ContinuationRequirement::Time(4),
                 cancel_policy: CancelPolicy::never(),
                 mutator: None,
             },
             ActionBlock {
                 events: vec![Movement::impulse(impulse).into()],
-                exit_requirement: ContinuationRequirement::Time(5),
+                exit_requirement: ContinuationRequirement::Time(6),
                 cancel_policy: CancelPolicy::never(),
                 mutator: None,
             },

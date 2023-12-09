@@ -3,7 +3,7 @@
 - [[Items for playtest]]
 - [[First balance pass]]
 - Needs blender:
-	- [[Character 2]] ([[Mizku#Upwards slice]](air version), make [[Mizku#Sharpen]] slower and [[Mizku#Back step]] less jank when held)
+	- [[Character 2]] ([[Mizku#Upwards slice]](air version) and [[Mizku#Back step]] less jank when held)
 
 More bugs may appear in [[Bug tracker#Before playtest]]
 
@@ -16,6 +16,9 @@ If it looks like I have time, could have a once-over of the projectiles as well 
 - [[Toasts in various spots]]
 - [[Move format refinement]]
 - Use https://docs.rs/bevy/latest/bevy/gizmos/gizmos/struct.Gizmos.html#method.rect to visualize boxes
+- [[Mizku]]
+	- Uppercut animation is not my best work
+	- 
 
 ### Spec update
 - Get idea dumps from archive

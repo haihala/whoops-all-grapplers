@@ -52,7 +52,7 @@ impl Character {
             low_block_height: 0.5,
             high_block_height: 1.2,
             standing_pushbox: Area::from_center_size(Vec2::Y * 0.7, Vec2::new(0.4, 1.4)),
-            crouching_pushbox: Area::from_center_size(Vec2::Y * 0.5, Vec2::new(0.4, 1.0)),
+            crouching_pushbox: Area::from_center_size(Vec2::new(0.2, 0.35), Vec2::new(0.6, 0.7)),
             gravity,
             special_properties,
             base_stats,

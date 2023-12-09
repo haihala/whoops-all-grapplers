@@ -8,7 +8,7 @@ use player_state::PlayerState;
 use wag_core::{Area, Clock, Facing, Players, Stats, WAGStage};
 
 use crate::{
-    camera::{WorldCamera, VIEWPORT_HALFWIDTH},
+    camera::{CameraWrapper, VIEWPORT_HALFWIDTH},
     damage::{HitTracker, HitboxSpawner},
 };
 
@@ -187,7 +187,7 @@ fn clamp_players(
     players: Res<Players>,
     mut queries: ParamSet<(
         Query<PlayerMovingQuery>,
-        Query<&Transform, With<WorldCamera>>,
+        Query<&Transform, With<CameraWrapper>>,
     )>,
 ) {
     let camera_x = queries.p1().get_single().unwrap().translation.x;

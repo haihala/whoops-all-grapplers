@@ -7,8 +7,6 @@
 
 More bugs may appear in [[Bug tracker#Before playtest]]
 
-If it looks like I have time, could have a once-over of the projectiles as well as look at adding hitstop or some camera shake
-
 ## [[Feedback round 1]]
 
 ## Nice to have

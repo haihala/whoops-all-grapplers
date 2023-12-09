@@ -87,12 +87,14 @@ impl CommonAttackProps {
     pub fn self_on_hit(self) -> Vec<ActionEvent> {
         vec![
             Movement::impulse(self.push_back).into(),
+            ActionEvent::CameraTilt(self.push_back * -0.03),
             ActionEvent::Hitstop,
         ]
     }
     pub fn self_on_block(self) -> Vec<ActionEvent> {
         vec![
             Movement::impulse(2.0 * self.push_back).into(),
+            ActionEvent::CameraTilt(self.push_back * 0.01),
             ActionEvent::Hitstop,
         ]
     }

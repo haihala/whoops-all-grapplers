@@ -54,7 +54,7 @@ fn setup(mut config: ResMut<GizmoConfig>) {
 fn sound_test_system(keys: Res<Input<KeyCode>>, mut sounds: ResMut<Sounds>) {
     if keys.just_pressed(KeyCode::S) {
         dbg!("Playing");
-        sounds.play(SoundEffect::Whoosh)
+        sounds.play(SoundEffect::Whoosh);
     }
 }
 

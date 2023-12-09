@@ -28,6 +28,7 @@ pub enum ActionEvent {
     BlockStun(usize),
     Launch,
     Hitstop,
+    CameraTilt(Vec2),
 }
 impl ActionEvent {
     pub fn add_offset(self, offset: usize) -> ActionEvent {

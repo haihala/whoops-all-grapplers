@@ -16,7 +16,7 @@ pub struct CustomCameraPlugin;
 impl Plugin for CustomCameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, add_camera)
-            .add_systems(Update, (center_camera, camera_tilt).chain());
+            .add_systems(Update, (center_camera, camera_tilt, camera_shake).chain());
     }
 }
 
@@ -36,6 +36,7 @@ fn add_camera(mut commands: Commands) {
                     ..default()
                 },
                 Name::new("Main Camera"),
+                CameraShake::default(),
             ));
         });
 }
@@ -63,13 +64,13 @@ fn center_camera(
     tf.translation = tf.translation.lerp(target, 0.1);
 }
 
-#[derive(Debug, Component, Default, Deref, DerefMut)]
+#[derive(Debug, Component, Default)]
 struct CameraTilt {
     velocity: Vec2,
 }
 
-const DAMPENING: f32 = 0.9;
-const GRAVITY: f32 = 0.01;
+const TILT_DAMPENING: f32 = 0.9;
+const TILT_GRAVITY: f32 = 0.01;
 
 fn camera_tilt(
     mut players: Query<(&mut PlayerState, &Facing)>,
@@ -88,19 +89,66 @@ fn camera_tilt(
         })
         .fold(Vec2::ZERO, |acc, tilt| acc + tilt);
 
-    for (mut tf, mut tilt) in &mut cams {
-        tilt.velocity *= DAMPENING;
-        tilt.velocity += event_tilt;
+    let (mut tf, mut tilt) = cams.single_mut();
 
-        let current_euler_tuple = tf.rotation.to_euler(EulerRot::XYZ);
-        let current_euler = Vec2::new(current_euler_tuple.1, current_euler_tuple.0);
-        tilt.velocity -= current_euler * GRAVITY;
+    tilt.velocity *= TILT_DAMPENING;
+    tilt.velocity += event_tilt;
 
-        tf.rotation = Quat::from_euler(
-            EulerRot::XYZ,
-            current_euler_tuple.0 + tilt.velocity.y,
-            current_euler_tuple.1 + tilt.velocity.x,
-            0.0,
-        );
+    let current_euler_tuple = tf.rotation.to_euler(EulerRot::XYZ);
+    let current_euler = Vec2::new(current_euler_tuple.1, current_euler_tuple.0);
+    tilt.velocity -= current_euler * TILT_GRAVITY;
+
+    tf.rotation = Quat::from_euler(
+        EulerRot::XYZ,
+        current_euler_tuple.0 + tilt.velocity.y,
+        current_euler_tuple.1 + tilt.velocity.x,
+        0.0,
+    );
+}
+
+#[derive(Debug, Component, Default)]
+struct CameraShake {
+    last_start: f32,
+    pivot: Option<Vec3>,
+}
+
+const SHAKE_INITIAL_MAGNITUDE: f32 = 0.2;
+const SHAKE_DURATION: f32 = 0.1;
+const SHAKE_TWIST: f32 = 1000.0;
+
+fn camera_shake(
+    mut players: Query<&mut PlayerState>,
+    mut cams: Query<(&mut Transform, &mut CameraShake)>,
+    time: Res<Time>,
+) {
+    let (mut tf, mut shake) = cams.single_mut();
+    if shake.pivot.is_none() {
+        shake.pivot = Some(tf.translation);
     }
+
+    if players
+        .iter_mut()
+        .flat_map(|mut ps| {
+            ps.drain_matching_actions(|a| {
+                if &ActionEvent::CameraShake == a {
+                    Some(())
+                } else {
+                    None
+                }
+            })
+        })
+        .next()
+        .is_some()
+    {
+        // Done after to avoid division by zero.
+        shake.last_start = time.elapsed_seconds();
+    }
+
+    let progress = (time.elapsed_seconds() - shake.last_start) / SHAKE_DURATION;
+
+    let magnitude = SHAKE_INITIAL_MAGNITUDE * (1.0 - progress.min(1.0));
+    let angle = time.elapsed_seconds() * SHAKE_TWIST;
+    let offset = magnitude * Vec3::new(angle.sin(), angle.cos(), 0.0);
+
+    tf.translation = shake.pivot.unwrap() + offset;
 }

@@ -88,6 +88,7 @@ impl CommonAttackProps {
         vec![
             Movement::impulse(self.push_back).into(),
             ActionEvent::CameraTilt(self.push_back * -0.03),
+            ActionEvent::CameraShake,
             ActionEvent::Hitstop,
         ]
     }

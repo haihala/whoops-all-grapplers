@@ -34,7 +34,7 @@ impl ItemId {
                 7 => "Stack of thumbtacks".into(),
                 8 => "Mountain of thumbtacks".into(),
                 9 => "Lifetime supply of thumbtacks".into(),
-                other => format!("{} thumbtacks", usize::pow(2, *other as u32)),
+                other => format!("{} thumbtacks", usize::pow(2, *other as u32 - 1)),
             },
             _ => format!("{:?}", self),
         }

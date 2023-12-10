@@ -196,7 +196,13 @@ pub fn handle_shop_ending(
     time: Res<Time>,
 ) {
     if shops.player_one.closed && shops.player_two.closed {
-        end_shopping(&mut shops, &mut next_state, &mut commands);
+        end_shopping(
+            &mut shops,
+            &mut next_state,
+            &mut commands,
+            &mut countdown_roots,
+        );
+        *local_timer = None;
         return;
     }
 
@@ -224,7 +230,13 @@ pub fn handle_shop_ending(
     }
 
     if end {
-        end_shopping(&mut shops, &mut next_state, &mut commands);
+        end_shopping(
+            &mut shops,
+            &mut next_state,
+            &mut commands,
+            &mut countdown_roots,
+        );
+        *local_timer = None;
     }
 
     // If one is closed and timer has ran out -> pre-combat
@@ -235,6 +247,7 @@ fn end_shopping(
     shops: &mut Shops,
     next_state: &mut ResMut<NextState<GameState>>,
     commands: &mut Commands,
+    countdown_roots: &mut Query<&mut Visibility>,
 ) {
     next_state.set(GameState::PreRound);
 
@@ -243,7 +256,8 @@ fn end_shopping(
         TimerMode::Once,
     )));
 
-    // Clear closed so the shops are open the next time around
-    shops.player_one.closed = false;
-    shops.player_two.closed = false;
+    for shop in [&mut shops.player_one, &mut shops.player_two] {
+        shop.closed = false;
+        *countdown_roots.get_mut(shop.components.countdown).unwrap() = Visibility::Hidden;
+    }
 }

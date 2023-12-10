@@ -113,7 +113,6 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     flat_damage: 1,
                     ..Stats::identity()
                 },
-                ..default()
             },
         ),
     ]

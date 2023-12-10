@@ -71,7 +71,7 @@ impl WAGResources {
     }
 
     pub fn testing_default() -> Self {
-        Self::from_stats(&Stats::testing_default(), vec![])
+        Self::from_stats(&Stats::default(), vec![])
     }
 }
 

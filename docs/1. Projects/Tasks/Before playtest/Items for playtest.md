@@ -11,5 +11,5 @@
 		- [ ] [[Air jordans]]
 	- [ ] [[Stopwatch]]
 		- [ ] [[Track spikes]]
-	- [ ] [[Brass knuckles]]
+	- [x] [[Thumbtacks]]
 		- [ ] [[Spiked shoes]]

@@ -278,7 +278,6 @@ pub(super) fn apply_hits(
                 // Handle blocking and state transitions here
                 attacker.state.register_hit();
                 defender.defense.reset();
-
                 (
                     hit.attack.self_on_hit,
                     hit.attack.target_on_hit,
@@ -323,6 +322,7 @@ pub(super) fn apply_hits(
             defender_actions = handle_opener(defender_actions, attacker.status_effect);
         }
 
+        defender_actions = apply_flat_damage(defender_actions, attacker.status_effect.flat_damage);
         attacker.state.add_actions(attacker_actions);
         defender.state.add_actions(defender_actions);
         sounds.play(sound);
@@ -369,6 +369,18 @@ fn handle_opener(actions: Vec<ActionEvent>, status_effect: &Stats) -> Vec<Action
             }
             ActionEvent::HitStun(amount) => {
                 ActionEvent::HitStun((amount as i32 + status_effect.opener_stun_frames) as usize)
+            }
+            other => other,
+        })
+        .collect()
+}
+fn apply_flat_damage(actions: Vec<ActionEvent>, flat_damage: i32) -> Vec<ActionEvent> {
+    actions
+        .into_iter()
+        .map(|action| match action {
+            ActionEvent::ModifyResource(ResourceType::Health, amount) => {
+                // Damage is negative health modification
+                ActionEvent::ModifyResource(ResourceType::Health, amount - flat_damage)
             }
             other => other,
         })

@@ -77,7 +77,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Bonus walk speed".into(),
                 effect: Stats {
                     walk_speed: 0.1,
-                    ..default()
+                    ..Stats::identity()
                 },
                 ..default()
             },
@@ -89,7 +89,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Bonus max health\n\nI am wearing hockey pads".into(),
                 effect: Stats {
                     max_health: 20,
-                    ..default()
+                    ..Stats::identity()
                 },
                 ..default()
             },
@@ -103,6 +103,33 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 ..default()
             },
         ),
+        (
+            ItemId::ThumbTacks(1),
+            Item {
+                category: Basic,
+                explanation: "+1 damage to all hits\n\nOuch".into(),
+                cost: 50,
+                effect: Stats {
+                    flat_damage: 1,
+                    ..Stats::identity()
+                },
+                ..default()
+            },
+        ),
     ]
     .into_iter()
+    .chain((2..9).map(|id| {
+        (
+            ItemId::ThumbTacks(id),
+            Item {
+                category: Upgrade(vec![ItemId::ThumbTacks(id - 1), ItemId::ThumbTacks(id - 1)]),
+                explanation: format!(
+                    "+{} damage to all hits\n\nExponential growth is fun!",
+                    usize::pow(2, (id - 1) as u32)
+                ),
+                cost: 10,
+                ..default()
+            },
+        )
+    }))
 }

@@ -1,2 +1,0 @@
-- Universal basic item
-- Slight damage increase across the board

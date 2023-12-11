@@ -25,11 +25,11 @@ See [[Mizku]] for designs
 - [ ] Adjustments
 	- [x] [[Mizku#Sharpen]] needs to be slower
 	- [ ] [[Mizku#Back step]] needs to be holdable
-	- [ ] [[Mizku#Foot dive]] needs to activate
-		- [ ] Immediately if button is not pressed
+	- [x] [[Mizku#Foot dive]] needs to activate (Added a note after playtests)
 	- [x] Stagger animations is pretty static
 	- [x] Jump height is mad high
 	- [x] Idle animation looks weird
+	- [ ] 2H Needs to move onwards less
 - [ ] Fine tuning
 	- [ ] Hitboxes
 	- [ ] Hurtboxes (padding)

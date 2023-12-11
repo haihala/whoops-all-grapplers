@@ -19,7 +19,7 @@ pub fn manage_item_consumption(
         {
             inventory.consume(item);
             resources
-                .get_mut(&ResourceType::ItemCount(item))
+                .get_mut(ResourceType::ItemCount(item))
                 .unwrap()
                 .drain(1);
         }

@@ -102,7 +102,7 @@ pub(super) fn clash_parry(
 
                 if !is_projectile {
                     properties
-                        .get_mut(&ResourceType::Meter)
+                        .get_mut(ResourceType::Meter)
                         .unwrap()
                         .gain(CLASH_PARRY_METER_GAIN);
                 }
@@ -290,7 +290,7 @@ pub(super) fn apply_hits(
                 defender.defense.bump_streak(clock.frame);
                 defender
                     .properties
-                    .get_mut(&ResourceType::Meter)
+                    .get_mut(ResourceType::Meter)
                     .unwrap()
                     .gain(defender.defense.get_reward());
 

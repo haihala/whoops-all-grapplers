@@ -178,6 +178,10 @@ fn setup_bottom_hud(
                 },
                 width: Val::Percent(100.0),
                 height: Val::Percent(50.0),
+                margin: UiRect {
+                    bottom: Val::Percent(gauges::SCREEN_EDGE_PADDING),
+                    ..default()
+                },
                 ..default()
             },
             ..default()

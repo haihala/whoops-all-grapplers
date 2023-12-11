@@ -31,6 +31,7 @@ impl MoveBuffer {
         self.buffer.retain(|(frame, _)| {
             if current_frame > *frame {
                 // Default case, retain those who are fresh
+                // TODO: autocorrect and buffer should be separate.
                 current_frame - frame < AUTOCORRECT
             } else {
                 // Round has restarted, clear the buffer
@@ -225,7 +226,7 @@ pub(super) fn move_activator(
 
                         if let Some(meter_gain) = link.meter_gain() {
                             properties
-                                .get_mut(&ResourceType::Meter)
+                                .get_mut(ResourceType::Meter)
                                 .unwrap()
                                 .gain(meter_gain);
                         }
@@ -249,7 +250,6 @@ pub(super) fn move_activator(
                 start_frame,
                 clock.frame - start_frame,
             );
-            buffer.buffer.clear();
         }
     }
 }

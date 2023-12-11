@@ -42,19 +42,6 @@ pub fn mizku() -> Character {
         },
         vec![
             (
-                ResourceType::Charge,
-                WAGResource {
-                    max: Some((FPS / 2.) as i32), // Frames to full,
-                    special: Some(SpecialProperty::Charge(ChargeProperty::default())),
-                    render_instructions: RenderInstructions::Bar(ResourceBarVisual {
-                        default_color: Color::rgb(0.05, 0.4, 0.55),
-                        full_color: Some(Color::rgb(0.9, 0.1, 0.3)),
-                        ..default()
-                    }),
-                    ..default()
-                },
-            ),
-            (
                 ResourceType::Sharpness,
                 WAGResource {
                     max: Some(10),
@@ -69,6 +56,19 @@ pub fn mizku() -> Character {
                 WAGResource {
                     render_instructions: RenderInstructions::Counter(CounterVisual {
                         label: "Kunais",
+                    }),
+                    ..default()
+                },
+            ),
+            (
+                ResourceType::Charge,
+                WAGResource {
+                    max: Some((FPS / 2.) as i32), // Frames to full,
+                    special: Some(SpecialProperty::Charge(ChargeProperty::default())),
+                    render_instructions: RenderInstructions::Bar(ResourceBarVisual {
+                        default_color: Color::rgb(0.05, 0.4, 0.55),
+                        full_color: Some(Color::rgb(0.9, 0.1, 0.3)),
+                        ..default()
                     }),
                     ..default()
                 },

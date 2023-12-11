@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::prelude::*;
 
 use wag_core::{GameButton, ItemId, Stats, StickPosition};
 
@@ -15,7 +15,7 @@ pub enum ResourceType {
 }
 
 #[derive(Debug, Clone, Component, Deref, DerefMut)]
-pub struct WAGResources(pub HashMap<ResourceType, WAGResource>);
+pub struct WAGResources(pub Vec<(ResourceType, WAGResource)>);
 
 impl WAGResources {
     pub fn from_stats(
@@ -72,6 +72,16 @@ impl WAGResources {
 
     pub fn testing_default() -> Self {
         Self::from_stats(&Stats::default(), vec![])
+    }
+
+    pub fn get(&self, resource_type: ResourceType) -> Option<&WAGResource> {
+        self.iter()
+            .find_map(|(t, r)| if *t == resource_type { Some(r) } else { None })
+    }
+
+    pub fn get_mut(&mut self, resource_type: ResourceType) -> Option<&mut WAGResource> {
+        self.iter_mut()
+            .find_map(|(t, r)| if *t == resource_type { Some(r) } else { None })
     }
 }
 
@@ -143,7 +153,7 @@ impl Default for ResourceBarVisual {
         Self {
             height: 4.0,
             segments: 1,
-            segment_gap: 3.0,
+            segment_gap: 1.0,
             default_color: Default::default(),
             full_color: Default::default(),
         }
@@ -168,7 +178,7 @@ impl ResourceBarVisual {
     }
 
     pub fn segment_width(&self) -> f32 {
-        (100.0 - (self.segments as f32 - 1.0) * self.segment_gap) / self.segments as f32
+        (100.0 - (self.segments - 1) as f32 * self.segment_gap) / self.segments as f32
     }
 }
 

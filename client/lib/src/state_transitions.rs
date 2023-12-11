@@ -49,7 +49,7 @@ pub fn end_combat(
     let round_over = players
         .iter()
         .filter_map(|(properties, player, _)| {
-            if properties.get(&ResourceType::Health).unwrap().is_empty() {
+            if properties.get(ResourceType::Health).unwrap().is_empty() {
                 None
             } else {
                 Some(player)
@@ -67,10 +67,10 @@ pub fn end_combat(
 
     // TODO: There has to be a cleaner way This whole function could use a once-over. Many names seem outdated due to refactors elsewhere
     ordered_healths.sort_by(|(a, _, _), (b, _, _)| {
-        a.get(&ResourceType::Health)
+        a.get(ResourceType::Health)
             .unwrap()
             .get_percentage()
-            .partial_cmp(&b.get(&ResourceType::Health).unwrap().get_percentage())
+            .partial_cmp(&b.get(ResourceType::Health).unwrap().get_percentage())
             .unwrap()
             .reverse()
     });
@@ -86,11 +86,11 @@ pub fn end_combat(
         notifications.add(player, format!("Round payout: ${}", ROUND_MONEY));
 
         let meter_money = if player == **winner {
-            let meter_money = winner_props.get(&ResourceType::Meter).unwrap().current;
+            let meter_money = winner_props.get(ResourceType::Meter).unwrap().current;
             winner_inventory.money += meter_money as usize;
             meter_money
         } else {
-            let meter_money = loser_props.get(&ResourceType::Meter).unwrap().current;
+            let meter_money = loser_props.get(ResourceType::Meter).unwrap().current;
             loser_inventory.money += meter_money as usize;
             meter_money
         };
@@ -102,11 +102,11 @@ pub fn end_combat(
     loser_inventory.money += ROUND_MONEY;
 
     let result = if winner_props
-        .get(&ResourceType::Health)
+        .get(ResourceType::Health)
         .unwrap()
         .get_percentage()
         == loser_props
-            .get(&ResourceType::Health)
+            .get(ResourceType::Health)
             .unwrap()
             .get_percentage()
     {

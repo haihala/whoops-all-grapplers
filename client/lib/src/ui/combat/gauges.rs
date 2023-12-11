@@ -10,6 +10,8 @@ pub struct ResourceGauge(pub Player, pub ResourceType);
 #[derive(Debug, Component)]
 pub struct ResourceCounter(pub Player, pub ResourceType);
 
+pub const SCREEN_EDGE_PADDING: f32 = 5.0;
+
 pub fn setup_bar(
     commands: &mut Commands,
     player: Player,
@@ -22,15 +24,25 @@ pub fn setup_bar(
         .spawn((
             NodeBundle {
                 style: Style {
-                    width: Val::Percent(100.0),
+                    width: Val::Percent(100.0 - SCREEN_EDGE_PADDING),
                     height: Val::Percent(instructions.height),
-                    column_gap: Val::Px(instructions.segment_gap),
+                    column_gap: Val::Percent(instructions.segment_gap),
                     flex_direction: match player {
                         Player::One => FlexDirection::RowReverse,
                         Player::Two => FlexDirection::Row,
                     },
                     margin: UiRect {
                         bottom: Val::Percent(1.0),
+                        left: Val::Percent(if player == Player::One {
+                            SCREEN_EDGE_PADDING
+                        } else {
+                            0.0
+                        }),
+                        right: Val::Percent(if player == Player::Two {
+                            SCREEN_EDGE_PADDING
+                        } else {
+                            0.0
+                        }),
                         ..default()
                     },
                     ..default()

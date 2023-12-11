@@ -1,5 +1,3 @@
-use std::cmp::Ordering;
-
 use bevy::prelude::*;
 
 use characters::{
@@ -123,20 +121,13 @@ pub(super) fn raw_or_link(
                     state.build_situation(
                         inventory.to_owned(),
                         resources.to_owned(),
+                        parser.to_owned(),
                         stats.to_owned(),
                         clock.frame,
                     ),
                 )
                 .into_iter()
-                .max_by(|(_, id1, _), (_, id2, _)| {
-                    match parser
-                        .get_complexity(*id1)
-                        .cmp(&parser.get_complexity(*id2))
-                    {
-                        Ordering::Equal => id1.cmp(id2).reverse(),
-                        other => other,
-                    }
-                })
+                .max_by_key(|(_, id, _)| (parser.get_complexity(*id), *id))
             {
                 let error = stored as i32 - freedom_frame as i32;
                 let kind = if error.abs() < AUTOCORRECT as i32 {
@@ -174,6 +165,7 @@ pub(super) fn special_cancel(
                         state.build_situation(
                             inventory.to_owned(),
                             resources.to_owned(),
+                            parser.to_owned(),
                             stats.to_owned(),
                             clock.frame,
                         ),
@@ -184,15 +176,7 @@ pub(super) fn special_cancel(
                             .cancellable_into_since(id, action.clone())
                             .map(|freedom| (frame, id, freedom))
                     })
-                    .max_by(|(_, id1, _), (_, id2, _)| {
-                        match parser
-                            .get_complexity(*id1)
-                            .cmp(&parser.get_complexity(*id2))
-                        {
-                            Ordering::Equal => id1.cmp(id2).reverse(),
-                            other => other,
-                        }
-                    })
+                    .max_by_key(|(_, id, _)| (parser.get_complexity(*id), *id))
                 {
                     buffer.activation = Some(MoveActivation {
                         id,

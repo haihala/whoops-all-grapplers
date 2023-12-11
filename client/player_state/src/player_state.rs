@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use characters::{
     Action, ActionEvent, ActionTracker, Character, Inventory, Situation, WAGResources,
 };
+use input_parsing::InputParser;
 use wag_core::{ActionId, AnimationType, Area, Facing, Stats, StatusCondition, StatusFlag};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
@@ -115,10 +116,11 @@ impl PlayerState {
         &mut self,
         inventory: Inventory,
         resources: WAGResources,
+        parser: InputParser,
         stats: Stats,
         frame: usize,
     ) {
-        let situation = self.build_situation(inventory, resources, stats, frame);
+        let situation = self.build_situation(inventory, resources, parser, stats, frame);
         let tracker = self.get_action_tracker_mut().unwrap();
 
         if tracker.blocker.fulfilled(situation) {
@@ -135,6 +137,7 @@ impl PlayerState {
         &self,
         inventory: Inventory,
         resources: WAGResources,
+        input_parser: InputParser,
         stats: Stats,
         frame: usize,
     ) -> Situation {
@@ -145,6 +148,7 @@ impl PlayerState {
             resources: resources.0,
             grounded: self.is_grounded(),
             tracker: self.get_action_tracker().cloned(),
+            held_buttons: input_parser.get_pressed(),
         }
     }
     pub fn get_action_tracker(&self) -> Option<&ActionTracker> {

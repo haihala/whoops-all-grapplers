@@ -1,11 +1,22 @@
 use crate::{ActionEvent, ActionRequirement, CancelPolicy, Situation};
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ActionBlock {
     pub events: Vec<ActionEvent>,
     pub exit_requirement: ContinuationRequirement, // To pass naturally
     pub cancel_policy: CancelPolicy,               // To be cancelled out of
     pub mutator: Option<fn(&mut ActionBlock, &Situation) -> ActionBlock>,
+}
+
+impl Default for ActionBlock {
+    fn default() -> Self {
+        Self {
+            events: Default::default(),
+            exit_requirement: Default::default(),
+            cancel_policy: CancelPolicy::never(),
+            mutator: None,
+        }
+    }
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]

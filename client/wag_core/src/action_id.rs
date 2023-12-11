@@ -90,7 +90,6 @@ pub enum MizkuActionId {
     KneeThrust,
     Overhead,
     Uppercut,
-    FootDiveRelease,
-    FootDiveStart,
+    FootDive,
     HeelKick,
 }

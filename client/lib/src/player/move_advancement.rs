@@ -1,17 +1,25 @@
 use bevy::prelude::*;
 use characters::{Inventory, WAGResources};
+use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{Clock, Stats};
 
 pub(super) fn move_advancement(
     clock: Res<Clock>,
-    mut query: Query<(&mut PlayerState, &Inventory, &WAGResources, &Stats)>,
+    mut query: Query<(
+        &mut PlayerState,
+        &Inventory,
+        &WAGResources,
+        &InputParser,
+        &Stats,
+    )>,
 ) {
-    for (mut state, inventory, resources, stats) in &mut query {
+    for (mut state, inventory, resources, parser, stats) in &mut query {
         if state.action_in_progress() {
             state.proceed_move(
                 inventory.to_owned(),
                 resources.to_owned(),
+                parser.to_owned(),
                 stats.to_owned(),
                 clock.frame,
             );

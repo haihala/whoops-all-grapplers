@@ -3015,6 +3015,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "characters",
+ "input_parsing",
  "strum",
  "strum_macros",
  "wag_core",

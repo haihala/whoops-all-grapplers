@@ -66,13 +66,12 @@ pub fn end_combat(
     let mut ordered_healths = (&mut players).into_iter().collect::<Vec<_>>();
 
     // TODO: There has to be a cleaner way This whole function could use a once-over. Many names seem outdated due to refactors elsewhere
-    ordered_healths.sort_by(|(a, _, _), (b, _, _)| {
-        a.get(ResourceType::Health)
+    ordered_healths.sort_by_key(|(res, _, _)| {
+        -(res
+            .get(ResourceType::Health)
             .unwrap()
             .get_percentage()
-            .partial_cmp(&b.get(ResourceType::Health).unwrap().get_percentage())
-            .unwrap()
-            .reverse()
+            .round() as i32) // f32 doesn't implement ord, so sort doesn't work
     });
 
     assert!(ordered_healths.len() == 2);

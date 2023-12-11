@@ -3,8 +3,8 @@ use std::{collections::HashMap, iter::empty};
 use bevy::prelude::*;
 
 use wag_core::{
-    ActionId, Animation, AnimationType, Area, ItemId, Joint, MizkuActionId, MizkuAnimation, Model,
-    Stats, StatusCondition, StatusFlag, FPS,
+    ActionId, Animation, AnimationType, Area, GameButton, ItemId, Joint, MizkuActionId,
+    MizkuAnimation, Model, Stats, StatusCondition, StatusFlag, FPS,
 };
 
 use crate::{
@@ -147,8 +147,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![MizkuAnimation::KneeThrust.into()],
                         exit_requirement: ContinuationRequirement::Time(5),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -177,8 +176,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![MizkuAnimation::LowKick.into()],
                         exit_requirement: ContinuationRequirement::Time(8),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -214,8 +212,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(18),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![
@@ -257,8 +254,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![MizkuAnimation::Uppercut.into()],
                         exit_requirement: ContinuationRequirement::Time(8),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -290,8 +286,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![MizkuAnimation::FalconKnee.into()],
                         exit_requirement: ContinuationRequirement::Time(2),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         // TODO: Add sweet and sour spots
@@ -314,7 +309,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             ),
         ),
         (
-            MizkuActionId::FootDiveStart,
+            MizkuActionId::FootDive,
             Action::airborne(
                 Some("s"),
                 CancelCategory::Normal,
@@ -324,13 +319,12 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             MizkuAnimation::FootDiveHold.into(),
                             Movement {
                                 amount: Vec2::Y * -1.0,
-                                duration: 5,
+                                duration: 7,
                             }
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(5),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Movement {
@@ -338,32 +332,15 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             duration: 30,
                         }
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(40),
-                        cancel_policy: CancelPolicy::specific(vec![ActionId::Mizku(
-                            MizkuActionId::FootDiveRelease,
-                        )]),
-                        mutator: None,
+                        exit_requirement: ContinuationRequirement::Conditions(vec![
+                            ActionRequirement::ButtonNotPressed(GameButton::Strong),
+                        ]),
+                        ..default()
                     },
-                    ActionBlock {
-                        events: vec![],
-                        exit_requirement: ContinuationRequirement::Time(15),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
-                    },
-                ],
-            ),
-        ),
-        (
-            MizkuActionId::FootDiveRelease,
-            Action::new(
-                Some("S"), // Negative edge
-                CancelCategory::Normal,
-                vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::FootDiveRelease.into()],
                         exit_requirement: ContinuationRequirement::Time(3),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -382,9 +359,6 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         mutator: None,
                     },
                 ],
-                vec![ActionRequirement::OngoingAction(vec![ActionId::Mizku(
-                    MizkuActionId::FootDiveStart,
-                )])],
             ),
         ),
         (
@@ -396,8 +370,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![MizkuAnimation::GroundThrowStartup.into()],
                         exit_requirement: ContinuationRequirement::Time(3),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -427,8 +400,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(13),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
             ),
@@ -442,8 +414,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![MizkuAnimation::GroundThrowStartup.into()],
                         exit_requirement: ContinuationRequirement::Time(5),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -474,8 +445,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(40),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
             ),
@@ -503,8 +473,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![MizkuAnimation::Sweep.into()],
                         exit_requirement: ContinuationRequirement::Time(7),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -538,8 +507,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![MizkuAnimation::AirThrowStartup.into()],
                         exit_requirement: ContinuationRequirement::Time(4),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -570,8 +538,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(30),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
             ),
@@ -599,8 +566,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![MizkuAnimation::Sharpen.into()],
                         exit_requirement: ContinuationRequirement::Time(48),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![ModifyResource(ResourceType::Sharpness, 1)],
@@ -661,8 +627,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(5),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Movement {
@@ -670,7 +635,9 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             duration: 15,
                         }
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(25),
+                        exit_requirement: ContinuationRequirement::Conditions(vec![
+                            ActionRequirement::ButtonNotPressed(GameButton::Fast),
+                        ]),
                         cancel_policy: CancelPolicy::specific(
                             vec![
                                 MizkuActionId::SwayDash,
@@ -703,8 +670,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(5),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Movement {
@@ -712,7 +678,9 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             duration: 15,
                         }
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(25),
+                        exit_requirement: ContinuationRequirement::Conditions(vec![
+                            ActionRequirement::ButtonNotPressed(GameButton::Strong),
+                        ]),
                         cancel_policy: CancelPolicy::specific(
                             vec![
                                 MizkuActionId::SwayDash,
@@ -746,8 +714,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(4),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Movement {
@@ -756,8 +723,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         }
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(8),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![
@@ -769,8 +735,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(8),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
                 vec![ActionRequirement::OngoingAction(vec![
@@ -841,8 +806,7 @@ fn sway_slashes() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![anim.into(), ClearMovement],
                         exit_requirement: ContinuationRequirement::Time(4),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -856,8 +820,7 @@ fn sway_slashes() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(8),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![
@@ -869,8 +832,7 @@ fn sway_slashes() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(8),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
                 vec![ActionRequirement::OngoingAction(vec![ActionId::Mizku(
@@ -897,8 +859,7 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
                             Consume(ItemId::Kunai),
                         ],
                         exit_requirement: ContinuationRequirement::Time(13),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -915,8 +876,7 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
                 vec![
@@ -941,8 +901,7 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(25),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![

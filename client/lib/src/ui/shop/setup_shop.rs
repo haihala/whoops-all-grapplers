@@ -1,5 +1,3 @@
-use std::cmp::Ordering;
-
 use bevy::prelude::*;
 
 use characters::{Character, Item, ItemCategory::*};
@@ -495,12 +493,7 @@ fn get_prepared_items(character: &Character) -> PreparedItems {
         .map(|(id, item)| (id.to_owned(), item.to_owned()))
         .collect();
 
-    items.sort_by(
-        |(id1, item1), (id2, item2)| match (item1.cost.cmp(&item2.cost), id1.cmp(id2)) {
-            (Ordering::Equal, id_order) => id_order,
-            (cost_order, _) => cost_order,
-        },
-    );
+    items.sort_by_key(|(id, item)| (item.cost, id.to_owned()));
 
     for (id, item) in items {
         match item.category {

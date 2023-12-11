@@ -1,4 +1,4 @@
-use wag_core::{ActionId, ItemId};
+use wag_core::{ActionId, GameButton, ItemId};
 
 use crate::{ResourceType, Situation};
 
@@ -10,6 +10,8 @@ pub enum ActionRequirement {
     ItemsOwned(Vec<ItemId>),
     ResourceFull(ResourceType),
     ResourceValue(ResourceType, i32),
+    ButtonPressed(GameButton),
+    ButtonNotPressed(GameButton),
 }
 impl ActionRequirement {
     // If one condition fails, the whole thing fails.
@@ -59,6 +61,16 @@ impl ActionRequirement {
                         .map(|r| r.current >= *value)
                         .unwrap_or_else(|| panic!("Character to have resource {:#?}", resource))
                     {
+                        return false;
+                    }
+                }
+                ActionRequirement::ButtonPressed(button) => {
+                    if !situation.held_buttons.contains(button) {
+                        return false;
+                    }
+                }
+                ActionRequirement::ButtonNotPressed(button) => {
+                    if situation.held_buttons.contains(button) {
                         return false;
                     }
                 }

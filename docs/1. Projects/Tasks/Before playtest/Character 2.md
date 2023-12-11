@@ -24,7 +24,7 @@ See [[Mizku]] for designs
 - [ ] Air [[Mizku#Upwards slice]]
 - [ ] Adjustments
 	- [x] [[Mizku#Sharpen]] needs to be slower
-	- [ ] [[Mizku#Back step]] needs to be holdable
+	- [x] [[Mizku#Back step]] needs to be holdable
 	- [x] [[Mizku#Foot dive]] needs to activate (Added a note after playtests)
 	- [x] Stagger animations is pretty static
 	- [x] Jump height is mad high

@@ -140,8 +140,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![DummyAnimation::Slap.into()],
                         exit_requirement: ContinuationRequirement::Time(9),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -170,8 +169,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![DummyAnimation::CrouchChop.into()],
                         exit_requirement: ContinuationRequirement::Time(8),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -200,8 +198,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![DummyAnimation::BurnStraight.into()],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![
@@ -276,8 +273,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![DummyAnimation::AntiAir.into()],
                         exit_requirement: ContinuationRequirement::Time(13),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -309,8 +305,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![DummyAnimation::AirSlap.into()],
                         exit_requirement: ContinuationRequirement::Time(8),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -340,8 +335,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![DummyAnimation::Divekick.into(), Consume(ItemId::Boots)],
                         exit_requirement: ContinuationRequirement::Time(5),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -375,8 +369,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![DummyAnimation::NormalThrow.into()],
                         exit_requirement: ContinuationRequirement::Time(5),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -403,8 +396,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(40),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
             ),
@@ -418,8 +410,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![DummyAnimation::NormalThrow.into()],
                         exit_requirement: ContinuationRequirement::Time(5),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -447,8 +438,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(40),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
             ),
@@ -462,8 +452,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![DummyAnimation::Sweep.into()],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -497,8 +486,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![DummyAnimation::AirThrow.into()],
                         exit_requirement: ContinuationRequirement::Time(9),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -526,8 +514,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(30),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
             ),
@@ -568,8 +555,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![DummyAnimation::GroundSlam.into()],
                         exit_requirement: ContinuationRequirement::Time(14),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![
@@ -594,8 +580,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(20),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
             ),
@@ -609,8 +594,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![DummyAnimation::AirSlam.into()],
                         exit_requirement: ContinuationRequirement::Time(14),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![
@@ -635,8 +619,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(35),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
             ),
@@ -650,8 +633,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![ForceStand],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -668,8 +650,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(5),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
             ),
@@ -683,8 +664,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![ForceStand, ClearResource(ResourceType::Charge)],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -705,8 +685,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(5),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
                 vec![
@@ -724,8 +703,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![ForceStand],
                         exit_requirement: ContinuationRequirement::Time(30),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -743,8 +721,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(30),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
             ),
@@ -758,8 +735,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                     ActionBlock {
                         events: vec![ForceStand, ModifyResource(ResourceType::Meter, -30)],
                         exit_requirement: ContinuationRequirement::Time(30),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![Attack::new(
@@ -780,8 +756,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(20),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                 ],
                 vec![ActionRequirement::ResourceValue(ResourceType::Meter, 30)],

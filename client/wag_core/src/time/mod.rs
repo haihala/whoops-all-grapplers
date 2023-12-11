@@ -66,7 +66,11 @@ impl Plugin for TimePlugin {
     fn build(&self, app: &mut App) {
         app.configure_sets(
             Update,
-            (WAGStage::Physics, WAGStage::HitReg, WAGStage::PlayerUpdates)
+            (
+                WAGStage::Physics.after(WAGStage::Inputs),
+                WAGStage::HitReg.after(WAGStage::Physics),
+                WAGStage::PlayerUpdates.after(WAGStage::Physics),
+            )
                 .run_if(once_per_combat_frame),
         )
         .add_state::<GameState>()

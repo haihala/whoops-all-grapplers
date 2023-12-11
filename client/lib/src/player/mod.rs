@@ -73,6 +73,7 @@ impl Plugin for PlayerPlugin {
                     asset_updater::update_audio,
                     root_mover::update_root_transform,
                 )
+                    .chain()
                     .in_set(WAGStage::PlayerUpdates),
             )
             // There is a max of 15 systems per call to add_systems

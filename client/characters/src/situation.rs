@@ -1,4 +1,6 @@
-use wag_core::Stats;
+use std::collections::HashSet;
+
+use wag_core::{GameButton, Stats};
 
 use crate::{ActionTracker, Inventory, ResourceType, WAGResource};
 
@@ -10,5 +12,6 @@ pub struct Situation {
     pub resources: Vec<(ResourceType, WAGResource)>,
     pub frame: usize,
     pub stats: Stats,
+    pub held_buttons: HashSet<GameButton>,
     // Kept minimal so far, but will grow as needed
 }

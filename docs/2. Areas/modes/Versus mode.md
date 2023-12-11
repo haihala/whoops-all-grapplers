@@ -1,0 +1,2 @@
+- Basic local 1v1 mode
+- First player to get 3 rounds ahead of the other wins

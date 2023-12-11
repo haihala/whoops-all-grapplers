@@ -13,6 +13,7 @@ More bugs may appear in [[Bug tracker#Before playtest]]
 - [[Toasts in various spots]]
 - [[Move format refinement]]
 - [[Mizku]] gripes
+- An actual loading screen that waits until models are in.
 
 ### Spec update
 - Get idea dumps from archive
@@ -27,12 +28,10 @@ More bugs may appear in [[Bug tracker#Before playtest]]
 - Delay wakeup on knockdown
 - [[Menus]]
 - [[Testing framework v2]]
-- A way to pause the game (look at inspector)
-- Generic state based visibility toggler for UI components (there is a component for visibility)
+- [[Pause and step in dev mode]]
 - [[Yoink assets]]
 - [[Netplay]]
 - [[Try out egui]]
-- https://bevyengine.org/learn/book/migration-guides/0.8-0.9/#add-global-time-scaling for hitstop
 - [[Shop 2.0]]
 - [[Dynamic hurtboxes 2.0]]
 

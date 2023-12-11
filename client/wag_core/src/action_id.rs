@@ -62,7 +62,8 @@ pub enum DummyActionId {
 pub enum MizkuActionId {
     Sharpen,
 
-    UpwardsSlash,
+    GroundUpwardsSlash,
+    AirUpwardsSlash,
     KunaiThrow,
 
     // Throws

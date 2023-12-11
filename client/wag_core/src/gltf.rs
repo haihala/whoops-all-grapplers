@@ -91,7 +91,8 @@ pub enum MizkuAnimation {
     #[default]
     TPose,
     Uppercut,
-    UpwardsSlash,
+    AirUpwardsSlash,
+    GroundUpwardsSlash,
     WalkBack,
     WalkForward,
 }

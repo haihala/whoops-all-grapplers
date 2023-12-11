@@ -22,14 +22,16 @@ See [[Mizku]] for designs
 	- [x] Sharpness resource
 - [x] Add moves in the game
 - [ ] Air [[Mizku#Upwards slice]]
-- [ ] Adjustments
+	- [x] Blender part
+	- [ ] Mechanics
+- [x] Adjustments
 	- [x] [[Mizku#Sharpen]] needs to be slower
 	- [x] [[Mizku#Back step]] needs to be holdable
 	- [x] [[Mizku#Foot dive]] needs to activate (Added a note after playtests)
 	- [x] Stagger animations is pretty static
 	- [x] Jump height is mad high
 	- [x] Idle animation looks weird
-	- [ ] 2s Needs to move onwards less
+	- [x] 2s Needs to move onwards less
 - [ ] Fine tuning
 	- [ ] Hitboxes
 	- [ ] Hurtboxes (padding)

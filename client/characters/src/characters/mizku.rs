@@ -586,15 +586,14 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
 fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
     vec![
         (
-            // TODO
-            MizkuActionId::UpwardsSlash,
+            MizkuActionId::GroundUpwardsSlash,
             Action::new(
-                Some("[123]4[98]f"),
+                Some("[789]f"),
                 CancelCategory::Special,
                 vec![ActionBlock {
                     events: vec![
                         ForceStand,
-                        MizkuAnimation::UpwardsSlash.into(),
+                        MizkuAnimation::GroundUpwardsSlash.into(),
                         Condition(StatusCondition {
                             flag: StatusFlag::Intangible,
                             effect: None,
@@ -607,6 +606,23 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 }],
                 vec![
                     ActionRequirement::Grounded,
+                    ActionRequirement::ResourceFull(ResourceType::Charge),
+                ],
+            ),
+        ),
+        (
+            MizkuActionId::AirUpwardsSlash,
+            Action::new(
+                Some("[789]f"),
+                CancelCategory::Special,
+                vec![ActionBlock {
+                    events: vec![MizkuAnimation::AirUpwardsSlash.into()],
+                    exit_requirement: ContinuationRequirement::Time(45),
+                    cancel_policy: CancelPolicy::never(),
+                    mutator: None,
+                }],
+                vec![
+                    ActionRequirement::Airborne,
                     ActionRequirement::ResourceFull(ResourceType::Charge),
                 ],
             ),

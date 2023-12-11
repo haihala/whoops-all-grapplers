@@ -43,12 +43,12 @@ impl ActionRequirement {
                     }
                 }
                 ActionRequirement::ResourceFull(resource) => {
-                    if situation
+                    if !situation
                         .resources
                         .iter()
                         .find_map(|(rt, r)| if rt == resource { Some(r) } else { None })
-                        .map(|r| r.is_full())
                         .unwrap_or_else(|| panic!("Character to have resource {:#?}", resource))
+                        .is_full()
                     {
                         return false;
                     }

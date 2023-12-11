@@ -2,10 +2,7 @@
 ## Before playtest
 - [[Items for playtest]]
 - [[First balance pass]]
-- Needs blender:
-	- [[Character 2]]
-		- [Mizku#Upwards slice]](air version)
-		- 2s steps forwards a lot, causing strangeness
+- [[Character 2]] (will still probably need *some* blender, but nothing obvious)
 
 More bugs may appear in [[Bug tracker#Before playtest]]
 
@@ -15,10 +12,7 @@ More bugs may appear in [[Bug tracker#Before playtest]]
 - [[Extending items]]
 - [[Toasts in various spots]]
 - [[Move format refinement]]
-- Use https://docs.rs/bevy/latest/bevy/gizmos/gizmos/struct.Gizmos.html#method.rect to visualize boxes
-- [[Mizku]]
-	- Uppercut animation is not my best work
-	- 
+- [[Mizku]] gripes
 
 ### Spec update
 - Get idea dumps from archive

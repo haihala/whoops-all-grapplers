@@ -3,7 +3,9 @@
 - [[Items for playtest]]
 - [[First balance pass]]
 - Needs blender:
-	- [[Character 2]] ([[Mizku#Upwards slice]](air version) and [[Mizku#Back step]] less jank when held)
+	- [[Character 2]]
+		- [Mizku#Upwards slice]](air version)
+		- 2s steps forwards a lot, causing strangeness
 
 More bugs may appear in [[Bug tracker#Before playtest]]
 

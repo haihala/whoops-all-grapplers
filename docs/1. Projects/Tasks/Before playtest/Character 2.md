@@ -29,7 +29,7 @@ See [[Mizku]] for designs
 	- [x] Stagger animations is pretty static
 	- [x] Jump height is mad high
 	- [x] Idle animation looks weird
-	- [ ] 2H Needs to move onwards less
+	- [ ] 2s Needs to move onwards less
 - [ ] Fine tuning
 	- [ ] Hitboxes
 	- [ ] Hurtboxes (padding)

@@ -74,10 +74,10 @@ She is a young but competent second generation Korean American immigrant. She's 
 	- Back leg
 		- Can hit cross up similar to Kum j.d
 
-#### Roundhouse
+#### Donkey kick
 - Input: `s` while standing
-- Visual: Baiken 5k, but higher. Heel first roundhouse
-- Function: Poke
+- Visual: Ryu donkey kick from 3s (has the back step)
+- Function: Long range high commitment whiff punish / Neutral skip
 
 #### Uppercut
 - Input: `s` while Crouching

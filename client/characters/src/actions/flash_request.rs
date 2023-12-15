@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use wag_core::METER_BAR_FULL_SEGMENT_COLOR;
 
 #[derive(Debug, Clone, Copy, PartialEq, Reflect)]
 pub struct FlashRequest {
@@ -11,7 +12,7 @@ pub struct FlashRequest {
 impl Default for FlashRequest {
     fn default() -> Self {
         Self {
-            color: Color::rgb(0.14, 0.7, 0.8),
+            color: METER_BAR_FULL_SEGMENT_COLOR,
             speed: 30.0,
             depth: 0.5,
             duration: 0.5,

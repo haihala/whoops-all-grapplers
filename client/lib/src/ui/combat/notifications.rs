@@ -1,7 +1,10 @@
 use bevy::prelude::*;
-use wag_core::{Clock, GameState, OnlyShowInGameState, Player};
+use wag_core::{
+    Clock, GameState, OnlyShowInGameState, Player, NOTIFICATION_BACKGROUND_COLOR,
+    NOTIFICATION_TEXT_COLOR,
+};
 
-use crate::assets::{Colors, Fonts};
+use crate::assets::Fonts;
 
 #[derive(Debug)]
 struct Notification {
@@ -51,7 +54,6 @@ const TIME_TO_LIVE: usize = 3 * wag_core::FPS as usize;
 pub fn update_notifications(
     mut commands: Commands,
     fonts: Res<Fonts>,
-    colors: Res<Colors>,
     mut toasts: ResMut<Notifications>,
     containers: Query<(Entity, &NotificationContainer)>,
     clock: Res<Clock>,
@@ -72,8 +74,8 @@ pub fn update_notifications(
                         entity: spawn_notification(
                             parent,
                             fonts.basic.clone(),
-                            colors.notification_background,
-                            colors.notification_text,
+                            NOTIFICATION_BACKGROUND_COLOR,
+                            NOTIFICATION_TEXT_COLOR,
                             content.clone(), // Not necessary technically, but the compiler can't know that each message will only be used once
                         ),
                     })

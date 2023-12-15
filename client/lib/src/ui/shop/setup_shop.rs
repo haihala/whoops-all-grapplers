@@ -1,9 +1,13 @@
 use bevy::prelude::*;
 
 use characters::{Character, Item, ItemCategory::*};
-use wag_core::{GameState, ItemId, OnlyShowInGameState, Owner, Player, Players, INVENTORY_SIZE};
+use wag_core::{
+    GameState, ItemId, OnlyShowInGameState, Owner, Player, Players, GENERIC_TEXT_COLOR,
+    INVENTORY_SIZE, SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_LIGHT_BACKGROUND_COLOR,
+    SHOP_TIMER_BACKGROUND_COLOR,
+};
 
-use crate::assets::{Colors, Fonts};
+use crate::assets::Fonts;
 
 use super::shop_inputs::{ShopNavigation, ShopSlotState};
 use super::shops_resource::{Shop, ShopComponents, ShopComponentsBuilder, Shops};
@@ -22,12 +26,11 @@ pub fn setup_shop(
     characters: Query<&Character>,
     players: Res<Players>,
     fonts: Res<Fonts>,
-    colors: Res<Colors>,
 ) {
     let container = commands
         .spawn((
             NodeBundle {
-                background_color: Color::BLACK.into(), // This will color the divider between the sides
+                background_color: SHOP_DIVIDER_COLOR.into(), // This will color the divider between the sides
                 style: Style {
                     height: Val::Percent(100.0),
                     width: Val::Percent(100.0),
@@ -49,7 +52,6 @@ pub fn setup_shop(
         container,
         Player::One,
         characters.get(players.one).unwrap(),
-        &colors,
         &fonts,
     );
 
@@ -58,7 +60,6 @@ pub fn setup_shop(
         container,
         Player::Two,
         characters.get(players.two).unwrap(),
-        &colors,
         &fonts,
     );
 
@@ -81,7 +82,6 @@ fn setup_shop_root(
     parent: Entity,
     owner: Player,
     character: &Character,
-    colors: &Colors,
     fonts: &Fonts,
 ) -> ShopComponents {
     let mut shop_root_builder = ShopComponentsBuilder::default();
@@ -89,7 +89,7 @@ fn setup_shop_root(
     let container = commands
         .spawn((
             NodeBundle {
-                background_color: Color::BLACK.into(),
+                background_color: SHOP_DIVIDER_COLOR.into(),
                 style: Style {
                     height: Val::Percent(100.0),
                     width: Val::Percent(49.9), // Not quite 50 so there is a gap between them
@@ -103,25 +103,17 @@ fn setup_shop_root(
         .set_parent(parent)
         .id();
 
-    setup_info_panel(commands, container, &mut shop_root_builder, colors, fonts);
-    setup_inventory(
-        commands,
-        container,
-        &mut shop_root_builder,
-        colors,
-        fonts,
-        owner,
-    );
+    setup_info_panel(commands, container, &mut shop_root_builder, fonts);
+    setup_inventory(commands, container, &mut shop_root_builder, fonts, owner);
     setup_available_items(
         commands,
         container,
         &mut shop_root_builder,
-        colors,
         fonts,
         character,
         owner,
     );
-    setup_countdown_number(commands, container, &mut shop_root_builder, colors, fonts);
+    setup_countdown_number(commands, container, &mut shop_root_builder, fonts);
 
     shop_root_builder.build()
 }
@@ -130,13 +122,12 @@ fn setup_countdown_number(
     commands: &mut Commands,
     parent: Entity,
     shop_root: &mut ShopComponentsBuilder,
-    colors: &Colors,
     fonts: &Fonts,
 ) {
     let container = commands
         .spawn((
             NodeBundle {
-                background_color: colors.shop_timer_background.into(),
+                background_color: SHOP_TIMER_BACKGROUND_COLOR.into(),
                 style: Style {
                     position_type: PositionType::Absolute,
                     justify_content: JustifyContent::Center,
@@ -160,7 +151,7 @@ fn setup_countdown_number(
                 text: Text::from_section(
                     "10",
                     TextStyle {
-                        color: colors.text,
+                        color: GENERIC_TEXT_COLOR,
                         font: fonts.basic.clone(),
                         font_size: 256.0,
                     },
@@ -176,7 +167,6 @@ fn setup_info_panel(
     commands: &mut Commands,
     parent: Entity,
     shop_root: &mut ShopComponentsBuilder,
-    colors: &Colors,
     fonts: &Fonts,
 ) {
     let absolute_margin = 3.0;
@@ -186,7 +176,7 @@ fn setup_info_panel(
     let container = commands
         .spawn((
             NodeBundle {
-                background_color: Color::DARK_GRAY.into(),
+                background_color: SHOP_DARK_BACKGROUND_COLOR.into(),
                 style: Style {
                     height: Val::Px(icon_size + absolute_margin * 4.0), // Top and bottom, margin and padding
                     width: Val::Auto,
@@ -202,7 +192,7 @@ fn setup_info_panel(
         .id();
 
     shop_root.big_icon = Some(big_icon(commands, container, icon_size));
-    setup_explanation_box(commands, container, shop_root, colors, fonts);
+    setup_explanation_box(commands, container, shop_root, fonts);
 }
 
 fn big_icon(commands: &mut Commands, parent: Entity, size: f32) -> Entity {
@@ -227,7 +217,6 @@ fn setup_explanation_box(
     commands: &mut Commands,
     parent: Entity,
     shop_root: &mut ShopComponentsBuilder,
-    colors: &Colors,
     fonts: &Fonts,
 ) {
     let container = commands
@@ -252,7 +241,7 @@ fn setup_explanation_box(
     let basic_style = TextStyle {
         font: fonts.basic.clone(),
         font_size: 12.0,
-        color: colors.text,
+        color: GENERIC_TEXT_COLOR,
     };
 
     shop_root.item_name = Some(setup_text_sections(
@@ -315,7 +304,6 @@ fn setup_inventory(
     commands: &mut Commands,
     parent: Entity,
     shop_root: &mut ShopComponentsBuilder,
-    colors: &Colors,
     fonts: &Fonts,
     player: Player,
 ) {
@@ -324,7 +312,7 @@ fn setup_inventory(
     let container = commands
         .spawn((
             NodeBundle {
-                background_color: Color::DARK_GRAY.into(),
+                background_color: SHOP_DARK_BACKGROUND_COLOR.into(),
                 style: Style {
                     // size: Size::AUTO,
                     align_items: AlignItems::Center,
@@ -348,7 +336,7 @@ fn setup_inventory(
         TextStyle {
             font: fonts.basic.clone(),
             font_size: 24.0,
-            color: colors.text,
+            color: GENERIC_TEXT_COLOR,
         },
         "Money",
     ));
@@ -393,7 +381,7 @@ fn create_empty_inventory_slot(
     commands
         .spawn((
             NodeBundle {
-                background_color: Color::GRAY.into(),
+                background_color: SHOP_LIGHT_BACKGROUND_COLOR.into(),
                 style: Style {
                     height: Val::Px(50.0),
                     width: Val::Px(50.0),
@@ -421,7 +409,6 @@ fn setup_available_items(
     commands: &mut Commands,
     parent: Entity,
     shop_root: &mut ShopComponentsBuilder,
-    colors: &Colors,
     fonts: &Fonts,
     character: &Character,
     player: Player,
@@ -447,7 +434,6 @@ fn setup_available_items(
     shop_root.consumables = setup_category(
         commands,
         container,
-        colors,
         fonts,
         player,
         "Consumables".into(),
@@ -457,7 +443,6 @@ fn setup_available_items(
     shop_root.basics = setup_category(
         commands,
         container,
-        colors,
         fonts,
         player,
         "Basics".into(),
@@ -467,7 +452,6 @@ fn setup_available_items(
     shop_root.upgrades = setup_category(
         commands,
         container,
-        colors,
         fonts,
         player,
         "Upgrades".into(),
@@ -513,7 +497,6 @@ fn get_prepared_items(character: &Character) -> PreparedItems {
 fn setup_category(
     commands: &mut Commands,
     parent: Entity,
-    colors: &Colors,
     fonts: &Fonts,
     player: Player,
     title: String,
@@ -524,7 +507,7 @@ fn setup_category(
     let container = commands
         .spawn((
             NodeBundle {
-                background_color: Color::DARK_GRAY.into(),
+                background_color: SHOP_DARK_BACKGROUND_COLOR.into(),
                 style: Style {
                     // size: Size::AUTO,
                     flex_direction: FlexDirection::Column,
@@ -541,14 +524,14 @@ fn setup_category(
 
     commands
         .spawn(TextBundle {
-            background_color: BackgroundColor(Color::DARK_GRAY),
+            background_color: SHOP_DARK_BACKGROUND_COLOR.into(),
 
             ..TextBundle::from_section(
                 title,
                 TextStyle {
                     font: fonts.basic.clone(),
                     font_size: 18.0,
-                    color: colors.text,
+                    color: GENERIC_TEXT_COLOR,
                 },
             )
             .with_style(Style {
@@ -565,9 +548,7 @@ fn setup_category(
         .set_parent(container);
 
     for id in items.into_iter() {
-        item_entities.push(setup_shop_item(
-            commands, container, colors, fonts, player, id,
-        ));
+        item_entities.push(setup_shop_item(commands, container, fonts, player, id));
     }
 
     item_entities
@@ -576,7 +557,6 @@ fn setup_category(
 fn setup_shop_item(
     commands: &mut Commands,
     parent: Entity,
-    colors: &Colors,
     fonts: &Fonts,
     player: Player,
     id: ItemId,
@@ -606,7 +586,7 @@ fn setup_shop_item(
     let base_style = TextStyle {
         font: fonts.basic.clone(),
         font_size: 16.0,
-        color: colors.text,
+        color: GENERIC_TEXT_COLOR,
     };
 
     // Icon
@@ -648,7 +628,7 @@ pub fn render_item_icon(
 
     commands
         .spawn(TextBundle {
-            background_color: BackgroundColor(Color::GRAY),
+            background_color: SHOP_LIGHT_BACKGROUND_COLOR.into(),
             ..TextBundle::from_section(text, text_style)
         })
         .set_parent(parent);

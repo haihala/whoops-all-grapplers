@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use wag_core::{Clock, COMBAT_DURATION};
+use wag_core::{Clock, COMBAT_DURATION, ROUND_TIMER_TEXT_COLOR};
 
 #[derive(Debug, Component)]
 pub struct RoundTimer;
@@ -41,7 +41,7 @@ pub fn setup_timer(
                     TextStyle {
                         font,
                         font_size: 100.0,
-                        color: Color::WHITE,
+                        color: ROUND_TIMER_TEXT_COLOR,
                     },
                 )
                 .with_alignment(TextAlignment::Center),

@@ -12,25 +12,6 @@ pub use particles::{ParticleRequest, Particles};
 pub use sounds::Sounds;
 
 #[derive(Debug, Resource)]
-pub struct Colors {
-    pub text: Color,
-    pub notification_text: Color,
-    pub notification_background: Color,
-    pub meter_burn_flash: Color,
-
-    // Box visualizations
-    pub hitbox: Color,
-    pub hurtbox: Color,
-    pub pushbox: Color,
-
-    // Shop
-    pub default_item_slot: Color,
-    pub highlighted_item_slot: Color,
-    pub disabled_item_slot: Color,
-    pub shop_timer_background: Color,
-}
-
-#[derive(Debug, Resource)]
 pub struct Fonts {
     pub basic: Handle<Font>,
 }
@@ -42,7 +23,6 @@ impl Plugin for AssetsPlugin {
         app.add_systems(
             PreStartup,
             (
-                loaders::colors,
                 loaders::fonts,
                 loaders::models,
                 loaders::animations,

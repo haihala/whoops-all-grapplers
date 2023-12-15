@@ -10,6 +10,9 @@ pub use args::WagArgs;
 mod character_id;
 pub use character_id::CharacterId;
 
+mod color_palette;
+pub use color_palette::*;
+
 mod economy;
 pub use economy::*;
 

@@ -4,7 +4,8 @@ use bevy::prelude::*;
 
 use wag_core::{
     ActionId, Animation, AnimationType, Area, GameButton, ItemId, Joint, MizkuActionId,
-    MizkuAnimation, Model, Stats, StatusCondition, StatusFlag, FPS,
+    MizkuAnimation, Model, Stats, StatusCondition, StatusFlag, CHARGE_BAR_FULL_SEGMENT_COLOR,
+    CHARGE_BAR_PARTIAL_SEGMENT_COLOR, FPS,
 };
 
 use crate::{
@@ -66,8 +67,8 @@ pub fn mizku() -> Character {
                     max: Some((FPS / 2.) as i32), // Frames to full,
                     special: Some(SpecialProperty::Charge(ChargeProperty::default())),
                     render_instructions: RenderInstructions::Bar(ResourceBarVisual {
-                        default_color: Color::rgb(0.05, 0.4, 0.55),
-                        full_color: Some(Color::rgb(0.9, 0.1, 0.3)),
+                        default_color: CHARGE_BAR_PARTIAL_SEGMENT_COLOR,
+                        full_color: Some(CHARGE_BAR_FULL_SEGMENT_COLOR),
                         ..default()
                     }),
                     ..default()

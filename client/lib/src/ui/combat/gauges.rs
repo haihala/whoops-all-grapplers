@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::{CounterVisual, ResourceBarVisual, ResourceType, WAGResources};
-use wag_core::{Player, RoundLog};
+use wag_core::{Player, RoundLog, RESOURCE_COUNTER_TEXT_COLOR, TRANSPARENT};
 
 #[derive(Debug, Component, Deref)]
 pub struct ScoreText(pub Player); // TODO: Move this
@@ -109,7 +109,7 @@ pub fn setup_counter(
             let text_style = TextStyle {
                 font: font.clone(),
                 font_size: 20.0,
-                color: Color::WHITE,
+                color: RESOURCE_COUNTER_TEXT_COLOR,
             };
 
             let spawn_label = |root: &mut ChildBuilder| {
@@ -179,7 +179,7 @@ pub fn update_bars(
                         percentage = 0.0;
                         (bar_visual.default_color.into(), width)
                     } else {
-                        (Color::NONE.into(), Val::Percent(0.0))
+                        (TRANSPARENT.into(), Val::Percent(0.0))
                     };
                 }
             }

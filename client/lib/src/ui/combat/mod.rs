@@ -12,13 +12,12 @@ mod round_timer;
 pub use round_timer::update_timer;
 
 use characters::{RenderInstructions, ResourceBarVisual, ResourceType, WAGResources};
-use wag_core::{GameState, OnlyShowInGameState, Player, Players};
+use wag_core::{GameState, OnlyShowInGameState, Player, Players, GENERIC_TEXT_COLOR};
 
-use crate::assets::{Colors, Fonts};
+use crate::assets::Fonts;
 
 pub fn setup_combat_hud(
     mut commands: Commands,
-    colors: Res<Colors>,
     fonts: Res<Fonts>,
     properties: Query<&WAGResources>,
     players: Res<Players>,
@@ -49,7 +48,6 @@ pub fn setup_combat_hud(
         &mut commands,
         container,
         side_width,
-        &colors,
         &fonts,
         Player::One,
         properties.get(players.one).unwrap(),
@@ -59,7 +57,6 @@ pub fn setup_combat_hud(
         &mut commands,
         container,
         side_width,
-        &colors,
         &fonts,
         Player::Two,
         properties.get(players.two).unwrap(),
@@ -70,7 +67,6 @@ fn setup_player_hud(
     commands: &mut Commands,
     parent: Entity,
     width_percentage: f32,
-    colors: &Colors,
     fonts: &Fonts,
     player: Player,
     properties: &WAGResources,
@@ -91,18 +87,12 @@ fn setup_player_hud(
         .set_parent(parent)
         .id();
 
-    setup_top_hud(commands, container, colors, fonts, player);
+    setup_top_hud(commands, container, fonts, player);
     notifications::setup_toasts(commands, container, player);
     setup_bottom_hud(commands, fonts, container, player, properties);
 }
 
-fn setup_top_hud(
-    commands: &mut Commands,
-    parent: Entity,
-    colors: &Colors,
-    fonts: &Fonts,
-    player: Player,
-) {
+fn setup_top_hud(commands: &mut Commands, parent: Entity, fonts: &Fonts, player: Player) {
     let container = commands
         .spawn((
             NodeBundle {
@@ -133,16 +123,10 @@ fn setup_top_hud(
         ResourceGauge(player, ResourceType::Health),
         "Health bar",
     );
-    setup_round_counter(commands, container, colors, fonts, player);
+    setup_round_counter(commands, container, fonts, player);
 }
 
-fn setup_round_counter(
-    commands: &mut Commands,
-    parent: Entity,
-    colors: &Colors,
-    fonts: &Fonts,
-    player: Player,
-) {
+fn setup_round_counter(commands: &mut Commands, parent: Entity, fonts: &Fonts, player: Player) {
     commands
         .spawn((
             TextBundle::from_section(
@@ -150,7 +134,7 @@ fn setup_round_counter(
                 TextStyle {
                     font: fonts.basic.clone(),
                     font_size: 18.0,
-                    color: colors.text,
+                    color: GENERIC_TEXT_COLOR,
                 },
             ),
             ScoreText(player),

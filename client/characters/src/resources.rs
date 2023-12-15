@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use wag_core::{GameButton, ItemId, Stats, StickPosition};
+use wag_core::{
+    GameButton, ItemId, Stats, StickPosition, HEALTH_BAR_COLOR, METER_BAR_FULL_SEGMENT_COLOR,
+    METER_BAR_PARTIAL_SEGMENT_COLOR,
+};
 
 use crate::Inventory;
 
@@ -163,15 +166,15 @@ impl ResourceBarVisual {
     pub fn default_health() -> Self {
         Self {
             height: 50.0,
-            default_color: Color::rgb(0.9, 0.0, 0.0),
+            default_color: HEALTH_BAR_COLOR,
             ..default()
         }
     }
 
     pub fn default_meter() -> Self {
         Self {
-            default_color: Color::rgb(0.04, 0.5, 0.55),
-            full_color: Some(Color::rgb(0.14, 0.7, 0.8)), // TODO: Move colors to a theme, they don't need to be a resource
+            default_color: METER_BAR_PARTIAL_SEGMENT_COLOR,
+            full_color: Some(METER_BAR_FULL_SEGMENT_COLOR), // TODO: Move colors to a theme, they don't need to be a resource
             segments: 5,
             ..default()
         }

@@ -1,13 +1,12 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
 use wag_core::{
-    GameState, Owner, Player, Players, POST_SHOP_DURATION, PRE_ROUND_DURATION, SELL_RETURN,
+    GameState, Owner, Player, Players, GENERIC_TEXT_COLOR, ITEM_SLOT_DEFAULT_COLOR,
+    ITEM_SLOT_DISABLED_COLOR, ITEM_SLOT_HIGHLIGHT_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
+    SELL_RETURN,
 };
 
-use crate::{
-    assets::{Colors, Fonts},
-    state_transitions::TransitionTimer,
-};
+use crate::{assets::Fonts, state_transitions::TransitionTimer};
 
 use super::{
     setup_shop::{render_item_icon, InventorySlot, ShopItem},
@@ -17,13 +16,12 @@ use super::{
 
 pub fn update_slot_visuals(
     mut query: Query<(&ShopSlotState, &mut BackgroundColor), Changed<ShopSlotState>>,
-    colors: Res<Colors>,
 ) {
     for (state, mut color) in &mut query {
         *color = match state {
-            ShopSlotState::Default => colors.default_item_slot,
-            ShopSlotState::Highlighted => colors.highlighted_item_slot,
-            ShopSlotState::Disabled => colors.disabled_item_slot,
+            ShopSlotState::Default => ITEM_SLOT_DEFAULT_COLOR,
+            ShopSlotState::Highlighted => ITEM_SLOT_HIGHLIGHT_COLOR,
+            ShopSlotState::Disabled => ITEM_SLOT_DISABLED_COLOR,
         }
         .into()
     }
@@ -35,7 +33,6 @@ pub fn update_inventory_ui(
     mut money_texts: Query<&mut Text>,
     mut slots: Query<(Entity, &mut InventorySlot, &Owner)>,
     fonts: Res<Fonts>,
-    colors: Res<Colors>,
     shops: Res<Shops>,
 ) {
     for (inventory, player) in &inventories {
@@ -64,7 +61,7 @@ pub fn update_inventory_ui(
                         TextStyle {
                             font: fonts.basic.clone(),
                             font_size: 36.0,
-                            color: colors.text,
+                            color: GENERIC_TEXT_COLOR,
                         },
                         *id,
                     );

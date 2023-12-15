@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-use wag_core::{GameState, OnlyShowInGameState, RoundLog};
+use wag_core::{GameState, OnlyShowInGameState, RoundLog, GENERIC_TEXT_COLOR};
 
-use crate::assets::{Colors, Fonts};
+use crate::assets::Fonts;
 
 #[derive(Component)]
 pub struct RoundText;
@@ -30,7 +30,7 @@ pub fn update_round_text(
     }
 }
 
-pub fn setup_round_info_text(mut commands: Commands, colors: Res<Colors>, fonts: Res<Fonts>) {
+pub fn setup_round_info_text(mut commands: Commands, fonts: Res<Fonts>) {
     commands
         .spawn((
             NodeBundle {
@@ -61,7 +61,7 @@ pub fn setup_round_info_text(mut commands: Commands, colors: Res<Colors>, fonts:
                         TextStyle {
                             font: fonts.basic.clone(),
                             font_size: 48.0,
-                            color: colors.text,
+                            color: GENERIC_TEXT_COLOR,
                         },
                     ),
                     ..default()

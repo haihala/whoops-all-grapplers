@@ -7,31 +7,8 @@ use super::{
     animations::animation_paths,
     models::model_paths,
     sounds::{get_sound_paths, Sounds},
-    Animations, Colors, Fonts, Models, Particles,
+    Animations, Fonts, Models, Particles,
 };
-
-pub fn colors(mut commands: Commands) {
-    commands.insert_resource(Colors {
-        text: Color::WHITE,
-        notification_background: Color::Rgba {
-            red: 1.0,
-            green: 1.0,
-            blue: 1.0,
-            alpha: 0.3,
-        },
-        notification_text: Color::BLACK,
-        meter_burn_flash: Color::rgb(0.14, 0.7, 0.8),
-
-        hitbox: Color::rgb(1.0, 0.0, 0.0),
-        hurtbox: Color::rgb(0.0, 1.0, 0.0),
-        pushbox: Color::rgb(0.0, 0.0, 1.0),
-
-        default_item_slot: Color::GRAY,
-        highlighted_item_slot: Color::rgb_u8(195, 24, 24), // WWE Raw red
-        disabled_item_slot: Color::BISQUE,
-        shop_timer_background: Color::rgba(0.0, 0.0, 0.0, 0.8),
-    })
-}
 
 pub fn fonts(mut commands: Commands, asset_server: Res<AssetServer>) {
     let basic = asset_server.load("FiraSans-Bold.ttf");

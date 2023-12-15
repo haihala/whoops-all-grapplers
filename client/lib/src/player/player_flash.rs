@@ -8,11 +8,11 @@ use characters::{ActionEvent, FlashRequest};
 use player_state::PlayerState;
 
 // Extended Flash Material
-type EFM = ExtendedMaterial<StandardMaterial, FlashMaterial>;
+type ExtendedFlashMaterial = ExtendedMaterial<StandardMaterial, FlashMaterial>;
 
 pub fn handle_flash_events(
-    mut materials: ResMut<Assets<EFM>>,
-    handles: Query<(Entity, &Handle<EFM>)>,
+    mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
+    handles: Query<(Entity, &Handle<ExtendedFlashMaterial>)>,
     parents: Query<&Parent>,
     mut players: Query<(Entity, &mut PlayerState)>,
     time: Res<Time>,
@@ -90,7 +90,7 @@ pub fn customize_scene_materials(
     handles: Query<(Entity, &Handle<StandardMaterial>)>,
     pbr_materials: Res<Assets<StandardMaterial>>,
     scene_manager: Res<SceneSpawner>,
-    mut materials: ResMut<Assets<EFM>>,
+    mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
     mut cmds: Commands,
 ) {
     for (entity, instance) in &unloaded_instances {

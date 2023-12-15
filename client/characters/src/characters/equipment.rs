@@ -152,7 +152,6 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     chip_damage: false,
                     ..Stats::identity()
                 },
-                ..default()
             },
         ),
     ]

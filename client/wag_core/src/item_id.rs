@@ -2,14 +2,18 @@ use bevy::prelude::*;
 
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum ItemId {
+    // Universal basic
     Gi,
-    Gun,
     Boots,
-    SafetyBoots,
     HockeyPads,
-    ThumbTacks(usize),
     RedPaint,
     Stopwatch,
+
+    ThumbTacks(usize),
+
+    // Universal upgrades
+    SafetyBoots,
+    GoaleeGear,
 
     // Character specific
     // Dummy
@@ -28,6 +32,7 @@ impl ItemId {
         match self {
             Self::RedPaint => "Can of red paint".into(),
             Self::HockeyPads => "Hockey pads".into(),
+            Self::GoaleeGear => "Goalee gear".into(),
             Self::SafetyBoots => "Safety boots".into(),
             Self::Gi => "Gi of the old masters".into(),
             Self::ThumbTacks(n) => match n {

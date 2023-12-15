@@ -3,7 +3,7 @@
 - [ ] Mechanism to auto-consume items at round start(or end) that need it.
 - [ ] Add
 	- [ ] [[Pre-workout]]
-	- [ ] [[Armor of a goalee]]
+	- [x] [[Armor of a goalee]]
 	- [x] [[Can of red paint]]
 	- [ ] [[Travel whetstone]]
 	- [ ] [[Pack of cigs]]

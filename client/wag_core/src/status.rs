@@ -5,6 +5,7 @@ pub struct Stats {
     pub walk_speed: f32,
     pub max_health: i32,
     pub flat_damage: i32,
+    pub chip_damage: bool,
     // Opener
     pub opener_damage_multiplier: f32,
     pub opener_meter_gain: i32,
@@ -36,9 +37,12 @@ impl Stats {
             walk_speed: 0.0,
             max_health: 0,
             flat_damage: 0,
+            chip_damage: true,
+
             opener_damage_multiplier: 1.0,
             opener_meter_gain: 0,
             opener_stun_frames: 0,
+
             action_speed_multiplier: 1.0,
             link_bonus_multiplier: 1.0,
         }
@@ -48,6 +52,7 @@ impl Stats {
         self.walk_speed += rhs.walk_speed;
         self.max_health += rhs.max_health;
         self.flat_damage += rhs.flat_damage;
+        self.chip_damage = self.chip_damage && rhs.chip_damage; // If a source disables chip it's disabled forever
 
         self.opener_damage_multiplier *= rhs.opener_damage_multiplier;
         self.opener_meter_gain += rhs.opener_meter_gain;

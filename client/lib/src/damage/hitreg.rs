@@ -53,7 +53,7 @@ pub struct HitPlayerQuery<'a> {
     facing: &'a Facing,
     spawner: &'a mut HitboxSpawner,
     pushbox: &'a Pushbox,
-    status_effect: &'a Stats,
+    stats: &'a Stats,
 }
 
 pub(super) fn clash_parry(
@@ -296,7 +296,17 @@ pub(super) fn apply_hits(
 
                 (
                     hit.attack.self_on_block,
-                    hit.attack.target_on_block,
+                    if !defender.stats.chip_damage {
+                        hit.attack
+                            .target_on_block
+                            .into_iter()
+                            .filter(|ev| {
+                                !matches!(ev, ActionEvent::ModifyResource(ResourceType::Health, _))
+                            })
+                            .collect()
+                    } else {
+                        hit.attack.target_on_block
+                    },
                     SoundEffect::Block,
                     VisualEffect::Block,
                 )
@@ -314,15 +324,15 @@ pub(super) fn apply_hits(
 
         if hit.is_opener {
             sounds.play(SoundEffect::Whoosh); // TODO change sound effect
-            attacker_actions = handle_opener(attacker_actions, attacker.status_effect);
+            attacker_actions = handle_opener(attacker_actions, attacker.stats);
             attacker_actions.push(ActionEvent::ModifyResource(
                 ResourceType::Meter,
-                attacker.status_effect.opener_meter_gain,
+                attacker.stats.opener_meter_gain,
             ));
-            defender_actions = handle_opener(defender_actions, attacker.status_effect);
+            defender_actions = handle_opener(defender_actions, attacker.stats);
         }
 
-        defender_actions = apply_flat_damage(defender_actions, attacker.status_effect.flat_damage);
+        defender_actions = apply_flat_damage(defender_actions, attacker.stats.flat_damage);
         attacker.state.add_actions(attacker_actions);
         defender.state.add_actions(defender_actions);
         sounds.play(sound);

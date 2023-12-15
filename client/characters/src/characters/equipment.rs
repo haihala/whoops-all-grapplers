@@ -119,15 +119,6 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
-            ItemId::SafetyBoots,
-            Item {
-                category: Upgrade(vec![ItemId::Boots, ItemId::HockeyPads]),
-                explanation: "Speed and health!\n\nSafe and fashionable".into(),
-                cost: 100,
-                ..default()
-            },
-        ),
-        (
             ItemId::ThumbTacks(1),
             Item {
                 category: Basic,
@@ -137,6 +128,31 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     flat_damage: 1,
                     ..Stats::identity()
                 },
+            },
+        ),
+        // Upgrades
+        (
+            ItemId::SafetyBoots,
+            Item {
+                category: Upgrade(vec![ItemId::Boots, ItemId::HockeyPads]),
+                explanation: "Speed and health!\n\nSafe and fashionable".into(),
+                cost: 100,
+                ..default()
+            },
+        ),
+        (
+            ItemId::GoaleeGear,
+            Item {
+                category: Upgrade(vec![ItemId::HockeyPads, ItemId::HockeyPads]),
+                explanation:
+                    "Increases health and removes chip damage on block\n\nI'm fucking <title card>!"
+                        .into(),
+                cost: 100,
+                effect: Stats {
+                    chip_damage: false,
+                    ..Stats::identity()
+                },
+                ..default()
             },
         ),
     ]

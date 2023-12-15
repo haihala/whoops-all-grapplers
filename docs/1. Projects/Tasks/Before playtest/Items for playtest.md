@@ -4,6 +4,7 @@
 - [ ] Add
 	- [ ] [[Pre-workout]]
 	- [ ] [[Armor of a goalee]]
+	- [x] [[Can of red paint]]
 	- [ ] [[Travel whetstone]]
 	- [ ] [[Pack of cigs]]
 		- [ ] [[Gentleman's pipe]]

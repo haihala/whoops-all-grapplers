@@ -95,6 +95,18 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
+            ItemId::RedPaint,
+            Item {
+                cost: 50,
+                explanation: "Increased animation speed\n\nBecause red makes you go fastah".into(),
+                effect: Stats {
+                    action_speed_multiplier: 1.1,
+                    ..Stats::identity()
+                },
+                ..default()
+            },
+        ),
+        (
             ItemId::SafetyBoots,
             Item {
                 category: Upgrade(vec![ItemId::Boots, ItemId::HockeyPads]),

@@ -8,6 +8,7 @@ pub enum ItemId {
     SafetyBoots,
     HockeyPads,
     ThumbTacks(usize),
+    RedPaint,
 
     // Character specific
     // Dummy
@@ -24,6 +25,7 @@ pub enum ItemId {
 impl ItemId {
     pub fn display_name(&self) -> String {
         match self {
+            Self::RedPaint => "Can of red paint".into(),
             Self::HockeyPads => "Hockey pads".into(),
             Self::SafetyBoots => "Safety boots".into(),
             Self::Gi => "Gi of the old masters".into(),

@@ -14,6 +14,7 @@ More bugs may appear in [[Bug tracker#Before playtest]]
 - [[Move format refinement]]
 - [[Mizku]] gripes
 - An actual loading screen that waits until models are in.
+- Upgrades only show things you have the parts for to reduce bloat
 
 ### Spec update
 - Get idea dumps from archive

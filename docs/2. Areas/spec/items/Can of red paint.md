@@ -1,0 +1,3 @@
+- Universal basic item
+- Will bump up your animation speed some
+	- Because red makes you go fastah

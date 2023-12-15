@@ -20,7 +20,7 @@ incremental = true
 opt-level = 3
 
 [workspace.dependencies]
-bevy_hanabi = { git = "https://github.com/djeedai/bevy_hanabi" } # Because not updated to work with bevy 0.12.0 yet, should be 0.8 when it does
+bevy_hanabi = "0.8.0"
 bevy = "0.12.0"
 bevy-inspector-egui = "0.21.0"
 rand = "0.8"
@@ -28,3 +28,4 @@ map-macro = "0.2"
 strum = "0.25.0"
 strum_macros = "0.25.2"
 clap = { version = "4.1.7", features = ["derive"] }
+bevy-scene-hook = "9.0.0"

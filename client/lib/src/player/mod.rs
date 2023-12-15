@@ -5,6 +5,7 @@ mod dynamic_colliders;
 mod move_activation;
 mod move_advancement;
 mod movement;
+mod player_flash;
 mod recovery;
 mod root_mover;
 mod size_adjustment;
@@ -23,11 +24,13 @@ use crate::{
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
 
-use bevy::{ecs::query::WorldQuery, prelude::*};
+use bevy::{ecs::query::WorldQuery, pbr::ExtendedMaterial, prelude::*};
+use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
 pub use move_activation::MoveBuffer;
 
-use self::root_mover::RootMover;
+use player_flash::FlashMaterial;
+use root_mover::RootMover;
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
@@ -53,7 +56,15 @@ impl Plugin for PlayerPlugin {
         app.add_systems(Startup, setup)
             .add_systems(OnEnter(GameState::PreRound), setup_combat)
             // This is here so it's up to date when the round starts
-            .add_systems(Update, condition_management::update_combined_status_effect)
+            .add_systems(
+                Update,
+                (
+                    condition_management::update_combined_status_effect
+                        .before(WAGStage::PlayerUpdates),
+                    player_flash::customize_scene_materials,
+                    player_flash::handle_flash_events,
+                ),
+            )
             .add_systems(
                 Update,
                 (
@@ -84,7 +95,10 @@ impl Plugin for PlayerPlugin {
                     dynamic_colliders::update_colliders,
                 )
                     .in_set(WAGStage::PlayerUpdates),
-            );
+            )
+            .add_plugins(MaterialPlugin::<
+                ExtendedMaterial<StandardMaterial, FlashMaterial>,
+            >::default());
     }
 }
 
@@ -151,9 +165,16 @@ fn spawn_player(
         ))
         .with_children(|parent| {
             parent.spawn((
-                SceneBundle {
-                    scene: models[&character.model].clone(),
-                    ..default()
+                HookedSceneBundle {
+                    scene: SceneBundle {
+                        scene: models[&character.model].clone(),
+                        ..default()
+                    },
+                    hook: SceneHook::new(move |_, cmds| {
+                        cmds.insert(player_flash::UpdateMaterial);
+
+                        // TODO: Use this for attaching to joints and flipping animations
+                    }),
                 },
                 RootMover,
             ));

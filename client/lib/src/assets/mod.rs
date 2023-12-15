@@ -13,12 +13,17 @@ pub use sounds::Sounds;
 
 #[derive(Debug, Resource)]
 pub struct Colors {
+    pub text: Color,
     pub notification_text: Color,
     pub notification_background: Color,
+    pub meter_burn_flash: Color,
+
+    // Box visualizations
     pub hitbox: Color,
     pub hurtbox: Color,
     pub pushbox: Color,
-    pub text: Color,
+
+    // Shop
     pub default_item_slot: Color,
     pub highlighted_item_slot: Color,
     pub disabled_item_slot: Color,

@@ -4,7 +4,7 @@ use wag_core::{
     ActionId, Animation, DummyAnimation, ItemId, MizkuAnimation, SoundEffect, StatusCondition,
 };
 
-use crate::{Attack, Movement, ResourceType};
+use crate::{Attack, FlashRequest, Movement, ResourceType};
 
 use super::AnimationRequest;
 
@@ -30,6 +30,7 @@ pub enum ActionEvent {
     Hitstop, // TODO: Add strength
     CameraTilt(Vec2),
     CameraShake, // TODO: Add strength
+    Flash(FlashRequest),
 }
 impl ActionEvent {
     pub fn add_offset(self, offset: usize) -> ActionEvent {

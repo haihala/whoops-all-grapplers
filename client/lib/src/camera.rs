@@ -44,7 +44,7 @@ fn add_camera(mut commands: Commands) {
             parent.spawn((
                 Camera3dBundle {
                     transform: Transform::from_xyz(0.0, MAX_CAMERA_HEIGHT, MAX_CAMERA_DISTANCE),
-                    projection: PerspectiveProjection { ..default() }.into(),
+                    projection: PerspectiveProjection::default().into(),
                     ..default()
                 },
                 Name::new("Main Camera"),

@@ -16,7 +16,7 @@ use crate::{
     AttackHeight::*,
     BlockType::*,
     CancelCategory, CancelPolicy, ChargeProperty, CommonAttackProps, ContinuationRequirement,
-    CounterVisual, Hitbox, Item, ItemCategory, Lifetime, Movement, ResourceBarVisual,
+    CounterVisual, FlashRequest, Hitbox, Item, ItemCategory, Lifetime, Movement, ResourceBarVisual,
     SpecialProperty,
     StunType::*,
     ToHit, WAGResource,
@@ -599,6 +599,10 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             effect: None,
                             expiration: Some(20),
                         }),
+                        Flash(FlashRequest {
+                            duration: 0.5,
+                            ..default()
+                        }),
                     ],
                     exit_requirement: ContinuationRequirement::Time(45),
                     cancel_policy: CancelPolicy::never(),
@@ -616,7 +620,13 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 Some("[789]f"),
                 CancelCategory::Special,
                 vec![ActionBlock {
-                    events: vec![MizkuAnimation::AirUpwardsSlash.into()],
+                    events: vec![
+                        MizkuAnimation::AirUpwardsSlash.into(),
+                        Flash(FlashRequest {
+                            duration: 0.5,
+                            ..default()
+                        }),
+                    ],
                     exit_requirement: ContinuationRequirement::Time(45),
                     cancel_policy: CancelPolicy::never(),
                     mutator: None,
@@ -684,6 +694,10 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 duration: 5,
                             }
                             .into(),
+                            Flash(FlashRequest {
+                                duration: 0.3,
+                                ..default()
+                            }),
                         ],
                         exit_requirement: ContinuationRequirement::Time(5),
                         ..default()

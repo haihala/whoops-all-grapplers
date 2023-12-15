@@ -15,6 +15,12 @@ More bugs may appear in [[Bug tracker#Before playtest]]
 - [[Mizku]] gripes
 - An actual loading screen that waits until models are in.
 - Upgrades only show things you have the parts for to reduce bloat
+	- Or maybe sort more intelligently, something like
+		- Purchasable
+		- All components owned but can't afford
+			- Not sure if I want to do this, as it could cause shifts in the list
+		- A component owned
+		- No components owned
 
 ### Spec update
 - Get idea dumps from archive

@@ -438,6 +438,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy-scene-hook"
+version = "9.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "83e433958378686e72e82184650a54a64055f7e498e446edc32b5a157f926d7d"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_a11y"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -734,7 +743,8 @@ dependencies = [
 [[package]]
 name = "bevy_hanabi"
 version = "0.8.0"
-source = "git+https://github.com/djeedai/bevy_hanabi#69b20038baa9ae8228173dda012462d49eddda1e"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dca4b0a04e401d05dc74bc829f2e41bd62afdbacc095165fadb4e93caf0ba546"
 dependencies = [
  "anyhow",
  "bevy",
@@ -4083,6 +4093,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
+ "bevy-scene-hook",
  "bevy_hanabi",
  "characters",
  "input_parsing",

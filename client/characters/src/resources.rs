@@ -171,7 +171,7 @@ impl ResourceBarVisual {
     pub fn default_meter() -> Self {
         Self {
             default_color: Color::rgb(0.04, 0.5, 0.55),
-            full_color: Some(Color::rgb(0.14, 0.7, 0.8)),
+            full_color: Some(Color::rgb(0.14, 0.7, 0.8)), // TODO: Move colors to a theme, they don't need to be a resource
             segments: 5,
             ..default()
         }

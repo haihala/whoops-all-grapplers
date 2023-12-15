@@ -5,6 +5,7 @@ mod action_requirement;
 mod animation_request;
 mod attack;
 mod cancels;
+mod flash_request;
 mod movement;
 mod to_hit;
 
@@ -15,5 +16,6 @@ pub use action_requirement::ActionRequirement;
 pub use animation_request::AnimationRequest;
 pub use attack::{Attack, CommonAttackProps, StunType};
 pub use cancels::{CancelCategory, CancelPolicy, CancelRule};
+pub use flash_request::FlashRequest;
 pub use movement::Movement;
 pub use to_hit::{AttackHeight, BlockType, Hitbox, Hurtbox, Lifetime, Projectile, ToHit};

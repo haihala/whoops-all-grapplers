@@ -974,7 +974,7 @@ fn mizku_items() -> HashMap<ItemId, Item> {
             Item {
                 cost: 100,
                 explanation: "6s for an overhead".into(),
-                category: ItemCategory::Upgrade(vec![ItemId::SafetyBoots]),
+                category: ItemCategory::Upgrade(vec![ItemId::SafetyBoots, ItemId::HockeyPads]),
                 ..default()
             },
         ),

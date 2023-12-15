@@ -9,6 +9,7 @@ pub enum ItemId {
     HockeyPads,
     ThumbTacks(usize),
     RedPaint,
+    Stopwatch,
 
     // Character specific
     // Dummy

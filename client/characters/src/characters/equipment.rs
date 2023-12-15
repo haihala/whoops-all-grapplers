@@ -107,6 +107,18 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
+            ItemId::Stopwatch,
+            Item {
+                cost: 50,
+                explanation: "Increased link timing meter gain\n\nNot my tempo!".into(),
+                effect: Stats {
+                    link_bonus_multiplier: 1.1,
+                    ..Stats::identity()
+                },
+                ..default()
+            },
+        ),
+        (
             ItemId::SafetyBoots,
             Item {
                 category: Upgrade(vec![ItemId::Boots, ItemId::HockeyPads]),

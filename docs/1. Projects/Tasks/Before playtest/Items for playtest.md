@@ -10,7 +10,7 @@
 		- [ ] [[Gentleman's pipe]]
 	- [ ] [[Swan feather]]
 		- [ ] [[Air jordans]]
-	- [ ] [[Stopwatch]]
+	- [x] [[Stopwatch]]
 		- [ ] [[Track spikes]]
 	- [x] [[Thumbtacks]]
 		- [ ] [[Spiked shoes]]

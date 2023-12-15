@@ -198,10 +198,11 @@ pub(super) fn move_activator(
         &mut WAGResources,
         &Player,
         &Character,
+        &Stats,
     )>,
 ) {
     // Activate and clear activating move
-    for (mut buffer, mut state, mut properties, player, character) in &mut query {
+    for (mut buffer, mut state, mut properties, player, character, stats) in &mut query {
         if let Some(activation) = buffer.activation.take() {
             let start_frame = match activation.kind {
                 ActivationType::Link(link) => {
@@ -212,7 +213,7 @@ pub(super) fn move_activator(
                             properties
                                 .get_mut(ResourceType::Meter)
                                 .unwrap()
-                                .gain(meter_gain);
+                                .gain((meter_gain as f32 * stats.link_bonus_multiplier) as i32);
                         }
                     }
 

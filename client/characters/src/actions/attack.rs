@@ -1,6 +1,7 @@
 use bevy::prelude::*;
+use wag_core::HIT_FLASH_COLOR;
 
-use crate::{ActionEvent, Movement, ResourceType, ToHit};
+use crate::{ActionEvent, FlashRequest, Movement, ResourceType, ToHit};
 
 #[derive(Debug, Clone, PartialEq, Component, Reflect)]
 pub struct Attack {
@@ -105,6 +106,12 @@ impl CommonAttackProps {
             ActionEvent::ModifyResource(ResourceType::Health, -self.damage),
             self.get_stun(false),
             Movement::impulse(self.knock_back).into(),
+            ActionEvent::Flash(FlashRequest {
+                color: HIT_FLASH_COLOR,
+                depth: 1.0,
+                duration: 0.2,
+                ..default()
+            }),
         ]
     }
 

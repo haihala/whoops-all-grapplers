@@ -41,7 +41,7 @@ fn fragment(
 
     var flash_age = (globals.time - flash_start);
     var age_damp = step(flash_age, flash_duration);
-    var ratio = flash_depth * pow(sin(globals.time * flash_speed), 2.0);
+    var ratio = flash_depth * pow(cos(globals.time * flash_speed), 2.0);
     pbr_input.material.base_color = mix(pbr_input.material.base_color, flash_color, age_damp * ratio);
 
 #ifdef PREPASS_PIPELINE

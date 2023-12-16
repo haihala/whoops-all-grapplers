@@ -62,11 +62,11 @@ pub struct FlashMaterial {
 }
 impl MaterialExtension for FlashMaterial {
     fn fragment_shader() -> ShaderRef {
-        "shaders/extended_material.wgsl".into()
+        "shaders/flash_material.wgsl".into()
     }
 
     fn deferred_fragment_shader() -> ShaderRef {
-        "shaders/extended_material.wgsl".into()
+        "shaders/flash_material.wgsl".into()
     }
 }
 impl FlashMaterial {

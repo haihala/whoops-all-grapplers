@@ -34,3 +34,6 @@ pub const PUSHBOX_VISUALIZATION_COLOR: Color = Color::rgb(0.0, 0.0, 1.0);
 // Notifications
 pub const NOTIFICATION_BACKGROUND_COLOR: Color = Color::rgba(1.0, 1.0, 1.0, 0.3);
 pub const NOTIFICATION_TEXT_COLOR: Color = Color::BLACK;
+
+// Signal colors
+pub const HIT_FLASH_COLOR: Color = Color::rgb(1.0, 1.0, 1.0);

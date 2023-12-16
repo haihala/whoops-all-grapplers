@@ -1,0 +1,3 @@
+- Universal basic item
+- Increases the weight of the user
+	- Useful for dropping out of combos and lowering your jump arc

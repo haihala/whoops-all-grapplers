@@ -94,14 +94,22 @@ impl PlayerState {
         action: Action,
         start_frame: usize,
         offset: usize,
+        inventory: Inventory,
+        resources: WAGResources,
+        parser: InputParser,
+        stats: Stats,
     ) {
-        self.unprocessed_events.extend(
-            action.script[0]
-                .events
-                .clone()
-                .into_iter()
-                .map(|x| x.add_offset(offset)),
-        ); // This can't be the best way to merge Vecs
+        let events = if let Some(mutator) = action.script[0].mutator {
+            let situation =
+                self.build_situation(inventory, resources, parser, stats, start_frame + offset);
+            mutator(action.script[0].clone(), &situation).events
+        } else {
+            action.script[0].clone().events
+        };
+
+        let initial_events = events.into_iter().map(|x| x.add_offset(offset));
+
+        self.unprocessed_events.extend(initial_events); // This can't be the best way to merge Vecs
         let tracker = ActionTracker::new(action_id, action, start_frame);
 
         self.main = match self.main {
@@ -123,11 +131,12 @@ impl PlayerState {
         let situation = self.build_situation(inventory, resources, parser, stats, frame);
         let tracker = self.get_action_tracker_mut().unwrap();
 
-        if tracker.blocker.fulfilled(situation) {
+        if tracker.blocker.fulfilled(&situation) {
             if let Some(next_block) = tracker.pop_next(frame) {
-                tracker.blocker = next_block.exit_requirement;
-                tracker.cancel_policy = next_block.cancel_policy;
-                self.unprocessed_events.extend(next_block.events);
+                let mutated = next_block.apply_mutator(&situation);
+                tracker.blocker = mutated.exit_requirement;
+                tracker.cancel_policy = mutated.cancel_policy;
+                self.unprocessed_events.extend(mutated.events);
             } else {
                 self.recover(frame);
             }

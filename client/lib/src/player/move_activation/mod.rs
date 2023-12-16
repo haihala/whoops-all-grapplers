@@ -199,10 +199,14 @@ pub(super) fn move_activator(
         &Player,
         &Character,
         &Stats,
+        &Inventory,
+        &InputParser,
     )>,
 ) {
     // Activate and clear activating move
-    for (mut buffer, mut state, mut properties, player, character, stats) in &mut query {
+    for (mut buffer, mut state, mut properties, player, character, stats, inventory, parser) in
+        &mut query
+    {
         if let Some(activation) = buffer.activation.take() {
             let start_frame = match activation.kind {
                 ActivationType::Link(link) => {
@@ -234,6 +238,10 @@ pub(super) fn move_activator(
                 character.get_move(activation.id).unwrap(),
                 start_frame,
                 clock.frame - start_frame,
+                inventory.to_owned(),
+                properties.to_owned(),
+                parser.to_owned(),
+                stats.to_owned(),
             );
         }
     }

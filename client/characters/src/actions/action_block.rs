@@ -5,9 +5,8 @@ pub struct ActionBlock {
     pub events: Vec<ActionEvent>,
     pub exit_requirement: ContinuationRequirement, // To pass naturally
     pub cancel_policy: CancelPolicy,               // To be cancelled out of
-    pub mutator: Option<fn(&mut ActionBlock, &Situation) -> ActionBlock>,
+    pub mutator: Option<fn(ActionBlock, &Situation) -> ActionBlock>,
 }
-
 impl Default for ActionBlock {
     fn default() -> Self {
         Self {
@@ -15,6 +14,15 @@ impl Default for ActionBlock {
             exit_requirement: Default::default(),
             cancel_policy: CancelPolicy::never(),
             mutator: None,
+        }
+    }
+}
+impl ActionBlock {
+    pub fn apply_mutator(&self, situation: &Situation) -> Self {
+        if let Some(mutator) = self.mutator {
+            mutator(self.clone(), situation)
+        } else {
+            self.clone()
         }
     }
 }
@@ -27,12 +35,14 @@ pub enum ContinuationRequirement {
     Time(usize),
 }
 impl ContinuationRequirement {
-    pub fn fulfilled(&self, situation: Situation) -> bool {
+    pub fn fulfilled(&self, situation: &Situation) -> bool {
         match self {
             Self::None => true,
-            Self::Conditions(conditions) => ActionRequirement::check(conditions, &situation),
+            Self::Conditions(conditions) => ActionRequirement::check(conditions, situation),
             Self::Time(duration) => {
-                (situation.frame - situation.tracker.unwrap().current_block_start_frame)
+                let current_block_start_frame =
+                    situation.tracker.clone().unwrap().current_block_start_frame;
+                (situation.frame - current_block_start_frame)
                     >= ((*duration as f32 / situation.stats.action_speed_multiplier) as usize)
             }
         }

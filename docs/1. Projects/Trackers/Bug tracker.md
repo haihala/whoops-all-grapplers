@@ -6,6 +6,8 @@
 	- Initial offset wrong, update system works?
 	- System ordering thing
 - Box visualizations occasionally jitter (specifically when walking, probably a system ordering thing)
+- Box visualizations (maybe boxes themselves) seem to lag a bit behind where the model is
+	- System ordering probably
 
 # Before playtest
 
@@ -15,4 +17,3 @@
 - There is an input recording strangeness, parrots don't always work, probably an ordering question.
 
 # Investigable discoveries
-- Are mutators used?

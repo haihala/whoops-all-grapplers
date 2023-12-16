@@ -5,7 +5,7 @@ pub struct ActionBlock {
     pub events: Vec<ActionEvent>,
     pub exit_requirement: ContinuationRequirement, // To pass naturally
     pub cancel_policy: CancelPolicy,               // To be cancelled out of
-    pub mutator: Option<fn(ActionBlock, &Situation) -> ActionBlock>,
+    pub mutator: Option<fn(ActionBlock, &Situation) -> ActionBlock>, // This gets passed the original block itself
 }
 impl Default for ActionBlock {
     fn default() -> Self {

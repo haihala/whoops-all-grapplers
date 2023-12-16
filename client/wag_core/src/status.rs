@@ -13,6 +13,7 @@ pub struct Stats {
     // Movement
     pub walk_speed: f32,
     pub gravity: f32,
+    pub jump_force_multiplier: f32,
 
     // Opener
     pub opener_damage_multiplier: f32,
@@ -51,6 +52,7 @@ impl Stats {
 
             walk_speed: 0.0,
             gravity: 0.0,
+            jump_force_multiplier: 1.0,
 
             opener_damage_multiplier: 1.0,
             opener_meter_gain: 0,
@@ -70,6 +72,7 @@ impl Stats {
 
         self.walk_speed += rhs.walk_speed;
         self.gravity += rhs.gravity;
+        self.jump_force_multiplier *= rhs.jump_force_multiplier;
 
         self.opener_damage_multiplier *= rhs.opener_damage_multiplier;
         self.opener_meter_gain += rhs.opener_meter_gain;

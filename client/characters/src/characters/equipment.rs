@@ -146,6 +146,18 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
+            ItemId::EagleFeather,
+            Item {
+                cost: 50,
+                explanation: "Makes you jump higher\n\nFly like an eagle".into(),
+                effect: Stats {
+                    jump_force_multiplier: 1.05,
+                    ..Stats::identity()
+                },
+                ..default()
+            },
+        ),
+        (
             ItemId::ThumbTacks(1),
             Item {
                 category: Basic,

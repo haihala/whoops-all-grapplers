@@ -1,6 +1,9 @@
 use std::f32::consts::PI;
 
-use crate::{Action, ActionBlock, CancelCategory, CancelPolicy, ContinuationRequirement, Movement};
+use crate::{
+    Action, ActionBlock, ActionEvent, CancelCategory, CancelPolicy, ContinuationRequirement,
+    Movement,
+};
 
 use bevy::prelude::*;
 use wag_core::{ActionId, Animation};
@@ -103,7 +106,21 @@ fn jump(input: &'static str, impulse: Vec2, animation: impl Into<Animation>) -> 
                 events: vec![Movement::impulse(impulse).into()],
                 exit_requirement: ContinuationRequirement::Time(5),
                 cancel_policy: CancelPolicy::any(),
-                mutator: None,
+                mutator: Some(|mut original, situation| {
+                    original.events = original
+                        .events
+                        .into_iter()
+                        .map(|event| match event {
+                            ActionEvent::Movement(base_jump) => ActionEvent::Movement(Movement {
+                                amount: base_jump.amount * situation.stats.jump_force_multiplier,
+                                ..base_jump
+                            }),
+                            other => other,
+                        })
+                        .collect();
+
+                    original
+                }),
             },
         ],
     )

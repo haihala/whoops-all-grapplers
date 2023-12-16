@@ -2,10 +2,15 @@ use bevy::prelude::*;
 
 #[derive(Reflect, Debug, Clone, Copy, PartialEq, Component)]
 pub struct Stats {
-    pub walk_speed: f32,
+    // Health and damage
     pub max_health: i32,
     pub flat_damage: i32,
     pub chip_damage: bool,
+
+    // Movement
+    pub walk_speed: f32,
+    pub gravity: f32,
+
     // Opener
     pub opener_damage_multiplier: f32,
     pub opener_meter_gain: i32,
@@ -34,10 +39,12 @@ impl Stats {
             // These are meant to be identity values, you should be able to
             // combine them with another Stats instance and get the other instance out.
             // Useful for folding and stuff.
-            walk_speed: 0.0,
             max_health: 0,
             flat_damage: 0,
             chip_damage: true,
+
+            walk_speed: 0.0,
+            gravity: 0.0,
 
             opener_damage_multiplier: 1.0,
             opener_meter_gain: 0,
@@ -49,10 +56,12 @@ impl Stats {
     }
 
     pub fn combine(mut self, rhs: &Self) -> Self {
-        self.walk_speed += rhs.walk_speed;
         self.max_health += rhs.max_health;
         self.flat_damage += rhs.flat_damage;
         self.chip_damage = self.chip_damage && rhs.chip_damage; // If a source disables chip it's disabled forever
+
+        self.walk_speed += rhs.walk_speed;
+        self.gravity += rhs.gravity;
 
         self.opener_damage_multiplier *= rhs.opener_damage_multiplier;
         self.opener_meter_gain += rhs.opener_meter_gain;

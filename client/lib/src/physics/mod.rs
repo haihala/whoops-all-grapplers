@@ -71,14 +71,14 @@ fn player_gravity(
         &mut PlayerState,
         &mut HitboxSpawner,
         &Transform,
-        &Character,
+        &Stats,
     )>,
 ) {
-    for (mut velocity, mut state, mut spawner, tf, character) in &mut players {
+    for (mut velocity, mut state, mut spawner, tf, stats) in &mut players {
         let is_airborne = tf.translation.y > GROUND_PLANE_HEIGHT;
 
         if is_airborne {
-            velocity.add_impulse(-Vec2::Y * character.gravity);
+            velocity.add_impulse(-Vec2::Y * stats.gravity);
 
             if state.is_grounded() {
                 state.jump();

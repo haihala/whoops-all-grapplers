@@ -34,14 +34,17 @@ use super::{
 // So it's meant to just be able to compile.
 // Could go back on that if that proves to be too much of a hassle
 pub fn dummy() -> Character {
+    let (jumps, gravity) = super::jumps(2.0, 1.0, Animation::Dummy(DummyAnimation::Jump));
+
     Character::new(
         Model::Dummy,
         dummy_animations(),
-        dummy_moves(),
+        dummy_moves(jumps),
         dummy_items(),
-        2.0,
-        1.0,
-        Stats::default(),
+        Stats {
+            gravity,
+            ..default()
+        },
         vec![
             (
                 ResourceType::Charge,
@@ -82,7 +85,6 @@ fn dummy_animations() -> HashMap<AnimationType, Animation> {
         (AnimationType::CrouchBlock, DummyAnimation::CrouchBlock),
         (AnimationType::CrouchStun, DummyAnimation::CrouchStun),
         (AnimationType::Getup, DummyAnimation::Getup),
-        (AnimationType::Jump, DummyAnimation::Jump),
         (AnimationType::Default, DummyAnimation::TPose),
     ]
     .into_iter()
@@ -94,10 +96,11 @@ fn dummy_animations() -> HashMap<AnimationType, Animation> {
 const DASH_DURATION: usize = (0.5 * wag_core::FPS) as usize;
 const DASH_IMPULSE: f32 = 10.0;
 
-fn dummy_moves() -> HashMap<ActionId, Action> {
+fn dummy_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<ActionId, Action> {
     empty()
         .chain(item_actions())
         .chain(dashes())
+        .chain(jumps)
         .chain(
             normals()
                 .chain(specials())

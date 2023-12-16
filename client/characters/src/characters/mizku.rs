@@ -30,15 +30,16 @@ use super::{
 };
 
 pub fn mizku() -> Character {
+    let (jumps, gravity) = super::jumps(2.0, 1.0, Animation::Mizku(MizkuAnimation::Jump));
+
     Character::new(
         Model::Mizku,
         mizku_animations(),
-        mizku_moves(),
+        mizku_moves(jumps),
         mizku_items(),
-        2.0,
-        1.0,
         Stats {
             walk_speed: 1.5,
+            gravity,
             ..default()
         },
         vec![
@@ -92,17 +93,17 @@ fn mizku_animations() -> HashMap<AnimationType, Animation> {
         (AnimationType::CrouchStun, MizkuAnimation::CrouchStagger),
         (AnimationType::Getup, MizkuAnimation::Getup),
         (AnimationType::Default, MizkuAnimation::StandPose),
-        (AnimationType::Jump, MizkuAnimation::Jump),
     ]
     .into_iter()
     .map(|(k, v)| (k, Animation::from(v)))
     .collect()
 }
 
-fn mizku_moves() -> HashMap<ActionId, Action> {
+fn mizku_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<ActionId, Action> {
     empty()
-        .chain(item_actions())
+        .chain(jumps)
         .chain(dashes())
+        .chain(item_actions())
         .chain(
             normals()
                 .chain(specials())

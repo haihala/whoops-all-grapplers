@@ -119,6 +119,19 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
+            ItemId::Dumbbell,
+            Item {
+                cost: 50,
+                explanation: "Makes you ever so slightly heavier\n\nNot for training purposes"
+                    .into(),
+                effect: Stats {
+                    gravity: 0.1,
+                    ..Stats::identity()
+                },
+                ..default()
+            },
+        ),
+        (
             ItemId::ThumbTacks(1),
             Item {
                 category: Basic,

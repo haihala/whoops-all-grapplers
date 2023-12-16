@@ -139,7 +139,4 @@ pub enum AnimationType {
 
     #[default]
     Default,
-
-    // Not really used in the same way, but this is used to generate actions
-    Jump,
 }

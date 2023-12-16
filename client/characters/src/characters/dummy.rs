@@ -781,7 +781,7 @@ fn dummy_items() -> HashMap<ItemId, Item> {
         ItemId::Roids,
         Item {
             cost: 100,
-            category: Consumable,
+            category: Consumable(crate::items::ConsumableType::OneRound),
             explanation: "Get yoked".into(),
             effect: Stats {
                 action_speed_multiplier: 1.1,

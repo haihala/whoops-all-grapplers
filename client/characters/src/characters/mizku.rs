@@ -981,7 +981,7 @@ fn mizku_items() -> HashMap<ItemId, Item> {
                 cost: 100,
                 explanation: "qcf+f to throw, comes in handy\n\nThat's the power...of a president!"
                     .into(),
-                category: ItemCategory::Consumable,
+                category: ItemCategory::Consumable(crate::items::ConsumableType::UntilUsed),
                 ..default()
             },
         ),

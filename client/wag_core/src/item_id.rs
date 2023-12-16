@@ -2,6 +2,9 @@ use bevy::prelude::*;
 
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum ItemId {
+    // Universal consumables
+    PreWorkout,
+
     // Universal basic
     Gi,
     Boots,
@@ -31,6 +34,7 @@ pub enum ItemId {
 impl ItemId {
     pub fn display_name(&self) -> String {
         match self {
+            Self::PreWorkout => "Pre-workout".into(),
             Self::RedPaint => "Can of red paint".into(),
             Self::HockeyPads => "Hockey pads".into(),
             Self::GoaleeGear => "Goalee gear".into(),

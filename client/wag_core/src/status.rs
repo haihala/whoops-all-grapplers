@@ -2,8 +2,11 @@ use bevy::prelude::*;
 
 #[derive(Reflect, Debug, Clone, Copy, PartialEq, Component)]
 pub struct Stats {
-    // Health and damage
+    // Resources
     pub max_health: i32,
+    pub starting_meter: i32,
+
+    // Damage
     pub flat_damage: i32,
     pub chip_damage: bool,
 
@@ -15,6 +18,7 @@ pub struct Stats {
     pub opener_damage_multiplier: f32,
     pub opener_meter_gain: i32,
     pub opener_stun_frames: i32,
+
     // Actions
     pub action_speed_multiplier: f32,
     pub link_bonus_multiplier: f32,
@@ -40,6 +44,8 @@ impl Stats {
             // combine them with another Stats instance and get the other instance out.
             // Useful for folding and stuff.
             max_health: 0,
+            starting_meter: 0,
+
             flat_damage: 0,
             chip_damage: true,
 
@@ -57,6 +63,8 @@ impl Stats {
 
     pub fn combine(mut self, rhs: &Self) -> Self {
         self.max_health += rhs.max_health;
+        self.starting_meter += rhs.starting_meter;
+
         self.flat_damage += rhs.flat_damage;
         self.chip_damage = self.chip_damage && rhs.chip_damage; // If a source disables chip it's disabled forever
 

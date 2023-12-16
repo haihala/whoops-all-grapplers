@@ -204,7 +204,7 @@ fn setup_combat(
 
     for (
         player,
-        status_effect,
+        stats,
         inventory,
         mut resources,
         mut tf,
@@ -215,7 +215,7 @@ fn setup_combat(
         mut animation_helper,
     ) in &mut query
     {
-        resources.reset(status_effect, inventory);
+        resources.reset(stats, inventory);
         player_state.reset();
         buffer.clear_all();
         parser.clear();

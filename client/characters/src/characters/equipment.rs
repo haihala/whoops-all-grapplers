@@ -3,7 +3,7 @@ use wag_core::{ActionId, Animation, ItemId, Stats, StatusCondition, StatusFlag};
 
 use crate::{
     actions::ActionRequirement, Action, ActionBlock, ActionEvent, CancelCategory, CancelPolicy,
-    ContinuationRequirement, Item, ItemCategory::*,
+    ConsumableType::*, ContinuationRequirement, Item, ItemCategory::*,
 };
 
 fn get_high_gi_parry() -> Action {
@@ -62,6 +62,20 @@ pub fn universal_item_actions(
 
 pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
     vec![
+        // Consumables
+        (
+            ItemId::PreWorkout,
+            Item {
+                cost: 75,
+                explanation: "Start with 50 meter\n\nGotta get that pump".into(),
+                effect: Stats {
+                    starting_meter: 50,
+                    ..Stats::identity()
+                },
+                category: Consumable(OneRound),
+            },
+        ),
+        // Basics
         (
             ItemId::Gi,
             Item {

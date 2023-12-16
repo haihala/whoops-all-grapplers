@@ -15,7 +15,7 @@ pub use actions::{
     FlashRequest, Hitbox, Hurtbox, Lifetime, Movement, ToHit,
 };
 pub use characters::{dummy, mizku, Character};
-pub use items::{Inventory, Item, ItemCategory};
+pub use items::{ConsumableType, Inventory, Item, ItemCategory};
 pub use resources::{
     ChargeProperty, CounterVisual, RenderInstructions, ResourceBarVisual, ResourceType,
     SpecialProperty, WAGResource, WAGResources,

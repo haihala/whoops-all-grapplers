@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use wag_core::{ItemId, Stats, INVENTORY_SIZE};
 
-use crate::{Character, Item, ItemCategory};
+use crate::{Character, ConsumableType, Item, ItemCategory};
 
 #[derive(Debug, Component, Eq, PartialEq, Reflect, Clone)]
 pub struct Inventory {
@@ -79,6 +79,16 @@ impl Inventory {
         } else {
             panic!("Item not found in inventory");
         }
+    }
+
+    // Not a great name I'll admit
+    pub fn remove_one_round_consumables(&mut self, character: &Character) {
+        self.items.retain(|item| {
+            !matches!(
+                character.items.get(item).unwrap().category,
+                ItemCategory::Consumable(ConsumableType::OneRound)
+            )
+        })
     }
 }
 

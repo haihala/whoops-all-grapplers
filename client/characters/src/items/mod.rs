@@ -2,9 +2,15 @@ mod inventory;
 pub use inventory::Inventory;
 use wag_core::{ItemId, Stats};
 
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub enum ConsumableType {
+    OneRound,
+    UntilUsed,
+}
+
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum ItemCategory {
-    Consumable,
+    Consumable(ConsumableType),
     #[default]
     Basic,
     Upgrade(Vec<ItemId>),

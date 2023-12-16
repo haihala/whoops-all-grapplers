@@ -63,6 +63,9 @@ impl WAGResources {
                     prop.max = Some(stats.max_health);
                     prop.current = stats.max_health;
                 }
+                ResourceType::Meter => {
+                    prop.current = stats.starting_meter;
+                }
                 ResourceType::ItemCount(item_id) => {
                     prop.current = inventory.count(*item_id) as i32;
                 }

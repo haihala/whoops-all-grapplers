@@ -481,7 +481,7 @@ fn get_prepared_items(character: &Character) -> PreparedItems {
 
     for (id, item) in items {
         match item.category {
-            Consumable => consumables.push(id),
+            Consumable(_) => consumables.push(id),
             Basic => basics.push(id),
             Upgrade(_) => upgrades.push(id),
         }

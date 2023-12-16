@@ -2,7 +2,7 @@
 - [x] Universal items architecture
 - [ ] Mechanism to auto-consume items at round start(or end) that need it.
 - [ ] Add
-	- [ ] [[Pre-workout]]
+	- [x] [[Pre-workout]]
 	- [x] [[Armor of a goalee]]
 	- [x] [[Can of red paint]]
 	- [ ] [[Travel whetstone]]

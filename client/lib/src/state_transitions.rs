@@ -1,6 +1,6 @@
 use bevy::{app::AppExit, prelude::*};
 
-use characters::{Inventory, ResourceType, WAGResources};
+use characters::{Character, Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
     Clock, GameState, Player, RoundLog, RoundResult, POST_ROUND_DURATION, PRE_ROUND_DURATION,
@@ -43,12 +43,12 @@ pub fn end_combat(
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
     mut round_log: ResMut<RoundLog>,
-    mut players: Query<(&WAGResources, &Player, &mut Inventory)>,
+    mut players: Query<(&WAGResources, &Player, &mut Inventory, &Character)>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     let round_over = players
         .iter()
-        .filter_map(|(properties, player, _)| {
+        .filter_map(|(properties, player, _, _)| {
             if properties.get(ResourceType::Health).unwrap().is_empty() {
                 None
             } else {
@@ -66,7 +66,7 @@ pub fn end_combat(
     let mut ordered_healths = (&mut players).into_iter().collect::<Vec<_>>();
 
     // TODO: There has to be a cleaner way This whole function could use a once-over. Many names seem outdated due to refactors elsewhere
-    ordered_healths.sort_by_key(|(res, _, _)| {
+    ordered_healths.sort_by_key(|(res, _, _, _)| {
         -(res
             .get(ResourceType::Health)
             .unwrap()
@@ -75,7 +75,7 @@ pub fn end_combat(
     });
 
     assert!(ordered_healths.len() == 2);
-    let [(winner_props, winner, winner_inventory), (loser_props, loser, loser_inventory)] =
+    let [(winner_props, winner, winner_inventory, winner_character), (loser_props, loser, loser_inventory, loser_character)] =
         &mut ordered_healths[..]
     else {
         panic!("Couldn't unpack players");
@@ -96,6 +96,9 @@ pub fn end_combat(
 
         notifications.add(player, format!("Meter payout: ${}", meter_money));
     }
+
+    winner_inventory.remove_one_round_consumables(winner_character);
+    loser_inventory.remove_one_round_consumables(loser_character);
 
     winner_inventory.money += ROUND_MONEY;
     loser_inventory.money += ROUND_MONEY;

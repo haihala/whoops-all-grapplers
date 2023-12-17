@@ -158,6 +158,18 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
+            ItemId::Cigarettes,
+            Item {
+                cost: 50,
+                explanation: "Makes you intangible for the first few frames of your backdash\n\nDissapear in a puff".into(),
+                effect: Stats {
+                    backdash_invuln: 3,
+                    ..Stats::identity()
+                },
+                ..default()
+            },
+        ),
+        (
             ItemId::ThumbTacks(1),
             Item {
                 category: Basic,

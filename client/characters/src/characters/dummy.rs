@@ -25,7 +25,6 @@ use crate::{
 };
 
 use super::{
-    dash,
     equipment::{universal_item_actions, universal_items},
     Character,
 };
@@ -93,13 +92,14 @@ fn dummy_animations() -> HashMap<AnimationType, Animation> {
 }
 
 // Dashing
-const DASH_DURATION: usize = (0.5 * wag_core::FPS) as usize;
-const DASH_IMPULSE: f32 = 10.0;
 
 fn dummy_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<ActionId, Action> {
     empty()
         .chain(item_actions())
-        .chain(dashes())
+        .chain(super::dashes(
+            DummyAnimation::DashForward,
+            DummyAnimation::DashBack,
+        ))
         .chain(jumps)
         .chain(
             normals()
@@ -107,30 +107,6 @@ fn dummy_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<Actio
                 .map(|(k, v)| (ActionId::Dummy(k), v)),
         )
         .collect()
-}
-
-fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
-    vec![
-        (
-            ActionId::DashForward,
-            dash(
-                "5656",
-                DASH_DURATION,
-                DASH_IMPULSE,
-                DummyAnimation::DashForward,
-            ),
-        ),
-        (
-            ActionId::DashBack,
-            dash(
-                "5454",
-                DASH_DURATION,
-                -DASH_IMPULSE,
-                DummyAnimation::DashBack,
-            ),
-        ),
-    ]
-    .into_iter()
 }
 
 fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {

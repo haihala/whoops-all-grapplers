@@ -88,6 +88,7 @@ impl PlayerState {
     }
 
     // Moves
+    #[allow(clippy::too_many_arguments)]
     pub fn start_move(
         &mut self,
         action_id: ActionId,

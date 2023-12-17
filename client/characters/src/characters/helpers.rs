@@ -6,7 +6,7 @@ use crate::{
 };
 
 use bevy::prelude::*;
-use wag_core::{ActionId, Animation};
+use wag_core::{ActionId, Animation, StatusCondition, StatusFlag};
 
 pub fn jumps(
     height: f32,
@@ -126,11 +126,31 @@ fn jump(input: &'static str, impulse: Vec2, animation: impl Into<Animation>) -> 
     )
 }
 
-pub fn dash(
+// TODO: Values should come in as parameters
+pub fn dashes(
+    forward_animation: impl Into<Animation>,
+    back_animation: impl Into<Animation>,
+) -> impl Iterator<Item = (ActionId, Action)> {
+    vec![
+        (
+            ActionId::DashForward,
+            dash("5656", 4, 19, 7.0, forward_animation, false),
+        ),
+        (
+            ActionId::DashBack,
+            dash("5454", 5, 20, -7.0, back_animation, true),
+        ),
+    ]
+    .into_iter()
+}
+
+fn dash(
     input: &'static str,
-    duration: usize,
+    startup_duration: usize,
+    total_duration: usize,
     impulse: f32,
     animation: impl Into<Animation>,
+    backdash: bool,
 ) -> Action {
     Action::grounded(
         Some(input),
@@ -138,13 +158,29 @@ pub fn dash(
         vec![
             ActionBlock {
                 events: vec![animation.into().into()],
-                exit_requirement: ContinuationRequirement::Time(5),
+                exit_requirement: ContinuationRequirement::Time(startup_duration),
                 cancel_policy: CancelPolicy::never(),
-                mutator: None,
+                mutator: if backdash {
+                    Some(|mut original, situation| {
+                        if situation.stats.backdash_invuln > 0 {
+                            original
+                                .events
+                                .push(ActionEvent::Condition(StatusCondition {
+                                    flag: StatusFlag::Intangible,
+                                    effect: None,
+                                    // There should probably be a cap here
+                                    expiration: Some(situation.stats.backdash_invuln as usize),
+                                }));
+                        }
+                        original
+                    })
+                } else {
+                    None
+                },
             },
             ActionBlock {
                 events: vec![Movement::impulse(Vec2::X * impulse).into()],
-                exit_requirement: ContinuationRequirement::Time(duration - 5),
+                exit_requirement: ContinuationRequirement::Time(total_duration - startup_duration),
                 cancel_policy: CancelPolicy::any(),
                 mutator: None,
             },

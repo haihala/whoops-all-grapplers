@@ -7,7 +7,7 @@
 	- [x] [[Dumbbell]]
 	- [x] [[Can of red paint]]
 	- [ ] [[Travel whetstone]]
-	- [ ] [[Pack of cigs]]
+	- [x] [[Pack of cigs]]
 		- [ ] [[Gentleman's pipe]]
 	- [x] [[Eagle feather]]
 		- [ ] [[Air jordans]]

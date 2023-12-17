@@ -8,4 +8,4 @@ pub use character::Character;
 pub use dummy::dummy;
 pub use mizku::mizku;
 
-use helpers::{dash, jumps};
+use helpers::{dashes, jumps};

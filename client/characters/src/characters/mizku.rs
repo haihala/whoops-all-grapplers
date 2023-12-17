@@ -24,7 +24,6 @@ use crate::{
 };
 
 use super::{
-    dash,
     equipment::{universal_item_actions, universal_items},
     Character,
 };
@@ -102,7 +101,10 @@ fn mizku_animations() -> HashMap<AnimationType, Animation> {
 fn mizku_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<ActionId, Action> {
     empty()
         .chain(jumps)
-        .chain(dashes())
+        .chain(super::dashes(
+            MizkuAnimation::DashForward,
+            MizkuAnimation::DashBack,
+        ))
         .chain(item_actions())
         .chain(
             normals()
@@ -110,32 +112,6 @@ fn mizku_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<Actio
                 .map(|(k, v)| (ActionId::Mizku(k), v)),
         )
         .collect()
-}
-
-const DASH_DURATION: usize = 17;
-const DASH_IMPULSE: f32 = 10.0;
-fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
-    vec![
-        (
-            ActionId::DashForward,
-            dash(
-                "5656",
-                DASH_DURATION,
-                DASH_IMPULSE,
-                MizkuAnimation::DashForward,
-            ),
-        ),
-        (
-            ActionId::DashBack,
-            dash(
-                "5454",
-                DASH_DURATION,
-                -DASH_IMPULSE,
-                MizkuAnimation::DashBack,
-            ),
-        ),
-    ]
-    .into_iter()
 }
 
 fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {

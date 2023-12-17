@@ -9,6 +9,7 @@ pub struct Stats {
     // Damage
     pub flat_damage: i32,
     pub chip_damage: bool,
+    pub backdash_invuln: i32,
 
     // Movement
     pub walk_speed: f32,
@@ -49,6 +50,7 @@ impl Stats {
 
             flat_damage: 0,
             chip_damage: true,
+            backdash_invuln: 0,
 
             walk_speed: 0.0,
             gravity: 0.0,
@@ -69,6 +71,7 @@ impl Stats {
 
         self.flat_damage += rhs.flat_damage;
         self.chip_damage = self.chip_damage && rhs.chip_damage; // If a source disables chip it's disabled forever
+        self.backdash_invuln += rhs.backdash_invuln;
 
         self.walk_speed += rhs.walk_speed;
         self.gravity += rhs.gravity;

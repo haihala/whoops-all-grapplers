@@ -188,6 +188,7 @@ pub(super) fn special_cancel(
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub(super) fn move_activator(
     clock: Res<Clock>,
     combo: Option<Res<Combo>>,

@@ -62,8 +62,8 @@ pub enum DummyActionId {
 pub enum MizkuActionId {
     Sharpen,
 
-    GroundUpwardsSlash,
-    AirUpwardsSlash,
+    GrisingSun,
+    ArisingSun,
     KunaiThrow,
 
     // Throws
@@ -78,12 +78,10 @@ pub enum MizkuActionId {
     ShortBackSway,
     LongBackSway,
     SwayDash,
-    ShortHighSlice,
-    LongHighSlice,
-    ShortLowSlice,
-    LongLowSlice,
-    LongHorizontalSlice,
-    ShortHorizontalSlice,
+    SwayOverhead,
+    SwayLow,
+    Pilebunker,
+    SwayCancel,
 
     // Normals
     LowKick,

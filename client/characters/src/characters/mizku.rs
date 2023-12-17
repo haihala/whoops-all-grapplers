@@ -564,14 +564,14 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
 fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
     vec![
         (
-            MizkuActionId::GroundUpwardsSlash,
+            MizkuActionId::GrisingSun,
             Action::new(
                 Some("[789]f"),
                 CancelCategory::Special,
                 vec![ActionBlock {
                     events: vec![
                         ForceStand,
-                        MizkuAnimation::GroundUpwardsSlash.into(),
+                        MizkuAnimation::GrisingSun.into(),
                         Condition(StatusCondition {
                             flag: StatusFlag::Intangible,
                             effect: None,
@@ -593,13 +593,13 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
             ),
         ),
         (
-            MizkuActionId::AirUpwardsSlash,
+            MizkuActionId::ArisingSun,
             Action::new(
                 Some("[789]f"),
                 CancelCategory::Special,
                 vec![ActionBlock {
                     events: vec![
-                        MizkuAnimation::AirUpwardsSlash.into(),
+                        MizkuAnimation::ArisingSun.into(),
                         Flash(FlashRequest {
                             duration: 0.5,
                             ..default()
@@ -643,15 +643,10 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             ActionRequirement::ButtonNotPressed(GameButton::Fast),
                         ]),
                         cancel_policy: CancelPolicy::specific(
-                            vec![
-                                MizkuActionId::SwayDash,
-                                MizkuActionId::ShortHighSlice,
-                                MizkuActionId::ShortHorizontalSlice,
-                                MizkuActionId::ShortLowSlice,
-                            ]
-                            .into_iter()
-                            .map(ActionId::Mizku)
-                            .collect(),
+                            vec![MizkuActionId::SwayDash]
+                                .into_iter()
+                                .map(ActionId::Mizku)
+                                .collect(),
                         ),
                         mutator: None,
                     },
@@ -690,15 +685,10 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             ActionRequirement::ButtonNotPressed(GameButton::Strong),
                         ]),
                         cancel_policy: CancelPolicy::specific(
-                            vec![
-                                MizkuActionId::SwayDash,
-                                MizkuActionId::LongHighSlice,
-                                MizkuActionId::LongHorizontalSlice,
-                                MizkuActionId::LongLowSlice,
-                            ]
-                            .into_iter()
-                            .map(ActionId::Mizku)
-                            .collect(),
+                            vec![MizkuActionId::SwayDash]
+                                .into_iter()
+                                .map(ActionId::Mizku)
+                                .collect(),
                         ),
                         mutator: None,
                     },
@@ -754,101 +744,6 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
     ]
     .into_iter()
-    .chain(sway_slashes())
-}
-
-fn sway_slashes() -> impl Iterator<Item = (MizkuActionId, Action)> {
-    // TODO: Unique hitboxes and props for the slashes
-    vec![
-        (
-            MizkuActionId::ShortHighSlice,
-            "[789]+F",
-            MizkuAnimation::HighSlice,
-            Area::new(1.0, 0.7, 2.0, 0.7),
-            MizkuActionId::ShortBackSway,
-        ),
-        (
-            MizkuActionId::LongHighSlice,
-            "[789]+S",
-            MizkuAnimation::HighSlice,
-            Area::new(1.0, 0.7, 2.0, 0.7),
-            MizkuActionId::LongBackSway,
-        ),
-        (
-            MizkuActionId::ShortHorizontalSlice,
-            "[456]+F",
-            MizkuAnimation::HorizontalSlice,
-            Area::new(1.0, 0.0, 2.0, 0.5),
-            MizkuActionId::ShortBackSway,
-        ),
-        (
-            MizkuActionId::LongHorizontalSlice,
-            "[456]+S",
-            MizkuAnimation::HorizontalSlice,
-            Area::new(1.0, 0.0, 2.0, 0.5),
-            MizkuActionId::LongBackSway,
-        ),
-        (
-            MizkuActionId::ShortLowSlice,
-            "[123]+F",
-            MizkuAnimation::LowSlice,
-            Area::new(1.0, -0.2, 2.0, 0.3),
-            MizkuActionId::ShortBackSway,
-        ),
-        (
-            MizkuActionId::LongLowSlice,
-            "[123]+S",
-            MizkuAnimation::LowSlice,
-            Area::new(1.0, -0.2, 2.0, 0.3),
-            MizkuActionId::LongBackSway,
-        ),
-    ]
-    .into_iter()
-    .map(|(id, input, anim, area, criteria)| {
-        (
-            id,
-            Action::new(
-                Some(input),
-                CancelCategory::Special,
-                vec![
-                    ActionBlock {
-                        events: vec![anim.into(), ClearMovement],
-                        exit_requirement: ContinuationRequirement::Time(4),
-                        ..default()
-                    },
-                    ActionBlock {
-                        events: vec![Attack::new(
-                            ToHit {
-                                hitbox: Hitbox(area),
-                                joint: Some(Joint::Katana),
-                                lifetime: Lifetime::frames(2),
-                                ..default()
-                            },
-                            CommonAttackProps::default(),
-                        )
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(8),
-                        ..default()
-                    },
-                    ActionBlock {
-                        events: vec![
-                            ClearMovement,
-                            Movement {
-                                amount: Vec2::X * 1.5,
-                                duration: 8,
-                            }
-                            .into(),
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(8),
-                        ..default()
-                    },
-                ],
-                vec![ActionRequirement::OngoingAction(vec![ActionId::Mizku(
-                    criteria,
-                )])],
-            ),
-        )
-    })
 }
 
 // TODO: Add items

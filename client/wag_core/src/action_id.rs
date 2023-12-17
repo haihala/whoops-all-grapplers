@@ -77,7 +77,8 @@ pub enum MizkuActionId {
     // Sway stuff
     ShortBackSway,
     LongBackSway,
-    SwayDash,
+    ShortSwayDash,
+    LongSwayDash,
     SwayOverhead,
     SwayLow,
     Pilebunker,

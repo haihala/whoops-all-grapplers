@@ -3,6 +3,7 @@
 - [[Items for playtest]]
 - [[First balance pass]]
 - [[Character 2]] (will still probably need *some* blender, but nothing obvious)
+- Utility function for specials to fall back when you have no bar.
 
 More bugs may appear in [[Bug tracker#Before playtest]]
 

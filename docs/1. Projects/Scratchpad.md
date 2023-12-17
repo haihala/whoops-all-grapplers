@@ -50,6 +50,7 @@
 		- Lets you cancel either version before an ender to enhanced back sway
 	- Some components of enhanced version
 	- Just frame timings like SFV Karen Tenko
+	- Item to make cancel stop momentum
  - Open
 	- Should there be a safe ender? - No, you can G out and go for a 5f
 	- Commitment

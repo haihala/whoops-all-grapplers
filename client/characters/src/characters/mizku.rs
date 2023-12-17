@@ -639,15 +639,11 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             duration: 15,
                         }
                         .into()],
-                        exit_requirement: ContinuationRequirement::Conditions(vec![
-                            ActionRequirement::ButtonNotPressed(GameButton::Fast),
+                        exit_requirement: ContinuationRequirement::Time(35),
+                        cancel_policy: CancelPolicy::specific(vec![
+                            ActionId::Mizku(MizkuActionId::ShortSwayDash),
+                            ActionId::Mizku(MizkuActionId::SwayCancel),
                         ]),
-                        cancel_policy: CancelPolicy::specific(
-                            vec![MizkuActionId::SwayDash]
-                                .into_iter()
-                                .map(ActionId::Mizku)
-                                .collect(),
-                        ),
                         mutator: None,
                     },
                 ],
@@ -655,7 +651,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::LongBackSway,
-            Action::grounded(
+            Action::new(
                 Some("214s"),
                 CancelCategory::Special,
                 vec![
@@ -663,10 +659,11 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         events: vec![
                             MizkuAnimation::BackSway.into(),
                             Movement {
-                                amount: -Vec2::X * 10.0,
+                                amount: -Vec2::X * 12.0,
                                 duration: 5,
                             }
                             .into(),
+                            ModifyResource(ResourceType::Meter, -25),
                             Flash(FlashRequest {
                                 duration: 0.3,
                                 ..default()
@@ -681,46 +678,46 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             duration: 15,
                         }
                         .into()],
-                        exit_requirement: ContinuationRequirement::Conditions(vec![
-                            ActionRequirement::ButtonNotPressed(GameButton::Strong),
+                        exit_requirement: ContinuationRequirement::Time(35),
+                        cancel_policy: CancelPolicy::specific(vec![
+                            ActionId::Mizku(MizkuActionId::LongSwayDash),
+                            ActionId::Mizku(MizkuActionId::SwayCancel),
                         ]),
-                        cancel_policy: CancelPolicy::specific(
-                            vec![MizkuActionId::SwayDash]
-                                .into_iter()
-                                .map(ActionId::Mizku)
-                                .collect(),
-                        ),
                         mutator: None,
                     },
+                ],
+                vec![
+                    ActionRequirement::Grounded,
+                    ActionRequirement::ResourceValue(ResourceType::Meter, 25),
                 ],
             ),
         ),
         (
-            MizkuActionId::SwayDash,
+            MizkuActionId::ShortSwayDash,
             Action::new(
-                Some("656"),
-                CancelCategory::Special,
+                Some("s"),
+                CancelCategory::Specific(vec![ActionId::Mizku(MizkuActionId::ShortBackSway)]),
                 vec![
                     ActionBlock {
-                        events: vec![
-                            MizkuAnimation::SwayDash.into(),
-                            ClearMovement,
-                            Movement {
-                                amount: Vec2::X * 10.0,
-                                duration: 12,
-                            }
-                            .into(),
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(4),
+                        events: vec![MizkuAnimation::SwayDash.into(), ClearMovement],
+                        exit_requirement: ContinuationRequirement::Time(5),
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Movement {
-                            amount: Vec2::X * 2.0,
-                            duration: 8,
-                        }
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(8),
+                        events: vec![
+                            // Overlap with each other to add more in the beginning
+                            Movement {
+                                amount: Vec2::X * 8.0,
+                                duration: 8,
+                            }
+                            .into(),
+                            Movement {
+                                amount: Vec2::X * 3.0,
+                                duration: 16,
+                            }
+                            .into(),
+                        ],
+                        exit_requirement: ContinuationRequirement::Time(16),
                         ..default()
                     },
                     ActionBlock {
@@ -732,13 +729,85 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             }
                             .into(),
                         ],
-                        exit_requirement: ContinuationRequirement::Time(8),
+                        exit_requirement: ContinuationRequirement::Time(16),
                         ..default()
                     },
                 ],
-                vec![ActionRequirement::OngoingAction(vec![
-                    ActionId::Mizku(MizkuActionId::ShortBackSway),
+                vec![ActionRequirement::OngoingAction(vec![ActionId::Mizku(
+                    MizkuActionId::ShortBackSway,
+                )])],
+            ),
+        ),
+        (
+            MizkuActionId::LongSwayDash,
+            Action::new(
+                Some("f"),
+                CancelCategory::Specific(vec![ActionId::Mizku(MizkuActionId::LongBackSway)]),
+                vec![
+                    ActionBlock {
+                        events: vec![MizkuAnimation::SwayDash.into(), ClearMovement],
+                        exit_requirement: ContinuationRequirement::Time(5),
+                        ..default()
+                    },
+                    ActionBlock {
+                        events: vec![
+                            // Overlap with each other to add more in the beginning
+                            Movement {
+                                amount: Vec2::X * 10.0,
+                                duration: 8,
+                            }
+                            .into(),
+                            Movement {
+                                amount: Vec2::X * 5.0,
+                                duration: 16,
+                            }
+                            .into(),
+                        ],
+                        exit_requirement: ContinuationRequirement::Time(16),
+                        cancel_policy: CancelPolicy::specific(vec![ActionId::Mizku(
+                            MizkuActionId::SwayCancel,
+                        )]),
+                        ..default()
+                    },
+                    ActionBlock {
+                        events: vec![
+                            ClearMovement,
+                            Movement {
+                                amount: Vec2::X * 3.0,
+                                duration: 8,
+                            }
+                            .into(),
+                        ],
+                        exit_requirement: ContinuationRequirement::Time(16),
+                        cancel_policy: CancelPolicy::specific(vec![ActionId::Mizku(
+                            MizkuActionId::SwayCancel,
+                        )]),
+                        ..default()
+                    },
+                ],
+                vec![ActionRequirement::OngoingAction(vec![ActionId::Mizku(
+                    MizkuActionId::LongBackSway,
+                )])],
+            ),
+        ),
+        (
+            MizkuActionId::SwayCancel,
+            Action::new(
+                Some("g"),
+                CancelCategory::Specific(vec![
                     ActionId::Mizku(MizkuActionId::LongBackSway),
+                    ActionId::Mizku(MizkuActionId::LongSwayDash), // Long backdash can be cancelled, short cannot
+                    ActionId::Mizku(MizkuActionId::ShortBackSway),
+                ]),
+                vec![ActionBlock {
+                    events: vec![MizkuAnimation::SwayCancel.into()],
+                    exit_requirement: ContinuationRequirement::Time(10),
+                    ..default()
+                }],
+                vec![ActionRequirement::OngoingAction(vec![
+                    ActionId::Mizku(MizkuActionId::LongBackSway),
+                    ActionId::Mizku(MizkuActionId::LongSwayDash), // Long backdash can be cancelled, short cannot
+                    ActionId::Mizku(MizkuActionId::ShortBackSway),
                 ])],
             ),
         ),

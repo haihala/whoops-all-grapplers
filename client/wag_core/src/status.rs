@@ -70,7 +70,7 @@ impl Stats {
         self.starting_meter += rhs.starting_meter;
 
         self.flat_damage += rhs.flat_damage;
-        self.chip_damage = self.chip_damage && rhs.chip_damage; // If a source disables chip it's disabled forever
+        self.chip_damage &= rhs.chip_damage; // If a source disables chip it's disabled forever
         self.backdash_invuln += rhs.backdash_invuln;
 
         self.walk_speed += rhs.walk_speed;

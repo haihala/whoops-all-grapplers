@@ -58,7 +58,7 @@ impl ActionRequirement {
                         .resources
                         .iter()
                         .find_map(|(rt, r)| if rt == resource { Some(r) } else { None })
-                        .map(|r| r.current >= *value)
+                        .map(|r| r.current < *value)
                         .unwrap_or_else(|| panic!("Character to have resource {:#?}", resource))
                     {
                         return false;

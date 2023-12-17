@@ -718,6 +718,11 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(16),
+                        cancel_policy: CancelPolicy::specific(vec![
+                            ActionId::Mizku(MizkuActionId::SwayOverhead),
+                            ActionId::Mizku(MizkuActionId::SwayLow),
+                            ActionId::Mizku(MizkuActionId::Pilebunker),
+                        ]),
                         ..default()
                     },
                     ActionBlock {
@@ -730,6 +735,11 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(16),
+                        cancel_policy: CancelPolicy::specific(vec![
+                            ActionId::Mizku(MizkuActionId::SwayOverhead),
+                            ActionId::Mizku(MizkuActionId::SwayLow),
+                            ActionId::Mizku(MizkuActionId::Pilebunker),
+                        ]),
                         ..default()
                     },
                 ],
@@ -764,9 +774,12 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelPolicy::specific(vec![ActionId::Mizku(
-                            MizkuActionId::SwayCancel,
-                        )]),
+                        cancel_policy: CancelPolicy::specific(vec![
+                            ActionId::Mizku(MizkuActionId::SwayCancel),
+                            ActionId::Mizku(MizkuActionId::SwayOverhead),
+                            ActionId::Mizku(MizkuActionId::SwayLow),
+                            ActionId::Mizku(MizkuActionId::Pilebunker),
+                        ]),
                         ..default()
                     },
                     ActionBlock {
@@ -779,9 +792,12 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelPolicy::specific(vec![ActionId::Mizku(
-                            MizkuActionId::SwayCancel,
-                        )]),
+                        cancel_policy: CancelPolicy::specific(vec![
+                            ActionId::Mizku(MizkuActionId::SwayCancel),
+                            ActionId::Mizku(MizkuActionId::SwayOverhead),
+                            ActionId::Mizku(MizkuActionId::SwayLow),
+                            ActionId::Mizku(MizkuActionId::Pilebunker),
+                        ]),
                         ..default()
                     },
                 ],
@@ -808,6 +824,127 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionId::Mizku(MizkuActionId::LongBackSway),
                     ActionId::Mizku(MizkuActionId::LongSwayDash), // Long backdash can be cancelled, short cannot
                     ActionId::Mizku(MizkuActionId::ShortBackSway),
+                ])],
+            ),
+        ),
+        (
+            MizkuActionId::SwayOverhead,
+            Action::new(
+                Some("6+w"),
+                CancelCategory::Specific(vec![
+                    ActionId::Mizku(MizkuActionId::LongSwayDash),
+                    ActionId::Mizku(MizkuActionId::ShortSwayDash),
+                ]),
+                vec![
+                    ActionBlock {
+                        events: vec![MizkuAnimation::SwayOverhead.into()],
+                        exit_requirement: ContinuationRequirement::Time(20),
+                        ..default()
+                    },
+                    ActionBlock {
+                        events: vec![Attack::new(
+                            ToHit {
+                                hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
+                                joint: Some(Joint::HandR),
+                                lifetime: Lifetime::frames(3),
+                                block_type: Constant(High),
+                                ..default()
+                            },
+                            CommonAttackProps { ..default() },
+                        )
+                        .into()],
+                        exit_requirement: ContinuationRequirement::Time(20),
+                        ..default()
+                    },
+                ],
+                vec![ActionRequirement::OngoingAction(vec![
+                    ActionId::Mizku(MizkuActionId::LongSwayDash),
+                    ActionId::Mizku(MizkuActionId::ShortSwayDash),
+                ])],
+            ),
+        ),
+        (
+            MizkuActionId::SwayLow,
+            Action::new(
+                Some("2+w"),
+                CancelCategory::Specific(vec![
+                    ActionId::Mizku(MizkuActionId::LongSwayDash),
+                    ActionId::Mizku(MizkuActionId::ShortSwayDash),
+                ]),
+                vec![
+                    ActionBlock {
+                        events: vec![MizkuAnimation::SwayLow.into()],
+                        exit_requirement: ContinuationRequirement::Time(14),
+                        ..default()
+                    },
+                    ActionBlock {
+                        events: vec![
+                            Movement {
+                                amount: Vec2::X * 20.0,
+                                duration: 16,
+                            }
+                            .into(),
+                            Attack::new(
+                                ToHit {
+                                    hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
+                                    joint: Some(Joint::FootL),
+                                    lifetime: Lifetime::frames(20),
+                                    block_type: Constant(High),
+                                    ..default()
+                                },
+                                CommonAttackProps {
+                                    damage: 10,
+                                    ..default()
+                                },
+                            )
+                            .into(),
+                        ],
+                        exit_requirement: ContinuationRequirement::Time(61),
+                        ..default()
+                    },
+                ],
+                vec![ActionRequirement::OngoingAction(vec![
+                    ActionId::Mizku(MizkuActionId::LongSwayDash),
+                    ActionId::Mizku(MizkuActionId::ShortSwayDash),
+                ])],
+            ),
+        ),
+        (
+            MizkuActionId::Pilebunker,
+            Action::new(
+                Some("w"),
+                CancelCategory::Specific(vec![
+                    ActionId::Mizku(MizkuActionId::LongSwayDash),
+                    ActionId::Mizku(MizkuActionId::ShortSwayDash),
+                ]),
+                vec![
+                    ActionBlock {
+                        events: vec![MizkuAnimation::Pilebunker.into()],
+                        exit_requirement: ContinuationRequirement::Time(23),
+                        ..default()
+                    },
+                    ActionBlock {
+                        events: vec![Attack::new(
+                            ToHit {
+                                hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
+                                joint: Some(Joint::HandR),
+                                lifetime: Lifetime::frames(3),
+                                block_type: Constant(High),
+                                ..default()
+                            },
+                            CommonAttackProps {
+                                damage: 30, // It should hurt
+                                ..default()
+                            },
+                        )
+                        .into()],
+                        exit_requirement: ContinuationRequirement::Time(37),
+                        ..default()
+                    },
+                ],
+                vec![ActionRequirement::OngoingAction(vec![
+                    ActionId::Mizku(MizkuActionId::LongSwayDash),
+                    ActionId::Mizku(MizkuActionId::ShortSwayDash),
                 ])],
             ),
         ),

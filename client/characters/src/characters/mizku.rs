@@ -159,9 +159,10 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![Attack::new(
                             ToHit {
-                                hitbox: Hitbox(Area::new(0.1, -0.2, 0.3, 0.2)),
+                                hitbox: Hitbox(Area::new(0.1, 0.0, 0.5, 0.2)),
                                 joint: Some(Joint::FootL),
                                 lifetime: Lifetime::frames(3),
+                                block_type: Constant(Low),
                                 ..default()
                             },
                             CommonAttackProps::default(),
@@ -244,6 +245,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             },
                             CommonAttackProps {
                                 knock_back: Vec2::new(-4.0, 3.0),
+                                on_hit: Launcher,
                                 ..default()
                             },
                         )
@@ -456,8 +458,8 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![Attack::new(
                             ToHit {
-                                block_type: Grab,
-                                hitbox: Hitbox(Area::new(-0.3, 0.0, 1.0, 0.2)),
+                                block_type: Constant(Low),
+                                hitbox: Hitbox(Area::new(0.1, 0.0, 0.5, 0.2)),
                                 joint: Some(Joint::FootR),
                                 lifetime: Lifetime::frames(3),
                                 ..default()
@@ -617,7 +619,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                                 .unwrap()
                                                 .current
                                                 * 5,
-                                        on_hit: Stun(20),
+                                        on_hit: Launcher,
                                         knock_back: Vec2::new(-2.0, 8.0),
                                         ..default()
                                     },
@@ -686,7 +688,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                                 .unwrap()
                                                 .current
                                                 * 5,
-                                        on_hit: Stun(20),
+                                        on_hit: Launcher,
                                         knock_back: Vec2::new(-2.0, 8.0),
                                         ..default()
                                     },

@@ -19,7 +19,7 @@ She is a young but competent second generation Korean American immigrant. She's 
 		- A lot of her staple items are consumable
 		- Her permanent upgrades are comparatively expensive
 	- Occasionally brash
-		- [[#Back step]] is essentially a taunt
+		- [[#Sway]] is essentially a taunt
 		- **Laid back**, take cues from Baiken in animations.
 		- Can bite her in the ass and be a bit cocky
 - Her samurai gimmick comes in part from [[W.A.G.]], she is clearly rebelling against it
@@ -43,12 +43,8 @@ She is a young but competent second generation Korean American immigrant. She's 
 ## Sharpness
 - Stacks up to 10
 - [[#Sharpen]] adds one stack
-- Having stacks makes sword moves like [[#Upwards slice]] and some [[#Back step]] follow-ups do
-	- More damage on hit and block
-	- Less horizontal knockback
-- Stacks lost (on hit or [[Clash parry]] / on block)
-	- `f`: Up to 2 / Up to 5
-	- `s`: Up to 3 / all
+- Having stacks makes sword moves like [[#Rising sun]] do more damage
+- Resets between rounds
 
 # Moves (built-in)
 ### Normals
@@ -114,11 +110,11 @@ She is a young but competent second generation Korean American immigrant. She's 
 #### Sharpen
 - Input: `g` while on the ground
 - Visual: In one smooth movement, take the sword out, run it by a whetstone, put it back
-- Add a point of [[#Sharpness]]
+- Gain a point of [[#Sharpness]] and some [[Meter]]
 
 ### Specials
-#### Upwards slice
-- Input: `[123]4[89]` + `f` or `s`
+#### Rising sun
+- Input: `[789]` + `s`
 - Visual: Falke SFV reversal
 - Functions: Anti-air, combo ender, hard read, whiff punish
 	- `f` version is faster, but less damaging, leaning into anti-air / whiff punish
@@ -131,50 +127,42 @@ She is a young but competent second generation Korean American immigrant. She's 
 	- Decent range, not trivial to whiff punish
 - Pretty nice chip damage
 
-#### Back step
+#### Sway
 Conveniently, shortened to bs (bullshit)
 
 - Input: `214` + `f` or `s`
-- Visual: Dandy step, but she has a coat that follows the motion
-- Function: Bait whiffs, extend combos
-- Step back, hang back a bit, lunge forward
-	- She can perform a follow up at any point during that
-- Follow-ups
-	- Follow ups come out almost immediately
-		- There is a bit of a delay, but not long enough for the buffer to not take care of it
-	- **Some of the follow-up ideas should be made into items**
-	- Options
-		- X = release the button you started the move with
-		- `[456]X` - Vertical sword slice
-			- Fast and has great reach
-		- `[123]X` - Downwards sword slice
-			- Hits low, knocks down
-		- `[789]X` - Upwards sword slice
-			- Covers a lot of space
-			- Most punishable of them all
-		- `6` - Sway forward
-			- Ends up a bit closer than the sway started from
-			- Exits stance
-				- Other follow ups can be done mid-dash
-		- Press the other attack button - Cancel
-			- Can be used like a mist finer cancel
-			- Will persist your momentum somewhat
-				- If you do nothing, she'll slide forward after the move
-	- Initiating the move and holding the inputs will hold the furthest point in the swing
-- Versions
-	- `f` version
-		- Doesn't go that far back, maybe 1m
-		- Can be immediately cancelled out of
-			- If cancelled out of immediately, doesn't move you back
-		- Main function: "Mist finer cancel"
-		- Core skill of playing her: When can you get away with doing a `f` version
-			- As it moves you back less, you have better control over your movements if you use it over the `s` version
-			- Won't go as far, you can get clipped by things you're trying to whiff punish
-	- `s` version
-		- Goes further back, maybe 2m
-			- Can't be cancelled out of before moving back like half of that
-		- Main function: Bait and punish whiffs
-		- More damage on follow-ups
+- Visual: Dandy step
+- Function: Lots
+	- Bait whiffs
+	- Extend combos
+	- Mix up the opponent
+	- Apply pressure on wakeup
+	- Cancel long recovery of normals
+- Steps
+	- Start
+		- Swing back and crouch down a bit
+	- Dash
+		- Press the button that didn't start the back sway to dash forward
+			- `f` if you started with `214s` and vice versa
+		- Can delay the dash or dash immediately
+			- This will change the position one ends up
+	- Cancel
+		- Press G to cancel
+		- Cancel into a short animation that returns to neutral
+	- Strike
+		- 2W - low slide
+		- 6W - Overhead
+		- 5W - Pilebunker
+- If you use the enhanced version, you get:
+	- Longer and faster back movement
+	- Longer and faster forward dash
+	- G - Cancel works after forward dash
+
+Item ideas:
+- Jump cancellability
+- Re-dash - Lets you cancel either version before an ender to enhanced back sway
+- Just frame timings like SFV Karen Tenko
+- Make cancel stop momentum
 
 # Items
 - [[Kunai]]
@@ -185,17 +173,17 @@ Conveniently, shortened to bs (bullshit)
 # Item ideas
 ## Armguards
 - Upgrade from hockey pads (see [[Idea dump#Items]])
-- One hit of [[Armor]] to [[#Upwards slice]]
+- One hit of [[Armor]] to [[#Rising sun]]
 
 ## Dancing shoes
 - Upgrade from [[Boots]]
-- Add a follow up to [[#Back step]], where you can cancel into the other version of [[#Back step]]
+- Add a follow up to [[#Sway]], where you can cancel into the other version of [[#Sway]]
 - This is the fastest way to move back if done optimally
 	- How the variants have different animation lengths, that's not trivial
 
 ## Bag of marshmallow
 - Basic item
-- If you have down charge, [[#Upwards slice]] gains
+- If you have down charge, [[#Rising sun]] gains
 	- More damage
 	- Better vertical knockback for juggles
 - Charge is a sliding scale
@@ -207,12 +195,12 @@ Conveniently, shortened to bs (bullshit)
 		- Air - Same as chargeless ground version
 		- Ground - You can juggle into something on sufficiently high hits
 			- One of those cases where you can get a hit in, but it's probably just better to use the time to setup a real mix on oki
-			- As a combo tool, instantly cancelled `f`[[#Back step]] should be better
+			- As a combo tool, instantly cancelled `f`[[#Sway]] should be better
 - Item name is referencing the marshmallow test
 	- Not exactly great
 
 ## Four tiger sword
-- While holding [[#Back step]], follow up attacks charge up in power
+- While holding [[#Sway]], follow up attacks charge up in power
 - Hold for 1s for max power, can release early for partial buff
 - Variants
 	- Mid becomes unblockable at max charge

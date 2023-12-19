@@ -18,7 +18,7 @@ use crate::{
     BlockType::*,
     CancelCategory, CancelPolicy, ChargeProperty, CommonAttackProps, ContinuationRequirement,
     CounterVisual, FlashRequest, Hitbox, Item, ItemCategory, Lifetime, Movement, ResourceBarVisual,
-    SpecialProperty,
+    Situation, SpecialProperty,
     StunType::*,
     ToHit, WAGResource,
 };
@@ -547,7 +547,10 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![ModifyResource(ResourceType::Sharpness, 1)],
+                        events: vec![
+                            ModifyResource(ResourceType::Sharpness, 1),
+                            ModifyResource(ResourceType::Meter, 25),
+                        ],
                         exit_requirement: ContinuationRequirement::Time(32),
                         // Since there is no hitbox, you can't cancel this under normal circumstances
                         // as it can never hit, which is requried for neutral normal cancellation.
@@ -566,52 +569,139 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
         (
             MizkuActionId::GrisingSun,
             Action::new(
-                Some("[789]f"),
+                Some("[789]s"),
                 CancelCategory::Special,
-                vec![ActionBlock {
-                    events: vec![
-                        ForceStand,
-                        MizkuAnimation::GrisingSun.into(),
-                        Condition(StatusCondition {
-                            flag: StatusFlag::Intangible,
-                            effect: None,
-                            expiration: Some(20),
+                vec![
+                    ActionBlock {
+                        events: vec![
+                            MizkuAnimation::GrisingSun.into(),
+                            Flash(FlashRequest {
+                                duration: 0.5,
+                                ..default()
+                            }),
+                            ModifyResource(ResourceType::Meter, -50),
+                            Condition(StatusCondition {
+                                flag: StatusFlag::Intangible,
+                                effect: None,
+                                expiration: Some(20),
+                            }),
+                            ForceStand,
+                        ],
+                        exit_requirement: ContinuationRequirement::Time(11),
+                        ..default()
+                    },
+                    ActionBlock {
+                        exit_requirement: ContinuationRequirement::Time(64),
+                        mutator: Some(|mut original: ActionBlock, situation: &Situation| {
+                            original.events.push(
+                                Attack::new(
+                                    ToHit {
+                                        hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
+                                        joint: Some(Joint::Katana),
+                                        lifetime: Lifetime::frames(6),
+                                        block_type: Constant(Mid),
+                                        ..default()
+                                    },
+                                    CommonAttackProps {
+                                        damage: 25
+                                            + situation
+                                                .resources
+                                                .iter()
+                                                .find_map(|(rt, r)| {
+                                                    if rt == &ResourceType::Sharpness {
+                                                        Some(r)
+                                                    } else {
+                                                        None
+                                                    }
+                                                })
+                                                .unwrap()
+                                                .current
+                                                * 5,
+                                        on_hit: Stun(20),
+                                        knock_back: Vec2::new(-2.0, 8.0),
+                                        ..default()
+                                    },
+                                )
+                                .into(),
+                            );
+
+                            original
                         }),
-                        Flash(FlashRequest {
-                            duration: 0.5,
-                            ..default()
-                        }),
-                    ],
-                    exit_requirement: ContinuationRequirement::Time(45),
-                    cancel_policy: CancelPolicy::never(),
-                    mutator: None,
-                }],
+                        ..default()
+                    },
+                ],
                 vec![
                     ActionRequirement::Grounded,
-                    ActionRequirement::ResourceFull(ResourceType::Charge),
+                    ActionRequirement::ResourceValue(ResourceType::Meter, 50),
                 ],
             ),
         ),
         (
             MizkuActionId::ArisingSun,
             Action::new(
-                Some("[789]f"),
+                Some("[789]s"),
                 CancelCategory::Special,
-                vec![ActionBlock {
-                    events: vec![
-                        MizkuAnimation::ArisingSun.into(),
-                        Flash(FlashRequest {
-                            duration: 0.5,
-                            ..default()
+                vec![
+                    ActionBlock {
+                        events: vec![
+                            MizkuAnimation::ArisingSun.into(),
+                            Flash(FlashRequest {
+                                duration: 0.5,
+                                ..default()
+                            }),
+                            ModifyResource(ResourceType::Meter, -50),
+                            Condition(StatusCondition {
+                                flag: StatusFlag::Intangible,
+                                effect: None,
+                                expiration: Some(20),
+                            }),
+                        ],
+                        exit_requirement: ContinuationRequirement::Time(11),
+                        ..default()
+                    },
+                    ActionBlock {
+                        exit_requirement: ContinuationRequirement::Time(79),
+                        mutator: Some(|mut original: ActionBlock, situation: &Situation| {
+                            original.events.push(
+                                Attack::new(
+                                    ToHit {
+                                        hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
+                                        joint: Some(Joint::Katana),
+                                        lifetime: Lifetime::frames(6),
+                                        block_type: Constant(Mid),
+                                        ..default()
+                                    },
+                                    CommonAttackProps {
+                                        damage: 25
+                                            + situation
+                                                .resources
+                                                .iter()
+                                                .find_map(|(rt, r)| {
+                                                    if rt == &ResourceType::Sharpness {
+                                                        Some(r)
+                                                    } else {
+                                                        None
+                                                    }
+                                                })
+                                                .unwrap()
+                                                .current
+                                                * 5,
+                                        on_hit: Stun(20),
+                                        knock_back: Vec2::new(-2.0, 8.0),
+                                        ..default()
+                                    },
+                                )
+                                .into(),
+                            );
+
+                            original
                         }),
-                    ],
-                    exit_requirement: ContinuationRequirement::Time(45),
-                    cancel_policy: CancelPolicy::never(),
-                    mutator: None,
-                }],
+                        ..default()
+                    },
+                ],
                 vec![
                     ActionRequirement::Airborne,
-                    ActionRequirement::ResourceFull(ResourceType::Charge),
+                    ActionRequirement::ResourceValue(ResourceType::Meter, 50),
                 ],
             ),
         ),
@@ -625,21 +715,25 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         events: vec![
                             MizkuAnimation::BackSway.into(),
                             Movement {
-                                amount: -Vec2::X * 5.0,
-                                duration: 5,
+                                amount: -Vec2::X * 2.0,
+                                duration: 3,
                             }
                             .into(),
                         ],
-                        exit_requirement: ContinuationRequirement::Time(5),
+                        cancel_policy: CancelPolicy::specific(vec![
+                            ActionId::Mizku(MizkuActionId::ShortSwayDash),
+                            ActionId::Mizku(MizkuActionId::SwayCancel),
+                        ]),
+                        exit_requirement: ContinuationRequirement::Time(3),
                         ..default()
                     },
                     ActionBlock {
                         events: vec![Movement {
-                            amount: -Vec2::X * 3.0,
-                            duration: 15,
+                            amount: -Vec2::X * 8.0,
+                            duration: 10,
                         }
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(35),
+                        exit_requirement: ContinuationRequirement::Time(37),
                         cancel_policy: CancelPolicy::specific(vec![
                             ActionId::Mizku(MizkuActionId::ShortSwayDash),
                             ActionId::Mizku(MizkuActionId::SwayCancel),
@@ -659,8 +753,8 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         events: vec![
                             MizkuAnimation::BackSway.into(),
                             Movement {
-                                amount: -Vec2::X * 12.0,
-                                duration: 5,
+                                amount: -Vec2::X * 5.0,
+                                duration: 3,
                             }
                             .into(),
                             ModifyResource(ResourceType::Meter, -25),
@@ -669,16 +763,20 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             }),
                         ],
-                        exit_requirement: ContinuationRequirement::Time(5),
+                        cancel_policy: CancelPolicy::specific(vec![
+                            ActionId::Mizku(MizkuActionId::LongSwayDash),
+                            ActionId::Mizku(MizkuActionId::SwayCancel),
+                        ]),
+                        exit_requirement: ContinuationRequirement::Time(3),
                         ..default()
                     },
                     ActionBlock {
                         events: vec![Movement {
-                            amount: -Vec2::X * 5.0,
-                            duration: 15,
+                            amount: -Vec2::X * 8.0,
+                            duration: 10,
                         }
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(35),
+                        exit_requirement: ContinuationRequirement::Time(37),
                         cancel_policy: CancelPolicy::specific(vec![
                             ActionId::Mizku(MizkuActionId::LongSwayDash),
                             ActionId::Mizku(MizkuActionId::SwayCancel),

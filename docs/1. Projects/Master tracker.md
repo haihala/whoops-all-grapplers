@@ -1,11 +1,14 @@
 # Backlog
 ## Before playtest
-- [[Items for playtest]]
+Must:
 - [[First balance pass]]
+- [[Items for playtest]]
 - [[Character 2]] (will still probably need *some* blender, but nothing obvious)
-- Utility function for specials to fall back when you have no bar.
 
-More bugs may appear in [[Bug tracker#Before playtest]]
+Nice to have:
+- Combine items if slots when full
+- Fallbacks when player uses a meter move without meter
+	- Utility function for specials to fall back when you have no bar.
 
 ## [[Feedback round 1]]
 

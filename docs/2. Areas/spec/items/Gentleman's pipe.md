@@ -1,3 +1,3 @@
 - Upgrade from [[Pack of cigs]] available to: [[Mizku]]
-- [[Intangible]] for [[Mizku#Back step]] startup
+- [[Intangible]] for [[Mizku#Sway]] startup
 - Name is referencing Slayer

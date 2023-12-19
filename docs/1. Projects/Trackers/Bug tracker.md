@@ -8,8 +8,7 @@
 - Box visualizations occasionally jitter (specifically when walking, probably a system ordering thing)
 - Box visualizations (maybe boxes themselves) seem to lag a bit behind where the model is
 	- System ordering probably
-
-# Before playtest
+- Launchers crash the game when checking for jumps
 
 # Possibly incidentally fixed?
 - Figure out how to get rid of panics while despawning hitboxes

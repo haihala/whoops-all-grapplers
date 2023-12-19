@@ -21,12 +21,12 @@ See [[Mizku]] for designs
 	- [x] Items as cost
 	- [x] Sharpness resource
 - [x] Add moves in the game
-- [ ] Air [[Mizku#Upwards slice]]
+- [x] Air [[Mizku#Rising sun]]
 	- [x] Blender part
-	- [ ] Mechanics
+	- [x] Mechanics
 - [x] Adjustments
 	- [x] [[Mizku#Sharpen]] needs to be slower
-	- [x] [[Mizku#Back step]] needs to be holdable
+	- [x] [[Mizku#Sway]] needs to be holdable
 	- [x] [[Mizku#Foot dive]] needs to activate (Added a note after playtests)
 	- [x] Stagger animations is pretty static
 	- [x] Jump height is mad high

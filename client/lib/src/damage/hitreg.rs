@@ -449,7 +449,6 @@ pub(super) fn stun_actions(mut query: Query<&mut PlayerState>, clock: Res<Clock>
                 None
             }
         }) {
-            dbg!("Stun");
             match action {
                 ActionEvent::HitStun(frames) => state.stun(clock.frame + frames),
                 ActionEvent::BlockStun(frames) => state.block(clock.frame + frames),

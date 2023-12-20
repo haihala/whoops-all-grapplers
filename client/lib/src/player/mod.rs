@@ -24,7 +24,9 @@ use crate::{
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
 
-use bevy::{ecs::query::WorldQuery, pbr::ExtendedMaterial, prelude::*};
+use bevy::{
+    ecs::query::WorldQuery, pbr::ExtendedMaterial, prelude::*, render::view::NoFrustumCulling,
+};
 use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
 pub use move_activation::MoveBuffer;
@@ -171,7 +173,7 @@ fn spawn_player(
                         ..default()
                     },
                     hook: SceneHook::new(move |_, cmds| {
-                        cmds.insert(player_flash::UpdateMaterial);
+                        cmds.insert((player_flash::UpdateMaterial, NoFrustumCulling));
 
                         // TODO: Use this for attaching to joints and flipping animations
                     }),

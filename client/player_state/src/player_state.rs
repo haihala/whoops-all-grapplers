@@ -244,6 +244,8 @@ impl PlayerState {
             MainState::Crouch(_) | MainState::Stand(_) => {
                 self.main = MainState::Air(AirState::Idle)
             }
+            // Launch
+            MainState::Air(AirState::Freefall) => {}
             _ => {
                 panic!("Jumping while {:?}", self.main)
             }

@@ -244,7 +244,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
-                                knock_back: Vec2::new(-4.0, 3.0),
+                                knock_back: Vec2::new(-4.0, 8.0),
                                 on_hit: Launcher,
                                 ..default()
                             },
@@ -465,7 +465,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
-                                knock_back: Vec2::Y * 8.0,
+                                knock_back: Vec2::Y * 2.0,
                                 on_hit: Launcher,
                                 ..default()
                             },

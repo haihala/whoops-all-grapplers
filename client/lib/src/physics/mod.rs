@@ -39,13 +39,14 @@ impl Plugin for PhysicsPlugin {
             Update,
             (
                 sideswitcher,
-                player_gravity,
                 player_input,
                 move_players,
                 push_players,
                 clamp_players,
                 move_constants,
+                player_gravity,
             )
+                .chain()
                 .in_set(WAGStage::Physics),
         );
     }

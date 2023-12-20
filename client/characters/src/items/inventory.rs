@@ -28,17 +28,12 @@ impl Inventory {
             return false;
         }
 
-        if self.items.len() >= INVENTORY_SIZE {
-            return false;
-        }
-
         if let ItemCategory::Upgrade(dependencies) = &item.category {
-            if filter_out(&self.items, dependencies).is_err() {
-                return false;
-            }
+            filter_out(&self.items, dependencies).is_ok()
+        } else {
+            // Upgrades decrease or maintain inventory size, so this check doesn't need to be ran for them
+            self.items.len() < INVENTORY_SIZE
         }
-
-        true
     }
 
     pub fn buy(&mut self, id: ItemId, item: Item) {

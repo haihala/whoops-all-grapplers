@@ -3,7 +3,6 @@
 Nice to have:
 - [[Items for playtest]]
 - Hurtbox padding and adjustments
-- Combine items if slots when full
 - Fall-backs when player uses a meter move without meter
 	- Utility function for specials to fall back when you have no bar.
 - Fix throws

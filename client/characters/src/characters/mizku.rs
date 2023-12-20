@@ -164,10 +164,10 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![Attack::strike(
                             ToHit {
-                                hitbox: Hitbox(Area::new(-0.4, 0.0, 8.0, 0.2)),
+                                hitbox: Hitbox(Area::new(-0.4, 0.0, 0.9, 0.2)),
                                 joint: Some(Joint::FootL),
                                 lifetime: Lifetime::frames(3),
-                                block_type: Constant(Low),
+                                block_type: Strike(Low),
                                 ..default()
                             },
                             CommonAttackProps {
@@ -286,7 +286,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.25)),
                                 joint: Some(Joint::ShinR),
                                 lifetime: Lifetime::frames(5),
-                                block_type: Constant(High),
+                                block_type: Strike(High),
                                 ..default()
                             },
                             CommonAttackProps {
@@ -342,7 +342,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 hitbox: Hitbox(Area::of_size(0.35, 0.25)),
                                 joint: Some(Joint::FootR),
                                 lifetime: Lifetime::frames(7),
-                                block_type: Constant(High),
+                                block_type: Strike(High),
                                 ..default()
                             },
                             CommonAttackProps {
@@ -478,7 +478,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![Attack::strike(
                             ToHit {
-                                block_type: Constant(Low),
+                                block_type: Strike(Low),
                                 hitbox: Hitbox(Area::new(-0.4, 0.2, 1.0, 0.3)),
                                 joint: Some(Joint::FootR),
                                 lifetime: Lifetime::frames(3),
@@ -630,7 +630,6 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                         hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
                                         joint: Some(Joint::Katana),
                                         lifetime: Lifetime::frames(6),
-                                        block_type: Constant(Mid),
                                         ..default()
                                     },
                                     CommonAttackProps {
@@ -699,7 +698,6 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                         hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
                                         joint: Some(Joint::Katana),
                                         lifetime: Lifetime::frames(6),
-                                        block_type: Constant(Mid),
                                         ..default()
                                     },
                                     CommonAttackProps {
@@ -976,7 +974,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
                                 joint: Some(Joint::HandR),
                                 lifetime: Lifetime::frames(3),
-                                block_type: Constant(High),
+                                block_type: Strike(High),
                                 ..default()
                             },
                             CommonAttackProps {
@@ -1023,7 +1021,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                     hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
                                     joint: Some(Joint::FootL),
                                     lifetime: Lifetime::frames(20),
-                                    block_type: Constant(Low),
+                                    block_type: Strike(Low),
                                     ..default()
                                 },
                                 CommonAttackProps {
@@ -1065,7 +1063,6 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
                                 joint: Some(Joint::HandR),
                                 lifetime: Lifetime::frames(3),
-                                block_type: Constant(High),
                                 ..default()
                             },
                             CommonAttackProps {
@@ -1161,7 +1158,7 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
                                     hitbox: Hitbox(Area::new(-0.2, 0.0, 1.2, 0.2)),
                                     joint: Some(Joint::FootR),
                                     lifetime: Lifetime::frames(5),
-                                    block_type: Constant(High),
+                                    block_type: Strike(High),
                                     ..default()
                                 },
                                 CommonAttackProps {

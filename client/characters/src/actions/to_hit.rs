@@ -29,20 +29,23 @@ impl Default for ToHit {
     }
 }
 
-#[derive(Clone, Copy, Debug, Reflect, Eq, PartialEq, Default)]
+#[derive(Clone, Copy, Debug, Reflect, Eq, PartialEq)]
 pub enum AttackHeight {
     Low,
-    #[default]
     Mid,
     High,
 }
 
-#[derive(Clone, Copy, Debug, Reflect, Eq, PartialEq, Default, Component)]
+#[derive(Clone, Copy, Debug, Reflect, Eq, PartialEq, Component)]
 pub enum BlockType {
-    Constant(AttackHeight),
+    Strike(AttackHeight),
     Grab,
-    #[default]
-    Dynamic,
+}
+
+impl Default for BlockType {
+    fn default() -> Self {
+        BlockType::Strike(AttackHeight::Mid)
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Reflect)]

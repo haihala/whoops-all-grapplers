@@ -2,8 +2,7 @@ use bevy::{ecs::query::WorldQuery, prelude::*};
 use strum::IntoEnumIterator;
 
 use characters::{
-    ActionEvent, Attack, AttackHeight, BlockType, Character, Hitbox, Hurtbox, ResourceType,
-    WAGResources,
+    ActionEvent, Attack, AttackHeight, BlockType, Hitbox, Hurtbox, ResourceType, WAGResources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -134,7 +133,7 @@ pub(super) fn detect_hits(
     )>,
     players: Res<Players>,
     hurtboxes: Query<(&Hurtbox, &Owner)>,
-    defenders: Query<(&Transform, &PlayerState, &Character, &InputParser)>,
+    defenders: Query<(&Transform, &PlayerState, &InputParser)>,
     mut spawners: Query<&mut HitboxSpawner>,
 ) -> Vec<Hit> {
     hitboxes
@@ -150,7 +149,7 @@ pub(super) fn detect_hits(
 
                 let defender = players.get(defending_player);
                 let attacker = players.get(**hit_owner);
-                let (defender_tf, state, character, parser) = defenders.get(defender).unwrap();
+                let (defender_tf, state, parser) = defenders.get(defender).unwrap();
 
                 let offset_hitbox = hitbox.with_offset(hitbox_tf.translation().truncate());
 
@@ -192,7 +191,7 @@ pub(super) fn detect_hits(
                 let (hit_type, notification) = if state.action_in_progress() {
                     (
                         match attack.to_hit.block_type {
-                            BlockType::Constant(_) | BlockType::Dynamic => HitType::Strike,
+                            BlockType::Strike(_) => HitType::Strike,
                             BlockType::Grab => HitType::Throw,
                         },
                         "Busy".into(),
@@ -203,7 +202,7 @@ pub(super) fn detect_hits(
                     (HitType::Parry, "Parry!".into())
                 } else {
                     match attack.to_hit.block_type {
-                        BlockType::Constant(height) => {
+                        BlockType::Strike(height) => {
                             handle_blocking(height, parser.get_relative_stick_position())
                         }
                         BlockType::Grab => {
@@ -215,16 +214,6 @@ pub(super) fn detect_hits(
 
                             (HitType::Throw, "Grappled".into())
                         }
-                        BlockType::Dynamic => handle_blocking(
-                            if overlap.bottom() > character.high_block_height {
-                                AttackHeight::High
-                            } else if overlap.top() > character.low_block_height {
-                                AttackHeight::Mid
-                            } else {
-                                AttackHeight::Low
-                            },
-                            parser.get_relative_stick_position(),
-                        ),
                     }
                 };
 

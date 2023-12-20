@@ -288,7 +288,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                                 hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.25)),
                                 joint: Some(Joint::HandR),
                                 lifetime: Lifetime::frames(5),
-                                block_type: Constant(High),
+                                block_type: Strike(High),
                                 ..default()
                             },
                             CommonAttackProps::default(),
@@ -318,7 +318,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                                 hitbox: Hitbox(Area::of_size(0.35, 0.25)),
                                 joint: Some(Joint::FootR),
                                 lifetime: Lifetime::frames(10),
-                                block_type: Constant(High),
+                                block_type: Strike(High),
                                 ..default()
                             },
                             CommonAttackProps::default(),

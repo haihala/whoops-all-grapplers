@@ -2,7 +2,6 @@
 ## Before playtest
 Nice to have:
 - [[Items for playtest]]
-- Remove dynamic block type
 - Hurtbox padding and adjustments
 - Combine items if slots when full
 - Fall-backs when player uses a meter move without meter

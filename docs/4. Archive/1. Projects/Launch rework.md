@@ -1,4 +1,4 @@
 - [x] Knockback to float
 - [x] Pushback to float
 - [x] Launch height into the launch stun type
-- [ ] Check throws
+- [x] Check throws

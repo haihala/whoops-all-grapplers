@@ -128,7 +128,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.35)),
                                 joint: Some(Joint::ShinL),
@@ -162,7 +162,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(-0.4, 0.0, 8.0, 0.2)),
                                 joint: Some(Joint::FootL),
@@ -205,7 +205,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     },
                     ActionBlock {
                         events: vec![
-                            Attack::new(
+                            Attack::strike(
                                 ToHit {
                                     hitbox: Hitbox(Area::new(-0.2, 0.0, 1.2, 0.2)),
                                     joint: Some(Joint::FootL),
@@ -245,7 +245,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::of_size(0.3, 0.5)),
                                 joint: Some(Joint::HandR),
@@ -281,7 +281,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     },
                     ActionBlock {
                         // TODO: Add sweet and sour spots
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.25)),
                                 joint: Some(Joint::ShinR),
@@ -337,7 +337,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::of_size(0.35, 0.25)),
                                 joint: Some(Joint::FootR),
@@ -372,7 +372,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::forward_throw(
                             ToHit {
                                 block_type: Grab,
                                 hitbox: Hitbox(Area::of_size(0.5, 0.5)),
@@ -380,23 +380,9 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 lifetime: Lifetime::frames(3),
                                 ..default()
                             },
-                            CommonAttackProps {
-                                damage: 10,
-                                on_hit: Launcher(0.0),
-                                ..default()
-                            },
+                            ActionId::Mizku(MizkuActionId::GroundThrowHit),
+                            ActionId::Mizku(MizkuActionId::GroundThrowTarget),
                         )
-                        .with_to_self_on_hit(vec![StartAction(ActionId::Mizku(
-                            MizkuActionId::GroundThrowHit,
-                        ))])
-                        .with_to_target_on_hit(vec![
-                            SnapToOpponent,
-                            Animation(AnimationRequest {
-                                animation: MizkuAnimation::GroundThrowTarget.into(),
-                                invert: true,
-                                ..default()
-                            }),
-                        ])
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(13),
                         ..default()
@@ -412,45 +398,29 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::GroundThrowStartup.into()],
-                        exit_requirement: ContinuationRequirement::Time(5),
+                        exit_requirement: ContinuationRequirement::Time(3),
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::back_throw(
                             ToHit {
                                 block_type: Grab,
                                 hitbox: Hitbox(Area::of_size(0.5, 0.5)),
                                 joint: Some(Joint::HandR),
-                                lifetime: Lifetime::frames(5),
+                                lifetime: Lifetime::frames(3),
                                 ..default()
                             },
-                            CommonAttackProps {
-                                damage: 10,
-                                on_hit: Launcher(0.0),
-                                ..default()
-                            },
+                            ActionId::Mizku(MizkuActionId::GroundThrowHit),
+                            ActionId::Mizku(MizkuActionId::GroundThrowTarget),
                         )
-                        .with_to_self_on_hit(vec![StartAction(ActionId::Mizku(
-                            MizkuActionId::GroundThrowHit,
-                        ))])
-                        .with_to_target_on_hit(vec![
-                            SnapToOpponent,
-                            SideSwitch,
-                            Animation(AnimationRequest {
-                                animation: MizkuAnimation::GroundThrowTarget.into(),
-                                invert: true,
-                                ..default()
-                            }),
-                        ])
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(40),
+                        exit_requirement: ContinuationRequirement::Time(13),
                         ..default()
                     },
                 ],
             ),
         ),
         (
-            // TODO: Untested
             MizkuActionId::GroundThrowHit,
             Action::grounded(
                 None,
@@ -461,6 +431,37 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     cancel_policy: CancelPolicy::never(),
                     mutator: None,
                 }],
+            ),
+        ),
+        (
+            MizkuActionId::GroundThrowTarget,
+            Action::grounded(
+                None,
+                CancelCategory::Special,
+                vec![
+                    ActionBlock {
+                        events: vec![AnimationRequest {
+                            animation: MizkuAnimation::GroundThrowTarget.into(),
+                            invert: true,
+                            ..default()
+                        }
+                        .into()],
+                        exit_requirement: ContinuationRequirement::Time(20),
+                        cancel_policy: CancelPolicy::never(),
+                        mutator: None,
+                    },
+                    ActionBlock {
+                        events: vec![
+                            ModifyResource(ResourceType::Health, -10),
+                            Launch {
+                                // Unfortunately, this works in a weird way with the back throw flip and the x velocity is not mirrored
+                                // TODO: Fix this
+                                impulse: Vec2::new(0.0, 3.0),
+                            },
+                        ],
+                        ..default()
+                    },
+                ],
             ),
         ),
         (
@@ -475,7 +476,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 block_type: Constant(Low),
                                 hitbox: Hitbox(Area::new(-0.4, 0.2, 1.0, 0.3)),
@@ -510,47 +511,56 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::forward_throw(
                             ToHit {
                                 block_type: Grab,
-                                hitbox: Hitbox(Area::of_size(0.8, 0.8)),
+                                hitbox: Hitbox(Area::new(-0.2, 0.0, 0.8, 0.8)),
                                 joint: Some(Joint::HandL),
                                 lifetime: Lifetime::frames(2),
                                 ..default()
                             },
-                            CommonAttackProps {
-                                damage: 10,
-                                on_hit: Launcher(2.0),
-                                ..default()
-                            },
+                            ActionId::Mizku(MizkuActionId::AirThrowHit),
+                            ActionId::Mizku(MizkuActionId::AirThrowTarget),
                         )
-                        .with_to_self_on_hit(vec![StartAction(ActionId::Mizku(
-                            MizkuActionId::AirThrowHit,
-                        ))])
-                        .with_to_target_on_hit(vec![
-                            SnapToOpponent,
-                            Animation(AnimationRequest {
-                                animation: MizkuAnimation::AirThrowTarget.into(),
-                                invert: true,
-                                ..default()
-                            }),
-                        ])
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(30),
+                        exit_requirement: ContinuationRequirement::Time(9),
                         ..default()
                     },
                 ],
             ),
         ),
         (
-            // TODO: Untested
             MizkuActionId::AirThrowHit,
-            Action::grounded(
+            Action::airborne(
                 None,
                 CancelCategory::Special,
                 vec![ActionBlock {
                     events: vec![MizkuAnimation::AirThrowHit.into()],
                     exit_requirement: ContinuationRequirement::Time(30),
+                    cancel_policy: CancelPolicy::never(),
+                    mutator: None,
+                }],
+            ),
+        ),
+        (
+            MizkuActionId::AirThrowTarget,
+            Action::airborne(
+                None,
+                CancelCategory::Special,
+                vec![ActionBlock {
+                    events: vec![
+                        AnimationRequest {
+                            animation: MizkuAnimation::AirThrowTarget.into(),
+                            invert: true,
+                            ..default()
+                        }
+                        .into(),
+                        ModifyResource(ResourceType::Health, -10),
+                        Launch {
+                            impulse: Vec2::new(-2.0, 2.0),
+                        },
+                    ],
+                    exit_requirement: ContinuationRequirement::Time(60),
                     cancel_policy: CancelPolicy::never(),
                     mutator: None,
                 }],
@@ -615,7 +625,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         exit_requirement: ContinuationRequirement::Time(64),
                         mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                             original.events.push(
-                                Attack::new(
+                                Attack::strike(
                                     ToHit {
                                         hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
                                         joint: Some(Joint::Katana),
@@ -684,7 +694,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         exit_requirement: ContinuationRequirement::Time(79),
                         mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                             original.events.push(
-                                Attack::new(
+                                Attack::strike(
                                     ToHit {
                                         hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
                                         joint: Some(Joint::Katana),
@@ -961,7 +971,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
                                 joint: Some(Joint::HandR),
@@ -1008,7 +1018,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 duration: 16,
                             }
                             .into(),
-                            Attack::new(
+                            Attack::strike(
                                 ToHit {
                                     hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
                                     joint: Some(Joint::FootL),
@@ -1050,7 +1060,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
                                 joint: Some(Joint::HandR),
@@ -1098,7 +1108,7 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(1.0, 1.2, 0.3, 0.3)),
                                 velocity: Some(Vec2::new(6.0, -0.4)),
@@ -1146,7 +1156,7 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
                     },
                     ActionBlock {
                         events: vec![
-                            Attack::new(
+                            Attack::strike(
                                 ToHit {
                                     hitbox: Hitbox(Area::new(-0.2, 0.0, 1.2, 0.2)),
                                     joint: Some(Joint::FootR),

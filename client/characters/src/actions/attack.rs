@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::HIT_FLASH_COLOR;
+use wag_core::{ActionId, HIT_FLASH_COLOR};
 
 use crate::{ActionEvent, FlashRequest, Movement, ResourceType, ToHit};
 
@@ -14,11 +14,38 @@ pub struct Attack {
 
 impl Default for Attack {
     fn default() -> Self {
-        Attack::new(ToHit::default(), CommonAttackProps::default())
+        Attack::strike(ToHit::default(), CommonAttackProps::default())
     }
 }
 impl Attack {
-    pub fn new(to_hit: ToHit, cab: CommonAttackProps) -> Attack {
+    pub fn forward_throw(to_hit: ToHit, self_hit: ActionId, recipient_move: ActionId) -> Attack {
+        Attack {
+            to_hit,
+            self_on_hit: vec![ActionEvent::StartAction(self_hit)],
+            self_on_block: vec![],
+            target_on_hit: vec![
+                ActionEvent::SnapToOpponent,
+                ActionEvent::StartAction(recipient_move),
+            ],
+            target_on_block: vec![],
+        }
+    }
+
+    pub fn back_throw(to_hit: ToHit, self_hit: ActionId, recipient_move: ActionId) -> Attack {
+        Attack {
+            to_hit,
+            self_on_hit: vec![ActionEvent::StartAction(self_hit)],
+            self_on_block: vec![],
+            target_on_hit: vec![
+                ActionEvent::SnapToOpponent,
+                ActionEvent::SideSwitch,
+                ActionEvent::StartAction(recipient_move),
+            ],
+            target_on_block: vec![],
+        }
+    }
+
+    pub fn strike(to_hit: ToHit, cab: CommonAttackProps) -> Attack {
         Attack {
             to_hit,
             self_on_hit: cab.self_on_hit(),

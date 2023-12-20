@@ -123,7 +123,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.35)),
                                 joint: Some(Joint::HandR),
@@ -152,7 +152,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.1, -0.2, 0.3, 0.2)),
                                 joint: Some(Joint::HandL),
@@ -182,7 +182,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     },
                     ActionBlock {
                         events: vec![
-                            Attack::new(
+                            Attack::strike(
                                 ToHit {
                                     hitbox: Hitbox(Area::new(-0.3, 0.0, 1.0, 0.2)),
                                     joint: Some(Joint::HandR),
@@ -215,7 +215,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                                     .clone()
                                     .into_iter()
                                     .map(|event| match event {
-                                        Attack(_) => Attack::new(
+                                        Attack(_) => Attack::strike(
                                             ToHit {
                                                 hitbox: Hitbox(Area::new(-0.3, 0.0, 1.0, 0.2)),
                                                 joint: Some(Joint::HandR),
@@ -254,7 +254,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::of_size(0.3, 0.5)),
                                 joint: Some(Joint::HandR),
@@ -283,7 +283,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.25)),
                                 joint: Some(Joint::HandR),
@@ -313,7 +313,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::of_size(0.35, 0.25)),
                                 joint: Some(Joint::FootR),
@@ -347,7 +347,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 block_type: Grab,
                                 hitbox: Hitbox(Area::of_size(0.5, 0.5)),
@@ -388,7 +388,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 block_type: Grab,
                                 hitbox: Hitbox(Area::of_size(0.5, 0.5)),
@@ -430,7 +430,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 block_type: Grab,
                                 hitbox: Hitbox(Area::new(-0.3, 0.0, 1.0, 0.2)),
@@ -463,7 +463,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 block_type: Grab,
                                 hitbox: Hitbox(Area::of_size(0.8, 0.8)),
@@ -532,7 +532,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                     },
                     ActionBlock {
                         events: vec![
-                            Attack::new(
+                            Attack::strike(
                                 ToHit {
                                     hitbox: Hitbox(Area::new(0.7, 1.25, 0.8, 0.8)),
                                     lifetime: Lifetime::frames(8),
@@ -569,7 +569,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                     },
                     ActionBlock {
                         events: vec![
-                            Attack::new(
+                            Attack::strike(
                                 ToHit {
                                     hitbox: Hitbox(Area::new(0.9, 1.25, 0.8, 0.8)),
                                     lifetime: Lifetime::frames(8),
@@ -605,7 +605,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
                                 velocity: Some(5.0 * Vec2::X),
@@ -636,7 +636,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.5, 1.2, 0.4, 0.3)),
                                 velocity: Some(6.0 * Vec2::X),
@@ -675,7 +675,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
                                 velocity: Some(4.0 * Vec2::X),
@@ -707,7 +707,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::new(
+                        events: vec![Attack::strike(
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.5, 1.0, 0.4, 0.5)),
                                 velocity: Some(5.0 * Vec2::X),

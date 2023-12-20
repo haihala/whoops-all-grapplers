@@ -174,7 +174,6 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 damage: 8,
                                 on_hit: Stun(21),
                                 on_block: Stun(11),
-                                knock_back: Vec2::X * 2.0,
                                 ..default()
                             },
                         )
@@ -217,8 +216,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                     damage: 15,
                                     on_hit: Stun(31),
                                     on_block: Stun(20),
-                                    knock_back: -3.0 * Vec2::X,
-                                    push_back: -2.0 * Vec2::X,
+                                    ..default()
                                 },
                             )
                             .into(),
@@ -256,7 +254,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             },
                             CommonAttackProps {
                                 damage: 16,
-                                knock_back: Vec2::new(-4.0, 6.0),
+                                knock_back: 2.0,
                                 on_hit: Launcher(6.0),
                                 on_block: Stun(10),
                                 ..default()
@@ -487,7 +485,6 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             },
                             CommonAttackProps {
                                 damage: 9,
-                                knock_back: Vec2::Y * 1.0,
                                 on_hit: Launcher(1.0),
                                 on_block: Stun(10),
                                 ..default()
@@ -524,7 +521,6 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             CommonAttackProps {
                                 damage: 10,
                                 on_hit: Launcher(2.0),
-                                knock_back: Vec2::new(1.0, 2.0),
                                 ..default()
                             },
                         )
@@ -644,7 +640,6 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                                 * 5,
                                         on_hit: Launcher(10.0),
                                         on_block: Stun(40),
-                                        knock_back: Vec2::new(-2.0, 10.0),
                                         ..default()
                                     },
                                 )
@@ -714,7 +709,6 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                                 * 4,
                                         on_hit: Launcher(8.0),
                                         on_block: Stun(30),
-                                        knock_back: Vec2::new(-2.0, 8.0),
                                         ..default()
                                     },
                                 )

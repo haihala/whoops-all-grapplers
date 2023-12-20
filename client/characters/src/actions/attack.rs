@@ -67,8 +67,8 @@ pub enum StunType {
 #[derive(Debug, Clone, Copy, Reflect)]
 pub struct CommonAttackProps {
     pub damage: i32,
-    pub knock_back: Vec2,
-    pub push_back: Vec2,
+    pub knock_back: f32,
+    pub push_back: f32,
     pub on_hit: StunType,
     pub on_block: StunType,
 }
@@ -77,8 +77,8 @@ impl Default for CommonAttackProps {
     fn default() -> Self {
         Self {
             damage: 5,
-            knock_back: -Vec2::X * 2.0,
-            push_back: -Vec2::X,
+            knock_back: 5.0,
+            push_back: 3.0,
             on_hit: StunType::Stun(20),
             on_block: StunType::Stun(10),
         }
@@ -88,16 +88,16 @@ impl Default for CommonAttackProps {
 impl CommonAttackProps {
     pub fn self_on_hit(self) -> Vec<ActionEvent> {
         vec![
-            Movement::impulse(self.push_back).into(),
-            ActionEvent::CameraTilt(self.push_back * -0.01),
+            Movement::impulse(-Vec2::X * self.push_back).into(),
+            ActionEvent::CameraTilt(Vec2::X * self.push_back * 0.008),
             ActionEvent::CameraShake,
             ActionEvent::Hitstop,
         ]
     }
     pub fn self_on_block(self) -> Vec<ActionEvent> {
         vec![
-            Movement::impulse(2.0 * self.push_back).into(),
-            ActionEvent::CameraTilt(self.push_back * 0.005),
+            Movement::impulse(-Vec2::X * 1.5 * self.push_back).into(),
+            ActionEvent::CameraTilt(-Vec2::X * self.push_back * 0.005),
             ActionEvent::Hitstop,
         ]
     }
@@ -106,7 +106,7 @@ impl CommonAttackProps {
         vec![
             ActionEvent::ModifyResource(ResourceType::Health, -self.damage),
             self.get_stun(false),
-            Movement::impulse(self.knock_back).into(),
+            Movement::impulse(-Vec2::X * self.knock_back).into(),
             ActionEvent::Flash(FlashRequest {
                 color: HIT_FLASH_COLOR,
                 depth: 1.0,
@@ -120,7 +120,7 @@ impl CommonAttackProps {
         vec![
             ActionEvent::ModifyResource(ResourceType::Health, -1), // Chip
             self.get_stun(true),
-            Movement::impulse(0.5 * self.knock_back).into(),
+            Movement::impulse(-Vec2::X * 0.5 * self.knock_back).into(),
         ]
     }
 
@@ -128,6 +128,7 @@ impl CommonAttackProps {
         if blocked {
             match self.on_block {
                 StunType::Launcher(_) | StunType::Roller(_) => {
+                    // If launching on block, the design needs to be re-evaluated
                     todo!()
                 }
                 StunType::Stun(frames) => ActionEvent::BlockStun(frames),

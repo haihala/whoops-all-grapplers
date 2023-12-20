@@ -192,8 +192,6 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                                 CommonAttackProps {
                                     damage: 20,
                                     on_hit: Stun(20),
-                                    knock_back: -3.0 * Vec2::X,
-                                    push_back: -2.0 * Vec2::X,
                                     ..default()
                                 },
                             )
@@ -228,8 +226,8 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                                                 damage: 20,
                                                 on_hit: Stun(20),
                                                 // These are the only changed properties, but it's easier to reconstruct than to edit
-                                                knock_back: 1.0 * Vec2::X,
-                                                push_back: Vec2::ZERO,
+                                                knock_back: 1.0,
+                                                push_back: 0.0,
                                                 ..default()
                                             },
                                         )
@@ -263,10 +261,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                                 lifetime: Lifetime::frames(4),
                                 ..default()
                             },
-                            CommonAttackProps {
-                                knock_back: Vec2::new(-4.0, 3.0),
-                                ..default()
-                            },
+                            CommonAttackProps { ..default() },
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(13),
@@ -444,8 +439,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
-                                knock_back: Vec2::Y * 8.0,
-                                on_hit: Launcher(0.0),
+                                on_hit: Launcher(8.0),
                                 ..default()
                             },
                         )
@@ -479,8 +473,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                             },
                             CommonAttackProps {
                                 damage: 25,
-                                on_hit: Launcher(0.0),
-                                knock_back: Vec2::new(1.0, -4.0),
+                                on_hit: Launcher(-4.0),
                                 ..default()
                             },
                         )
@@ -547,8 +540,6 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                                 },
                                 CommonAttackProps {
                                     damage: 20,
-                                    knock_back: Vec2::Y,
-                                    push_back: -3.0 * Vec2::X,
                                     ..default()
                                 },
                             )
@@ -586,8 +577,6 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                                 },
                                 CommonAttackProps {
                                     damage: 20,
-                                    knock_back: -3.0 * Vec2::X,
-                                    push_back: Vec2::Y,
                                     ..default()
                                 },
                             )

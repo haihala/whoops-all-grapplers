@@ -24,8 +24,8 @@ Nice to have:
 - [[Extending items]]
 - [[Toasts in various spots]]
 - [[Move format refinement]]
-- [[Mizku]] gripes
 - An actual loading screen that waits until models are in.
+- Revisit projectiles
 
 ### Spec update
 - Get idea dumps from archive

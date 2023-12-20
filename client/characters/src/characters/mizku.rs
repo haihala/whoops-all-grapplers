@@ -4,8 +4,9 @@ use bevy::prelude::*;
 
 use wag_core::{
     ActionId, Animation, AnimationType, Area, GameButton, ItemId, Joint, MizkuActionId,
-    MizkuAnimation, Model, Stats, StatusCondition, StatusFlag, CHARGE_BAR_FULL_SEGMENT_COLOR,
-    CHARGE_BAR_PARTIAL_SEGMENT_COLOR, FPS,
+    MizkuAnimation, Model, Player, Stats, StatusCondition, StatusFlag,
+    CHARGE_BAR_FULL_SEGMENT_COLOR, CHARGE_BAR_PARTIAL_SEGMENT_COLOR, FPS, MIZUKI_ALT_HELMET_COLOR,
+    MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
 };
 
 use crate::{
@@ -33,6 +34,21 @@ pub fn mizku() -> Character {
 
     Character::new(
         Model::Mizku,
+        vec![
+            (Player::One, HashMap::new()),
+            (
+                Player::Two,
+                vec![
+                    ("T-shirt", MIZUKI_ALT_SHIRT_COLOR),
+                    ("Jeans", MIZUKI_ALT_JEANS_COLOR),
+                    ("Samurai Helmet.1", MIZUKI_ALT_HELMET_COLOR),
+                ]
+                .into_iter()
+                .collect(),
+            ),
+        ]
+        .into_iter()
+        .collect(),
         mizku_animations(),
         mizku_moves(jumps),
         mizku_items(),

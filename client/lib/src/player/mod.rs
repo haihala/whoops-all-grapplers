@@ -148,6 +148,8 @@ fn spawn_player(
         CharacterId::Mizku => mizku(),
     };
 
+    let colors = character.colors[&player].clone();
+
     commands
         .spawn((
             SpatialBundle {
@@ -165,7 +167,7 @@ fn spawn_player(
             PlayerState::default(),
             player,
         ))
-        .with_children(|parent| {
+        .with_children(move |parent| {
             parent.spawn((
                 HookedSceneBundle {
                     scene: SceneBundle {
@@ -173,7 +175,10 @@ fn spawn_player(
                         ..default()
                     },
                     hook: SceneHook::new(move |_, cmds| {
-                        cmds.insert((player_flash::UpdateMaterial, NoFrustumCulling));
+                        cmds.insert((
+                            player_flash::UpdateMaterial(colors.clone()),
+                            NoFrustumCulling,
+                        ));
 
                         // TODO: Use this for attaching to joints and flipping animations
                     }),

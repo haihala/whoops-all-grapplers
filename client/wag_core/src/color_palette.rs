@@ -27,13 +27,18 @@ pub const SHOP_DARK_BACKGROUND_COLOR: Color = Color::DARK_GRAY;
 pub const SHOP_LIGHT_BACKGROUND_COLOR: Color = Color::GRAY;
 
 // Box visualizations
-pub const HITBOX_VISUALIZATION_COLOR: Color = Color::rgb(1.0, 0.0, 0.0);
-pub const HURTBOX_VISUALIZATION_COLOR: Color = Color::rgb(0.0, 1.0, 0.0);
-pub const PUSHBOX_VISUALIZATION_COLOR: Color = Color::rgb(0.0, 0.0, 1.0);
+pub const HITBOX_VISUALIZATION_COLOR: Color = Color::RED;
+pub const HURTBOX_VISUALIZATION_COLOR: Color = Color::GREEN;
+pub const PUSHBOX_VISUALIZATION_COLOR: Color = Color::BLUE;
 
 // Notifications
 pub const NOTIFICATION_BACKGROUND_COLOR: Color = Color::rgba(1.0, 1.0, 1.0, 0.3);
 pub const NOTIFICATION_TEXT_COLOR: Color = Color::BLACK;
 
 // Signal colors
-pub const HIT_FLASH_COLOR: Color = Color::rgb(1.0, 1.0, 1.0);
+pub const HIT_FLASH_COLOR: Color = Color::WHITE;
+
+// Player colors
+pub const MIZUKI_ALT_SHIRT_COLOR: Color = Color::WHITE;
+pub const MIZUKI_ALT_JEANS_COLOR: Color = Color::MIDNIGHT_BLUE;
+pub const MIZUKI_ALT_HELMET_COLOR: Color = Color::rgb(48.0 / 255.0, 25.0 / 255.0, 52.0 / 255.0);

@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
 use bevy::prelude::*;
-use wag_core::{ActionId, Animation, AnimationType, Area, ItemId, Model, Stats};
+use wag_core::{ActionId, Animation, AnimationType, Area, ItemId, Model, Player, Stats};
 
 use crate::{resources::ResourceType, Action, Item, WAGResource};
 
 #[derive(Debug, Component, Clone)]
 pub struct Character {
     moves: HashMap<ActionId, Action>,
+    pub colors: HashMap<Player, HashMap<&'static str, Color>>,
     pub items: HashMap<ItemId, Item>,
     pub model: Model,
     pub standing_pushbox: Area,
@@ -22,6 +23,7 @@ impl Character {
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
         model: Model,
+        colors: HashMap<Player, HashMap<&'static str, Color>>,
         generic_animations: HashMap<AnimationType, Animation>,
         moves: HashMap<ActionId, Action>,
         items: HashMap<ItemId, Item>,
@@ -30,6 +32,7 @@ impl Character {
     ) -> Character {
         Self {
             model,
+            colors,
             generic_animations,
             moves,
             items,

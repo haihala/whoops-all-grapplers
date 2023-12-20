@@ -59,7 +59,8 @@ impl Attack {
 
 #[derive(Debug, Clone, Copy, Reflect)]
 pub enum StunType {
-    Launcher,
+    Launcher(f32),
+    Roller(Vec2),
     Stun(usize),
 }
 
@@ -126,15 +127,17 @@ impl CommonAttackProps {
     fn get_stun(&self, blocked: bool) -> ActionEvent {
         if blocked {
             match self.on_block {
-                StunType::Launcher => {
-                    warn!("Launch on block?");
-                    ActionEvent::Launch
+                StunType::Launcher(_) | StunType::Roller(_) => {
+                    todo!()
                 }
                 StunType::Stun(frames) => ActionEvent::BlockStun(frames),
             }
         } else {
             match self.on_hit {
-                StunType::Launcher => ActionEvent::Launch,
+                StunType::Launcher(height) => ActionEvent::Launch {
+                    impulse: height * Vec2::Y,
+                },
+                StunType::Roller(impulse) => ActionEvent::Launch { impulse },
                 StunType::Stun(frames) => ActionEvent::HitStun(frames),
             }
         }

@@ -437,12 +437,17 @@ pub(super) fn snap_and_switch(
     }
 }
 
-pub(super) fn stun_actions(mut query: Query<&mut PlayerState>, clock: Res<Clock>) {
-    for mut state in &mut query {
+pub(super) fn stun_actions(
+    mut query: Query<(&mut PlayerState, &mut PlayerVelocity)>,
+    clock: Res<Clock>,
+) {
+    for (mut state, mut velocity) in &mut query {
         for action in state.drain_matching_actions(|action| {
             if matches!(
                 *action,
-                ActionEvent::Launch | ActionEvent::HitStun(_) | ActionEvent::BlockStun(_)
+                ActionEvent::Launch { impulse: _ }
+                    | ActionEvent::HitStun(_)
+                    | ActionEvent::BlockStun(_)
             ) {
                 Some(action.to_owned())
             } else {
@@ -452,7 +457,10 @@ pub(super) fn stun_actions(mut query: Query<&mut PlayerState>, clock: Res<Clock>
             match action {
                 ActionEvent::HitStun(frames) => state.stun(clock.frame + frames),
                 ActionEvent::BlockStun(frames) => state.block(clock.frame + frames),
-                ActionEvent::Launch => state.launch(),
+                ActionEvent::Launch { impulse } => {
+                    state.launch();
+                    velocity.add_impulse(impulse);
+                }
                 _ => panic!("Leaking"),
             }
         }

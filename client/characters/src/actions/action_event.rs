@@ -26,7 +26,9 @@ pub enum ActionEvent {
     SideSwitch,
     HitStun(usize),
     BlockStun(usize),
-    Launch,
+    Launch {
+        impulse: Vec2,
+    },
     Hitstop, // TODO: Add strength
     CameraTilt(Vec2),
     CameraShake, // TODO: Add strength

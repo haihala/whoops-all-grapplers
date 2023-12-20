@@ -136,6 +136,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
+                                damage: 5,
                                 on_hit: Stun(20),
                                 on_block: Stun(15),
                                 ..default()
@@ -170,6 +171,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
+                                damage: 8,
                                 on_hit: Stun(21),
                                 on_block: Stun(11),
                                 knock_back: Vec2::X * 2.0,
@@ -212,7 +214,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                     ..default()
                                 },
                                 CommonAttackProps {
-                                    damage: 20,
+                                    damage: 15,
                                     on_hit: Stun(31),
                                     on_block: Stun(20),
                                     knock_back: -3.0 * Vec2::X,
@@ -254,6 +256,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
+                                damage: 16,
                                 knock_back: Vec2::new(-4.0, 6.0),
                                 on_hit: Launcher,
                                 on_block: Stun(10),
@@ -289,7 +292,10 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 block_type: Constant(High),
                                 ..default()
                             },
-                            CommonAttackProps::default(),
+                            CommonAttackProps {
+                                damage: 5,
+                                ..default()
+                            },
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(23),
@@ -343,6 +349,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
+                                damage: 18,
                                 on_hit: Stun(40),
                                 on_block: Stun(25),
                                 ..default()
@@ -377,7 +384,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
-                                damage: 25,
+                                damage: 10,
                                 on_hit: Launcher,
                                 ..default()
                             },
@@ -421,7 +428,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
-                                damage: 25,
+                                damage: 10,
                                 on_hit: Stun(30),
                                 ..default()
                             },
@@ -480,6 +487,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
+                                damage: 9,
                                 knock_back: Vec2::Y * 1.0,
                                 on_hit: Launcher,
                                 on_block: Stun(10),
@@ -515,7 +523,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
-                                damage: 25,
+                                damage: 10,
                                 on_hit: Launcher,
                                 knock_back: Vec2::new(1.0, 2.0),
                                 ..default()
@@ -704,7 +712,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                                 })
                                                 .unwrap()
                                                 .current
-                                                * 5,
+                                                * 4,
                                         on_hit: Launcher,
                                         on_block: Stun(30),
                                         knock_back: Vec2::new(-2.0, 8.0),
@@ -969,6 +977,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
+                                damage: 11,
                                 on_hit: Stun(24),
                                 on_block: Stun(16),
                                 ..default()
@@ -1107,7 +1116,7 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
-                                damage: 10,
+                                damage: 12,
                                 on_hit: Stun(15),
                                 on_block: Stun(10),
                                 ..default()
@@ -1153,6 +1162,7 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
                                     ..default()
                                 },
                                 CommonAttackProps {
+                                    damage: 10,
                                     on_hit: Stun(40),
                                     on_block: Stun(20),
                                     ..default()

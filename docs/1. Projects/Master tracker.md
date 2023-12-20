@@ -1,7 +1,6 @@
 # Backlog
 ## Before playtest
 Must:
-- [[First balance pass]]
 - [[Launch rework]]
 
 Nice to have:

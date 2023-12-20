@@ -3,7 +3,7 @@
 Nice to have:
 - [[Items for playtest]]
 - Remove dynamic block type
-- [[Character 2]] (will still probably need *some* blender, but nothing obvious)
+- Hurtbox padding and adjustments
 - Combine items if slots when full
 - Fall-backs when player uses a meter move without meter
 	- Utility function for specials to fall back when you have no bar.

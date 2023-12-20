@@ -32,9 +32,8 @@ See [[Mizku]] for designs
 	- [x] Jump height is mad high
 	- [x] Idle animation looks weird
 	- [x] 2s Needs to move onwards less
-- [ ] Fine tuning
+- [x] Fine tuning
 	- [x] Hitboxes
-	- [ ] Hurtboxes (padding)
 	- [x] Animation once-over (Add recovery, remove jitter)
 		- [x] 5f (add recovery)
 		- [x] 5h (make it into more of a donkey kick or have a clearer arc add recovery)

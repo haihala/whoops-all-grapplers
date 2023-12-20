@@ -38,22 +38,12 @@ impl HitboxSpawner {
     ) {
         let offset = facing.mirror_vec2(attack.to_hit.hitbox.center());
         let absolute_position = parent_position + offset.extend(0.0);
-        let (transform, hitbox) = if attack.to_hit.projectile.is_some() {
-            (
-                Transform::from_translation(absolute_position),
-                Hitbox(Area::from_center_size(
-                    Vec2::ZERO, // Position is set into the object directly
-                    attack.to_hit.hitbox.size(),
-                )),
-            )
-        } else {
-            // There is a follow script on these, which sets the transform value to match the joint
-            // That will override the translation here, which is why hitbox is not centered.
-            (
-                Transform::default(),
-                Hitbox(Area::from_center_size(offset, attack.to_hit.hitbox.size())),
-            )
-        };
+        let transform = Transform::from_translation(absolute_position);
+
+        let hitbox = Hitbox(Area::from_center_size(
+            Vec2::ZERO, // Position is set into the object directly
+            attack.to_hit.hitbox.size(),
+        ));
 
         let mut builder = commands.spawn((
             SpatialBundle {

@@ -2,7 +2,7 @@ use bevy::{prelude::*, window::WindowMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use characters::{Hitbox, Hurtbox, Inventory};
-use wag_core::{Clock, GameState, Player, SoundEffect, Stats};
+use wag_core::{Clock, GameState, Player, SoundEffect, Stats, WAGStage};
 
 use crate::{
     assets::Sounds,
@@ -41,7 +41,8 @@ impl Plugin for DevPlugin {
                     box_visualization::visualize_hurtboxes,
                     box_visualization::visualize_pushboxes,
                 )
-                    .chain(),
+                    .chain()
+                    .after(WAGStage::PlayerUpdates),
             );
     }
 }

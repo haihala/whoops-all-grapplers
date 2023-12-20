@@ -76,9 +76,9 @@ impl Default for CommonAttackProps {
     fn default() -> Self {
         Self {
             damage: 5,
-            knock_back: -Vec2::X,
+            knock_back: -Vec2::X * 2.0,
             push_back: -Vec2::X,
-            on_hit: StunType::Stun(15),
+            on_hit: StunType::Stun(20),
             on_block: StunType::Stun(10),
         }
     }

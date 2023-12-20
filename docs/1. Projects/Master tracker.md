@@ -2,9 +2,11 @@
 ## Before playtest
 Must:
 - [[First balance pass]]
+- [[Launch rework]]
 
 Nice to have:
 - [[Items for playtest]]
+- Remove dynamic block type
 - [[Character 2]] (will still probably need *some* blender, but nothing obvious)
 - Combine items if slots when full
 - Fallbacks when player uses a meter move without meter

@@ -1,5 +1,5 @@
-- Meter gain
-- Damage numbers
-- Stun numbers
-- [[Link bonus]]
-- Defense bonus (add a page)
+- [ ] Meter gain
+- [ ] Damage numbers
+- [ ] Stun numbers
+- [ ] [[Link bonus]]
+- [ ] Defense bonus (add a page)

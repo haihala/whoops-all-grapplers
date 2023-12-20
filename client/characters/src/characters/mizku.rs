@@ -132,13 +132,17 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             ToHit {
                                 hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.35)),
                                 joint: Some(Joint::ShinL),
-                                lifetime: Lifetime::frames(3),
+                                lifetime: Lifetime::frames(5),
                                 ..default()
                             },
-                            CommonAttackProps::default(),
+                            CommonAttackProps {
+                                on_hit: Stun(20),
+                                on_block: Stun(15),
+                                ..default()
+                            },
                         )
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(15),
+                        exit_requirement: ContinuationRequirement::Time(17),
                         cancel_policy: CancelPolicy::neutral_normal_recovery(),
                         mutator: None,
                     },
@@ -159,13 +163,18 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![Attack::new(
                             ToHit {
-                                hitbox: Hitbox(Area::new(-0.3, 0.0, 1.0, 0.2)),
+                                hitbox: Hitbox(Area::new(-0.4, 0.0, 8.0, 0.2)),
                                 joint: Some(Joint::FootL),
                                 lifetime: Lifetime::frames(3),
                                 block_type: Constant(Low),
                                 ..default()
                             },
-                            CommonAttackProps::default(),
+                            CommonAttackProps {
+                                on_hit: Stun(21),
+                                on_block: Stun(11),
+                                knock_back: Vec2::X * 2.0,
+                                ..default()
+                            },
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(12),
@@ -204,7 +213,8 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 },
                                 CommonAttackProps {
                                     damage: 20,
-                                    on_hit: Stun(20),
+                                    on_hit: Stun(31),
+                                    on_block: Stun(20),
                                     knock_back: -3.0 * Vec2::X,
                                     push_back: -2.0 * Vec2::X,
                                     ..default()
@@ -244,8 +254,9 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
-                                knock_back: Vec2::new(-4.0, 8.0),
+                                knock_back: Vec2::new(-4.0, 6.0),
                                 on_hit: Launcher,
+                                on_block: Stun(10),
                                 ..default()
                             },
                         )
@@ -331,7 +342,11 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 block_type: Constant(High),
                                 ..default()
                             },
-                            CommonAttackProps::default(),
+                            CommonAttackProps {
+                                on_hit: Stun(40),
+                                on_block: Stun(25),
+                                ..default()
+                            },
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(17),
@@ -407,7 +422,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             },
                             CommonAttackProps {
                                 damage: 25,
-                                on_hit: Stun(30), // TODO: Not a launcher because target lands immediately. Needs more work
+                                on_hit: Stun(30),
                                 ..default()
                             },
                         )
@@ -465,8 +480,9 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             },
                             CommonAttackProps {
-                                knock_back: Vec2::Y * 2.0,
+                                knock_back: Vec2::Y * 1.0,
                                 on_hit: Launcher,
+                                on_block: Stun(10),
                                 ..default()
                             },
                         )
@@ -585,7 +601,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             Condition(StatusCondition {
                                 flag: StatusFlag::Intangible,
                                 effect: None,
-                                expiration: Some(20),
+                                expiration: Some(12),
                             }),
                             ForceStand,
                         ],
@@ -620,7 +636,8 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                                 .current
                                                 * 5,
                                         on_hit: Launcher,
-                                        knock_back: Vec2::new(-2.0, 8.0),
+                                        on_block: Stun(40),
+                                        knock_back: Vec2::new(-2.0, 10.0),
                                         ..default()
                                     },
                                 )
@@ -655,7 +672,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             Condition(StatusCondition {
                                 flag: StatusFlag::Intangible,
                                 effect: None,
-                                expiration: Some(20),
+                                expiration: Some(12),
                             }),
                         ],
                         exit_requirement: ContinuationRequirement::Time(11),
@@ -689,6 +706,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                                 .current
                                                 * 5,
                                         on_hit: Launcher,
+                                        on_block: Stun(30),
                                         knock_back: Vec2::new(-2.0, 8.0),
                                         ..default()
                                     },
@@ -950,7 +968,11 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 block_type: Constant(High),
                                 ..default()
                             },
-                            CommonAttackProps { ..default() },
+                            CommonAttackProps {
+                                on_hit: Stun(24),
+                                on_block: Stun(16),
+                                ..default()
+                            },
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(20),
@@ -966,7 +988,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
         (
             MizkuActionId::SwayLow,
             Action::new(
-                Some("2+w"),
+                Some("[123]+w"),
                 CancelCategory::Specific(vec![
                     ActionId::Mizku(MizkuActionId::LongSwayDash),
                     ActionId::Mizku(MizkuActionId::ShortSwayDash),
@@ -989,11 +1011,13 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                     hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
                                     joint: Some(Joint::FootL),
                                     lifetime: Lifetime::frames(20),
-                                    block_type: Constant(High),
+                                    block_type: Constant(Low),
                                     ..default()
                                 },
                                 CommonAttackProps {
                                     damage: 10,
+                                    on_block: Stun(16),
+                                    on_hit: Launcher,
                                     ..default()
                                 },
                             )
@@ -1034,6 +1058,8 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             },
                             CommonAttackProps {
                                 damage: 30, // It should hurt
+                                on_hit: Launcher,
+                                on_block: Stun(20),
                                 ..default()
                             },
                         )
@@ -1052,7 +1078,6 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
     .into_iter()
 }
 
-// TODO: Add items
 fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
     vec![
         (
@@ -1081,7 +1106,12 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
                                 }),
                                 ..default()
                             },
-                            CommonAttackProps::default(),
+                            CommonAttackProps {
+                                damage: 10,
+                                on_hit: Stun(15),
+                                on_block: Stun(10),
+                                ..default()
+                            },
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(10),
@@ -1122,7 +1152,11 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
                                     block_type: Constant(High),
                                     ..default()
                                 },
-                                CommonAttackProps { ..default() },
+                                CommonAttackProps {
+                                    on_hit: Stun(40),
+                                    on_block: Stun(20),
+                                    ..default()
+                                },
                             )
                             .into(),
                             Movement {

@@ -159,6 +159,7 @@ impl PlayerState {
             grounded: self.is_grounded(),
             tracker: self.get_action_tracker().cloned(),
             held_buttons: input_parser.get_pressed(),
+            status_flags: self.conditions.iter().map(|c| c.flag).collect(),
         }
     }
     pub fn get_action_tracker(&self) -> Option<&ActionTracker> {
@@ -262,6 +263,9 @@ impl PlayerState {
             self.free_since = Some(frame);
             MainState::Stand(StandState::Idle)
         };
+
+        self.conditions
+            .retain(|cond| cond.flag != StatusFlag::DoubleJumped);
     }
     pub fn is_grounded(&self) -> bool {
         !matches!(self.main, MainState::Air(_))

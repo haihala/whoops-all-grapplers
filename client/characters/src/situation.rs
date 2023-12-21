@@ -1,5 +1,5 @@
 use bevy::utils::HashSet;
-use wag_core::{GameButton, Stats};
+use wag_core::{GameButton, Stats, StatusFlag};
 
 use crate::{ActionTracker, Inventory, ResourceType, WAGResource};
 
@@ -9,6 +9,7 @@ pub struct Situation {
     pub tracker: Option<ActionTracker>,
     pub inventory: Inventory,
     pub resources: Vec<(ResourceType, WAGResource)>,
+    pub status_flags: HashSet<StatusFlag>,
     pub frame: usize,
     pub stats: Stats,
     pub held_buttons: HashSet<GameButton>,

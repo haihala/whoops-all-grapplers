@@ -1,8 +1,8 @@
 use std::f32::consts::PI;
 
 use crate::{
-    Action, ActionBlock, ActionEvent, ActionRequirement, CancelCategory, CancelPolicy,
-    ContinuationRequirement, FlashRequest, Movement, ResourceType,
+    Action, ActionBlock, ActionEvent, ActionRequirement, AnimationRequest, CancelCategory,
+    CancelPolicy, ContinuationRequirement, FlashRequest, Movement, ResourceType,
 };
 
 use bevy::prelude::*;
@@ -57,15 +57,25 @@ pub fn jumps(
     let jumps = vec![
         (
             ActionId::BackJump,
-            jump("7", Vec2::new(-diagonal_jump_x, diagonal_jump_y), animation),
+            jump(
+                "7",
+                Vec2::new(-diagonal_jump_x, diagonal_jump_y),
+                animation,
+                false,
+            ),
         ),
         (
             ActionId::NeutralJump,
-            jump("8", Vec2::Y * neutral_jump_y, animation),
+            jump("8", Vec2::Y * neutral_jump_y, animation, false),
         ),
         (
             ActionId::ForwardJump,
-            jump("9", Vec2::new(diagonal_jump_x, diagonal_jump_y), animation),
+            jump(
+                "9",
+                Vec2::new(diagonal_jump_x, diagonal_jump_y),
+                animation,
+                false,
+            ),
         ),
         (
             ActionId::BackSuperJump,
@@ -73,11 +83,12 @@ pub fn jumps(
                 "[123]7",
                 Vec2::new(-diagonal_superjump_x, diagonal_superjump_y),
                 animation,
+                false,
             ),
         ),
         (
             ActionId::NeutralSuperJump,
-            jump("[123]8", Vec2::Y * neutral_superjump_y, animation),
+            jump("[123]8", Vec2::Y * neutral_superjump_y, animation, false),
         ),
         (
             ActionId::ForwardSuperJump,
@@ -85,6 +96,29 @@ pub fn jumps(
                 "[123]9",
                 Vec2::new(diagonal_superjump_x, diagonal_superjump_y),
                 animation,
+                false,
+            ),
+        ),
+        (
+            ActionId::BackAirJump,
+            jump(
+                "[123456]7",
+                Vec2::new(-diagonal_jump_x, diagonal_jump_y),
+                animation,
+                true,
+            ),
+        ),
+        (
+            ActionId::NeutralAirJump,
+            jump("[123456]8", Vec2::Y * neutral_jump_y, animation, true),
+        ),
+        (
+            ActionId::ForwardAirJump,
+            jump(
+                "[123456]9",
+                Vec2::new(diagonal_jump_x, diagonal_jump_y),
+                animation,
+                true,
             ),
         ),
     ]
@@ -93,19 +127,56 @@ pub fn jumps(
     (jumps, gravity_per_frame)
 }
 
-fn jump(input: &'static str, impulse: Vec2, animation: impl Into<Animation>) -> Action {
-    Action::grounded(
+fn jump(
+    input: &'static str,
+    impulse: Vec2,
+    animation: impl Into<Animation> + Clone,
+    air_jump: bool,
+) -> Action {
+    let (initial_events, initial_exit_requirement, requirements, impulse_modifier) = if air_jump {
+        (
+            vec![
+                AnimationRequest {
+                    animation: animation.into(),
+                    time_offset: 3,
+                    ..default()
+                }
+                .into(),
+                ActionEvent::ClearMovement,
+                ActionEvent::Condition(StatusCondition {
+                    flag: StatusFlag::DoubleJumped,
+                    ..default()
+                }),
+            ],
+            ContinuationRequirement::None,
+            vec![
+                ActionRequirement::Airborne,
+                ActionRequirement::ItemsOwned(vec![ItemId::WingedBoots]),
+                ActionRequirement::StatusNotActive(StatusFlag::DoubleJumped),
+            ],
+            0.7,
+        )
+    } else {
+        (
+            vec![animation.into().into()],
+            ContinuationRequirement::Time(3),
+            vec![ActionRequirement::Grounded],
+            1.0,
+        )
+    };
+
+    Action::new(
         Some(input),
         CancelCategory::Jump,
         vec![
             ActionBlock {
-                events: vec![animation.into().into()],
-                exit_requirement: ContinuationRequirement::Time(3),
+                events: initial_events,
+                exit_requirement: initial_exit_requirement,
                 cancel_policy: CancelPolicy::any(),
                 mutator: None,
             },
             ActionBlock {
-                events: vec![Movement::impulse(impulse).into()],
+                events: vec![Movement::impulse(impulse * impulse_modifier).into()],
                 exit_requirement: ContinuationRequirement::Time(5),
                 cancel_policy: CancelPolicy::any(),
                 mutator: Some(|mut original, situation| {
@@ -125,6 +196,7 @@ fn jump(input: &'static str, impulse: Vec2, animation: impl Into<Animation>) -> 
                 }),
             },
         ],
+        requirements,
     )
 }
 

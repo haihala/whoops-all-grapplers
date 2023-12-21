@@ -88,12 +88,13 @@ impl Stats {
     }
 }
 
-#[derive(Reflect, Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Reflect, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
 pub enum StatusFlag {
     #[default]
     Default, // Not in use, here to satisfy inspectable
     Intangible,
     Parry,
+    DoubleJumped,
 }
 
 #[derive(Reflect, Debug, Clone, Copy, Default, PartialEq)]

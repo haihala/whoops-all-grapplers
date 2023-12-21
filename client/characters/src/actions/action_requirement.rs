@@ -1,4 +1,4 @@
-use wag_core::{ActionId, GameButton, ItemId};
+use wag_core::{ActionId, GameButton, ItemId, StatusFlag};
 
 use crate::{ResourceType, Situation};
 
@@ -12,6 +12,7 @@ pub enum ActionRequirement {
     ResourceValue(ResourceType, i32),
     ButtonPressed(GameButton),
     ButtonNotPressed(GameButton),
+    StatusNotActive(StatusFlag),
 }
 impl ActionRequirement {
     // If one condition fails, the whole thing fails.
@@ -71,6 +72,11 @@ impl ActionRequirement {
                 }
                 ActionRequirement::ButtonNotPressed(button) => {
                     if situation.held_buttons.contains(button) {
+                        return false;
+                    }
+                }
+                ActionRequirement::StatusNotActive(status) => {
+                    if situation.status_flags.contains(status) {
                         return false;
                     }
                 }

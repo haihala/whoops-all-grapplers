@@ -21,6 +21,7 @@ pub enum ItemId {
     SafetyBoots,
     GoaleeGear,
     TrackSpikes,
+    WingedBoots,
 
     // Character specific
     // Dummy
@@ -38,6 +39,10 @@ pub enum ItemId {
 impl ItemId {
     pub fn display_name(&self) -> String {
         match self {
+            Self::WingedBoots => "Winged boots".into(),
+            Self::SteelHeelBoots => "Steel heel boots".into(),
+            Self::TrackSpikes => "Track spikes".into(),
+            Self::SpaceSuitBoots => "Space suit boots".into(),
             Self::Cigarettes => "Pack of cigs".into(),
             Self::EagleFeather => "Eagle feather".into(),
             Self::PreWorkout => "Pre-workout".into(),

@@ -10,7 +10,7 @@
 	- [x] [[Pack of cigs]]
 		- [ ] [[Gentleman's pipe]]
 	- [x] [[Eagle feather]]
-		- [ ] [[Air jordans]]
+		- [x] [[Winged boots]]
 	- [x] [[Stopwatch]]
 		- [x] [[Track spikes]]
 	- [x] [[Thumbtacks]]

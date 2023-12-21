@@ -196,7 +196,16 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             ItemId::TrackSpikes,
             Item {
                 category: Upgrade(vec![ItemId::Boots, ItemId::Stopwatch]),
-                explanation: "Allows to cancel normals into a dash\n\nNow with Fast Action Disruption Compatible soles".into(),
+                explanation: "Allows you to cancel normals into a dash\n\nNow with Fast Action Disruption Compatible soles".into(),
+                cost: 100,
+                ..default()
+            },
+        ),
+        (
+            ItemId::WingedBoots,
+            Item {
+                category: Upgrade(vec![ItemId::Boots, ItemId::EagleFeather]),
+                explanation: "Allows you to double jump\n\nLike Hermes.".into(),
                 cost: 100,
                 ..default()
             },

@@ -37,6 +37,7 @@ pub const NOTIFICATION_TEXT_COLOR: Color = Color::BLACK;
 
 // Signal colors
 pub const HIT_FLASH_COLOR: Color = Color::WHITE;
+pub const GI_PARRY_FLASH_COLOR: Color = Color::ALICE_BLUE;
 
 // Player colors
 pub const MIZUKI_ALT_SHIRT_COLOR: Color = Color::WHITE;

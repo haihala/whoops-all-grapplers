@@ -1,8 +1,13 @@
+use std::vec;
+
 use bevy::{prelude::*, window::WindowMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-use characters::{Hitbox, Hurtbox, Inventory};
-use wag_core::{Clock, GameState, Joints, Player, SoundEffect, Stats, WAGStage};
+use characters::{ActionEvent, FlashRequest, Hitbox, Hurtbox, Inventory};
+use player_state::PlayerState;
+use wag_core::{
+    Clock, GameState, Joints, Player, SoundEffect, Stats, WAGStage, GI_PARRY_FLASH_COLOR,
+};
 
 use crate::{
     assets::Sounds,
@@ -34,7 +39,8 @@ impl Plugin for DevPlugin {
             .add_systems(
                 Update,
                 (
-                    sound_test_system,
+                    audio_test_system,
+                    shader_test_system,
                     fullscreen_toggle,
                     cycle_game_state,
                     input_leniency_test_system,
@@ -53,9 +59,22 @@ fn setup(mut config: ResMut<GizmoConfig>) {
     config.depth_bias = -1.0;
 }
 
-fn sound_test_system(keys: Res<Input<KeyCode>>, mut sounds: ResMut<Sounds>) {
+fn shader_test_system(keys: Res<Input<KeyCode>>, mut players: Query<&mut PlayerState>) {
     if keys.just_pressed(KeyCode::S) {
-        dbg!("Playing");
+        dbg!("Playing shader flash");
+        for mut player in &mut players {
+            player.add_actions(vec![ActionEvent::Flash(FlashRequest {
+                color: GI_PARRY_FLASH_COLOR,
+                speed: 0.0,
+                ..default()
+            })])
+        }
+    }
+}
+
+fn audio_test_system(keys: Res<Input<KeyCode>>, mut sounds: ResMut<Sounds>) {
+    if keys.just_pressed(KeyCode::A) {
+        dbg!("Playing whoosh audio");
         sounds.play(SoundEffect::Whoosh);
     }
 }

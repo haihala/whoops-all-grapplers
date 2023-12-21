@@ -19,3 +19,11 @@ impl Default for FlashRequest {
         }
     }
 }
+impl From<Color> for FlashRequest {
+    fn from(color: Color) -> Self {
+        Self {
+            color,
+            ..Default::default()
+        }
+    }
+}

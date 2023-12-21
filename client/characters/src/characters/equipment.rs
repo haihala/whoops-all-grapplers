@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use wag_core::{ActionId, Animation, ItemId, Stats, StatusCondition, StatusFlag};
+use wag_core::{
+    ActionId, Animation, ItemId, Stats, StatusCondition, StatusFlag, GI_PARRY_FLASH_COLOR,
+};
 
 use crate::{
     actions::ActionRequirement, Action, ActionBlock, ActionEvent, CancelCategory, CancelPolicy,
@@ -19,10 +21,7 @@ fn get_high_gi_parry() -> Action {
                     expiration: Some(15),
                 }),
             ],
-            // 0f moves will end on the same system they are processed and their events will get cleared before those get handled
-            // Could be fixed, but likely not severe enough to.
-            // TODO: Previous comment is from previous implementation, may not be true anymore
-            exit_requirement: ContinuationRequirement::Time(1),
+            exit_requirement: ContinuationRequirement::None,
             cancel_policy: CancelPolicy::never(),
             mutator: None,
         }],
@@ -35,13 +34,15 @@ fn get_high_gi_parry() -> Action {
 
 fn parry_flash(parry_animation: Animation) -> Action {
     Action::new(
-        Some("56"),
+        None,
         CancelCategory::Any,
         vec![ActionBlock {
-            events: vec![parry_animation.into()],
+            events: vec![
+                parry_animation.into(),
+                ActionEvent::Flash(GI_PARRY_FLASH_COLOR.into()),
+            ],
             exit_requirement: ContinuationRequirement::Time(10),
-            cancel_policy: CancelPolicy::never(),
-            mutator: None,
+            ..default()
         }],
         vec![
             ActionRequirement::Grounded,

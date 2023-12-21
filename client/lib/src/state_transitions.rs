@@ -1,13 +1,13 @@
-use bevy::{app::AppExit, prelude::*};
+use bevy::{app::AppExit, asset::LoadState, prelude::*};
 
 use characters::{Character, Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
-    Clock, GameState, Player, RoundLog, RoundResult, POST_ROUND_DURATION, PRE_ROUND_DURATION,
-    ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
+    Clock, GameState, Joints, Player, RoundLog, RoundResult, POST_ROUND_DURATION,
+    PRE_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
 };
 
-use crate::ui::Notifications;
+use crate::{assets::AssetsLoading, ui::Notifications};
 
 pub struct StateTransitionPlugin;
 
@@ -17,6 +17,7 @@ impl Plugin for StateTransitionPlugin {
             Update,
             (
                 end_loading.run_if(in_state(GameState::Loading)),
+                end_claiming.run_if(in_state(GameState::ClaimingControllers)),
                 end_combat.run_if(in_state(GameState::Combat)),
                 transition_after_timer,
             ),
@@ -161,6 +162,25 @@ fn transition_after_timer(
 }
 
 fn end_loading(
+    players: Query<&Joints>,
+    loading_assets: Res<AssetsLoading>,
+    server: Res<AssetServer>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    let joints_loaded = players.iter().all(|joints| !joints.nodes.is_empty());
+    let some_assets_loading = !loading_assets.0.is_empty();
+    let all_assets_loaded = loading_assets
+        .0
+        .iter()
+        .all(|h| server.get_load_state(h.id()) == Some(LoadState::Loaded));
+
+    if joints_loaded && some_assets_loading && all_assets_loaded {
+        dbg!("Done loading assets");
+        next_state.set(GameState::ClaimingControllers);
+    }
+}
+
+fn end_claiming(
     mut commands: Commands,
     parsers: Query<&InputParser>,
     mut next_state: ResMut<NextState<GameState>>,

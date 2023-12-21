@@ -10,7 +10,7 @@ pub enum SoundEffect {
     Silence,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 pub enum VisualEffect {
     Clash,
     Block,

@@ -101,7 +101,7 @@ impl Joint {
 
 use Joint::*;
 
-#[derive(Debug, Component, Clone, Deref, DerefMut, PartialEq)]
+#[derive(Debug, Component, Clone, Deref, DerefMut, PartialEq, Reflect)]
 pub struct JointCollider(pub Vec<Joint>);
 impl From<Vec<Joint>> for JointCollider {
     fn from(value: Vec<Joint>) -> Self {
@@ -109,7 +109,7 @@ impl From<Vec<Joint>> for JointCollider {
     }
 }
 
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Reflect)]
 pub struct Joints {
     pub nodes: HashMap<Joint, Entity>,
     pub colliders: Vec<JointCollider>,

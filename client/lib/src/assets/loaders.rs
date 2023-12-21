@@ -1,60 +1,92 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 use bevy_hanabi::*;
 
-use wag_core::VisualEffect;
+use wag_core::{Animation, Model, SoundEffect, VisualEffect};
 
 use super::{
     animations::animation_paths,
     models::model_paths,
     sounds::{get_sound_paths, Sounds},
-    Animations, Fonts, Models, Particles,
+    Animations, AssetsLoading, Fonts, Models, Particles,
 };
 
-pub fn fonts(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn fonts(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut loading_assets: ResMut<AssetsLoading>,
+) {
     let basic = asset_server.load("FiraSans-Bold.ttf");
 
-    commands.insert_resource(Fonts { basic })
+    loading_assets.0.push(basic.clone().untyped());
+    commands.insert_resource(Fonts { basic });
 }
 
-pub fn models(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(Models(
-        model_paths()
-            .into_iter()
-            .map(|(key, path)| (key, asset_server.load(path)))
-            .collect(),
-    ));
+pub fn models(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut loading_assets: ResMut<AssetsLoading>,
+) {
+    let handles: HashMap<Model, Handle<Scene>> = model_paths()
+        .into_iter()
+        .map(|(key, path)| (key, asset_server.load(path)))
+        .collect();
+
+    commands.insert_resource(Models(handles.clone()));
+
+    loading_assets
+        .0
+        .extend(handles.values().cloned().map(|h| h.untyped()));
 }
 
-pub fn animations(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(Animations::new(
-        animation_paths()
-            .into_iter()
-            .map(|(key, path)| (key, asset_server.load(path)))
-            .collect(),
-    ));
+pub fn animations(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut loading_assets: ResMut<AssetsLoading>,
+) {
+    let handles: HashMap<Animation, Handle<AnimationClip>> = animation_paths()
+        .into_iter()
+        .map(|(key, path)| (key, asset_server.load(path)))
+        .collect();
+
+    loading_assets
+        .0
+        .extend(handles.values().cloned().map(|h| h.untyped()));
+
+    commands.insert_resource(Animations::new(handles));
 }
 
-pub fn sounds(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(Sounds::new(
-        get_sound_paths()
-            .into_iter()
-            .map(|(id, paths)| {
-                (
-                    id,
-                    paths
-                        .into_iter()
-                        .map(|path| asset_server.load(path))
-                        .collect(),
-                )
-            })
-            .collect(),
-    ))
+pub fn sounds(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut loading_assets: ResMut<AssetsLoading>,
+) {
+    let handles: HashMap<SoundEffect, Vec<Handle<AudioSource>>> = get_sound_paths()
+        .into_iter()
+        .map(|(id, paths)| {
+            (
+                id,
+                paths
+                    .into_iter()
+                    .map(|path| asset_server.load(path))
+                    .collect(),
+            )
+        })
+        .collect();
+
+    commands.insert_resource(Sounds::new(handles.clone()));
+
+    loading_assets.0.extend(
+        handles
+            .values()
+            .cloned()
+            .flat_map(|audio_type| audio_type.into_iter().map(|h| h.untyped())),
+    );
 }
 
 // Typed like this so it can be ignored in unit tests
 pub fn particles(mut commands: Commands, effects: Option<ResMut<Assets<EffectAsset>>>) {
-    let resource = Particles::new(if let Some(mut effects) = effects {
-        vec![
+    if let Some(mut effects) = effects {
+        let handles = vec![
             (
                 VisualEffect::Block,
                 block_entity(&mut commands, &mut effects),
@@ -66,11 +98,10 @@ pub fn particles(mut commands: Commands, effects: Option<ResMut<Assets<EffectAss
             ),
         ]
         .into_iter()
-        .collect()
-    } else {
-        default()
-    });
-    commands.insert_resource(resource);
+        .collect();
+
+        commands.insert_resource(Particles::new(handles));
+    };
 }
 
 fn block_entity(commands: &mut Commands, effects: &mut Assets<EffectAsset>) -> Entity {

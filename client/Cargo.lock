@@ -2277,7 +2277,6 @@ name = "input_parsing"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "map-macro",
  "wag_core",
 ]
 
@@ -2512,12 +2511,6 @@ checksum = "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb"
 dependencies = [
  "libc",
 ]
-
-[[package]]
-name = "map-macro"
-version = "0.2.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c2efbd1385acc8dad8a2e56558e58d949d777741fe110f2ddf3472671dbe3e6"
 
 [[package]]
 name = "matchers"
@@ -4097,7 +4090,6 @@ dependencies = [
  "bevy_hanabi",
  "characters",
  "input_parsing",
- "map-macro",
  "player_state",
  "rand",
  "strum",

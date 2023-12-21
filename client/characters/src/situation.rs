@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-
+use bevy::utils::HashSet;
 use wag_core::{GameButton, Stats};
 
 use crate::{ActionTracker, Inventory, ResourceType, WAGResource};

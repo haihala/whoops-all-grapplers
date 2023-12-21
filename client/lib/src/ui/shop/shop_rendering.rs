@@ -128,7 +128,7 @@ struct InfoPanelContents {
 }
 
 fn available_item_info(character: &Character, shop_item: &ShopItem) -> InfoPanelContents {
-    let item = character.items.get(shop_item).unwrap().clone();
+    let item = character.items.get(&shop_item.0).unwrap().clone();
 
     InfoPanelContents {
         item_name: Some(shop_item.display_name()),

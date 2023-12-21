@@ -207,7 +207,6 @@ impl From<&str> for MotionInput {
 
 #[cfg(test)]
 mod test {
-    use map_macro::hash_set;
     use wag_core::{GameButton, StickPosition};
 
     use super::*;
@@ -256,7 +255,7 @@ mod test {
             ..default()
         };
         let diff = Diff {
-            pressed: Some(hash_set! {GameButton::Fast}),
+            pressed: Some(vec![GameButton::Fast].into_iter().collect()),
             ..default()
         };
 
@@ -282,7 +281,7 @@ mod test {
 
         sticky.advance(
             &Diff {
-                pressed: Some(hash_set! {GameButton::Fast}),
+                pressed: Some(vec![GameButton::Fast].into_iter().collect()),
                 ..default()
             },
             base.clone(),
@@ -315,7 +314,7 @@ mod test {
         base.apply(neutral);
 
         let button = Diff {
-            pressed: Some(hash_set! {GameButton::Fast}),
+            pressed: Some(vec![GameButton::Fast].into_iter().collect()),
             ..default()
         };
 

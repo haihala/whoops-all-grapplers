@@ -41,48 +41,45 @@ impl Animations {
 
 pub fn mirror_after_load(
     mut animations: ResMut<Animations>,
-    maybe_assets: Option<ResMut<Assets<AnimationClip>>>, // For integration tests
+    mut clip_assets: ResMut<Assets<AnimationClip>>,
     mut done: Local<bool>,
 ) {
-    if *done || maybe_assets.is_none() {
+    if !animations.all_loaded(&clip_assets) || !animations.mirrored.is_empty() {
         return;
     }
-    let assets = &mut maybe_assets.unwrap();
 
-    if animations.all_loaded(assets) && animations.mirrored.is_empty() {
-        animations.mirrored = animations
-            .normal
-            .iter()
-            .map(|(animation, handle)| {
-                let clip = assets.get(handle).unwrap();
+    animations.mirrored = animations
+        .normal
+        .iter()
+        .map(|(animation, handle)| {
+            let clip = clip_assets.get(handle).unwrap();
 
-                let reflected: Box<dyn Struct> = Box::new(clip.to_owned());
-                let ref_paths = reflected.field("paths").unwrap();
-                let paths = ref_paths
-                    .downcast_ref::<HashMap<EntityPath, usize>>()
-                    .unwrap();
+            let reflected: Box<dyn Struct> = Box::new(clip.to_owned());
+            let ref_paths = reflected.field("paths").unwrap();
+            let paths = ref_paths
+                .downcast_ref::<HashMap<EntityPath, usize>>()
+                .unwrap();
 
-                let mirrored = paths.into_iter().fold(
-                    AnimationClip::default(),
-                    |mut clip_acc, (path, curves_index)| {
-                        let mirrored_path = mirror_path(path.to_owned());
+            let mirrored = paths.into_iter().fold(
+                AnimationClip::default(),
+                |mut clip_acc, (path, curves_index)| {
+                    let mirrored_path = mirror_path(path.to_owned());
 
-                        for curve in clip.get_curves(*curves_index).unwrap().iter() {
-                            clip_acc.add_curve_to_path(
-                                mirrored_path.clone(),
-                                mirror_curve(curve.to_owned()),
-                            );
-                        }
+                    for curve in clip.get_curves(*curves_index).unwrap().iter() {
+                        clip_acc.add_curve_to_path(
+                            mirrored_path.clone(),
+                            mirror_curve(curve.to_owned()),
+                        );
+                    }
 
-                        clip_acc
-                    },
-                );
+                    clip_acc
+                },
+            );
 
-                (animation.to_owned(), assets.add(mirrored))
-            })
-            .collect();
-        *done = true;
-    }
+            (animation.to_owned(), clip_assets.add(mirrored))
+        })
+        .collect();
+    *done = true;
 }
 
 fn mirror_path(original: EntityPath) -> EntityPath {

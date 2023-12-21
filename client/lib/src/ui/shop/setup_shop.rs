@@ -12,7 +12,7 @@ use crate::assets::Fonts;
 use super::shop_inputs::{ShopNavigation, ShopSlotState};
 use super::shops_resource::{Shop, ShopComponents, ShopComponentsBuilder, Shops};
 
-#[derive(Debug, Component, Deref)]
+#[derive(Debug, Component, Deref, Hash, PartialEq, Eq, Clone, Copy)]
 pub struct ShopItem(pub ItemId);
 
 #[derive(Debug, Component)]

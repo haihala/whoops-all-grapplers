@@ -5,6 +5,7 @@ use bevy::prelude::*;
 pub enum GameState {
     #[default]
     Loading,
+    ClaimingControllers,
     PreRound,
     Combat,
     PostRound,
@@ -13,7 +14,9 @@ pub enum GameState {
 impl GameState {
     pub fn next(self) -> GameState {
         match self {
-            GameState::Loading => GameState::PreRound,
+            GameState::Loading => GameState::ClaimingControllers,
+
+            GameState::ClaimingControllers => GameState::PreRound,
 
             GameState::PreRound => GameState::Combat,
             GameState::Combat => GameState::PostRound,

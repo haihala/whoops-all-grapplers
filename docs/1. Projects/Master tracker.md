@@ -24,8 +24,8 @@ Nice to have:
 - [[Extending items]]
 - [[Toasts in various spots]]
 - [[Move format refinement]]
-- An actual loading screen that waits until models are in.
-- Revisit projectiles
+- Revisit particles
+- Pretty loading screen that hides the popping
 
 ### Spec update
 - Get idea dumps from archive

@@ -1,6 +1,5 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 use bevy_hanabi::EffectSpawner;
-use std::collections::HashMap;
 
 use wag_core::VisualEffect;
 

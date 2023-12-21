@@ -1,5 +1,4 @@
-use map_macro::hash_set;
-use std::collections::HashSet;
+use bevy::utils::HashSet;
 
 use wag_core::{GameButton, StickPosition};
 
@@ -80,7 +79,7 @@ fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet
         pressed.insert(button);
         pressed
     } else {
-        hash_set! {button}
+        vec![button].into_iter().collect()
     }
 }
 

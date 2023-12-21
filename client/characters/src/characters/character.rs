@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 use wag_core::{ActionId, Animation, AnimationType, Area, ItemId, Model, Player, Stats};
 
 use crate::{resources::ResourceType, Action, Item, WAGResource};

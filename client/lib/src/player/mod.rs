@@ -19,7 +19,7 @@ use wag_core::{
 };
 
 use crate::{
-    assets::{AnimationHelper, AnimationHelperSetup, Models},
+    assets::{AnimationHelper, AnimationHelperSetup, Models, UpdateMaterial},
     damage::{Defense, HitboxSpawner},
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
@@ -31,7 +31,8 @@ use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
 pub use move_activation::MoveBuffer;
 
-use player_flash::FlashMaterial;
+pub use player_flash::{ExtendedFlashMaterial, FlashMaterial};
+
 use root_mover::RootMover;
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
@@ -63,7 +64,6 @@ impl Plugin for PlayerPlugin {
                 (
                     condition_management::update_combined_status_effect
                         .before(WAGStage::PlayerUpdates),
-                    player_flash::customize_scene_materials,
                     player_flash::handle_flash_events,
                 ),
             )
@@ -175,12 +175,7 @@ fn spawn_player(
                         ..default()
                     },
                     hook: SceneHook::new(move |_, cmds| {
-                        cmds.insert((
-                            player_flash::UpdateMaterial(colors.clone()),
-                            NoFrustumCulling,
-                        ));
-
-                        // TODO: Use this for attaching to joints and flipping animations
+                        cmds.insert((UpdateMaterial(colors.clone()), NoFrustumCulling));
                     }),
                 },
                 RootMover,

@@ -1,16 +1,13 @@
-use std::collections::HashMap;
-
 use bevy::{
     pbr::{ExtendedMaterial, MaterialExtension},
     prelude::*,
     render::render_resource::{AsBindGroup, ShaderRef},
-    scene::SceneInstance,
 };
 use characters::{ActionEvent, FlashRequest};
 use player_state::PlayerState;
 
 // Extended Flash Material
-type ExtendedFlashMaterial = ExtendedMaterial<StandardMaterial, FlashMaterial>;
+pub type ExtendedFlashMaterial = ExtendedMaterial<StandardMaterial, FlashMaterial>;
 
 pub fn handle_flash_events(
     mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
@@ -79,48 +76,6 @@ impl FlashMaterial {
             depth: request.depth,
             duration: request.duration,
             start_time: time,
-        }
-    }
-}
-
-#[derive(Component)]
-pub struct UpdateMaterial(pub HashMap<&'static str, Color>);
-
-// From https://github.com/bevyengine/bevy/discussions/8533
-pub fn customize_scene_materials(
-    unloaded_instances: Query<(Entity, &SceneInstance, &UpdateMaterial)>,
-    handles: Query<(Entity, &Handle<StandardMaterial>, &Name)>,
-    pbr_materials: Res<Assets<StandardMaterial>>,
-    scene_manager: Res<SceneSpawner>,
-    mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
-    mut cmds: Commands,
-) {
-    for (entity, instance, update_material) in &unloaded_instances {
-        if scene_manager.instance_is_ready(**instance) {
-            cmds.entity(entity).remove::<UpdateMaterial>();
-        }
-
-        // Iterate over all entities in scene (once it's loaded)
-        let handles = handles.iter_many(scene_manager.iter_instance_entities(**instance));
-        for (entity, material_handle, name) in handles {
-            let Some(old_material) = pbr_materials.get(material_handle) else {
-                continue;
-            };
-
-            let mut base_material = old_material.clone();
-
-            if let Some(color) = update_material.0.get(name.as_str()) {
-                base_material.base_color = color.clone();
-            }
-
-            let material = materials.add(ExtendedMaterial {
-                base: base_material,
-                extension: FlashMaterial::from_request(FlashRequest::default(), 0.0),
-            });
-
-            cmds.entity(entity)
-                .insert(material)
-                .remove::<Handle<StandardMaterial>>();
         }
     }
 }

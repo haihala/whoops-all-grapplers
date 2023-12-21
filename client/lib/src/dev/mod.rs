@@ -2,7 +2,7 @@ use bevy::{prelude::*, window::WindowMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use characters::{Hitbox, Hurtbox, Inventory};
-use wag_core::{Clock, GameState, Player, SoundEffect, Stats, WAGStage};
+use wag_core::{Clock, GameState, Joints, Player, SoundEffect, Stats, WAGStage};
 
 use crate::{
     assets::Sounds,
@@ -28,6 +28,7 @@ impl Plugin for DevPlugin {
             .register_type::<Hitbox>()
             .register_type::<MoveBuffer>()
             .register_type::<Inventory>()
+            .register_type::<Joints>()
             .register_type::<Stats>()
             .add_systems(Startup, setup)
             .add_systems(

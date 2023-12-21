@@ -1,6 +1,6 @@
-use std::{collections::HashMap, iter::empty};
+use std::iter::empty;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
     ActionId, Animation, AnimationType, Area, DummyActionId, DummyAnimation, ItemId, Joint, Model,

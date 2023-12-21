@@ -102,7 +102,7 @@ pub fn navigate_shop(
             let correct_state = if selected == entity {
                 ShopSlotState::Highlighted
             } else if shop_item
-                .map(|item| character.items.get(item).unwrap().cost > inventory.money)
+                .map(|item| character.items.get(&item.0).unwrap().cost > inventory.money)
                 .unwrap_or_default()
             {
                 ShopSlotState::Disabled
@@ -249,7 +249,7 @@ fn buy(
     let (_, _, selected_item, _) = slots.get(selected_slot).unwrap();
     let shop_item = selected_item.unwrap();
 
-    let item = character.items.get(shop_item).unwrap().clone();
+    let item = character.items.get(&shop_item.0).unwrap().clone();
     if inventory.can_buy(&item) {
         inventory.buy(**shop_item, item)
     }

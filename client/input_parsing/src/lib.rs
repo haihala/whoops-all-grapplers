@@ -1,5 +1,6 @@
-use bevy::prelude::*;
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
+
+use bevy::{prelude::*, utils::HashMap};
 use wag_core::{ActionId, WAGStage};
 
 mod helper_types;

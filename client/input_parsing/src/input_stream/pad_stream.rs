@@ -5,7 +5,7 @@ use bevy::{
     },
     prelude::*,
 };
-use wag_core::{GameButton, StickPosition};
+use wag_core::{GameButton, GameState, StickPosition};
 
 use crate::{
     helper_types::{Diff, InputEvent},
@@ -106,6 +106,7 @@ pub(crate) fn update_pads(
     mut gamepad_events: EventReader<GamepadEvent>,
     mut unused_pads: ResMut<PadReserve>,
     mut readers: Query<(&mut PadStream, &mut ParrotStream)>,
+    game_state: Res<State<GameState>>,
 ) {
     for event in gamepad_events.read() {
         for (mut pad, mut parrot) in &mut readers {
@@ -146,13 +147,18 @@ pub(crate) fn update_pads(
                     value,
                 }) => {
                     let pressed_start = *button_type == GamepadButtonType::Start && *value == 1.0;
+                    let done_loading = game_state.get() != &GameState::Loading;
 
-                    if unused_pads.contains(gamepad) && unclaimed_pad && pressed_start {
+                    if unused_pads.contains(gamepad)
+                        && unclaimed_pad
+                        && pressed_start
+                        && done_loading
+                    {
                         // Pressed start, claim the pad
                         println!("Claimed controller {}", gamepad.id);
                         pad.pad_id = Some(*gamepad);
                         unused_pads.remove_pad(gamepad);
-                    } else if pad.pad_id.is_some() && pad.pad_id.unwrap() == *gamepad {
+                    } else if pad.pad_id == Some(*gamepad) {
                         button_change(&mut pad, &mut parrot, *button_type, *value);
                     }
                 }

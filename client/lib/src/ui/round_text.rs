@@ -19,7 +19,9 @@ pub fn update_round_text(
     }
 
     *visible = Visibility::Inherited;
-    if game_state.get() == &GameState::PreRound {
+    if game_state.get() == &GameState::ClaimingControllers {
+        text.sections[0].value = "Press start to claim characters (first press = p1)".to_string();
+    } else if game_state.get() == &GameState::PreRound {
         text.sections[0].value = "New round".to_string();
     } else if let Some(result) = round_log.last() {
         text.sections[0].value = if let Some(winner) = result.winner {
@@ -49,6 +51,7 @@ pub fn setup_round_info_text(mut commands: Commands, fonts: Res<Fonts>) {
             Name::new("Round info text"),
             OnlyShowInGameState(vec![
                 GameState::Loading,
+                GameState::ClaimingControllers,
                 GameState::PreRound,
                 GameState::PostRound,
             ]),
@@ -57,7 +60,7 @@ pub fn setup_round_info_text(mut commands: Commands, fonts: Res<Fonts>) {
             parent.spawn((
                 TextBundle {
                     text: Text::from_section(
-                        "Press start to claim characters (first press = p1)",
+                        "Loading...",
                         TextStyle {
                             font: fonts.basic.clone(),
                             font_size: 48.0,

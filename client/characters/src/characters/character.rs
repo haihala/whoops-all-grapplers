@@ -23,7 +23,7 @@ impl Character {
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
         model: Model,
-        colors: HashMap<Player, HashMap<&'static str, Color>>,
+        p2_colors: HashMap<&'static str, Color>,
         generic_animations: HashMap<AnimationType, Animation>,
         moves: HashMap<ActionId, Action>,
         items: HashMap<ItemId, Item>,
@@ -32,7 +32,9 @@ impl Character {
     ) -> Character {
         Self {
             model,
-            colors,
+            colors: vec![(Player::One, HashMap::new()), (Player::Two, p2_colors)]
+                .into_iter()
+                .collect(),
             generic_animations,
             moves,
             items,

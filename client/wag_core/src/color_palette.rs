@@ -41,4 +41,4 @@ pub const HIT_FLASH_COLOR: Color = Color::WHITE;
 // Player colors
 pub const MIZUKI_ALT_SHIRT_COLOR: Color = Color::WHITE;
 pub const MIZUKI_ALT_JEANS_COLOR: Color = Color::MIDNIGHT_BLUE;
-pub const MIZUKI_ALT_HELMET_COLOR: Color = Color::rgb(48.0 / 255.0, 25.0 / 255.0, 52.0 / 255.0);
+pub const MIZUKI_ALT_HELMET_COLOR: Color = Color::rgb(38.0 / 255.0, 50.0 / 255.0, 100.0 / 255.0);

@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use wag_core::{
     ActionId, Animation, AnimationType, Area, DummyActionId, DummyAnimation, ItemId, Joint, Model,
-    Player, Stats, StatusCondition, StatusFlag, CHARGE_BAR_FULL_SEGMENT_COLOR,
+    Stats, StatusCondition, StatusFlag, CHARGE_BAR_FULL_SEGMENT_COLOR,
     CHARGE_BAR_PARTIAL_SEGMENT_COLOR, FPS,
 };
 
@@ -37,9 +37,7 @@ pub fn dummy() -> Character {
 
     Character::new(
         Model::Dummy,
-        vec![(Player::One, HashMap::new()), (Player::Two, HashMap::new())]
-            .into_iter()
-            .collect(),
+        HashMap::new(),
         dummy_animations(),
         dummy_moves(jumps),
         dummy_items(),

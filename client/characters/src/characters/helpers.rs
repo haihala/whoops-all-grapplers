@@ -1,12 +1,14 @@
 use std::f32::consts::PI;
 
 use crate::{
-    Action, ActionBlock, ActionEvent, CancelCategory, CancelPolicy, ContinuationRequirement,
-    Movement,
+    Action, ActionBlock, ActionEvent, ActionRequirement, CancelCategory, CancelPolicy,
+    ContinuationRequirement, FlashRequest, Movement, ResourceType,
 };
 
 use bevy::prelude::*;
-use wag_core::{ActionId, Animation, StatusCondition, StatusFlag};
+use wag_core::{
+    ActionId, Animation, ItemId, StatusCondition, StatusFlag, TRACK_SPIKES_FLASH_COLOR,
+};
 
 pub fn jumps(
     height: f32,
@@ -128,17 +130,25 @@ fn jump(input: &'static str, impulse: Vec2, animation: impl Into<Animation>) -> 
 
 // TODO: Values should come in as parameters
 pub fn dashes(
-    forward_animation: impl Into<Animation>,
-    back_animation: impl Into<Animation>,
+    forward_animation: impl Into<Animation> + Clone,
+    back_animation: impl Into<Animation> + Clone,
 ) -> impl Iterator<Item = (ActionId, Action)> {
     vec![
         (
             ActionId::DashForward,
-            dash("5656", 4, 19, 7.0, forward_animation, false),
+            dash("5656", 4, 19, 7.0, forward_animation.clone(), false, false),
         ),
         (
             ActionId::DashBack,
-            dash("5454", 5, 20, -7.0, back_animation, true),
+            dash("5454", 5, 20, -7.0, back_animation.clone(), true, false),
+        ),
+        (
+            ActionId::TrackSpikesDashForward,
+            dash("5656", 4, 19, 7.0, forward_animation, false, true),
+        ),
+        (
+            ActionId::TrackSpikesDashBack,
+            dash("5454", 5, 20, -7.0, back_animation, true, true),
         ),
     ]
     .into_iter()
@@ -151,13 +161,36 @@ fn dash(
     impulse: f32,
     animation: impl Into<Animation>,
     backdash: bool,
+    track_spikes: bool,
 ) -> Action {
-    Action::grounded(
+    let mut initial_events = vec![animation.into().into()];
+    let mut requirements = vec![ActionRequirement::Grounded];
+
+    if track_spikes {
+        initial_events.extend(vec![
+            ActionEvent::ModifyResource(ResourceType::Meter, -50),
+            ActionEvent::Flash(FlashRequest {
+                color: TRACK_SPIKES_FLASH_COLOR,
+                ..default()
+            }),
+        ]);
+
+        requirements.extend(vec![
+            ActionRequirement::ResourceValue(ResourceType::Meter, 50),
+            ActionRequirement::ItemsOwned(vec![ItemId::TrackSpikes]),
+        ]);
+    }
+
+    Action::new(
         Some(input),
-        CancelCategory::Dash,
+        if track_spikes {
+            CancelCategory::Special
+        } else {
+            CancelCategory::Dash
+        },
         vec![
             ActionBlock {
-                events: vec![animation.into().into()],
+                events: initial_events,
                 exit_requirement: ContinuationRequirement::Time(startup_duration),
                 cancel_policy: CancelPolicy::never(),
                 mutator: if backdash {
@@ -185,5 +218,6 @@ fn dash(
                 mutator: None,
             },
         ],
+        requirements,
     )
 }

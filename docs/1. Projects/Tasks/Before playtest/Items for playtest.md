@@ -12,6 +12,6 @@
 	- [x] [[Eagle feather]]
 		- [ ] [[Air jordans]]
 	- [x] [[Stopwatch]]
-		- [ ] [[Track spikes]]
+		- [x] [[Track spikes]]
 	- [x] [[Thumbtacks]]
 		- [x] [[Space suit boots]]

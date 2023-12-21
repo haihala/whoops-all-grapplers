@@ -20,6 +20,7 @@ pub enum ItemId {
     // Universal upgrades
     SafetyBoots,
     GoaleeGear,
+    TrackSpikes,
 
     // Character specific
     // Dummy

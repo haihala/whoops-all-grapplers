@@ -11,7 +11,7 @@ pub use models::{Models, UpdateMaterial};
 pub use particles::{ParticleRequest, Particles};
 pub use sounds::Sounds;
 
-use wag_core::{in_combat, GameState};
+use wag_core::GameState;
 
 #[derive(Debug, Resource)]
 pub struct Fonts {
@@ -51,8 +51,7 @@ impl Plugin for AssetsPlugin {
                     animations::update_animation,
                     sounds::play_queued,
                     particles::handle_requests,
-                )
-                    .run_if(in_combat),
+                ),
             );
     }
 }

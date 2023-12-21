@@ -168,7 +168,7 @@ Item ideas:
 - [[Kunai]]
 - [[Travel whetstone]]
 - [[Gentleman's pipe]]
-- [[Spiked shoes]]
+- [[Space suit boots]]
 
 # Item ideas
 ## Armguards

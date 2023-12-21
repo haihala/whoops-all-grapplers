@@ -14,4 +14,4 @@
 	- [x] [[Stopwatch]]
 		- [ ] [[Track spikes]]
 	- [x] [[Thumbtacks]]
-		- [ ] [[Spiked shoes]]
+		- [x] [[Space suit boots]]

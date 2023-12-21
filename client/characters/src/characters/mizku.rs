@@ -347,7 +347,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![Attack::strike(
                             ToHit {
-                                hitbox: Hitbox(Area::of_size(0.35, 0.25)),
+                                hitbox: Hitbox(Area::new(-0.35, 0.0, 0.7, 0.25)),
                                 joint: Some(Joint::FootR),
                                 lifetime: Lifetime::frames(7),
                                 block_type: Strike(High),
@@ -363,7 +363,22 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(17),
                         cancel_policy: CancelPolicy(vec![]),
-                        mutator: None,
+                        mutator: Some(|mut original, situation| {
+                            if situation.inventory.contains(&ItemId::SpaceSuitBoots) {
+                                for ev in original.events.iter_mut() {
+                                    if let Attack(attack) = ev {
+                                        for ap in attack.target_on_hit.iter_mut() {
+                                            if let HitStun(_) = ap {
+                                                *ap = Launch {
+                                                    impulse: Vec2::new(-1.0, 15.0),
+                                                };
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            original
+                        }),
                     },
                 ],
             ),
@@ -1207,7 +1222,7 @@ fn mizku_items() -> HashMap<ItemId, Item> {
         (
             ItemId::Kunai,
             Item {
-                cost: 100,
+                cost: 75,
                 explanation: "qcf+f to throw, comes in handy\n\nThat's the power...of a president!"
                     .into(),
                 category: ItemCategory::Consumable(crate::items::ConsumableType::UntilUsed),
@@ -1220,6 +1235,15 @@ fn mizku_items() -> HashMap<ItemId, Item> {
                 cost: 100,
                 explanation: "6s for an overhead".into(),
                 category: ItemCategory::Upgrade(vec![ItemId::SafetyBoots, ItemId::HockeyPads]),
+                ..default()
+            },
+        ),
+        (
+            ItemId::SpaceSuitBoots,
+            Item {
+                category: ItemCategory::Upgrade(vec![ItemId::Boots, ItemId::Dumbbell]),
+                explanation: "Makes j.h launch on hit\n\nAnd we have liftoff".into(),
+                cost: 100,
                 ..default()
             },
         ),

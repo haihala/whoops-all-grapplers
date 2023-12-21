@@ -137,7 +137,12 @@ pub(crate) fn update_pads(
                     gamepad,
                     value,
                 }) => {
-                    if pad.pad_id.is_some() && pad.pad_id.unwrap() == *gamepad {
+                    if pad.pad_id == Some(*gamepad)
+                        && !matches!(
+                            axis_type,
+                            GamepadAxisType::RightStickX | GamepadAxisType::RightStickY
+                        )
+                    {
                         axis_change(&mut pad, *axis_type, *value);
                     }
                 }

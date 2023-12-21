@@ -4,9 +4,9 @@ use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
     ActionId, Animation, AnimationType, Area, GameButton, ItemId, Joint, MizkuActionId,
-    MizkuAnimation, Model, Stats, StatusCondition, StatusFlag, CHARGE_BAR_FULL_SEGMENT_COLOR,
-    CHARGE_BAR_PARTIAL_SEGMENT_COLOR, FPS, MIZUKI_ALT_HELMET_COLOR, MIZUKI_ALT_JEANS_COLOR,
-    MIZUKI_ALT_SHIRT_COLOR,
+    MizkuAnimation, Model, Stats, StatusCondition, StatusFlag, StickPosition,
+    CHARGE_BAR_FULL_SEGMENT_COLOR, CHARGE_BAR_PARTIAL_SEGMENT_COLOR, FPS, MIZUKI_ALT_HELMET_COLOR,
+    MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
 };
 
 use crate::{
@@ -73,7 +73,10 @@ pub fn mizku() -> Character {
                 ResourceType::Charge,
                 WAGResource {
                     max: Some((FPS / 2.) as i32), // Frames to full,
-                    special: Some(SpecialProperty::Charge(ChargeProperty::default())),
+                    special: Some(SpecialProperty::Charge(ChargeProperty {
+                        directions: vec![StickPosition::SW, StickPosition::S, StickPosition::SE],
+                        ..default()
+                    })),
                     render_instructions: RenderInstructions::Bar(ResourceBarVisual {
                         default_color: CHARGE_BAR_PARTIAL_SEGMENT_COLOR,
                         full_color: Some(CHARGE_BAR_FULL_SEGMENT_COLOR),
@@ -623,7 +626,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
         (
             MizkuActionId::GrisingSun,
             Action::new(
-                Some("[789]s"),
+                Some("[123][789]s"),
                 CancelCategory::Special,
                 vec![
                     ActionBlock {
@@ -685,6 +688,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 ],
                 vec![
                     ActionRequirement::Grounded,
+                    ActionRequirement::ResourceFull(ResourceType::Charge),
                     ActionRequirement::ResourceValue(ResourceType::Meter, 50),
                 ],
             ),
@@ -692,7 +696,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
         (
             MizkuActionId::ArisingSun,
             Action::new(
-                Some("[789]s"),
+                Some("[123][789]s"),
                 CancelCategory::Special,
                 vec![
                     ActionBlock {
@@ -753,6 +757,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 ],
                 vec![
                     ActionRequirement::Airborne,
+                    ActionRequirement::ResourceFull(ResourceType::Charge),
                     ActionRequirement::ResourceValue(ResourceType::Meter, 50),
                 ],
             ),

@@ -16,7 +16,6 @@ Nice to have:
 			- Not sure if I want to do this, as it could cause shifts in the list
 		- A component owned
 		- No components owned
-- Adjust item prices to not be identical
 
 ## [[Feedback round 1]]
 

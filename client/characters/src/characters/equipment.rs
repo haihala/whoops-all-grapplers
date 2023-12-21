@@ -112,7 +112,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::RedPaint,
             Item {
-                cost: 50,
+                cost: 500,
                 explanation: "Increased animation speed\n\nBecause red makes you go fastah".into(),
                 effect: Stats {
                     action_speed_multiplier: 1.1,
@@ -124,7 +124,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::Stopwatch,
             Item {
-                cost: 50,
+                cost: 150,
                 explanation: "Increased link timing meter gain\n\nNot my tempo!".into(),
                 effect: Stats {
                     link_bonus_multiplier: 1.1,
@@ -136,7 +136,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::Dumbbell,
             Item {
-                cost: 50,
+                cost: 120,
                 explanation: "Makes you ever so slightly heavier\n\nNot for training purposes"
                     .into(),
                 effect: Stats {
@@ -149,7 +149,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::EagleFeather,
             Item {
-                cost: 50,
+                cost: 70,
                 explanation: "Makes you jump higher\n\nFly like an eagle".into(),
                 effect: Stats {
                     jump_force_multiplier: 1.05,
@@ -161,7 +161,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::Cigarettes,
             Item {
-                cost: 50,
+                cost: 300,
                 explanation: "Makes you intangible for the first few frames of your backdash\n\nDissapear in a puff".into(),
                 effect: Stats {
                     backdash_invuln: 3,
@@ -217,7 +217,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     "+{} damage to all hits\n\nExponential growth is fun!",
                     usize::pow(2, (id - 1) as u32)
                 ),
-                cost: 10,
+                cost: 10*id,
                 ..default()
             },
         )

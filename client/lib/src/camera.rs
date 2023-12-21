@@ -1,7 +1,7 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, render::view::NoFrustumCulling};
 use characters::ActionEvent;
 use player_state::PlayerState;
-use wag_core::{Facing, Player};
+use wag_core::{Facing, GameState, OnlyShowInGameState, Player, WagArgs};
 
 use crate::physics::ARENA_WIDTH;
 
@@ -32,7 +32,12 @@ impl Plugin for CustomCameraPlugin {
     }
 }
 
-fn add_camera(mut commands: Commands) {
+fn add_camera(
+    mut commands: Commands,
+    args: Res<WagArgs>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
     commands
         .spawn((
             SpatialBundle::default(),
@@ -41,15 +46,30 @@ fn add_camera(mut commands: Commands) {
             RootCameraEffects::default(),
         ))
         .with_children(|parent| {
-            parent.spawn((
-                Camera3dBundle {
-                    transform: Transform::from_xyz(0.0, MAX_CAMERA_HEIGHT, MAX_CAMERA_DISTANCE),
-                    projection: PerspectiveProjection::default().into(),
-                    ..default()
-                },
-                Name::new("Main Camera"),
-                ChildCameraEffects::default(),
-            ));
+            parent
+                .spawn((
+                    Camera3dBundle {
+                        transform: Transform::from_xyz(0.0, MAX_CAMERA_HEIGHT, MAX_CAMERA_DISTANCE),
+                        projection: PerspectiveProjection::default().into(),
+                        ..default()
+                    },
+                    Name::new("Main Camera"),
+                    ChildCameraEffects::default(),
+                ))
+                .with_children(|main_cam| {
+                    if !args.dev {
+                        main_cam.spawn((
+                            PbrBundle {
+                                mesh: meshes.add(Mesh::from(shape::Cube { size: 3.0 })),
+                                material: materials.add(Color::rgb(0.2, 0.2, 0.2).into()),
+                                transform: Transform::from_xyz(0.0, 0.0, -2.0),
+                                ..default()
+                            },
+                            OnlyShowInGameState(vec![GameState::Loading]),
+                            NoFrustumCulling,
+                        ));
+                    };
+                });
         });
 }
 

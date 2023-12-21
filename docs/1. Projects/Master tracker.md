@@ -24,7 +24,7 @@ Nice to have:
 - [[Toasts in various spots]]
 - [[Move format refinement]]
 - Revisit particles
-- Pretty loading screen that hides the popping
+- Pretty loading screen
 
 ### Spec update
 - Get idea dumps from archive

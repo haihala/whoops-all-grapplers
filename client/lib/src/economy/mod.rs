@@ -26,11 +26,9 @@ fn modify_properties(mut query: Query<(&mut PlayerState, &mut WAGResources)>) {
             // Moved outside to avoid double borrow
             match prop {
                 ActionEvent::ModifyResource(prop, amount) => {
-                    dbg!("mod");
                     properties.get_mut(prop).unwrap().change(amount);
                 }
                 ActionEvent::ClearResource(prop) => {
-                    dbg!("clear");
                     properties.get_mut(prop).unwrap().clear();
                 }
                 _ => panic!("Filter failed"),

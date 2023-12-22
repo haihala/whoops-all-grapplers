@@ -625,7 +625,6 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
     rising_suns().chain(sway())
 }
 
-// TODO: Clean up
 macro_rules! rising_sun {
     ( $air:expr, $button:literal, $charged:expr ) => {
         Action::new(
@@ -633,50 +632,46 @@ macro_rules! rising_sun {
             CancelCategory::Special,
             vec![
                 ActionBlock {
-                    events: vec![
-                        (if $air {
+                    events: {
+                        let mut events = vec![if $air {
                             MizkuAnimation::ArisingSun
                         } else {
                             MizkuAnimation::GrisingSun
-                        })
-                        .into(),
-                        (if $air { Noop } else { ForceStand }),
-                    ]
-                    .into_iter()
-                    .chain(
-                        (if $button == "s" {
-                            vec![
-                                if $charged {
-                                    Condition(StatusCondition {
-                                        flag: StatusFlag::Intangible,
-                                        effect: None,
-                                        expiration: Some(12),
-                                    })
-                                } else {
-                                    Noop
-                                },
+                        }
+                        .into()];
+
+                        if !$air {
+                            events.push(ForceStand);
+                        }
+
+                        if !$charged {
+                            events.push(if $button == "s" {
+                                ModifyResource(ResourceType::Sharpness, -1)
+                            } else {
+                                ClearResource(ResourceType::Sharpness)
+                            });
+                        }
+
+                        if $button == "s" {
+                            if $charged {
+                                events.push(Condition(StatusCondition {
+                                    flag: StatusFlag::Intangible,
+                                    effect: None,
+                                    expiration: Some(12),
+                                }));
+                            }
+
+                            events.extend(vec![
                                 Flash(FlashRequest {
                                     duration: 0.5,
                                     ..default()
                                 }),
                                 ModifyResource(ResourceType::Meter, -50),
-                            ]
-                        } else {
-                            vec![]
-                        }),
-                    )
-                    .chain(
-                        (if !$charged {
-                            vec![if $button == "s" {
-                                ModifyResource(ResourceType::Sharpness, -1)
-                            } else {
-                                ClearResource(ResourceType::Sharpness)
-                            }]
-                        } else {
-                            vec![]
-                        }),
-                    )
-                    .collect(),
+                            ]);
+                        }
+
+                        events
+                    },
                     exit_requirement: ContinuationRequirement::Time(11),
                     ..default()
                 },
@@ -719,27 +714,23 @@ macro_rules! rising_sun {
                     ..default()
                 },
             ],
-            vec![if $air {
-                ActionRequirement::Airborne
-            } else {
-                ActionRequirement::Grounded
-            }]
-            .into_iter()
-            .chain(
-                (if $button == "s" {
-                    vec![ActionRequirement::ResourceValue(ResourceType::Meter, 50)]
+            {
+                let mut requirements = vec![if $air {
+                    ActionRequirement::Airborne
                 } else {
-                    vec![]
-                }),
-            )
-            .chain(
-                (if $charged {
-                    vec![ActionRequirement::ResourceFull(ResourceType::Charge)]
-                } else {
-                    vec![]
-                }),
-            )
-            .collect(),
+                    ActionRequirement::Grounded
+                }];
+
+                if $button == "s" {
+                    requirements.push(ActionRequirement::ResourceValue(ResourceType::Meter, 50));
+                }
+
+                if $charged {
+                    requirements.push(ActionRequirement::ResourceFull(ResourceType::Charge));
+                }
+
+                requirements
+            },
         )
     };
 }

@@ -98,6 +98,7 @@ impl HitboxSpawner {
             .extract_if(predicate)
             .map(|event| event.entity)
         {
+            // TODO: Craches here during playtest
             commands.entity(id).despawn_recursive();
         }
     }

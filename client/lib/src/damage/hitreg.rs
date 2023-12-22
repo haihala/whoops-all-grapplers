@@ -95,6 +95,7 @@ pub(super) fn clash_parry(
                 let (mut spawner, mut properties) = owners.get_mut(players.get(**owner)).unwrap();
 
                 // Pay up
+                // TODO: Crashed during testing, fix
                 let is_projectile = spawner
                     .is_projectile(entity)
                     .expect("to only check projectiles that have been spawned by this spawner");

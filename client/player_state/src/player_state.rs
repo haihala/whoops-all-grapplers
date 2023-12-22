@@ -121,6 +121,7 @@ impl PlayerState {
             MainState::Stand(_) => MainState::Stand(StandState::Move(tracker)),
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Move(tracker)),
             MainState::Air(_) => MainState::Air(AirState::Move(tracker)),
+            // TODO: crashes during playtest
             MainState::Ground(_) => panic!("Starting a move on the ground"),
         };
         self.free_since = None;

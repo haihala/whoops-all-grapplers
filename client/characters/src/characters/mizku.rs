@@ -328,15 +328,12 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             }
                             .into(),
                         ],
-                        exit_requirement: ContinuationRequirement::Time(5),
+                        // TODO:Add an item that allows for instant overheads
+                        exit_requirement: ContinuationRequirement::Time(20),
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Movement {
-                            amount: Vec2::Y * -1.0,
-                            duration: 30,
-                        }
-                        .into()],
+                        events: vec![],
                         exit_requirement: ContinuationRequirement::Conditions(vec![
                             ActionRequirement::ButtonNotPressed(GameButton::Strong),
                         ]),

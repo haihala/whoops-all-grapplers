@@ -622,146 +622,168 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
 }
 
 fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
+    rising_suns().chain(sway())
+}
+
+// TODO: Clean up
+macro_rules! rising_sun {
+    ( $air:expr, $button:literal, $charged:expr ) => {
+        Action::new(
+            Some(concat!("[123][789]", $button)),
+            CancelCategory::Special,
+            vec![
+                ActionBlock {
+                    events: vec![
+                        (if $air {
+                            MizkuAnimation::ArisingSun
+                        } else {
+                            MizkuAnimation::GrisingSun
+                        })
+                        .into(),
+                        (if $air { Noop } else { ForceStand }),
+                    ]
+                    .into_iter()
+                    .chain(
+                        (if $button == "s" {
+                            vec![
+                                if $charged {
+                                    Condition(StatusCondition {
+                                        flag: StatusFlag::Intangible,
+                                        effect: None,
+                                        expiration: Some(12),
+                                    })
+                                } else {
+                                    Noop
+                                },
+                                Flash(FlashRequest {
+                                    duration: 0.5,
+                                    ..default()
+                                }),
+                                ModifyResource(ResourceType::Meter, -50),
+                            ]
+                        } else {
+                            vec![]
+                        }),
+                    )
+                    .chain(
+                        (if !$charged {
+                            vec![if $button == "s" {
+                                ModifyResource(ResourceType::Sharpness, -1)
+                            } else {
+                                ClearResource(ResourceType::Sharpness)
+                            }]
+                        } else {
+                            vec![]
+                        }),
+                    )
+                    .collect(),
+                    exit_requirement: ContinuationRequirement::Time(11),
+                    ..default()
+                },
+                ActionBlock {
+                    exit_requirement: ContinuationRequirement::Time(if $air { 79 } else { 64 }),
+                    mutator: Some(|mut original: ActionBlock, situation: &Situation| {
+                        original.events.push(
+                            Attack::strike(
+                                ToHit {
+                                    hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
+                                    joint: Some(Joint::Katana),
+                                    lifetime: Lifetime::frames(6),
+                                    ..default()
+                                },
+                                CommonAttackProps {
+                                    damage: if $button == "s" { 20 } else { 10 }
+                                        + situation
+                                            .resources
+                                            .iter()
+                                            .find_map(|(rt, r)| {
+                                                if rt == &ResourceType::Sharpness {
+                                                    Some(r)
+                                                } else {
+                                                    None
+                                                }
+                                            })
+                                            .unwrap()
+                                            .current
+                                            * if $air { 5 } else { 10 },
+                                    on_hit: Launcher(if $air { 8.0 } else { 12.0 }),
+                                    on_block: Stun(if $air { 30 } else { 40 }),
+                                    ..default()
+                                },
+                            )
+                            .into(),
+                        );
+
+                        original
+                    }),
+                    ..default()
+                },
+            ],
+            vec![if $air {
+                ActionRequirement::Airborne
+            } else {
+                ActionRequirement::Grounded
+            }]
+            .into_iter()
+            .chain(
+                (if $button == "s" {
+                    vec![ActionRequirement::ResourceValue(ResourceType::Meter, 50)]
+                } else {
+                    vec![]
+                }),
+            )
+            .chain(
+                (if $charged {
+                    vec![ActionRequirement::ResourceFull(ResourceType::Charge)]
+                } else {
+                    vec![]
+                }),
+            )
+            .collect(),
+        )
+    };
+}
+
+fn rising_suns() -> impl Iterator<Item = (MizkuActionId, Action)> {
     vec![
         (
-            MizkuActionId::GrisingSun,
-            Action::new(
-                Some("[123][789]s"),
-                CancelCategory::Special,
-                vec![
-                    ActionBlock {
-                        events: vec![
-                            MizkuAnimation::GrisingSun.into(),
-                            Flash(FlashRequest {
-                                duration: 0.5,
-                                ..default()
-                            }),
-                            ModifyResource(ResourceType::Meter, -50),
-                            Condition(StatusCondition {
-                                flag: StatusFlag::Intangible,
-                                effect: None,
-                                expiration: Some(12),
-                            }),
-                            ForceStand,
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(11),
-                        ..default()
-                    },
-                    ActionBlock {
-                        exit_requirement: ContinuationRequirement::Time(64),
-                        mutator: Some(|mut original: ActionBlock, situation: &Situation| {
-                            original.events.push(
-                                Attack::strike(
-                                    ToHit {
-                                        hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
-                                        joint: Some(Joint::Katana),
-                                        lifetime: Lifetime::frames(6),
-                                        ..default()
-                                    },
-                                    CommonAttackProps {
-                                        damage: 25
-                                            + situation
-                                                .resources
-                                                .iter()
-                                                .find_map(|(rt, r)| {
-                                                    if rt == &ResourceType::Sharpness {
-                                                        Some(r)
-                                                    } else {
-                                                        None
-                                                    }
-                                                })
-                                                .unwrap()
-                                                .current
-                                                * 5,
-                                        on_hit: Launcher(10.0),
-                                        on_block: Stun(40),
-                                        ..default()
-                                    },
-                                )
-                                .into(),
-                            );
-
-                            original
-                        }),
-                        ..default()
-                    },
-                ],
-                vec![
-                    ActionRequirement::Grounded,
-                    ActionRequirement::ResourceFull(ResourceType::Charge),
-                    ActionRequirement::ResourceValue(ResourceType::Meter, 50),
-                ],
-            ),
+            MizkuActionId::GrisingSunChargedS,
+            rising_sun!(false, "s", true),
         ),
         (
-            MizkuActionId::ArisingSun,
-            Action::new(
-                Some("[123][789]s"),
-                CancelCategory::Special,
-                vec![
-                    ActionBlock {
-                        events: vec![
-                            MizkuAnimation::ArisingSun.into(),
-                            Flash(FlashRequest {
-                                duration: 0.5,
-                                ..default()
-                            }),
-                            ModifyResource(ResourceType::Meter, -50),
-                            Condition(StatusCondition {
-                                flag: StatusFlag::Intangible,
-                                effect: None,
-                                expiration: Some(12),
-                            }),
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(11),
-                        ..default()
-                    },
-                    ActionBlock {
-                        exit_requirement: ContinuationRequirement::Time(79),
-                        mutator: Some(|mut original: ActionBlock, situation: &Situation| {
-                            original.events.push(
-                                Attack::strike(
-                                    ToHit {
-                                        hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
-                                        joint: Some(Joint::Katana),
-                                        lifetime: Lifetime::frames(6),
-                                        ..default()
-                                    },
-                                    CommonAttackProps {
-                                        damage: 25
-                                            + situation
-                                                .resources
-                                                .iter()
-                                                .find_map(|(rt, r)| {
-                                                    if rt == &ResourceType::Sharpness {
-                                                        Some(r)
-                                                    } else {
-                                                        None
-                                                    }
-                                                })
-                                                .unwrap()
-                                                .current
-                                                * 4,
-                                        on_hit: Launcher(8.0),
-                                        on_block: Stun(30),
-                                        ..default()
-                                    },
-                                )
-                                .into(),
-                            );
-
-                            original
-                        }),
-                        ..default()
-                    },
-                ],
-                vec![
-                    ActionRequirement::Airborne,
-                    ActionRequirement::ResourceFull(ResourceType::Charge),
-                    ActionRequirement::ResourceValue(ResourceType::Meter, 50),
-                ],
-            ),
+            MizkuActionId::ArisingSunChargedS,
+            rising_sun!(true, "s", true),
         ),
+        (
+            MizkuActionId::GrisingSunUnchargedS,
+            rising_sun!(false, "s", false),
+        ),
+        (
+            MizkuActionId::ArisingSunUnchargedS,
+            rising_sun!(true, "s", false),
+        ),
+        (
+            MizkuActionId::GrisingSunChargedF,
+            rising_sun!(false, "f", true),
+        ),
+        (
+            MizkuActionId::ArisingSunChargedF,
+            rising_sun!(true, "f", true),
+        ),
+        (
+            MizkuActionId::GrisingSunUnchargedF,
+            rising_sun!(false, "f", false),
+        ),
+        (
+            MizkuActionId::ArisingSunUnchargedF,
+            rising_sun!(true, "f", false),
+        ),
+    ]
+    .into_iter()
+}
+
+fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
+    vec![
         (
             MizkuActionId::ShortBackSway,
             Action::grounded(

@@ -3,8 +3,6 @@
 Nice to have:
 - [[Items for playtest]]
 - Hurtbox padding and adjustments
-- Fall-backs when player uses a meter move without meter
-	- Utility function for specials to fall back when you have no bar.
 - Fix throws
 	- Weird offset
 	- Knockback on back throws

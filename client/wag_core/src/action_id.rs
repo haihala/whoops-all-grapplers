@@ -67,8 +67,15 @@ pub enum DummyActionId {
 pub enum MizkuActionId {
     Sharpen,
 
-    GrisingSun,
-    ArisingSun,
+    GrisingSunChargedS,
+    ArisingSunChargedS,
+    GrisingSunUnchargedS,
+    ArisingSunUnchargedS,
+    GrisingSunChargedF,
+    ArisingSunChargedF,
+    GrisingSunUnchargedF,
+    ArisingSunUnchargedF,
+
     KunaiThrow,
 
     // Throws

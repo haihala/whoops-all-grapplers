@@ -59,8 +59,12 @@ impl PlayerState {
         }
     }
 
-    pub fn add_actions(&mut self, mut actions: Vec<ActionEvent>) {
-        self.unprocessed_events.append(&mut actions);
+    pub fn add_actions(&mut self, actions: Vec<ActionEvent>) {
+        self.unprocessed_events.extend(
+            actions
+                .into_iter()
+                .filter(|ev| !matches!(ev, ActionEvent::Noop)),
+        );
     }
 
     pub fn get_generic_animation(&self, facing: Facing) -> Option<AnimationType> {
@@ -110,7 +114,7 @@ impl PlayerState {
 
         let initial_events = events.into_iter().map(|x| x.add_offset(offset));
 
-        self.unprocessed_events.extend(initial_events); // This can't be the best way to merge Vecs
+        self.add_actions(initial_events.collect());
         let tracker = ActionTracker::new(action_id, action, start_frame);
 
         self.main = match self.main {
@@ -137,7 +141,7 @@ impl PlayerState {
                 let mutated = next_block.apply_mutator(&situation);
                 tracker.blocker = mutated.exit_requirement;
                 tracker.cancel_policy = mutated.cancel_policy;
-                self.unprocessed_events.extend(mutated.events);
+                self.add_actions(mutated.events);
             } else {
                 self.recover(frame);
             }

@@ -49,7 +49,7 @@ pub fn jumps(
     let diagonal_jump_x: f32 = neutral_jump_y * DIAGONAL_JUMP_ANGLE.cos();
     let diagonal_jump_y: f32 = neutral_jump_y * DIAGONAL_JUMP_ANGLE.sin();
 
-    const SUPERJUMP_HEIGHT_MULTIPLIER: f32 = 1.2;
+    const SUPERJUMP_HEIGHT_MULTIPLIER: f32 = 3.0;
     let neutral_superjump_y: f32 = SUPERJUMP_HEIGHT_MULTIPLIER * neutral_jump_y;
     let diagonal_superjump_x: f32 = SUPERJUMP_HEIGHT_MULTIPLIER * diagonal_jump_x;
     let diagonal_superjump_y: f32 = SUPERJUMP_HEIGHT_MULTIPLIER * diagonal_jump_y;

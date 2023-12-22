@@ -152,7 +152,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 cost: 70,
                 explanation: "Makes you jump higher\n\nFly like an eagle".into(),
                 effect: Stats {
-                    jump_force_multiplier: 1.05,
+                    jump_force_multiplier: 1.02,
                     ..Stats::identity()
                 },
                 ..default()

@@ -30,7 +30,7 @@ use super::{
 };
 
 pub fn mizku() -> Character {
-    let (jumps, gravity) = super::jumps(2.0, 1.0, Animation::Mizku(MizkuAnimation::Jump));
+    let (jumps, gravity) = super::jumps(0.7, 0.7, Animation::Mizku(MizkuAnimation::Jump));
 
     Character::new(
         Model::Mizku,

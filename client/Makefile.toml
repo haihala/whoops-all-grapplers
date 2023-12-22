@@ -1,0 +1,36 @@
+[env]
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+
+[tasks.build]
+command = "cargo"
+args = ["build"]
+
+[tasks.format]
+install_crate = "rustfmt"
+command = "cargo"
+args = ["fmt", "--all", "--", "--check"]
+
+[tasks.clippy]
+install_crate = "clippy"
+command = "cargo"
+args = ["clippy", "--all", "--", "-D", "warnings"]
+
+[tasks.test]
+command = "cargo"
+args = ["test", "--tests"]
+
+[tasks.udeps]
+install_crate = "cargo-udeps"
+command = "cargo"
+args = ["udeps"]
+
+[tasks.validate]
+dependencies = ["format", "clippy", "test", "udeps"]
+
+[tasks.dev]
+command = "cargo"
+args = ["run", "--", "--dev", "mizku", "mizku"]
+
+[tasks.prod]
+command = "cargo"
+args = ["run", "--", "--fullscreen", "mizku", "mizku"]

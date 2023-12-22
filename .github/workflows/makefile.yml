@@ -1,4 +1,4 @@
-name: Makefile CI
+name: Cargo make CI
 
 on:
   push:
@@ -14,6 +14,7 @@ jobs:
         working-directory: ./client
 
     steps:
+      - uses: davidB/rust-cargo-make@v1
       - uses: actions/checkout@v3
 
       - uses: Swatinem/rust-cache@v2
@@ -21,19 +22,11 @@ jobs:
           workspaces: client
 
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libudev-dev
-
-      - name: Install dev dependencies
-        run: make install
+        run: sudo apt-get update \
+          && sudo apt-get install -y libasound2-dev libudev-dev \
 
       - name: Build
-        run: make build
+        run: cargo make build
 
       - name: Run checks
-        run: make check
-
-      # Integration tests failing in CI due to there being no GPU
-      # There aren't that many of them and they don't really provide value, so for now just let them be there
-      # Once the core game works, rework the integration tests
-      # - name: Integration tests
-      #   run: make integration
+        run: cargo make validate

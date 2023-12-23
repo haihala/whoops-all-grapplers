@@ -239,6 +239,14 @@ impl PlayerState {
                 | MainState::Ground(_)
         )
     }
+    pub fn can_block(&self) -> bool {
+        matches!(
+            self.main,
+            MainState::Stand(
+                StandState::Idle | StandState::Walk(_) | StandState::Stun(Stun::Block(_))
+            ) | MainState::Crouch(CrouchState::Idle | CrouchState::Stun(Stun::Block(_)))
+        )
+    }
 
     // Jumping
     pub fn jump(&mut self) {

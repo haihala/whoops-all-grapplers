@@ -189,13 +189,20 @@ pub(super) fn detect_hits(
                     hit_tracker.register_hit(clock.frame)
                 }
 
-                let (hit_type, notification) = if state.action_in_progress() {
+                let (hit_type, notification) = if !state.can_block() {
                     (
                         match attack.to_hit.block_type {
                             BlockType::Strike(_) => HitType::Strike,
                             BlockType::Grab => HitType::Throw,
                         },
-                        "Busy".into(),
+                        if state.action_in_progress() {
+                            "Busy"
+                        } else if !state.is_grounded() {
+                            "Airborne"
+                        } else {
+                            "Can't avoid"
+                        }
+                        .into(),
                     )
                 } else if state.has_flag(StatusFlag::Parry)
                     && attack.to_hit.block_type != BlockType::Grab

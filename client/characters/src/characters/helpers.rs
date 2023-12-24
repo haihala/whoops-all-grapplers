@@ -15,116 +15,132 @@ pub fn jumps(
     duration: f32,
     animation: Animation,
 ) -> (impl Iterator<Item = (ActionId, Action)>, f32) {
-    /*
-    // Math for gravity
-    x = x0 + v0*t + 1/2*a*t^2
-
-    From the apex down
-    x0 = jump height,
-    x = 0
-    v0 = 0
-
-    0 = -h + 1/2*a*t^2
-    1/2*a*t^2 = h
-    a = 2*h/t^2
-    */
-    let gravity_force: f32 = 2.0 * height / (duration / 2.0).powf(2.0);
-    let gravity_per_frame: f32 = gravity_force / wag_core::FPS;
-
-    /*
-    Math for initial jump velocity
-    x = x0 + v0*t + 1/2*a*t^2
-    From start to end
-
-    x0 = 0
-    x = 0
-    t and a = known, solve v0
-
-    0 = v0*t + 1/2*a*t^2
-    v0 = -1/2*a*t
-    */
-    let neutral_jump_y: f32 = 0.5 * gravity_force * duration;
-
-    const DIAGONAL_JUMP_ANGLE: f32 = 60.0 * PI / 180.0;
-    let diagonal_jump_x: f32 = neutral_jump_y * DIAGONAL_JUMP_ANGLE.cos();
-    let diagonal_jump_y: f32 = neutral_jump_y * DIAGONAL_JUMP_ANGLE.sin();
-
-    const SUPERJUMP_HEIGHT_MULTIPLIER: f32 = 3.0;
-    let neutral_superjump_y: f32 = SUPERJUMP_HEIGHT_MULTIPLIER * neutral_jump_y;
-    let diagonal_superjump_x: f32 = SUPERJUMP_HEIGHT_MULTIPLIER * diagonal_jump_x;
-    let diagonal_superjump_y: f32 = SUPERJUMP_HEIGHT_MULTIPLIER * diagonal_jump_y;
+    let (jg, gravity_per_frame) = JumpGenerator::new(animation, height, duration);
 
     let jumps = vec![
-        (
-            ActionId::BackJump,
-            jump(
-                "7",
-                Vec2::new(-diagonal_jump_x, diagonal_jump_y),
-                animation,
-                false,
-            ),
-        ),
-        (
-            ActionId::NeutralJump,
-            jump("8", Vec2::Y * neutral_jump_y, animation, false),
-        ),
-        (
-            ActionId::ForwardJump,
-            jump(
-                "9",
-                Vec2::new(diagonal_jump_x, diagonal_jump_y),
-                animation,
-                false,
-            ),
-        ),
-        (
-            ActionId::BackSuperJump,
-            jump(
-                "[123]7",
-                Vec2::new(-diagonal_superjump_x, diagonal_superjump_y),
-                animation,
-                false,
-            ),
-        ),
-        (
-            ActionId::NeutralSuperJump,
-            jump("[123]8", Vec2::Y * neutral_superjump_y, animation, false),
-        ),
-        (
-            ActionId::ForwardSuperJump,
-            jump(
-                "[123]9",
-                Vec2::new(diagonal_superjump_x, diagonal_superjump_y),
-                animation,
-                false,
-            ),
-        ),
-        (
-            ActionId::BackAirJump,
-            jump(
-                "[123456]7",
-                Vec2::new(-diagonal_jump_x, diagonal_jump_y),
-                animation,
-                true,
-            ),
-        ),
-        (
-            ActionId::NeutralAirJump,
-            jump("[123456]8", Vec2::Y * neutral_jump_y, animation, true),
-        ),
-        (
-            ActionId::ForwardAirJump,
-            jump(
-                "[123456]9",
-                Vec2::new(diagonal_jump_x, diagonal_jump_y),
-                animation,
-                true,
-            ),
-        ),
+        (ActionId::BackJump, jg.basic(Back)),
+        (ActionId::NeutralJump, jg.basic(Neutral)),
+        (ActionId::ForwardJump, jg.basic(Forward)),
+        (ActionId::BackSuperJump, jg.high(Back)),
+        (ActionId::NeutralSuperJump, jg.high(Neutral)),
+        (ActionId::ForwardSuperJump, jg.high(Forward)),
+        (ActionId::BackAirJump, jg.air(Back)),
+        (ActionId::NeutralAirJump, jg.air(Neutral)),
+        (ActionId::ForwardAirJump, jg.air(Forward)),
     ]
     .into_iter();
 
     (jumps, gravity_per_frame)
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum JumpDirection {
+    Neutral,
+    Forward,
+    Back,
+}
+use JumpDirection::*;
+impl JumpDirection {
+    fn direction(self) -> Vec2 {
+        let diagonal_jump_angle = 60.0 * PI / 180.0;
+        let sin = diagonal_jump_angle.sin();
+        let cos = diagonal_jump_angle.cos();
+
+        match self {
+            JumpDirection::Neutral => Vec2::Y,
+            JumpDirection::Forward => Vec2::new(cos, sin),
+            JumpDirection::Back => Vec2::new(-cos, sin),
+        }
+    }
+
+    fn base_input(self) -> &'static str {
+        match self {
+            JumpDirection::Neutral => "[123456]8",
+            JumpDirection::Forward => "[123456]9",
+            JumpDirection::Back => "[123456]7",
+        }
+    }
+
+    fn super_input(self) -> &'static str {
+        match self {
+            JumpDirection::Neutral => "[123]8",
+            JumpDirection::Forward => "[123]9",
+            JumpDirection::Back => "[123]7",
+        }
+    }
+}
+
+struct JumpGenerator {
+    animation: Animation,
+    base_impulse: f32,
+}
+impl JumpGenerator {
+    fn new(animation: Animation, height: f32, duration: f32) -> (Self, f32) {
+        /*
+        // Math for gravity
+        x = x0 + v0*t + 1/2*a*t^2
+
+        From the apex down
+        x0 = jump height,
+        x = 0
+        v0 = 0
+
+        0 = -h + 1/2*a*t^2
+        1/2*a*t^2 = h
+        a = 2*h/t^2
+        */
+        let gravity_force: f32 = 2.0 * height / (duration / 2.0).powf(2.0);
+        let gravity_per_frame: f32 = gravity_force / wag_core::FPS;
+
+        /*
+        Math for initial jump velocity
+        x = x0 + v0*t + 1/2*a*t^2
+        From start to end
+
+        x0 = 0
+        x = 0
+        t and a = known, solve v0
+
+        0 = v0*t + 1/2*a*t^2
+        v0 = -1/2*a*t
+        */
+        let base_impulse = 0.5 * gravity_force * duration;
+
+        (
+            Self {
+                animation,
+                base_impulse,
+            },
+            gravity_per_frame,
+        )
+    }
+
+    fn basic(&self, dir: JumpDirection) -> Action {
+        jump(
+            dir.base_input(),
+            dir.direction() * self.base_impulse,
+            self.animation,
+            false,
+        )
+    }
+
+    fn high(&self, dir: JumpDirection) -> Action {
+        jump(
+            dir.super_input(),
+            dir.direction() * self.base_impulse * 1.3,
+            self.animation,
+            false,
+        )
+    }
+
+    fn air(&self, dir: JumpDirection) -> Action {
+        jump(
+            dir.base_input(),
+            dir.direction() * self.base_impulse * 0.7,
+            self.animation,
+            true,
+        )
+    }
 }
 
 fn jump(
@@ -158,7 +174,15 @@ fn jump(
         )
     } else {
         (
-            vec![animation.into().into()],
+            vec![
+                animation.into().into(),
+                // This prevents accidental immediate double jump (odd low jump)
+                ActionEvent::Condition(StatusCondition {
+                    flag: StatusFlag::DoubleJumped,
+                    expiration: Some(20),
+                    ..default()
+                }),
+            ],
             ContinuationRequirement::Time(3),
             vec![ActionRequirement::Grounded],
             1.0,

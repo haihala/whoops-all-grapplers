@@ -42,3 +42,7 @@ Ideas for non-obvious fixes:
     - On average should be way more expensive
     - Store previous inventory state and add a bind to revert to it (undo)
     - There ought to be more upgrades of upgrades
+- Reset jump back to default (current superjump), add a short hop with input `[123456][789][123]`
+    - Core part of defense is jumping lows and ducking highs
+
+

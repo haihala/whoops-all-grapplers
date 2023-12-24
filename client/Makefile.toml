@@ -25,7 +25,7 @@ command = "cargo"
 args = ["udeps"]
 
 [tasks.validate]
-dependencies = ["format", "clippy", "test", "udeps"]
+run_task = { name = ["format", "clippy", "test", "udeps"], parallel = true }
 
 [tasks.dev]
 workspace = false

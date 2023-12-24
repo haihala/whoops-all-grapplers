@@ -16,6 +16,10 @@ pub enum ActionId {
     // Universal
     DashForward,
     DashBack,
+
+    BackShortHop,
+    NeutralShortHop,
+    ForwardShortHop,
     NeutralSuperJump,
     ForwardSuperJump,
     BackSuperJump,

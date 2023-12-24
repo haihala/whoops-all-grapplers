@@ -24,6 +24,10 @@ pub fn jumps(
         (ActionId::BackSuperJump, jg.high(Back)),
         (ActionId::NeutralSuperJump, jg.high(Neutral)),
         (ActionId::ForwardSuperJump, jg.high(Forward)),
+        // TODO: Test to see if input parser handles this, probably not
+        (ActionId::BackShortHop, jg.short(Back)),
+        (ActionId::NeutralShortHop, jg.short(Neutral)),
+        (ActionId::ForwardShortHop, jg.short(Forward)),
         (ActionId::BackAirJump, jg.air(Back)),
         (ActionId::NeutralAirJump, jg.air(Neutral)),
         (ActionId::ForwardAirJump, jg.air(Forward)),
@@ -66,6 +70,14 @@ impl JumpDirection {
             JumpDirection::Neutral => "[123]8",
             JumpDirection::Forward => "[123]9",
             JumpDirection::Back => "[123]7",
+        }
+    }
+
+    fn short_input(self) -> &'static str {
+        match self {
+            JumpDirection::Neutral => "[123456]8[123]",
+            JumpDirection::Forward => "[123456]9[123]",
+            JumpDirection::Back => "[123456]7[123]",
         }
     }
 }
@@ -128,6 +140,15 @@ impl JumpGenerator {
         jump(
             dir.super_input(),
             dir.direction() * self.base_impulse * 1.3,
+            self.animation,
+            false,
+        )
+    }
+
+    fn short(&self, dir: JumpDirection) -> Action {
+        jump(
+            dir.short_input(),
+            dir.direction() * self.base_impulse * 0.3,
             self.animation,
             false,
         )

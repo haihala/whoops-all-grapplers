@@ -35,10 +35,9 @@ pub struct Pushbox(pub Area);
 pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app.add_systems(Update, sideswitcher).add_systems(
             Update,
             (
-                sideswitcher,
                 player_input,
                 move_players,
                 push_players,

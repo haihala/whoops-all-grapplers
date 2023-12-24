@@ -40,9 +40,17 @@ Ideas for non-obvious fixes:
     - Maybe making it less precise will fix some jank elsewhere
 - Items 
     - On average should be way more expensive
+        - Boots ought to be "bad value" with great upgrades
     - Store previous inventory state and add a bind to revert to it (undo)
     - There ought to be more upgrades of upgrades
+    - Fewer upgrades should be boots-derived
+    - Jump item ides
+        - Superjump to winged boots
+        - dumbbell+feather gives you short hop (Maybe a generic fast fall?)
+        - Three feathers gives you a wing, which gives you a double jump
+        - Two wings gives you wings, for a triple jump
 - Reset jump back to default (current superjump), add a short hop with input `[123456][789][123]`
     - Core part of defense is jumping lows and ducking highs
+
 
 

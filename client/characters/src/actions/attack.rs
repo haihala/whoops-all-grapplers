@@ -165,7 +165,10 @@ impl CommonAttackProps {
                 StunType::Launcher(height) => ActionEvent::Launch {
                     impulse: height * Vec2::Y,
                 },
-                StunType::Roller(impulse) => ActionEvent::Launch { impulse },
+                // This lets us use positive numbers when defining rollers
+                StunType::Roller(impulse) => ActionEvent::Launch {
+                    impulse: Vec2::new(-impulse.x, impulse.y),
+                },
                 StunType::Stun(frames) => ActionEvent::HitStun(frames),
             }
         }

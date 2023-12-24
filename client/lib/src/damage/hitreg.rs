@@ -435,10 +435,10 @@ pub(super) fn snap_and_switch(
 }
 
 pub(super) fn stun_actions(
-    mut query: Query<(&mut PlayerState, &mut PlayerVelocity)>,
+    mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &Facing)>,
     clock: Res<Clock>,
 ) {
-    for (mut state, mut velocity) in &mut query {
+    for (mut state, mut velocity, facing) in &mut query {
         for action in state.drain_matching_actions(|action| {
             if matches!(
                 *action,
@@ -456,7 +456,7 @@ pub(super) fn stun_actions(
                 ActionEvent::BlockStun(frames) => state.block(clock.frame + frames),
                 ActionEvent::Launch { impulse } => {
                     state.launch();
-                    velocity.add_impulse(impulse);
+                    velocity.add_impulse(facing.mirror_vec2(impulse));
                 }
                 _ => panic!("Leaking"),
             }

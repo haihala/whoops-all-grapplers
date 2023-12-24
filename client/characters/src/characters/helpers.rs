@@ -24,7 +24,6 @@ pub fn jumps(
         (ActionId::BackSuperJump, jg.high(Back)),
         (ActionId::NeutralSuperJump, jg.high(Neutral)),
         (ActionId::ForwardSuperJump, jg.high(Forward)),
-        // TODO: Test to see if input parser handles this, probably not
         (ActionId::BackShortHop, jg.short(Back)),
         (ActionId::NeutralShortHop, jg.short(Neutral)),
         (ActionId::ForwardShortHop, jg.short(Forward)),
@@ -170,7 +169,7 @@ fn jump(
     animation: impl Into<Animation> + Clone,
     air_jump: bool,
 ) -> Action {
-    let (initial_events, initial_exit_requirement, requirements, impulse_modifier) = if air_jump {
+    let (initial_events, initial_exit_requirement, requirements) = if air_jump {
         (
             vec![
                 AnimationRequest {
@@ -191,7 +190,6 @@ fn jump(
                 ActionRequirement::ItemsOwned(vec![ItemId::WingedBoots]),
                 ActionRequirement::StatusNotActive(StatusFlag::DoubleJumped),
             ],
-            0.7,
         )
     } else {
         (
@@ -200,13 +198,12 @@ fn jump(
                 // This prevents accidental immediate double jump (odd low jump)
                 ActionEvent::Condition(StatusCondition {
                     flag: StatusFlag::DoubleJumped,
-                    expiration: Some(20),
+                    expiration: Some(10),
                     ..default()
                 }),
             ],
             ContinuationRequirement::Time(3),
             vec![ActionRequirement::Grounded],
-            1.0,
         )
     };
 
@@ -221,7 +218,7 @@ fn jump(
                 mutator: None,
             },
             ActionBlock {
-                events: vec![Movement::impulse(impulse * impulse_modifier).into()],
+                events: vec![Movement::impulse(impulse).into()],
                 exit_requirement: ContinuationRequirement::Time(5),
                 cancel_policy: CancelPolicy::any(),
                 mutator: Some(|mut original, situation| {

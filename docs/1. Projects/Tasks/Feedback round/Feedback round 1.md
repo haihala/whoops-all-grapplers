@@ -7,8 +7,9 @@
 - Bugs
 
 Steps:
-- [ ] Prepare game for playtest
+- [x] Prepare game for playtest
 - [ ] Organize at least 1 event at both locals and with casuals
-	- [ ] Gather people, see [[#Interested casuals]]
-	- [ ] Set dates
-- [ ] Write down notes during playtest
+	- [x] Gather people
+	- [x] Set dates
+- [x] Write down notes during playtest
+

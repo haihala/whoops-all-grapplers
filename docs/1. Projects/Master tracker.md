@@ -1,12 +1,13 @@
 # Backlog
 ## Before playtest
+
+Must do:
+- Fix crashes
+
 Nice to have:
 - [[Items for playtest]]
 - Hurtbox padding and adjustments
-- Fix throws
-	- Weird offset
-	- Knockback on back throws
-	- Random sideswitches
+- [[Throw rework]]
 - Upgrades only show things you have the parts for to reduce bloat
 	- Or maybe sort more intelligently, something like
 		- Purchasable

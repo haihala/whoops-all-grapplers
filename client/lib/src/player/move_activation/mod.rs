@@ -82,6 +82,7 @@ pub(super) fn automatic_activation(mut query: Query<(&mut MoveBuffer, &mut Playe
                 None
             }
         });
+
         match move_continuations.len() {
             1 => {
                 buffer.activation = Some(MoveActivation {
@@ -94,6 +95,8 @@ pub(super) fn automatic_activation(mut query: Query<(&mut MoveBuffer, &mut Playe
             }
             _ => {
                 todo!("Multiple moves to continue")
+                // This may happen if follow up and grab land on the same frame
+                // Currently there are no follow ups that use the event so it's fine
             }
         }
     }
@@ -112,33 +115,36 @@ pub(super) fn raw_or_link(
 ) {
     // Set activating move if one in the buffer can start raw or be linked into
     for (mut buffer, character, state, inventory, resources, stats, parser) in &mut query {
-        if let Some(freedom_frame) = state.free_since {
-            // Character has recently been freed
+        let Some(freedom_frame) = state.free_since else {
+            continue;
+        };
+        // Character has recently been freed
 
-            if let Some((stored, id, _)) = buffer
-                .get_situation_moves(
-                    character,
-                    state.build_situation(
-                        inventory.to_owned(),
-                        resources.to_owned(),
-                        parser.to_owned(),
-                        stats.to_owned(),
-                        clock.frame,
-                    ),
-                )
-                .into_iter()
-                .max_by_key(|(_, id, _)| (parser.get_complexity(*id), *id))
-            {
-                let error = stored as i32 - freedom_frame as i32;
-                let kind = if error.abs() < AUTOCORRECT as i32 {
-                    ActivationType::Link(Link::new(stored, freedom_frame))
-                } else {
-                    ActivationType::Raw
-                };
+        let Some((stored, id, _)) = buffer
+            .get_situation_moves(
+                character,
+                state.build_situation(
+                    inventory.to_owned(),
+                    resources.to_owned(),
+                    parser.to_owned(),
+                    stats.to_owned(),
+                    clock.frame,
+                ),
+            )
+            .into_iter()
+            .max_by_key(|(_, id, _)| (parser.get_complexity(*id), *id))
+        else {
+            continue;
+        };
 
-                buffer.activation = Some(MoveActivation { id, kind });
-            }
-        }
+        let error = stored as i32 - freedom_frame as i32;
+        let kind = if error.abs() < AUTOCORRECT as i32 {
+            ActivationType::Link(Link::new(stored, freedom_frame))
+        } else {
+            ActivationType::Raw
+        };
+
+        buffer.activation = Some(MoveActivation { id, kind });
     }
 }
 pub(super) fn special_cancel(
@@ -155,36 +161,42 @@ pub(super) fn special_cancel(
 ) {
     // Set activating move if one in the buffer can be cancelled into
     for (mut buffer, character, state, inventory, resources, stats, parser) in &mut query {
-        if state.free_since.is_none() {
-            if let Some(tracker) = state.get_action_tracker() {
-                // Not free because a move is happening
-                // Is current move cancellable, if so, since when
-                if let Some((stored, id, cancellable_since)) = buffer
-                    .get_situation_moves(
-                        character,
-                        state.build_situation(
-                            inventory.to_owned(),
-                            resources.to_owned(),
-                            parser.to_owned(),
-                            stats.to_owned(),
-                            clock.frame,
-                        ),
-                    )
-                    .into_iter()
-                    .filter_map(|(frame, id, action)| {
-                        tracker
-                            .cancellable_into_since(id, action.clone())
-                            .map(|freedom| (frame, id, freedom))
-                    })
-                    .max_by_key(|(_, id, _)| (parser.get_complexity(*id), *id))
-                {
-                    buffer.activation = Some(MoveActivation {
-                        id,
-                        kind: ActivationType::Cancel(Cancellation::new(stored, cancellable_since)),
-                    });
-                }
-            }
+        if state.free_since.is_some() {
+            continue;
         }
+
+        let Some(tracker) = state.get_action_tracker() else {
+            continue;
+        };
+
+        // Not free because a move is happening
+        // Is current move cancellable, if so, since when
+        let Some((stored, id, cancellable_since)) = buffer
+            .get_situation_moves(
+                character,
+                state.build_situation(
+                    inventory.to_owned(),
+                    resources.to_owned(),
+                    parser.to_owned(),
+                    stats.to_owned(),
+                    clock.frame,
+                ),
+            )
+            .into_iter()
+            .filter_map(|(frame, id, action)| {
+                tracker
+                    .cancellable_into_since(id, action.clone())
+                    .map(|freedom| (frame, id, freedom))
+            })
+            .max_by_key(|(_, id, _)| (parser.get_complexity(*id), *id))
+        else {
+            continue;
+        };
+
+        buffer.activation = Some(MoveActivation {
+            id,
+            kind: ActivationType::Cancel(Cancellation::new(stored, cancellable_since)),
+        });
     }
 }
 
@@ -208,42 +220,44 @@ pub(super) fn move_activator(
     for (mut buffer, mut state, mut properties, player, character, stats, inventory, parser) in
         &mut query
     {
-        if let Some(activation) = buffer.activation.take() {
-            let start_frame = match activation.kind {
-                ActivationType::Link(link) => {
-                    if combo.is_some() {
-                        notifications.add(*player, link.message());
+        let Some(activation) = buffer.activation.take() else {
+            continue;
+        };
 
-                        if let Some(meter_gain) = link.meter_gain() {
-                            properties
-                                .get_mut(ResourceType::Meter)
-                                .unwrap()
-                                .gain((meter_gain as f32 * stats.link_bonus_multiplier) as i32);
-                        }
+        let start_frame = match activation.kind {
+            ActivationType::Link(link) => {
+                if combo.is_some() {
+                    notifications.add(*player, link.message());
+
+                    if let Some(meter_gain) = link.meter_gain() {
+                        properties
+                            .get_mut(ResourceType::Meter)
+                            .unwrap()
+                            .gain((meter_gain as f32 * stats.link_bonus_multiplier) as i32);
                     }
-
-                    // Autocorrect so that the move starts sooner.
-                    link.correction
                 }
-                ActivationType::Cancel(cancellation) => {
-                    if combo.is_some() {
-                        notifications.add(*player, cancellation.message);
-                    }
-                    clock.frame
-                }
-                _ => clock.frame,
-            };
 
-            state.start_move(
-                activation.id,
-                character.get_move(activation.id).unwrap(),
-                start_frame,
-                clock.frame - start_frame,
-                inventory.to_owned(),
-                properties.to_owned(),
-                parser.to_owned(),
-                stats.to_owned(),
-            );
-        }
+                // Autocorrect so that the move starts sooner.
+                link.correction
+            }
+            ActivationType::Cancel(cancellation) => {
+                if combo.is_some() {
+                    notifications.add(*player, cancellation.message);
+                }
+                clock.frame
+            }
+            _ => clock.frame,
+        };
+
+        state.start_move(
+            activation.id,
+            character.get_move(activation.id).unwrap(),
+            start_frame,
+            clock.frame - start_frame,
+            inventory.to_owned(),
+            properties.to_owned(),
+            parser.to_owned(),
+            stats.to_owned(),
+        );
     }
 }

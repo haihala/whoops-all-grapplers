@@ -685,15 +685,7 @@ macro_rules! rising_sun {
                                 CommonAttackProps {
                                     damage: if $button == "s" { 20 } else { 10 }
                                         + situation
-                                            .resources
-                                            .iter()
-                                            .find_map(|(rt, r)| {
-                                                if rt == &ResourceType::Sharpness {
-                                                    Some(r)
-                                                } else {
-                                                    None
-                                                }
-                                            })
+                                            .get_resource(ResourceType::Sharpness)
                                             .unwrap()
                                             .current
                                             * if $air { 5 } else { 10 },

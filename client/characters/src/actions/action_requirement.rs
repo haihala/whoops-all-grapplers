@@ -45,9 +45,7 @@ impl ActionRequirement {
                 }
                 ActionRequirement::ResourceFull(resource) => {
                     if !situation
-                        .resources
-                        .iter()
-                        .find_map(|(rt, r)| if rt == resource { Some(r) } else { None })
+                        .get_resource(*resource)
                         .unwrap_or_else(|| panic!("Character to have resource {:#?}", resource))
                         .is_full()
                     {
@@ -56,9 +54,7 @@ impl ActionRequirement {
                 }
                 ActionRequirement::ResourceValue(resource, value) => {
                     if situation
-                        .resources
-                        .iter()
-                        .find_map(|(rt, r)| if rt == resource { Some(r) } else { None })
+                        .get_resource(*resource)
                         .map(|r| r.current < *value)
                         .unwrap_or_else(|| panic!("Character to have resource {:#?}", resource))
                     {

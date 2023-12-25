@@ -15,3 +15,14 @@ pub struct Situation {
     pub held_buttons: HashSet<GameButton>,
     // Kept minimal so far, but will grow as needed
 }
+impl Situation {
+    pub fn get_resource(&self, resource_type: ResourceType) -> Option<&WAGResource> {
+        self.resources.iter().find_map(|(rt, res)| {
+            if rt == &resource_type {
+                Some(res)
+            } else {
+                None
+            }
+        })
+    }
+}

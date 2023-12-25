@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use std::collections::VecDeque;
 use wag_core::ActionId;
 
-use crate::{Action, ActionBlock, CancelPolicy, ContinuationRequirement};
+use crate::{Action, ActionBlock, CancelRule, ContinuationRequirement};
 
 #[derive(Debug, Clone, Default, Reflect)]
 pub struct ActionTracker {
@@ -10,13 +10,13 @@ pub struct ActionTracker {
     // Stores a function pointer in a variant and reflect(ignore) doesn't work on that for some reason.
     #[reflect(ignore)]
     pub blocker: ContinuationRequirement,
-    pub cancel_policy: CancelPolicy,
+    pub cancel_policy: CancelRule,
     #[reflect(ignore)] // Recursive down there
     pub upcoming_blocks: VecDeque<ActionBlock>,
     pub start_frame: usize,
     pub current_block_start_frame: usize,
     pub action_id: ActionId,
-    cancel_breakpoints: Vec<(CancelPolicy, usize)>,
+    cancel_breakpoints: Vec<(CancelRule, usize)>,
 }
 impl ActionTracker {
     /// Assumes that the actions from the first block have been processed
@@ -50,6 +50,7 @@ impl ActionTracker {
     pub fn cancellable_into_since(&self, action_id: ActionId, action: Action) -> Option<usize> {
         let mut output = None;
 
+        // TODO: Reverse iteration would make sense here
         for (policy, frame) in self.cancel_breakpoints.iter() {
             let can_cancel =
                 policy.can_cancel(self.has_hit, action_id, action.cancel_category.clone());
@@ -84,12 +85,12 @@ mod test_cancellable_into_since {
             Action {
                 script: vec![
                     ActionBlock {
-                        cancel_policy: CancelPolicy::never(),
+                        cancel_policy: CancelRule::never(),
                         exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
-                        cancel_policy: CancelPolicy::any(),
+                        cancel_policy: CancelRule::any(),
                         exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
@@ -131,12 +132,12 @@ mod test_cancellable_into_since {
             Action {
                 script: vec![
                     ActionBlock {
-                        cancel_policy: CancelPolicy::any(),
+                        cancel_policy: CancelRule::any(),
                         exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
-                        cancel_policy: CancelPolicy::any(),
+                        cancel_policy: CancelRule::any(),
                         exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
@@ -171,17 +172,17 @@ mod test_cancellable_into_since {
             Action {
                 script: vec![
                     ActionBlock {
-                        cancel_policy: CancelPolicy::never(),
+                        cancel_policy: CancelRule::never(),
                         exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
-                        cancel_policy: CancelPolicy::any(),
+                        cancel_policy: CancelRule::any(),
                         exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
-                        cancel_policy: CancelPolicy::never(),
+                        cancel_policy: CancelRule::never(),
                         exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
@@ -218,17 +219,17 @@ mod test_cancellable_into_since {
             Action {
                 script: vec![
                     ActionBlock {
-                        cancel_policy: CancelPolicy::command_normal_recovery(),
+                        cancel_policy: CancelRule::command_normal_recovery(),
                         exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
-                        cancel_policy: CancelPolicy::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::neutral_normal_recovery(),
                         exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
                     ActionBlock {
-                        cancel_policy: CancelPolicy::any(),
+                        cancel_policy: CancelRule::any(),
                         exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },

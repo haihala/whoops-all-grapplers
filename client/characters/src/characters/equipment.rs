@@ -4,7 +4,7 @@ use wag_core::{
 };
 
 use crate::{
-    actions::ActionRequirement, Action, ActionBlock, ActionEvent, CancelCategory, CancelPolicy,
+    actions::ActionRequirement, Action, ActionBlock, ActionEvent, CancelCategory, CancelRule,
     ConsumableType::*, ContinuationRequirement, Item, ItemCategory::*,
 };
 
@@ -22,7 +22,7 @@ fn get_high_gi_parry() -> Action {
                 }),
             ],
             exit_requirement: ContinuationRequirement::None,
-            cancel_policy: CancelPolicy::never(),
+            cancel_policy: CancelRule::never(),
             mutator: None,
         }],
         vec![

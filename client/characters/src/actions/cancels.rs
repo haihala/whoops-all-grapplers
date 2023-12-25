@@ -1,7 +1,7 @@
 use bevy::reflect::Reflect;
 use wag_core::ActionId;
 
-#[derive(Clone, PartialEq, Eq, Debug, PartialOrd, Ord, Reflect)]
+#[derive(Clone, Default, PartialEq, Eq, Debug, PartialOrd, Ord, Reflect)]
 pub enum CancelCategory {
     Any,
     Jump,
@@ -9,50 +9,49 @@ pub enum CancelCategory {
     Normal,
     CommandNormal,
     Special,
+    #[default]
+    Uncancellable,
     Everything, // Usable for tests as a "this is cancellable from anything that is cancellable"
 
     Specific(Vec<ActionId>),
 }
 
-#[derive(Clone, PartialEq, Eq, Debug, Reflect)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Reflect)]
 pub struct CancelRule {
     pub requires_hit: bool,
     pub category: CancelCategory,
 }
-
-#[derive(Clone, PartialEq, Debug, Default, Reflect)]
-pub struct CancelPolicy(pub Vec<CancelRule>);
-impl CancelPolicy {
+impl CancelRule {
     pub fn never() -> Self {
-        Self(vec![])
+        Self::default()
     }
 
     pub fn any() -> Self {
-        Self(vec![CancelRule {
+        Self {
             requires_hit: false,
             category: CancelCategory::Any,
-        }])
+        }
     }
 
     pub fn neutral_normal_recovery() -> Self {
-        Self(vec![CancelRule {
+        Self {
             requires_hit: true,
             category: CancelCategory::CommandNormal,
-        }])
+        }
     }
 
     pub fn command_normal_recovery() -> Self {
-        Self(vec![CancelRule {
+        Self {
             requires_hit: true,
             category: CancelCategory::Special,
-        }])
+        }
     }
 
     pub fn specific(targets: Vec<ActionId>) -> Self {
-        Self(vec![CancelRule {
+        Self {
             requires_hit: false,
             category: CancelCategory::Specific(targets),
-        }])
+        }
     }
 
     pub fn can_cancel(
@@ -61,15 +60,25 @@ impl CancelPolicy {
         action_id: ActionId,
         cancel_category: CancelCategory,
     ) -> bool {
-        self.0.iter().any(|rule| {
-            (hit || !rule.requires_hit)
-                && (rule.category <= cancel_category
-                    || if let CancelCategory::Specific(ids) = &rule.category {
-                        ids.contains(&action_id)
-                    } else {
-                        false
-                    })
-        })
+        if self.category == CancelCategory::Uncancellable {
+            return false;
+        }
+
+        if !hit && self.requires_hit {
+            return false;
+        }
+
+        if let CancelCategory::Specific(options) = &self.category {
+            if options.contains(&action_id) {
+                return true;
+            }
+        }
+
+        // self.rule will be elevated by one level to prevent self cancels
+        if self.category <= cancel_category {
+            return true;
+        }
+        false
     }
 }
 
@@ -79,20 +88,30 @@ mod test {
 
     #[test]
     fn cancel_sanity_check() {
-        assert!(CancelPolicy::any().can_cancel(
-            true,
-            ActionId::TestMove,
-            CancelCategory::Everything
-        ));
-        assert!(CancelPolicy::any().can_cancel(
+        assert!(CancelRule::any().can_cancel(true, ActionId::TestMove, CancelCategory::Everything));
+        assert!(CancelRule::any().can_cancel(
             false,
             ActionId::TestMove,
             CancelCategory::Everything
         ));
-        assert!(!CancelPolicy::never().can_cancel(
+        assert!(!CancelRule::never().can_cancel(
             true,
             ActionId::TestMove,
             CancelCategory::Everything
+        ));
+    }
+
+    #[test]
+    fn cancel_steps() {
+        assert!(CancelRule::neutral_normal_recovery().can_cancel(
+            true,
+            ActionId::TestMove,
+            CancelCategory::CommandNormal
+        ));
+        assert!(CancelRule::command_normal_recovery().can_cancel(
+            true,
+            ActionId::TestMove,
+            CancelCategory::Special
         ));
     }
 }

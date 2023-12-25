@@ -16,7 +16,7 @@ use crate::{
     Attack,
     AttackHeight::*,
     BlockType::*,
-    CancelCategory, CancelPolicy, ChargeProperty, CommonAttackProps, ContinuationRequirement,
+    CancelCategory, CancelRule, ChargeProperty, CommonAttackProps, ContinuationRequirement,
     CounterVisual, Hitbox, Item,
     ItemCategory::*,
     Lifetime, Movement, Projectile, ResourceBarVisual, SpecialProperty,
@@ -135,7 +135,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelPolicy::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::neutral_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -164,7 +164,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(7),
-                        cancel_policy: CancelPolicy::command_normal_recovery(),
+                        cancel_policy: CancelRule::command_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -204,7 +204,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelPolicy::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::neutral_normal_recovery(),
                         mutator: Some(|block, situation| {
                             if !situation.inventory.contains(&ItemId::Roids) {
                                 return block.clone();
@@ -266,7 +266,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(13),
-                        cancel_policy: CancelPolicy::command_normal_recovery(),
+                        cancel_policy: CancelRule::command_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -296,7 +296,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelPolicy::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::neutral_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -326,7 +326,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelPolicy::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::neutral_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -446,7 +446,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(15),
-                        cancel_policy: CancelPolicy::command_normal_recovery(),
+                        cancel_policy: CancelRule::command_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -515,7 +515,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         }),
                     ],
                     exit_requirement: ContinuationRequirement::Time(45),
-                    cancel_policy: CancelPolicy::never(),
+                    cancel_policy: CancelRule::never(),
                     mutator: None,
                 }],
             ),

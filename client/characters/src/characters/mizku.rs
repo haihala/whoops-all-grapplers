@@ -17,7 +17,7 @@ use crate::{
     Attack,
     AttackHeight::*,
     BlockType::*,
-    CancelCategory, CancelPolicy, ChargeProperty, CommonAttackProps, ContinuationRequirement,
+    CancelCategory, CancelRule, ChargeProperty, CommonAttackProps, ContinuationRequirement,
     CounterVisual, FlashRequest, Hitbox, Item, ItemCategory, Lifetime, Movement, ResourceBarVisual,
     Situation, SpecialProperty,
     StunType::*,
@@ -155,7 +155,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(17),
-                        cancel_policy: CancelPolicy::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::neutral_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -190,7 +190,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(12),
-                        cancel_policy: CancelPolicy::command_normal_recovery(),
+                        cancel_policy: CancelRule::command_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -238,7 +238,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(26),
-                        cancel_policy: CancelPolicy::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::neutral_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -273,7 +273,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(20),
-                        cancel_policy: CancelPolicy::command_normal_recovery(),
+                        cancel_policy: CancelRule::command_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -307,7 +307,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(23),
-                        cancel_policy: CancelPolicy::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::neutral_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -362,7 +362,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(17),
-                        cancel_policy: CancelPolicy(vec![]),
+                        cancel_policy: CancelRule::never(),
                         mutator: Some(|mut original, situation| {
                             if situation.inventory.contains(&ItemId::SpaceSuitBoots) {
                                 for ev in original.events.iter_mut() {
@@ -451,7 +451,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 vec![ActionBlock {
                     events: vec![MizkuAnimation::GroundThrowHit.into()],
                     exit_requirement: ContinuationRequirement::Time(20),
-                    cancel_policy: CancelPolicy::never(),
+                    cancel_policy: CancelRule::never(),
                     mutator: None,
                 }],
             ),
@@ -460,7 +460,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::GroundThrowTarget,
             Action::grounded(
                 None,
-                CancelCategory::Special,
+                CancelCategory::Uncancellable,
                 vec![
                     ActionBlock {
                         events: vec![AnimationRequest {
@@ -470,16 +470,15 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         }
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(20),
-                        cancel_policy: CancelPolicy::never(),
-                        mutator: None,
+                        ..default()
                     },
                     ActionBlock {
                         events: vec![
                             ModifyResource(ResourceType::Health, -10),
                             Launch {
-                                // Unfortunately, this works in a weird way with the back throw flip and the x velocity is not mirrored
-                                // TODO: Fix this
-                                impulse: Vec2::new(0.0, 3.0),
+                                // This may be broken, but it may have been fixed while
+                                // fixing flipping launch velocities
+                                impulse: Vec2::new(2.0, 3.0),
                             },
                         ],
                         ..default()
@@ -516,7 +515,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(13),
-                        cancel_policy: CancelPolicy::command_normal_recovery(),
+                        cancel_policy: CancelRule::command_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -560,7 +559,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 vec![ActionBlock {
                     events: vec![MizkuAnimation::AirThrowHit.into()],
                     exit_requirement: ContinuationRequirement::Time(30),
-                    cancel_policy: CancelPolicy::never(),
+                    cancel_policy: CancelRule::never(),
                     mutator: None,
                 }],
             ),
@@ -569,7 +568,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::AirThrowTarget,
             Action::airborne(
                 None,
-                CancelCategory::Special,
+                CancelCategory::Uncancellable,
                 vec![ActionBlock {
                     events: vec![
                         AnimationRequest {
@@ -584,7 +583,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         },
                     ],
                     exit_requirement: ContinuationRequirement::Time(60),
-                    cancel_policy: CancelPolicy::never(),
+                    cancel_policy: CancelRule::never(),
                     mutator: None,
                 }],
             ),
@@ -608,7 +607,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         exit_requirement: ContinuationRequirement::Time(32),
                         // Since there is no hitbox, you can't cancel this under normal circumstances
                         // as it can never hit, which is requried for neutral normal cancellation.
-                        cancel_policy: CancelPolicy::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::neutral_normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -787,7 +786,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             }
                             .into(),
                         ],
-                        cancel_policy: CancelPolicy::specific(vec![
+                        cancel_policy: CancelRule::specific(vec![
                             ActionId::Mizku(MizkuActionId::ShortSwayDash),
                             ActionId::Mizku(MizkuActionId::SwayCancel),
                         ]),
@@ -801,7 +800,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         }
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(37),
-                        cancel_policy: CancelPolicy::specific(vec![
+                        cancel_policy: CancelRule::specific(vec![
                             ActionId::Mizku(MizkuActionId::ShortSwayDash),
                             ActionId::Mizku(MizkuActionId::SwayCancel),
                         ]),
@@ -830,7 +829,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             }),
                         ],
-                        cancel_policy: CancelPolicy::specific(vec![
+                        cancel_policy: CancelRule::specific(vec![
                             ActionId::Mizku(MizkuActionId::LongSwayDash),
                             ActionId::Mizku(MizkuActionId::SwayCancel),
                         ]),
@@ -844,7 +843,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         }
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(37),
-                        cancel_policy: CancelPolicy::specific(vec![
+                        cancel_policy: CancelRule::specific(vec![
                             ActionId::Mizku(MizkuActionId::LongSwayDash),
                             ActionId::Mizku(MizkuActionId::SwayCancel),
                         ]),
@@ -883,7 +882,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelPolicy::specific(vec![
+                        cancel_policy: CancelRule::specific(vec![
                             ActionId::Mizku(MizkuActionId::SwayOverhead),
                             ActionId::Mizku(MizkuActionId::SwayLow),
                             ActionId::Mizku(MizkuActionId::Pilebunker),
@@ -900,7 +899,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelPolicy::specific(vec![
+                        cancel_policy: CancelRule::specific(vec![
                             ActionId::Mizku(MizkuActionId::SwayOverhead),
                             ActionId::Mizku(MizkuActionId::SwayLow),
                             ActionId::Mizku(MizkuActionId::Pilebunker),
@@ -939,7 +938,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelPolicy::specific(vec![
+                        cancel_policy: CancelRule::specific(vec![
                             ActionId::Mizku(MizkuActionId::SwayCancel),
                             ActionId::Mizku(MizkuActionId::SwayOverhead),
                             ActionId::Mizku(MizkuActionId::SwayLow),
@@ -957,7 +956,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelPolicy::specific(vec![
+                        cancel_policy: CancelRule::specific(vec![
                             ActionId::Mizku(MizkuActionId::SwayCancel),
                             ActionId::Mizku(MizkuActionId::SwayOverhead),
                             ActionId::Mizku(MizkuActionId::SwayLow),
@@ -1214,7 +1213,7 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(35),
-                        cancel_policy: CancelPolicy::command_normal_recovery(),
+                        cancel_policy: CancelRule::command_normal_recovery(),
                         mutator: None,
                     },
                 ],

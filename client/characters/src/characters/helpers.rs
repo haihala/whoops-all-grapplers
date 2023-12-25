@@ -2,7 +2,7 @@ use std::f32::consts::PI;
 
 use crate::{
     Action, ActionBlock, ActionEvent, ActionRequirement, AnimationRequest, CancelCategory,
-    CancelPolicy, ContinuationRequirement, FlashRequest, Movement, ResourceType,
+    CancelRule, ContinuationRequirement, FlashRequest, Movement, ResourceType,
 };
 
 use bevy::prelude::*;
@@ -214,13 +214,13 @@ fn jump(
             ActionBlock {
                 events: initial_events,
                 exit_requirement: initial_exit_requirement,
-                cancel_policy: CancelPolicy::any(),
+                cancel_policy: CancelRule::any(),
                 mutator: None,
             },
             ActionBlock {
                 events: vec![Movement::impulse(impulse).into()],
                 exit_requirement: ContinuationRequirement::Time(5),
-                cancel_policy: CancelPolicy::any(),
+                cancel_policy: CancelRule::any(),
                 mutator: Some(|mut original, situation| {
                     original.events = original
                         .events
@@ -306,7 +306,7 @@ fn dash(
             ActionBlock {
                 events: initial_events,
                 exit_requirement: ContinuationRequirement::Time(startup_duration),
-                cancel_policy: CancelPolicy::never(),
+                cancel_policy: CancelRule::never(),
                 mutator: if backdash {
                     Some(|mut original, situation| {
                         if situation.stats.backdash_invuln > 0 {
@@ -328,7 +328,7 @@ fn dash(
             ActionBlock {
                 events: vec![Movement::impulse(Vec2::X * impulse).into()],
                 exit_requirement: ContinuationRequirement::Time(total_duration - startup_duration),
-                cancel_policy: CancelPolicy::any(),
+                cancel_policy: CancelRule::any(),
                 mutator: None,
             },
         ],

@@ -1,8 +1,6 @@
 use wag_core::Animation;
 
-use crate::{
-    ActionBlock, ActionRequirement, CancelCategory, CancelPolicy, ContinuationRequirement,
-};
+use crate::{ActionBlock, ActionRequirement, CancelCategory, CancelRule, ContinuationRequirement};
 
 #[derive(Clone)]
 pub struct Action {
@@ -61,7 +59,7 @@ impl Default for Action {
             vec![ActionBlock {
                 events: vec![Animation::default().into()],
                 exit_requirement: ContinuationRequirement::Time(100),
-                cancel_policy: CancelPolicy::never(),
+                cancel_policy: CancelRule::never(),
                 mutator: None,
             }],
         )

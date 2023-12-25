@@ -19,7 +19,7 @@ use wag_core::{
 };
 
 use crate::{
-    assets::{AnimationHelper, AnimationHelperSetup, Models, UpdateMaterial},
+    assets::{AnimationHelper, AnimationHelperSetup, Models, PlayerModelHook},
     damage::{Defense, HitboxSpawner},
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
@@ -175,7 +175,7 @@ fn spawn_player(
                         ..default()
                     },
                     hook: SceneHook::new(move |_, cmds| {
-                        cmds.insert((UpdateMaterial(colors.clone()), NoFrustumCulling));
+                        cmds.insert((PlayerModelHook(colors.clone()), NoFrustumCulling));
                     }),
                 },
                 RootMover,

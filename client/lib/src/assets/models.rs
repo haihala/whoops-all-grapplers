@@ -20,7 +20,7 @@ pub(super) fn model_paths() -> HashMap<Model, &'static str> {
 }
 
 #[derive(Component, Debug)]
-pub struct UpdateMaterial(pub HashMap<&'static str, Color>);
+pub struct PlayerModelHook(pub HashMap<&'static str, Color>);
 
 // From https://github.com/bevyengine/bevy/discussions/8533
 #[allow(clippy::too_many_arguments)]
@@ -30,7 +30,7 @@ pub fn prep_player_gltf(
         &Parent,
         Option<&Name>,
         &SceneInstance,
-        &UpdateMaterial,
+        &PlayerModelHook,
     )>,
     material_handles: Query<(Entity, &Handle<StandardMaterial>, &Name)>,
     pbr_materials: Res<Assets<StandardMaterial>>,
@@ -44,7 +44,7 @@ pub fn prep_player_gltf(
 ) {
     for (entity, parent, name, instance, update_material) in &unloaded_instances {
         if scene_manager.instance_is_ready(**instance) {
-            cmds.entity(entity).remove::<UpdateMaterial>();
+            cmds.entity(entity).remove::<PlayerModelHook>();
             dbg!("Scene is ready");
             assign_joints(
                 name.cloned().unwrap_or_default().as_str(),

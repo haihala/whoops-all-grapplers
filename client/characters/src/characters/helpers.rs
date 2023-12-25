@@ -147,7 +147,7 @@ impl JumpGenerator {
     fn short(&self, dir: JumpDirection) -> Action {
         jump(
             dir.short_input(),
-            dir.direction() * self.base_impulse * 0.3,
+            dir.direction() * self.base_impulse * 0.7,
             self.animation,
             false,
         )

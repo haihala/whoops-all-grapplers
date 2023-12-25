@@ -46,7 +46,8 @@ impl Plugin for PhysicsPlugin {
                 player_gravity,
             )
                 .chain()
-                .in_set(WAGStage::Physics),
+                .in_set(WAGStage::Physics)
+                .after(sideswitcher),
         );
     }
 }

@@ -15,6 +15,9 @@ struct DespawnRequest {
     projectile: bool,
 }
 
+#[derive(Component)]
+pub(super) struct DespawnMarker;
+
 #[derive(Default, Component)]
 pub struct HitboxSpawner {
     despawn_requests: Vec<DespawnRequest>,
@@ -88,7 +91,7 @@ impl HitboxSpawner {
         });
     }
 
-    fn despawn_matching(
+    fn mark_for_despawing(
         &mut self,
         commands: &mut Commands,
         predicate: impl Fn(&mut DespawnRequest) -> bool,
@@ -98,8 +101,7 @@ impl HitboxSpawner {
             .extract_if(predicate)
             .map(|event| event.entity)
         {
-            // TODO: Craches here during playtest
-            commands.entity(id).despawn_recursive();
+            commands.entity(id).insert(DespawnMarker);
         }
     }
 
@@ -109,15 +111,15 @@ impl HitboxSpawner {
     }
 
     pub fn despawn(&mut self, commands: &mut Commands, entity: Entity) {
-        self.despawn_matching(commands, |request| request.entity == entity);
+        self.mark_for_despawing(commands, |request| request.entity == entity);
     }
 
     pub fn despawn_on_hit(&mut self, commands: &mut Commands) {
-        self.despawn_matching(commands, |event| event.lifetime.despawn_on_hit);
+        self.mark_for_despawing(commands, |event| event.lifetime.despawn_on_hit);
     }
 
     pub fn despawn_on_landing(&mut self, commands: &mut Commands) {
-        self.despawn_matching(commands, |event| event.lifetime.despawn_on_landing);
+        self.mark_for_despawing(commands, |event| event.lifetime.despawn_on_landing);
     }
 }
 
@@ -181,7 +183,7 @@ pub(super) fn despawn_expired(
     mut spawners: Query<&mut HitboxSpawner>,
 ) {
     for mut spawner in &mut spawners {
-        spawner.despawn_matching(&mut commands, |event| {
+        spawner.mark_for_despawing(&mut commands, |event| {
             if let Some(last_frame_alive) = event.lifetime.frames {
                 last_frame_alive <= clock.frame
             } else {
@@ -191,9 +193,16 @@ pub(super) fn despawn_expired(
     }
 }
 
+pub(super) fn despawn_marked(mut commands: Commands, marks: Query<Entity, With<DespawnMarker>>) {
+    for mark in &marks {
+        // This is centralized here to prevent crashes from overlapping despawns
+        commands.entity(mark).despawn_recursive();
+    }
+}
+
 pub(super) fn despawn_everything(mut commands: Commands, mut spawners: Query<&mut HitboxSpawner>) {
     for mut spawner in &mut spawners {
-        spawner.despawn_matching(&mut commands, |_| true);
+        spawner.mark_for_despawing(&mut commands, |_| true);
     }
 }
 

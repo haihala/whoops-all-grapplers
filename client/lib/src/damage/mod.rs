@@ -40,6 +40,8 @@ impl Plugin for DamagePlugin {
                 hitstop::handle_hitstop_events.after(WAGStage::PlayerUpdates),
             ),
         )
+        // This may run at the wrong point, should happen after all systems that apply marks run
+        .add_systems(Update, hitboxes::despawn_marked.after(WAGStage::HitReg))
         .add_systems(OnExit(GameState::Combat), hitboxes::despawn_everything);
     }
 }

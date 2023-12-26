@@ -17,3 +17,11 @@ impl FromStr for CharacterId {
         }
     }
 }
+impl std::fmt::Display for CharacterId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            CharacterId::Dummy => write!(f, "dummy"),
+            CharacterId::Mizku => write!(f, "mizku"),
+        }
+    }
+}

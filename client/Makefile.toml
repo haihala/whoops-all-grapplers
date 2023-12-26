@@ -35,4 +35,4 @@ args = ["run", "--", "--dev", "mizku", "mizku"]
 [tasks.prod]
 workspace = false
 command = "cargo"
-args = ["run", "--", "--fullscreen", "mizku", "mizku"]
+args = ["run", "--", "mizku", "mizku"]

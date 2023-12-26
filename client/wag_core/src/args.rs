@@ -9,9 +9,9 @@ pub struct WagArgs {
     /// Dev mode (shows hitboxes and dev binds)
     #[arg(short, long, default_value_t = false)]
     pub dev: bool,
-    #[arg(short, long, default_value_t = false)]
-    pub fullscreen: bool,
+    #[arg(default_value_t = CharacterId::Mizku)]
     pub character1: CharacterId,
+    #[arg(default_value_t = CharacterId::Mizku)]
     pub character2: CharacterId,
 }
 impl WagArgs {

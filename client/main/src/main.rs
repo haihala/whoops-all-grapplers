@@ -17,10 +17,10 @@ fn main() {
                 })
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        mode: if args.fullscreen {
-                            WindowMode::BorderlessFullscreen
-                        } else {
+                        mode: if args.dev {
                             WindowMode::Windowed
+                        } else {
+                            WindowMode::BorderlessFullscreen
                         },
                         resizable: false,
                         ..default()

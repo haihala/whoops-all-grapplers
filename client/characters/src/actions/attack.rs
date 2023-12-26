@@ -12,6 +12,8 @@ pub struct Attack {
     pub target_on_block: Vec<ActionEvent>,
 }
 
+const PUSH_RATIO: f32 = 1.0 / 4.0;
+
 impl Default for Attack {
     fn default() -> Self {
         Attack::strike(ToHit::default(), CommonAttackProps::default())
@@ -115,7 +117,7 @@ impl Default for CommonAttackProps {
 impl CommonAttackProps {
     pub fn self_on_hit(self) -> Vec<ActionEvent> {
         vec![
-            Movement::impulse(-Vec2::X * self.push_back).into(),
+            Movement::impulse(-Vec2::X * self.knock_back + PUSH_RATIO).into(),
             ActionEvent::CameraTilt(Vec2::X * self.push_back * 0.008),
             ActionEvent::CameraShake,
             ActionEvent::Hitstop,
@@ -123,7 +125,7 @@ impl CommonAttackProps {
     }
     pub fn self_on_block(self) -> Vec<ActionEvent> {
         vec![
-            Movement::impulse(-Vec2::X * 1.5 * self.push_back).into(),
+            Movement::impulse(-Vec2::X * self.push_back * (1.0 - PUSH_RATIO)).into(),
             ActionEvent::CameraTilt(-Vec2::X * self.push_back * 0.005),
             ActionEvent::Hitstop,
         ]
@@ -133,7 +135,7 @@ impl CommonAttackProps {
         vec![
             ActionEvent::ModifyResource(ResourceType::Health, -self.damage),
             self.get_stun(false),
-            Movement::impulse(-Vec2::X * self.knock_back).into(),
+            Movement::impulse(-Vec2::X * self.knock_back * (1.0 - PUSH_RATIO)).into(),
             ActionEvent::Flash(FlashRequest {
                 color: HIT_FLASH_COLOR,
                 depth: 1.0,
@@ -147,7 +149,7 @@ impl CommonAttackProps {
         vec![
             ActionEvent::ModifyResource(ResourceType::Health, -1), // Chip
             self.get_stun(true),
-            Movement::impulse(-Vec2::X * 0.5 * self.knock_back).into(),
+            Movement::impulse(-Vec2::X * self.push_back * PUSH_RATIO).into(),
         ]
     }
 

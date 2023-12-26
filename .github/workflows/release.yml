@@ -38,7 +38,7 @@ jobs:
           cp -r main/assets linux/
 
       - name: Package as a zip
-        working-directory: ./linux
+        working-directory: ./client/linux
         run: |
           zip --recurse-paths ../${{ env.binary }}.zip .
 

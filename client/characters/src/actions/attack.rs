@@ -3,7 +3,7 @@ use wag_core::{ActionId, HIT_FLASH_COLOR};
 
 use crate::{ActionEvent, FlashRequest, Movement, ResourceType, ToHit};
 
-#[derive(Debug, Clone, PartialEq, Component, Reflect)]
+#[derive(Debug, Clone, PartialEq, Component)]
 pub struct Attack {
     pub to_hit: ToHit,
     pub self_on_hit: Vec<ActionEvent>,

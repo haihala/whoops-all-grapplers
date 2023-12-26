@@ -16,8 +16,7 @@ enum MainState {
     Ground(usize),
 }
 
-#[derive(Reflect, Debug, Component, Clone)]
-#[reflect(Component)]
+#[derive(Component, Debug, Clone)]
 pub struct PlayerState {
     main: MainState,
     pub free_since: Option<usize>,

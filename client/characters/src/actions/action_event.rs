@@ -8,7 +8,7 @@ use crate::{Attack, FlashRequest, Movement, ResourceType};
 
 use super::AnimationRequest;
 
-#[derive(Debug, Clone, PartialEq, Default, Reflect)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum ActionEvent {
     Animation(AnimationRequest),
     Consume(ItemId),

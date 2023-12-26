@@ -1,5 +1,3 @@
-use std::collections::VecDeque;
-
 use bevy::{prelude::*, utils::HashMap};
 use wag_core::{ActionId, WAGStage};
 
@@ -18,17 +16,9 @@ const STICK_DEAD_ZONE: f32 = 0.2;
 
 pub struct InputParsingPlugin;
 
-#[derive(Debug, Default, Resource, Deref, DerefMut)]
-struct PadReserve(VecDeque<Gamepad>);
-impl PadReserve {
-    fn remove_pad(&mut self, pad: &Gamepad) {
-        self.0.retain(|p| p != pad);
-    }
-}
-
 impl Plugin for InputParsingPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(PadReserve::default()).add_systems(
+        app.add_systems(
             Update,
             (
                 update_pads,

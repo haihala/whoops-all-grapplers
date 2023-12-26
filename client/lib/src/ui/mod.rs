@@ -45,6 +45,23 @@ impl Plugin for UIPlugin {
                     round_text::setup_round_info_text,
                     shop::setup_shop,
                 ),
-            );
+            )
+            .add_systems(Update, set_ui_scale);
     }
+}
+
+fn set_ui_scale(
+    windows: Query<&Window>,
+    mut ui_scale: ResMut<UiScale>,
+    mut local_width: Local<f32>,
+) {
+    let window = windows.single();
+
+    if window.width() == *local_width {
+        return;
+    }
+
+    dbg!(&window.resolution);
+    ui_scale.0 = (window.width() / 1920.0) as f64;
+    *local_width = window.width();
 }

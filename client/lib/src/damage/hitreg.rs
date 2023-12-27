@@ -17,7 +17,7 @@ use crate::{
     ui::Notifications,
 };
 
-use super::{Combo, Defense, HitTracker, HitboxSpawner};
+use super::{hitboxes::ProjectileMarker, Combo, Defense, HitTracker, HitboxSpawner};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub(super) enum HitType {
@@ -56,17 +56,22 @@ pub struct HitPlayerQuery<'a> {
 }
 
 pub(super) fn clash_parry(
-    mut commands: Commands,
     clock: Res<Clock>,
     mut sounds: ResMut<Sounds>,
     mut particles: ResMut<Particles>,
-    mut hitboxes: Query<(Entity, &Owner, &GlobalTransform, &Hitbox, &mut HitTracker)>,
-    mut owners: Query<(&mut HitboxSpawner, &mut WAGResources)>,
+    mut hitboxes: Query<(
+        &Owner,
+        &GlobalTransform,
+        &Hitbox,
+        &mut HitTracker,
+        Option<&ProjectileMarker>,
+    )>,
+    mut owners: Query<&mut WAGResources>,
     players: Res<Players>,
 ) {
     let mut iter = hitboxes.iter_combinations_mut();
     while let Some(
-        [(entity1, owner1, gtf1, hitbox1, tracker1), (entity2, owner2, gtf2, hitbox2, tracker2)],
+        [(owner1, gtf1, hitbox1, tracker1, maybe_proj1), (owner2, gtf2, hitbox2, tracker2, maybe_proj2)],
     ) = iter.fetch_next()
     {
         if **owner1 == **owner2 {
@@ -89,17 +94,13 @@ pub(super) fn clash_parry(
                 position: overlap.center().extend(0.0),
             });
 
-            for (mut tracker, entity, owner) in
-                [(tracker1, entity1, owner1), (tracker2, entity2, owner2)]
-            {
-                let (mut spawner, mut properties) = owners.get_mut(players.get(**owner)).unwrap();
+            for (mut tracker, owner, is_projectile) in [
+                (tracker1, owner1, maybe_proj1.is_some()),
+                (tracker2, owner2, maybe_proj2.is_some()),
+            ] {
+                let mut properties = owners.get_mut(players.get(**owner)).unwrap();
 
                 // Pay up
-                // TODO: Crashed during testing, fix
-                let is_projectile = spawner
-                    .is_projectile(entity)
-                    .expect("to only check projectiles that have been spawned by this spawner");
-
                 if !is_projectile {
                     properties
                         .get_mut(ResourceType::Meter)
@@ -108,9 +109,7 @@ pub(super) fn clash_parry(
                 }
 
                 // Despawn projectiles and consume hits
-                if tracker.hits <= 1 {
-                    spawner.despawn(&mut commands, entity);
-                } else {
+                if tracker.hits >= 1 {
                     tracker.register_hit(clock.frame);
                 }
             }
@@ -122,7 +121,6 @@ pub(super) fn clash_parry(
 pub(super) fn detect_hits(
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
-    mut commands: Commands,
     combo: Option<Res<Combo>>,
     mut hitboxes: Query<(
         Entity,
@@ -135,7 +133,6 @@ pub(super) fn detect_hits(
     players: Res<Players>,
     hurtboxes: Query<(&Hurtbox, &Owner)>,
     defenders: Query<(&Transform, &PlayerState, &InputParser)>,
-    mut spawners: Query<&mut HitboxSpawner>,
 ) -> Vec<Hit> {
     hitboxes
         .iter_mut()
@@ -180,12 +177,7 @@ pub(super) fn detect_hits(
                     notifications.add(attacking_player, "Meaty!".to_owned());
                 }
 
-                if hit_tracker.hits <= 1 {
-                    spawners
-                        .get_mut(attacker)
-                        .unwrap()
-                        .despawn(&mut commands, hitbox_entity);
-                } else {
+                if hit_tracker.hits >= 1 {
                     hit_tracker.register_hit(clock.frame)
                 }
 
@@ -339,7 +331,7 @@ pub(super) fn apply_hits(
             position: hit.overlap.center().extend(0.0),
         });
 
-        defender.spawner.despawn_on_hit(&mut commands);
+        defender.spawner.despawn_on_hit();
     }
 }
 

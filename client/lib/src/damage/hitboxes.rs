@@ -8,23 +8,34 @@ use crate::{assets::Models, physics::ConstantVelocity};
 
 use super::HitTracker;
 
-#[derive(Debug)]
-struct DespawnRequest {
-    entity: Entity,
-    lifetime: Lifetime,
-    projectile: bool,
-}
+#[derive(Component)]
+pub(super) struct DespawnMarker(usize);
 
 #[derive(Component)]
-pub(super) struct DespawnMarker;
+pub(super) struct LifetimeFlags {
+    on_landing: bool,
+    on_hit: bool,
+}
+impl From<Lifetime> for LifetimeFlags {
+    fn from(value: Lifetime) -> Self {
+        Self {
+            on_landing: value.despawn_on_landing,
+            on_hit: value.despawn_on_hit,
+        }
+    }
+}
 
 #[derive(Default, Component)]
 pub struct HitboxSpawner {
-    despawn_requests: Vec<DespawnRequest>,
+    mark_landers: bool,
+    mark_hitters: bool,
 }
 
 #[derive(Debug, Component, Deref)]
 pub struct Follow(pub Entity);
+
+#[derive(Debug, Component)]
+pub struct ProjectileMarker;
 
 impl HitboxSpawner {
     #[allow(clippy::too_many_arguments)]
@@ -77,49 +88,23 @@ impl HitboxSpawner {
                     ..default()
                 });
             });
+            builder.insert(ProjectileMarker);
         } else {
             builder.insert(Follow(parent));
         }
 
-        let mut lifetime = attack.to_hit.lifetime;
-        lifetime.frames = lifetime.frames.map(|lifetime| lifetime + frame);
-
-        self.despawn_requests.push(DespawnRequest {
-            entity: builder.id(),
-            lifetime,
-            projectile: attack.to_hit.projectile.is_some(),
-        });
-    }
-
-    fn mark_for_despawing(
-        &mut self,
-        commands: &mut Commands,
-        predicate: impl Fn(&mut DespawnRequest) -> bool,
-    ) {
-        for id in self
-            .despawn_requests
-            .extract_if(predicate)
-            .map(|event| event.entity)
-        {
-            commands.entity(id).insert(DespawnMarker);
+        if let Some(frames) = attack.to_hit.lifetime.frames {
+            builder.insert(DespawnMarker(frames + frame));
         }
+        builder.insert(LifetimeFlags::from(attack.to_hit.lifetime));
     }
 
-    pub fn is_projectile(&self, entity: Entity) -> Option<bool> {
-        let request = self.despawn_requests.iter().find(|r| r.entity == entity)?;
-        Some(request.projectile)
+    pub fn despawn_on_hit(&mut self) {
+        self.mark_hitters = true;
     }
 
-    pub fn despawn(&mut self, commands: &mut Commands, entity: Entity) {
-        self.mark_for_despawing(commands, |request| request.entity == entity);
-    }
-
-    pub fn despawn_on_hit(&mut self, commands: &mut Commands) {
-        self.mark_for_despawing(commands, |event| event.lifetime.despawn_on_hit);
-    }
-
-    pub fn despawn_on_landing(&mut self, commands: &mut Commands) {
-        self.mark_for_despawing(commands, |event| event.lifetime.despawn_on_landing);
+    pub fn despawn_on_landing(&mut self) {
+        self.mark_landers = true;
     }
 }
 
@@ -177,32 +162,48 @@ pub(super) fn spawn_new(
     }
 }
 
-pub(super) fn despawn_expired(
+pub(super) fn despawn_marked(
     mut commands: Commands,
     clock: Res<Clock>,
-    mut spawners: Query<&mut HitboxSpawner>,
+    marks: Query<(Entity, &DespawnMarker)>,
 ) {
-    for mut spawner in &mut spawners {
-        spawner.mark_for_despawing(&mut commands, |event| {
-            if let Some(last_frame_alive) = event.lifetime.frames {
-                last_frame_alive <= clock.frame
-            } else {
-                false
+    for (marked, marker) in &marks {
+        if marker.0 < clock.frame {
+            commands.entity(marked).despawn_recursive();
+        }
+    }
+}
+
+pub(super) fn handle_despawn_flags(
+    mut commands: Commands,
+    boxes: Query<(Entity, &Owner, &LifetimeFlags, &HitTracker)>,
+    mut player_query: Query<(&mut HitboxSpawner, &Player)>,
+) {
+    for (mut spawner, player) in &mut player_query {
+        for (hitbox, owner, flags, tracker) in &boxes {
+            if *player != owner.0 {
+                continue;
             }
-        });
+
+            if (flags.on_hit && spawner.mark_hitters)
+                || (flags.on_landing && spawner.mark_landers)
+                || (tracker.hits == 0)
+            {
+                commands.entity(hitbox).insert(DespawnMarker(0));
+            }
+        }
+
+        spawner.mark_hitters = false;
+        spawner.mark_landers = false;
     }
 }
 
-pub(super) fn despawn_marked(mut commands: Commands, marks: Query<Entity, With<DespawnMarker>>) {
-    for mark in &marks {
-        // This is centralized here to prevent crashes from overlapping despawns
-        commands.entity(mark).despawn_recursive();
-    }
-}
-
-pub(super) fn despawn_everything(mut commands: Commands, mut spawners: Query<&mut HitboxSpawner>) {
-    for mut spawner in &mut spawners {
-        spawner.mark_for_despawing(&mut commands, |_| true);
+pub(super) fn despawn_everything(
+    mut commands: Commands,
+    mut hitboxes: Query<Entity, With<Hitbox>>,
+) {
+    for entity in &mut hitboxes {
+        commands.entity(entity).insert(DespawnMarker(0));
     }
 }
 

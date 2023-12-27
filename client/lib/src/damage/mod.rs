@@ -22,12 +22,12 @@ impl Plugin for DamagePlugin {
             Update,
             (
                 hitboxes::spawn_new,
-                hitboxes::despawn_expired,
                 hitreg::clash_parry,
                 hitreg::detect_hits.pipe(hitreg::apply_hits),
                 hitreg::stun_actions,
                 hitreg::snap_and_switch,
                 defense::timeout_defense_streak,
+                hitboxes::handle_despawn_flags,
                 hitboxes::update_followers,
             )
                 .chain()

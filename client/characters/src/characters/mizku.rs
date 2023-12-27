@@ -1,4 +1,4 @@
-use std::iter::empty;
+use std::iter::{empty, once};
 
 use bevy::{prelude::*, utils::HashMap};
 
@@ -275,6 +275,97 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         exit_requirement: ContinuationRequirement::Time(20),
                         cancel_policy: CancelRule::command_normal_recovery(),
                         mutator: None,
+                    },
+                ],
+            ),
+        ),
+        (
+            MizkuActionId::HighStab,
+            Action::grounded(
+                Some("g"),
+                CancelCategory::Normal,
+                vec![
+                    ActionBlock {
+                        events: vec![MizkuAnimation::HighStab.into()],
+                        exit_requirement: ContinuationRequirement::Time(17),
+                        ..default()
+                    },
+                    ActionBlock {
+                        events: vec![],
+                        exit_requirement: ContinuationRequirement::Time(43),
+                        cancel_policy: CancelRule::neutral_normal_recovery(),
+                        mutator: Some(|mut original: ActionBlock, situation: &Situation| {
+                            original.events.push(
+                                Attack::strike(
+                                    ToHit {
+                                        hitbox: Hitbox(Area::new(-0.2, 0.0, 2.0, 0.2)),
+                                        joint: Some(Joint::Katana),
+                                        lifetime: Lifetime::frames(4),
+                                        ..default()
+                                    },
+                                    CommonAttackProps {
+                                        damage: 12
+                                            + situation
+                                                .get_resource(ResourceType::Sharpness)
+                                                .unwrap()
+                                                .current
+                                                * 10,
+                                        on_hit: Stun(40),
+                                        on_block: Stun(30),
+                                        ..default()
+                                    },
+                                )
+                                .into(),
+                            );
+
+                            original
+                        }),
+                    },
+                ],
+            ),
+        ),
+        (
+            MizkuActionId::LowStab,
+            Action::grounded(
+                Some("[123]+g"),
+                CancelCategory::CommandNormal,
+                vec![
+                    ActionBlock {
+                        events: vec![MizkuAnimation::LowStab.into()],
+                        exit_requirement: ContinuationRequirement::Time(15),
+                        ..default()
+                    },
+                    ActionBlock {
+                        events: vec![],
+                        exit_requirement: ContinuationRequirement::Time(60),
+                        cancel_policy: CancelRule::command_normal_recovery(),
+                        mutator: Some(|mut original: ActionBlock, situation: &Situation| {
+                            original.events.push(
+                                Attack::strike(
+                                    ToHit {
+                                        hitbox: Hitbox(Area::of_size(2.5, 0.3)),
+                                        joint: Some(Joint::Katana),
+                                        lifetime: Lifetime::frames(3),
+                                        block_type: Strike(Low),
+                                        ..default()
+                                    },
+                                    CommonAttackProps {
+                                        damage: 10
+                                            + situation
+                                                .get_resource(ResourceType::Sharpness)
+                                                .unwrap()
+                                                .current
+                                                * 10,
+                                        on_hit: Stun(55),
+                                        on_block: Stun(25),
+                                        ..default()
+                                    },
+                                )
+                                .into(),
+                            );
+
+                            original
+                        }),
                     },
                 ],
             ),
@@ -588,37 +679,36 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 }],
             ),
         ),
-        (
-            MizkuActionId::Sharpen,
-            Action::grounded(
-                Some("g"),
-                CancelCategory::Normal,
-                vec![
-                    ActionBlock {
-                        events: vec![MizkuAnimation::Sharpen.into()],
-                        exit_requirement: ContinuationRequirement::Time(48),
-                        ..default()
-                    },
-                    ActionBlock {
-                        events: vec![
-                            ModifyResource(ResourceType::Sharpness, 1),
-                            ModifyResource(ResourceType::Meter, 25),
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(32),
-                        // Since there is no hitbox, you can't cancel this under normal circumstances
-                        // as it can never hit, which is requried for neutral normal cancellation.
-                        cancel_policy: CancelRule::neutral_normal_recovery(),
-                        mutator: None,
-                    },
-                ],
-            ),
-        ),
     ]
     .into_iter()
 }
 
 fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
-    rising_suns().chain(sway())
+    rising_suns().chain(sway()).chain(once((
+        MizkuActionId::Sharpen,
+        Action::grounded(
+            Some("214g"),
+            CancelCategory::Normal,
+            vec![
+                ActionBlock {
+                    events: vec![MizkuAnimation::Sharpen.into()],
+                    exit_requirement: ContinuationRequirement::Time(48),
+                    ..default()
+                },
+                ActionBlock {
+                    events: vec![
+                        ModifyResource(ResourceType::Sharpness, 1),
+                        ModifyResource(ResourceType::Meter, 25),
+                    ],
+                    exit_requirement: ContinuationRequirement::Time(32),
+                    // Since there is no hitbox, you can't cancel this under normal circumstances
+                    // as it can never hit, which is requried for neutral normal cancellation.
+                    cancel_policy: CancelRule::neutral_normal_recovery(),
+                    mutator: None,
+                },
+            ],
+        ),
+    )))
 }
 
 macro_rules! rising_sun {

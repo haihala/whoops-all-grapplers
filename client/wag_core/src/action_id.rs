@@ -103,11 +103,13 @@ pub enum MizkuActionId {
     SwayCancel,
 
     // Normals
-    LowKick,
-    FalconKnee,
-    KneeThrust,
+    LowStab,
+    HighStab,
     Overhead,
     Uppercut,
     FootDive,
     HeelKick,
+    LowKick,
+    FalconKnee,
+    KneeThrust,
 }

@@ -42,6 +42,7 @@ impl Plugin for DevPlugin {
                     audio_test_system,
                     shader_test_system,
                     fullscreen_toggle,
+                    pause_toggle,
                     cycle_game_state,
                     input_leniency_test_system,
                     box_visualization::visualize_hitboxes,
@@ -88,6 +89,13 @@ fn fullscreen_toggle(keys: Res<Input<KeyCode>>, mut windows: Query<&mut Window>)
             WindowMode::BorderlessFullscreen => WindowMode::Windowed,
             _ => win.mode,
         }
+    }
+}
+
+fn pause_toggle(keys: Res<Input<KeyCode>>, mut time: ResMut<Time<Virtual>>) {
+    if keys.just_pressed(KeyCode::P) {
+        let new_speed = 1.0 - time.relative_speed();
+        time.set_relative_speed(new_speed);
     }
 }
 

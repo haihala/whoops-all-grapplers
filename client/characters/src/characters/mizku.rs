@@ -481,7 +481,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 CancelCategory::Normal,
                 vec![
                     ActionBlock {
-                        events: vec![MizkuAnimation::GroundThrowStartup.into()],
+                        events: vec![MizkuAnimation::StandThrowStartup.into()],
                         exit_requirement: ContinuationRequirement::Time(3),
                         ..default()
                     },
@@ -494,8 +494,8 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 lifetime: Lifetime::frames(3),
                                 ..default()
                             },
-                            ActionId::Mizku(MizkuActionId::GroundThrowHit),
-                            ActionId::Mizku(MizkuActionId::GroundThrowTarget),
+                            ActionId::Mizku(MizkuActionId::StandThrowHit),
+                            ActionId::Mizku(MizkuActionId::StandThrowTarget),
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(37),
@@ -511,7 +511,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 CancelCategory::CommandNormal,
                 vec![
                     ActionBlock {
-                        events: vec![MizkuAnimation::GroundThrowStartup.into()],
+                        events: vec![MizkuAnimation::StandThrowStartup.into()],
                         exit_requirement: ContinuationRequirement::Time(3),
                         ..default()
                     },
@@ -524,8 +524,8 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 lifetime: Lifetime::frames(3),
                                 ..default()
                             },
-                            ActionId::Mizku(MizkuActionId::GroundThrowHit),
-                            ActionId::Mizku(MizkuActionId::GroundThrowTarget),
+                            ActionId::Mizku(MizkuActionId::StandThrowHit),
+                            ActionId::Mizku(MizkuActionId::StandThrowTarget),
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(37),
@@ -535,27 +535,26 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             ),
         ),
         (
-            MizkuActionId::GroundThrowHit,
+            MizkuActionId::StandThrowHit,
             Action::grounded(
                 None,
-                CancelCategory::Special,
+                CancelCategory::Uncancellable,
                 vec![ActionBlock {
-                    events: vec![MizkuAnimation::GroundThrowHit.into()],
+                    events: vec![MizkuAnimation::StandThrowHit.into()],
                     exit_requirement: ContinuationRequirement::Time(20),
-                    cancel_policy: CancelRule::never(),
-                    mutator: None,
+                    ..default()
                 }],
             ),
         ),
         (
-            MizkuActionId::GroundThrowTarget,
+            MizkuActionId::StandThrowTarget,
             Action::grounded(
                 None,
                 CancelCategory::Uncancellable,
                 vec![
                     ActionBlock {
                         events: vec![AnimationRequest {
-                            animation: MizkuAnimation::GroundThrowTarget.into(),
+                            animation: MizkuAnimation::StandThrowTarget.into(),
                             invert: true,
                             ..default()
                         }
@@ -578,36 +577,73 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             ),
         ),
         (
-            MizkuActionId::Sweep,
+            MizkuActionId::CrouchThrow,
             Action::grounded(
                 Some("[123]+w"),
                 CancelCategory::CommandNormal,
                 vec![
                     ActionBlock {
-                        events: vec![MizkuAnimation::Sweep.into()],
-                        exit_requirement: ContinuationRequirement::Time(7),
+                        events: vec![MizkuAnimation::CrouchThrowStartup.into()],
+                        exit_requirement: ContinuationRequirement::Time(5),
                         ..default()
                     },
                     ActionBlock {
-                        events: vec![Attack::strike(
+                        events: vec![Attack::forward_throw(
                             ToHit {
-                                block_type: Strike(Low),
-                                hitbox: Hitbox(Area::new(-0.4, 0.2, 1.0, 0.3)),
-                                joint: Some(Joint::FootR),
+                                block_type: Grab,
+                                hitbox: Hitbox(Area::of_size(0.5, 0.2)),
+                                joint: Some(Joint::HandL),
                                 lifetime: Lifetime::frames(3),
                                 ..default()
                             },
-                            CommonAttackProps {
-                                damage: 9,
-                                on_hit: Launcher(1.0),
-                                on_block: Stun(10),
-                                ..default()
-                            },
+                            ActionId::Mizku(MizkuActionId::CrouchThrowHit),
+                            ActionId::Mizku(MizkuActionId::CrouchThrowTarget),
                         )
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(13),
-                        cancel_policy: CancelRule::command_normal_recovery(),
-                        mutator: None,
+                        exit_requirement: ContinuationRequirement::Time(55),
+                        ..default()
+                    },
+                ],
+            ),
+        ),
+        (
+            MizkuActionId::CrouchThrowHit,
+            Action::grounded(
+                None,
+                CancelCategory::Uncancellable,
+                vec![ActionBlock {
+                    events: vec![MizkuAnimation::CrouchThrowHit.into()],
+                    exit_requirement: ContinuationRequirement::Time(65),
+                    ..default()
+                }],
+            ),
+        ),
+        (
+            MizkuActionId::CrouchThrowTarget,
+            Action::grounded(
+                None,
+                CancelCategory::Uncancellable,
+                vec![
+                    ActionBlock {
+                        events: vec![AnimationRequest {
+                            animation: MizkuAnimation::CrouchThrowTarget.into(),
+                            invert: true,
+                            ..default()
+                        }
+                        .into()],
+                        exit_requirement: ContinuationRequirement::Time(20),
+                        ..default()
+                    },
+                    ActionBlock {
+                        events: vec![
+                            ModifyResource(ResourceType::Health, -10),
+                            Launch {
+                                // This may be broken, but it may have been fixed while
+                                // fixing flipping launch velocities
+                                impulse: Vec2::new(-2.0, 3.0),
+                            },
+                        ],
+                        ..default()
                     },
                 ],
             ),
@@ -646,12 +682,11 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::AirThrowHit,
             Action::airborne(
                 None,
-                CancelCategory::Special,
+                CancelCategory::Uncancellable,
                 vec![ActionBlock {
                     events: vec![MizkuAnimation::AirThrowHit.into()],
                     exit_requirement: ContinuationRequirement::Time(30),
-                    cancel_policy: CancelRule::never(),
-                    mutator: None,
+                    ..default()
                 }],
             ),
         ),
@@ -674,8 +709,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         },
                     ],
                     exit_requirement: ContinuationRequirement::Time(60),
-                    cancel_policy: CancelRule::never(),
-                    mutator: None,
+                    ..default()
                 }],
             ),
         ),

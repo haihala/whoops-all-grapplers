@@ -89,8 +89,11 @@ pub enum MizkuActionId {
     Sweep,
     ForwardThrow,
     BackThrow,
-    GroundThrowHit,
-    GroundThrowTarget,
+    StandThrowHit,
+    StandThrowTarget,
+    CrouchThrow,
+    CrouchThrowHit,
+    CrouchThrowTarget,
 
     // Sway stuff
     ShortBackSway,

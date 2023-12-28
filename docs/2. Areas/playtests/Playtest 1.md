@@ -52,5 +52,11 @@ Ideas for non-obvious fixes:
 - Reset jump back to default (current superjump), add a short hop with input `[123456][789][123]`
     - Core part of defense is jumping lows and ducking highs
 
-
+Still actionable:
+- Make a crouching throw
+- Make short hop into a fast fall
+- Fix superjump
+- Make superjump and short hop into item upgrades
+	- And move the double jump to a non-boots upgrade
+- Make shit more expensive
 

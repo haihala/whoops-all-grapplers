@@ -498,7 +498,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             ActionId::Mizku(MizkuActionId::GroundThrowTarget),
                         )
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(13),
+                        exit_requirement: ContinuationRequirement::Time(37),
                         ..default()
                     },
                 ],
@@ -528,7 +528,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             ActionId::Mizku(MizkuActionId::GroundThrowTarget),
                         )
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(13),
+                        exit_requirement: ContinuationRequirement::Time(37),
                         ..default()
                     },
                 ],
@@ -636,7 +636,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             ActionId::Mizku(MizkuActionId::AirThrowTarget),
                         )
                         .into()],
-                        exit_requirement: ContinuationRequirement::Time(9),
+                        exit_requirement: ContinuationRequirement::Time(36),
                         ..default()
                     },
                 ],

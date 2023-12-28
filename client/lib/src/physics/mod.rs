@@ -75,6 +75,10 @@ fn player_gravity(
     )>,
 ) {
     for (mut velocity, mut state, mut spawner, tf, stats) in &mut players {
+        if state.unlock_frame().is_some() {
+            continue;
+        }
+
         let is_airborne = tf.translation.y > GROUND_PLANE_HEIGHT;
 
         if is_airborne {
@@ -96,6 +100,10 @@ fn player_input(
     mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &Stats, &Facing)>,
 ) {
     for (mut state, mut velocity, status_effects, facing) in &mut query {
+        if state.unlock_frame().is_some() {
+            continue;
+        }
+
         for _ in state.drain_matching_actions(|action| {
             if ActionEvent::ClearMovement == *action {
                 Some(())
@@ -140,12 +148,19 @@ struct PlayerMovingQuery<'a> {
 
 fn move_players(mut query: Query<PlayerMovingQuery>) {
     for mut p in &mut query {
+        if p.state.unlock_frame().is_some() {
+            continue;
+        }
         p.tf.translation += p.velocity.get_shift().extend(0.0);
     }
 }
 
 fn push_players(mut query: Query<PlayerMovingQuery>, players: Res<Players>) {
     if let Ok([p1, p2]) = query.get_many_mut([players.one, players.two]) {
+        if p1.state.unlock_frame().is_some() || p2.state.unlock_frame().is_some() {
+            return;
+        }
+
         if let Some(overlap) = p1
             .push_box
             .with_offset(p1.tf.translation.truncate())
@@ -195,6 +210,10 @@ fn clamp_players(
     let right_border = camera_x + VIEWPORT_HALFWIDTH - CAMERA_EDGE_COLLISION_PADDING;
 
     if let Ok([mut p1, mut p2]) = queries.p0().get_many_mut([players.one, players.two]) {
+        if p1.state.unlock_frame().is_some() || p2.state.unlock_frame().is_some() {
+            return;
+        }
+
         // Either neither or both should be pushing
         assert!(p1.velocity.pushing == p2.velocity.pushing);
         let pushing = p1.velocity.pushing || p2.velocity.pushing;

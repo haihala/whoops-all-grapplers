@@ -14,6 +14,7 @@ enum MainState {
     Stand(StandState),
     Crouch(CrouchState),
     Ground(usize),
+    Locked(usize),
 }
 
 #[derive(Component, Debug, Clone)]
@@ -122,6 +123,7 @@ impl PlayerState {
             MainState::Air(_) => MainState::Air(AirState::Move(tracker)),
             // TODO: crashes during playtest
             MainState::Ground(_) => panic!("Starting a move on the ground"),
+            MainState::Locked(_) => panic!("Starting a move while lockedq"),
         };
         self.free_since = None;
     }
@@ -194,22 +196,21 @@ impl PlayerState {
 
     // Stun
     pub fn block(&mut self, recovery_frame: usize) {
-        self.main = match self.main {
+        self.main = match &self.main {
             MainState::Stand(_) => MainState::Stand(StandState::Stun(Stun::Block(recovery_frame))),
             MainState::Crouch(_) => {
                 MainState::Crouch(CrouchState::Stun(Stun::Block(recovery_frame)))
             }
-            MainState::Air(_) => MainState::Air(AirState::Freefall),
-            MainState::Ground(_) => panic!("Blocked on the ground"),
+            other => panic!("Blocked while {:?}", other),
         };
         self.free_since = None;
     }
     pub fn stun(&mut self, recovery_frame: usize) {
-        self.main = match self.main {
+        self.main = match &self.main {
             MainState::Stand(_) => MainState::Stand(StandState::Stun(Stun::Hit(recovery_frame))),
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Stun(Stun::Hit(recovery_frame))),
             MainState::Air(_) => MainState::Air(AirState::Freefall),
-            MainState::Ground(_) => panic!("Stunned on the ground"),
+            other => panic!("Stunned while {:?}", other),
         };
         self.free_since = None;
     }
@@ -219,6 +220,7 @@ impl PlayerState {
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Idle),
             MainState::Air(_) => MainState::Air(AirState::Idle),
             MainState::Ground(_) => MainState::Crouch(CrouchState::Idle),
+            MainState::Locked(_) => panic!("Special case, handled elsewhere"),
         };
         self.free_since = Some(frame);
     }
@@ -258,7 +260,9 @@ impl PlayerState {
                 self.main = MainState::Air(AirState::Idle)
             }
             // Launch
-            MainState::Air(AirState::Freefall) => {}
+            MainState::Air(AirState::Freefall) => {
+                panic!("")
+            }
             _ => {
                 panic!("Jumping while {:?}", self.main)
             }
@@ -289,6 +293,30 @@ impl PlayerState {
             None
         }
     }
+    pub fn unlock_frame(&self) -> Option<usize> {
+        if let MainState::Locked(end_frame) = self.main {
+            Some(end_frame)
+        } else {
+            None
+        }
+    }
+    pub fn lock(&mut self, frame: usize) {
+        self.main = MainState::Locked(frame);
+    }
+    pub fn unlock(&mut self, airborne: bool) {
+        self.main = match self.main {
+            // At the moment, locking is only used for throws
+            // Later on it could be used for supers and the likes
+            MainState::Locked(frame) => {
+                if airborne {
+                    MainState::Air(AirState::Freefall)
+                } else {
+                    MainState::Ground(frame)
+                }
+            }
+            _ => panic!("Unlocking while {:?}", self.main),
+        };
+    }
 
     // Walking
     pub fn walk(&mut self, direction: Facing) {
@@ -309,7 +337,7 @@ impl PlayerState {
         self.main = MainState::Stand(StandState::Idle);
     }
     pub fn force_stand(&mut self) {
-        match self.main {
+        match &self.main {
             MainState::Stand(_) => {
                 // Already standing, everything is great
             }
@@ -322,8 +350,7 @@ impl PlayerState {
                     CrouchState::Idle => MainState::Stand(StandState::Idle),
                 }
             }
-            MainState::Air(_) => panic!("Forcing to stand in the air"),
-            MainState::Ground(_) => panic!("Forcing to stand on the ground"),
+            other => panic!("Forcing to stand from {:?}", other),
         };
     }
     pub fn is_crouching(&self) -> bool {
@@ -335,7 +362,7 @@ impl PlayerState {
             MainState::Stand(_) => character.standing_pushbox,
             MainState::Crouch(_) => character.crouching_pushbox,
             MainState::Air(_) => character.air_pushbox,
-            MainState::Ground(_) => character.crouching_pushbox, // TODO: This could have it's own box
+            MainState::Ground(_) | MainState::Locked(_) => character.crouching_pushbox, // TODO: These could have it's own box
         }
     }
     pub fn add_condition(&mut self, condition: StatusCondition) {

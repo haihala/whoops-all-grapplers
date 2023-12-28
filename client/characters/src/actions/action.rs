@@ -2,7 +2,8 @@ use bevy::prelude::*;
 use wag_core::Animation;
 
 use crate::{
-    ActionBlock, ActionRequirement, Attack, CancelCategory, CancelRule, ContinuationRequirement,
+    ActionBlock, ActionEvent, ActionRequirement, AnimationRequest, Attack, CancelCategory,
+    CancelRule, ContinuationRequirement, FlashRequest, ResourceType,
 };
 
 #[derive(Clone)]
@@ -59,6 +60,41 @@ impl Action {
             CancelCategory::Uncancellable,
             vec![ActionBlock {
                 events: vec![animation.into().into()],
+                exit_requirement: ContinuationRequirement::Time(duration),
+                ..default()
+            }],
+            vec![],
+        )
+    }
+
+    pub fn throw_target(
+        animation: impl Into<Animation>,
+        duration: usize,
+        damage: i32,
+        launch_impulse: Vec2,
+    ) -> Self {
+        Action::new(
+            None,
+            CancelCategory::Uncancellable,
+            vec![ActionBlock {
+                events: vec![
+                    ActionEvent::Animation(AnimationRequest {
+                        animation: animation.into(),
+                        invert: true,
+                        ..default()
+                    }),
+                    ActionEvent::ModifyResource(ResourceType::Health, -damage),
+                    if launch_impulse == Vec2::ZERO {
+                        ActionEvent::Noop
+                    } else {
+                        ActionEvent::Launch {
+                            impulse: launch_impulse,
+                        }
+                    },
+                    ActionEvent::Flash(FlashRequest::hit_flash()),
+                    ActionEvent::Hitstop,
+                    ActionEvent::Lock(duration),
+                ],
                 exit_requirement: ContinuationRequirement::Time(duration),
                 ..default()
             }],

@@ -61,7 +61,6 @@ fn set_ui_scale(
         return;
     }
 
-    dbg!(&window.resolution);
     ui_scale.0 = (window.width() / 1920.0) as f64;
     *local_width = window.width();
 }

@@ -69,7 +69,7 @@ impl Plugin for TimePlugin {
             (
                 WAGStage::Physics.after(WAGStage::Inputs),
                 WAGStage::HitReg.after(WAGStage::Physics),
-                WAGStage::PlayerUpdates.after(WAGStage::Physics),
+                WAGStage::PlayerUpdates.after(WAGStage::HitReg),
             )
                 .run_if(once_per_combat_frame),
         )

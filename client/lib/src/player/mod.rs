@@ -2,12 +2,12 @@ mod asset_updater;
 mod charge_accumulator;
 mod condition_management;
 mod dynamic_colliders;
+mod locks;
 mod move_activation;
 mod move_advancement;
 mod movement;
 mod player_flash;
 mod recovery;
-mod root_mover;
 mod size_adjustment;
 
 use characters::{dummy, mizku, Character, Inventory, WAGResources};
@@ -32,8 +32,6 @@ use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 pub use move_activation::MoveBuffer;
 
 pub use player_flash::{ExtendedFlashMaterial, FlashMaterial};
-
-use root_mover::RootMover;
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
@@ -76,6 +74,7 @@ impl Plugin for PlayerPlugin {
                     move_activation::special_cancel,
                     move_activation::move_activator,
                     move_advancement::move_advancement,
+                    locks::handle_locks, // This being the first system after hit move advancement is important
                     recovery::stun_recovery,
                     recovery::ground_recovery,
                     movement::movement,
@@ -84,7 +83,6 @@ impl Plugin for PlayerPlugin {
                     condition_management::manage_conditions,
                     asset_updater::update_animation,
                     asset_updater::update_audio,
-                    root_mover::update_root_transform,
                 )
                     .chain()
                     .in_set(WAGStage::PlayerUpdates),
@@ -168,18 +166,15 @@ fn spawn_player(
             player,
         ))
         .with_children(move |parent| {
-            parent.spawn((
-                HookedSceneBundle {
-                    scene: SceneBundle {
-                        scene: models[&character.model].clone(),
-                        ..default()
-                    },
-                    hook: SceneHook::new(move |_, cmds| {
-                        cmds.insert((PlayerModelHook(colors.clone()), NoFrustumCulling));
-                    }),
+            parent.spawn((HookedSceneBundle {
+                scene: SceneBundle {
+                    scene: models[&character.model].clone(),
+                    ..default()
                 },
-                RootMover,
-            ));
+                hook: SceneHook::new(move |_, cmds| {
+                    cmds.insert((PlayerModelHook(colors.clone()), NoFrustumCulling));
+                }),
+            },));
         })
         .id()
 }
@@ -201,7 +196,7 @@ fn setup_combat(
     mut clock: ResMut<Clock>,
     bevy_time: Res<Time>,
 ) {
-    dbg!("Reset");
+    println!("Reset");
     clock.reset(bevy_time.elapsed_seconds_f64());
 
     for (

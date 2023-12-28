@@ -62,7 +62,7 @@ fn setup(mut config: ResMut<GizmoConfig>) {
 
 fn shader_test_system(keys: Res<Input<KeyCode>>, mut players: Query<&mut PlayerState>) {
     if keys.just_pressed(KeyCode::S) {
-        dbg!("Playing shader flash");
+        println!("Playing shader flash");
         for mut player in &mut players {
             player.add_actions(vec![ActionEvent::Flash(FlashRequest {
                 color: GI_PARRY_FLASH_COLOR,
@@ -75,7 +75,7 @@ fn shader_test_system(keys: Res<Input<KeyCode>>, mut players: Query<&mut PlayerS
 
 fn audio_test_system(keys: Res<Input<KeyCode>>, mut sounds: ResMut<Sounds>) {
     if keys.just_pressed(KeyCode::A) {
-        dbg!("Playing whoosh audio");
+        println!("Playing whoosh audio");
         sounds.play(SoundEffect::Whoosh);
     }
 }
@@ -83,6 +83,7 @@ fn audio_test_system(keys: Res<Input<KeyCode>>, mut sounds: ResMut<Sounds>) {
 fn fullscreen_toggle(keys: Res<Input<KeyCode>>, mut windows: Query<&mut Window>) {
     if keys.just_pressed(KeyCode::F) {
         let mut win = windows.get_single_mut().unwrap();
+        println!("Fullscreen toggle");
 
         win.mode = match win.mode {
             WindowMode::Windowed => WindowMode::BorderlessFullscreen,
@@ -94,6 +95,7 @@ fn fullscreen_toggle(keys: Res<Input<KeyCode>>, mut windows: Query<&mut Window>)
 
 fn pause_toggle(keys: Res<Input<KeyCode>>, mut time: ResMut<Time<Virtual>>) {
     if keys.just_pressed(KeyCode::P) {
+        println!("Pause toggle");
         let new_speed = 1.0 - time.relative_speed();
         time.set_relative_speed(new_speed);
     }

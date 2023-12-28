@@ -7,6 +7,10 @@ use wag_core::{Facing, StickPosition};
 
 pub fn movement(mut query: Query<(&InputParser, &mut PlayerState, &Facing)>) {
     for (reader, mut state, facing) in &mut query {
+        if state.unlock_frame().is_some() {
+            continue;
+        }
+
         if state.is_grounded() && state.get_action_tracker().is_none() && !state.stunned() {
             let relative_stick = reader.get_relative_stick_position();
             let stick = if facing.to_flipped() {

@@ -33,6 +33,7 @@ pub enum ActionEvent {
     CameraTilt(Vec2),
     CameraShake, // TODO: Add strength
     Flash(FlashRequest),
+    Lock(usize),
     Noop, // makes writing macros easier
 }
 impl ActionEvent {

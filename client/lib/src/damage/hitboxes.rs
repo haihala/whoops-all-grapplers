@@ -108,7 +108,7 @@ impl HitboxSpawner {
     }
 }
 
-pub(super) fn spawn_new(
+pub(super) fn spawn_new_hitboxes(
     mut commands: Commands,
     clock: Res<Clock>,
     models: Res<Models>,

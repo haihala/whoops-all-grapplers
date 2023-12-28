@@ -175,7 +175,7 @@ fn end_loading(
         .all(|h| server.get_load_state(h.id()) == Some(LoadState::Loaded));
 
     if joints_loaded && some_assets_loading && all_assets_loaded {
-        dbg!("Done loading assets");
+        println!("Done loading assets");
         next_state.set(GameState::ClaimingControllers);
     }
 }

@@ -21,7 +21,7 @@ impl Plugin for DamagePlugin {
         app.add_systems(
             Update,
             (
-                hitboxes::spawn_new,
+                hitboxes::spawn_new_hitboxes,
                 hitreg::clash_parry,
                 hitreg::detect_hits.pipe(hitreg::apply_hits),
                 hitreg::stun_actions,

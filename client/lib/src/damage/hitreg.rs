@@ -412,13 +412,13 @@ pub(super) fn snap_and_switch(
         });
 
         if actions.contains(&ActionEvent::SnapToOpponent) {
-            let switch = actions.contains(&ActionEvent::SideSwitch) as i32 as f32;
+            let switch = actions.contains(&ActionEvent::SideSwitch);
 
             let raw_diff = self_tf.translation.x - other_tf.translation.x; // This ought to be positive when attacker is on the left
             let width_between = (self_pushbox.width() + other_pushbox.width()) / 2.0;
 
             let new_position = other_tf.translation
-                + Vec3::X * raw_diff.signum() * width_between * (1.0 - (2.0 * switch));
+                + Vec3::X * raw_diff.signum() * width_between * (if switch { -1.0 } else { 1.0 });
 
             self_tf.translation = new_position;
             self_velocity.sync_with(&other_velocity);
@@ -431,6 +431,10 @@ pub(super) fn stun_actions(
     clock: Res<Clock>,
 ) {
     for (mut state, mut velocity, facing) in &mut query {
+        if state.unlock_frame().is_some() {
+            continue;
+        }
+
         for action in state.drain_matching_actions(|action| {
             if matches!(
                 *action,

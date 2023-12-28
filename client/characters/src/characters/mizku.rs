@@ -10,7 +10,7 @@ use wag_core::{
 };
 
 use crate::{
-    actions::{ActionRequirement, AnimationRequest, Projectile},
+    actions::{ActionRequirement, Projectile},
     resources::{RenderInstructions, ResourceType},
     Action, ActionBlock,
     ActionEvent::*,
@@ -493,23 +493,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::StandThrowTarget,
-            Action::grounded(
-                None,
-                CancelCategory::Uncancellable,
-                vec![
-                    ActionBlock {
-                        events: vec![AnimationRequest {
-                            animation: MizkuAnimation::StandThrowTarget.into(),
-                            invert: true,
-                            ..default()
-                        }
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(20),
-                        ..default()
-                    },
-                    ActionBlock::throw_target(10, Vec2::new(2.0, 3.0)),
-                ],
-            ),
+            Action::throw_target(MizkuAnimation::StandThrowTarget, 20, 10, Vec2::ZERO),
         ),
         (
             MizkuActionId::CrouchThrow,
@@ -547,22 +531,11 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::CrouchThrowTarget,
-            Action::grounded(
-                None,
-                CancelCategory::Uncancellable,
-                vec![
-                    ActionBlock {
-                        events: vec![AnimationRequest {
-                            animation: MizkuAnimation::CrouchThrowTarget.into(),
-                            invert: true,
-                            ..default()
-                        }
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(20),
-                        ..default()
-                    },
-                    ActionBlock::throw_target(10, Vec2::new(-2.0, 3.0)),
-                ],
+            Action::throw_target(
+                MizkuAnimation::CrouchThrowTarget,
+                21,
+                10,
+                Vec2::new(-5.0, 2.0),
             ),
         ),
         (
@@ -601,23 +574,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::AirThrowTarget,
-            Action::airborne(
-                None,
-                CancelCategory::Uncancellable,
-                vec![
-                    ActionBlock::throw_target(10, Vec2::new(-2.0, 2.0)),
-                    ActionBlock {
-                        events: vec![AnimationRequest {
-                            animation: MizkuAnimation::AirThrowTarget.into(),
-                            invert: true,
-                            ..default()
-                        }
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(60),
-                        ..default()
-                    },
-                ],
-            ),
+            Action::throw_target(MizkuAnimation::AirThrowTarget, 3, 10, Vec2::new(-2.0, 2.0)),
         ),
     ]
     .into_iter()

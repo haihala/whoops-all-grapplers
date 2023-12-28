@@ -45,7 +45,7 @@ pub fn prep_player_gltf(
     for (entity, parent, name, instance, update_material) in &unloaded_instances {
         if scene_manager.instance_is_ready(**instance) {
             cmds.entity(entity).remove::<PlayerModelHook>();
-            dbg!("Scene is ready");
+            println!("Scene is ready");
             assign_joints(
                 name.cloned().unwrap_or_default().as_str(),
                 entity,
@@ -54,7 +54,7 @@ pub fn prep_player_gltf(
                 &children,
                 &names,
             );
-            dbg!("Joints are ready");
+            println!("Joints are ready");
         }
 
         // Iterate over all entities in scene (once it's loaded)

@@ -1,3 +1,5 @@
+use core::panic;
+
 use bevy::reflect::Reflect;
 use wag_core::ActionId;
 
@@ -79,6 +81,14 @@ impl CancelRule {
             return true;
         }
         false
+    }
+
+    pub fn cancel_out_of(category: CancelCategory) -> Self {
+        match category {
+            CancelCategory::Normal => Self::neutral_normal_recovery(),
+            CancelCategory::CommandNormal => Self::command_normal_recovery(),
+            _ => panic!("Cancels out of {:?} are not supported", category),
+        }
     }
 }
 

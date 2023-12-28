@@ -1,4 +1,5 @@
-use crate::{ActionEvent, ActionRequirement, CancelRule, Situation};
+use crate::{ActionEvent, ActionRequirement, CancelRule, FlashRequest, ResourceType, Situation};
+use bevy::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ActionBlock {
@@ -23,6 +24,21 @@ impl ActionBlock {
             mutator(self.clone(), situation)
         } else {
             self.clone()
+        }
+    }
+
+    pub fn throw_target(damage: i32, launch_impulse: Vec2) -> Self {
+        Self {
+            events: vec![
+                ActionEvent::ModifyResource(ResourceType::Health, -damage),
+                ActionEvent::Launch {
+                    // This may be broken, but it may have been fixed while
+                    // fixing flipping launch velocities
+                    impulse: launch_impulse,
+                },
+                ActionEvent::Flash(FlashRequest::hit_flash()),
+            ],
+            ..default()
         }
     }
 }

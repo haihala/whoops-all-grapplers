@@ -35,7 +35,7 @@ fn get_high_gi_parry() -> Action {
 fn parry_flash(parry_animation: Animation) -> Action {
     Action::new(
         None,
-        CancelCategory::Any,
+        CancelCategory::Uncancellable,
         vec![ActionBlock {
             events: vec![
                 parry_animation.into(),

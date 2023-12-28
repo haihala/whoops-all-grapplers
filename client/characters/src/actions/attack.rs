@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{ActionId, HIT_FLASH_COLOR};
+use wag_core::ActionId;
 
 use crate::{ActionEvent, FlashRequest, Movement, ResourceType, ToHit};
 
@@ -136,12 +136,7 @@ impl CommonAttackProps {
             ActionEvent::ModifyResource(ResourceType::Health, -self.damage),
             self.get_stun(false),
             Movement::impulse(-Vec2::X * self.knock_back * (1.0 - PUSH_RATIO)).into(),
-            ActionEvent::Flash(FlashRequest {
-                color: HIT_FLASH_COLOR,
-                depth: 1.0,
-                duration: 0.2,
-                ..default()
-            }),
+            ActionEvent::Flash(FlashRequest::hit_flash()),
         ]
     }
 

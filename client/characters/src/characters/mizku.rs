@@ -129,71 +129,49 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
     vec![
         (
             MizkuActionId::KneeThrust,
-            Action::grounded(
-                Some("f"),
-                CancelCategory::Normal,
-                vec![
-                    ActionBlock {
-                        events: vec![MizkuAnimation::KneeThrust.into()],
-                        exit_requirement: ContinuationRequirement::Time(5),
+            Action::ground_normal(
+                "f",
+                MizkuAnimation::KneeThrust,
+                5,
+                Attack::strike(
+                    ToHit {
+                        hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.35)),
+                        joint: Some(Joint::ShinL),
+                        lifetime: Lifetime::frames(5),
                         ..default()
                     },
-                    ActionBlock {
-                        events: vec![Attack::strike(
-                            ToHit {
-                                hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.35)),
-                                joint: Some(Joint::ShinL),
-                                lifetime: Lifetime::frames(5),
-                                ..default()
-                            },
-                            CommonAttackProps {
-                                damage: 5,
-                                on_hit: Stun(20),
-                                on_block: Stun(15),
-                                ..default()
-                            },
-                        )
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(17),
-                        cancel_policy: CancelRule::neutral_normal_recovery(),
-                        mutator: None,
+                    CommonAttackProps {
+                        damage: 5,
+                        on_hit: Stun(20),
+                        on_block: Stun(15),
+                        ..default()
                     },
-                ],
+                ),
+                17,
             ),
         ),
         (
             MizkuActionId::LowKick,
-            Action::grounded(
-                Some("[123]+f"),
-                CancelCategory::CommandNormal,
-                vec![
-                    ActionBlock {
-                        events: vec![MizkuAnimation::LowKick.into()],
-                        exit_requirement: ContinuationRequirement::Time(8),
+            Action::ground_normal(
+                "[123]+f",
+                MizkuAnimation::LowKick,
+                8,
+                Attack::strike(
+                    ToHit {
+                        hitbox: Hitbox(Area::new(-0.4, 0.0, 0.9, 0.2)),
+                        joint: Some(Joint::FootL),
+                        lifetime: Lifetime::frames(3),
+                        block_type: Strike(Low),
                         ..default()
                     },
-                    ActionBlock {
-                        events: vec![Attack::strike(
-                            ToHit {
-                                hitbox: Hitbox(Area::new(-0.4, 0.0, 0.9, 0.2)),
-                                joint: Some(Joint::FootL),
-                                lifetime: Lifetime::frames(3),
-                                block_type: Strike(Low),
-                                ..default()
-                            },
-                            CommonAttackProps {
-                                damage: 8,
-                                on_hit: Stun(21),
-                                on_block: Stun(11),
-                                ..default()
-                            },
-                        )
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(12),
-                        cancel_policy: CancelRule::command_normal_recovery(),
-                        mutator: None,
+                    CommonAttackProps {
+                        damage: 8,
+                        on_hit: Stun(21),
+                        on_block: Stun(11),
+                        ..default()
                     },
-                ],
+                ),
+                12,
             ),
         ),
         (
@@ -246,37 +224,26 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::Uppercut,
-            Action::grounded(
-                Some("[123]+s"),
-                CancelCategory::CommandNormal,
-                vec![
-                    ActionBlock {
-                        events: vec![MizkuAnimation::Uppercut.into()],
-                        exit_requirement: ContinuationRequirement::Time(8),
+            Action::ground_normal(
+                "[123]+s",
+                MizkuAnimation::Uppercut,
+                8,
+                Attack::strike(
+                    ToHit {
+                        hitbox: Hitbox(Area::of_size(0.3, 0.5)),
+                        joint: Some(Joint::HandR),
+                        lifetime: Lifetime::frames(8),
                         ..default()
                     },
-                    ActionBlock {
-                        events: vec![Attack::strike(
-                            ToHit {
-                                hitbox: Hitbox(Area::of_size(0.3, 0.5)),
-                                joint: Some(Joint::HandR),
-                                lifetime: Lifetime::frames(8),
-                                ..default()
-                            },
-                            CommonAttackProps {
-                                damage: 16,
-                                knock_back: 2.0,
-                                on_hit: Launcher(6.0),
-                                on_block: Stun(10),
-                                ..default()
-                            },
-                        )
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(20),
-                        cancel_policy: CancelRule::command_normal_recovery(),
-                        mutator: None,
+                    CommonAttackProps {
+                        damage: 16,
+                        knock_back: 2.0,
+                        on_hit: Launcher(6.0),
+                        on_block: Stun(10),
+                        ..default()
                     },
-                ],
+                ),
+                20,
             ),
         ),
         (
@@ -304,12 +271,11 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                         ..default()
                                     },
                                     CommonAttackProps {
-                                        damage: 12
-                                            + situation
-                                                .get_resource(ResourceType::Sharpness)
-                                                .unwrap()
-                                                .current
-                                                * 10,
+                                        damage: 5 + situation
+                                            .get_resource(ResourceType::Sharpness)
+                                            .unwrap()
+                                            .current
+                                            * 10,
                                         on_hit: Stun(40),
                                         on_block: Stun(30),
                                         ..default()
@@ -350,12 +316,11 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                         ..default()
                                     },
                                     CommonAttackProps {
-                                        damage: 10
-                                            + situation
-                                                .get_resource(ResourceType::Sharpness)
-                                                .unwrap()
-                                                .current
-                                                * 10,
+                                        damage: 3 + situation
+                                            .get_resource(ResourceType::Sharpness)
+                                            .unwrap()
+                                            .current
+                                            * 10,
                                         on_hit: Stun(55),
                                         on_block: Stun(25),
                                         ..default()
@@ -372,36 +337,24 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::FalconKnee,
-            Action::airborne(
-                Some("f"),
-                CancelCategory::Normal,
-                vec![
-                    ActionBlock {
-                        events: vec![MizkuAnimation::FalconKnee.into()],
-                        exit_requirement: ContinuationRequirement::Time(2),
+            Action::air_normal(
+                "f",
+                MizkuAnimation::FalconKnee,
+                2,
+                Attack::strike(
+                    ToHit {
+                        hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.25)),
+                        joint: Some(Joint::ShinR),
+                        lifetime: Lifetime::frames(5),
+                        block_type: Strike(High),
                         ..default()
                     },
-                    ActionBlock {
-                        // TODO: Add sweet and sour spots
-                        events: vec![Attack::strike(
-                            ToHit {
-                                hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.25)),
-                                joint: Some(Joint::ShinR),
-                                lifetime: Lifetime::frames(5),
-                                block_type: Strike(High),
-                                ..default()
-                            },
-                            CommonAttackProps {
-                                damage: 5,
-                                ..default()
-                            },
-                        )
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(23),
-                        cancel_policy: CancelRule::neutral_normal_recovery(),
-                        mutator: None,
+                    CommonAttackProps {
+                        damage: 5,
+                        ..default()
                     },
-                ],
+                ),
+                23,
             ),
         ),
         (
@@ -536,15 +489,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::StandThrowHit,
-            Action::grounded(
-                None,
-                CancelCategory::Uncancellable,
-                vec![ActionBlock {
-                    events: vec![MizkuAnimation::StandThrowHit.into()],
-                    exit_requirement: ContinuationRequirement::Time(20),
-                    ..default()
-                }],
-            ),
+            Action::throw_hit(MizkuAnimation::StandThrowHit, 20),
         ),
         (
             MizkuActionId::StandThrowTarget,
@@ -562,17 +507,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         exit_requirement: ContinuationRequirement::Time(20),
                         ..default()
                     },
-                    ActionBlock {
-                        events: vec![
-                            ModifyResource(ResourceType::Health, -10),
-                            Launch {
-                                // This may be broken, but it may have been fixed while
-                                // fixing flipping launch velocities
-                                impulse: Vec2::new(2.0, 3.0),
-                            },
-                        ],
-                        ..default()
-                    },
+                    ActionBlock::throw_target(10, Vec2::new(2.0, 3.0)),
                 ],
             ),
         ),
@@ -608,15 +543,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::CrouchThrowHit,
-            Action::grounded(
-                None,
-                CancelCategory::Uncancellable,
-                vec![ActionBlock {
-                    events: vec![MizkuAnimation::CrouchThrowHit.into()],
-                    exit_requirement: ContinuationRequirement::Time(65),
-                    ..default()
-                }],
-            ),
+            Action::throw_hit(MizkuAnimation::CrouchThrowHit, 65),
         ),
         (
             MizkuActionId::CrouchThrowTarget,
@@ -634,17 +561,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         exit_requirement: ContinuationRequirement::Time(20),
                         ..default()
                     },
-                    ActionBlock {
-                        events: vec![
-                            ModifyResource(ResourceType::Health, -10),
-                            Launch {
-                                // This may be broken, but it may have been fixed while
-                                // fixing flipping launch velocities
-                                impulse: Vec2::new(-2.0, 3.0),
-                            },
-                        ],
-                        ..default()
-                    },
+                    ActionBlock::throw_target(10, Vec2::new(-2.0, 3.0)),
                 ],
             ),
         ),
@@ -680,37 +597,26 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::AirThrowHit,
-            Action::airborne(
-                None,
-                CancelCategory::Uncancellable,
-                vec![ActionBlock {
-                    events: vec![MizkuAnimation::AirThrowHit.into()],
-                    exit_requirement: ContinuationRequirement::Time(30),
-                    ..default()
-                }],
-            ),
+            Action::throw_hit(MizkuAnimation::AirThrowHit, 30),
         ),
         (
             MizkuActionId::AirThrowTarget,
             Action::airborne(
                 None,
                 CancelCategory::Uncancellable,
-                vec![ActionBlock {
-                    events: vec![
-                        AnimationRequest {
+                vec![
+                    ActionBlock::throw_target(10, Vec2::new(-2.0, 2.0)),
+                    ActionBlock {
+                        events: vec![AnimationRequest {
                             animation: MizkuAnimation::AirThrowTarget.into(),
                             invert: true,
                             ..default()
                         }
-                        .into(),
-                        ModifyResource(ResourceType::Health, -10),
-                        Launch {
-                            impulse: Vec2::new(-2.0, 2.0),
-                        },
-                    ],
-                    exit_requirement: ContinuationRequirement::Time(60),
-                    ..default()
-                }],
+                        .into()],
+                        exit_requirement: ContinuationRequirement::Time(60),
+                        ..default()
+                    },
+                ],
             ),
         ),
     ]
@@ -976,7 +882,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::ShortSwayDash,
             Action::new(
                 Some("s"),
-                CancelCategory::Specific(vec![ActionId::Mizku(MizkuActionId::ShortBackSway)]),
+                CancelCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::SwayDash.into(), ClearMovement],
@@ -1032,7 +938,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::LongSwayDash,
             Action::new(
                 Some("f"),
-                CancelCategory::Specific(vec![ActionId::Mizku(MizkuActionId::LongBackSway)]),
+                CancelCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::SwayDash.into(), ClearMovement],
@@ -1090,11 +996,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::SwayCancel,
             Action::new(
                 Some("g"),
-                CancelCategory::Specific(vec![
-                    ActionId::Mizku(MizkuActionId::LongBackSway),
-                    ActionId::Mizku(MizkuActionId::LongSwayDash), // Long backdash can be cancelled, short cannot
-                    ActionId::Mizku(MizkuActionId::ShortBackSway),
-                ]),
+                CancelCategory::Special,
                 vec![ActionBlock {
                     events: vec![MizkuAnimation::SwayCancel.into()],
                     exit_requirement: ContinuationRequirement::Time(10),
@@ -1111,10 +1013,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::SwayOverhead,
             Action::new(
                 Some("6+w"),
-                CancelCategory::Specific(vec![
-                    ActionId::Mizku(MizkuActionId::LongSwayDash),
-                    ActionId::Mizku(MizkuActionId::ShortSwayDash),
-                ]),
+                CancelCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::SwayOverhead.into()],
@@ -1152,10 +1051,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::SwayLow,
             Action::new(
                 Some("[123]+w"),
-                CancelCategory::Specific(vec![
-                    ActionId::Mizku(MizkuActionId::LongSwayDash),
-                    ActionId::Mizku(MizkuActionId::ShortSwayDash),
-                ]),
+                CancelCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::SwayLow.into()],
@@ -1200,10 +1096,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::Pilebunker,
             Action::new(
                 Some("w"),
-                CancelCategory::Specific(vec![
-                    ActionId::Mizku(MizkuActionId::LongSwayDash),
-                    ActionId::Mizku(MizkuActionId::ShortSwayDash),
-                ]),
+                CancelCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::Pilebunker.into()],

@@ -1,6 +1,9 @@
+use bevy::prelude::*;
 use wag_core::Animation;
 
-use crate::{ActionBlock, ActionRequirement, CancelCategory, CancelRule, ContinuationRequirement};
+use crate::{
+    ActionBlock, ActionRequirement, Attack, CancelCategory, CancelRule, ContinuationRequirement,
+};
 
 #[derive(Clone)]
 pub struct Action {
@@ -47,6 +50,87 @@ impl Action {
             cancel_category,
             script,
             vec![ActionRequirement::Airborne],
+        )
+    }
+
+    pub fn throw_hit(animation: impl Into<Animation>, duration: usize) -> Self {
+        Action::new(
+            None,
+            CancelCategory::Uncancellable,
+            vec![ActionBlock {
+                events: vec![animation.into().into()],
+                exit_requirement: ContinuationRequirement::Time(duration),
+                ..default()
+            }],
+            vec![],
+        )
+    }
+
+    pub fn ground_normal(
+        input: &'static str,
+        animation: impl Into<Animation>,
+        startup: usize,
+        attack: Attack,
+        recovery: usize,
+    ) -> Self {
+        Self::normal(
+            vec![ActionRequirement::Grounded],
+            input,
+            animation,
+            startup,
+            attack,
+            recovery,
+        )
+    }
+
+    pub fn air_normal(
+        input: &'static str,
+        animation: impl Into<Animation>,
+        startup: usize,
+        attack: Attack,
+        recovery: usize,
+    ) -> Self {
+        Self::normal(
+            vec![ActionRequirement::Airborne],
+            input,
+            animation,
+            startup,
+            attack,
+            recovery,
+        )
+    }
+
+    pub fn normal(
+        requirements: Vec<ActionRequirement>,
+        input: &'static str,
+        animation: impl Into<Animation>,
+        startup: usize,
+        attack: Attack,
+        recovery: usize,
+    ) -> Self {
+        let cancel_type = if input.len() == 1 {
+            CancelCategory::Normal
+        } else {
+            CancelCategory::CommandNormal
+        };
+
+        Action::new(
+            Some(input),
+            cancel_type.clone(),
+            vec![
+                ActionBlock {
+                    events: vec![animation.into().into()],
+                    exit_requirement: ContinuationRequirement::Time(startup),
+                    ..default()
+                },
+                ActionBlock {
+                    events: vec![attack.into()],
+                    exit_requirement: ContinuationRequirement::Time(recovery),
+                    cancel_policy: CancelRule::cancel_out_of(cancel_type),
+                    mutator: None,
+                },
+            ],
+            requirements,
         )
     }
 }

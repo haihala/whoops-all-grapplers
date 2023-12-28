@@ -93,7 +93,6 @@ pub enum MizkuAnimation {
     SwayLow,
     SwayOverhead,
     Pilebunker,
-    Sweep,
     #[default]
     TPose,
     Uppercut,
@@ -101,6 +100,9 @@ pub enum MizkuAnimation {
     GrisingSun,
     WalkBack,
     WalkForward,
+
+    // Legacy, unused, here to ensure animation loading works as they are still in the gltf
+    Sweep,
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect)]

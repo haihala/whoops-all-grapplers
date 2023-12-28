@@ -86,7 +86,6 @@ pub enum MizkuActionId {
     AirThrow,
     AirThrowHit,
     AirThrowTarget,
-    Sweep,
     ForwardThrow,
     BackThrow,
     StandThrowHit,

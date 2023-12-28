@@ -12,6 +12,7 @@ pub struct Attack {
     pub target_on_block: Vec<ActionEvent>,
 }
 
+// How much of push distance should be applied to attacker
 const PUSH_RATIO: f32 = 1.0 / 4.0;
 
 impl Default for Attack {
@@ -106,8 +107,8 @@ impl Default for CommonAttackProps {
     fn default() -> Self {
         Self {
             damage: 5,
-            knock_back: 5.0,
-            push_back: 3.0,
+            knock_back: 3.0,
+            push_back: 5.0,
             on_hit: StunType::Stun(20),
             on_block: StunType::Stun(10),
         }
@@ -117,16 +118,15 @@ impl Default for CommonAttackProps {
 impl CommonAttackProps {
     pub fn self_on_hit(self) -> Vec<ActionEvent> {
         vec![
-            Movement::impulse(-Vec2::X * self.knock_back + PUSH_RATIO).into(),
-            ActionEvent::CameraTilt(Vec2::X * self.push_back * 0.008),
+            ActionEvent::CameraTilt(Vec2::X * 0.02),
             ActionEvent::CameraShake,
             ActionEvent::Hitstop,
         ]
     }
     pub fn self_on_block(self) -> Vec<ActionEvent> {
         vec![
-            Movement::impulse(-Vec2::X * self.push_back * (1.0 - PUSH_RATIO)).into(),
-            ActionEvent::CameraTilt(-Vec2::X * self.push_back * 0.005),
+            Movement::impulse(-Vec2::X * self.push_back * PUSH_RATIO).into(),
+            ActionEvent::CameraTilt(-Vec2::X * 0.01),
             ActionEvent::Hitstop,
         ]
     }
@@ -135,7 +135,7 @@ impl CommonAttackProps {
         vec![
             ActionEvent::ModifyResource(ResourceType::Health, -self.damage),
             self.get_stun(false),
-            Movement::impulse(-Vec2::X * self.knock_back * (1.0 - PUSH_RATIO)).into(),
+            Movement::impulse(-Vec2::X * self.knock_back).into(),
             ActionEvent::Flash(FlashRequest::hit_flash()),
         ]
     }
@@ -144,7 +144,7 @@ impl CommonAttackProps {
         vec![
             ActionEvent::ModifyResource(ResourceType::Health, -1), // Chip
             self.get_stun(true),
-            Movement::impulse(-Vec2::X * self.push_back * PUSH_RATIO).into(),
+            Movement::impulse(-Vec2::X * self.push_back * (1.0 - PUSH_RATIO)).into(),
         ]
     }
 

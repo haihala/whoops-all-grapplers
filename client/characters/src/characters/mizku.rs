@@ -237,7 +237,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     },
                     CommonAttackProps {
                         damage: 16,
-                        knock_back: 2.0,
+                        knock_back: 4.0,
                         on_hit: Launcher(6.0),
                         on_block: Stun(10),
                         ..default()

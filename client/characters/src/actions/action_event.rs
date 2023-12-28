@@ -33,8 +33,8 @@ pub enum ActionEvent {
     CameraTilt(Vec2),
     CameraShake, // TODO: Add strength
     Flash(FlashRequest),
-    Lock(usize),
-    Noop, // makes writing macros easier
+    Lock((usize, bool)), // duration, sideswitch
+    Noop,                // makes writing macros easier
 }
 impl ActionEvent {
     pub fn add_offset(self, offset: usize) -> ActionEvent {

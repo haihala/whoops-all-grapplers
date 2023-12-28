@@ -14,7 +14,7 @@ enum MainState {
     Stand(StandState),
     Crouch(CrouchState),
     Ground(usize),
-    Locked(usize),
+    Locked((usize, bool)),
 }
 
 #[derive(Component, Debug, Clone)]
@@ -293,21 +293,21 @@ impl PlayerState {
             None
         }
     }
-    pub fn unlock_frame(&self) -> Option<usize> {
-        if let MainState::Locked(end_frame) = self.main {
-            Some(end_frame)
+    pub fn unlock_frame(&self) -> Option<(usize, bool)> {
+        if let MainState::Locked(lock) = self.main {
+            Some(lock)
         } else {
             None
         }
     }
-    pub fn lock(&mut self, frame: usize) {
-        self.main = MainState::Locked(frame);
+    pub fn lock(&mut self, frame: usize, sideswitch: bool) {
+        self.main = MainState::Locked((frame, sideswitch));
     }
     pub fn unlock(&mut self, airborne: bool) {
         self.main = match self.main {
             // At the moment, locking is only used for throws
             // Later on it could be used for supers and the likes
-            MainState::Locked(frame) => {
+            MainState::Locked((frame, _)) => {
                 if airborne {
                     MainState::Air(AirState::Freefall)
                 } else {

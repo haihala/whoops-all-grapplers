@@ -6,7 +6,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use characters::{ActionEvent, FlashRequest, Hitbox, Hurtbox, Inventory};
 use player_state::PlayerState;
 use wag_core::{
-    Clock, GameState, Joints, Player, SoundEffect, Stats, WAGStage, GI_PARRY_FLASH_COLOR,
+    Clock, Facing, GameState, Joints, Player, SoundEffect, Stats, WAGStage, GI_PARRY_FLASH_COLOR,
 };
 
 use crate::{
@@ -34,6 +34,7 @@ impl Plugin for DevPlugin {
             .register_type::<MoveBuffer>()
             .register_type::<Inventory>()
             .register_type::<Joints>()
+            .register_type::<Facing>()
             .register_type::<Stats>()
             .add_systems(Startup, setup)
             .add_systems(

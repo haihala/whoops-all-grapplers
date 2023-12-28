@@ -493,7 +493,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::StandThrowTarget,
-            Action::throw_target(MizkuAnimation::StandThrowTarget, 20, 10, Vec2::ZERO),
+            Action::throw_target(MizkuAnimation::StandThrowTarget, 30, false, 10, Vec2::ZERO),
         ),
         (
             MizkuActionId::CrouchThrow,
@@ -534,6 +534,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             Action::throw_target(
                 MizkuAnimation::CrouchThrowTarget,
                 21,
+                true,
                 10,
                 Vec2::new(-5.0, 2.0),
             ),
@@ -574,7 +575,14 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::AirThrowTarget,
-            Action::throw_target(MizkuAnimation::AirThrowTarget, 3, 10, Vec2::new(-2.0, 2.0)),
+            Action::throw_target_with_split_duration(
+                MizkuAnimation::AirThrowTarget,
+                3,
+                false,
+                50,
+                10,
+                Vec2::new(-2.0, 2.0),
+            ),
         ),
     ]
     .into_iter()

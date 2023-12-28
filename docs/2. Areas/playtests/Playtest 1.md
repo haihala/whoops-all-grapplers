@@ -53,7 +53,6 @@ Ideas for non-obvious fixes:
     - Core part of defense is jumping lows and ducking highs
 
 Still actionable:
-- Make a crouching throw
 - Make short hop into a fast fall
 - Fix superjump
 - Make superjump and short hop into item upgrades

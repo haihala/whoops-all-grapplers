@@ -70,6 +70,25 @@ impl Action {
     pub fn throw_target(
         animation: impl Into<Animation>,
         duration: usize,
+        sideswitch: bool,
+        damage: i32,
+        launch_impulse: Vec2,
+    ) -> Self {
+        Self::throw_target_with_split_duration(
+            animation,
+            duration,
+            sideswitch,
+            duration,
+            damage,
+            launch_impulse,
+        )
+    }
+
+    pub fn throw_target_with_split_duration(
+        animation: impl Into<Animation>,
+        lock_duration: usize,
+        lock_sideswitch: bool,
+        animtion_duration: usize,
         damage: i32,
         launch_impulse: Vec2,
     ) -> Self {
@@ -93,15 +112,14 @@ impl Action {
                     },
                     ActionEvent::Flash(FlashRequest::hit_flash()),
                     ActionEvent::Hitstop,
-                    ActionEvent::Lock(duration),
+                    ActionEvent::Lock((lock_duration, lock_sideswitch)),
                 ],
-                exit_requirement: ContinuationRequirement::Time(duration),
+                exit_requirement: ContinuationRequirement::Time(animtion_duration),
                 ..default()
             }],
             vec![],
         )
     }
-
     pub fn ground_normal(
         input: &'static str,
         animation: impl Into<Animation>,

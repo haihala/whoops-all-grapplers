@@ -247,12 +247,27 @@ pub(super) fn detect_hits(
 pub(super) fn apply_hits(
     In(hits): In<Vec<Hit>>,
     mut commands: Commands,
+    mut notifications: ResMut<Notifications>,
     combo: Option<Res<Combo>>,
     clock: Res<Clock>,
     mut players: Query<HitPlayerQuery>,
     mut sounds: ResMut<Sounds>,
     mut particles: ResMut<Particles>,
 ) {
+    if hits.len() == 2 {
+        // TODO: Handle strike and throw clash
+        if hits.iter().all(|hit| hit.hit_type == HitType::Throw) {
+            // Two grabs can't hit on the same frame
+            for mut player in &mut players {
+                player
+                    .velocity
+                    .add_impulse(player.facing.mirror_vec2(Vec2::X * -10.0));
+                notifications.add(*player.player, "Throw clash".to_owned());
+            }
+        }
+        return;
+    }
+
     for hit in hits {
         let [mut attacker, mut defender] =
             players.get_many_mut([hit.attacker, hit.defender]).unwrap();

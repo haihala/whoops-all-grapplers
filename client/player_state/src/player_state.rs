@@ -117,13 +117,12 @@ impl PlayerState {
         self.add_actions(initial_events.collect());
         let tracker = ActionTracker::new(action_id, action, start_frame);
 
-        self.main = match self.main {
+        self.main = match &self.main {
             MainState::Stand(_) => MainState::Stand(StandState::Move(tracker)),
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Move(tracker)),
             MainState::Air(_) => MainState::Air(AirState::Move(tracker)),
             // TODO: crashes during playtest
-            MainState::Ground(_) => panic!("Starting a move on the ground"),
-            MainState::Locked(_) => panic!("Starting a move while lockedq"),
+            other => panic!("Starting a move while {:?}", other),
         };
         self.free_since = None;
     }

@@ -7,9 +7,9 @@ use characters::{
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{ActionId, Clock, Player, Stats};
+use wag_core::{ActionId, Clock, Facing, Player, Stats};
 
-use crate::{damage::Combo, ui::Notifications};
+use crate::{damage::Combo, physics::PlayerVelocity, ui::Notifications};
 
 #[derive(Debug, Default, Reflect)]
 pub(super) struct MoveActivation {
@@ -187,9 +187,18 @@ pub(super) fn manage_buffer(
         parser.clear();
     }
 }
-pub(super) fn automatic_activation(mut query: Query<(&mut MoveBuffer, &mut PlayerState)>) {
+pub(super) fn automatic_activation(
+    mut notifications: ResMut<Notifications>,
+    mut query: Query<(
+        &mut MoveBuffer,
+        &mut PlayerState,
+        &mut PlayerVelocity,
+        &Player,
+        &Facing,
+    )>,
+) {
     // Read from state, set activating move if an Action demands it
-    for (mut buffer, mut state) in &mut query {
+    for (mut buffer, mut state, mut velocity, player, facing) in &mut query {
         let move_continuations = state.drain_matching_actions(|action| {
             if let ActionEvent::StartAction(move_id) = action {
                 Some(*move_id)
@@ -209,9 +218,9 @@ pub(super) fn automatic_activation(mut query: Query<(&mut MoveBuffer, &mut Playe
                 // Nothing to do, so do nothing
             }
             _ => {
-                todo!("Multiple moves to continue")
                 // This may happen if follow up and grab land on the same frame
-                // Currently there are no follow ups that use the event so it's fine
+                velocity.add_impulse(facing.mirror_vec2(Vec2::X * -10.0));
+                notifications.add(*player, "Throw clash".to_owned());
             }
         }
     }
@@ -335,13 +344,13 @@ pub(super) fn move_activator(
     for (mut buffer, mut state, mut properties, player, character, stats, inventory, parser) in
         &mut query
     {
-        if state.unlock_frame().is_some() {
-            continue;
-        }
-
         let Some(activation) = buffer.activation.take() else {
             continue;
         };
+
+        if state.unlock_frame().is_some() || state.free_since.is_none() {
+            continue;
+        }
 
         let start_frame = match activation.kind {
             ActivationType::Link(link) => {

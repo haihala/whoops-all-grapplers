@@ -24,10 +24,11 @@ impl Plugin for DamagePlugin {
                 hitboxes::spawn_new_hitboxes,
                 hitreg::clash_parry,
                 hitreg::detect_hits.pipe(hitreg::apply_hits),
+                hitboxes::handle_despawn_flags,
+                hitboxes::despawn_marked,
                 hitreg::stun_actions,
                 hitreg::snap_and_switch,
                 defense::timeout_defense_streak,
-                hitboxes::handle_despawn_flags,
                 hitboxes::update_followers,
             )
                 .chain()
@@ -40,8 +41,6 @@ impl Plugin for DamagePlugin {
                 hitstop::handle_hitstop_events.after(WAGStage::PlayerUpdates),
             ),
         )
-        // This may run at the wrong point, should happen after all systems that apply marks run
-        .add_systems(Update, hitboxes::despawn_marked.after(WAGStage::HitReg))
         .add_systems(OnExit(GameState::Combat), hitboxes::despawn_everything);
     }
 }

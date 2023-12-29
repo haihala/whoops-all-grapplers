@@ -648,7 +648,7 @@ macro_rules! rising_sun {
                                 events.push(Condition(StatusCondition {
                                     flag: StatusFlag::Intangible,
                                     effect: None,
-                                    expiration: Some(12),
+                                    expiration: Some(20),
                                 }));
                             }
 

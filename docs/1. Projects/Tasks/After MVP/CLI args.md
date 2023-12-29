@@ -1,3 +1,0 @@
-- [x] Dev systems enabled
-- [x] Character selection
-- [ ] Start in a mode (ignore [[Menus]] and get straight into testing)

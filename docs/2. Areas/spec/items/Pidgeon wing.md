@@ -1,0 +1,3 @@
+Universal upgrade from two [[Feather]]s
+
+Allows you to double jump

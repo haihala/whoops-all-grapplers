@@ -1,9 +1,0 @@
-- [ ] Four characters:
-	- [ ] [[Lex]]
-	- [ ] [[Ryan]]
-	- [ ] CPU as a villain
-	- [ ] Big brain big body
-- [ ] Training mode
-- [ ] Learning resources
-- [ ] Keyboard support
-- [ ] Analytics

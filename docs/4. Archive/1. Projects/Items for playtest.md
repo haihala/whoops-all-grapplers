@@ -1,15 +1,14 @@
 - [x] Check / remove existing items that don't make sense
 - [x] Universal items architecture
 - [x] Mechanism to auto-consume items at round start(or end) that need it.
-- [ ] Add
+- [x] Add
 	- [x] [[Pre-workout]]
 	- [x] [[Goalee gear]]
 	- [x] [[Dumbbell]]
 	- [x] [[Can of red paint]]
-	- [ ] [[Travel whetstone]]
 	- [x] [[Pack of cigs]]
-		- [ ] [[Gentleman's pipe]]
-	- [x] [[Eagle feather]]
+		- [x] [[Gentleman's pipe]]
+	- [x] [[Feather]]
 		- [x] [[Winged boots]]
 	- [x] [[Stopwatch]]
 		- [x] [[Track spikes]]

@@ -782,7 +782,16 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             ActionId::Mizku(MizkuActionId::SwayCancel),
                         ]),
                         exit_requirement: ContinuationRequirement::Time(3),
-                        ..default()
+                        mutator: Some(|mut original: ActionBlock, situation: &Situation| {
+                            if situation.inventory.contains(&ItemId::GentlemansPipe) {
+                                original.events.push(Condition(StatusCondition {
+                                    flag: StatusFlag::Intangible,
+                                    effect: None,
+                                    expiration: Some(20),
+                                }));
+                            }
+                            original
+                        }),
                     },
                     ActionBlock {
                         events: vec![Movement {
@@ -825,7 +834,16 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             ActionId::Mizku(MizkuActionId::SwayCancel),
                         ]),
                         exit_requirement: ContinuationRequirement::Time(3),
-                        ..default()
+                        mutator: Some(|mut original: ActionBlock, situation: &Situation| {
+                            if situation.inventory.contains(&ItemId::GentlemansPipe) {
+                                original.events.push(Condition(StatusCondition {
+                                    flag: StatusFlag::Intangible,
+                                    effect: None,
+                                    expiration: Some(30),
+                                }));
+                            }
+                            original
+                        }),
                     },
                     ActionBlock {
                         events: vec![Movement {
@@ -1230,6 +1248,15 @@ fn mizku_items() -> HashMap<ItemId, Item> {
                 cost: 300,
                 explanation: "6s for an overhead".into(),
                 category: ItemCategory::Upgrade(vec![ItemId::SafetyBoots, ItemId::HockeyPads]),
+                ..default()
+            },
+        ),
+        (
+            ItemId::GentlemansPipe,
+            Item {
+                cost: 300,
+                explanation: "Intangibility in sway".into(),
+                category: ItemCategory::Upgrade(vec![ItemId::Cigarettes]),
                 ..default()
             },
         ),

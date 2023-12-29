@@ -166,7 +166,6 @@ Item ideas:
 
 # Items
 - [[Kunai]]
-- [[Travel whetstone]]
 - [[Gentleman's pipe]]
 - [[Space suit boots]]
 

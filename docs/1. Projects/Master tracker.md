@@ -1,7 +1,6 @@
 # Backlog
 ## Before playtest
 Nice to have:
-- [[Items for playtest]]
 - Hurtbox padding and adjustments
 - Upgrades only show things you have the parts for to reduce bloat
 	- Or maybe sort more intelligently, something like

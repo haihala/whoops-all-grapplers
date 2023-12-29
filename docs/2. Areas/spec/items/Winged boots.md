@@ -1,2 +1,2 @@
-- Universal upgrade from [[Boots]] and [[Eagle feather]]
-- Gives the user a double jump
+- Universal upgrade from [[Boots]] and [[Feather]]
+- Gives the user a superjump

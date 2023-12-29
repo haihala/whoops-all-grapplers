@@ -1,4 +1,3 @@
-- Exiting the shop without dev binds
 - UI looks ugly AF
 	- Icons
 	- Colors

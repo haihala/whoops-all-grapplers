@@ -66,8 +66,8 @@ impl LinkPrecision {
 
     fn meter_gain(&self) -> Option<i32> {
         match self {
-            LinkPrecision::Perfect => Some(30),
-            LinkPrecision::Good(_) => Some(10),
+            LinkPrecision::Perfect => Some(3),
+            LinkPrecision::Good(_) => Some(1),
             LinkPrecision::Fine(_) => None,
         }
     }
@@ -361,7 +361,7 @@ pub(super) fn move_activator(
                         properties
                             .get_mut(ResourceType::Meter)
                             .unwrap()
-                            .gain((meter_gain as f32 * stats.link_bonus_multiplier) as i32);
+                            .gain(meter_gain * stats.link_bonus);
                     }
                 }
 

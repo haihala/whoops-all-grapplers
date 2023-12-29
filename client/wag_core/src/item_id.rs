@@ -11,6 +11,7 @@ pub enum ItemId {
     HockeyPads,
     RedPaint,
     Stopwatch,
+    Crowbar,
     Dumbbell,
     Feather,
     Cigarettes,

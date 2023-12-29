@@ -142,10 +142,24 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::Stopwatch,
             Item {
-                cost: 400,
-                explanation: "Increased link timing meter gain\n\nNot my tempo!".into(),
+                cost: 200,
+                explanation: "Gain meter for timing links well\n\nNot my tempo!".into(),
                 effect: Stats {
-                    link_bonus_multiplier: 1.1,
+                    link_bonus: 5,
+                    ..Stats::identity()
+                },
+                ..default()
+            },
+        ),
+        (
+            ItemId::Crowbar,
+            Item {
+                cost: 300,
+                explanation: "Gain bonus stun frames, meter gain and damage on the opening hit of a combo\n\nBlock this whack ass mixup".into(),
+                effect: Stats {
+                    opener_damage_multiplier: 1.5,
+                    opener_meter_gain: 10,
+                    opener_stun_frames: 5,
                     ..Stats::identity()
                 },
                 ..default()

@@ -23,7 +23,7 @@ pub struct Stats {
 
     // Actions
     pub action_speed_multiplier: f32,
-    pub link_bonus_multiplier: f32,
+    pub link_bonus: i32,
 }
 
 impl Default for Stats {
@@ -31,9 +31,6 @@ impl Default for Stats {
         Self {
             walk_speed: 3.0,
             max_health: 250,
-            opener_damage_multiplier: 1.5,
-            opener_meter_gain: 15,
-            opener_stun_frames: 5,
             ..Self::identity()
         }
     }
@@ -61,7 +58,7 @@ impl Stats {
             opener_stun_frames: 0,
 
             action_speed_multiplier: 1.0,
-            link_bonus_multiplier: 1.0,
+            link_bonus: 0,
         }
     }
 
@@ -82,7 +79,7 @@ impl Stats {
         self.opener_stun_frames += rhs.opener_stun_frames;
 
         self.action_speed_multiplier *= rhs.action_speed_multiplier;
-        self.link_bonus_multiplier *= rhs.link_bonus_multiplier;
+        self.link_bonus += rhs.link_bonus;
 
         self
     }

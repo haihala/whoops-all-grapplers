@@ -1220,7 +1220,7 @@ fn mizku_items() -> HashMap<ItemId, Item> {
         (
             ItemId::SteelHeelBoots,
             Item {
-                cost: 100,
+                cost: 300,
                 explanation: "6s for an overhead".into(),
                 category: ItemCategory::Upgrade(vec![ItemId::SafetyBoots, ItemId::HockeyPads]),
                 ..default()
@@ -1231,7 +1231,7 @@ fn mizku_items() -> HashMap<ItemId, Item> {
             Item {
                 category: ItemCategory::Upgrade(vec![ItemId::Boots, ItemId::Dumbbell]),
                 explanation: "Makes j.h launch on hit\n\nAnd we have liftoff".into(),
-                cost: 100,
+                cost: 800,
                 ..default()
             },
         ),

@@ -98,7 +98,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::Gi,
             Item {
-                cost: 100,
+                cost: 300,
                 explanation: "Tap forward to parry\n\nLesgo justin".into(),
                 ..default()
             },
@@ -106,7 +106,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::Boots,
             Item {
-                cost: 80,
+                cost: 260,
                 explanation: "Bonus walk speed".into(),
                 effect: Stats {
                     walk_speed: 0.1,
@@ -118,7 +118,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::HockeyPads,
             Item {
-                cost: 50,
+                cost: 150,
                 explanation: "Bonus max health\n\nI am wearing hockey pads".into(),
                 effect: Stats {
                     max_health: 20,
@@ -130,7 +130,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::RedPaint,
             Item {
-                cost: 500,
+                cost: 1200,
                 explanation: "Increased animation speed\n\nBecause red makes you go fastah".into(),
                 effect: Stats {
                     action_speed_multiplier: 1.1,
@@ -142,7 +142,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::Stopwatch,
             Item {
-                cost: 150,
+                cost: 400,
                 explanation: "Increased link timing meter gain\n\nNot my tempo!".into(),
                 effect: Stats {
                     link_bonus_multiplier: 1.1,
@@ -154,7 +154,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::Dumbbell,
             Item {
-                cost: 120,
+                cost: 350,
                 explanation: "Makes you ever so slightly heavier\n\nNot for training purposes"
                     .into(),
                 effect: Stats {
@@ -167,7 +167,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::Feather,
             Item {
-                cost: 70,
+                cost: 320,
                 explanation: "Makes you jump slightly higher\n\nBoing".into(),
                 effect: Stats {
                     jump_force_multiplier: 1.02,
@@ -179,7 +179,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::Cigarettes,
             Item {
-                cost: 300,
+                cost: 700,
                 explanation: "Makes you intangible for the first few frames of your backdash\n\nDissapear in a puff".into(),
                 effect: Stats {
                     backdash_invuln: 3,
@@ -193,7 +193,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             Item {
                 category: Basic,
                 explanation: "+1 damage to all hits\n\nOuch".into(),
-                cost: 50,
+                cost: 100,
                 effect: Stats {
                     flat_damage: 1,
                     ..Stats::identity()
@@ -206,7 +206,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             Item {
                 category: Upgrade(vec![ItemId::Boots, ItemId::HockeyPads]),
                 explanation: "Speed and health!\n\nSafe and fashionable".into(),
-                cost: 100,
+                cost: 200,
                 ..default()
             },
         ),
@@ -215,7 +215,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             Item {
                 category: Upgrade(vec![ItemId::Boots, ItemId::Stopwatch]),
                 explanation: "Allows you to cancel normals into a dash\n\nNow with Fast Action Disruption Compatible soles".into(),
-                cost: 100,
+                cost: 500,
                 ..default()
             },
         ),
@@ -224,7 +224,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             Item {
                 category: Upgrade(vec![ItemId::Boots, ItemId::Feather]),
                 explanation: "Allows you to jump from crouch to super jump\n\nLike Hermes.".into(),
-                cost: 100,
+                cost: 400,
                 ..default()
             },
         ),
@@ -233,7 +233,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             Item {
                 category: Upgrade(vec![ItemId::Feather, ItemId::Feather]),
                 explanation: "Allows you to double jump\n\nPidgeon flap!".into(),
-                cost: 100,
+                cost: 700,
                 ..default()
             },
         ),        (
@@ -241,7 +241,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             Item {
                 category: Upgrade(vec![ItemId::Feather, ItemId::Dumbbell]),
                 explanation: "Allows you to tap down to fast fall\n\nHiyaa!".into(),
-                cost: 100,
+                cost: 1300,
                 ..default()
             },
         ),
@@ -252,7 +252,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation:
                     "Increases health and removes chip damage on block\n\nI'm fucking <title card>!"
                         .into(),
-                cost: 100,
+                cost: 300,
                 effect: Stats {
                     chip_damage: false,
                     ..Stats::identity()
@@ -270,7 +270,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     "+{} damage to all hits\n\nExponential growth is fun!",
                     usize::pow(2, (id - 1) as u32)
                 ),
-                cost: 10*id,
+                cost: 10*(id-1),
                 ..default()
             },
         )

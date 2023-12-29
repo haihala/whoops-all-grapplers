@@ -53,5 +53,4 @@ Ideas for non-obvious fixes:
     - Core part of defense is jumping lows and ducking highs
 
 Still actionable:
-- Make shit more expensive
-
+Nothing!

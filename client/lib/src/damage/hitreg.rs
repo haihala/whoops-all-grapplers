@@ -244,7 +244,7 @@ pub(super) fn detect_hits(
 }
 
 pub(super) fn apply_connections(
-    In(hits): In<Vec<AttackConnection>>,
+    In(mut hits): In<Vec<AttackConnection>>,
     mut commands: Commands,
     mut notifications: ResMut<Notifications>,
     combo: Option<Res<Combo>>,
@@ -253,10 +253,7 @@ pub(super) fn apply_connections(
     mut sounds: ResMut<Sounds>,
     mut particles: ResMut<Particles>,
 ) {
-    if hits.len() == 2 {
-        // TODO: Handle strike and throw clash
-        // Ideally, one should be strike invincible while throw animation is active
-        // In a throw vs strike situation, the winner ought to be consistent.
+    if hits.len() >= 2 {
         if hits
             .iter()
             .all(|hit| hit.contact_type == ConnectionType::Throw)
@@ -271,7 +268,6 @@ pub(super) fn apply_connections(
 
             particles.spawn(ParticleRequest {
                 effect: VisualEffect::Clash,
-                // TODO: This can be refined more
                 position: hits
                     .iter()
                     .map(|hit| hit.overlap.center())
@@ -282,8 +278,14 @@ pub(super) fn apply_connections(
             });
 
             sounds.play(SoundEffect::Whoosh); // TODO change sound effect
+            return;
+        } else if hits
+            .iter()
+            .any(|hit| hit.contact_type == ConnectionType::Throw)
+        {
+            // On a same frame connect, grab beats strike
+            hits.retain(|hit| hit.contact_type == ConnectionType::Throw);
         }
-        return;
     }
 
     for hit in hits {

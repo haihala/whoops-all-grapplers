@@ -7,7 +7,7 @@ pub struct Stats {
     pub starting_meter: i32,
 
     // Damage
-    pub flat_damage: i32,
+    pub damage_multiplier: f32,
     pub chip_damage: bool,
     pub backdash_invuln: i32,
 
@@ -48,7 +48,7 @@ impl Stats {
             max_health: 0,
             starting_meter: 0,
 
-            flat_damage: 0,
+            damage_multiplier: 1.0,
             chip_damage: true,
             backdash_invuln: 0,
 
@@ -69,7 +69,7 @@ impl Stats {
         self.max_health += rhs.max_health;
         self.starting_meter += rhs.starting_meter;
 
-        self.flat_damage += rhs.flat_damage;
+        self.damage_multiplier *= rhs.damage_multiplier;
         self.chip_damage &= rhs.chip_damage; // If a source disables chip it's disabled forever
         self.backdash_invuln += rhs.backdash_invuln;
 

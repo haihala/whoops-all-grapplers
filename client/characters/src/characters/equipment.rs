@@ -192,10 +192,10 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             ItemId::ThumbTacks(1),
             Item {
                 category: Basic,
-                explanation: "+1 damage to all hits\n\nOuch".into(),
+                explanation: "+1% damage to all hits\n\nOuch".into(),
                 cost: 100,
                 effect: Stats {
-                    flat_damage: 1,
+                    damage_multiplier: 1.01,
                     ..Stats::identity()
                 },
             },
@@ -241,7 +241,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             Item {
                 category: Upgrade(vec![ItemId::Feather, ItemId::Dumbbell]),
                 explanation: "Allows you to tap down to fast fall\n\nHiyaa!".into(),
-                cost: 1300,
+                cost: 600,
                 ..default()
             },
         ),
@@ -267,7 +267,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             Item {
                 category: Upgrade(vec![ItemId::ThumbTacks(id - 1), ItemId::ThumbTacks(id - 1)]),
                 explanation: format!(
-                    "+{} damage to all hits\n\nExponential growth is fun!",
+                    "+{}% damage to all hits\n\nExponential growth is fun!",
                     usize::pow(2, (id - 1) as u32)
                 ),
                 cost: 10*(id-1),

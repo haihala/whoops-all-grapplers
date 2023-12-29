@@ -19,6 +19,7 @@ impl Plugin for StateTransitionPlugin {
                 end_loading.run_if(in_state(GameState::Loading)),
                 end_claiming.run_if(in_state(GameState::ClaimingControllers)),
                 end_combat.run_if(in_state(GameState::Combat)),
+                clear_between_states.run_if(state_changed::<GameState>()),
                 transition_after_timer,
             ),
         );
@@ -191,5 +192,11 @@ fn end_claiming(
             PRE_ROUND_DURATION,
             TimerMode::Once,
         )))
+    }
+}
+
+fn clear_between_states(mut players: Query<&mut InputParser>) {
+    for mut parser in &mut players.iter_mut() {
+        parser.clear();
     }
 }

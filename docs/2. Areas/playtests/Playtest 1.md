@@ -53,4 +53,5 @@ Ideas for non-obvious fixes:
     - Core part of defense is jumping lows and ducking highs
 
 Still actionable:
-Nothing!
+- Shop undo
+- Sway follow ups are a bit cumbersome to execute on pad

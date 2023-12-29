@@ -30,7 +30,7 @@ use super::{
 };
 
 pub fn mizku() -> Character {
-    let (jumps, gravity) = super::jumps(1.7, 1.2, Animation::Mizku(MizkuAnimation::Jump));
+    let (jumps, gravity) = super::jumps(1.7, 1.0, Animation::Mizku(MizkuAnimation::Jump));
 
     Character::new(
         Model::Mizku,
@@ -687,7 +687,7 @@ macro_rules! rising_sun {
                                             .unwrap()
                                             .current
                                             * if $air { 5 } else { 10 },
-                                    on_hit: Launcher(if $air { 8.0 } else { 12.0 }),
+                                    on_hit: Launcher(if $air { 4.0 } else { 6.0 }),
                                     on_block: Stun(if $air { 30 } else { 40 }),
                                     chip_damage: if $button == "s" { 10 } else { 5 },
                                     ..default()

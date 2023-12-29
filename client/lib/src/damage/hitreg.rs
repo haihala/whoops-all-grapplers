@@ -364,7 +364,8 @@ pub(super) fn apply_connections(
             defender_actions = handle_opener(defender_actions, attacker.stats);
         }
 
-        defender_actions = apply_flat_damage(defender_actions, attacker.stats.flat_damage);
+        defender_actions =
+            apply_damage_multiplier(defender_actions, attacker.stats.damage_multiplier);
         attacker.state.add_actions(attacker_actions);
         defender.state.add_actions(defender_actions);
         sounds.play(sound);
@@ -416,13 +417,15 @@ fn handle_opener(actions: Vec<ActionEvent>, status_effect: &Stats) -> Vec<Action
         })
         .collect()
 }
-fn apply_flat_damage(actions: Vec<ActionEvent>, flat_damage: i32) -> Vec<ActionEvent> {
+fn apply_damage_multiplier(actions: Vec<ActionEvent>, multiplier: f32) -> Vec<ActionEvent> {
     actions
         .into_iter()
         .map(|action| match action {
             ActionEvent::ModifyResource(ResourceType::Health, amount) => {
-                // Damage is negative health modification
-                ActionEvent::ModifyResource(ResourceType::Health, amount - flat_damage)
+                ActionEvent::ModifyResource(
+                    ResourceType::Health,
+                    (amount as f32 * multiplier) as i32,
+                )
             }
             other => other,
         })

@@ -58,10 +58,10 @@ pub fn update_notifications(
     containers: Query<(Entity, &NotificationContainer)>,
     clock: Res<Clock>,
 ) {
-    for expired_toast in toasts
-        .spawned
-        .extract_if(|notification| notification.created_at + TIME_TO_LIVE < clock.frame)
-    {
+    for expired_toast in toasts.spawned.extract_if(|notification| {
+        notification.created_at + TIME_TO_LIVE < clock.frame
+            || notification.created_at > clock.frame // Previous round
+    }) {
         commands.entity(expired_toast.entity).despawn_recursive();
     }
 

@@ -17,18 +17,15 @@ pub enum ActionId {
     DashForward,
     DashBack,
 
-    BackShortHop,
-    NeutralShortHop,
-    ForwardShortHop,
-    NeutralSuperJump,
-    ForwardSuperJump,
-    BackSuperJump,
     NeutralAirJump,
     ForwardAirJump,
     BackAirJump,
     NeutralJump,
     ForwardJump,
     BackJump,
+    NeutralSuperJump,
+    ForwardSuperJump,
+    BackSuperJump,
 
     // Equipment
     HighGiParry,

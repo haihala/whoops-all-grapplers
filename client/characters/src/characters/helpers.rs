@@ -24,9 +24,6 @@ pub fn jumps(
         (ActionId::BackSuperJump, jg.high(Back)),
         (ActionId::NeutralSuperJump, jg.high(Neutral)),
         (ActionId::ForwardSuperJump, jg.high(Forward)),
-        (ActionId::BackShortHop, jg.short(Back)),
-        (ActionId::NeutralShortHop, jg.short(Neutral)),
-        (ActionId::ForwardShortHop, jg.short(Forward)),
         (ActionId::BackAirJump, jg.air(Back)),
         (ActionId::NeutralAirJump, jg.air(Neutral)),
         (ActionId::ForwardAirJump, jg.air(Forward)),
@@ -69,14 +66,6 @@ impl JumpDirection {
             JumpDirection::Neutral => "[123]8",
             JumpDirection::Forward => "[123]9",
             JumpDirection::Back => "[123]7",
-        }
-    }
-
-    fn short_input(self) -> &'static str {
-        match self {
-            JumpDirection::Neutral => "[123456]8[123]",
-            JumpDirection::Forward => "[123456]9[123]",
-            JumpDirection::Back => "[123456]7[123]",
         }
     }
 }
@@ -132,24 +121,20 @@ impl JumpGenerator {
             dir.direction() * self.base_impulse,
             self.animation,
             false,
+            vec![ActionRequirement::Grounded],
         )
     }
 
     fn high(&self, dir: JumpDirection) -> Action {
         jump(
             dir.super_input(),
-            dir.direction() * self.base_impulse * 1.3,
+            dir.direction() * self.base_impulse * 1.2,
             self.animation,
             false,
-        )
-    }
-
-    fn short(&self, dir: JumpDirection) -> Action {
-        jump(
-            dir.short_input(),
-            dir.direction() * self.base_impulse * 0.7,
-            self.animation,
-            false,
+            vec![
+                ActionRequirement::Grounded,
+                ActionRequirement::ItemsOwned(vec![ItemId::FeatheredBoots]),
+            ],
         )
     }
 
@@ -159,6 +144,11 @@ impl JumpGenerator {
             dir.direction() * self.base_impulse * 0.7,
             self.animation,
             true,
+            vec![
+                ActionRequirement::Airborne,
+                ActionRequirement::ItemsOwned(vec![ItemId::PidgeonWing]),
+                ActionRequirement::StatusNotActive(StatusFlag::DoubleJumped),
+            ],
         )
     }
 }
@@ -168,8 +158,9 @@ fn jump(
     impulse: Vec2,
     animation: impl Into<Animation> + Clone,
     air_jump: bool,
+    requirements: Vec<ActionRequirement>,
 ) -> Action {
-    let (initial_events, initial_exit_requirement, requirements) = if air_jump {
+    let (initial_events, initial_exit_requirement) = if air_jump {
         (
             vec![
                 AnimationRequest {
@@ -185,11 +176,6 @@ fn jump(
                 }),
             ],
             ContinuationRequirement::None,
-            vec![
-                ActionRequirement::Airborne,
-                ActionRequirement::ItemsOwned(vec![ItemId::WingedBoots]),
-                ActionRequirement::StatusNotActive(StatusFlag::DoubleJumped),
-            ],
         )
     } else {
         (
@@ -203,7 +189,6 @@ fn jump(
                 }),
             ],
             ContinuationRequirement::Time(3),
-            vec![ActionRequirement::Grounded],
         )
     };
 
@@ -214,13 +199,13 @@ fn jump(
             ActionBlock {
                 events: initial_events,
                 exit_requirement: initial_exit_requirement,
-                cancel_policy: CancelRule::any(),
+                cancel_policy: CancelRule::jump(),
                 mutator: None,
             },
             ActionBlock {
                 events: vec![Movement::impulse(impulse).into()],
                 exit_requirement: ContinuationRequirement::Time(5),
-                cancel_policy: CancelRule::any(),
+                cancel_policy: CancelRule::jump(),
                 mutator: Some(|mut original, situation| {
                     original.events = original
                         .events

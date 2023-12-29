@@ -35,6 +35,13 @@ impl CancelRule {
         }
     }
 
+    pub fn jump() -> Self {
+        Self {
+            requires_hit: false,
+            category: CancelCategory::Dash,
+        }
+    }
+
     pub fn neutral_normal_recovery() -> Self {
         Self {
             requires_hit: true,

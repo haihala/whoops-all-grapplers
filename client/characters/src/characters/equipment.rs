@@ -147,10 +147,10 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
-            ItemId::EagleFeather,
+            ItemId::Feather,
             Item {
                 cost: 70,
-                explanation: "Makes you jump higher\n\nFly like an eagle".into(),
+                explanation: "Makes you jump slightly higher\n\nBoing".into(),
                 effect: Stats {
                     jump_force_multiplier: 1.02,
                     ..Stats::identity()
@@ -202,10 +202,19 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
-            ItemId::WingedBoots,
+            ItemId::FeatheredBoots,
             Item {
-                category: Upgrade(vec![ItemId::Boots, ItemId::EagleFeather]),
-                explanation: "Allows you to double jump\n\nLike Hermes.".into(),
+                category: Upgrade(vec![ItemId::Boots, ItemId::Feather]),
+                explanation: "Allows you to jump from crouch to super jump\n\nLike Hermes.".into(),
+                cost: 100,
+                ..default()
+            },
+        ),
+        (
+            ItemId::PidgeonWing,
+            Item {
+                category: Upgrade(vec![ItemId::Feather, ItemId::Feather]),
+                explanation: "Allows you to double jump\n\nPidgeon flap!".into(),
                 cost: 100,
                 ..default()
             },

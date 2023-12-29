@@ -12,7 +12,7 @@ pub enum ItemId {
     RedPaint,
     Stopwatch,
     Dumbbell,
-    EagleFeather,
+    Feather,
     Cigarettes,
 
     ThumbTacks(usize),
@@ -21,7 +21,8 @@ pub enum ItemId {
     SafetyBoots,
     GoaleeGear,
     TrackSpikes,
-    WingedBoots,
+    FeatheredBoots,
+    PidgeonWing,
 
     // Character specific
     // Dummy
@@ -39,12 +40,13 @@ pub enum ItemId {
 impl ItemId {
     pub fn display_name(&self) -> String {
         match self {
-            Self::WingedBoots => "Winged boots".into(),
+            Self::PidgeonWing => "Pidgeon wing".into(),
+            Self::FeatheredBoots => "Feathered boots".into(),
             Self::SteelHeelBoots => "Steel heel boots".into(),
             Self::TrackSpikes => "Track spikes".into(),
             Self::SpaceSuitBoots => "Space suit boots".into(),
             Self::Cigarettes => "Pack of cigs".into(),
-            Self::EagleFeather => "Eagle feather".into(),
+            Self::Feather => "Eagle feather".into(),
             Self::PreWorkout => "Pre-workout".into(),
             Self::RedPaint => "Can of red paint".into(),
             Self::HockeyPads => "Hockey pads".into(),

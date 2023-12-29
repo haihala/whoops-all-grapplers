@@ -51,8 +51,8 @@
 		- For example: Magnet man would grant an 8-way airdash
 	- Monkey picture - Does nothing but take up a slot and fluctuate in price (trending downwards, but can occasionally be sold for profit)
 - Consumable
-- Basics with no upgrades
-- Basics with upgrades
+- Basics
+	- Item that lets you do a traditional throw tech
 - Upgrades
 	- Shield + Feather => Feathered shield 
 		- Lets you air-block one hit

@@ -294,12 +294,9 @@ pub(super) fn apply_connections(
         let [mut attacker, mut defender] =
             players.get_many_mut([hit.attacker, hit.defender]).unwrap();
 
-        // Hit has happened
-        if combo.is_none() {
-            commands.insert_resource(Combo);
-        }
-
-        let (mut attacker_actions, mut defender_actions, sound, particle) = match hit.contact_type {
+        let (mut attacker_actions, mut defender_actions, sound, particle, avoided) = match hit
+            .contact_type
+        {
             ConnectionType::Strike | ConnectionType::Throw => {
                 // Handle blocking and state transitions here
                 attacker.state.register_hit();
@@ -309,6 +306,7 @@ pub(super) fn apply_connections(
                     hit.attack.target_on_hit,
                     SoundEffect::Hit,
                     VisualEffect::Hit,
+                    false,
                 )
             }
             ConnectionType::Block => {
@@ -335,6 +333,7 @@ pub(super) fn apply_connections(
                     },
                     SoundEffect::Block,
                     VisualEffect::Block,
+                    true,
                 )
             }
             ConnectionType::Parry => (
@@ -345,16 +344,19 @@ pub(super) fn apply_connections(
                 ],
                 SoundEffect::Clash,
                 VisualEffect::Clash,
+                true,
             ),
             ConnectionType::Tech | ConnectionType::Stunlock => (
                 vec![Movement::impulse(Vec2::X * -4.0).into()],
                 vec![],
                 SoundEffect::Clash,
                 VisualEffect::Clash,
+                true,
             ),
         };
 
-        if combo.is_none() {
+        if combo.is_none() && !avoided {
+            commands.insert_resource(Combo);
             sounds.play(SoundEffect::Whoosh); // TODO change sound effect
             attacker_actions = handle_opener(attacker_actions, attacker.stats);
             attacker_actions.push(ActionEvent::ModifyResource(
@@ -362,6 +364,7 @@ pub(super) fn apply_connections(
                 attacker.stats.opener_meter_gain,
             ));
             defender_actions = handle_opener(defender_actions, attacker.stats);
+            notifications.add(*attacker.player, "Opener!".to_owned());
         }
 
         defender_actions =

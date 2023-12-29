@@ -606,7 +606,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 ActionBlock {
                     events: vec![
                         ModifyResource(ResourceType::Sharpness, 1),
-                        ModifyResource(ResourceType::Meter, 25),
+                        ModifyResource(ResourceType::Meter, 20),
                     ],
                     exit_requirement: ContinuationRequirement::Time(32),
                     // Since there is no hitbox, you can't cancel this under normal circumstances
@@ -660,7 +660,7 @@ macro_rules! rising_sun {
                                     duration: 0.5,
                                     ..default()
                                 }),
-                                ModifyResource(ResourceType::Meter, -50),
+                                ModifyResource(ResourceType::Meter, -40),
                             ]);
                         }
 
@@ -709,7 +709,7 @@ macro_rules! rising_sun {
                 }];
 
                 if $button == "s" {
-                    requirements.push(ActionRequirement::ResourceValue(ResourceType::Meter, 50));
+                    requirements.push(ActionRequirement::ResourceValue(ResourceType::Meter, 40));
                 }
 
                 if $charged {
@@ -823,7 +823,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 duration: 3,
                             }
                             .into(),
-                            ModifyResource(ResourceType::Meter, -25),
+                            ModifyResource(ResourceType::Meter, -20),
                             Flash(FlashRequest {
                                 duration: 0.3,
                                 ..default()
@@ -861,7 +861,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 ],
                 vec![
                     ActionRequirement::Grounded,
-                    ActionRequirement::ResourceValue(ResourceType::Meter, 25),
+                    ActionRequirement::ResourceValue(ResourceType::Meter, 20),
                 ],
             ),
         ),

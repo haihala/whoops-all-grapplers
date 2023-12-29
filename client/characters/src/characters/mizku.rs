@@ -596,7 +596,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
         MizkuActionId::Sharpen,
         Action::grounded(
             Some("214g"),
-            CancelCategory::Normal,
+            CancelCategory::Special,
             vec![
                 ActionBlock {
                     events: vec![MizkuAnimation::Sharpen.into()],

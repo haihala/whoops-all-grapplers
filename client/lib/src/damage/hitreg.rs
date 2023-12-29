@@ -57,10 +57,8 @@ pub struct HitPlayerQuery<'a> {
     stats: &'a Stats,
 }
 
+#[allow(clippy::type_complexity)]
 pub(super) fn clash_parry(
-    clock: Res<Clock>,
-    mut sounds: ResMut<Sounds>,
-    mut particles: ResMut<Particles>,
     mut hitboxes: Query<(
         &Owner,
         &GlobalTransform,
@@ -69,6 +67,9 @@ pub(super) fn clash_parry(
         &Attack,
         Option<&ProjectileMarker>,
     )>,
+    clock: Res<Clock>,
+    mut sounds: ResMut<Sounds>,
+    mut particles: ResMut<Particles>,
     mut owners: Query<&mut WAGResources>,
     players: Res<Players>,
 ) {
@@ -243,6 +244,7 @@ pub(super) fn detect_hits(
         .collect()
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(super) fn apply_connections(
     In(mut hits): In<Vec<AttackConnection>>,
     mut commands: Commands,

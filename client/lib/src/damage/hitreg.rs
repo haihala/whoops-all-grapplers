@@ -66,6 +66,7 @@ pub(super) fn clash_parry(
         &GlobalTransform,
         &Hitbox,
         &mut HitTracker,
+        &Attack,
         Option<&ProjectileMarker>,
     )>,
     mut owners: Query<&mut WAGResources>,
@@ -73,7 +74,7 @@ pub(super) fn clash_parry(
 ) {
     let mut iter = hitboxes.iter_combinations_mut();
     while let Some(
-        [(owner1, gtf1, hitbox1, tracker1, maybe_proj1), (owner2, gtf2, hitbox2, tracker2, maybe_proj2)],
+        [(owner1, gtf1, hitbox1, tracker1, attack1, maybe_proj1), (owner2, gtf2, hitbox2, tracker2, attack2, maybe_proj2)],
     ) = iter.fetch_next()
     {
         if **owner1 == **owner2 {
@@ -82,6 +83,12 @@ pub(super) fn clash_parry(
         }
 
         if !tracker1.active(clock.frame) || !tracker2.active(clock.frame) {
+            continue;
+        }
+
+        if attack1.to_hit.block_type == BlockType::Grab
+            || attack2.to_hit.block_type == BlockType::Grab
+        {
             continue;
         }
 

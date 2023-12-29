@@ -5,7 +5,7 @@ use wag_core::{
 
 use crate::{
     actions::ActionRequirement, Action, ActionBlock, ActionEvent, CancelCategory, CancelRule,
-    ConsumableType::*, ContinuationRequirement, Item, ItemCategory::*,
+    ConsumableType::*, ContinuationRequirement, Item, ItemCategory::*, Movement,
 };
 
 fn get_high_gi_parry() -> Action {
@@ -51,12 +51,30 @@ fn parry_flash(parry_animation: Animation) -> Action {
     )
 }
 
+fn fast_fall() -> Action {
+    Action::new(
+        Some("[456789][123]"),
+        CancelCategory::Uncancellable,
+        vec![ActionBlock {
+            events: vec![Movement::impulse(Vec2::Y * -1.5).into()],
+            exit_requirement: ContinuationRequirement::Time(10),
+            cancel_policy: CancelRule::any(),
+            ..default()
+        }],
+        vec![
+            ActionRequirement::Airborne,
+            ActionRequirement::ItemsOwned(vec![ItemId::Flyweight]),
+        ],
+    )
+}
+
 pub fn universal_item_actions(
     parry_animation: Animation,
 ) -> impl Iterator<Item = (ActionId, Action)> {
     vec![
         (ActionId::HighGiParry, get_high_gi_parry()),
         (ActionId::ParryFlash, parry_flash(parry_animation)),
+        (ActionId::FastFall, fast_fall()),
     ]
     .into_iter()
 }
@@ -140,7 +158,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Makes you ever so slightly heavier\n\nNot for training purposes"
                     .into(),
                 effect: Stats {
-                    gravity: 0.1,
+                    gravity: 0.02,
                     ..Stats::identity()
                 },
                 ..default()
@@ -215,6 +233,14 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             Item {
                 category: Upgrade(vec![ItemId::Feather, ItemId::Feather]),
                 explanation: "Allows you to double jump\n\nPidgeon flap!".into(),
+                cost: 100,
+                ..default()
+            },
+        ),        (
+            ItemId::Flyweight,
+            Item {
+                category: Upgrade(vec![ItemId::Feather, ItemId::Dumbbell]),
+                explanation: "Allows you to tap down to fast fall\n\nHiyaa!".into(),
                 cost: 100,
                 ..default()
             },

@@ -16,18 +16,18 @@ pub enum ActionId {
     // Universal
     DashForward,
     DashBack,
-
-    NeutralAirJump,
-    ForwardAirJump,
-    BackAirJump,
     NeutralJump,
     ForwardJump,
     BackJump,
+
+    // Equipment
+    NeutralAirJump,
+    ForwardAirJump,
+    BackAirJump,
     NeutralSuperJump,
     ForwardSuperJump,
     BackSuperJump,
-
-    // Equipment
+    FastFall,
     HighGiParry,
     ParryFlash,
     TrackSpikesDashForward,

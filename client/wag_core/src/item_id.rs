@@ -23,6 +23,7 @@ pub enum ItemId {
     TrackSpikes,
     FeatheredBoots,
     PidgeonWing,
+    Flyweight, // TODO: Directional fast fall -> air dash
 
     // Character specific
     // Dummy
@@ -46,7 +47,6 @@ impl ItemId {
             Self::TrackSpikes => "Track spikes".into(),
             Self::SpaceSuitBoots => "Space suit boots".into(),
             Self::Cigarettes => "Pack of cigs".into(),
-            Self::Feather => "Eagle feather".into(),
             Self::PreWorkout => "Pre-workout".into(),
             Self::RedPaint => "Can of red paint".into(),
             Self::HockeyPads => "Hockey pads".into(),

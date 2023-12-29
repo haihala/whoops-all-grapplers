@@ -53,6 +53,5 @@ Ideas for non-obvious fixes:
     - Core part of defense is jumping lows and ducking highs
 
 Still actionable:
-- Make short hop into a fast fall and an item
 - Make shit more expensive
 

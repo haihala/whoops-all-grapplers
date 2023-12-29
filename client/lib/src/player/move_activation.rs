@@ -220,7 +220,7 @@ pub(super) fn automatic_activation(
             _ => {
                 // This may happen if follow up and grab land on the same frame
                 velocity.add_impulse(facing.mirror_vec2(Vec2::X * -10.0));
-                notifications.add(*player, "Throw clash".to_owned());
+                notifications.add(*player, "Twin starters".to_owned());
             }
         }
     }

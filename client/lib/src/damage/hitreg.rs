@@ -21,7 +21,7 @@ use crate::{
 use super::{hitboxes::ProjectileMarker, Combo, Defense, HitTracker, HitboxSpawner};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
-pub(super) enum ContactType {
+pub(super) enum ConnectionType {
     Strike,
     Block,
     Parry,
@@ -31,13 +31,13 @@ pub(super) enum ContactType {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) struct Contact {
+pub(super) struct AttackConnection {
     attacker: Entity,
     defender: Entity,
     hitbox: Entity,
     overlap: Area,
     attack: Attack,
-    contact_type: ContactType,
+    contact_type: ConnectionType,
 }
 
 #[derive(WorldQuery)]
@@ -135,7 +135,7 @@ pub(super) fn detect_hits(
     players: Res<Players>,
     hurtboxes: Query<(&Hurtbox, &Owner)>,
     defenders: Query<(&Transform, &PlayerState, &InputParser)>,
-) -> Vec<Contact> {
+) -> Vec<AttackConnection> {
     hitboxes
         .iter_mut()
         .filter_map(
@@ -191,22 +191,25 @@ pub(super) fn detect_hits(
                             handle_blocking(height, parser.get_relative_stick_position());
 
                         if parrying {
-                            (Some("Parry!".into()), ContactType::Parry)
+                            (Some("Parry!".into()), ConnectionType::Parry)
                         } else if blocked && state.can_block() {
-                            (Some(reason), ContactType::Block)
+                            (Some(reason), ConnectionType::Block)
                         } else {
-                            (None, ContactType::Strike)
+                            (None, ConnectionType::Strike)
                         }
                     }
                     BlockType::Grab => {
                         if combo.is_some() {
-                            (Some("Can't grab from stun".into()), ContactType::Stunlock)
+                            (
+                                Some("Can't grab from stun".into()),
+                                ConnectionType::Stunlock,
+                            )
                         } else if yomi_teched(parser)
                             && (state.can_block() && !state.action_in_progress())
                         {
-                            (Some("Teched".into()), ContactType::Tech)
+                            (Some("Teched".into()), ConnectionType::Tech)
                         } else {
-                            (None, ContactType::Throw)
+                            (None, ConnectionType::Throw)
                         }
                     }
                 };
@@ -220,7 +223,7 @@ pub(super) fn detect_hits(
                     notifications.add(attacking_player, "Meaty!".to_owned());
                 }
 
-                Some(Contact {
+                Some(AttackConnection {
                     defender,
                     attacker,
                     hitbox: hitbox_entity,
@@ -234,7 +237,7 @@ pub(super) fn detect_hits(
 }
 
 pub(super) fn apply_connections(
-    In(hits): In<Vec<Contact>>,
+    In(hits): In<Vec<AttackConnection>>,
     mut commands: Commands,
     mut notifications: ResMut<Notifications>,
     combo: Option<Res<Combo>>,
@@ -245,9 +248,11 @@ pub(super) fn apply_connections(
 ) {
     if hits.len() == 2 {
         // TODO: Handle strike and throw clash
+        // Ideally, one should be strike invincible while throw animation is active
+        // In a throw vs strike situation, the winner ought to be consistent.
         if hits
             .iter()
-            .all(|hit| hit.contact_type == ContactType::Throw)
+            .all(|hit| hit.contact_type == ConnectionType::Throw)
         {
             // Two grabs can't hit on the same frame
             for mut player in &mut players {
@@ -256,6 +261,20 @@ pub(super) fn apply_connections(
                     .add_impulse(player.facing.mirror_vec2(Vec2::X * -10.0));
                 notifications.add(*player.player, "Throw clash".to_owned());
             }
+
+            particles.spawn(ParticleRequest {
+                effect: VisualEffect::Clash,
+                // TODO: This can be refined more
+                position: hits
+                    .iter()
+                    .map(|hit| hit.overlap.center())
+                    .reduce(|a, b| a + b)
+                    .unwrap()
+                    .extend(0.0)
+                    * 0.5,
+            });
+
+            sounds.play(SoundEffect::Whoosh); // TODO change sound effect
         }
         return;
     }
@@ -270,7 +289,7 @@ pub(super) fn apply_connections(
         }
 
         let (mut attacker_actions, mut defender_actions, sound, particle) = match hit.contact_type {
-            ContactType::Strike | ContactType::Throw => {
+            ConnectionType::Strike | ConnectionType::Throw => {
                 // Handle blocking and state transitions here
                 attacker.state.register_hit();
                 defender.defense.reset();
@@ -281,8 +300,8 @@ pub(super) fn apply_connections(
                     VisualEffect::Hit,
                 )
             }
-            ContactType::Block => {
-                attacker.state.register_hit(); // TODO: Specify it was blocked
+            ConnectionType::Block => {
+                attacker.state.register_hit();
                 defender.defense.bump_streak(clock.frame);
                 defender
                     .properties
@@ -307,7 +326,7 @@ pub(super) fn apply_connections(
                     VisualEffect::Block,
                 )
             }
-            ContactType::Parry => (
+            ConnectionType::Parry => (
                 vec![],
                 vec![
                     ActionEvent::ModifyResource(ResourceType::Meter, GI_PARRY_METER_GAIN),
@@ -316,9 +335,9 @@ pub(super) fn apply_connections(
                 SoundEffect::Clash,
                 VisualEffect::Clash,
             ),
-            ContactType::Tech | ContactType::Stunlock => (
+            ConnectionType::Tech | ConnectionType::Stunlock => (
+                vec![Movement::impulse(Vec2::X * -4.0).into()],
                 vec![],
-                vec![Movement::impulse(Vec2::X * -8.0).into()],
                 SoundEffect::Clash,
                 VisualEffect::Clash,
             ),

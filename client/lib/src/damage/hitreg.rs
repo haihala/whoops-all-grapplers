@@ -2,7 +2,8 @@ use bevy::{ecs::query::WorldQuery, prelude::*};
 use strum::IntoEnumIterator;
 
 use characters::{
-    ActionEvent, Attack, AttackHeight, BlockType, Hitbox, Hurtbox, ResourceType, WAGResources,
+    ActionEvent, Attack, AttackHeight, BlockType, Hitbox, Hurtbox, Movement, ResourceType,
+    WAGResources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -20,22 +21,23 @@ use crate::{
 use super::{hitboxes::ProjectileMarker, Combo, Defense, HitTracker, HitboxSpawner};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
-pub(super) enum HitType {
+pub(super) enum ContactType {
     Strike,
     Block,
     Parry,
     Throw,
+    Tech,
+    Stunlock,
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) struct Hit {
+pub(super) struct Contact {
     attacker: Entity,
     defender: Entity,
     hitbox: Entity,
     overlap: Area,
-    hit_type: HitType,
     attack: Attack,
-    is_opener: bool,
+    contact_type: ContactType,
 }
 
 #[derive(WorldQuery)]
@@ -133,7 +135,7 @@ pub(super) fn detect_hits(
     players: Res<Players>,
     hurtboxes: Query<(&Hurtbox, &Owner)>,
     defenders: Query<(&Transform, &PlayerState, &InputParser)>,
-) -> Vec<Hit> {
+) -> Vec<Contact> {
     hitboxes
         .iter_mut()
         .filter_map(
@@ -172,80 +174,67 @@ pub(super) fn detect_hits(
                         notifications.add(defending_player, "Intangible".to_owned());
                     }
                     return None;
-                } else if hit_tracker.hit_intangible {
-                    // Just a nice notification for now.
-                    notifications.add(attacking_player, "Meaty!".to_owned());
                 }
 
                 if hit_tracker.hits >= 1 {
                     hit_tracker.register_hit(clock.frame)
+                } else {
+                    return None;
                 }
 
-                let (hit_type, notification) = if !state.can_block() {
-                    (
-                        match attack.to_hit.block_type {
-                            BlockType::Strike(_) => HitType::Strike,
-                            BlockType::Grab => HitType::Throw,
-                        },
-                        if state.action_in_progress() {
-                            "Busy"
-                        } else if !state.is_grounded() {
-                            "Airborne"
+                // Connection confirmed
+
+                let (avoid_notification, contact_type) = match attack.to_hit.block_type {
+                    BlockType::Strike(height) => {
+                        let parrying = state.has_flag(StatusFlag::Parry) && state.is_grounded();
+                        let (blocked, reason) =
+                            handle_blocking(height, parser.get_relative_stick_position());
+
+                        if parrying {
+                            (Some("Parry!".into()), ContactType::Parry)
+                        } else if blocked && state.can_block() {
+                            (Some(reason), ContactType::Block)
                         } else {
-                            "Can't avoid"
+                            (None, ContactType::Strike)
                         }
-                        .into(),
-                    )
-                } else if state.has_flag(StatusFlag::Parry)
-                    && attack.to_hit.block_type != BlockType::Grab
-                {
-                    (HitType::Parry, "Parry!".into())
-                } else {
-                    match attack.to_hit.block_type {
-                        BlockType::Strike(height) => {
-                            handle_blocking(height, parser.get_relative_stick_position())
-                        }
-                        BlockType::Grab => {
-                            if teched(parser) {
-                                notifications.add(defending_player, "Teched".into());
-
-                                return None;
-                            }
-
-                            (HitType::Throw, "Grappled".into())
+                    }
+                    BlockType::Grab => {
+                        if combo.is_some() {
+                            (Some("Can't grab from stun".into()), ContactType::Stunlock)
+                        } else if yomi_teched(parser)
+                            && (state.can_block() && !state.action_in_progress())
+                        {
+                            (Some("Teched".into()), ContactType::Tech)
+                        } else {
+                            (None, ContactType::Throw)
                         }
                     }
                 };
 
-                // TODO: This could be moved into hit processing, as it's not really relevant to hit recognition
-                let is_opener = combo.is_none() && hit_type == HitType::Strike;
-                if combo.is_none() {
-                    notifications.add(
-                        defending_player,
-                        format!(
-                            "{} - {}",
-                            if is_opener { "Opener!" } else { "Avoid" },
-                            notification,
-                        ),
-                    );
+                if let Some(reason) = avoid_notification {
+                    notifications.add(defending_player, format!("Avoid - {}", reason,));
                 }
 
-                Some(Hit {
+                if hit_tracker.hit_intangible {
+                    // Just a nice notification for now.
+                    notifications.add(attacking_player, "Meaty!".to_owned());
+                }
+
+                Some(Contact {
                     defender,
                     attacker,
                     hitbox: hitbox_entity,
                     overlap,
-                    hit_type,
-                    is_opener,
                     attack: attack.to_owned(),
+                    contact_type,
                 })
             },
         )
         .collect()
 }
 
-pub(super) fn apply_hits(
-    In(hits): In<Vec<Hit>>,
+pub(super) fn apply_connections(
+    In(hits): In<Vec<Contact>>,
     mut commands: Commands,
     mut notifications: ResMut<Notifications>,
     combo: Option<Res<Combo>>,
@@ -256,7 +245,10 @@ pub(super) fn apply_hits(
 ) {
     if hits.len() == 2 {
         // TODO: Handle strike and throw clash
-        if hits.iter().all(|hit| hit.hit_type == HitType::Throw) {
+        if hits
+            .iter()
+            .all(|hit| hit.contact_type == ContactType::Throw)
+        {
             // Two grabs can't hit on the same frame
             for mut player in &mut players {
                 player
@@ -277,8 +269,8 @@ pub(super) fn apply_hits(
             commands.insert_resource(Combo);
         }
 
-        let (mut attacker_actions, mut defender_actions, sound, particle) = match hit.hit_type {
-            HitType::Strike | HitType::Throw => {
+        let (mut attacker_actions, mut defender_actions, sound, particle) = match hit.contact_type {
+            ContactType::Strike | ContactType::Throw => {
                 // Handle blocking and state transitions here
                 attacker.state.register_hit();
                 defender.defense.reset();
@@ -289,7 +281,7 @@ pub(super) fn apply_hits(
                     VisualEffect::Hit,
                 )
             }
-            HitType::Block => {
+            ContactType::Block => {
                 attacker.state.register_hit(); // TODO: Specify it was blocked
                 defender.defense.bump_streak(clock.frame);
                 defender
@@ -315,7 +307,7 @@ pub(super) fn apply_hits(
                     VisualEffect::Block,
                 )
             }
-            HitType::Parry => (
+            ContactType::Parry => (
                 vec![],
                 vec![
                     ActionEvent::ModifyResource(ResourceType::Meter, GI_PARRY_METER_GAIN),
@@ -324,9 +316,15 @@ pub(super) fn apply_hits(
                 SoundEffect::Clash,
                 VisualEffect::Clash,
             ),
+            ContactType::Tech | ContactType::Stunlock => (
+                vec![],
+                vec![Movement::impulse(Vec2::X * -8.0).into()],
+                SoundEffect::Clash,
+                VisualEffect::Clash,
+            ),
         };
 
-        if hit.is_opener {
+        if combo.is_none() {
             sounds.play(SoundEffect::Whoosh); // TODO change sound effect
             attacker_actions = handle_opener(attacker_actions, attacker.stats);
             attacker_actions.push(ActionEvent::ModifyResource(
@@ -350,24 +348,24 @@ pub(super) fn apply_hits(
     }
 }
 
-fn handle_blocking(height: AttackHeight, stick: StickPosition) -> (HitType, String) {
+fn handle_blocking(height: AttackHeight, stick: StickPosition) -> (bool, String) {
     let blocking_high = stick == StickPosition::W;
     let blocking_low = stick == StickPosition::SW;
 
     if !(blocking_high || blocking_low) {
-        (HitType::Strike, "Not blocking".into())
+        (false, "Not blocking".into())
     } else if match height {
         AttackHeight::Low => blocking_low,
         AttackHeight::Mid => blocking_low || blocking_high,
         AttackHeight::High => blocking_high,
     } {
-        (HitType::Block, "Blocked!".into())
+        (true, "Blocked!".into())
     } else {
-        (HitType::Strike, format!("Hit {:?}", height))
+        (false, format!("Hit {:?}", height))
     }
 }
 
-fn teched(parser: &InputParser) -> bool {
+fn yomi_teched(parser: &InputParser) -> bool {
     parser.head_is_clear()
 }
 

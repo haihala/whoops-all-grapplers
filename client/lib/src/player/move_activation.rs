@@ -348,7 +348,7 @@ pub(super) fn move_activator(
             continue;
         };
 
-        if state.unlock_frame().is_some() || state.free_since.is_none() {
+        if state.unlock_frame().is_some() {
             continue;
         }
 

@@ -6,7 +6,7 @@ pub struct Movement {
     pub duration: usize,
 }
 impl Movement {
-    pub(crate) fn impulse(amount: Vec2) -> Self {
+    pub fn impulse(amount: Vec2) -> Self {
         Self {
             amount,
             duration: 1,

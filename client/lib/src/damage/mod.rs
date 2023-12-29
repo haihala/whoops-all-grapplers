@@ -23,7 +23,7 @@ impl Plugin for DamagePlugin {
             (
                 hitboxes::spawn_new_hitboxes,
                 hitreg::clash_parry,
-                hitreg::detect_hits.pipe(hitreg::apply_hits),
+                hitreg::detect_hits.pipe(hitreg::apply_connections),
                 hitboxes::handle_despawn_flags,
                 hitboxes::despawn_marked,
                 hitreg::stun_actions,

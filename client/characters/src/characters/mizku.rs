@@ -166,7 +166,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     },
                     CommonAttackProps {
                         damage: 8,
-                        on_hit: Stun(21),
+                        on_hit: Stun(18),
                         on_block: Stun(11),
                         ..default()
                     },
@@ -271,13 +271,15 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                         ..default()
                                     },
                                     CommonAttackProps {
-                                        damage: 5 + situation
-                                            .get_resource(ResourceType::Sharpness)
-                                            .unwrap()
-                                            .current
-                                            * 10,
+                                        damage: 10
+                                            + situation
+                                                .get_resource(ResourceType::Sharpness)
+                                                .unwrap()
+                                                .current
+                                                * 10,
                                         on_hit: Stun(40),
                                         on_block: Stun(30),
+                                        chip_damage: 5,
                                         ..default()
                                     },
                                 )
@@ -316,13 +318,14 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                         ..default()
                                     },
                                     CommonAttackProps {
-                                        damage: 3 + situation
+                                        damage: 8 + situation
                                             .get_resource(ResourceType::Sharpness)
                                             .unwrap()
                                             .current
                                             * 10,
                                         on_hit: Stun(55),
                                         on_block: Stun(25),
+                                        chip_damage: 3,
                                         ..default()
                                     },
                                 )
@@ -686,6 +689,7 @@ macro_rules! rising_sun {
                                             * if $air { 5 } else { 10 },
                                     on_hit: Launcher(if $air { 8.0 } else { 12.0 }),
                                     on_block: Stun(if $air { 30 } else { 40 }),
+                                    chip_damage: if $button == "s" { 10 } else { 5 },
                                     ..default()
                                 },
                             )
@@ -996,6 +1000,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             },
                             CommonAttackProps {
                                 damage: 11,
+                                chip_damage: 1,
                                 on_hit: Stun(24),
                                 on_block: Stun(16),
                                 ..default()
@@ -1040,6 +1045,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 },
                                 CommonAttackProps {
                                     damage: 10,
+                                    chip_damage: 1,
                                     on_block: Stun(16),
                                     on_hit: Launcher(0.0),
                                     ..default()
@@ -1078,6 +1084,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             },
                             CommonAttackProps {
                                 damage: 30, // It should hurt
+                                chip_damage: 1,
                                 on_hit: Roller(Vec2::new(10.0, 2.0)),
                                 on_block: Stun(20),
                                 ..default()

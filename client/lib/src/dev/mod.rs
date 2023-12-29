@@ -94,11 +94,32 @@ fn fullscreen_toggle(keys: Res<Input<KeyCode>>, mut windows: Query<&mut Window>)
     }
 }
 
-fn pause_toggle(keys: Res<Input<KeyCode>>, mut time: ResMut<Time<Virtual>>) {
+fn pause_toggle(
+    keys: Res<Input<KeyCode>>,
+    mut time: ResMut<Time<Virtual>>,
+    clock: Res<Clock>,
+    mut local_frame: Local<Option<usize>>,
+) {
     if keys.just_pressed(KeyCode::P) {
-        println!("Pause toggle");
-        let new_speed = 1.0 - time.relative_speed();
-        time.set_relative_speed(new_speed);
+        if keys.pressed(KeyCode::ShiftLeft) || keys.pressed(KeyCode::ShiftRight) {
+            if time.relative_speed() == 0.0 {
+                println!("Frame step");
+
+                *local_frame = Some(clock.frame);
+                time.set_relative_speed(1.0);
+            }
+        } else {
+            println!("Pause toggle");
+            let new_speed = 1.0 - time.relative_speed();
+            time.set_relative_speed(new_speed);
+        }
+    }
+
+    if let Some(frame) = *local_frame {
+        if clock.frame > frame {
+            time.set_relative_speed(0.0);
+            *local_frame = None;
+        }
     }
 }
 

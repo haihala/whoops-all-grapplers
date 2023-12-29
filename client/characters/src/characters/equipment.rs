@@ -166,6 +166,18 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
+            ItemId::OliveOil,
+            Item {
+                cost: 300,
+                explanation: "Slightly nudge in the held direction while getting comboed\n\nSlippery".into(),
+                effect: Stats {
+                    direct_influence: 1.0,
+                    ..Stats::identity()
+                },
+                ..default()
+            },
+        ),
+        (
             ItemId::Dumbbell,
             Item {
                 cost: 350,

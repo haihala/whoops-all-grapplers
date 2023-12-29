@@ -21,6 +21,11 @@ impl StickPosition {
         let vector: IVec2 = self.into();
         IVec2::new(-vector.x, vector.y).into()
     }
+
+    pub fn as_vec2(self) -> Vec2 {
+        let vector: IVec2 = self.into();
+        vector.as_vec2()
+    }
 }
 impl std::fmt::Display for StickPosition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

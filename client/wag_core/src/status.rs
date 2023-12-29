@@ -24,6 +24,9 @@ pub struct Stats {
     // Actions
     pub action_speed_multiplier: f32,
     pub link_bonus: i32,
+
+    // Direct Influence
+    pub direct_influence: f32,
 }
 
 impl Default for Stats {
@@ -59,6 +62,8 @@ impl Stats {
 
             action_speed_multiplier: 1.0,
             link_bonus: 0,
+
+            direct_influence: 0.0,
         }
     }
 
@@ -80,6 +85,8 @@ impl Stats {
 
         self.action_speed_multiplier *= rhs.action_speed_multiplier;
         self.link_bonus += rhs.link_bonus;
+
+        self.direct_influence += rhs.direct_influence;
 
         self
     }

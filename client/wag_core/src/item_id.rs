@@ -15,6 +15,7 @@ pub enum ItemId {
     Dumbbell,
     Feather,
     Cigarettes,
+    OliveOil,
 
     ThumbTacks(usize),
 
@@ -42,6 +43,7 @@ pub enum ItemId {
 impl ItemId {
     pub fn display_name(&self) -> String {
         match self {
+            Self::OliveOil => "Olive Oil".into(),
             Self::PidgeonWing => "Pidgeon wing".into(),
             Self::FeatheredBoots => "Feathered boots".into(),
             Self::SteelHeelBoots => "Steel heel boots".into(),

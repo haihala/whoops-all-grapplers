@@ -355,16 +355,25 @@ pub(super) fn apply_connections(
             ),
         };
 
-        if combo.is_none() && !avoided {
-            commands.insert_resource(Combo);
-            sounds.play(SoundEffect::Whoosh); // TODO change sound effect
-            attacker_actions = handle_opener(attacker_actions, attacker.stats);
-            attacker_actions.push(ActionEvent::ModifyResource(
-                ResourceType::Meter,
-                attacker.stats.opener_meter_gain,
-            ));
-            defender_actions = handle_opener(defender_actions, attacker.stats);
-            notifications.add(*attacker.player, "Opener!".to_owned());
+        if !avoided {
+            if combo.is_none() {
+                commands.insert_resource(Combo);
+                sounds.play(SoundEffect::Whoosh); // TODO change sound effect
+                if attacker.stats.opener_damage_multiplier > 1.0 {
+                    attacker_actions = handle_opener(attacker_actions, attacker.stats);
+                    attacker_actions.push(ActionEvent::ModifyResource(
+                        ResourceType::Meter,
+                        attacker.stats.opener_meter_gain,
+                    ));
+                    defender_actions = handle_opener(defender_actions, attacker.stats);
+                }
+                notifications.add(*attacker.player, "Opener!".to_owned());
+            } else if defender.stats.direct_influence > 0.0 {
+                defender.velocity.add_impulse(defender.facing.mirror_vec2(
+                    defender.parser.get_relative_stick_position().as_vec2()
+                        * defender.stats.direct_influence,
+                ));
+            }
         }
 
         defender_actions =

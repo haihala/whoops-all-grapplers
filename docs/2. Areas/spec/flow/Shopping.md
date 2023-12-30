@@ -1,1 +1,1 @@
-Phase of the game where [[Money]] can be used to buy and sell [[Items]]
+Phase of the game where [[Money]] can be used to buy and sell [[2. Areas/spec/unique mechanics/Items]]

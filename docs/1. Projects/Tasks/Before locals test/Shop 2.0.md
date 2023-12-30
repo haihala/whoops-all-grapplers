@@ -1,0 +1,11 @@
+- [ ] Low hanging fruit prettyfication
+	- [ ] Missing icons
+	- [ ] Colors (especially ones you cannot afford)
+	- [ ] Increase font size where it's too small
+- [ ] Automatic dependency purchase
+- [ ] Undo button
+- [ ] Visible button prompts
+- [ ] Thing about categories (Upgrades are over half the items atm)
+	- [ ] At the very least, make the sorting and greying out make sense
+- [ ] Fix greyed out items at the start of shop
+- [ ] Consider [[Extending items]]

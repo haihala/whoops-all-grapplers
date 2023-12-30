@@ -20,7 +20,7 @@ This is mostly so I can laugh at how wrong I got them later.
 2. Net positive fun
 	1. Dropping a combo is sad for attacker, neutral for defender, net negative
 3. No problem is without a tool and no tools without a problem
-	1. Tool just needs to exist, the player doesn't need to have it ([[Items]]s)
+	1. Tool just needs to exist, the player doesn't need to have it ([[2. Areas/spec/unique mechanics/Items]]s)
 4. Decision making over execution
 5. Go deep before going wide
 	1. When adding ideas, prefer characters over universals (complex characters over many universals)

@@ -1,4 +1,0 @@
-- Undo button
-- Filter out things you cannot buy
-- Better colour for greying out stuff
-- Update UI immediately upon entering the shop

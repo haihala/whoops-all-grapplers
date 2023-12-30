@@ -1,6 +1,6 @@
 # Money
 - Resource between rounds.
-- Used to buy [[Items]]s
+- Used to buy [[2. Areas/spec/unique mechanics/Items]]s
 - Gained by
 	- Taunting instead of going for the OKI
 	- Specific items like [[Gauntlet of midas]]

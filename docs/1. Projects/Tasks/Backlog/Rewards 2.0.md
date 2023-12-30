@@ -5,6 +5,7 @@ See [[Rewards]] for the first one
 - Purchasable item
 - 525252g as input
 - Gives you money if you start it and meter if you can finish it
+- Maybe bonus if you just did a combo
 
 ## Opener bonus items
 - Theme is tools that open stuff

@@ -19,3 +19,5 @@
 - Add a sanity check. A sane move has:
 	- An animation
 	- A nonzero duration
+
+This could be revisited later, but at the moment I don't see a point in doing this

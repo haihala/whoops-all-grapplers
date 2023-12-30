@@ -1,0 +1,16 @@
+- [ ] [[Menus MVP]]
+- [ ] [[Notifications 2.0]]
+- [ ] [[Shop 2.0]]
+- [ ] [[Particles 2.0]]
+- [ ] [[SFX 2.0]]
+- [ ] [[Spec cleanup]]
+- [ ] Minor
+	- [ ] Increase kunai size and speed for better visibility
+	- [ ] Hurtbox padding
+	- [ ] [[Track spikes]] shouldn't activate if not doing a move
+		- [ ] May be a landing thing
+	- [ ] Jump
+		- [ ] Reduce pre-jump frames
+		- [ ] Allow direction corrections after pre-jump
+	- [ ] Fix [[Gi]] link bonus
+	- [ ] Consider simplifying [[Mizku#Sway]] inputs

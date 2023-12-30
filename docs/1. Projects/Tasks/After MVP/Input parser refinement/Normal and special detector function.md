@@ -1,1 +1,0 @@
-- Add a way to parse an input and tell if it's a normal or a special

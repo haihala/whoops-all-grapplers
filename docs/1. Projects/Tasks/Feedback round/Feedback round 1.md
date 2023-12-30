@@ -12,7 +12,7 @@ Steps:
 - [x] Set dates
 - [ ] Try it with
 	- [x] A person
-	- [ ] Casual group
+	- [x] Casual group
 	- [ ] Locals goers
 - [x] Write down notes during playtest
 

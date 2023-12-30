@@ -1,2 +1,0 @@
-- Upgrade from [[Boots]] + some [[Thumbtacks]] variant for [[Mizku]]
-- Makes [[Mizku#Foot dive]] launch on full charge

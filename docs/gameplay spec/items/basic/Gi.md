@@ -1,0 +1,5 @@
+- Universal basic item
+- Gives you a 3S like parry.
+	- Only on the ground and forward for high and low hits
+- "Gi of the old masters"
+	- Simultaneously referring to Daigo and Ken.

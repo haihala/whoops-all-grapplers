@@ -1,0 +1,5 @@
+- Gained from
+	- Playing
+	- Winning
+- Spent on
+	- [[Items]] in the [[Shopping]] phase

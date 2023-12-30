@@ -1,0 +1,27 @@
+# Interesting
+- Doctor Facilier(big bad from the princess and the frog) looking guy who is one part
+	- The undertaker
+	- Big body grappler
+	- Voodoo witch doctor
+		- Hitting certain moves puts hexes on the opponent
+		- Certain moves can consume hexes for benefits
+			- Tools to help in neutral or get better OKI
+				- Tager magnetism
+				- Teleport
+				- Long poke
+				- Root the opponent
+		- More hexes consumed -> At least linear if not exponential power increase
+		- Main command grab will automatically do a full cash out
+			- It has the best hex to damage ratio
+			- Low damage without hexes
+# Raw
+- Escanor looking motherfucker
+	- **The** big brawler guy
+	- Deliberately chooses to not "Cheat". 
+		- They acknowledge that they would have it easier but choose to do it right
+	- Instead they compensate with an insane grindset
+- Character who gets that good damage only from anti-airs (tip of anti-air has special props?) and then plays an oppressive death by a thousand cuts ground game
+- Robot character that heavily uses weird quirks of computer naming in their items (like how HandL sounds like handle)
+- Bad boy sumo guy
+- Kaizen (continuous improvement in japanese) as the name of a character
+- Zoner that gives you a damage buff that gets reset on whiff and when getting hit

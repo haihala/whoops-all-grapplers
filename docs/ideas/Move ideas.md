@@ -1,0 +1,11 @@
+- Move with negative startup, causes rollback on activation
+- Soul assumption like move that deals damage based on damage taken recently
+	- Counts damage taken by both players
+	- Pair it with a move that works like oracle heal
+- Burst that is faster / larger the longer the combo
+- Move where you repeatedly do qcb+button to gain stocks. Use stocks for a big punch (can cancel into punch from wind-ups, better if you do)
+- 5653 motion for a sliding dash
+- Axe kick that hits mid going up. If it does the attack ends. Hard hitting overhead when coming down. Works as an anti-air when it hits at the apex
+- Dash move with a wind-up. You can hold the wind-up for more distance. Has two variants. One is a shorter dash followed by a forward slash, the other is basically alpha blade.
+	- Think chainsaw man katana man
+- 14563 as an input for a lil hop move

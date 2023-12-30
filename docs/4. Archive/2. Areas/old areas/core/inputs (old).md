@@ -5,7 +5,7 @@ symbol - mapping on xbox - name
 - `s` - B - Strong attack
 - `g` - Y - Grab
 - `e` - X - Equipment
-	- [[2. Areas/spec/unique mechanics/Items]]
+	- [[Items]]
 
 Concerns for a later date:
 - Dash macro

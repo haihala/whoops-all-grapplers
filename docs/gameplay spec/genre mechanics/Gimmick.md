@@ -1,0 +1,1 @@
+Characters have a dedicated button for gimmicks, similar to BlazBlue

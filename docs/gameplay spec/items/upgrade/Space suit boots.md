@@ -1,0 +1,2 @@
+- Upgrade from [[Boots]] and a [[Dumbbell]] for [[Mizku]]
+- Makes [[Mizku#Foot dive]] launch on full charge

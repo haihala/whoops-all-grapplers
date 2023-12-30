@@ -1,0 +1,2 @@
+- Universal basic item
+- Lets you apply a small impulse to yourself while getting comboed

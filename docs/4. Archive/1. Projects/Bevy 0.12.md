@@ -7,7 +7,7 @@ Interesting picks from [Blog post](https://bevyengine.org/news/bevy-0-12/):
 - https://bevyengine.org/news/bevy-0-12/#improved-hot-reloading-workflow Hot reload is now a cargo feature, just disable it when building for release
 - https://bevyengine.org/news/bevy-0-12/#deferred-rendering + https://bevyengine.org/news/bevy-0-12/#material-extensions
 	- Could allow some stylistic shaders
-	- Could allow to ditch hanabi for a more custom particle system
+	- Could allow to ditch [[bevy_hanabi]] for a more custom particle system
 		- Volumetric vertex shader particles
 - https://bevyengine.org/news/bevy-0-12/#one-shot-systems - Potentially interesting, not sure what for
 	- Events?

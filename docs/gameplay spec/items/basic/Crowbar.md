@@ -1,0 +1,2 @@
+- Universal basic item
+- Adds more stun frames, damage, and meter gain on the first hit of a combo

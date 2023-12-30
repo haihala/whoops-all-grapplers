@@ -1,1 +1,0 @@
-Note taking app used to write the docs you are reading right now.

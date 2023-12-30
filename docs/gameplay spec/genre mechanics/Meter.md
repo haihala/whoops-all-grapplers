@@ -1,0 +1,10 @@
+- Gained from
+	- Playing well
+		- [[Link bonus]]
+		- [[Opener]]
+	- Character unique mechanics
+- Spent on
+	- Enhanced special moves
+	- Items like [[Track spikes]]
+- Turned to money at the end of each round
+- Visualized as a bar of 5 segments, meter is always spent in full segments

@@ -1,0 +1,2 @@
+- Consumable item available for [[Mizku]]
+- Gives access to [[Mizku#Kunai throw]]

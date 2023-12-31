@@ -30,7 +30,7 @@ She is a young but competent second generation Korean American immigrant. She's 
 	- All other characters ought to be balanced around her 
 - Strengths
 	- Hard reads => hit hard
-	- Can grind meter with [[Link bonus]] on [[#Sharpen]]
+	- Can grind [[Meter]] with [[#Sharpen]]
 	- She's good at making you play her game
 		- If you spam projectiles full screen, she has time to [[#Sharpen]]
 		- If you approach, you'll have to play the close range game with high stakes
@@ -40,6 +40,8 @@ She is a young but competent second generation Korean American immigrant. She's 
 	- Meh pokes
 
 # Mechanics
+- Duck is abnormally low and goes under stuff
+
 ## Sharpness
 - Stacks up to 10
 - [[#Sharpen]] adds one stack
@@ -56,7 +58,7 @@ She is a young but competent second generation Korean American immigrant. She's 
 #### Low poke
 - Input: `f` while crouching
 - Visual: Urien cr.lk
-- Function: Low check
+- Function: Low check, combo filler
 
 #### Falcon knee
 - Input: `f` while in the air
@@ -80,7 +82,7 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Visual: Step back leg forward into back arm uppercut
 - Function: Anti-air, combo starter
 - Doesn't go that far vertically
-- Slightly - on block
+- - on block
 
 #### Foot dive
 - Input: `s` while in the air
@@ -95,31 +97,41 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Visual: Grab the collar, drag it down and sweep the leg
 - Keeps you close for oki
 
-#### Sweep
+#### Crouch throw
 - Input: `w` while crouching
-- Hits low
-- Punishable on block
-- Knockdown on hit
-- Reaches relatively far
-- Aight damage for a single hit
+- Low hitbox
+- Switches sides by swinging the opponent by their feet
 
 #### Air throw
 - Input: `w` while in the air
-- Like [[#Back throw]], but hold the knees on lapels pose until landing
+- Visual: Ky flippy air throw
 
-#### Sharpen
-- Input: `g` while on the ground
-- Visual: In one smooth movement, take the sword out, run it by a whetstone, put it back
-- Gain a point of [[#Sharpness]] and some [[Meter]]
+#### High slice
+- Input: `g` while standing
+- Visual: Nago f.s
+- Slow long range, somewhat mediocre stab
+- Is a sword move, so it deals good damage, especially with [[#Sharpness]]
+
+#### Low slice
+- Input: `g` while crouching
+- Visual: Nago 2s
+- Slow long range low poke
+- Good to cancel to, as it gives you a lot of stun frames
 
 ### Specials
+#### Sharpen
+- Input: `214g` while on the ground
+- Visual: In one smooth movement, take the sword out, run it by a whetstone, put it back
+- Gain a point of [[#Sharpness]] and a bar of [[Meter]]
+
 #### Rising sun
-- Input: `[789]` + `s`
-- Visual: Falke SFV reversal
+- Input: `[123][789]` + `f` or `s`
+	- You can use it with or without charge
+		- Using it without charge will make it drop [[#Sharpness]], 1 for `s`, all for `f`
+- Visual: Arching sword swing
 - Functions: Anti-air, combo ender, hard read, whiff punish
-	- `f` version is faster, but less damaging, leaning into anti-air / whiff punish
-		- Can maybe block punish some things
-	- `s` version is slower, leaning more into combo ender / hard read tool
+	- `f` version is less damaging, but free
+	- `s` version is more damaging and gains [[Intangible]] on full charge, but costs [[Meter]]
 - Air and ground versions
 	- Air version exists to lessen the frustration on upwards motions
 	- Ground version will recover faster, giving you oki or [[#Sharpen]]
@@ -128,8 +140,6 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Pretty nice chip damage
 
 #### Sway
-Conveniently, shortened to bs (bullshit)
-
 - Input: `214` + `f` or `s`
 - Visual: Dandy step
 - Function: Lots
@@ -170,42 +180,15 @@ Item ideas:
 - [[Space suit boots]]
 
 # Item ideas
-## Armguards
-- Upgrade from [[Hockey pads]]
-- One hit of [[Armor]] to [[#Rising sun]]
+## Blade oil
+- Consumable
+- Retains [[#Sharpness]] from the previous round
 
 ## Dancing shoes
 - Upgrade from [[Boots]]
 - Add a follow up to [[#Sway]], where you can cancel into the other version of [[#Sway]]
 - This is the fastest way to move back if done optimally
 	- How the variants have different animation lengths, that's not trivial
-
-## Bag of marshmallow
-- Basic item
-- If you have down charge, [[#Rising sun]] gains
-	- More damage
-	- Better vertical knockback for juggles
-- Charge is a sliding scale
-- With the added juggle height, you get more time
-	- Without charge
-		- Ground - You have enough time to get oki or [[#Sharpen]]
-		- Air - You're safe, but get no oki
-	- With max charge
-		- Air - Same as chargeless ground version
-		- Ground - You can juggle into something on sufficiently high hits
-			- One of those cases where you can get a hit in, but it's probably just better to use the time to setup a real mix on oki
-			- As a combo tool, instantly cancelled `f`[[#Sway]] should be better
-- Item name is referencing the marshmallow test
-	- Not exactly great
-
-## Four tiger sword
-- While holding [[#Sway]], follow up attacks charge up in power
-- Hold for 1s for max power, can release early for partial buff
-- Variants
-	- Mid becomes unblockable at max charge
-	- Low launches
-	- All variants gain a damage boost
-- Item is referencing Kum (this name fits better even if the reference is hayabusa)
 
 # Moves from [[#Items]]
 ## Kunai throw
@@ -215,6 +198,3 @@ Item ideas:
 	- Relatively fast and small projectile with a slight arc to it
 	- Consumes a [[#Kunai]] on use, can't use if you have none
 - Maybe add an air version later?
-
-## Rope dart
-- Very raw idea, not sure how it would work, but it fits the visual identity and could be interesting

@@ -1,0 +1,1 @@
+- Tutorials make you play as an old man with a lot of recovery on some moves to clearly showcase cancelling

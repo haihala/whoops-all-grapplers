@@ -15,6 +15,7 @@
 		- Demo: https://github.com/gschup/bevy_ggrs_demo
 - ggrs+matchbox
 	- https://johanhelsing.studio/posts/extreme-bevy
+	- https://johanhelsing.studio/posts/cargo-space-devlog-6
 
 # Todo
 1. Read through enough to make decisions

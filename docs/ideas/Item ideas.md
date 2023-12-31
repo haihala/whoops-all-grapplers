@@ -1,15 +1,29 @@
-# Vague
-- Item that is only purchasable if your character has a low winrate globally.
-- Employee handbook that grants some basic ability to newbies that most characters start with.
-- Shoe lube - Walk immediately accelerates to max speed and holds that while doing other actions for about half a second (microwalks gain a lot of distance)
+# Vibe
+- Armor of the Modern Crusader (AMC), a suit item
 - Bootleg functions series
 	- Item names are scuffed marvel characters like "Magnet man" for magneto
 	- They grant a move / trait that is commonly associated with that character in mvc
 	- For example: Magnet man would grant an 8-way airdash
-- Monkey picture - Does nothing but take up a slot and fluctuate in price (trending downwards, but can occasionally be sold for profit)
+
+# Mechanic
+- Traditional throw tech
+- Replace your block with a parry
+- Quest items
+	- Items that give you something cool if you complete a quest
+	- Like Hearthstone
+- -1 hitstun frame per hit of combo
 
 # Specific
-- Item that lets you do a traditional throw tech
+- Some phone charger item that increases charge speed
+- Monkey picture - Does nothing but take up a slot and fluctuate in price (trending downwards, but can occasionally be sold for profit)
+- Egg
+	- Hatches to a chicken
+	- Chickens produce an egg per round
+	- You can sell the eggs
+- Brick
+	- Defense bonus
+	- Add a page for defense bonus
+	- Simplify defense bonus to contant
 - Shield + Feather => Feathered shield 
 	- Lets you air-block one hit
 	- It shouldn't be that great. Reference the shield from Bloodborne

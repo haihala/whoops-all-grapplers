@@ -1,8 +1,12 @@
 - [ ] Revisit current ones
 	- [ ] Hit
 	- [ ] Block
-	- [ ] Clash
+	- [ ] Clash (make particles go into a direction to indicate meter gain)
 - [ ] Add
 	- [ ] Throw tech
 - [ ] Maybe add some of [[Notifications 2.0]] as particle effects
 	- Maybe steal the coloured splashes from tekken hitsparks that indicate attack height
+- [ ] Trails
+	- [ ] [[Mizku]] sword swings
+	- [ ] Jump
+	- [ ] Dash

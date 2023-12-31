@@ -1,0 +1,4 @@
+- Fix [[Gi]] link bonus
+- Make parry animation length depend on how long before the hit the player parried
+- Fix bug where animation occasionally doesn't trigger
+	- This could've been a cancel thing?

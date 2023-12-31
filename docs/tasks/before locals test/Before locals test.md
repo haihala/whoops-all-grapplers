@@ -4,6 +4,7 @@
 - [ ] [[Particles 2.0]]
 - [ ] [[SFX 2.0]]
 - [ ] [[Mizku cleanup]]
+- [ ] [[Update Gi]]
 - [ ] [[Spec cleanup]]
 - [ ] Minor
 	- [ ] Hurtbox padding
@@ -12,4 +13,3 @@
 	- [ ] Jump
 		- [ ] Reduce pre-jump frames
 		- [ ] Allow direction corrections after pre-jump
-	- [ ] Fix [[Gi]] link bonus

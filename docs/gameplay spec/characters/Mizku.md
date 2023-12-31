@@ -184,6 +184,10 @@ Item ideas:
 - Consumable
 - Retains [[#Sharpness]] from the previous round
 
+## Bladesmith coupon
+- Consumable
+- Add [[#Sharpness]] on round start
+
 ## Dancing shoes
 - Upgrade from [[Boots]]
 - Add a follow up to [[#Sway]], where you can cancel into the other version of [[#Sway]]

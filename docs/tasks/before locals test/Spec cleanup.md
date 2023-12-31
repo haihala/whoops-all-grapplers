@@ -5,3 +5,4 @@
 - [x] Reorganize current spec out of PARA
 - [x] Update [[Docs]]
 - [ ] Remove archive folder
+- [x] Clear taskboard

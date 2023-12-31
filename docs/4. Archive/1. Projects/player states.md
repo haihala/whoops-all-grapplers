@@ -1,3 +1,0 @@
-- [x] List possible states
-- [x] Map transitions between stages to words
-	- For example: neutral -> freefall is 'launch'

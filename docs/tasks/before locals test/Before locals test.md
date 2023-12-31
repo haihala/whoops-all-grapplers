@@ -1,15 +1,15 @@
-- [ ] [[Menus MVP]]
-- [ ] [[Notifications 2.0]]
-- [ ] [[Shop 2.0]]
-- [ ] [[Particles 2.0]]
-- [ ] [[SFX 2.0]]
-- [ ] [[Mizku cleanup]]
-- [ ] [[Update Gi]]
-- [ ] [[Spec cleanup]]
-- [ ] Minor
-	- [ ] Hurtbox padding
-	- [ ] [[Track spikes]] shouldn't activate if not doing a move
-		- [ ] May be a landing thing
-	- [ ] Jump
-		- [ ] Reduce pre-jump frames
-		- [ ] Allow direction corrections after pre-jump
+- [[Menus MVP]]
+- [[Notifications 2.0]]
+- [[Shop 2.0]]
+- [[Particles 2.0]]
+- [[SFX 2.0]]
+- [[Mizku cleanup]]
+- [[Update Gi]]
+- [[Dev binds 2.0]]
+- Minor
+	- Hurtbox padding
+	- [[Track spikes]] shouldn't activate if not doing a move
+		- May be a landing thing
+	- Jump
+		- Reduce pre-jump frames
+		- Allow direction corrections after pre-jump

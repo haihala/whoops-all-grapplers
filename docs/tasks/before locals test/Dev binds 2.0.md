@@ -1,0 +1,7 @@
+- Reorganize them to be on the same half of the keyboard
+- Add
+	- Money gain
+	- Meter gain
+	- Heal
+	- Timer freeze
+- Fix stage proceeding

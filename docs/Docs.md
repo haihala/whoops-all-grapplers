@@ -1,5 +1,7 @@
 # Development
-- For design ideology, see [[philosophy]]
+- For design ideology, see [[Philosophy]]
+- For writing the documentation, see [[Writing the spec]]
+
 ## Setup
 Not tested on mac
 

@@ -1,3 +1,0 @@
-- Bevy UI system is not great, but Egui apparently is
-- https://github.com/mvlabat/bevy_egui
-- Update: Egui is great for traditional UI's with text fields and forms, maybe not what the doctor ordered here

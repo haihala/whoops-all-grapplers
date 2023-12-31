@@ -1,4 +1,0 @@
-- Generic stuff that is not an actual move that can start, but a thing that can be checked in a dynamic flowcontrol
-- They live in the parser
-- One for each button press
-- One per cardinal diretion tap

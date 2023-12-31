@@ -2,8 +2,6 @@
 
 [Bevy cookbook](https://bevy-cheatbook.github.io) (Good, but occasionally outdated)
 
-[[Change detection]]
-
 # Used crates
 - [bevy_hanabi](https://github.com/djeedai/bevy_hanabi)
 - [bevy_scene_hook](https://github.com/nicopap/bevy-scene-hook)

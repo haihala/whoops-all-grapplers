@@ -1,5 +1,3 @@
-See [[Polish#Visual]]
-
 - [ ] Add a mechanism for popups that aren't off to the side
 - [ ] Explaining why you got hit
 	- [ ] Low

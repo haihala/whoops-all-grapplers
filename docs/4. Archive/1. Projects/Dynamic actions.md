@@ -1,2 +1,0 @@
-- Like previous dynamic flowcontrol, but it's just `fn(situation)->Option<Action>`
-- In parsing, it evaluates to either Action or a Noop ([[Noop in flowcontrol]])

@@ -1,5 +1,3 @@
-See [[Rewards]] for the first one
-
 # Todo
 ## Taunts
 - Purchasable item

@@ -1,0 +1,5 @@
+- It's meant to be a reference and a guide
+	- Write what is useful
+	- Don't write for the sake of writing
+- Use the ideas folder for things that are yet to exist in the game
+- If something becomes unnecessary, delete it

@@ -1,4 +1,0 @@
-- [x] Spawn box on button press
-- [x] Despawn box after time
-- [x] Animation phases
-- [x] Box reduces health on opponents who get hit by it

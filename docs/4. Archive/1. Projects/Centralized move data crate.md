@@ -1,9 +1,0 @@
-- [x] Move ids
-- [x] Values
-	- [x] Frame data
-	- [x] Damage boxes
-	- [x] Input
-- [x] Method to insert values
-	- [x] Frame data
-	- [x] Damage boxes
-	- [x] Input

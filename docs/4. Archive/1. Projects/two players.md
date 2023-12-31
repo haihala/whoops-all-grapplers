@@ -1,3 +1,0 @@
-- [x] Spawn second character
-- [x] Test that controllers connect correctly
-- [x] Flip based on the other character

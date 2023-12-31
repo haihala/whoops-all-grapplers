@@ -1,2 +1,0 @@
-- [x] A bind to pause the game in [[Dev mode]]
-- [x] Another bind to advance by one frame.

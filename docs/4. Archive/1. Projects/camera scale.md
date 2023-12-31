@@ -1,5 +1,0 @@
-- [x] Can the camera zoom
-- [x] If, pick scale
-- [x] If not, scale up elements to be visible.
-- [x] Add background for testing.
-- [x] Move camera to match ground plane

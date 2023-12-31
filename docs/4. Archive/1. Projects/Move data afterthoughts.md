@@ -1,7 +1,0 @@
-- [x] Instead of loading hitboxes, just pass them in the events.
-	- May require setting the owner in the bank which is fine.
-	- What is the unique key that stores currently spawned things? - ID again
-		- This breaks if the same move has multiple boxes out at once, but so did the previous model.
-		- This is fixable by changing the  id when that is relevant.
-- [x] Ground ok and air ok to moves
-- [x] Generalize the move starter since it no longer references anything ryan specific

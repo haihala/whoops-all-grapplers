@@ -1,8 +1,0 @@
-- [ ] Get useful stuff out of the archive
-	- [ ] Idea dumps
-	- [ ] Characters
-- [x] Go through current spec
-- [x] Reorganize current spec out of PARA
-- [x] Update [[Docs]]
-- [ ] Remove archive folder
-- [x] Clear taskboard

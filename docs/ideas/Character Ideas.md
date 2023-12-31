@@ -33,19 +33,40 @@
 		- There is a big puppet cat
 - Escanor looking motherfucker
 	- **The** big brawler guy
-	- Deliberately chooses to not "Cheat". 
+	- Deliberately chooses to not "Cheat".
 		- They acknowledge that they would have it easier but choose to do it right
 	- Instead they compensate with an insane grindset
+- Old grizzled veteran
+	- What 50 years of street fighting does to Ryu
+	- The Wrestler movie
+	- Abuses painkillers to get back to baseline
+	- Difficult lowtier
+- CPU, Chief Pounding Unit, a robotic Vince McMahoon
+	- Robot character that heavily uses weird quirks of computer naming in their items (like how HandL sounds like handle)
+	- Machine head from invincible
+- Lex
+	- A genderbent judge dredd (lex as in the law)
+	- Mechanic where she builds up heat stacks if she keeps on going
+		- Loses them when she loses momentum
+		- Visually lights on fire
+		- A robbery character
+		- Twitter clips (Lex as in Alex)
+
 
 # Traits
 - Character who gets that good damage only from anti-airs (tip of anti-air has special props?) and then plays an oppressive death by a thousand cuts ground game
-- Robot character that heavily uses weird quirks of computer naming in their items (like how HandL sounds like handle)
+- Musician character with a gimmick where certain moves in a certain sequence count as "Riffs" and grant bonus advantages
 - Bad boy sumo guy
 - Kaizen (continuous improvement in japanese) as the name of a character
 - Zoner that gives you a damage buff that gets reset on whiff and when getting hit
 - Mantain - Man-mountain
 - Some big character has a parry in place of a backdash
 - An arsenal character that can do a slow reload animation after shooting or just drop the gun. Dropped guns remain in the world.
+	- Batman -like single use gadgets
 - Character who can give special health regen to the opponent
 	- Maybe make them a grappler and they can take the special health away on a grab
 	- If full, special health starts replacing normal health (slowly)
+- "Chris" a white guy playing the role of the constant underdog. Has to get facial reconstructive surgery and a stage name change every few years.
+- Dirty boxer (Has a gun in one glove) Maybe something that can't be reloaded)
+- Lovecraftian aquaman
+	- Small frame with the power of Cthulhu behind them

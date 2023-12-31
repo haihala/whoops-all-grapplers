@@ -9,3 +9,13 @@
 	- Think chainsaw man katana man
 - A dash punch that has a charged and an uncharged version, but the uncharged version is better.
 	- You can't do the uncharged one out of block unless you get tricky
+- A move called "con", which puts the player in a rekka-like state they can continue with extentions like "-centrate", "-test", "-vince"
+- qcf+f small hop forwards
+	- -> f for fast anti-air
+	- -> 46+button for a donkey kick (with lightning bolt effect)
+	- -> g for a grab face, connect with knees, fall on your back
+- Forward charge, back+button = counter
+- Whip attacks with slightly adjustable sweet spots
+	- Like doing qcf+f will put the origin at a point and then the stick position slightly moves where the hit is
+- 693 as an overhead input (heavy smash)
+- 689 input shoryuken that has a 623 downwards smash follow up

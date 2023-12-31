@@ -1,5 +1,0 @@
-- [x] Allow early buttons (after half of the move is done)
-- [x] Define specials as stick shifts with possible requirements for the previous position.
-	- [x] Move special and motion back to input parsing
-	- [x] Define inputs in moves crate with requirement vectors
-	- [x] Implement requirement vector into motion for motion

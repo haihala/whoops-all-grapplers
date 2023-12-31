@@ -1,7 +1,0 @@
-- [x] instead of reducing health, add a hit object to a manager
-	- This is so that blocking and hit detection can be separated
-- [x] Stun
-	- [x] hitstun
-	- [x] blockstun
-- [x] Damage reduction on block
-- [x] Some pushback

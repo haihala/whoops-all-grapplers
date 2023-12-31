@@ -8,8 +8,6 @@
 - [[Dev binds 2.0]]
 - Minor
 	- Hurtbox padding
-	- [[Track spikes]] shouldn't activate if not doing a move
-		- May be a landing thing
 	- Jump
 		- Reduce pre-jump frames
 		- Allow direction corrections after pre-jump

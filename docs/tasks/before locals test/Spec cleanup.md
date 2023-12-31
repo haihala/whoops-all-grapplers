@@ -3,5 +3,5 @@
 	- [ ] Characters
 - [x] Go through current spec
 - [x] Reorganize current spec out of PARA
-- [ ] Update [[Docs]]
+- [x] Update [[Docs]]
 - [ ] Remove archive folder

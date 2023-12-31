@@ -1,6 +1,9 @@
 [env]
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 
+[config]
+default_to_workspace = false
+
 [tasks.build]
 command = "cargo"
 args = ["build"]
@@ -25,14 +28,12 @@ command = "cargo"
 args = ["udeps"]
 
 [tasks.validate]
-run_task = { name = ["format", "clippy", "test", "udeps"], parallel = true }
+run_task = { name = ["format", "clippy", "test", "udeps"] }
 
 [tasks.dev]
-workspace = false
 command = "cargo"
 args = ["run", "--", "--dev", "mizku", "mizku"]
 
 [tasks.prod]
-workspace = false
 command = "cargo"
 args = ["run", "--", "mizku", "mizku"]

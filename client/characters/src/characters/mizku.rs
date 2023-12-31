@@ -1294,7 +1294,7 @@ fn mizku_items() -> HashMap<ItemId, Item> {
             ItemId::SpaceSuitBoots,
             Item {
                 category: ItemCategory::Upgrade(vec![ItemId::Boots, ItemId::Dumbbell]),
-                explanation: "Makes j.h launch on hit\n\nAnd we have liftoff".into(),
+                explanation: "Makes jumping stomp launch on hit\n\nAnd we have liftoff".into(),
                 cost: 800,
                 ..default()
             },

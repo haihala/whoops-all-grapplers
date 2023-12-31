@@ -133,7 +133,7 @@ fn setup_round_counter(commands: &mut Commands, parent: Entity, fonts: &Fonts, p
                 "0",
                 TextStyle {
                     font: fonts.basic.clone(),
-                    font_size: 18.0,
+                    font_size: 40.0,
                     color: GENERIC_TEXT_COLOR,
                 },
             ),

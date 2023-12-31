@@ -108,7 +108,7 @@ pub fn setup_counter(
         .with_children(|root_bar| {
             let text_style = TextStyle {
                 font: font.clone(),
-                font_size: 20.0,
+                font_size: 36.0,
                 color: RESOURCE_COUNTER_TEXT_COLOR,
             };
 

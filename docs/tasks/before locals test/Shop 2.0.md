@@ -1,7 +1,7 @@
 - [ ] Low hanging fruit prettyfication
 	- [ ] Missing icons
 	- [ ] Colors (especially ones you cannot afford)
-	- [ ] Increase font size where it's too small
+	- [x] Increase font size where it's too small
 - [ ] Automatic dependency purchase
 - [ ] Undo button
 - [ ] Visible button prompts

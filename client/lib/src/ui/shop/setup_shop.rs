@@ -240,7 +240,7 @@ fn setup_explanation_box(
 
     let basic_style = TextStyle {
         font: fonts.basic.clone(),
-        font_size: 12.0,
+        font_size: 30.0,
         color: GENERIC_TEXT_COLOR,
     };
 
@@ -249,7 +249,7 @@ fn setup_explanation_box(
         container,
         vec!["Item name"],
         TextStyle {
-            font_size: 24.0,
+            font_size: 48.0,
             ..basic_style.clone()
         },
         "Item name",
@@ -335,7 +335,7 @@ fn setup_inventory(
         vec!["$", "0"],
         TextStyle {
             font: fonts.basic.clone(),
-            font_size: 24.0,
+            font_size: 48.0,
             color: GENERIC_TEXT_COLOR,
         },
         "Money",
@@ -509,7 +509,6 @@ fn setup_category(
             NodeBundle {
                 background_color: SHOP_DARK_BACKGROUND_COLOR.into(),
                 style: Style {
-                    // size: Size::AUTO,
                     flex_direction: FlexDirection::Column,
                     margin: UiRect::all(Val::Px(3.0)),
                     flex_grow: 1.0,
@@ -530,12 +529,11 @@ fn setup_category(
                 title,
                 TextStyle {
                     font: fonts.basic.clone(),
-                    font_size: 18.0,
+                    font_size: 32.0,
                     color: GENERIC_TEXT_COLOR,
                 },
             )
             .with_style(Style {
-                height: Val::Px(30.0),
                 width: Val::Auto,
                 margin: UiRect {
                     top: Val::Px(5.0),
@@ -567,7 +565,6 @@ fn setup_shop_item(
         .spawn((
             NodeBundle {
                 style: Style {
-                    // size: Size::AUTO,
                     justify_content: JustifyContent::FlexStart,
                     align_items: AlignItems::Center,
                     margin,
@@ -585,7 +582,7 @@ fn setup_shop_item(
 
     let base_style = TextStyle {
         font: fonts.basic.clone(),
-        font_size: 16.0,
+        font_size: 32.0,
         color: GENERIC_TEXT_COLOR,
     };
 
@@ -594,7 +591,7 @@ fn setup_shop_item(
         commands,
         container,
         TextStyle {
-            font_size: 24.0,
+            font_size: 36.0,
             ..base_style.clone()
         },
         id,

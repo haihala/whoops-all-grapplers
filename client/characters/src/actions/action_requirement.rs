@@ -6,7 +6,9 @@ use crate::{ResourceType, Situation};
 pub enum ActionRequirement {
     Grounded,
     Airborne,
-    OngoingAction(Vec<ActionId>),
+    AnyActionOngoing,
+    ActionOngoing(Vec<ActionId>),
+    ActionNotOngoing(Vec<ActionId>),
     ItemsOwned(Vec<ItemId>),
     ResourceFull(ResourceType),
     ResourceValue(ResourceType, i32),
@@ -29,12 +31,24 @@ impl ActionRequirement {
                         return false;
                     }
                 }
-                ActionRequirement::OngoingAction(ids) => {
+                ActionRequirement::ActionOngoing(ids) => {
                     let Some(tracker) = &situation.tracker else {
                         return false;
                     };
 
                     if !ids.contains(&tracker.action_id) {
+                        return false;
+                    }
+                }
+                ActionRequirement::ActionNotOngoing(ids) => {
+                    if let Some(tracker) = &situation.tracker {
+                        if ids.contains(&tracker.action_id) {
+                            return false;
+                        }
+                    };
+                }
+                ActionRequirement::AnyActionOngoing => {
+                    if situation.tracker.is_none() {
                         return false;
                     }
                 }

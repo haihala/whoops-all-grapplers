@@ -52,8 +52,7 @@ impl ActionTracker {
 
         // TODO: Reverse iteration would make sense here
         for (policy, frame) in self.cancel_breakpoints.iter() {
-            let can_cancel =
-                policy.can_cancel(self.has_hit, action_id, action.cancel_category.clone());
+            let can_cancel = policy.can_cancel(self.has_hit, action_id, action.category.clone());
             let was_cancellable = output.is_some();
 
             if can_cancel && !was_cancellable {
@@ -74,7 +73,7 @@ impl ActionTracker {
 
 #[cfg(test)]
 mod test_cancellable_into_since {
-    use crate::actions::CancelCategory;
+    use crate::actions::ActionCategory;
 
     use super::*;
 
@@ -104,7 +103,7 @@ mod test_cancellable_into_since {
             tracker.cancellable_into_since(
                 ActionId::TestMove,
                 Action {
-                    cancel_category: CancelCategory::Normal,
+                    category: ActionCategory::NeutralNormal,
                     ..default()
                 }
             ),
@@ -117,7 +116,7 @@ mod test_cancellable_into_since {
             tracker.cancellable_into_since(
                 ActionId::TestMove,
                 Action {
-                    cancel_category: CancelCategory::Normal,
+                    category: ActionCategory::NeutralNormal,
                     ..default()
                 }
             ),
@@ -152,7 +151,7 @@ mod test_cancellable_into_since {
             tracker.cancellable_into_since(
                 ActionId::TestMove,
                 Action {
-                    cancel_category: CancelCategory::Normal,
+                    category: ActionCategory::NeutralNormal,
                     ..default()
                 }
             ),
@@ -163,7 +162,7 @@ mod test_cancellable_into_since {
     #[test]
     fn closed_window() {
         let basic_normal = Action {
-            cancel_category: CancelCategory::Normal,
+            category: ActionCategory::NeutralNormal,
             ..default()
         };
 
@@ -247,7 +246,7 @@ mod test_cancellable_into_since {
             tracker.cancellable_into_since(
                 ActionId::TestMove,
                 Action {
-                    cancel_category: CancelCategory::Special,
+                    category: ActionCategory::Special,
                     ..default()
                 }
             ),
@@ -258,7 +257,7 @@ mod test_cancellable_into_since {
             tracker.cancellable_into_since(
                 ActionId::TestMove,
                 Action {
-                    cancel_category: CancelCategory::CommandNormal,
+                    category: ActionCategory::CommandNormal,
                     ..default()
                 }
             ),
@@ -269,7 +268,7 @@ mod test_cancellable_into_since {
             tracker.cancellable_into_since(
                 ActionId::TestMove,
                 Action {
-                    cancel_category: CancelCategory::Normal,
+                    category: ActionCategory::NeutralNormal,
                     ..default()
                 }
             ),

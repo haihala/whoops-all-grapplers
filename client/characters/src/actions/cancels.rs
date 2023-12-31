@@ -1,27 +1,24 @@
-use core::panic;
-
+use bevy::prelude::*;
 use bevy::reflect::Reflect;
 use wag_core::ActionId;
 
-#[derive(Clone, Default, PartialEq, Eq, Debug, PartialOrd, Ord, Reflect)]
-pub enum CancelCategory {
-    Any,
-    Jump,
-    Dash,
-    Normal,
-    CommandNormal,
-    Special,
-    #[default]
-    Uncancellable,
-    Everything, // Usable for tests as a "this is cancellable from anything that is cancellable"
+use super::action::ActionCategory;
 
-    Specific(Vec<ActionId>),
-}
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Reflect)]
+#[derive(Clone, Debug, PartialEq, Eq, Reflect)]
 pub struct CancelRule {
     pub requires_hit: bool,
-    pub category: CancelCategory,
+    pub category: ActionCategory,
+    pub specifics: Vec<ActionId>,
+}
+
+impl Default for CancelRule {
+    fn default() -> Self {
+        Self {
+            requires_hit: true,
+            category: ActionCategory::Forced,
+            specifics: vec![],
+        }
+    }
 }
 impl CancelRule {
     pub fn never() -> Self {
@@ -31,69 +28,84 @@ impl CancelRule {
     pub fn any() -> Self {
         Self {
             requires_hit: false,
-            category: CancelCategory::Any,
+            category: ActionCategory::Dash,
+            ..default()
+        }
+    }
+
+    pub fn dash() -> Self {
+        Self {
+            requires_hit: false,
+            category: ActionCategory::Jump,
+            ..default()
         }
     }
 
     pub fn jump() -> Self {
         Self {
             requires_hit: false,
-            category: CancelCategory::Dash,
+            category: ActionCategory::NeutralNormal,
+            ..default()
         }
     }
 
     pub fn neutral_normal_recovery() -> Self {
         Self {
             requires_hit: true,
-            category: CancelCategory::CommandNormal,
+            category: ActionCategory::CommandNormal,
+            ..default()
         }
     }
 
     pub fn command_normal_recovery() -> Self {
         Self {
             requires_hit: true,
-            category: CancelCategory::Special,
+            category: ActionCategory::Special,
+            ..default()
+        }
+    }
+
+    pub fn special_recovery() -> Self {
+        Self {
+            requires_hit: true,
+            category: ActionCategory::Super,
+            ..default()
         }
     }
 
     pub fn specific(targets: Vec<ActionId>) -> Self {
         Self {
             requires_hit: false,
-            category: CancelCategory::Specific(targets),
+            specifics: targets,
+            ..default()
         }
     }
 
-    pub fn can_cancel(
-        &self,
-        hit: bool,
-        action_id: ActionId,
-        cancel_category: CancelCategory,
-    ) -> bool {
-        if self.category == CancelCategory::Uncancellable {
-            return false;
+    pub fn specific_or_category(targets: Vec<ActionId>, category: ActionCategory) -> Self {
+        Self {
+            requires_hit: false,
+            specifics: targets,
+            category,
         }
+    }
 
+    pub fn can_cancel(&self, hit: bool, action_id: ActionId, action_type: ActionCategory) -> bool {
         if !hit && self.requires_hit {
             return false;
         }
 
-        if let CancelCategory::Specific(options) = &self.category {
-            if options.contains(&action_id) {
-                return true;
-            }
-        }
-
-        // self.rule will be elevated by one level to prevent self cancels
-        if self.category <= cancel_category {
+        if self.specifics.contains(&action_id) {
             return true;
         }
-        false
+
+        action_type.can_be_standard_cancelled_into() && self.category <= action_type
     }
 
-    pub fn cancel_out_of(category: CancelCategory) -> Self {
+    pub fn cancel_out_of(category: ActionCategory) -> Self {
         match category {
-            CancelCategory::Normal => Self::neutral_normal_recovery(),
-            CancelCategory::CommandNormal => Self::command_normal_recovery(),
+            ActionCategory::NeutralNormal => Self::neutral_normal_recovery(),
+            ActionCategory::CommandNormal => Self::command_normal_recovery(),
+            ActionCategory::Special => Self::special_recovery(),
             _ => panic!("Cancels out of {:?} are not supported", category),
         }
     }
@@ -105,17 +117,9 @@ mod test {
 
     #[test]
     fn cancel_sanity_check() {
-        assert!(CancelRule::any().can_cancel(true, ActionId::TestMove, CancelCategory::Everything));
-        assert!(CancelRule::any().can_cancel(
-            false,
-            ActionId::TestMove,
-            CancelCategory::Everything
-        ));
-        assert!(!CancelRule::never().can_cancel(
-            true,
-            ActionId::TestMove,
-            CancelCategory::Everything
-        ));
+        assert!(CancelRule::any().can_cancel(true, ActionId::TestMove, ActionCategory::Special));
+        assert!(CancelRule::any().can_cancel(false, ActionId::TestMove, ActionCategory::Special));
+        assert!(!CancelRule::never().can_cancel(true, ActionId::TestMove, ActionCategory::Special));
     }
 
     #[test]
@@ -123,12 +127,12 @@ mod test {
         assert!(CancelRule::neutral_normal_recovery().can_cancel(
             true,
             ActionId::TestMove,
-            CancelCategory::CommandNormal
+            ActionCategory::CommandNormal
         ));
         assert!(CancelRule::command_normal_recovery().can_cancel(
             true,
             ActionId::TestMove,
-            CancelCategory::Special
+            ActionCategory::Special
         ));
     }
 }

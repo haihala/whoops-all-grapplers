@@ -9,15 +9,15 @@ use wag_core::{
 };
 
 use crate::{
-    actions::{ActionRequirement, AnimationRequest},
+    actions::{ActionCategory, ActionRequirement, AnimationRequest},
     resources::{RenderInstructions, ResourceType},
     Action, ActionBlock,
     ActionEvent::*,
     Attack,
     AttackHeight::*,
     BlockType::*,
-    CancelCategory, CancelRule, ChargeProperty, CommonAttackProps, ContinuationRequirement,
-    CounterVisual, Hitbox, Item,
+    CancelRule, ChargeProperty, CommonAttackProps, ContinuationRequirement, CounterVisual, Hitbox,
+    Item,
     ItemCategory::*,
     Lifetime, Movement, Projectile, ResourceBarVisual, SpecialProperty,
     StunType::*,
@@ -116,7 +116,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::Slap,
             Action::grounded(
                 Some("f"),
-                CancelCategory::Normal,
+                ActionCategory::NeutralNormal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::Slap.into()],
@@ -145,7 +145,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::LowChop,
             Action::grounded(
                 Some("[123]f"),
-                CancelCategory::CommandNormal,
+                ActionCategory::CommandNormal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::CrouchChop.into()],
@@ -174,7 +174,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::BurnStraight,
             Action::grounded(
                 Some("s"),
-                CancelCategory::Normal,
+                ActionCategory::NeutralNormal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::BurnStraight.into()],
@@ -247,7 +247,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::AntiAir,
             Action::grounded(
                 Some("[123]s"),
-                CancelCategory::CommandNormal,
+                ActionCategory::CommandNormal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::AntiAir.into()],
@@ -276,7 +276,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::AirSlap,
             Action::airborne(
                 Some("f"),
-                CancelCategory::Normal,
+                ActionCategory::NeutralNormal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::AirSlap.into()],
@@ -306,7 +306,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::Divekick,
             Action::new(
                 Some("s"),
-                CancelCategory::Normal,
+                ActionCategory::NeutralNormal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::Divekick.into(), Consume(ItemId::Boots)],
@@ -340,7 +340,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::ForwardThrow,
             Action::grounded(
                 Some("w"),
-                CancelCategory::Normal,
+                ActionCategory::Throw,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::NormalThrow.into()],
@@ -381,7 +381,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::BackThrow,
             Action::grounded(
                 Some("4w"),
-                CancelCategory::CommandNormal,
+                ActionCategory::Throw,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::NormalThrow.into()],
@@ -423,7 +423,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::Sweep,
             Action::grounded(
                 Some("[123]w"),
-                CancelCategory::CommandNormal,
+                ActionCategory::CommandNormal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::Sweep.into()],
@@ -456,7 +456,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::AirThrow,
             Action::airborne(
                 Some("w"),
-                CancelCategory::Normal,
+                ActionCategory::Throw,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::AirThrow.into()],
@@ -503,7 +503,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::Dodge,
             Action::grounded(
                 Some("252"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![ActionBlock {
                     events: vec![
                         ForceStand,
@@ -524,7 +524,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::GroundSlam,
             Action::grounded(
                 Some("[789]6s"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::GroundSlam.into()],
@@ -561,7 +561,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::AirSlam,
             Action::airborne(
                 Some("[789]6s"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::AirSlam.into()],
@@ -598,7 +598,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::BudgetBoom,
             Action::grounded(
                 Some("[41]6f"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![ForceStand],
@@ -629,7 +629,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::SonicBoom,
             Action::new(
                 Some("[41]6f"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![ForceStand, ClearResource(ResourceType::Charge)],
@@ -668,7 +668,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::Hadouken,
             Action::grounded(
                 Some("236f"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![ForceStand],
@@ -700,7 +700,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::HeavyHadouken,
             Action::new(
                 Some("236s"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![ForceStand, ModifyResource(ResourceType::Meter, -30)],

@@ -10,16 +10,16 @@ use wag_core::{
 };
 
 use crate::{
-    actions::{ActionRequirement, Projectile},
+    actions::{ActionCategory, ActionRequirement, Projectile},
     resources::{RenderInstructions, ResourceType},
     Action, ActionBlock,
     ActionEvent::*,
     Attack,
     AttackHeight::*,
     BlockType::*,
-    CancelCategory, CancelRule, ChargeProperty, CommonAttackProps, ContinuationRequirement,
-    CounterVisual, FlashRequest, Hitbox, Item, ItemCategory, Lifetime, Movement, ResourceBarVisual,
-    Situation, SpecialProperty,
+    CancelRule, ChargeProperty, CommonAttackProps, ContinuationRequirement, CounterVisual,
+    FlashRequest, Hitbox, Item, ItemCategory, Lifetime, Movement, ResourceBarVisual, Situation,
+    SpecialProperty,
     StunType::*,
     ToHit, WAGResource,
 };
@@ -178,7 +178,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::HeelKick,
             Action::grounded(
                 Some("s"),
-                CancelCategory::Normal,
+                ActionCategory::NeutralNormal,
                 vec![
                     ActionBlock {
                         events: vec![
@@ -250,7 +250,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::HighStab,
             Action::grounded(
                 Some("g"),
-                CancelCategory::Normal,
+                ActionCategory::NeutralNormal,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::HighStab.into()],
@@ -296,7 +296,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::LowStab,
             Action::grounded(
                 Some("[123]+g"),
-                CancelCategory::CommandNormal,
+                ActionCategory::CommandNormal,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::LowStab.into()],
@@ -364,7 +364,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::FootDive,
             Action::airborne(
                 Some("s"),
-                CancelCategory::Normal,
+                ActionCategory::NeutralNormal,
                 vec![
                     ActionBlock {
                         events: vec![
@@ -434,7 +434,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::ForwardThrow,
             Action::grounded(
                 Some("w"),
-                CancelCategory::Normal,
+                ActionCategory::Throw,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::StandThrowStartup.into()],
@@ -464,7 +464,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::BackThrow,
             Action::grounded(
                 Some("4+w"),
-                CancelCategory::CommandNormal,
+                ActionCategory::Throw,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::StandThrowStartup.into()],
@@ -502,7 +502,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::CrouchThrow,
             Action::grounded(
                 Some("[123]+w"),
-                CancelCategory::CommandNormal,
+                ActionCategory::CommandNormal,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::CrouchThrowStartup.into()],
@@ -546,7 +546,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::AirThrow,
             Action::airborne(
                 Some("w"),
-                CancelCategory::Normal,
+                ActionCategory::Throw,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::AirThrowStartup.into()],
@@ -596,7 +596,7 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
         MizkuActionId::Sharpen,
         Action::grounded(
             Some("214g"),
-            CancelCategory::Special,
+            ActionCategory::Special,
             vec![
                 ActionBlock {
                     events: vec![MizkuAnimation::Sharpen.into()],
@@ -623,7 +623,7 @@ macro_rules! rising_sun {
     ( $air:expr, $button:literal, $charged:expr ) => {
         Action::new(
             Some(concat!("[123][789]", $button)),
-            CancelCategory::Special,
+            ActionCategory::Special,
             vec![
                 ActionBlock {
                     events: {
@@ -698,6 +698,7 @@ macro_rules! rising_sun {
 
                         original
                     }),
+                    cancel_policy: CancelRule::special_recovery(),
                     ..default()
                 },
             ],
@@ -766,7 +767,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::ShortBackSway,
             Action::grounded(
                 Some("214f"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![
@@ -777,10 +778,13 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             }
                             .into(),
                         ],
-                        cancel_policy: CancelRule::specific(vec![
-                            ActionId::Mizku(MizkuActionId::ShortSwayDash),
-                            ActionId::Mizku(MizkuActionId::SwayCancel),
-                        ]),
+                        cancel_policy: CancelRule::specific_or_category(
+                            vec![
+                                ActionId::Mizku(MizkuActionId::ShortSwayDash),
+                                ActionId::Mizku(MizkuActionId::SwayCancel),
+                            ],
+                            ActionCategory::Super,
+                        ),
                         exit_requirement: ContinuationRequirement::Time(3),
                         mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                             if situation.inventory.contains(&ItemId::GentlemansPipe) {
@@ -800,10 +804,13 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         }
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(37),
-                        cancel_policy: CancelRule::specific(vec![
-                            ActionId::Mizku(MizkuActionId::ShortSwayDash),
-                            ActionId::Mizku(MizkuActionId::SwayCancel),
-                        ]),
+                        cancel_policy: CancelRule::specific_or_category(
+                            vec![
+                                ActionId::Mizku(MizkuActionId::ShortSwayDash),
+                                ActionId::Mizku(MizkuActionId::SwayCancel),
+                            ],
+                            ActionCategory::Super,
+                        ),
                         mutator: None,
                     },
                 ],
@@ -813,7 +820,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::LongBackSway,
             Action::new(
                 Some("214s"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![
@@ -829,10 +836,13 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 ..default()
                             }),
                         ],
-                        cancel_policy: CancelRule::specific(vec![
-                            ActionId::Mizku(MizkuActionId::LongSwayDash),
-                            ActionId::Mizku(MizkuActionId::SwayCancel),
-                        ]),
+                        cancel_policy: CancelRule::specific_or_category(
+                            vec![
+                                ActionId::Mizku(MizkuActionId::LongSwayDash),
+                                ActionId::Mizku(MizkuActionId::SwayCancel),
+                            ],
+                            ActionCategory::Super,
+                        ),
                         exit_requirement: ContinuationRequirement::Time(3),
                         mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                             if situation.inventory.contains(&ItemId::GentlemansPipe) {
@@ -852,10 +862,13 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         }
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(37),
-                        cancel_policy: CancelRule::specific(vec![
-                            ActionId::Mizku(MizkuActionId::LongSwayDash),
-                            ActionId::Mizku(MizkuActionId::SwayCancel),
-                        ]),
+                        cancel_policy: CancelRule::specific_or_category(
+                            vec![
+                                ActionId::Mizku(MizkuActionId::LongSwayDash),
+                                ActionId::Mizku(MizkuActionId::SwayCancel),
+                            ],
+                            ActionCategory::Super,
+                        ),
                         mutator: None,
                     },
                 ],
@@ -869,7 +882,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::ShortSwayDash,
             Action::new(
                 Some("s"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::SwayDash.into(), ClearMovement],
@@ -891,11 +904,14 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelRule::specific(vec![
-                            ActionId::Mizku(MizkuActionId::SwayOverhead),
-                            ActionId::Mizku(MizkuActionId::SwayLow),
-                            ActionId::Mizku(MizkuActionId::Pilebunker),
-                        ]),
+                        cancel_policy: CancelRule::specific_or_category(
+                            vec![
+                                ActionId::Mizku(MizkuActionId::SwayOverhead),
+                                ActionId::Mizku(MizkuActionId::SwayLow),
+                                ActionId::Mizku(MizkuActionId::Pilebunker),
+                            ],
+                            ActionCategory::Super,
+                        ),
                         ..default()
                     },
                     ActionBlock {
@@ -908,15 +924,18 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelRule::specific(vec![
-                            ActionId::Mizku(MizkuActionId::SwayOverhead),
-                            ActionId::Mizku(MizkuActionId::SwayLow),
-                            ActionId::Mizku(MizkuActionId::Pilebunker),
-                        ]),
+                        cancel_policy: CancelRule::specific_or_category(
+                            vec![
+                                ActionId::Mizku(MizkuActionId::SwayOverhead),
+                                ActionId::Mizku(MizkuActionId::SwayLow),
+                                ActionId::Mizku(MizkuActionId::Pilebunker),
+                            ],
+                            ActionCategory::Super,
+                        ),
                         ..default()
                     },
                 ],
-                vec![ActionRequirement::OngoingAction(vec![ActionId::Mizku(
+                vec![ActionRequirement::ActionOngoing(vec![ActionId::Mizku(
                     MizkuActionId::ShortBackSway,
                 )])],
             ),
@@ -925,7 +944,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::LongSwayDash,
             Action::new(
                 Some("f"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::SwayDash.into(), ClearMovement],
@@ -947,12 +966,15 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelRule::specific(vec![
-                            ActionId::Mizku(MizkuActionId::SwayCancel),
-                            ActionId::Mizku(MizkuActionId::SwayOverhead),
-                            ActionId::Mizku(MizkuActionId::SwayLow),
-                            ActionId::Mizku(MizkuActionId::Pilebunker),
-                        ]),
+                        cancel_policy: CancelRule::specific_or_category(
+                            vec![
+                                ActionId::Mizku(MizkuActionId::SwayCancel),
+                                ActionId::Mizku(MizkuActionId::SwayOverhead),
+                                ActionId::Mizku(MizkuActionId::SwayLow),
+                                ActionId::Mizku(MizkuActionId::Pilebunker),
+                            ],
+                            ActionCategory::Super,
+                        ),
                         ..default()
                     },
                     ActionBlock {
@@ -965,16 +987,19 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelRule::specific(vec![
-                            ActionId::Mizku(MizkuActionId::SwayCancel),
-                            ActionId::Mizku(MizkuActionId::SwayOverhead),
-                            ActionId::Mizku(MizkuActionId::SwayLow),
-                            ActionId::Mizku(MizkuActionId::Pilebunker),
-                        ]),
+                        cancel_policy: CancelRule::specific_or_category(
+                            vec![
+                                ActionId::Mizku(MizkuActionId::SwayCancel),
+                                ActionId::Mizku(MizkuActionId::SwayOverhead),
+                                ActionId::Mizku(MizkuActionId::SwayLow),
+                                ActionId::Mizku(MizkuActionId::Pilebunker),
+                            ],
+                            ActionCategory::Super,
+                        ),
                         ..default()
                     },
                 ],
-                vec![ActionRequirement::OngoingAction(vec![ActionId::Mizku(
+                vec![ActionRequirement::ActionOngoing(vec![ActionId::Mizku(
                     MizkuActionId::LongBackSway,
                 )])],
             ),
@@ -983,13 +1008,14 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::SwayCancel,
             Action::new(
                 Some("g"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![ActionBlock {
                     events: vec![MizkuAnimation::SwayCancel.into()],
                     exit_requirement: ContinuationRequirement::Time(10),
+                    cancel_policy: CancelRule::special_recovery(),
                     ..default()
                 }],
-                vec![ActionRequirement::OngoingAction(vec![
+                vec![ActionRequirement::ActionOngoing(vec![
                     ActionId::Mizku(MizkuActionId::LongBackSway),
                     ActionId::Mizku(MizkuActionId::LongSwayDash), // Long backdash can be cancelled, short cannot
                     ActionId::Mizku(MizkuActionId::ShortBackSway),
@@ -1000,7 +1026,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::SwayOverhead,
             Action::new(
                 Some("6+w"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::SwayOverhead.into()],
@@ -1026,10 +1052,11 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(20),
+                        cancel_policy: CancelRule::special_recovery(),
                         ..default()
                     },
                 ],
-                vec![ActionRequirement::OngoingAction(vec![
+                vec![ActionRequirement::ActionOngoing(vec![
                     ActionId::Mizku(MizkuActionId::LongSwayDash),
                     ActionId::Mizku(MizkuActionId::ShortSwayDash),
                 ])],
@@ -1039,7 +1066,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::SwayLow,
             Action::new(
                 Some("[123]+w"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::SwayLow.into()],
@@ -1072,10 +1099,11 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(61),
+                        cancel_policy: CancelRule::special_recovery(),
                         ..default()
                     },
                 ],
-                vec![ActionRequirement::OngoingAction(vec![
+                vec![ActionRequirement::ActionOngoing(vec![
                     ActionId::Mizku(MizkuActionId::LongSwayDash),
                     ActionId::Mizku(MizkuActionId::ShortSwayDash),
                 ])],
@@ -1085,7 +1113,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::Pilebunker,
             Action::new(
                 Some("w"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::Pilebunker.into()],
@@ -1110,10 +1138,11 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(37),
+                        cancel_policy: CancelRule::special_recovery(),
                         ..default()
                     },
                 ],
-                vec![ActionRequirement::OngoingAction(vec![
+                vec![ActionRequirement::ActionOngoing(vec![
                     ActionId::Mizku(MizkuActionId::LongSwayDash),
                     ActionId::Mizku(MizkuActionId::ShortSwayDash),
                 ])],
@@ -1129,7 +1158,7 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
             MizkuActionId::KunaiThrow,
             Action::new(
                 Some("236f"),
-                CancelCategory::Special,
+                ActionCategory::Special,
                 vec![
                     ActionBlock {
                         events: vec![
@@ -1160,6 +1189,7 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(10),
+                        cancel_policy: CancelRule::special_recovery(),
                         ..default()
                     },
                 ],
@@ -1173,7 +1203,7 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
             MizkuActionId::Overhead,
             Action::new(
                 Some("6+s"),
-                CancelCategory::Normal,
+                ActionCategory::NeutralNormal,
                 vec![
                     ActionBlock {
                         events: vec![

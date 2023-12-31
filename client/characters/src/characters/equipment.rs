@@ -4,14 +4,18 @@ use wag_core::{
 };
 
 use crate::{
-    actions::ActionRequirement, Action, ActionBlock, ActionEvent, CancelCategory, CancelRule,
-    ConsumableType::*, ContinuationRequirement, Item, ItemCategory::*, Movement,
+    actions::{ActionCategory, ActionRequirement},
+    Action, ActionBlock, ActionEvent, CancelRule,
+    ConsumableType::*,
+    ContinuationRequirement, Item,
+    ItemCategory::*,
+    Movement,
 };
 
 fn get_high_gi_parry() -> Action {
     Action::new(
         Some("56"),
-        CancelCategory::Any,
+        ActionCategory::Other,
         vec![ActionBlock {
             events: vec![
                 ActionEvent::ForceStand,
@@ -35,7 +39,7 @@ fn get_high_gi_parry() -> Action {
 fn parry_flash(parry_animation: Animation) -> Action {
     Action::new(
         None,
-        CancelCategory::Uncancellable,
+        ActionCategory::Forced,
         vec![ActionBlock {
             events: vec![
                 parry_animation.into(),
@@ -54,7 +58,7 @@ fn parry_flash(parry_animation: Animation) -> Action {
 fn fast_fall() -> Action {
     Action::new(
         Some("[456789][123]"),
-        CancelCategory::Uncancellable,
+        ActionCategory::Other,
         vec![ActionBlock {
             events: vec![Movement::impulse(Vec2::Y * -1.5).into()],
             exit_requirement: ContinuationRequirement::Time(10),

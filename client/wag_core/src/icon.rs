@@ -4,17 +4,21 @@ use bevy::utils::HashMap;
 pub enum Icon {
     ThumbTacks(usize),
     Boots,
+    Crowbar,
 }
 impl Icon {
     pub fn paths() -> HashMap<Icon, String> {
-        vec![(Icon::Boots, "icons/boots.png".into())]
-            .into_iter()
-            .chain((1..9).map(|id| {
-                (
-                    Icon::ThumbTacks(id),
-                    format!("icons/thumbtack{}.png", usize::pow(2, (id - 1) as u32)),
-                )
-            }))
-            .collect()
+        vec![
+            (Icon::Boots, "icons/boots.png".into()),
+            (Icon::Crowbar, "icons/crowbar.png".into()),
+        ]
+        .into_iter()
+        .chain((1..9).map(|id| {
+            (
+                Icon::ThumbTacks(id),
+                format!("icons/thumbtack{}.png", usize::pow(2, (id - 1) as u32)),
+            )
+        }))
+        .collect()
     }
 }

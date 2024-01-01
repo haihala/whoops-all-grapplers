@@ -168,6 +168,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     opener_stun_frames: 5,
                     ..Stats::identity()
                 },
+                icon: Some(Icon::Crowbar),
                 ..default()
             },
         ),

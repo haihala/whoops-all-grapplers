@@ -196,6 +196,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     gravity: 0.02,
                     ..Stats::identity()
                 },
+                icon: Some(Icon::Dumbbell),
                 ..default()
             },
         ),

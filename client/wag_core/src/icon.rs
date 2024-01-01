@@ -8,6 +8,7 @@ pub enum Icon {
     Feather,
     OliveOil,
     RedPaint,
+    Dumbbell,
 }
 impl Icon {
     pub fn paths() -> HashMap<Icon, String> {
@@ -17,6 +18,7 @@ impl Icon {
             (Icon::Feather, "icons/feather.png".into()),
             (Icon::OliveOil, "icons/olive-oil.png".into()),
             (Icon::RedPaint, "icons/red-paint.png".into()),
+            (Icon::Dumbbell, "icons/dumbbell.png".into()),
         ]
         .into_iter()
         .chain((1..9).map(|id| {

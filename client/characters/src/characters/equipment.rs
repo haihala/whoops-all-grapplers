@@ -117,6 +117,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     walk_speed: 0.1,
                     ..Stats::identity()
                 },
+                icon: Some(Icon::Boots),
                 ..default()
             },
         ),

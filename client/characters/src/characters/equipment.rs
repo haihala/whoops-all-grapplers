@@ -142,6 +142,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     action_speed_multiplier: 1.1,
                     ..Stats::identity()
                 },
+                icon: Some(Icon::RedPaint),
                 ..default()
             },
         ),

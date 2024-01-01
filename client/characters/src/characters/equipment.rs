@@ -130,6 +130,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     max_health: 20,
                     ..Stats::identity()
                 },
+                icon: Some(Icon::HockeyPads),
                 ..default()
             },
         ),

@@ -155,6 +155,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     link_bonus: 5,
                     ..Stats::identity()
                 },
+                icon: Some(Icon::Stopwatch),
                 ..default()
             },
         ),

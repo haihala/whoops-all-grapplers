@@ -3,8 +3,8 @@ use bevy::prelude::*;
 use characters::{Character, Item, ItemCategory::*};
 use wag_core::{
     GameState, Icon, ItemId, OnlyShowInGameState, Owner, Player, Players, GENERIC_TEXT_COLOR,
-    INVENTORY_SIZE, SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_LIGHT_BACKGROUND_COLOR,
-    SHOP_TIMER_BACKGROUND_COLOR,
+    INVENTORY_SIZE, SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_ICON_BACKGROUND_COLOR,
+    SHOP_LIGHT_BACKGROUND_COLOR, SHOP_TIMER_BACKGROUND_COLOR,
 };
 
 use crate::assets::{Fonts, Icons};
@@ -641,7 +641,7 @@ pub fn render_item_icon(
     if let Some(icon) = maybe_icon {
         commands.spawn((
             NodeBundle {
-                background_color: SHOP_LIGHT_BACKGROUND_COLOR.into(),
+                background_color: SHOP_ICON_BACKGROUND_COLOR.into(),
                 style: Style {
                     height: Val::Percent(100.0),
                     aspect_ratio: Some(1.0),

@@ -181,6 +181,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     direct_influence: 1.0,
                     ..Stats::identity()
                 },
+                icon: Some(Icon::OliveOil),
                 ..default()
             },
         ),

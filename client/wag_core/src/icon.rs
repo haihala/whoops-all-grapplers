@@ -5,12 +5,14 @@ pub enum Icon {
     ThumbTacks(usize),
     Boots,
     Crowbar,
+    Feather,
 }
 impl Icon {
     pub fn paths() -> HashMap<Icon, String> {
         vec![
             (Icon::Boots, "icons/boots.png".into()),
             (Icon::Crowbar, "icons/crowbar.png".into()),
+            (Icon::Feather, "icons/feather.png".into()),
         ]
         .into_iter()
         .chain((1..9).map(|id| {

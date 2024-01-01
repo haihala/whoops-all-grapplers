@@ -206,6 +206,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     jump_force_multiplier: 1.02,
                     ..Stats::identity()
                 },
+                icon: Some(Icon::Feather),
                 ..default()
             },
         ),

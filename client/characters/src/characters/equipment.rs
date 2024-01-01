@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use wag_core::{
-    ActionId, Animation, ItemId, Stats, StatusCondition, StatusFlag, GI_PARRY_FLASH_COLOR,
+    ActionId, Animation, Icon, ItemId, Stats, StatusCondition, StatusFlag, GI_PARRY_FLASH_COLOR,
 };
 
 use crate::{
@@ -96,6 +96,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     ..Stats::identity()
                 },
                 category: Consumable(OneRound),
+                ..default()
             },
         ),
         // Basics
@@ -228,6 +229,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     damage_multiplier: 1.01,
                     ..Stats::identity()
                 },
+                icon: Some(Icon::ThumbTacks(1)),
             },
         ),
         // Upgrades
@@ -287,6 +289,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     chip_damage: false,
                     ..Stats::identity()
                 },
+                ..default()
             },
         ),
     ]
@@ -301,6 +304,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     usize::pow(2, (id - 1) as u32)
                 ),
                 cost: 10*(id-1),
+                icon: Some(Icon::ThumbTacks(id)),
                 ..default()
             },
         )

@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 
 mod animations;
 mod loaders;
@@ -11,12 +11,15 @@ pub use models::{Models, PlayerModelHook};
 pub use particles::{ParticleRequest, Particles};
 pub use sounds::Sounds;
 
-use wag_core::GameState;
+use wag_core::{GameState, Icon};
 
 #[derive(Debug, Resource)]
 pub struct Fonts {
     pub basic: Handle<Font>,
 }
+
+#[derive(Debug, Resource)]
+pub struct Icons(pub HashMap<Icon, Handle<Image>>);
 
 #[derive(Resource, Debug, Default)]
 pub struct AssetsLoading(pub Vec<UntypedHandle>);
@@ -30,6 +33,7 @@ impl Plugin for AssetsPlugin {
                 PreStartup,
                 (
                     loaders::fonts,
+                    loaders::icons,
                     loaders::models,
                     loaders::animations,
                     loaders::sounds,

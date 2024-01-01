@@ -753,6 +753,7 @@ fn dummy_items() -> HashMap<ItemId, Item> {
                 action_speed_multiplier: 1.1,
                 ..Stats::identity()
             },
+            ..default()
         },
     )]
     .into_iter()

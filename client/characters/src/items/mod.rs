@@ -1,6 +1,6 @@
 mod inventory;
 pub use inventory::Inventory;
-use wag_core::{ItemId, Stats};
+use wag_core::{Icon, ItemId, Stats};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum ConsumableType {
@@ -18,11 +18,11 @@ pub enum ItemCategory {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Item {
-    // TODO: Icons here
     pub category: ItemCategory,
     pub cost: usize,
     pub effect: Stats,
     pub explanation: String,
+    pub icon: Option<Icon>,
 }
 
 impl Default for Item {
@@ -32,6 +32,7 @@ impl Default for Item {
             cost: Default::default(),
             effect: Stats::identity(),
             explanation: "Description missing".into(),
+            icon: None,
         }
     }
 }

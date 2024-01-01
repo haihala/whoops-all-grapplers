@@ -1,13 +1,13 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_hanabi::*;
 
-use wag_core::{Animation, Model, SoundEffect, VisualEffect};
+use wag_core::{Animation, Icon, Model, SoundEffect, VisualEffect};
 
 use super::{
     animations::animation_paths,
     models::model_paths,
     sounds::{get_sound_paths, Sounds},
-    Animations, AssetsLoading, Fonts, Models, Particles,
+    Animations, AssetsLoading, Fonts, Icons, Models, Particles,
 };
 
 pub fn fonts(
@@ -19,6 +19,23 @@ pub fn fonts(
 
     loading_assets.0.push(basic.clone().untyped());
     commands.insert_resource(Fonts { basic });
+}
+
+pub fn icons(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut loading_assets: ResMut<AssetsLoading>,
+) {
+    let handles: HashMap<Icon, Handle<Image>> = Icon::paths()
+        .into_iter()
+        .map(|(key, path)| (key, asset_server.load(path)))
+        .collect();
+
+    commands.insert_resource(Icons(handles.clone()));
+
+    loading_assets
+        .0
+        .extend(handles.values().cloned().map(|h| h.untyped()));
 }
 
 pub fn models(

@@ -25,6 +25,9 @@ pub use facing::Facing;
 mod gltf;
 pub use gltf::*;
 
+mod icon;
+pub use icon::Icon;
+
 mod inputs;
 pub use inputs::{GameButton, StickPosition};
 

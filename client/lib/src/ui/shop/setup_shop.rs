@@ -2,12 +2,12 @@ use bevy::prelude::*;
 
 use characters::{Character, Item, ItemCategory::*};
 use wag_core::{
-    GameState, ItemId, OnlyShowInGameState, Owner, Player, Players, GENERIC_TEXT_COLOR,
+    GameState, Icon, ItemId, OnlyShowInGameState, Owner, Player, Players, GENERIC_TEXT_COLOR,
     INVENTORY_SIZE, SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_LIGHT_BACKGROUND_COLOR,
     SHOP_TIMER_BACKGROUND_COLOR,
 };
 
-use crate::assets::Fonts;
+use crate::assets::{Fonts, Icons};
 
 use super::shop_inputs::{ShopNavigation, ShopSlotState};
 use super::shops_resource::{Shop, ShopComponents, ShopComponentsBuilder, Shops};
@@ -26,6 +26,7 @@ pub fn setup_shop(
     characters: Query<&Character>,
     players: Res<Players>,
     fonts: Res<Fonts>,
+    icons: Res<Icons>,
 ) {
     let container = commands
         .spawn((
@@ -52,6 +53,7 @@ pub fn setup_shop(
         container,
         Player::One,
         characters.get(players.one).unwrap(),
+        &icons,
         &fonts,
     );
 
@@ -60,6 +62,7 @@ pub fn setup_shop(
         container,
         Player::Two,
         characters.get(players.two).unwrap(),
+        &icons,
         &fonts,
     );
 
@@ -82,6 +85,7 @@ fn setup_shop_root(
     parent: Entity,
     owner: Player,
     character: &Character,
+    icons: &Icons,
     fonts: &Fonts,
 ) -> ShopComponents {
     let mut shop_root_builder = ShopComponentsBuilder::default();
@@ -107,6 +111,7 @@ fn setup_shop_root(
     setup_inventory(commands, container, &mut shop_root_builder, fonts, owner);
     setup_available_items(
         commands,
+        icons,
         container,
         &mut shop_root_builder,
         fonts,
@@ -407,6 +412,7 @@ fn create_empty_inventory_slot(
 
 fn setup_available_items(
     commands: &mut Commands,
+    icons: &Icons,
     parent: Entity,
     shop_root: &mut ShopComponentsBuilder,
     fonts: &Fonts,
@@ -433,6 +439,7 @@ fn setup_available_items(
 
     shop_root.consumables = setup_category(
         commands,
+        icons,
         container,
         fonts,
         player,
@@ -442,6 +449,7 @@ fn setup_available_items(
 
     shop_root.basics = setup_category(
         commands,
+        icons,
         container,
         fonts,
         player,
@@ -451,6 +459,7 @@ fn setup_available_items(
 
     shop_root.upgrades = setup_category(
         commands,
+        icons,
         container,
         fonts,
         player,
@@ -461,9 +470,9 @@ fn setup_available_items(
 
 #[derive(Debug)]
 struct PreparedItems {
-    consumables: Vec<ItemId>,
-    basics: Vec<ItemId>,
-    upgrades: Vec<ItemId>,
+    consumables: Vec<(ItemId, Item)>,
+    basics: Vec<(ItemId, Item)>,
+    upgrades: Vec<(ItemId, Item)>,
 }
 
 fn get_prepared_items(character: &Character) -> PreparedItems {
@@ -481,9 +490,9 @@ fn get_prepared_items(character: &Character) -> PreparedItems {
 
     for (id, item) in items {
         match item.category {
-            Consumable(_) => consumables.push(id),
-            Basic => basics.push(id),
-            Upgrade(_) => upgrades.push(id),
+            Consumable(_) => consumables.push((id, item)),
+            Basic => basics.push((id, item)),
+            Upgrade(_) => upgrades.push((id, item)),
         }
     }
 
@@ -496,11 +505,12 @@ fn get_prepared_items(character: &Character) -> PreparedItems {
 
 fn setup_category(
     commands: &mut Commands,
+    icons: &Icons,
     parent: Entity,
     fonts: &Fonts,
     player: Player,
     title: String,
-    items: Vec<ItemId>,
+    items: Vec<(ItemId, Item)>,
 ) -> Vec<Entity> {
     let mut item_entities = vec![];
 
@@ -545,8 +555,10 @@ fn setup_category(
         })
         .set_parent(container);
 
-    for id in items.into_iter() {
-        item_entities.push(setup_shop_item(commands, container, fonts, player, id));
+    for (id, item) in items.into_iter() {
+        item_entities.push(setup_shop_item(
+            commands, icons, container, fonts, player, id, item.icon,
+        ));
     }
 
     item_entities
@@ -554,10 +566,12 @@ fn setup_category(
 
 fn setup_shop_item(
     commands: &mut Commands,
+    icons: &Icons,
     parent: Entity,
     fonts: &Fonts,
     player: Player,
     id: ItemId,
+    maybe_icon: Option<Icon>,
 ) -> Entity {
     let margin = UiRect::all(Val::Px(3.0));
 
@@ -589,12 +603,14 @@ fn setup_shop_item(
     // Icon
     render_item_icon(
         commands,
+        icons,
         container,
         TextStyle {
             font_size: 36.0,
             ..base_style.clone()
         },
         id,
+        maybe_icon,
     );
 
     // Name
@@ -616,17 +632,33 @@ fn setup_shop_item(
 
 pub fn render_item_icon(
     commands: &mut Commands,
+    icons: &Icons,
     parent: Entity,
     text_style: TextStyle,
     id: ItemId,
+    maybe_icon: Option<Icon>,
 ) {
-    // Tried for a while, but couldn't figure out a way to get the text box to be wider than it needed to be
-    let text = format!(" {} ", id.display_name().chars().next().unwrap());
+    if let Some(icon) = maybe_icon {
+        commands.spawn((
+            NodeBundle {
+                background_color: SHOP_LIGHT_BACKGROUND_COLOR.into(),
+                style: Style {
+                    height: Val::Percent(100.0),
+                    aspect_ratio: Some(1.0),
+                    ..default()
+                },
+                ..default()
+            },
+            UiImage::new(icons.0.get(&icon).unwrap().clone()),
+        ))
+    } else {
+        // Fallback to first charater of name
+        let text = format!(" {} ", id.display_name().chars().next().unwrap());
 
-    commands
-        .spawn(TextBundle {
+        commands.spawn(TextBundle {
             background_color: SHOP_LIGHT_BACKGROUND_COLOR.into(),
             ..TextBundle::from_section(text, text_style)
         })
-        .set_parent(parent);
+    }
+    .set_parent(parent);
 }

@@ -6,7 +6,10 @@ use wag_core::{
     SELL_RETURN,
 };
 
-use crate::{assets::Fonts, state_transitions::TransitionTimer};
+use crate::{
+    assets::{Fonts, Icons},
+    state_transitions::TransitionTimer,
+};
 
 use super::{
     setup_shop::{render_item_icon, InventorySlot, ShopItem},
@@ -29,13 +32,14 @@ pub fn update_slot_visuals(
 
 pub fn update_inventory_ui(
     mut commands: Commands,
-    inventories: Query<(&Inventory, &Player), Changed<Inventory>>,
+    inventories: Query<(&Inventory, &Player, &Character), Changed<Inventory>>,
     mut money_texts: Query<&mut Text>,
     mut slots: Query<(Entity, &mut InventorySlot, &Owner)>,
     fonts: Res<Fonts>,
+    icons: Res<Icons>,
     shops: Res<Shops>,
 ) {
-    for (inventory, player) in &inventories {
+    for (inventory, player, charater) in &inventories {
         // Update money text
         let shop = shops.get_shop(player);
         let mut text = money_texts.get_mut(shop.components.money_text).unwrap();
@@ -57,6 +61,7 @@ pub fn update_inventory_ui(
                 if old_item.is_none() || different_item {
                     render_item_icon(
                         &mut commands,
+                        &icons,
                         entity,
                         TextStyle {
                             font: fonts.basic.clone(),
@@ -64,6 +69,7 @@ pub fn update_inventory_ui(
                             color: GENERIC_TEXT_COLOR,
                         },
                         *id,
+                        charater.items.get(id).unwrap().icon,
                     );
 
                     slot.id = Some(*id);

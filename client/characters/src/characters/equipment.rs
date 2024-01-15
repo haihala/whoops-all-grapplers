@@ -256,9 +256,10 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::TrackSpikes,
             Item {
-                category: Upgrade(vec![ItemId::Boots, ItemId::Stopwatch]),
+                category: Upgrade(vec![ItemId::Boots, ItemId::Stopwatch, ItemId::ThumbTacks(2)]),
                 explanation: "Allows you to cancel normals into a dash\n\nNow with Fast Action Disruption Compatible soles".into(),
                 cost: 500,
+                icon: Some(Icon::TrackSpikes),
                 ..default()
             },
         ),

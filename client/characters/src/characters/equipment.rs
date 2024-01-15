@@ -267,6 +267,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 category: Upgrade(vec![ItemId::Boots, ItemId::Feather]),
                 explanation: "Allows you to jump from crouch to super jump\n\nLike Hermes.".into(),
                 cost: 400,
+                icon: Some(Icon::FeatheredBoots),
                 ..default()
             },
         ),
@@ -279,7 +280,8 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 icon: Some(Icon::PidgeonWing),
                 ..default()
             },
-        ),        (
+        ),
+        (
             ItemId::Flyweight,
             Item {
                 category: Upgrade(vec![ItemId::Feather, ItemId::Dumbbell]),

@@ -249,6 +249,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 category: Upgrade(vec![ItemId::Boots, ItemId::HockeyPads]),
                 explanation: "Speed and health!\n\nSafe and fashionable".into(),
                 cost: 200,
+                icon: Some(Icon::SafetyBoots),
                 ..default()
             },
         ),

@@ -19,3 +19,5 @@
 	- Like doing qcf+f will put the origin at a point and then the stick position slightly moves where the hit is
 - 693 as an overhead input (heavy smash)
 - 689 input shoryuken that has a 623 downwards smash follow up
+- `[3]6`, A super fast dash straight and `[47]3` dash low on the same character.
+	- Upgrade item to combine the charges.

@@ -224,6 +224,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     backdash_invuln: 3,
                     ..Stats::identity()
                 },
+                icon: Some(Icon::Cigarettes),
                 ..default()
             },
         ),

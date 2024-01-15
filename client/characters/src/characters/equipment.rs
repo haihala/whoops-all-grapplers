@@ -96,7 +96,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     ..Stats::identity()
                 },
                 category: Consumable(OneRound),
-                ..default()
+                icon: Some(Icon::PreWorkout),
             },
         ),
         // Basics

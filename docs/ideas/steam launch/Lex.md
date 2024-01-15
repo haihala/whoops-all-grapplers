@@ -1,0 +1,19 @@
+- A gender neutral judge Dredd
+	- lex as in the law
+- Has a gun for a gimmick
+	- Normals are different angled shots
+		- 1g - 60 degrees up
+		- 2g - 45 degrees up
+		- 3g - 15 degrees up
+		- 4g - 30 degrees up
+		- 5g - High horizontal
+		- 6g - 30 degrees down
+		- Consider 789
+	- 214g reloads a bullet
+		- You can reload a single bullet by doing just that
+		- You can press a follow up button to change the bullet to a special one
+			- This will make it take a bit longer
+		- You can cancel to another reload
+		- Bullets get inserted like a stack, first in last out
+			- Magazine holds 4 bullets
+			- Upgrades give bigger mags

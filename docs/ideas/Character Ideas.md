@@ -1,19 +1,4 @@
 # Concepts
-- Doctor Facilier(big bad from the princess and the frog) looking guy who is one part
-	- The undertaker
-	- Big body grappler
-	- Voodoo witch doctor
-		- Hitting certain moves puts hexes on the opponent
-		- Certain moves can consume hexes for benefits
-			- Tools to help in neutral or get better OKI
-				- Tager magnetism
-				- Teleport
-				- Long poke
-				- Root the opponent
-		- More hexes consumed -> At least linear if not exponential power increase
-		- Main command grab will automatically do a full cash out
-			- It has the best hex to damage ratio
-			- Low damage without hexes
 - Cardmaster
 	- A nerdy character with a duel disk
 	- Aim for "So dorky it turns cool"
@@ -31,26 +16,9 @@
 			- Hitting these takes them out for the round, so you have to protect the cats
 			- They have different attack patterns
 		- There is a big puppet cat
-- Escanor looking motherfucker
-	- **The** big brawler guy
-	- Deliberately chooses to not "Cheat".
-		- They acknowledge that they would have it easier but choose to do it right
-	- Instead they compensate with an insane grindset
-- Old grizzled veteran
-	- What 50 years of street fighting does to Ryu
-	- The Wrestler movie
-	- Abuses painkillers to get back to baseline
-	- Difficult lowtier
 - CPU, Chief Pounding Unit, a robotic Vince McMahoon
 	- Robot character that heavily uses weird quirks of computer naming in their items (like how HandL sounds like handle)
 	- Machine head from invincible
-- Lex
-	- A genderbent judge dredd (lex as in the law)
-	- Mechanic where she builds up heat stacks if she keeps on going
-		- Loses them when she loses momentum
-		- Visually lights on fire
-		- A robbery character
-		- Twitter clips (Lex as in Alex)
 
 
 # Traits

@@ -105,6 +105,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             Item {
                 cost: 300,
                 explanation: "Tap forward to parry\n\nLesgo justin".into(),
+                icon: Some(Icon::Gi),
                 ..default()
             },
         ),

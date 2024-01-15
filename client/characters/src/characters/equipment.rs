@@ -67,7 +67,7 @@ fn fast_fall() -> Action {
         }],
         vec![
             ActionRequirement::Airborne,
-            ActionRequirement::ItemsOwned(vec![ItemId::Flyweight]),
+            ActionRequirement::ItemsOwned(vec![ItemId::DivingHelmet]),
         ],
     )
 }
@@ -282,11 +282,12 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
-            ItemId::Flyweight,
+            ItemId::DivingHelmet,
             Item {
-                category: Upgrade(vec![ItemId::Feather, ItemId::Dumbbell]),
+                category: Upgrade(vec![ItemId::Dumbbell, ItemId::Dumbbell]),
                 explanation: "Allows you to tap down to fast fall\n\nHiyaa!".into(),
                 cost: 600,
+                icon: Some(Icon::DivingHelmet),
                 ..default()
             },
         ),

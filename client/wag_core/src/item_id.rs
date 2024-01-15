@@ -25,7 +25,7 @@ pub enum ItemId {
     TrackSpikes,
     FeatheredBoots,
     PidgeonWing,
-    Flyweight, // TODO: Directional fast fall -> air dash
+    DivingHelmet, // TODO: Directional fast fall -> air dash
 
     // Character specific
     // Dummy
@@ -44,6 +44,7 @@ pub enum ItemId {
 impl ItemId {
     pub fn display_name(&self) -> String {
         match self {
+            Self::DivingHelmet => "Diving helmet".into(),
             Self::GentlemansPipe => "Gentleman's pipe".into(),
             Self::OliveOil => "Olive Oil".into(),
             Self::PidgeonWing => "Pidgeon wing".into(),

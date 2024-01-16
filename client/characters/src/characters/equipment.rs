@@ -294,7 +294,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
-            ItemId::GoaleeGear,
+            ItemId::GoalieGear,
             Item {
                 category: Upgrade(vec![ItemId::HockeyPads, ItemId::HockeyPads]),
                 explanation:
@@ -305,7 +305,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     chip_damage: false,
                     ..Stats::identity()
                 },
-                ..default()
+                icon: Some(Icon::GoalieGear),
             },
         ),
     ]

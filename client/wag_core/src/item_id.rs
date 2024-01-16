@@ -21,7 +21,7 @@ pub enum ItemId {
 
     // Universal upgrades
     SafetyBoots,
-    GoaleeGear,
+    GoalieGear,
     TrackSpikes,
     FeatheredBoots,
     PidgeonWing,
@@ -56,7 +56,7 @@ impl ItemId {
             Self::PreWorkout => "Pre-workout".into(),
             Self::RedPaint => "Can of red paint".into(),
             Self::HockeyPads => "Hockey pads".into(),
-            Self::GoaleeGear => "Goalee gear".into(),
+            Self::GoalieGear => "Goalie gear".into(),
             Self::SafetyBoots => "Safety boots".into(),
             Self::Gi => "Gi of the old masters".into(),
             Self::ThumbTacks(n) => match n {

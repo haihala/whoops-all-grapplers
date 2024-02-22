@@ -274,12 +274,12 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
-            ItemId::PidgeonWing,
+            ItemId::PigeonWing,
             Item {
                 category: Upgrade(vec![ItemId::Feather, ItemId::Feather]),
-                explanation: "Allows you to double jump\n\nPidgeon flap!".into(),
+                explanation: "Allows you to double jump\n\nPigeon flap!".into(),
                 cost: 700,
-                icon: Some(Icon::PidgeonWing),
+                icon: Some(Icon::PigeonWing),
                 ..default()
             },
         ),

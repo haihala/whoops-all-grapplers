@@ -146,7 +146,7 @@ impl JumpGenerator {
             true,
             vec![
                 ActionRequirement::Airborne,
-                ActionRequirement::ItemsOwned(vec![ItemId::PidgeonWing]),
+                ActionRequirement::ItemsOwned(vec![ItemId::PigeonWing]),
                 ActionRequirement::StatusNotActive(StatusFlag::DoubleJumped),
             ],
         )

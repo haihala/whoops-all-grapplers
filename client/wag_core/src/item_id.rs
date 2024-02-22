@@ -24,7 +24,7 @@ pub enum ItemId {
     GoalieGear,
     TrackSpikes,
     FeatheredBoots,
-    PidgeonWing,
+    PigeonWing,
     DivingHelmet, // TODO: Directional fast fall -> air dash
 
     // Character specific
@@ -47,7 +47,7 @@ impl ItemId {
             Self::DivingHelmet => "Diving helmet".into(),
             Self::GentlemansPipe => "Gentleman's pipe".into(),
             Self::OliveOil => "Olive Oil".into(),
-            Self::PidgeonWing => "Pidgeon wing".into(),
+            Self::PigeonWing => "Pigeon wing".into(),
             Self::FeatheredBoots => "Feathered boots".into(),
             Self::SteelHeelBoots => "Steel heel boots".into(),
             Self::TrackSpikes => "Track spikes".into(),

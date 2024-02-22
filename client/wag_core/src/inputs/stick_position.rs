@@ -66,7 +66,7 @@ impl From<StickPosition> for i32 {
 }
 impl From<IVec2> for StickPosition {
     fn from(item: IVec2) -> Self {
-        let matrix = vec![
+        let matrix = [
             vec![StickPosition::SW, StickPosition::S, StickPosition::SE],
             vec![StickPosition::W, StickPosition::Neutral, StickPosition::E],
             vec![StickPosition::NW, StickPosition::N, StickPosition::NE],

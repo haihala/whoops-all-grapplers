@@ -45,3 +45,6 @@ pub const TRACK_SPIKES_FLASH_COLOR: Color = Color::YELLOW;
 pub const MIZUKI_ALT_SHIRT_COLOR: Color = Color::WHITE;
 pub const MIZUKI_ALT_JEANS_COLOR: Color = Color::MIDNIGHT_BLUE;
 pub const MIZUKI_ALT_HELMET_COLOR: Color = Color::rgb(38.0 / 255.0, 50.0 / 255.0, 100.0 / 255.0);
+
+// UI
+pub const LOADING_SCREEN_BACKGROUND: Color = Color::rgb(0.2, 0.2, 0.2);

@@ -1,7 +1,9 @@
 use bevy::{prelude::*, render::view::NoFrustumCulling};
 use characters::ActionEvent;
 use player_state::PlayerState;
-use wag_core::{Facing, GameState, OnlyShowInGameState, Player, WagArgs};
+use wag_core::{
+    Facing, GameState, OnlyShowInGameState, Player, WagArgs, LOADING_SCREEN_BACKGROUND,
+};
 
 use crate::physics::ARENA_WIDTH;
 
@@ -60,8 +62,10 @@ fn add_camera(
                     if !args.dev {
                         main_cam.spawn((
                             PbrBundle {
-                                mesh: meshes.add(Mesh::from(shape::Cube { size: 3.0 })),
-                                material: materials.add(Color::rgb(0.2, 0.2, 0.2).into()),
+                                mesh: meshes.add(Mesh::from(Cuboid {
+                                    half_size: Vec3::splat(3.0),
+                                })),
+                                material: materials.add(LOADING_SCREEN_BACKGROUND),
                                 transform: Transform::from_xyz(0.0, 0.0, -2.0),
                                 ..default()
                             },

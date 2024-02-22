@@ -25,7 +25,7 @@ use crate::{
 };
 
 use bevy::{
-    ecs::query::WorldQuery, pbr::ExtendedMaterial, prelude::*, render::view::NoFrustumCulling,
+    ecs::query::QueryData, pbr::ExtendedMaterial, prelude::*, render::view::NoFrustumCulling,
 };
 use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
@@ -36,8 +36,8 @@ pub use player_flash::{ExtendedFlashMaterial, FlashMaterial};
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 
-#[derive(WorldQuery)]
-#[world_query(mutable)]
+#[derive(QueryData)]
+#[query_data(mutable)]
 struct PlayerQuery<'a> {
     state: &'a mut PlayerState,
     spawner: &'a mut HitboxSpawner,

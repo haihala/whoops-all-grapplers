@@ -143,7 +143,6 @@ mod test {
     use bevy::ecs::schedule::ScheduleLabel;
     use std::thread::sleep;
     use std::time::Duration;
-    use wag_core::GameButton;
 
     use crate::{
         helper_types::InputEvent,

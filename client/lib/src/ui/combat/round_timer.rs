@@ -44,7 +44,7 @@ pub fn setup_timer(
                         color: ROUND_TIMER_TEXT_COLOR,
                     },
                 )
-                .with_alignment(TextAlignment::Center),
+                .with_justify(JustifyText::Center),
                 ..default()
             },
             RoundTimer,

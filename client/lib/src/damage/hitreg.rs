@@ -1,4 +1,4 @@
-use bevy::{ecs::query::WorldQuery, prelude::*};
+use bevy::{ecs::query::QueryData, prelude::*};
 use strum::IntoEnumIterator;
 
 use characters::{
@@ -40,8 +40,8 @@ pub(super) struct AttackConnection {
     contact_type: ConnectionType,
 }
 
-#[derive(WorldQuery)]
-#[world_query(mutable)]
+#[derive(QueryData)]
+#[query_data(mutable)]
 /// Used for querying all the components that are required when a player is hit.
 pub struct HitPlayerQuery<'a> {
     defense: &'a mut Defense,
@@ -162,7 +162,7 @@ pub(super) fn detect_hits(
                 let offset_hitbox = hitbox.with_offset(hitbox_tf.translation().truncate());
 
                 // This technically doesn't get the actual overlap, as it just gets some overlap with one of the hitboxes
-                let Some(overlap) = hurtboxes.iter().find_map(|(hurtbox, hurt_owner)| {
+                let overlap = hurtboxes.iter().find_map(|(hurtbox, hurt_owner)| {
                     if **hurt_owner == **hit_owner {
                         None
                     } else {
@@ -171,9 +171,7 @@ pub(super) fn detect_hits(
                             .with_offset(defender_tf.translation.truncate())
                             .intersection(&offset_hitbox)
                     }
-                }) else {
-                    return None;
-                };
+                })?;
 
                 if state.is_intangible() {
                     if !hit_tracker.hit_intangible {

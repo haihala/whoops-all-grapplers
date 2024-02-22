@@ -394,8 +394,6 @@ impl PlayerState {
 
 #[cfg(test)]
 mod test {
-    use characters::Action;
-
     use super::*;
 
     #[test]

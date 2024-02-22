@@ -8,4 +8,4 @@ pub(super) use shop_inputs::navigate_shop;
 pub(super) use shop_rendering::{
     handle_shop_ending, update_info_panel, update_inventory_ui, update_slot_visuals,
 };
-pub use shops_resource::{ShopComponents, Shops};
+pub use shops_resource::Shops;

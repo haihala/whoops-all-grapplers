@@ -59,17 +59,18 @@ impl Plugin for DevPlugin {
 }
 
 // TODO: There is probably a better way to do this
-fn setup(mut config: ResMut<GizmoConfig>) {
+fn setup(mut config_store: ResMut<GizmoConfigStore>) {
+    let (config, _) = config_store.config_mut::<DefaultGizmoConfigGroup>();
     config.depth_bias = -1.0;
 }
 
 fn icon_test_system(
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
     icons: Res<Icons>,
     mut icon: Local<Option<Entity>>,
 ) {
-    if keys.just_pressed(KeyCode::I) {
+    if keys.just_pressed(KeyCode::KeyI) {
         if let Some(entity) = *icon {
             println!("Despawning icon");
             commands.entity(entity).despawn();
@@ -98,8 +99,8 @@ fn icon_test_system(
     }
 }
 
-fn shader_test_system(keys: Res<Input<KeyCode>>, mut players: Query<&mut PlayerState>) {
-    if keys.just_pressed(KeyCode::S) {
+fn shader_test_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<&mut PlayerState>) {
+    if keys.just_pressed(KeyCode::KeyS) {
         println!("Playing shader flash");
         for mut player in &mut players {
             player.add_actions(vec![ActionEvent::Flash(FlashRequest {
@@ -111,15 +112,15 @@ fn shader_test_system(keys: Res<Input<KeyCode>>, mut players: Query<&mut PlayerS
     }
 }
 
-fn audio_test_system(keys: Res<Input<KeyCode>>, mut sounds: ResMut<Sounds>) {
-    if keys.just_pressed(KeyCode::A) {
+fn audio_test_system(keys: Res<ButtonInput<KeyCode>>, mut sounds: ResMut<Sounds>) {
+    if keys.just_pressed(KeyCode::KeyA) {
         println!("Playing whoosh audio");
         sounds.play(SoundEffect::Whoosh);
     }
 }
 
-fn fullscreen_toggle(keys: Res<Input<KeyCode>>, mut windows: Query<&mut Window>) {
-    if keys.just_pressed(KeyCode::F) {
+fn fullscreen_toggle(keys: Res<ButtonInput<KeyCode>>, mut windows: Query<&mut Window>) {
+    if keys.just_pressed(KeyCode::KeyF) {
         let mut win = windows.get_single_mut().unwrap();
         println!("Fullscreen toggle");
 
@@ -132,12 +133,12 @@ fn fullscreen_toggle(keys: Res<Input<KeyCode>>, mut windows: Query<&mut Window>)
 }
 
 fn pause_toggle(
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut time: ResMut<Time<Virtual>>,
     clock: Res<Clock>,
     mut local_frame: Local<Option<usize>>,
 ) {
-    if keys.just_pressed(KeyCode::P) {
+    if keys.just_pressed(KeyCode::KeyP) {
         if keys.pressed(KeyCode::ShiftLeft) || keys.pressed(KeyCode::ShiftRight) {
             if time.relative_speed() == 0.0 {
                 println!("Frame step");
@@ -161,18 +162,18 @@ fn pause_toggle(
 }
 
 fn input_leniency_test_system(
-    keys: Res<Input<KeyCode>>,
-    pad_buttons: Res<Input<GamepadButton>>,
+    keys: Res<ButtonInput<KeyCode>>,
+    pad_buttons: Res<ButtonInput<GamepadButton>>,
     clock: Res<Clock>,
     mut h_pressed: Local<Option<usize>>,
     mut j_pressed: Local<Option<usize>>,
     mut south_pressed: Local<Option<usize>>,
     mut east_pressed: Local<Option<usize>>,
 ) {
-    if keys.just_pressed(KeyCode::H) {
+    if keys.just_pressed(KeyCode::KeyH) {
         *h_pressed = Some(clock.frame);
     }
-    if keys.just_pressed(KeyCode::J) {
+    if keys.just_pressed(KeyCode::KeyJ) {
         *j_pressed = Some(clock.frame);
     }
     log_diff(&mut h_pressed, "H", &mut j_pressed, "J");
@@ -223,13 +224,13 @@ fn log_diff(
 }
 
 fn cycle_game_state(
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     game_state: Res<State<GameState>>,
     mut next_state: ResMut<NextState<GameState>>,
     mut clock: ResMut<Clock>,
 ) {
     // Can be converted to a non-dev system eventually (to start game press start type of deal)
-    if keys.just_pressed(KeyCode::Return) {
+    if keys.just_pressed(KeyCode::Enter) {
         if game_state.get() == &GameState::Combat {
             // Set clock to zero to go through the same route as time out
             clock.time_out();

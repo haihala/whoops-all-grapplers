@@ -1,4 +1,4 @@
-use bevy::{math::Rect, prelude::*};
+use bevy::prelude::*;
 
 #[derive(Clone, Copy, Default, Debug, Reflect, PartialEq)]
 pub struct Area {

@@ -19,7 +19,7 @@ impl Plugin for StateTransitionPlugin {
                 end_loading.run_if(in_state(GameState::Loading)),
                 end_claiming.run_if(in_state(GameState::ClaimingControllers)),
                 end_combat.run_if(in_state(GameState::Combat)),
-                clear_between_states.run_if(state_changed::<GameState>()),
+                clear_between_states.run_if(state_changed::<GameState>),
                 transition_after_timer,
             ),
         );

@@ -16,15 +16,15 @@
 }
 #endif
 
-@group(1) @binding(100)
+@group(2) @binding(100)
 var<uniform> flash_color: vec4<f32>;
-@group(1) @binding(101)
+@group(2) @binding(101)
 var<uniform> flash_speed: f32;
-@group(1) @binding(102)
+@group(2) @binding(102)
 var<uniform> flash_depth: f32;
-@group(1) @binding(103)
+@group(2) @binding(103)
 var<uniform> flash_duration: f32;
-@group(1) @binding(104)
+@group(2) @binding(104)
 var<uniform> flash_start: f32;
 
 

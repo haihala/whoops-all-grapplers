@@ -73,7 +73,7 @@ impl Plugin for TimePlugin {
             )
                 .run_if(once_per_combat_frame),
         )
-        .add_state::<GameState>()
+        .init_state::<GameState>()
         .add_systems(Update, update_visibility_on_state_change)
         .init_resource::<Clock>()
         .insert_resource(Time::<Fixed>::from_seconds(1.0 / crate::FPS as f64))

@@ -28,7 +28,7 @@ impl Default for ParserHead {
 impl ParserHead {
     fn from_frame(requirements: &[InputRequirement], prev_state: Frame) -> ParserHead {
         let mut new = ParserHead {
-            requirement: requirements.get(0).cloned(),
+            requirement: requirements.first().cloned(),
             ..default()
         };
 

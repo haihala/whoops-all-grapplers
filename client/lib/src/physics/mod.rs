@@ -1,7 +1,7 @@
 mod player_velocity;
 pub use player_velocity::PlayerVelocity;
 
-use bevy::{ecs::query::WorldQuery, prelude::*};
+use bevy::{ecs::query::QueryData, prelude::*};
 
 use characters::{ActionEvent, Character};
 use player_state::PlayerState;
@@ -135,8 +135,8 @@ fn player_input(
     }
 }
 
-#[derive(WorldQuery)]
-#[world_query(mutable)]
+#[derive(QueryData)]
+#[query_data(mutable, derive(Debug))]
 struct PlayerMovingQuery<'a> {
     character: &'a Character,
     tf: &'a mut Transform,

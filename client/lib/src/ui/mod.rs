@@ -6,7 +6,7 @@ mod combat;
 mod round_text;
 mod shop;
 
-pub use combat::{Notifications, ResourceCounter};
+pub use combat::Notifications;
 
 pub struct UIPlugin;
 
@@ -61,6 +61,6 @@ fn set_ui_scale(
         return;
     }
 
-    ui_scale.0 = (window.width() / 1920.0) as f64;
+    ui_scale.0 = window.width() / 1920.0;
     *local_width = window.width();
 }

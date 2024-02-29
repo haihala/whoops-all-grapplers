@@ -19,21 +19,18 @@ fn main() {
                 ..default()
             });
         })
-        .add_plugins(
-            DefaultPlugins
-                .set(WindowPlugin {
-                    primary_window: Some(Window {
-                        mode: if args.dev {
-                            WindowMode::Windowed
-                        } else {
-                            WindowMode::BorderlessFullscreen
-                        },
-                        resizable: false,
-                        ..default()
-                    }),
-                    ..default()
-                }),
-        )
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                mode: if args.dev {
+                    WindowMode::Windowed
+                } else {
+                    WindowMode::BorderlessFullscreen
+                },
+                resizable: false,
+                ..default()
+            }),
+            ..default()
+        }))
         .add_plugins(WAGLib::with_args(args))
         // .add_plugins((
         //     LogDiagnosticsPlugin::default(),

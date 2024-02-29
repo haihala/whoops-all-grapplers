@@ -9,3 +9,6 @@ target
 
 # Blender autosaves
 *.blend1
+
+# Testing artefacts
+**/bitt/artefacts

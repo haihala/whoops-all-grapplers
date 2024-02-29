@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use clap::Parser;
 
 /// Simple program to greet a person
-#[derive(Parser, Debug, Resource, Default, Clone)]
+#[derive(Parser, Debug, Resource, Clone)]
 #[command(author, version, about, long_about = None)]
 pub struct WagArgs {
     /// Dev mode (shows hitboxes and dev binds)
@@ -17,5 +17,14 @@ pub struct WagArgs {
 impl WagArgs {
     pub fn from_cli() -> Self {
         Self::parse()
+    }
+}
+impl Default for WagArgs {
+    fn default() -> Self {
+        Self {
+            dev: false,
+            character1: CharacterId::Mizku,
+            character2: CharacterId::Mizku,
+        }
     }
 }

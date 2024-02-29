@@ -26,3 +26,5 @@ strum = "0.26.1"
 strum_macros = "0.26.1"
 clap = { version = "4.5.1", features = ["derive"] }
 bevy-scene-hook = "10.0.0"
+
+bitt = "0.4.1"

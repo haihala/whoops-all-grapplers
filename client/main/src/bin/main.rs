@@ -1,7 +1,6 @@
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::{
     ecs::schedule::{LogLevel, ScheduleBuildSettings},
-    log::LogPlugin,
     prelude::*,
     window::WindowMode,
 };
@@ -22,10 +21,6 @@ fn main() {
         })
         .add_plugins(
             DefaultPlugins
-                .set(LogPlugin {
-                    filter: "wgpu=error,naga=warn,bevy_gltf::loader=error".to_string(),
-                    ..default()
-                })
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         mode: if args.dev {

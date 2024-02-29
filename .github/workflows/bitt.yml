@@ -29,4 +29,4 @@ jobs:
         if: ${{ always() }}
         with:
           name: sanity-tests-artefacts
-          path: bitt/artefacts
+          path: client/bitt/artefacts

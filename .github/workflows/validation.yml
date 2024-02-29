@@ -15,9 +15,9 @@ jobs:
 
     steps:
       - uses: davidB/rust-cargo-make@v1
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v4
         with:
           workspaces: client
 

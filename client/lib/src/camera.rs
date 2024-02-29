@@ -57,6 +57,7 @@ fn add_camera(
                     },
                     Name::new("Main Camera"),
                     ChildCameraEffects::default(),
+                    InheritedVisibility::VISIBLE,
                 ))
                 .with_children(|main_cam| {
                     if !args.dev {

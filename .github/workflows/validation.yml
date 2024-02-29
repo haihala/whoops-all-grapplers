@@ -1,4 +1,4 @@
-name: Cargo make CI
+name: Commit validation
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  CI:
+  simple-checks:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -22,7 +22,7 @@ jobs:
           workspaces: client
 
       - name: Install dependencies
-        run: sudo apt-get update 
+        run: sudo apt-get update
           && sudo apt-get install -y g++ pkg-config libx11-dev libasound2-dev libudev-dev libxkbcommon-x11-0 libwayland-dev libxkbcommon-dev
 
       - name: Build
@@ -30,3 +30,27 @@ jobs:
 
       - name: Run checks
         run: cargo make validate
+
+  sanity-checks:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: ./client
+
+    steps:
+      - uses: davidB/rust-cargo-make@v1
+      - uses: actions/checkout@v3
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: client
+
+      - name: Run sanity check
+        run: cargo make sanity_check
+
+      - name: Save artefacts
+        uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          name: sanity-tests-artefacts
+          path: client/bitt/artefacts

@@ -46,7 +46,7 @@ jobs:
           workspaces: client
 
       - name: Run sanity check
-        run: cargo make sanity_check
+        run: cargo make release_sanity_check
 
       - name: Save artefacts
         uses: actions/upload-artifact@v3

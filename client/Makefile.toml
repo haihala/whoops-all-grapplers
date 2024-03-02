@@ -42,3 +42,7 @@ args = ["run", "--bin", "main", "--", "mizku", "mizku"]
 [tasks.sanity_check]
 command = "cargo"
 args = ["run", "--bin", "sanity_check"]
+
+[tasks.release_sanity_check]
+command = "cargo"
+args = ["run", "--release", "--bin", "sanity_check"]

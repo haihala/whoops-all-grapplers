@@ -1253,9 +1253,9 @@ dependencies = [
 
 [[package]]
 name = "bitt"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0026dcce8e9c6c4bdc6e07f1104fb57ca7f379da8e1495a4151a337fb50d44b2"
+checksum = "bbcd561b81b9ddff17e3fc27c78b3681026cf06643d3217ebc84530bdf2a2cd8"
 dependencies = [
  "bevy",
  "serde",

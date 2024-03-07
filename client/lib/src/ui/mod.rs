@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use wag_core::{in_combat, GameState};
+use wag_core::GameState;
 
 mod combat;
 mod round_text;
@@ -21,7 +21,7 @@ impl Plugin for UIPlugin {
                     combat::update_score,
                     combat::update_timer,
                 )
-                    .distributive_run_if(in_combat),
+                    .distributive_run_if(in_state(GameState::Combat)),
             )
             .add_systems(
                 Update,

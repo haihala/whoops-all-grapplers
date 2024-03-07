@@ -19,7 +19,7 @@ pub struct InputParsingPlugin;
 impl Plugin for InputParsingPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
+            FixedUpdate,
             (
                 update_pads,
                 update_parrots::<PadStream>,

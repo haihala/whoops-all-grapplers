@@ -58,7 +58,7 @@ impl Plugin for PlayerPlugin {
             .add_systems(OnEnter(GameState::PreRound), setup_combat)
             // This is here so it's up to date when the round starts
             .add_systems(
-                Update,
+                FixedUpdate,
                 (
                     condition_management::update_combined_status_effect
                         .before(WAGStage::PlayerUpdates),
@@ -66,7 +66,7 @@ impl Plugin for PlayerPlugin {
                 ),
             )
             .add_systems(
-                Update,
+                FixedUpdate,
                 (
                     move_activation::manage_buffer,
                     move_activation::automatic_activation,
@@ -89,7 +89,7 @@ impl Plugin for PlayerPlugin {
             )
             // There is a max of 15 systems per call to add_systems
             .add_systems(
-                Update,
+                FixedUpdate,
                 (
                     dynamic_colliders::create_colliders,
                     dynamic_colliders::update_colliders,

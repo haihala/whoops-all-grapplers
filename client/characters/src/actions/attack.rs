@@ -106,8 +106,8 @@ impl Default for CommonAttackProps {
         Self {
             damage: 5,
             chip_damage: 0,
-            knock_back: 6.0,
-            push_back: 8.0,
+            knock_back: 2.0,
+            push_back: 3.0,
             on_hit: StunType::Stun(20),
             on_block: StunType::Stun(10),
         }

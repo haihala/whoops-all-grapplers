@@ -19,7 +19,7 @@ pub struct DamagePlugin;
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
+            FixedUpdate,
             (
                 hitboxes::spawn_new_hitboxes,
                 hitreg::clash_parry,
@@ -35,7 +35,7 @@ impl Plugin for DamagePlugin {
                 .in_set(WAGStage::HitReg),
         )
         .add_systems(
-            Update,
+            FixedUpdate,
             (
                 hitstop::clear_hitstop,
                 hitstop::handle_hitstop_events.after(WAGStage::PlayerUpdates),

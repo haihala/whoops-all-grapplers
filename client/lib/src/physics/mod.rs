@@ -35,20 +35,20 @@ pub struct Pushbox(pub Area);
 pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, sideswitcher).add_systems(
-            Update,
-            (
-                player_input,
-                move_players,
-                push_players,
-                clamp_players,
-                move_constants,
-                player_gravity,
-            )
-                .chain()
-                .in_set(WAGStage::Physics)
-                .after(sideswitcher),
-        );
+        app.add_systems(FixedUpdate, sideswitcher.before(WAGStage::Physics))
+            .add_systems(
+                FixedUpdate,
+                (
+                    player_input,
+                    move_players,
+                    push_players,
+                    clamp_players,
+                    move_constants,
+                    player_gravity,
+                )
+                    .chain()
+                    .in_set(WAGStage::Physics),
+            );
     }
 }
 

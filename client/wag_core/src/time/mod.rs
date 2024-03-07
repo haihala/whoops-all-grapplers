@@ -65,13 +65,13 @@ pub struct TimePlugin;
 impl Plugin for TimePlugin {
     fn build(&self, app: &mut App) {
         app.configure_sets(
-            Update,
+            FixedUpdate,
             (
                 WAGStage::Physics.after(WAGStage::Inputs),
                 WAGStage::HitReg.after(WAGStage::Physics),
                 WAGStage::PlayerUpdates.after(WAGStage::HitReg),
             )
-                .run_if(once_per_combat_frame),
+                .run_if(in_state(GameState::Combat)),
         )
         .init_state::<GameState>()
         .add_systems(Update, update_visibility_on_state_change)
@@ -113,22 +113,4 @@ fn update_visibility_on_state_change(
             };
         }
     }
-}
-
-pub fn in_combat(state: Res<State<GameState>>) -> bool {
-    state.get() == &GameState::Combat
-}
-
-pub fn not_in_combat(state: Res<State<GameState>>) -> bool {
-    state.get() != &GameState::Combat
-}
-
-pub fn once_per_combat_frame(
-    mut last_frame: Local<usize>,
-    clock: Res<Clock>,
-    state: Res<State<GameState>>,
-) -> bool {
-    let value = state.get() == &GameState::Combat && *last_frame < clock.frame;
-    *last_frame = clock.frame;
-    value
 }

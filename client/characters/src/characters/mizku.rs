@@ -3,7 +3,7 @@ use std::iter::{empty, once};
 use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
-    ActionId, Animation, AnimationType, Area, GameButton, ItemId, Joint, MizkuActionId,
+    ActionId, Animation, AnimationType, Area, GameButton, Icon, ItemId, Joint, MizkuActionId,
     MizkuAnimation, Model, Stats, StatusCondition, StatusFlag, StickPosition,
     CHARGE_BAR_FULL_SEGMENT_COLOR, CHARGE_BAR_PARTIAL_SEGMENT_COLOR, FPS, MIZUKI_ALT_HELMET_COLOR,
     MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
@@ -1274,6 +1274,7 @@ fn mizku_items() -> HashMap<ItemId, Item> {
                 explanation: "qcf+f to throw, comes in handy\n\nThat's the power...of a president!"
                     .into(),
                 category: ItemCategory::Consumable(crate::items::ConsumableType::UntilUsed),
+                icon: Some(Icon::Kunai),
                 ..default()
             },
         ),

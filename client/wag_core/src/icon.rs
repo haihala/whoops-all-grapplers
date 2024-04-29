@@ -21,6 +21,7 @@ pub enum Icon {
     TrackSpikes,
     GoalieGear,
     Kunai,
+    SpaceSuitBoots,
 }
 impl Icon {
     pub fn paths() -> HashMap<Icon, String> {
@@ -43,6 +44,7 @@ impl Icon {
             (Icon::TrackSpikes, "icons/track-spikes.png".into()),
             (Icon::GoalieGear, "icons/goalie-gear.png".into()),
             (Icon::Kunai, "icons/kunai.png".into()),
+            (Icon::SpaceSuitBoots, "icons/space-boots.png".into()),
         ]
         .into_iter()
         .chain((1..9).map(|id| {

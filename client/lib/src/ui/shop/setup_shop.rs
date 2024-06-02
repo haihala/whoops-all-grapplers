@@ -383,8 +383,13 @@ fn setup_shop_item(
             ShopSlotState::Default,
             ShopItem(id),
             Owner(player),
-            UiImage::new(icons.0.get(&icon).unwrap().clone()),
         ))
         .set_parent(parent)
+        .with_children(|cb| {
+            cb.spawn(ImageBundle {
+                image: UiImage::new(icons.0.get(&icon).unwrap().clone()),
+                ..default()
+            });
+        })
         .id()
 }

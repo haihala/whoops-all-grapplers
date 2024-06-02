@@ -9,6 +9,20 @@ use crate::{assets::Icons, state_transitions::TransitionTimer};
 
 use super::{setup_shop::ShopItem, shop_inputs::ShopSlotState, Shops};
 
+pub fn initial_shop_update(
+    hierarchy: Query<&Children>,
+    mut slot_query: Query<(&Parent, Entity, &mut ShopSlotState)>,
+) {
+    for (parent, entity, mut state) in &mut slot_query {
+        let children = hierarchy.get(**parent).unwrap();
+        *state = if entity == children[0] {
+            ShopSlotState::Highlighted
+        } else {
+            ShopSlotState::Default
+        }
+    }
+}
+
 pub fn update_slot_visuals(
     mut query: Query<(&ShopSlotState, &mut BackgroundColor), Changed<ShopSlotState>>,
 ) {

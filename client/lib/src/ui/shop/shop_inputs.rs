@@ -1,54 +1,9 @@
 use bevy::prelude::*;
-use characters::{Character, Inventory, ItemCategory};
+use characters::{Character, Inventory};
 use input_parsing::InputParser;
-use wag_core::{ActionId, Facing, ItemId, Owner, Player, INVENTORY_SIZE, SELL_RETURN};
+use wag_core::{ActionId, Facing, Owner, Player};
 
-use super::{setup_shop::ShopItem, shops_resource::Shop, Shops};
-
-#[derive(Component, Debug, Clone, Copy)]
-pub enum ShopNavigation {
-    Owned(usize),
-    Available(ShopCategory, usize),
-}
-
-impl Default for ShopNavigation {
-    fn default() -> Self {
-        Self::Owned(0)
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum ShopCategory {
-    Consumable,
-    Basic,
-    Upgrade,
-}
-impl ShopCategory {
-    fn next(&self) -> ShopCategory {
-        match self {
-            ShopCategory::Consumable => ShopCategory::Basic,
-            ShopCategory::Basic => ShopCategory::Upgrade,
-            ShopCategory::Upgrade => ShopCategory::Consumable,
-        }
-    }
-
-    fn previous(&self) -> ShopCategory {
-        match self {
-            ShopCategory::Consumable => ShopCategory::Upgrade,
-            ShopCategory::Basic => ShopCategory::Consumable,
-            ShopCategory::Upgrade => ShopCategory::Basic,
-        }
-    }
-
-    // This is used to go from available items back to the inventory at an appropriate index
-    fn inventory_index(&self) -> usize {
-        match self {
-            ShopCategory::Consumable => 0,
-            ShopCategory::Basic => INVENTORY_SIZE / 2,
-            ShopCategory::Upgrade => INVENTORY_SIZE - 1,
-        }
-    }
-}
+use super::{setup_shop::ShopItem, shops_resource::Shop, Shops, SHOP_COLUMNS};
 
 #[derive(Component, Default, PartialEq, Eq)]
 pub enum ShopSlotState {
@@ -83,9 +38,8 @@ pub fn navigate_shop(
                 ActionId::Down => move_selection(shop, Down),
                 ActionId::Back => move_selection(shop, Left.mirror_if(facing.to_flipped())),
                 ActionId::Forward => move_selection(shop, Right.mirror_if(facing.to_flipped())),
-                ActionId::Primary => {
-                    primary_button_pressed(shop, &mut inventory, character, &slots)
-                }
+                ActionId::Primary => buy(shop, &mut inventory, character, &slots),
+                ActionId::Secondary => sell(shop, &mut inventory, character, &slots),
                 ActionId::Start => shop.closed = true,
                 _ => {}
             };
@@ -140,103 +94,57 @@ impl CardinalDiretion {
 use CardinalDiretion::*;
 
 fn move_selection(shop: &mut Shop, direction: CardinalDiretion) {
-    shop.navigation = match shop.navigation {
-        ShopNavigation::Owned(index) => owned_slot_navigation(shop, direction, index),
-        ShopNavigation::Available(category, index) => {
-            available_slot_navigation(shop, direction, category, index)
-        }
-    };
-}
+    let row = shop.selected_index / SHOP_COLUMNS;
+    let col = shop.selected_index % SHOP_COLUMNS;
 
-const LOW_BOUND: usize = INVENTORY_SIZE / 2 - 1;
-const MID_BOUND: usize = INVENTORY_SIZE / 2 + 2;
-
-fn owned_slot_navigation(shop: &Shop, direction: CardinalDiretion, index: usize) -> ShopNavigation {
-    let category = match index {
-        0..LOW_BOUND => ShopCategory::Consumable,
-        LOW_BOUND..MID_BOUND => ShopCategory::Basic,
-        MID_BOUND..=INVENTORY_SIZE => ShopCategory::Upgrade,
-        _ => panic!("Weird index when moving in the shop"),
+    let selected_row_last_col = if shop.selected_index + SHOP_COLUMNS > shop.max_index {
+        // Incomplete row
+        shop.max_index % SHOP_COLUMNS - 1
+    } else {
+        SHOP_COLUMNS - 1
     };
 
-    match direction {
-        Up => ShopNavigation::Available(category, shop.category_size(category) - 1),
-        Down => ShopNavigation::Available(category, 0),
-        Left => ShopNavigation::Owned(if index > 0 {
-            index - 1
-        } else {
-            INVENTORY_SIZE - 1
-        }),
-        Right => ShopNavigation::Owned(if index < INVENTORY_SIZE - 1 {
-            index + 1
-        } else {
-            0
-        }),
-    }
-}
-
-fn available_slot_navigation(
-    shop: &Shop,
-    direction: CardinalDiretion,
-    category: ShopCategory,
-    index: usize,
-) -> ShopNavigation {
-    match direction {
+    shop.selected_index = match direction {
         Up => {
-            if index > 0 {
-                ShopNavigation::Available(category, index - 1)
+            if row == 0 {
+                // Handle flipping over
+                let last_row_length = shop.max_index % SHOP_COLUMNS;
+
+                if col > last_row_length {
+                    // Put cursor on the second last row
+                    shop.max_index - last_row_length - SHOP_COLUMNS + col
+                } else {
+                    shop.max_index - last_row_length + col
+                }
             } else {
-                ShopNavigation::Owned(category.inventory_index())
+                shop.selected_index - SHOP_COLUMNS
             }
         }
         Down => {
-            if index < shop.category_size(category) - 1 {
-                ShopNavigation::Available(category, index + 1)
+            let potential_index = shop.selected_index + SHOP_COLUMNS;
+            if potential_index > shop.max_index {
+                col
             } else {
-                ShopNavigation::Owned(category.inventory_index())
+                potential_index
             }
         }
-        Left => switch_category(shop, category.previous(), index),
-        Right => switch_category(shop, category.next(), index),
-    }
-}
-
-fn switch_category(shop: &Shop, new_category: ShopCategory, old_index: usize) -> ShopNavigation {
-    // Make sure index is valid if moving to a category with fewer items
-    let new_index = old_index.min(shop.category_size(new_category) - 1);
-
-    ShopNavigation::Available(new_category, new_index)
-}
-
-fn primary_button_pressed(
-    shop: &Shop,
-    inventory: &mut Inventory,
-    character: &Character,
-    slots: &Query<(Entity, &Owner, Option<&ShopItem>, &mut ShopSlotState)>,
-) {
-    match shop.navigation {
-        ShopNavigation::Owned(index) => sell(inventory, character, index),
-        ShopNavigation::Available(_, _) => buy(shop, inventory, character, slots),
-    }
-}
-
-fn sell(inventory: &mut Inventory, character: &Character, index: usize) {
-    if let Some(id) = inventory.items.get(index) {
-        let refund = ((get_recursive_cost(character, id) as f32) * SELL_RETURN) as usize;
-        inventory.sell(index, refund);
-    }
-}
-
-pub fn get_recursive_cost(character: &Character, id: &ItemId) -> usize {
-    let item = character.items.get(id).unwrap();
-
-    (if let ItemCategory::Upgrade(deps) = &item.category {
-        deps.iter()
-            .map(|dependency| get_recursive_cost(character, dependency))
-            .sum()
-    } else {
-        0
-    }) + item.cost
+        Left => {
+            if col == 0 {
+                // Loop over to the last one
+                row * SHOP_COLUMNS + selected_row_last_col
+            } else {
+                shop.selected_index - 1
+            }
+        }
+        Right => {
+            if col == selected_row_last_col {
+                // Loop over to the first one
+                row * SHOP_COLUMNS
+            } else {
+                shop.selected_index + 1
+            }
+        }
+    };
 }
 
 fn buy(
@@ -250,7 +158,22 @@ fn buy(
     let shop_item = selected_item.unwrap();
 
     let item = character.items.get(&shop_item.0).unwrap().clone();
-    if inventory.can_buy(&item) {
+    if inventory.can_buy(shop_item.0, &item) {
         inventory.buy(**shop_item, item)
+    }
+}
+
+fn sell(
+    shop: &Shop,
+    inventory: &mut Inventory,
+    character: &Character,
+    slots: &Query<(Entity, &Owner, Option<&ShopItem>, &mut ShopSlotState)>,
+) {
+    let selected_slot = shop.get_selected_slot();
+    let (_, _, selected_item, _) = slots.get(selected_slot).unwrap();
+    let shop_item = selected_item.unwrap();
+
+    if inventory.contains(&shop_item.0) {
+        inventory.sell(character, shop_item.0);
     }
 }

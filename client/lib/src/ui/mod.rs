@@ -33,7 +33,6 @@ impl Plugin for UIPlugin {
                     shop::navigate_shop,
                     shop::update_slot_visuals,
                     shop::update_info_panel,
-                    shop::update_inventory_ui,
                     shop::handle_shop_ending,
                 )
                     .run_if(in_state(GameState::Shop)),

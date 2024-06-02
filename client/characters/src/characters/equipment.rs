@@ -96,7 +96,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     ..Stats::identity()
                 },
                 category: Consumable(OneRound),
-                icon: Some(Icon::PreWorkout),
+                icon: Icon::PreWorkout,
             },
         ),
         // Basics
@@ -105,7 +105,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             Item {
                 cost: 300,
                 explanation: "Tap forward to parry\n\nLesgo justin".into(),
-                icon: Some(Icon::Gi),
+                icon: Icon::Gi,
                 ..default()
             },
         ),
@@ -118,7 +118,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     walk_speed: 0.1,
                     ..Stats::identity()
                 },
-                icon: Some(Icon::Boots),
+                icon: Icon::Boots,
                 ..default()
             },
         ),
@@ -131,7 +131,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     max_health: 20,
                     ..Stats::identity()
                 },
-                icon: Some(Icon::HockeyPads),
+                icon: Icon::HockeyPads,
                 ..default()
             },
         ),
@@ -144,7 +144,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     action_speed_multiplier: 1.1,
                     ..Stats::identity()
                 },
-                icon: Some(Icon::RedPaint),
+                icon: Icon::RedPaint,
                 ..default()
             },
         ),
@@ -157,7 +157,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     link_bonus: 5,
                     ..Stats::identity()
                 },
-                icon: Some(Icon::Stopwatch),
+                icon: Icon::Stopwatch,
                 ..default()
             },
         ),
@@ -172,7 +172,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     opener_stun_frames: 5,
                     ..Stats::identity()
                 },
-                icon: Some(Icon::Crowbar),
+                icon: Icon::Crowbar,
                 ..default()
             },
         ),
@@ -185,7 +185,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     direct_influence: 1.0,
                     ..Stats::identity()
                 },
-                icon: Some(Icon::OliveOil),
+                icon: Icon::OliveOil,
                 ..default()
             },
         ),
@@ -199,7 +199,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     gravity: 0.02,
                     ..Stats::identity()
                 },
-                icon: Some(Icon::Dumbbell),
+                icon: Icon::Dumbbell,
                 ..default()
             },
         ),
@@ -212,7 +212,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     jump_force_multiplier: 1.02,
                     ..Stats::identity()
                 },
-                icon: Some(Icon::Feather),
+                icon: Icon::Feather,
                 ..default()
             },
         ),
@@ -225,7 +225,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     backdash_invuln: 3,
                     ..Stats::identity()
                 },
-                icon: Some(Icon::Cigarettes),
+                icon: Icon::Cigarettes,
                 ..default()
             },
         ),
@@ -239,7 +239,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     damage_multiplier: 1.01,
                     ..Stats::identity()
                 },
-                icon: Some(Icon::ThumbTacks(1)),
+                icon: Icon::ThumbTacks(1),
             },
         ),
         // Upgrades
@@ -249,7 +249,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 category: Upgrade(vec![ItemId::Boots, ItemId::HockeyPads]),
                 explanation: "Speed and health!\n\nSafe and fashionable".into(),
                 cost: 200,
-                icon: Some(Icon::SafetyBoots),
+                icon: Icon::SafetyBoots,
                 ..default()
             },
         ),
@@ -259,7 +259,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 category: Upgrade(vec![ItemId::Boots, ItemId::Stopwatch, ItemId::ThumbTacks(2)]),
                 explanation: "Allows you to cancel normals into a dash\n\nNow with Fast Action Disruption Compatible soles".into(),
                 cost: 500,
-                icon: Some(Icon::TrackSpikes),
+                icon: Icon::TrackSpikes,
                 ..default()
             },
         ),
@@ -269,7 +269,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 category: Upgrade(vec![ItemId::Boots, ItemId::Feather]),
                 explanation: "Allows you to jump from crouch to super jump\n\nLike Hermes.".into(),
                 cost: 400,
-                icon: Some(Icon::FeatheredBoots),
+                icon: Icon::FeatheredBoots,
                 ..default()
             },
         ),
@@ -279,7 +279,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 category: Upgrade(vec![ItemId::Feather, ItemId::Feather]),
                 explanation: "Allows you to double jump\n\nPigeon flap!".into(),
                 cost: 700,
-                icon: Some(Icon::PigeonWing),
+                icon: Icon::PigeonWing,
                 ..default()
             },
         ),
@@ -289,7 +289,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 category: Upgrade(vec![ItemId::Dumbbell, ItemId::Dumbbell]),
                 explanation: "Allows you to tap down to fast fall\n\nHiyaa!".into(),
                 cost: 600,
-                icon: Some(Icon::DivingHelmet),
+                icon: Icon::DivingHelmet,
                 ..default()
             },
         ),
@@ -305,7 +305,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     chip_damage: false,
                     ..Stats::identity()
                 },
-                icon: Some(Icon::GoalieGear),
+                icon: Icon::GoalieGear,
             },
         ),
     ]
@@ -320,7 +320,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     usize::pow(2, (id - 1) as u32)
                 ),
                 cost: 10*(id-1),
-                icon: Some(Icon::ThumbTacks(id)),
+                icon: Icon::ThumbTacks(id),
                 ..default()
             },
         )

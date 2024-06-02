@@ -24,7 +24,6 @@ pub const ITEM_SLOT_DISABLED_COLOR: Color = Color::BISQUE;
 pub const SHOP_TIMER_BACKGROUND_COLOR: Color = Color::rgba(0.0, 0.0, 0.0, 0.8);
 pub const SHOP_DIVIDER_COLOR: Color = Color::BLACK;
 pub const SHOP_DARK_BACKGROUND_COLOR: Color = Color::DARK_GRAY;
-pub const SHOP_LIGHT_BACKGROUND_COLOR: Color = Color::GRAY;
 pub const SHOP_ICON_BACKGROUND_COLOR: Color = Color::WHITE;
 
 // Box visualizations

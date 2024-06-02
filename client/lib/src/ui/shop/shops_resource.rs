@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 use wag_core::Player;
 
-use super::shop_inputs::{ShopCategory, ShopNavigation};
-
 #[derive(Default)]
 pub struct ShopComponentsBuilder {
     // Countdown
@@ -16,23 +14,11 @@ pub struct ShopComponentsBuilder {
     pub cost: Option<Entity>,
     pub dependencies: Option<Entity>,
 
-    // Middle
-    pub owned_slots: Vec<Entity>,
-    pub money_text: Option<Entity>,
-
     // Bottom
-    pub consumables: Vec<Entity>,
-    pub basics: Vec<Entity>,
-    pub upgrades: Vec<Entity>,
+    pub grid_items: Vec<Entity>,
 }
 impl ShopComponentsBuilder {
     pub fn build(self) -> ShopComponents {
-        // Make sure there is at least one of each type, no problems in building the UI
-        assert!(!self.owned_slots.is_empty());
-        assert!(!self.consumables.is_empty());
-        assert!(!self.basics.is_empty());
-        assert!(!self.upgrades.is_empty());
-
         ShopComponents {
             countdown: self.countdown.expect("fully built UI"),
             countdown_text: self.countdown_text.expect("fully built UI"),
@@ -41,11 +27,7 @@ impl ShopComponentsBuilder {
             explanation: self.explanation.expect("fully built UI"),
             cost: self.cost.expect("fully built UI"),
             dependencies: self.dependencies.expect("fully built UI"),
-            owned_slots: self.owned_slots,
-            money_text: self.money_text.expect("fully built UI"),
-            consumables: self.consumables,
-            basics: self.basics,
-            upgrades: self.upgrades,
+            grid_items: self.grid_items,
         }
     }
 }
@@ -63,40 +45,20 @@ pub struct ShopComponents {
     pub cost: Entity,
     pub dependencies: Entity,
 
-    // Middle
-    pub owned_slots: Vec<Entity>,
-    pub money_text: Entity,
-
     // Bottom
-    pub consumables: Vec<Entity>,
-    pub basics: Vec<Entity>,
-    pub upgrades: Vec<Entity>,
+    pub grid_items: Vec<Entity>,
 }
 
 #[derive(Debug)]
 pub struct Shop {
     pub components: ShopComponents,
-    pub navigation: ShopNavigation,
+    pub selected_index: usize,
+    pub max_index: usize, // Duplicated here for ease of access
     pub closed: bool,
 }
 impl Shop {
     pub fn get_selected_slot(&self) -> Entity {
-        match self.navigation {
-            ShopNavigation::Owned(index) => self.components.owned_slots[index],
-            ShopNavigation::Available(category, index) => match category {
-                ShopCategory::Consumable => self.components.consumables[index],
-                ShopCategory::Basic => self.components.basics[index],
-                ShopCategory::Upgrade => self.components.upgrades[index],
-            },
-        }
-    }
-
-    pub fn category_size(&self, category: ShopCategory) -> usize {
-        match category {
-            ShopCategory::Consumable => self.components.consumables.len(),
-            ShopCategory::Basic => self.components.basics.len(),
-            ShopCategory::Upgrade => self.components.upgrades.len(),
-        }
+        self.components.grid_items[self.selected_index]
     }
 }
 

@@ -22,7 +22,7 @@ pub struct Item {
     pub cost: usize,
     pub effect: Stats,
     pub explanation: String,
-    pub icon: Option<Icon>,
+    pub icon: Icon,
 }
 
 impl Default for Item {
@@ -32,7 +32,7 @@ impl Default for Item {
             cost: Default::default(),
             effect: Stats::identity(),
             explanation: "Description missing".into(),
-            icon: None,
+            icon: Icon::Blank,
         }
     }
 }

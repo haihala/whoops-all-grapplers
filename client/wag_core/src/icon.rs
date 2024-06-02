@@ -1,7 +1,10 @@
 use bevy::utils::HashMap;
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(Default, Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum Icon {
+    #[default]
+    Blank,
+
     ThumbTacks(usize),
     Boots,
     Crowbar,
@@ -26,6 +29,7 @@ pub enum Icon {
 impl Icon {
     pub fn paths() -> HashMap<Icon, String> {
         vec![
+            (Icon::Blank, "icons/blank.png".into()),
             (Icon::Boots, "icons/boots.png".into()),
             (Icon::Crowbar, "icons/crowbar.png".into()),
             (Icon::Feather, "icons/feather.png".into()),

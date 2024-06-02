@@ -1,21 +1,13 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
 use wag_core::{
-    GameState, Owner, Player, Players, GENERIC_TEXT_COLOR, ITEM_SLOT_DEFAULT_COLOR,
-    ITEM_SLOT_DISABLED_COLOR, ITEM_SLOT_HIGHLIGHT_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
-    SELL_RETURN,
+    GameState, Player, Players, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
+    ITEM_SLOT_HIGHLIGHT_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
 };
 
-use crate::{
-    assets::{Fonts, Icons},
-    state_transitions::TransitionTimer,
-};
+use crate::state_transitions::TransitionTimer;
 
-use super::{
-    setup_shop::{render_item_icon, InventorySlot, ShopItem},
-    shop_inputs::{get_recursive_cost, ShopSlotState},
-    Shops,
-};
+use super::{setup_shop::ShopItem, shop_inputs::ShopSlotState, Shops};
 
 pub fn update_slot_visuals(
     mut query: Query<(&ShopSlotState, &mut BackgroundColor), Changed<ShopSlotState>>,
@@ -30,161 +22,55 @@ pub fn update_slot_visuals(
     }
 }
 
-pub fn update_inventory_ui(
-    mut commands: Commands,
-    inventories: Query<(&Inventory, &Player, &Character), Changed<Inventory>>,
-    mut money_texts: Query<&mut Text>,
-    mut slots: Query<(Entity, &mut InventorySlot, &Owner)>,
-    fonts: Res<Fonts>,
-    icons: Res<Icons>,
-    shops: Res<Shops>,
-) {
-    for (inventory, player, charater) in &inventories {
-        // Update money text
-        let shop = shops.get_shop(player);
-        let mut text = money_texts.get_mut(shop.components.money_text).unwrap();
-        text.sections[1].value = inventory.money.to_string();
-
-        // Update slots
-        for (entity, mut slot, owner) in &mut slots {
-            if **owner != *player {
-                continue;
-            }
-            if let Some(id) = inventory.items.get(slot.index) {
-                let old_item = slot.id;
-                let different_item = old_item.is_some() && old_item.unwrap() != *id;
-
-                if different_item {
-                    commands.entity(entity).despawn_descendants();
-                }
-
-                if old_item.is_none() || different_item {
-                    render_item_icon(
-                        &mut commands,
-                        &icons,
-                        entity,
-                        TextStyle {
-                            font: fonts.basic.clone(),
-                            font_size: 36.0,
-                            color: GENERIC_TEXT_COLOR,
-                        },
-                        *id,
-                        charater.items.get(id).unwrap().icon,
-                    );
-
-                    slot.id = Some(*id);
-                }
-            } else {
-                // Slot is empty
-                commands.entity(entity).despawn_descendants();
-                slot.id = None;
-            }
-        }
-    }
-}
-
 pub fn update_info_panel(
-    slots: Query<(Option<&ShopItem>, Option<&InventorySlot>)>,
+    slots: Query<&ShopItem>,
     mut texts: Query<(&mut Text, &mut Visibility)>,
     shops: Res<Shops>,
-    characters: Query<&Character>,
+    characters: Query<(&Character, &Inventory)>,
     players: Res<Players>,
 ) {
     for player in [Player::One, Player::Two] {
         let shop = shops.get_shop(&player);
         let active_slot = shop.get_selected_slot();
-        let (maybe_available, maybe_inventory_slot) = slots.get(active_slot).unwrap();
+        let slot = slots.get(active_slot).unwrap();
 
-        let character = characters.get(players.get(player)).unwrap();
-        let contents = if let Some(available) = maybe_available {
-            available_item_info(character, available)
-        } else if let Some(inventory_slot) = maybe_inventory_slot {
-            inventory_slot_info(character, inventory_slot)
+        let (character, inventory) = characters.get(players.get(player)).unwrap();
+        let item_name = slot.0.display_name();
+        let item = character.items.get(&slot.0).unwrap();
+
+        let (verb, cost) = if inventory.contains(&slot.0) {
+            ("Sell", inventory.sell_price(character, slot.0))
         } else {
-            panic!("Selected slot isn't an inventory slot nor is it a purchasable item");
+            // TODO: Recursive buy
+            ("Buy", item.cost)
         };
 
-        // Update actual texts
-        for (entity, section, maybe_content) in [
-            (shop.components.item_name, 0, contents.item_name),
-            (shop.components.explanation, 0, contents.explanation),
-            (shop.components.cost, 0, contents.operation),
-            (shop.components.cost, 2, contents.cost),
-            (shop.components.dependencies, 1, contents.dependencies),
-        ] {
-            let (mut text, mut visibility) = texts.get_mut(entity).unwrap();
-            if let Some(content) = maybe_content {
-                text.sections[section].value = content;
-                *visibility = Visibility::Inherited;
-            } else {
-                *visibility = Visibility::Hidden;
-            }
-        }
-    }
-}
-
-#[derive(Debug, Default)]
-struct InfoPanelContents {
-    // pub big_icon: ,  // TODO: Icons
-    pub item_name: Option<String>,
-    pub explanation: Option<String>,
-    pub operation: Option<String>,
-    pub cost: Option<String>,
-    pub dependencies: Option<String>,
-}
-
-fn available_item_info(character: &Character, shop_item: &ShopItem) -> InfoPanelContents {
-    let item = character.items.get(&shop_item.0).unwrap().clone();
-
-    InfoPanelContents {
-        item_name: Some(shop_item.display_name()),
-        explanation: if !item.explanation.is_empty() {
-            Some(item.explanation)
-        } else {
-            None
-        },
-        operation: Some("Buy".into()),
-        cost: Some(item.cost.to_string()),
-        dependencies: if let ItemCategory::Upgrade(deps) = item.category {
-            Some(
-                deps.into_iter()
-                    .map(|id| id.display_name())
-                    .intersperse(", ".to_string())
-                    .collect(),
-            )
-        } else {
-            None
-        },
-    }
-}
-
-fn inventory_slot_info(character: &Character, inventory_slot: &InventorySlot) -> InfoPanelContents {
-    if let Some(item_id) = inventory_slot.id {
-        let item = character.items.get(&item_id).unwrap().clone();
-
-        InfoPanelContents {
-            item_name: Some(item_id.display_name()),
-            explanation: Some(item.explanation),
-            operation: Some("Sell".into()),
-            cost: Some(
-                (((get_recursive_cost(character, &item_id) as f32) * SELL_RETURN) as usize)
-                    .to_string(),
-            ),
-            dependencies: if let ItemCategory::Upgrade(deps) = item.category {
-                Some(
-                    deps.into_iter()
+        // Update texts
+        for (entity, section, content) in [
+            (shop.components.item_name, 0, item_name),
+            (shop.components.explanation, 0, item.explanation.to_owned()),
+            (shop.components.cost, 0, verb.to_string()),
+            (shop.components.cost, 2, cost.to_string()),
+            (
+                shop.components.dependencies,
+                1,
+                if let ItemCategory::Upgrade(deps) = &item.category {
+                    deps.iter()
                         .map(|id| id.display_name())
                         .intersperse(", ".to_string())
-                        .collect(),
-                )
+                        .collect()
+                } else {
+                    "".to_string()
+                },
+            ),
+        ] {
+            let (mut text, mut visibility) = texts.get_mut(entity).unwrap();
+            if content.is_empty() {
+                *visibility = Visibility::Hidden;
             } else {
-                None
-            },
-        }
-    } else {
-        InfoPanelContents {
-            item_name: Some("Empty inventory slot".into()),
-            ..default()
+                text.sections[section].value = content;
+                *visibility = Visibility::Inherited;
+            }
         }
     }
 }

@@ -1,25 +1,20 @@
 use bevy::prelude::*;
 
-use characters::{Character, Item, ItemCategory::*};
+use characters::Character;
 use wag_core::{
     GameState, Icon, ItemId, OnlyShowInGameState, Owner, Player, Players, GENERIC_TEXT_COLOR,
-    INVENTORY_SIZE, SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_ICON_BACKGROUND_COLOR,
-    SHOP_LIGHT_BACKGROUND_COLOR, SHOP_TIMER_BACKGROUND_COLOR,
+    SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_ICON_BACKGROUND_COLOR,
+    SHOP_TIMER_BACKGROUND_COLOR,
 };
 
 use crate::assets::{Fonts, Icons};
 
-use super::shop_inputs::{ShopNavigation, ShopSlotState};
+use super::shop_inputs::ShopSlotState;
 use super::shops_resource::{Shop, ShopComponents, ShopComponentsBuilder, Shops};
+use super::SHOP_COLUMNS;
 
 #[derive(Debug, Component, Deref, Hash, PartialEq, Eq, Clone, Copy)]
 pub struct ShopItem(pub ItemId);
-
-#[derive(Debug, Component)]
-pub struct InventorySlot {
-    pub index: usize,
-    pub id: Option<ItemId>,
-}
 
 pub fn setup_shop(
     mut commands: Commands,
@@ -69,12 +64,14 @@ pub fn setup_shop(
     commands.insert_resource(Shops {
         player_one: Shop {
             components: player_one_components,
-            navigation: ShopNavigation::default(),
+            selected_index: 0,
+            max_index: characters.get(players.one).unwrap().items.len() - 1,
             closed: false,
         },
         player_two: Shop {
             components: player_two_components,
-            navigation: ShopNavigation::default(),
+            selected_index: 0,
+            max_index: characters.get(players.two).unwrap().items.len() - 1,
             closed: false,
         },
     });
@@ -108,13 +105,11 @@ fn setup_shop_root(
         .id();
 
     setup_info_panel(commands, container, &mut shop_root_builder, fonts);
-    setup_inventory(commands, container, &mut shop_root_builder, fonts, owner);
-    setup_available_items(
+    setup_shop_grid(
         commands,
         icons,
         container,
         &mut shop_root_builder,
-        fonts,
         character,
         owner,
     );
@@ -305,129 +300,22 @@ fn setup_text_sections(
         .id()
 }
 
-fn setup_inventory(
-    commands: &mut Commands,
-    parent: Entity,
-    shop_root: &mut ShopComponentsBuilder,
-    fonts: &Fonts,
-    player: Player,
-) {
-    let margin = UiRect::all(Val::Px(3.0));
-
-    let container = commands
-        .spawn((
-            NodeBundle {
-                background_color: SHOP_DARK_BACKGROUND_COLOR.into(),
-                style: Style {
-                    // size: Size::AUTO,
-                    align_items: AlignItems::Center,
-                    margin,
-                    padding: margin,
-                    justify_content: JustifyContent::SpaceBetween,
-                    ..default()
-                },
-                ..default()
-            },
-            Name::new("Inventory root"),
-        ))
-        .set_parent(parent)
-        .id();
-
-    setup_owned_slots(commands, container, shop_root, player);
-    shop_root.money_text = Some(setup_text_sections(
-        commands,
-        container,
-        vec!["$", "0"],
-        TextStyle {
-            font: fonts.basic.clone(),
-            font_size: 48.0,
-            color: GENERIC_TEXT_COLOR,
-        },
-        "Money",
-    ));
-}
-
-fn setup_owned_slots(
-    commands: &mut Commands,
-    parent: Entity,
-    shop_root: &mut ShopComponentsBuilder,
-    player: Player,
-) {
-    let margin = UiRect::all(Val::Px(3.0));
-
-    let container = commands
-        .spawn((
-            NodeBundle {
-                style: Style {
-                    // size: Size::AUTO,
-                    margin,
-                    ..default()
-                },
-                ..default()
-            },
-            Name::new("Owned slots"),
-        ))
-        .set_parent(parent)
-        .id();
-
-    for i in 0..INVENTORY_SIZE {
-        shop_root
-            .owned_slots
-            .push(create_empty_inventory_slot(commands, container, player, i));
-    }
-}
-
-fn create_empty_inventory_slot(
-    commands: &mut Commands,
-    parent: Entity,
-    player: Player,
-    index: usize,
-) -> Entity {
-    commands
-        .spawn((
-            NodeBundle {
-                background_color: SHOP_LIGHT_BACKGROUND_COLOR.into(),
-                style: Style {
-                    height: Val::Px(50.0),
-                    width: Val::Px(50.0),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    margin: UiRect::all(Val::Px(3.0)),
-                    ..default()
-                },
-                ..default()
-            },
-            if index == 0 {
-                ShopSlotState::Highlighted
-            } else {
-                ShopSlotState::Default
-            },
-            Owner(player),
-            InventorySlot { index, id: None },
-            Name::new(format!("Inventory slot {}", index)),
-        ))
-        .set_parent(parent)
-        .id()
-}
-
-fn setup_available_items(
+fn setup_shop_grid(
     commands: &mut Commands,
     icons: &Icons,
     parent: Entity,
     shop_root: &mut ShopComponentsBuilder,
-    fonts: &Fonts,
     character: &Character,
     player: Player,
 ) {
-    let items = get_prepared_items(character);
-
     let container = commands
         .spawn((
             NodeBundle {
                 style: Style {
-                    // size: Size::AUTO,
-                    justify_content: JustifyContent::SpaceEvenly,
-                    flex_grow: 1.0,
+                    display: Display::Grid,
+                    grid_template_columns: vec![RepeatedGridTrack::auto(SHOP_COLUMNS as u16)],
+                    row_gap: Val::Px(5.0),
+                    column_gap: Val::Px(5.0),
                     ..default()
                 },
                 ..default()
@@ -437,141 +325,47 @@ fn setup_available_items(
         .set_parent(parent)
         .id();
 
-    shop_root.consumables = setup_category(
-        commands,
-        icons,
-        container,
-        fonts,
-        player,
-        "Consumables".into(),
-        items.consumables,
-    );
-
-    shop_root.basics = setup_category(
-        commands,
-        icons,
-        container,
-        fonts,
-        player,
-        "Basics".into(),
-        items.basics,
-    );
-
-    shop_root.upgrades = setup_category(
-        commands,
-        icons,
-        container,
-        fonts,
-        player,
-        "Upgrades".into(),
-        items.upgrades,
-    );
+    shop_root.grid_items = fill_item_grid(commands, icons, container, player, character);
 }
 
-#[derive(Debug)]
-struct PreparedItems {
-    consumables: Vec<(ItemId, Item)>,
-    basics: Vec<(ItemId, Item)>,
-    upgrades: Vec<(ItemId, Item)>,
-}
-
-fn get_prepared_items(character: &Character) -> PreparedItems {
-    let mut consumables = vec![];
-    let mut basics = vec![];
-    let mut upgrades = vec![];
-
-    let mut items: Vec<(ItemId, Item)> = character
-        .items
-        .iter()
-        .map(|(id, item)| (id.to_owned(), item.to_owned()))
-        .collect();
-
-    items.sort_by_key(|(id, item)| (item.cost, id.to_owned()));
-
-    for (id, item) in items {
-        match item.category {
-            Consumable(_) => consumables.push((id, item)),
-            Basic => basics.push((id, item)),
-            Upgrade(_) => upgrades.push((id, item)),
-        }
-    }
-
-    PreparedItems {
-        consumables,
-        basics,
-        upgrades,
-    }
-}
-
-fn setup_category(
+fn fill_item_grid(
     commands: &mut Commands,
     icons: &Icons,
     parent: Entity,
-    fonts: &Fonts,
     player: Player,
-    title: String,
-    items: Vec<(ItemId, Item)>,
+    character: &Character,
 ) -> Vec<Entity> {
-    let mut item_entities = vec![];
+    let mut pairs = character.items.iter().collect::<Vec<_>>();
 
-    let container = commands
-        .spawn((
-            NodeBundle {
-                background_color: SHOP_DARK_BACKGROUND_COLOR.into(),
-                style: Style {
-                    flex_direction: FlexDirection::Column,
-                    margin: UiRect::all(Val::Px(3.0)),
-                    flex_grow: 1.0,
-                    ..default()
-                },
-                ..default()
-            },
-            Name::new(format!("Available {} root", &title)),
-        ))
-        .set_parent(parent)
-        .id();
+    pairs.sort_by_key(|(id, _)| recursive_cost(character, **id));
 
-    commands
-        .spawn(TextBundle {
-            background_color: SHOP_DARK_BACKGROUND_COLOR.into(),
+    pairs
+        .into_iter()
+        .map(|(id, item)| setup_shop_item(commands, icons, parent, player, *id, item.icon))
+        .collect()
+}
 
-            ..TextBundle::from_section(
-                title,
-                TextStyle {
-                    font: fonts.basic.clone(),
-                    font_size: 32.0,
-                    color: GENERIC_TEXT_COLOR,
-                },
-            )
-            .with_style(Style {
-                width: Val::Auto,
-                margin: UiRect {
-                    top: Val::Px(5.0),
-                    left: Val::Px(5.0),
-                    ..default()
-                },
-                ..default()
-            })
-        })
-        .set_parent(container);
-
-    for (id, item) in items.into_iter() {
-        item_entities.push(setup_shop_item(
-            commands, icons, container, fonts, player, id, item.icon,
-        ));
+fn recursive_cost(character: &Character, item_id: ItemId) -> usize {
+    let item = character.items.get(&item_id).unwrap();
+    match item.category {
+        characters::ItemCategory::Upgrade(ref components) => {
+            item.cost
+                + components
+                    .iter()
+                    .map(|i| recursive_cost(character, *i))
+                    .sum::<usize>()
+        }
+        _ => item.cost,
     }
-
-    item_entities
 }
 
 fn setup_shop_item(
     commands: &mut Commands,
     icons: &Icons,
     parent: Entity,
-    fonts: &Fonts,
     player: Player,
     id: ItemId,
-    maybe_icon: Option<Icon>,
+    icon: Icon,
 ) -> Entity {
     let margin = UiRect::all(Val::Px(3.0));
 
@@ -583,6 +377,8 @@ fn setup_shop_item(
                     align_items: AlignItems::Center,
                     margin,
                     padding: margin,
+                    min_height: Val::Percent(100.0),
+                    max_width: Val::Percent(100.0),
                     ..default()
                 },
                 ..default()
@@ -594,52 +390,15 @@ fn setup_shop_item(
         .set_parent(parent)
         .id();
 
-    let base_style = TextStyle {
-        font: fonts.basic.clone(),
-        font_size: 32.0,
-        color: GENERIC_TEXT_COLOR,
-    };
-
     // Icon
-    render_item_icon(
-        commands,
-        icons,
-        container,
-        TextStyle {
-            font_size: 36.0,
-            ..base_style.clone()
-        },
-        id,
-        maybe_icon,
-    );
-
-    // Name
-    commands
-        .spawn(
-            TextBundle::from_section(id.display_name(), base_style).with_style(Style {
-                margin: UiRect {
-                    left: Val::Px(10.0),
-                    ..default()
-                },
-                overflow: Overflow::clip(),
-                ..default()
-            }),
-        )
-        .set_parent(container);
+    render_item_icon(commands, icons, container, icon);
 
     container
 }
 
-pub fn render_item_icon(
-    commands: &mut Commands,
-    icons: &Icons,
-    parent: Entity,
-    text_style: TextStyle,
-    id: ItemId,
-    maybe_icon: Option<Icon>,
-) {
-    if let Some(icon) = maybe_icon {
-        commands.spawn((
+pub fn render_item_icon(commands: &mut Commands, icons: &Icons, parent: Entity, icon: Icon) {
+    commands.entity(parent).with_children(|cb| {
+        cb.spawn((
             NodeBundle {
                 background_color: SHOP_ICON_BACKGROUND_COLOR.into(),
                 style: Style {
@@ -650,15 +409,6 @@ pub fn render_item_icon(
                 ..default()
             },
             UiImage::new(icons.0.get(&icon).unwrap().clone()),
-        ))
-    } else {
-        // Fallback to first charater of name
-        let text = format!(" {} ", id.display_name().chars().next().unwrap());
-
-        commands.spawn(TextBundle {
-            background_color: SHOP_LIGHT_BACKGROUND_COLOR.into(),
-            ..TextBundle::from_section(text, text_style)
-        })
-    }
-    .set_parent(parent);
+        ));
+    });
 }

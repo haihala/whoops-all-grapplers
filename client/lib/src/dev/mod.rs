@@ -6,12 +6,11 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use characters::{ActionEvent, FlashRequest, Hitbox, Hurtbox, Inventory};
 use player_state::PlayerState;
 use wag_core::{
-    Clock, Facing, GameState, Icon, Joints, Player, SoundEffect, Stats, GI_PARRY_FLASH_COLOR,
-    SHOP_LIGHT_BACKGROUND_COLOR,
+    Clock, Facing, GameState, Joints, Player, SoundEffect, Stats, GI_PARRY_FLASH_COLOR,
 };
 
 use crate::{
-    assets::{Icons, Sounds},
+    assets::Sounds,
     physics::{ConstantVelocity, PlayerVelocity, Pushbox},
     player::MoveBuffer,
 };
@@ -41,7 +40,6 @@ impl Plugin for DevPlugin {
             .add_systems(
                 Update,
                 (
-                    icon_test_system,
                     audio_test_system,
                     shader_test_system,
                     fullscreen_toggle,
@@ -61,41 +59,6 @@ impl Plugin for DevPlugin {
 fn setup(mut config_store: ResMut<GizmoConfigStore>) {
     let (config, _) = config_store.config_mut::<DefaultGizmoConfigGroup>();
     config.depth_bias = -1.0;
-}
-
-fn icon_test_system(
-    keys: Res<ButtonInput<KeyCode>>,
-    mut commands: Commands,
-    icons: Res<Icons>,
-    mut icon: Local<Option<Entity>>,
-) {
-    if keys.just_pressed(KeyCode::KeyI) {
-        if let Some(entity) = *icon {
-            println!("Despawning icon");
-            commands.entity(entity).despawn();
-            *icon = None;
-        } else {
-            println!("Spawning icon");
-
-            *icon = Some(
-                commands
-                    .spawn((
-                        NodeBundle {
-                            background_color: SHOP_LIGHT_BACKGROUND_COLOR.into(),
-                            style: Style {
-                                width: Val::Px(100.0),
-                                height: Val::Px(100.0),
-                                ..default()
-                            },
-                            ..default()
-                        },
-                        UiImage::new(icons.0.get(&Icon::ThumbTacks(1)).unwrap().clone()),
-                        Name::new("Test icon"),
-                    ))
-                    .id(),
-            );
-        }
-    }
 }
 
 fn shader_test_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<&mut PlayerState>) {

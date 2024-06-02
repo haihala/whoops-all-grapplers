@@ -8,4 +8,4 @@ pub(super) use shop_inputs::navigate_shop;
 pub(super) use shop_rendering::{handle_shop_ending, update_info_panel, update_slot_visuals};
 pub use shops_resource::Shops;
 
-pub const SHOP_COLUMNS: usize = 12;
+pub const SHOP_COLUMNS: usize = 10;

@@ -5,7 +5,7 @@ use wag_core::{
     ITEM_SLOT_HIGHLIGHT_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
 };
 
-use crate::state_transitions::TransitionTimer;
+use crate::{assets::Icons, state_transitions::TransitionTimer};
 
 use super::{setup_shop::ShopItem, shop_inputs::ShopSlotState, Shops};
 
@@ -25,6 +25,8 @@ pub fn update_slot_visuals(
 pub fn update_info_panel(
     slots: Query<&ShopItem>,
     mut texts: Query<(&mut Text, &mut Visibility)>,
+    mut icon_query: Query<&mut UiImage>,
+    icons: Res<Icons>,
     shops: Res<Shops>,
     characters: Query<(&Character, &Inventory)>,
     players: Res<Players>,
@@ -72,6 +74,9 @@ pub fn update_info_panel(
                 *visibility = Visibility::Inherited;
             }
         }
+
+        let mut icon = icon_query.get_mut(shop.components.big_icon).unwrap();
+        icon.texture = icons.0.get(&item.icon).unwrap().clone();
     }
 }
 

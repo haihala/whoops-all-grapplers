@@ -313,7 +313,7 @@ fn setup_shop_grid(
             NodeBundle {
                 style: Style {
                     display: Display::Grid,
-                    grid_template_columns: vec![RepeatedGridTrack::auto(SHOP_COLUMNS as u16)],
+                    grid_template_columns: RepeatedGridTrack::flex(SHOP_COLUMNS as u16, 1.0),
                     row_gap: Val::Px(5.0),
                     column_gap: Val::Px(5.0),
                     ..default()
@@ -367,48 +367,24 @@ fn setup_shop_item(
     id: ItemId,
     icon: Icon,
 ) -> Entity {
-    let margin = UiRect::all(Val::Px(3.0));
-
-    let container = commands
+    commands
         .spawn((
             NodeBundle {
                 style: Style {
-                    justify_content: JustifyContent::FlexStart,
-                    align_items: AlignItems::Center,
-                    margin,
-                    padding: margin,
-                    min_height: Val::Percent(100.0),
-                    max_width: Val::Percent(100.0),
+                    padding: UiRect::all(Val::Px(3.0)),
+                    aspect_ratio: Some(1.0),
+                    max_height: Val::Px(100.0),
+                    max_width: Val::Px(100.0),
                     ..default()
                 },
+                background_color: SHOP_ICON_BACKGROUND_COLOR.into(),
                 ..default()
             },
             ShopSlotState::Default,
             ShopItem(id),
             Owner(player),
+            UiImage::new(icons.0.get(&icon).unwrap().clone()),
         ))
         .set_parent(parent)
-        .id();
-
-    // Icon
-    render_item_icon(commands, icons, container, icon);
-
-    container
-}
-
-pub fn render_item_icon(commands: &mut Commands, icons: &Icons, parent: Entity, icon: Icon) {
-    commands.entity(parent).with_children(|cb| {
-        cb.spawn((
-            NodeBundle {
-                background_color: SHOP_ICON_BACKGROUND_COLOR.into(),
-                style: Style {
-                    height: Val::Percent(100.0),
-                    aspect_ratio: Some(1.0),
-                    ..default()
-                },
-                ..default()
-            },
-            UiImage::new(icons.0.get(&icon).unwrap().clone()),
-        ));
-    });
+        .id()
 }

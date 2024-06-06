@@ -82,27 +82,29 @@ pub enum MizkuAnimation {
     LowKick,
     LowStab,
     Overhead,
-    Sharpen,
     Stagger,
     StandPose,
     StandThrowHit,
     StandThrowStartup,
     StandThrowTarget,
-    SwayCancel,
-    SwayDash,
-    SwayLow,
-    SwayOverhead,
-    Pilebunker,
     #[default]
     TPose,
     Uppercut,
-    ArisingSun,
+    SwordStance,
     GrisingSun,
+    ViperStrike,
+    Sharpen,
     WalkBack,
     WalkForward,
 
     // Legacy, unused, here to ensure animation loading works as they are still in the gltf
     Sweep,
+    ArisingSun,
+    SwayCancel,
+    SwayDash,
+    SwayLow,
+    SwayOverhead,
+    Pilebunker,
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect)]

@@ -107,7 +107,7 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Input: `w` while in the air
 - Visual: Ky flippy air throw
 
-#### High slice
+#### Thrust
 - Input: `g` while standing
 - Visual: Nago f.s
 - Shoulder level stab
@@ -115,13 +115,15 @@ She is a young but competent second generation Korean American immigrant. She's 
 	- Slow to recover
 - Is a sword move, so it deals good damage, especially with [[#Sharpness]]
 
-#### Low slice
+#### Sky stab
 - Input: `g` while crouching
-- Visual: Baiken 2h
-- Rolling low stab
-	- Fast start up relative to range
-	- Moves forward
+- Visual: Single diagonal upwards slash with a bit of a swing
+- Premium anti-air
+	- Fast start up, long range
 	- Slow to recover
+	- Disjointed
+	- Hard to convert off of?
+- Is a sword move, so it deals good damage, especially with [[#Sharpness]]
 
 ### Specials
 #### Sword stance
@@ -132,7 +134,7 @@ She is a young but competent second generation Korean American immigrant. She's 
 	- `f` - [[#Viper strike]]
 	- `s` - [[#Rising sun]]
 - If no follow up is input relatively quickly, it recovers naturally.
-	- This makes some moves like [[#Low slice]] safer
+	- This makes some moves like [[#Sky stab]] safer
 - Upgrades
 	- Can back dash out of the stance for an evasive recovery
 	- `s` version invincibility

@@ -13,3 +13,5 @@
 - [ ] Frame traps
 	- [ ] 'trapped' when you get counterhit out of recovery
 	- [ ] 'hard trapped' = 'trapped' + None of your moves would've been fast enough
+
+Some of these can go into notifications 3.0

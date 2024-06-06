@@ -1,6 +1,5 @@
 - [[Menus MVP]]
 - [[Notifications 2.0]]
-- [[Shop 2.0]]
 - [[Particles 2.0]]
 - [[SFX 2.0]]
 - [[Mizku cleanup]]

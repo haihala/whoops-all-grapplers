@@ -7,5 +7,4 @@ Sand off some rough edges, make it work like the [[Mizku]] says it does
 	- [[Mizku#Dancing shoes]]
 - [[Mizku#Blade oil]]
 - [[Mizku#Bladesmith coupon]]
-- Make sway dash longer for `s` sway
 - Increase kunai size and speed for better visibility

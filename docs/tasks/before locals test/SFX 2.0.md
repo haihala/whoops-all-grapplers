@@ -3,6 +3,5 @@
 	- [ ] Game over
 	- [ ] Some of [[Notifications 2.0]]?
 - [ ] VA work for [[Mizku]]
-	- [ ] Grunts for various places
-	- [ ] Yell for Pilebunker and Rising sun
+	- [ ] Yells and grunts for various places
 	- [ ] Idle barks

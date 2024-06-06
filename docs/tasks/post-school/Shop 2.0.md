@@ -1,0 +1,15 @@
+Turn shop into a tech tree
+- [ ] Add colors
+	- [ ] For items too expensive / missing requirements
+	- [ ] For owned items
+	- [ ] For dependencies / dependents of hovered item
+- [ ] Add final shop icons
+- [ ] Add functionality
+	- [ ] Recursive buying
+	- [ ] Instant sell = undo = full refund
+	- [ ] Add a top/bottom ribbon
+		- [ ] Re-add money UI
+		- [ ] Round score
+		- [ ] Visible button prompts
+- [ ] Squash bugs
+	- [ ] Make coloring appear immediately

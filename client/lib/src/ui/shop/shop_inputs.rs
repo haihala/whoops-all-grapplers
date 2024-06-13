@@ -5,14 +5,6 @@ use wag_core::{ActionId, Facing, Owner, Player};
 
 use super::{setup_shop::ShopItem, shops_resource::Shop, Shops, SHOP_COLUMNS};
 
-#[derive(Component, Default, PartialEq, Eq)]
-pub enum ShopSlotState {
-    #[default]
-    Default,
-    Highlighted,
-    Disabled,
-}
-
 pub fn navigate_shop(
     mut parsers: Query<(
         &mut InputParser,
@@ -21,7 +13,7 @@ pub fn navigate_shop(
         &Character,
         &Facing,
     )>,
-    mut slots: Query<(Entity, &Owner, Option<&ShopItem>, &mut ShopSlotState)>,
+    slots: Query<(Entity, &Owner, Option<&ShopItem>)>,
     mut shops: ResMut<Shops>,
 ) {
     for (mut parser, player, mut inventory, character, facing) in &mut parsers {
@@ -46,29 +38,6 @@ pub fn navigate_shop(
         }
 
         parser.clear();
-
-        let selected = shop.get_selected_slot();
-        for (entity, owner, shop_item, mut slot_state) in &mut slots {
-            if *player != **owner {
-                continue;
-            }
-
-            let correct_state = if selected == entity {
-                ShopSlotState::Highlighted
-            } else if shop_item
-                .map(|item| character.items.get(&item.0).unwrap().cost > inventory.money)
-                .unwrap_or_default()
-            {
-                ShopSlotState::Disabled
-            } else {
-                ShopSlotState::Default
-            };
-
-            // Hopefully only trigger change detection for the slots that actually changed
-            if correct_state != *slot_state {
-                *slot_state = correct_state;
-            }
-        }
     }
 }
 
@@ -151,10 +120,10 @@ fn buy(
     shop: &Shop,
     inventory: &mut Inventory,
     character: &Character,
-    slots: &Query<(Entity, &Owner, Option<&ShopItem>, &mut ShopSlotState)>,
+    slots: &Query<(Entity, &Owner, Option<&ShopItem>)>,
 ) {
     let selected_slot = shop.get_selected_slot();
-    let (_, _, selected_item, _) = slots.get(selected_slot).unwrap();
+    let (_, _, selected_item) = slots.get(selected_slot).unwrap();
     let shop_item = selected_item.unwrap();
 
     let item = character.items.get(&shop_item.0).unwrap().clone();
@@ -167,10 +136,10 @@ fn sell(
     shop: &Shop,
     inventory: &mut Inventory,
     character: &Character,
-    slots: &Query<(Entity, &Owner, Option<&ShopItem>, &mut ShopSlotState)>,
+    slots: &Query<(Entity, &Owner, Option<&ShopItem>)>,
 ) {
     let selected_slot = shop.get_selected_slot();
-    let (_, _, selected_item, _) = slots.get(selected_slot).unwrap();
+    let (_, _, selected_item) = slots.get(selected_slot).unwrap();
     let shop_item = selected_item.unwrap();
 
     if inventory.contains(&shop_item.0) {

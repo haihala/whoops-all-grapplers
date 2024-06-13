@@ -9,7 +9,6 @@ use wag_core::{
 
 use crate::assets::{Fonts, Icons};
 
-use super::shop_inputs::ShopSlotState;
 use super::shops_resource::{Shop, ShopComponents, ShopComponentsBuilder, Shops};
 use super::SHOP_COLUMNS;
 
@@ -380,7 +379,6 @@ fn setup_shop_item(
                 background_color: SHOP_ICON_BACKGROUND_COLOR.into(),
                 ..default()
             },
-            ShopSlotState::Default,
             ShopItem(id),
             Owner(player),
         ))

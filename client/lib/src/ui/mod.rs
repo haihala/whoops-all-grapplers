@@ -37,7 +37,6 @@ impl Plugin for UIPlugin {
                 )
                     .run_if(in_state(GameState::Shop)),
             )
-            .add_systems(OnEnter(GameState::Shop), shop::initial_shop_update)
             .add_systems(
                 PostStartup,
                 (

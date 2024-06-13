@@ -1,38 +1,70 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
 use wag_core::{
-    GameState, Player, Players, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
-    ITEM_SLOT_HIGHLIGHT_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
+    GameState, Owner, Player, Players, ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR,
+    ITEM_SLOT_DISABLED_COLOR, ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR,
+    ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
 };
 
 use crate::{assets::Icons, state_transitions::TransitionTimer};
 
-use super::{setup_shop::ShopItem, shop_inputs::ShopSlotState, Shops};
-
-pub fn initial_shop_update(
-    hierarchy: Query<&Children>,
-    mut slot_query: Query<(&Parent, Entity, &mut ShopSlotState)>,
-) {
-    for (parent, entity, mut state) in &mut slot_query {
-        let children = hierarchy.get(**parent).unwrap();
-        *state = if entity == children[0] {
-            ShopSlotState::Highlighted
-        } else {
-            ShopSlotState::Default
-        }
-    }
-}
+use super::{setup_shop::ShopItem, Shops};
 
 pub fn update_slot_visuals(
-    mut query: Query<(&ShopSlotState, &mut BackgroundColor), Changed<ShopSlotState>>,
+    player_query: Query<(&Inventory, &Character, &Player)>,
+    mut item_query: Query<(&ShopItem, &Owner, Entity, &mut BackgroundColor)>,
+    shops: Res<Shops>,
 ) {
-    for (state, mut color) in &mut query {
-        *color = match state {
-            ShopSlotState::Default => ITEM_SLOT_DEFAULT_COLOR,
-            ShopSlotState::Highlighted => ITEM_SLOT_HIGHLIGHT_COLOR,
-            ShopSlotState::Disabled => ITEM_SLOT_DISABLED_COLOR,
+    for (inventory, character, player) in &player_query {
+        let shop = shops.get_shop(player);
+        let selected_slot = shop.get_selected_slot();
+        let selected_item_id = item_query
+            .iter()
+            .find(|(_, _, e, _)| *e == selected_slot)
+            .map(|(shop_item, _, _, _)| **shop_item)
+            .unwrap();
+        let selected_item = character.items.get(&selected_item_id).unwrap();
+
+        for (shop_item, owner, item_entity, mut color) in &mut item_query {
+            if *player != owner.0 {
+                continue;
+            }
+
+            if item_entity == selected_slot {
+                *color = ITEM_SLOT_HIGHLIGHT_COLOR.into();
+                continue;
+            }
+
+            let item_id = **shop_item;
+
+            if let ItemCategory::Upgrade(ref components) = selected_item.category {
+                if components.contains(&item_id) {
+                    *color = ITEM_SLOT_COMPONENT_COLOR.into();
+                    continue;
+                }
+            }
+
+            let item = character.items.get(&item_id).unwrap();
+
+            if let ItemCategory::Upgrade(ref components) = item.category {
+                if components.contains(&selected_item_id) {
+                    *color = ITEM_SLOT_UPGRADE_COLOR.into();
+                    continue;
+                }
+            }
+
+            if inventory.contains(&item_id) {
+                *color = ITEM_SLOT_OWNED_COLOR.into();
+                continue;
+            }
+
+            *color = if inventory.can_buy(item_id, item) {
+                ITEM_SLOT_DEFAULT_COLOR
+            } else {
+                ITEM_SLOT_DISABLED_COLOR
+            }
+            .into();
         }
-        .into()
     }
 }
 

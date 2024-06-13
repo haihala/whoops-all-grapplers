@@ -17,9 +17,9 @@ use crate::{
     Attack,
     AttackHeight::*,
     BlockType::*,
-    CancelRule, ChargeProperty, CommonAttackProps, ContinuationRequirement, CounterVisual,
-    FlashRequest, Hitbox, Item, ItemCategory, Lifetime, Movement, ResourceBarVisual, Situation,
-    SpecialProperty,
+    CancelRule, ChargeProperty, CommonAttackProps, ConsumableType, ContinuationRequirement,
+    CounterVisual, FlashRequest, Hitbox, Item, ItemCategory, Lifetime, Movement, ResourceBarVisual,
+    Situation, SpecialProperty,
     StunType::*,
     ToHit, WAGResource,
 };
@@ -1273,7 +1273,7 @@ fn mizku_items() -> HashMap<ItemId, Item> {
                 cost: 75,
                 explanation: "qcf+f to throw, comes in handy\n\nThat's the power...of a president!"
                     .into(),
-                category: ItemCategory::Consumable(crate::items::ConsumableType::UntilUsed),
+                category: ItemCategory::Consumable(ConsumableType::UntilUsed),
                 icon: Icon::Kunai,
                 ..default()
             },

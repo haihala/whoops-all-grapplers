@@ -233,8 +233,8 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             ItemId::ThumbTacks(1),
             Item {
                 category: Basic,
-                explanation: "+1% damage to all hits\n\nOuch".into(),
-                cost: 100,
+                explanation: "+1% damage to all hits\n\nPrickly!".into(),
+                cost: 200,
                 effect: Stats {
                     damage_multiplier: 1.01,
                     ..Stats::identity()
@@ -286,7 +286,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::DivingHelmet,
             Item {
-                category: Upgrade(vec![ItemId::Dumbbell, ItemId::Dumbbell]),
+                category: Upgrade(vec![ItemId::Dumbbell]),
                 explanation: "Allows you to tap down to fast fall\n\nHiyaa!".into(),
                 cost: 600,
                 icon: Icon::DivingHelmet,
@@ -296,12 +296,13 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::GoalieGear,
             Item {
-                category: Upgrade(vec![ItemId::HockeyPads, ItemId::HockeyPads]),
+                category: Upgrade(vec![ItemId::HockeyPads]),
                 explanation:
                     "Increases health and removes chip damage on block\n\nI'm fucking <title card>!"
                         .into(),
                 cost: 300,
                 effect: Stats {
+                    max_health: 10,
                     chip_damage: false,
                     ..Stats::identity()
                 },
@@ -311,16 +312,21 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
     ]
     .into_iter()
     .chain((2..9).map(|id| {
+        let exponential = usize::pow(2, (id - 1) as u32);
         (
             ItemId::ThumbTacks(id),
             Item {
-                category: Upgrade(vec![ItemId::ThumbTacks(id - 1), ItemId::ThumbTacks(id - 1)]),
+                category: Upgrade(vec![ItemId::ThumbTacks(id - 1)]),
                 explanation: format!(
-                    "+{}% damage to all hits\n\nExponential growth is fun!",
-                    usize::pow(2, (id - 1) as u32)
+                    "+{}% damage to all hits. Stacks multiplicatively with previous upgrades.",
+                    exponential
                 ),
-                cost: 10*(id-1),
+                cost: 100*exponential,
                 icon: Icon::ThumbTacks(id),
+                effect: Stats {
+                    damage_multiplier: 1.0 + (exponential as f32 * 0.01),
+                    ..default()
+                },
                 ..default()
             },
         )

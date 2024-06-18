@@ -1,0 +1,2 @@
+- [ ] Recursive buying
+- [ ] Instant sell = undo = full refund

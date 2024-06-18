@@ -1,6 +1,5 @@
 # Next steps
 - [[Mizku 2.0]]
-- [[Shop 2.0]]
 
 # Next big milestone
 - [[Before locals test]] + [[Local feedback round]]

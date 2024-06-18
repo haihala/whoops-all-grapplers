@@ -182,14 +182,14 @@ fn setup_shop_bottom_bar(commands: &mut Commands, container: Entity) -> () {
         .set_parent(container)
         .with_children(|cb| {
             for (text, color) in [
-                ("A/X to buy", GENERIC_TEXT_COLOR),
+                ("A/Cross to buy", GENERIC_TEXT_COLOR),
                 ("Selected", ITEM_SLOT_HIGHLIGHT_COLOR),
                 ("Component", ITEM_SLOT_COMPONENT_COLOR),
                 ("Upgrade", ITEM_SLOT_UPGRADE_COLOR),
                 ("Owned", ITEM_SLOT_OWNED_COLOR),
                 ("Purchasable", ITEM_SLOT_DEFAULT_COLOR),
                 ("Not purchasable", ITEM_SLOT_DISABLED_COLOR),
-                ("B/circle to sell", GENERIC_TEXT_COLOR),
+                ("X/Square to sell", GENERIC_TEXT_COLOR),
             ] {
                 cb.spawn(TextBundle {
                     text: Text::from_section(

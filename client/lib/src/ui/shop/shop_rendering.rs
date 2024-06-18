@@ -1,14 +1,37 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
 use wag_core::{
-    GameState, Owner, Player, Players, ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR,
-    ITEM_SLOT_DISABLED_COLOR, ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR,
-    ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
+    GameState, Owner, Player, Players, RoundLog, ITEM_SLOT_COMPONENT_COLOR,
+    ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR, ITEM_SLOT_HIGHLIGHT_COLOR,
+    ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
 };
 
 use crate::{assets::Icons, state_transitions::TransitionTimer};
 
-use super::{setup_shop::ShopItem, Shops};
+use super::{
+    setup_shop::{ShopItem, ShopMoney, ShopScore},
+    Shops,
+};
+
+pub fn update_top_bar_scores(
+    mut scores: Query<&mut Text, With<ShopScore>>,
+    results: Res<RoundLog>,
+) {
+    let mut text = scores.get_single_mut().unwrap();
+    text.sections[0].value = results.wins(Player::One).to_string();
+    text.sections[2].value = results.wins(Player::Two).to_string();
+}
+
+pub fn update_top_bar_moneys(
+    mut moneys: Query<(&mut Text, &Owner), With<ShopMoney>>,
+    inventories: Query<&Inventory>,
+    players: Res<Players>,
+) {
+    for (mut text, owner) in &mut moneys {
+        let inv = inventories.get(players.get(owner.0)).unwrap();
+        text.sections[1].value = inv.money.to_string();
+    }
+}
 
 pub fn update_slot_visuals(
     player_query: Query<(&Inventory, &Character, &Player)>,

@@ -3,6 +3,8 @@ use bevy::prelude::*;
 use characters::Character;
 use wag_core::{
     GameState, Icon, ItemId, OnlyShowInGameState, Owner, Player, Players, GENERIC_TEXT_COLOR,
+    ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
+    ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR,
     SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_ICON_BACKGROUND_COLOR,
     SHOP_TIMER_BACKGROUND_COLOR,
 };
@@ -22,7 +24,7 @@ pub fn setup_shop(
     fonts: Res<Fonts>,
     icons: Res<Icons>,
 ) {
-    let container = commands
+    let root = commands
         .spawn((
             NodeBundle {
                 background_color: SHOP_DIVIDER_COLOR.into(), // This will color the divider between the sides
@@ -32,14 +34,30 @@ pub fn setup_shop(
                     position_type: PositionType::Absolute,
                     left: Val::Percent(0.0),
                     top: Val::Percent(0.0),
-                    justify_content: JustifyContent::SpaceBetween,
+                    flex_direction: FlexDirection::Column,
+                    row_gap: Val::Percent(0.5),
                     ..default()
                 },
                 ..default()
             },
             OnlyShowInGameState(vec![GameState::Shop]),
-            Name::new("Shop ui container"),
+            Name::new("Shop ui root"),
         ))
+        .id();
+
+    setup_shop_top_bar(&mut commands, root);
+
+    let container = commands
+        .spawn(NodeBundle {
+            style: Style {
+                justify_content: JustifyContent::SpaceBetween,
+                column_gap: Val::Percent(0.5),
+                flex_grow: 1.0,
+                ..default()
+            },
+            ..default()
+        })
+        .set_parent(root)
         .id();
 
     let player_one_components = setup_shop_root(
@@ -60,6 +78,8 @@ pub fn setup_shop(
         &fonts,
     );
 
+    setup_shop_bottom_bar(&mut commands, root);
+
     commands.insert_resource(Shops {
         player_one: Shop {
             components: player_one_components,
@@ -74,6 +94,115 @@ pub fn setup_shop(
             closed: false,
         },
     });
+}
+
+#[derive(Debug, Component)]
+pub struct ShopMoney;
+#[derive(Debug, Component)]
+pub struct ShopScore;
+
+fn setup_shop_top_bar(commands: &mut Commands, container: Entity) -> () {
+    let style = TextStyle {
+        font_size: 30.0,
+        ..default()
+    };
+
+    commands
+        .spawn((
+            NodeBundle {
+                background_color: SHOP_DARK_BACKGROUND_COLOR.into(),
+                style: Style {
+                    justify_content: JustifyContent::SpaceBetween,
+                    padding: UiRect::all(Val::Percent(0.5)),
+                    ..default()
+                },
+                ..default()
+            },
+            Name::new("Shop top bar"),
+        ))
+        .set_parent(container)
+        .with_children(|cb| {
+            cb.spawn((
+                TextBundle {
+                    text: Text::from_sections([
+                        TextSection::new("$", style.clone()),
+                        TextSection::new("0", style.clone()),
+                    ]),
+                    ..default()
+                },
+                ShopMoney,
+                Owner(Player::One),
+            ));
+
+            cb.spawn((
+                TextBundle {
+                    text: Text::from_sections([
+                        TextSection::new("0", style.clone()),
+                        TextSection::new(" - ", style.clone()),
+                        TextSection::new("0", style.clone()),
+                    ]),
+                    ..default()
+                },
+                ShopScore,
+            ));
+
+            cb.spawn((
+                TextBundle {
+                    text: Text::from_sections([
+                        TextSection::new("$", style.clone()),
+                        TextSection::new("0", style.clone()),
+                    ]),
+                    ..default()
+                },
+                ShopMoney,
+                Owner(Player::Two),
+            ));
+        });
+}
+
+fn setup_shop_bottom_bar(commands: &mut Commands, container: Entity) -> () {
+    let style = TextStyle {
+        font_size: 30.0,
+        ..default()
+    };
+
+    commands
+        .spawn((
+            NodeBundle {
+                background_color: SHOP_DARK_BACKGROUND_COLOR.into(),
+                style: Style {
+                    justify_content: JustifyContent::Center,
+                    column_gap: Val::Percent(2.0),
+                    ..default()
+                },
+                ..default()
+            },
+            Name::new("Shop bottom bar"),
+        ))
+        .set_parent(container)
+        .with_children(|cb| {
+            for (text, color) in [
+                ("A/X to buy", GENERIC_TEXT_COLOR),
+                ("Selected", ITEM_SLOT_HIGHLIGHT_COLOR),
+                ("Component", ITEM_SLOT_COMPONENT_COLOR),
+                ("Upgrade", ITEM_SLOT_UPGRADE_COLOR),
+                ("Owned", ITEM_SLOT_OWNED_COLOR),
+                ("Purchasable", ITEM_SLOT_DEFAULT_COLOR),
+                ("Not purchasable", ITEM_SLOT_DISABLED_COLOR),
+                ("B/circle to sell", GENERIC_TEXT_COLOR),
+            ] {
+                cb.spawn(TextBundle {
+                    text: Text::from_section(
+                        text,
+                        TextStyle {
+                            color: color.into(),
+                            ..style.clone()
+                        },
+                    ),
+                    ..default()
+                });
+            }
+        });
 }
 
 fn setup_shop_root(
@@ -92,8 +221,9 @@ fn setup_shop_root(
                 background_color: SHOP_DIVIDER_COLOR.into(),
                 style: Style {
                     height: Val::Percent(100.0),
-                    width: Val::Percent(49.9), // Not quite 50 so there is a gap between them
                     flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::FlexStart,
+                    row_gap: Val::Percent(0.5),
                     ..default()
                 },
                 ..default()
@@ -168,19 +298,12 @@ fn setup_info_panel(
     shop_root: &mut ShopComponentsBuilder,
     fonts: &Fonts,
 ) {
-    let absolute_margin = 3.0;
-    let margin = UiRect::all(Val::Px(absolute_margin));
-    let icon_size = 200.0;
-
     let container = commands
         .spawn((
             NodeBundle {
                 background_color: SHOP_DARK_BACKGROUND_COLOR.into(),
                 style: Style {
-                    height: Val::Px(icon_size + absolute_margin * 4.0), // Top and bottom, margin and padding
-                    width: Val::Auto,
-                    margin,
-                    padding: margin,
+                    padding: UiRect::all(Val::Px(3.0)),
                     ..default()
                 },
                 ..default()
@@ -190,17 +313,16 @@ fn setup_info_panel(
         .set_parent(parent)
         .id();
 
-    shop_root.big_icon = Some(big_icon(commands, container, icon_size));
+    shop_root.big_icon = Some(big_icon(commands, container));
     setup_explanation_box(commands, container, shop_root, fonts);
 }
 
-fn big_icon(commands: &mut Commands, parent: Entity, size: f32) -> Entity {
+fn big_icon(commands: &mut Commands, parent: Entity) -> Entity {
     commands
         .spawn((
             ImageBundle {
                 style: Style {
-                    height: Val::Percent(100.0),
-                    width: Val::Px(size),
+                    width: Val::Px(200.0),
                     flex_shrink: 0.0,
                     ..default()
                 },

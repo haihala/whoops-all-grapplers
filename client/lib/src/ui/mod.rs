@@ -32,6 +32,8 @@ impl Plugin for UIPlugin {
                 (
                     shop::navigate_shop,
                     shop::update_slot_visuals,
+                    shop::update_top_bar_moneys,
+                    shop::update_top_bar_scores,
                     shop::update_info_panel,
                     shop::handle_shop_ending,
                 )

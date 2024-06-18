@@ -15,38 +15,39 @@ She is a young but competent second generation Korean American immigrant. She's 
 		- [[#Sharpness]] mechanic
 		- Kurosawa-esque staredowns
 - Born and raised in the states
-	- Millennial economy
-		- A lot of her staple items are consumable
-		- Her permanent upgrades are comparatively expensive
-	- Occasionally brash
-		- [[#Sway]] is essentially a taunt
-		- **Laid back**, take cues from Baiken in animations.
-		- Can bite her in the ass and be a bit cocky
+	- Laid back, take cues from Baiken in animations.
+	- Occasionally brash, can bite her in the ass
+		- Mechanics encourage you to be a bit cheeky
 - Her samurai gimmick comes in part from [[W.A.G.]], she is clearly rebelling against it
-- [[#Place in the roster]] indicates she's "the Ryu", but she has a very non-Ryu kit
 
 # Place in the roster
 - She will be the anchor in terms of balance.
 	- All other characters ought to be balanced around her 
 - Strengths
 	- Hard reads => hit hard
-	- Can grind [[Meter]] with [[#Sharpen]]
-	- She's good at making you play her game
-		- If you spam projectiles full screen, she has time to [[#Sharpen]]
-		- If you approach, you'll have to play the close range game with high stakes
+	- Snowballs with [[#Sharpen]]
 - Weaknesses
 	- Effectiveness depends on [[#Sharpness]] stacks
-	- No natural projectiles, [[#Kunai]] gets expensive to spam
+	- Limited [[#Kunai]] projectiles make longer rounds hard
 	- Meh pokes
 
 # Mechanics
 - Duck is abnormally low and goes under stuff
 
 ## Sharpness
-- Stacks up to 10
-- [[#Sharpen]] adds one stack
-- Having stacks makes sword moves like [[#Rising sun]] do more damage
+- Stacking buff
+- [[#Sharpen]] adds a stack
+- Having stacks makes sword moves do more damage
 - Resets between rounds
+
+## Kunai
+- Limited resource used for [[#Kunai throw]]
+- Resets at the start of the round
+	- By default, 1
+- Upgrades
+	- [[Kunai pouch]]
+	- [[Kunai belt]]
+	- [[Kunai bandolier]]
 
 # Moves (built-in)
 ### Normals
@@ -67,14 +68,14 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Two hitboxes, knee and back leg
 	- Knee
 		- Quite active
-		- Hits harder during the first active frame
-		- Due to the angle, hits rather low -> Easy to anti-air
+		- Sweet spot for first active frame
 	- Back leg
 		- Can hit cross up similar to Kum j.d
+- Somewhat awkward to hit up close, as there is a notable gap between the hitboxes
 
 #### Donkey kick
 - Input: `s` while standing
-- Visual: Ryu donkey kick from 3s (has the back step)
+- Visual: Ryu donkey kick from 3s (has the step)
 - Function: Long range high commitment whiff punish / Neutral skip
 
 #### Uppercut
@@ -88,9 +89,9 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Input: `s` while in the air
 - Visual: Dr Doom foot dive
 - Function: Alters jump arc, combo and pressure starter
-- Can be held
-	- Hangs in the air a bit
-	- Can bait anti-airs
+- Can be held to alter timing or empty jump
+- Upgrades
+	- [[Space suit boots]]
 
 #### Ground throw
 - Input: `w` while standing
@@ -109,96 +110,88 @@ She is a young but competent second generation Korean American immigrant. She's 
 #### High slice
 - Input: `g` while standing
 - Visual: Nago f.s
-- Slow long range, somewhat mediocre stab
+- Shoulder level stab
+	- Fast start up relative to range
+	- Slow to recover
 - Is a sword move, so it deals good damage, especially with [[#Sharpness]]
 
 #### Low slice
 - Input: `g` while crouching
-- Visual: Nago 2s
-- Slow long range low poke
-- Good to cancel to, as it gives you a lot of stun frames
+- Visual: Baiken 2h
+- Rolling low stab
+	- Fast start up relative to range
+	- Moves forward
+	- Slow to recover
 
 ### Specials
+#### Sword stance
+- Input: `214` + `f` (or `s`)
+- Enters a stance similar to [Azami from Xrd Baiken](https://www.dustloop.com/w/GGXRD-R2/Baiken#Azami)
+- Follow ups
+	- `g` - [[#Sharpen]]
+	- `f` - [[#Viper strike]]
+	- `s` - [[#Rising sun]]
+- If no follow up is input relatively quickly, it recovers naturally.
+	- This makes some moves like [[#Low slice]] safer
+- Upgrades
+	- Can back dash out of the stance for an evasive recovery
+	- `s` version invincibility
+		- Costs bar
+		- Has invincibility from frame 1
+		- More invincibility with further upgrades
+	- `s` version follow-up amplification
+		- Costs bar
+		- Improves all follow-ups
+			- [[#Sharpen]] gives two stacks
+			- [[#Viper strike]] and [[#Rising sun]]
+				- Deal more damage
+				- Have better combo properties
+				- Push back on block to make them safer
+	- Air version?
+	
 #### Sharpen
-- Input: `214g` while on the ground
-- Visual: In one smooth movement, take the sword out, run it by a whetstone, put it back
-- Gain a point of [[#Sharpness]] and a bar of [[Meter]]
+- Input: `g` while in [[#Sword stance]]
+- Visual: Run a whetstone by the sword before putting it back
+- Gain a point of [[#Sharpness]] and some [[Meter]]
+
+#### Viper strike
+- Input: `f` while in [[#Sword stance]]
+- Visual: Lunging low sword thrust
+- Hits low
+- Death on block and whiff
+- Knockdown on hit
+	- Ground combo ender
+- Is a sword move, so it deals good damage, especially with [[#Sharpness]]
 
 #### Rising sun
-- Input: `[123][789]` + `f` or `s`
-	- You can use it with or without charge
-		- Using it without charge will make it drop [[#Sharpness]], 1 for `s`, all for `f`
+- Input: `s` while in [[#Sword stance]]
 - Visual: Arching sword swing
-- Functions: Anti-air, combo ender, hard read, whiff punish
-	- `f` version is less damaging, but free
-	- `s` version is more damaging and gains [[Intangible]] on full charge, but costs [[Meter]]
-- Air and ground versions
-	- Air version exists to lessen the frustration on upwards motions
-	- Ground version will recover faster, giving you oki or [[#Sharpen]]
+- Functions: Anti-air, air combo ender, hard read, whiff punish
 - Death on block and whiff
 	- Decent range, not trivial to whiff punish
-- Pretty nice chip damage
+- Is a sword move, so it deals good damage, especially with [[#Sharpness]]
 
-#### Sway
-- Input: `214` + `f` or `s`
-- Visual: Dandy step
-- Function: Lots
-	- Bait whiffs
-	- Extend combos
-	- Mix up the opponent
-	- Apply pressure on wakeup
-	- Cancel long recovery of normals
-- Steps
-	- Start
-		- Swing back and crouch down a bit
-	- Dash
-		- Press the button that didn't start the back sway to dash forward
-			- `f` if you started with `214s` and vice versa
-		- Can delay the dash or dash immediately
-			- This will change the position one ends up
-	- Cancel
-		- Press G to cancel
-		- Cancel into a short animation that returns to neutral
-	- Strike
-		- 2W - low slide
-		- 6W - Overhead
-		- 5W - Pilebunker
-- If you use the enhanced version, you get:
-	- Longer and faster back movement
-	- Longer and faster forward dash
-	- G - Cancel works after forward dash
-
-Item ideas:
-- Jump cancellability
-- Re-dash - Lets you cancel either version before an ender to enhanced back sway
-- Just frame timings like SFV Karen Tenko
-- Make cancel stop momentum
-
-# Items
-- [[Kunai]]
-- [[Gentleman's pipe]]
-- [[Space suit boots]]
+## Kunai throw
+- Input: `236` + `f` or `s`
+- Visual: Ibuki kunai throw in SFV
+- Function: Projectile
+	- Relatively fast projectile with a slight arc to it
+	- Consumes a [[#Kunai]] on use, can't use if you have none
+- `s` version throws two in a fan
+- Upgrades
+	- More [[#Kunai]] per round
+	- Control (joystick position based, maybe several levels)
+		- Ability to control speed (forward = fast, back = slow)
+		- Ability to control the angle (up = up, down = down)
+	- A second hitbox after making contact (bomb?)
+	- Ability to pick them back up / restock
+	- Air version?
 
 # Item ideas
 ## Blade oil
 - Consumable
 - Retains [[#Sharpness]] from the previous round
 
-## Bladesmith coupon
+## Smithy coupon
 - Consumable
 - Add [[#Sharpness]] on round start
-
-## Dancing shoes
-- Upgrade from [[Boots]]
-- Add a follow up to [[#Sway]], where you can cancel into the other version of [[#Sway]]
-- This is the fastest way to move back if done optimally
-	- How the variants have different animation lengths, that's not trivial
-
-# Moves from [[#Items]]
-## Kunai throw
-- Input: `236g`
-- Visual: Ibuki kunai throw in SFV
-- Function: Projectile
-	- Relatively fast and small projectile with a slight arc to it
-	- Consumes a [[#Kunai]] on use, can't use if you have none
-- Maybe add an air version later?

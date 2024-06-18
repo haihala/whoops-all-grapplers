@@ -1,0 +1,2 @@
+- [[Mizku]] item that makes her start the round with 5 [[Mizku#Kunai]] instead of 3
+- Upgrade of [[Kunai pouch]]

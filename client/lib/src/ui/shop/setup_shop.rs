@@ -101,7 +101,7 @@ pub struct ShopMoney;
 #[derive(Debug, Component)]
 pub struct ShopScore;
 
-fn setup_shop_top_bar(commands: &mut Commands, container: Entity) -> () {
+fn setup_shop_top_bar(commands: &mut Commands, container: Entity) {
     let style = TextStyle {
         font_size: 30.0,
         ..default()
@@ -160,7 +160,7 @@ fn setup_shop_top_bar(commands: &mut Commands, container: Entity) -> () {
         });
 }
 
-fn setup_shop_bottom_bar(commands: &mut Commands, container: Entity) -> () {
+fn setup_shop_bottom_bar(commands: &mut Commands, container: Entity) {
     let style = TextStyle {
         font_size: 30.0,
         ..default()
@@ -195,7 +195,7 @@ fn setup_shop_bottom_bar(commands: &mut Commands, container: Entity) -> () {
                     text: Text::from_section(
                         text,
                         TextStyle {
-                            color: color.into(),
+                            color,
                             ..style.clone()
                         },
                     ),

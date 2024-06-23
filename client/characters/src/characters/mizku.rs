@@ -776,7 +776,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 vec![
                     ActionBlock {
                         events: vec![
-                            MizkuAnimation::BackSway.into(),
+                            MizkuAnimation::Sway.into(),
                             Movement {
                                 amount: -Vec2::X * 2.0,
                                 duration: 3,
@@ -829,7 +829,7 @@ fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 vec![
                     ActionBlock {
                         events: vec![
-                            MizkuAnimation::BackSway.into(),
+                            MizkuAnimation::Sway.into(),
                             Movement {
                                 amount: -Vec2::X * 5.0,
                                 duration: 3,

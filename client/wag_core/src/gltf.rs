@@ -58,7 +58,7 @@ pub enum MizkuAnimation {
     AirThrowHit,
     AirThrowStartup,
     AirThrowTarget,
-    BackSway,
+    Sway,
     Block,
     Crouch,
     CrouchBlock,

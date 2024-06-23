@@ -23,14 +23,14 @@ This is the post-university design. The design before this one was more scattere
 - [ ] Remove sway stuff from code, we can keep the animations
 - [x] Update [[Mizku]]
 - [x] Go over [[Mizku cleanup]]
-- [ ] Go over animations that weren't listed
+- [x] Go over animations that weren't listed
 	- [x] 5g
 	- [x] 2g
 	- [x] 2f
 	- [x] 2s
-	- [ ] Air throw
-	- [ ] Basic throw
-	- [ ] Crouch throw
+	- [x] Air throw
+	- [x] Stand throw
+	- [x] Crouch throw
 
 
 # Design

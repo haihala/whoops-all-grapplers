@@ -32,9 +32,7 @@ pub enum ItemId {
     Roids,
 
     // Mizku
-    Kunai,
-    GentlemansPipe,
-    SteelHeelBoots,
+    SpareKunai,
     SpaceSuitBoots,
 
     #[default]
@@ -45,11 +43,9 @@ impl ItemId {
     pub fn display_name(&self) -> String {
         match self {
             Self::DivingHelmet => "Diving helmet".into(),
-            Self::GentlemansPipe => "Gentleman's pipe".into(),
             Self::OliveOil => "Olive Oil".into(),
             Self::PigeonWing => "Pigeon wing".into(),
             Self::FeatheredBoots => "Feathered boots".into(),
-            Self::SteelHeelBoots => "Steel heel boots".into(),
             Self::TrackSpikes => "Track spikes".into(),
             Self::SpaceSuitBoots => "Space suit boots".into(),
             Self::Cigarettes => "Pack of cigs".into(),
@@ -59,6 +55,7 @@ impl ItemId {
             Self::GoalieGear => "Goalie gear".into(),
             Self::SafetyBoots => "Safety boots".into(),
             Self::Gi => "Gi of the old masters".into(),
+            Self::SpareKunai => "Spare kunai".into(),
             Self::ThumbTacks(n) => match n {
                 1 => "A single thumbtack".into(),
                 5 => "Fistful of thumbtacks".into(),

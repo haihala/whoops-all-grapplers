@@ -54,6 +54,7 @@ pub enum DummyAnimation {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect)]
 pub enum MizkuAnimation {
     Air,
+    AirStab,
     AirStagger,
     AirThrowHit,
     AirThrowStartup,

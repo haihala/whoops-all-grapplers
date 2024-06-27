@@ -1,11 +1,9 @@
 use bevy::prelude::*;
 
 use wag_core::{
-    GameButton, ItemId, Stats, StickPosition, HEALTH_BAR_COLOR, METER_BAR_FULL_SEGMENT_COLOR,
+    GameButton, Stats, StickPosition, HEALTH_BAR_COLOR, METER_BAR_FULL_SEGMENT_COLOR,
     METER_BAR_PARTIAL_SEGMENT_COLOR,
 };
-
-use crate::Inventory;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Reflect)]
 /// This is a quick handle that can be referred to in requirement checks
@@ -14,7 +12,7 @@ pub enum ResourceType {
     Meter,
     Charge,
     Sharpness,
-    ItemCount(ItemId),
+    KunaiCounter,
 }
 
 #[derive(Debug, Clone, Component, Deref, DerefMut)]
@@ -56,7 +54,7 @@ impl WAGResources {
         )
     }
 
-    pub fn reset(&mut self, stats: &Stats, inventory: &Inventory) {
+    pub fn reset(&mut self, stats: &Stats) {
         for (prop_type, prop) in self.iter_mut() {
             match prop_type {
                 ResourceType::Health => {
@@ -66,8 +64,8 @@ impl WAGResources {
                 ResourceType::Meter => {
                     prop.current = stats.starting_meter;
                 }
-                ResourceType::ItemCount(item_id) => {
-                    prop.current = inventory.count(*item_id) as i32;
+                ResourceType::KunaiCounter => {
+                    prop.current = prop.max.unwrap();
                 }
                 _ => {
                     prop.current = prop.min;

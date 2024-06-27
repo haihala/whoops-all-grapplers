@@ -125,6 +125,14 @@ She is a young but competent second generation Korean American immigrant. She's 
 	- Hard to convert off of?
 - Is a sword move, so it deals good damage, especially with [[#Sharpness]]
 
+#### Air stab
+- Input: `g` while airborne
+- Downwards stab sort of similar to Baiken j.h, but the sword doesn't go as far down
+- Easy cross-ups
+- Most damaging jump-in before [[Space suit boots]]
+- Is a sword move, so it deals good damage, especially with [[#Sharpness]]
+
+
 ### Specials
 #### Sword stance
 - Input: `214` + `f` (or `s`)

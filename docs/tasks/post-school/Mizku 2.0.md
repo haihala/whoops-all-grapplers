@@ -1,8 +1,8 @@
 This is the post-university design. The design before this one was more scattered and less focused and more difficult in terms of identity.
 
 # Action points
-- [ ] [[Mizku#Sword stance]]
-	- [ ] Animations
+- [x] [[Mizku#Sword stance]]
+	- [x] Animations
 		- [x] Base
 		- [x] [[Mizku#Rising sun]]
 		- [x] [[Mizku#Viper strike]]
@@ -10,17 +10,18 @@ This is the post-university design. The design before this one was more scattere
 - [ ] [[Mizku#Kunai]] / [[Mizku#Kunai throw]]
 	- [x] Animation
 	- [ ] Items
-	- [ ] Bigger projectile
-- [ ] Forward/back dash -> Short hops
+	- [x] Bigger projectile
+- [x] Forward/back dash -> Short hops
 	- [x] Animations
 		- [x] Forward
 		- [x] Back
-	- [ ] Code
-		- [ ] Forward
-		- [ ] Back
-- [ ] Increase jump height
-- [ ] Put super jumps behind items
-- [ ] Remove sway stuff from code, we can keep the animations
+	- [x] Code
+		- [x] Forward
+		- [x] Back
+- [x] Increase jump height
+- [x] Add j.g
+- [x] Put super jumps behind items
+- [x] Remove sway stuff from code, we can keep the animations
 - [x] Update [[Mizku]]
 - [x] Go over [[Mizku cleanup]]
 - [x] Go over animations that weren't listed

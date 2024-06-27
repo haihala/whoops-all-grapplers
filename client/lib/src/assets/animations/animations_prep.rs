@@ -180,6 +180,7 @@ pub fn animation_paths() -> HashMap<Animation, String> {
         "mizuki.glb".to_owned(),
         vec![
             MizkuAnimation::Air,
+            MizkuAnimation::AirStab,
             MizkuAnimation::AirStagger,
             MizkuAnimation::AirThrowHit,
             MizkuAnimation::AirThrowStartup,

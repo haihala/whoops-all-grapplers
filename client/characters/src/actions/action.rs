@@ -80,7 +80,11 @@ impl Action {
             None,
             ActionCategory::Forced,
             vec![ActionBlock {
-                events: vec![animation.into().into()],
+                events: vec![
+                    animation.into().into(),
+                    // TODO: This causes a bug for throwers. Air throw needs lock
+                    ActionEvent::Lock((duration, false)),
+                ],
                 exit_requirement: ContinuationRequirement::Time(duration),
                 ..default()
             }],
@@ -109,7 +113,7 @@ impl Action {
         animation: impl Into<Animation>,
         lock_duration: usize,
         lock_sideswitch: bool,
-        animtion_duration: usize,
+        animation_duration: usize,
         damage: i32,
         launch_impulse: Vec2,
     ) -> Self {
@@ -135,7 +139,7 @@ impl Action {
                     ActionEvent::Hitstop,
                     ActionEvent::Lock((lock_duration, lock_sideswitch)),
                 ],
-                exit_requirement: ContinuationRequirement::Time(animtion_duration),
+                exit_requirement: ContinuationRequirement::Time(animation_duration),
                 ..default()
             }],
             vec![],

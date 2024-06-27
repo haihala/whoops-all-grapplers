@@ -66,16 +66,11 @@ pub enum DummyActionId {
 
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum MizkuActionId {
+    FSwordStance,
+    SSwordStance,
+    ViperStrike,
+    RisingSun,
     Sharpen,
-
-    GrisingSunChargedS,
-    ArisingSunChargedS,
-    GrisingSunUnchargedS,
-    ArisingSunUnchargedS,
-    GrisingSunChargedF,
-    ArisingSunChargedF,
-    GrisingSunUnchargedF,
-    ArisingSunUnchargedF,
 
     KunaiThrow,
 
@@ -91,19 +86,10 @@ pub enum MizkuActionId {
     CrouchThrowHit,
     CrouchThrowTarget,
 
-    // Sway stuff
-    ShortBackSway,
-    LongBackSway,
-    ShortSwayDash,
-    LongSwayDash,
-    SwayOverhead,
-    SwayLow,
-    Pilebunker,
-    SwayCancel,
-
     // Normals
-    LowStab,
+    SkySlash,
     HighStab,
+    AirSlice,
     Overhead,
     Uppercut,
     FootDive,

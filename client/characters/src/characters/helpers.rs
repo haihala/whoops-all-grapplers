@@ -40,17 +40,22 @@ enum JumpDirection {
     Back,
 }
 use JumpDirection::*;
+
+const DIAGONAL_JUMP_ANGLE: f32 = 70.0;
+
 impl JumpDirection {
-    fn direction(self) -> Vec2 {
-        let diagonal_jump_angle = 60.0 * PI / 180.0;
-        let sin = diagonal_jump_angle.sin();
+    fn base_vec(self) -> Vec2 {
+        let diagonal_jump_angle = DIAGONAL_JUMP_ANGLE * PI / 180.0;
         let cos = diagonal_jump_angle.cos();
 
-        match self {
-            JumpDirection::Neutral => Vec2::Y,
-            JumpDirection::Forward => Vec2::new(cos, sin),
-            JumpDirection::Back => Vec2::new(-cos, sin),
-        }
+        Vec2::new(
+            match self {
+                JumpDirection::Neutral => 0.0,
+                JumpDirection::Forward => cos,
+                JumpDirection::Back => -cos,
+            },
+            1.0,
+        )
     }
 
     fn base_input(self) -> &'static str {
@@ -118,7 +123,7 @@ impl JumpGenerator {
     fn basic(&self, dir: JumpDirection) -> Action {
         jump(
             dir.base_input(),
-            dir.direction() * self.base_impulse,
+            dir.base_vec() * self.base_impulse,
             self.animation,
             false,
             vec![ActionRequirement::Grounded],
@@ -128,7 +133,7 @@ impl JumpGenerator {
     fn high(&self, dir: JumpDirection) -> Action {
         jump(
             dir.super_input(),
-            dir.direction() * self.base_impulse * 1.2,
+            dir.base_vec() * self.base_impulse * 1.2,
             self.animation,
             false,
             vec![
@@ -141,7 +146,7 @@ impl JumpGenerator {
     fn air(&self, dir: JumpDirection) -> Action {
         jump(
             dir.base_input(),
-            dir.direction() * self.base_impulse * 0.7,
+            dir.base_vec() * self.base_impulse * 0.7,
             self.animation,
             true,
             vec![
@@ -235,34 +240,77 @@ pub fn dashes(
     vec![
         (
             ActionId::DashForward,
-            dash("5656", 4, 19, 10.0, forward_animation.clone(), false, false),
+            dash(
+                "5656",
+                6,
+                20,
+                Vec2::X * 5.0,
+                Vec2::new(2.0, 4.0),
+                forward_animation.clone(),
+                false,
+                false,
+            ),
         ),
         (
             ActionId::DashBack,
-            dash("5454", 5, 20, -7.0, back_animation.clone(), true, false),
+            dash(
+                "5454",
+                0,
+                20,
+                Vec2::ZERO,
+                Vec2::new(-7.0, 0.0),
+                back_animation.clone(),
+                true,
+                false,
+            ),
         ),
         (
             ActionId::TrackSpikesDashForward,
-            dash("5656", 4, 19, 10.0, forward_animation, false, true),
+            dash(
+                "5656",
+                6,
+                20,
+                Vec2::X * 5.0,
+                Vec2::new(2.0, 4.0),
+                forward_animation,
+                false,
+                true,
+            ),
         ),
         (
             ActionId::TrackSpikesDashBack,
-            dash("5454", 5, 20, -7.0, back_animation, true, true),
+            dash(
+                "5454",
+                0,
+                20,
+                Vec2::ZERO,
+                Vec2::new(-7.0, 0.0),
+                back_animation,
+                true,
+                true,
+            ),
         ),
     ]
     .into_iter()
 }
 
+#[allow(clippy::too_many_arguments)]
 fn dash(
     input: &'static str,
     startup_duration: usize,
     total_duration: usize,
-    impulse: f32,
+    first_impulse: Vec2,
+    second_impulse: Vec2,
     animation: impl Into<Animation>,
     backdash: bool,
     track_spikes: bool,
 ) -> Action {
     let mut initial_events = vec![animation.into().into()];
+
+    if first_impulse != Vec2::ZERO {
+        initial_events.push(Movement::impulse(first_impulse).into());
+    }
+
     let mut requirements = vec![ActionRequirement::Grounded];
 
     if track_spikes {
@@ -318,12 +366,12 @@ fn dash(
                 },
             },
             ActionBlock {
-                events: vec![Movement::impulse(Vec2::X * impulse).into()],
+                events: vec![Movement::impulse(second_impulse).into()],
                 exit_requirement: ContinuationRequirement::Time(total_duration - startup_duration),
                 cancel_policy: if track_spikes {
-                    CancelRule::never()
-                } else {
                     CancelRule::dash()
+                } else {
+                    CancelRule::never()
                 },
                 mutator: None,
             },

@@ -16,8 +16,7 @@ use crate::{
     Attack,
     AttackHeight::*,
     BlockType::*,
-    CancelRule, ChargeProperty, CommonAttackProps, ContinuationRequirement, CounterVisual, Hitbox,
-    Item,
+    CancelRule, ChargeProperty, CommonAttackProps, ContinuationRequirement, Hitbox, Item,
     ItemCategory::*,
     Lifetime, Movement, Projectile, ResourceBarVisual, SpecialProperty,
     StunType::*,
@@ -45,30 +44,19 @@ pub fn dummy() -> Character {
             gravity,
             ..default()
         },
-        vec![
-            (
-                ResourceType::Charge,
-                WAGResource {
-                    max: Some(FPS as i32), // Frames to full,
-                    special: Some(SpecialProperty::Charge(ChargeProperty::default())),
-                    render_instructions: RenderInstructions::Bar(ResourceBarVisual {
-                        default_color: CHARGE_BAR_PARTIAL_SEGMENT_COLOR,
-                        full_color: Some(CHARGE_BAR_FULL_SEGMENT_COLOR),
-                        ..default()
-                    }),
+        vec![(
+            ResourceType::Charge,
+            WAGResource {
+                max: Some(FPS as i32), // Frames to full,
+                special: Some(SpecialProperty::Charge(ChargeProperty::default())),
+                render_instructions: RenderInstructions::Bar(ResourceBarVisual {
+                    default_color: CHARGE_BAR_PARTIAL_SEGMENT_COLOR,
+                    full_color: Some(CHARGE_BAR_FULL_SEGMENT_COLOR),
                     ..default()
-                },
-            ),
-            (
-                ResourceType::ItemCount(ItemId::Boots),
-                WAGResource {
-                    render_instructions: RenderInstructions::Counter(CounterVisual {
-                        label: "Boots",
-                    }),
-                    ..default()
-                },
-            ),
-        ],
+                }),
+                ..default()
+            },
+        )],
     )
 }
 

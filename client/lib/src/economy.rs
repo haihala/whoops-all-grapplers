@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use characters::{ActionEvent, Inventory, ResourceType, WAGResources};
+use characters::{ActionEvent, Inventory, WAGResources};
 use player_state::PlayerState;
 
 pub struct EconomyPlugin;
@@ -33,10 +33,8 @@ fn modify_properties(mut query: Query<(&mut PlayerState, &mut WAGResources)>) {
     }
 }
 
-pub fn manage_item_consumption(
-    mut players: Query<(&mut PlayerState, &mut Inventory, &mut WAGResources)>,
-) {
-    for (mut state, mut inventory, mut resources) in &mut players {
+pub fn manage_item_consumption(mut players: Query<(&mut PlayerState, &mut Inventory)>) {
+    for (mut state, mut inventory) in &mut players {
         for item in state
             .drain_matching_actions(|action| {
                 if let ActionEvent::Consume(id) = action {
@@ -48,10 +46,6 @@ pub fn manage_item_consumption(
             .into_iter()
         {
             inventory.remove(item);
-            resources
-                .get_mut(ResourceType::ItemCount(item))
-                .unwrap()
-                .drain(1);
         }
     }
 }

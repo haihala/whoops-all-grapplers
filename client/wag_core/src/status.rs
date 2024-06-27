@@ -27,6 +27,9 @@ pub struct Stats {
 
     // Direct Influence
     pub direct_influence: f32,
+
+    // Mizku
+    pub extra_kunais: i32,
 }
 
 impl Default for Stats {
@@ -64,6 +67,8 @@ impl Stats {
             link_bonus: 0,
 
             direct_influence: 0.0,
+
+            extra_kunais: 0,
         }
     }
 
@@ -87,6 +92,8 @@ impl Stats {
         self.link_bonus += rhs.link_bonus;
 
         self.direct_influence += rhs.direct_influence;
+
+        self.extra_kunais += rhs.extra_kunais;
 
         self
     }

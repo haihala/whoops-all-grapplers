@@ -1,11 +1,8 @@
-use std::iter::{empty, once};
-
 use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
     ActionId, Animation, AnimationType, Area, GameButton, Icon, ItemId, Joint, MizkuActionId,
-    MizkuAnimation, Model, Stats, StatusCondition, StatusFlag, StickPosition,
-    CHARGE_BAR_FULL_SEGMENT_COLOR, CHARGE_BAR_PARTIAL_SEGMENT_COLOR, FPS, MIZUKI_ALT_HELMET_COLOR,
+    MizkuAnimation, Model, Stats, StatusCondition, StatusFlag, MIZUKI_ALT_HELMET_COLOR,
     MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
 };
 
@@ -17,20 +14,20 @@ use crate::{
     Attack,
     AttackHeight::*,
     BlockType::*,
-    CancelRule, ChargeProperty, CommonAttackProps, ConsumableType, ContinuationRequirement,
-    CounterVisual, FlashRequest, Hitbox, Item, ItemCategory, Lifetime, Movement, ResourceBarVisual,
-    Situation, SpecialProperty,
+    CancelRule, CommonAttackProps, ContinuationRequirement, CounterVisual, FlashRequest, Hitbox,
+    Item, ItemCategory, Lifetime, Movement, Situation,
     StunType::*,
     ToHit, WAGResource,
 };
 
 use super::{
     equipment::{universal_item_actions, universal_items},
+    helpers::{dashes, jumps},
     Character,
 };
 
 pub fn mizku() -> Character {
-    let (jumps, gravity) = super::jumps(1.7, 1.0, Animation::Mizku(MizkuAnimation::Jump));
+    let (jumps, gravity) = jumps(2.1, 1.1, Animation::Mizku(MizkuAnimation::Jump));
 
     Character::new(
         Model::Mizku,
@@ -61,27 +58,12 @@ pub fn mizku() -> Character {
                 },
             ),
             (
-                ResourceType::ItemCount(ItemId::Kunai),
+                ResourceType::KunaiCounter,
                 WAGResource {
                     render_instructions: RenderInstructions::Counter(CounterVisual {
                         label: "Kunais",
                     }),
-                    ..default()
-                },
-            ),
-            (
-                ResourceType::Charge,
-                WAGResource {
-                    max: Some((FPS / 2.) as i32), // Frames to full,
-                    special: Some(SpecialProperty::Charge(ChargeProperty {
-                        directions: vec![StickPosition::SW, StickPosition::S, StickPosition::SE],
-                        ..default()
-                    })),
-                    render_instructions: RenderInstructions::Bar(ResourceBarVisual {
-                        default_color: CHARGE_BAR_PARTIAL_SEGMENT_COLOR,
-                        full_color: Some(CHARGE_BAR_FULL_SEGMENT_COLOR),
-                        ..default()
-                    }),
+                    max: Some(1),
                     ..default()
                 },
             ),
@@ -110,9 +92,8 @@ fn mizku_animations() -> HashMap<AnimationType, Animation> {
 }
 
 fn mizku_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<ActionId, Action> {
-    empty()
-        .chain(jumps)
-        .chain(super::dashes(
+    jumps
+        .chain(dashes(
             MizkuAnimation::DashForward,
             MizkuAnimation::DashBack,
         ))
@@ -155,7 +136,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             Action::ground_normal(
                 "[123]+f",
                 MizkuAnimation::LowKick,
-                8,
+                3,
                 Attack::strike(
                     ToHit {
                         hitbox: Hitbox(Area::new(-0.4, 0.0, 0.9, 0.2)),
@@ -189,7 +170,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             }
                             .into(),
                         ],
-                        exit_requirement: ContinuationRequirement::Time(18),
+                        exit_requirement: ContinuationRequirement::Time(9),
                         ..default()
                     },
                     ActionBlock {
@@ -215,7 +196,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             }
                             .into(),
                         ],
-                        exit_requirement: ContinuationRequirement::Time(26),
+                        exit_requirement: ContinuationRequirement::Time(28),
                         cancel_policy: CancelRule::neutral_normal_recovery(),
                         mutator: None,
                     },
@@ -227,7 +208,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             Action::ground_normal(
                 "[123]+s",
                 MizkuAnimation::Uppercut,
-                8,
+                3,
                 Attack::strike(
                     ToHit {
                         hitbox: Hitbox(Area::of_size(0.3, 0.5)),
@@ -244,7 +225,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                 ),
-                20,
+                25,
             ),
         ),
         (
@@ -294,7 +275,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             ),
         ),
         (
-            MizkuActionId::LowStab,
+            MizkuActionId::SkySlash,
             Action::grounded(
                 Some("[123]+g"),
                 ActionCategory::CommandNormal,
@@ -327,6 +308,52 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                         on_hit: Stun(55),
                                         on_block: Stun(25),
                                         chip_damage: 3,
+                                        ..default()
+                                    },
+                                )
+                                .into(),
+                            );
+
+                            original
+                        }),
+                    },
+                ],
+            ),
+        ),
+        (
+            MizkuActionId::AirSlice,
+            Action::airborne(
+                Some("g"),
+                ActionCategory::NeutralNormal,
+                vec![
+                    ActionBlock {
+                        events: vec![MizkuAnimation::AirStab.into()],
+                        exit_requirement: ContinuationRequirement::Time(7),
+                        ..default()
+                    },
+                    ActionBlock {
+                        events: vec![],
+                        exit_requirement: ContinuationRequirement::Time(63),
+                        cancel_policy: CancelRule::neutral_normal_recovery(),
+                        mutator: Some(|mut original: ActionBlock, situation: &Situation| {
+                            original.events.push(
+                                Attack::strike(
+                                    ToHit {
+                                        hitbox: Hitbox(Area::new(-0.2, 0.0, 2.0, 0.2)),
+                                        joint: Some(Joint::Katana),
+                                        lifetime: Lifetime::frames(12),
+                                        ..default()
+                                    },
+                                    CommonAttackProps {
+                                        damage: 10
+                                            + situation
+                                                .get_resource(ResourceType::Sharpness)
+                                                .unwrap()
+                                                .current
+                                                * 10,
+                                        on_hit: Stun(40),
+                                        on_block: Stun(30),
+                                        chip_damage: 5,
                                         ..default()
                                     },
                                 )
@@ -497,11 +524,17 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::StandThrowHit,
-            Action::throw_hit(MizkuAnimation::StandThrowHit, 20),
+            Action::throw_hit(MizkuAnimation::StandThrowHit, 85),
         ),
         (
             MizkuActionId::StandThrowTarget,
-            Action::throw_target(MizkuAnimation::StandThrowTarget, 30, false, 10, Vec2::ZERO),
+            Action::throw_target(
+                MizkuAnimation::StandThrowTarget,
+                30,
+                false,
+                10,
+                Vec2::new(-2.0, 6.0),
+            ),
         ),
         (
             MizkuActionId::CrouchThrow,
@@ -535,14 +568,14 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::CrouchThrowHit,
-            Action::throw_hit(MizkuAnimation::CrouchThrowHit, 65),
+            Action::throw_hit(MizkuAnimation::CrouchThrowHit, 85),
         ),
         (
             MizkuActionId::CrouchThrowTarget,
             Action::throw_target(
                 MizkuAnimation::CrouchThrowTarget,
-                21,
-                true,
+                50,
+                false,
                 10,
                 Vec2::new(-5.0, 2.0),
             ),
@@ -579,13 +612,13 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::AirThrowHit,
-            Action::throw_hit(MizkuAnimation::AirThrowHit, 30),
+            Action::throw_hit(MizkuAnimation::AirThrowHit, 50),
         ),
         (
             MizkuActionId::AirThrowTarget,
             Action::throw_target_with_split_duration(
                 MizkuAnimation::AirThrowTarget,
-                3,
+                30,
                 false,
                 50,
                 10,
@@ -597,703 +630,259 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
 }
 
 fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
-    rising_suns().chain(sway()).chain(once((
-        MizkuActionId::Sharpen,
-        Action::grounded(
-            Some("214g"),
-            ActionCategory::Special,
-            vec![
-                ActionBlock {
-                    events: vec![MizkuAnimation::Sharpen.into()],
-                    exit_requirement: ContinuationRequirement::Time(48),
-                    ..default()
-                },
-                ActionBlock {
-                    events: vec![
-                        ModifyResource(ResourceType::Sharpness, 1),
-                        ModifyResource(ResourceType::Meter, 20),
-                    ],
-                    exit_requirement: ContinuationRequirement::Time(32),
-                    // Since there is no hitbox, you can't cancel this under normal circumstances
-                    // as it can never hit, which is requried for neutral normal cancellation.
-                    cancel_policy: CancelRule::neutral_normal_recovery(),
-                    mutator: None,
-                },
-            ],
-        ),
-    )))
+    sword_stance().chain(kunai_throw())
 }
 
-macro_rules! rising_sun {
-    ( $air:expr, $button:literal, $charged:expr ) => {
-        Action::new(
-            Some(concat!("[123][789]", $button)),
-            ActionCategory::Special,
-            vec![
-                ActionBlock {
-                    events: {
-                        let mut events = vec![if $air {
-                            MizkuAnimation::ArisingSun
-                        } else {
-                            MizkuAnimation::GrisingSun
-                        }
-                        .into()];
-
-                        if !$air {
-                            events.push(ForceStand);
-                        }
-
-                        if !$charged {
-                            events.push(if $button == "s" {
-                                ModifyResource(ResourceType::Sharpness, -1)
-                            } else {
-                                ClearResource(ResourceType::Sharpness)
-                            });
-                        }
-
-                        if $button == "s" {
-                            if $charged {
-                                events.push(Condition(StatusCondition {
-                                    flag: StatusFlag::Intangible,
-                                    effect: None,
-                                    expiration: Some(20),
-                                }));
-                            }
-
-                            events.extend(vec![
-                                Flash(FlashRequest {
-                                    duration: 0.5,
-                                    ..default()
-                                }),
-                                ModifyResource(ResourceType::Meter, -40),
-                            ]);
-                        }
-
-                        events
-                    },
-                    exit_requirement: ContinuationRequirement::Time(11),
-                    ..default()
-                },
-                ActionBlock {
-                    exit_requirement: ContinuationRequirement::Time(if $air { 79 } else { 64 }),
-                    mutator: Some(|mut original: ActionBlock, situation: &Situation| {
-                        original.events.push(
-                            Attack::strike(
-                                ToHit {
-                                    hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
-                                    joint: Some(Joint::Katana),
-                                    lifetime: Lifetime::frames(6),
-                                    ..default()
-                                },
-                                CommonAttackProps {
-                                    damage: if $button == "s" { 20 } else { 10 }
-                                        + situation
-                                            .get_resource(ResourceType::Sharpness)
-                                            .unwrap()
-                                            .current
-                                            * if $air { 5 } else { 10 },
-                                    on_hit: Launcher(if $air { 4.0 } else { 6.0 }),
-                                    on_block: Stun(if $air { 30 } else { 40 }),
-                                    chip_damage: if $button == "s" { 10 } else { 5 },
-                                    ..default()
-                                },
-                            )
-                            .into(),
-                        );
-
-                        original
-                    }),
-                    cancel_policy: CancelRule::special_recovery(),
-                    ..default()
-                },
-            ],
-            {
-                let mut requirements = vec![if $air {
-                    ActionRequirement::Airborne
-                } else {
-                    ActionRequirement::Grounded
-                }];
-
-                if $button == "s" {
-                    requirements.push(ActionRequirement::ResourceValue(ResourceType::Meter, 40));
-                }
-
-                if $charged {
-                    requirements.push(ActionRequirement::ResourceFull(ResourceType::Charge));
-                }
-
-                requirements
-            },
-        )
-    };
-}
-
-fn rising_suns() -> impl Iterator<Item = (MizkuActionId, Action)> {
+fn sword_stance() -> impl Iterator<Item = (MizkuActionId, Action)> {
     vec![
-        (
-            MizkuActionId::GrisingSunChargedS,
-            rising_sun!(false, "s", true),
-        ),
-        (
-            MizkuActionId::ArisingSunChargedS,
-            rising_sun!(true, "s", true),
-        ),
-        (
-            MizkuActionId::GrisingSunUnchargedS,
-            rising_sun!(false, "s", false),
-        ),
-        (
-            MizkuActionId::ArisingSunUnchargedS,
-            rising_sun!(true, "s", false),
-        ),
-        (
-            MizkuActionId::GrisingSunChargedF,
-            rising_sun!(false, "f", true),
-        ),
-        (
-            MizkuActionId::ArisingSunChargedF,
-            rising_sun!(true, "f", true),
-        ),
-        (
-            MizkuActionId::GrisingSunUnchargedF,
-            rising_sun!(false, "f", false),
-        ),
-        (
-            MizkuActionId::ArisingSunUnchargedF,
-            rising_sun!(true, "f", false),
-        ),
+        (MizkuActionId::FSwordStance, take_sword_stance(false)),
+        (MizkuActionId::SSwordStance, take_sword_stance(true)),
+        (MizkuActionId::Sharpen, sharpen()),
+        (MizkuActionId::ViperStrike, viper_strike()),
+        (MizkuActionId::RisingSun, rising_sun()),
     ]
     .into_iter()
 }
 
-fn sway() -> impl Iterator<Item = (MizkuActionId, Action)> {
-    vec![
-        (
-            MizkuActionId::ShortBackSway,
-            Action::grounded(
-                Some("214f"),
-                ActionCategory::Special,
-                vec![
-                    ActionBlock {
-                        events: vec![
-                            MizkuAnimation::Sway.into(),
-                            Movement {
-                                amount: -Vec2::X * 2.0,
-                                duration: 3,
-                            }
-                            .into(),
-                        ],
-                        cancel_policy: CancelRule::specific_or_category(
-                            vec![
-                                ActionId::Mizku(MizkuActionId::ShortSwayDash),
-                                ActionId::Mizku(MizkuActionId::SwayCancel),
-                            ],
-                            ActionCategory::Super,
-                        ),
-                        exit_requirement: ContinuationRequirement::Time(3),
-                        mutator: Some(|mut original: ActionBlock, situation: &Situation| {
-                            if situation.inventory.contains(&ItemId::GentlemansPipe) {
-                                original.events.push(Condition(StatusCondition {
-                                    flag: StatusFlag::Intangible,
-                                    effect: None,
-                                    expiration: Some(20),
-                                }));
-                            }
-                            original
-                        }),
-                    },
-                    ActionBlock {
-                        events: vec![Movement {
-                            amount: -Vec2::X * 8.0,
-                            duration: 10,
-                        }
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(37),
-                        cancel_policy: CancelRule::specific_or_category(
-                            vec![
-                                ActionId::Mizku(MizkuActionId::ShortSwayDash),
-                                ActionId::Mizku(MizkuActionId::SwayCancel),
-                            ],
-                            ActionCategory::Super,
-                        ),
-                        mutator: None,
-                    },
-                ],
-            ),
-        ),
-        (
-            MizkuActionId::LongBackSway,
-            Action::new(
-                Some("214s"),
-                ActionCategory::Special,
-                vec![
-                    ActionBlock {
-                        events: vec![
-                            MizkuAnimation::Sway.into(),
-                            Movement {
-                                amount: -Vec2::X * 5.0,
-                                duration: 3,
-                            }
-                            .into(),
-                            ModifyResource(ResourceType::Meter, -20),
-                            Flash(FlashRequest {
-                                duration: 0.3,
+fn take_sword_stance(strong: bool) -> Action {
+    let mut events = vec![MizkuAnimation::SwordStance.into()];
+    let mut requirements = vec![ActionRequirement::Grounded];
+
+    if strong {
+        events.extend(vec![
+            ModifyResource(ResourceType::Meter, 20),
+            Condition(StatusCondition {
+                flag: StatusFlag::Intangible,
+                // 10f of sword stance + 11f of rising sun
+                expiration: Some(22),
+                ..default()
+            }),
+            Flash(FlashRequest::default()),
+        ]);
+
+        requirements.push(ActionRequirement::ResourceValue(ResourceType::Meter, 20))
+    }
+
+    Action::new(
+        Some(if strong { "214s" } else { "214f" }),
+        ActionCategory::Special,
+        vec![
+            ActionBlock {
+                events,
+                exit_requirement: ContinuationRequirement::Time(10),
+                ..default()
+            },
+            ActionBlock {
+                exit_requirement: ContinuationRequirement::Time(40),
+                cancel_policy: CancelRule::specific(vec![
+                    ActionId::Mizku(MizkuActionId::Sharpen),
+                    ActionId::Mizku(MizkuActionId::ViperStrike),
+                    ActionId::Mizku(MizkuActionId::RisingSun),
+                ]),
+                ..default()
+            },
+        ],
+        requirements,
+    )
+}
+
+fn sharpen() -> Action {
+    Action::new(
+        Some("g"),
+        ActionCategory::Special,
+        vec![
+            ActionBlock {
+                events: vec![MizkuAnimation::Sharpen.into()],
+                exit_requirement: ContinuationRequirement::Time(45),
+                ..default()
+            },
+            ActionBlock {
+                events: vec![ModifyResource(ResourceType::Sharpness, 1)],
+                ..default()
+            },
+        ],
+        vec![
+            ActionRequirement::Grounded,
+            ActionRequirement::ActionOngoing(vec![
+                ActionId::Mizku(MizkuActionId::FSwordStance),
+                ActionId::Mizku(MizkuActionId::SSwordStance),
+            ]),
+        ],
+    )
+}
+
+fn viper_strike() -> Action {
+    Action::new(
+        Some("s"),
+        ActionCategory::Special,
+        vec![
+            ActionBlock {
+                events: vec![MizkuAnimation::ViperStrike.into()],
+                exit_requirement: ContinuationRequirement::Time(14),
+                ..default()
+            },
+            ActionBlock {
+                events: vec![],
+                exit_requirement: ContinuationRequirement::Time(66),
+                mutator: Some(|mut original: ActionBlock, situation: &Situation| {
+                    original.events.push(
+                        Attack::strike(
+                            ToHit {
+                                hitbox: Hitbox(Area::new(-0.2, 0.0, 2.0, 0.2)),
+                                joint: Some(Joint::Katana),
+                                lifetime: Lifetime::frames(4),
                                 ..default()
+                            },
+                            CommonAttackProps {
+                                damage: 20
+                                    + situation
+                                        .get_resource(ResourceType::Sharpness)
+                                        .unwrap()
+                                        .current
+                                        * 10,
+                                on_hit: Stun(40),
+                                on_block: Stun(30),
+                                chip_damage: 5,
+                                ..default()
+                            },
+                        )
+                        .into(),
+                    );
+
+                    original
+                }),
+                ..default()
+            },
+        ],
+        vec![
+            ActionRequirement::Grounded,
+            ActionRequirement::ActionOngoing(vec![
+                ActionId::Mizku(MizkuActionId::FSwordStance),
+                ActionId::Mizku(MizkuActionId::SSwordStance),
+            ]),
+        ],
+    )
+}
+
+fn rising_sun() -> Action {
+    Action::new(
+        Some("f"),
+        ActionCategory::Special,
+        vec![
+            ActionBlock {
+                events: vec![MizkuAnimation::GrisingSun.into()],
+                exit_requirement: ContinuationRequirement::Time(11),
+                ..default()
+            },
+            ActionBlock {
+                exit_requirement: ContinuationRequirement::Time(64),
+                mutator: Some(|mut original: ActionBlock, situation: &Situation| {
+                    original.events.push(
+                        Attack::strike(
+                            ToHit {
+                                hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
+                                joint: Some(Joint::Katana),
+                                lifetime: Lifetime::frames(6),
+                                ..default()
+                            },
+                            CommonAttackProps {
+                                damage: 20
+                                    + situation
+                                        .get_resource(ResourceType::Sharpness)
+                                        .unwrap()
+                                        .current
+                                        * 10,
+                                on_hit: Launcher(3.0),
+                                on_block: Stun(40),
+                                chip_damage: 10,
+                                ..default()
+                            },
+                        )
+                        .into(),
+                    );
+
+                    original
+                }),
+                cancel_policy: CancelRule::special_recovery(),
+                ..default()
+            },
+        ],
+        vec![
+            ActionRequirement::Grounded,
+            ActionRequirement::ActionOngoing(vec![
+                ActionId::Mizku(MizkuActionId::FSwordStance),
+                ActionId::Mizku(MizkuActionId::SSwordStance),
+            ]),
+        ],
+    )
+}
+
+fn kunai_throw() -> impl Iterator<Item = (MizkuActionId, Action)> {
+    vec![(
+        MizkuActionId::KunaiThrow,
+        Action::new(
+            Some("236f"),
+            ActionCategory::Special,
+            vec![
+                ActionBlock {
+                    events: vec![
+                        MizkuAnimation::KunaiThrow.into(),
+                        ForceStand,
+                        ModifyResource(ResourceType::KunaiCounter, -1),
+                    ],
+                    exit_requirement: ContinuationRequirement::Time(13),
+                    ..default()
+                },
+                ActionBlock {
+                    events: vec![Attack::strike(
+                        ToHit {
+                            hitbox: Hitbox(Area::new(1.0, 1.2, 0.3, 0.3)),
+                            velocity: Some(Vec2::new(6.0, -0.4)),
+                            lifetime: Lifetime::until_owner_hit(),
+                            projectile: Some(Projectile {
+                                model: Model::Kunai,
                             }),
-                        ],
-                        cancel_policy: CancelRule::specific_or_category(
-                            vec![
-                                ActionId::Mizku(MizkuActionId::LongSwayDash),
-                                ActionId::Mizku(MizkuActionId::SwayCancel),
-                            ],
-                            ActionCategory::Super,
-                        ),
-                        exit_requirement: ContinuationRequirement::Time(3),
-                        mutator: Some(|mut original: ActionBlock, situation: &Situation| {
-                            if situation.inventory.contains(&ItemId::GentlemansPipe) {
-                                original.events.push(Condition(StatusCondition {
-                                    flag: StatusFlag::Intangible,
-                                    effect: None,
-                                    expiration: Some(30),
-                                }));
-                            }
-                            original
-                        }),
-                    },
-                    ActionBlock {
-                        events: vec![Movement {
-                            amount: -Vec2::X * 8.0,
-                            duration: 10,
-                        }
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(37),
-                        cancel_policy: CancelRule::specific_or_category(
-                            vec![
-                                ActionId::Mizku(MizkuActionId::LongSwayDash),
-                                ActionId::Mizku(MizkuActionId::SwayCancel),
-                            ],
-                            ActionCategory::Super,
-                        ),
-                        mutator: None,
-                    },
-                ],
-                vec![
-                    ActionRequirement::Grounded,
-                    ActionRequirement::ResourceValue(ResourceType::Meter, 20),
-                ],
-            ),
-        ),
-        (
-            MizkuActionId::ShortSwayDash,
-            Action::new(
-                Some("s"),
-                ActionCategory::Special,
-                vec![
-                    ActionBlock {
-                        events: vec![MizkuAnimation::SwayDash.into(), ClearMovement],
-                        exit_requirement: ContinuationRequirement::Time(5),
-                        ..default()
-                    },
-                    ActionBlock {
-                        events: vec![
-                            // Overlap with each other to add more in the beginning
-                            Movement {
-                                amount: Vec2::X * 8.0,
-                                duration: 8,
-                            }
-                            .into(),
-                            Movement {
-                                amount: Vec2::X * 3.0,
-                                duration: 16,
-                            }
-                            .into(),
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelRule::specific_or_category(
-                            vec![
-                                ActionId::Mizku(MizkuActionId::SwayOverhead),
-                                ActionId::Mizku(MizkuActionId::SwayLow),
-                                ActionId::Mizku(MizkuActionId::Pilebunker),
-                            ],
-                            ActionCategory::Super,
-                        ),
-                        ..default()
-                    },
-                    ActionBlock {
-                        events: vec![
-                            ClearMovement,
-                            Movement {
-                                amount: Vec2::X * 1.5,
-                                duration: 8,
-                            }
-                            .into(),
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelRule::specific_or_category(
-                            vec![
-                                ActionId::Mizku(MizkuActionId::SwayOverhead),
-                                ActionId::Mizku(MizkuActionId::SwayLow),
-                                ActionId::Mizku(MizkuActionId::Pilebunker),
-                            ],
-                            ActionCategory::Super,
-                        ),
-                        ..default()
-                    },
-                ],
-                vec![ActionRequirement::ActionOngoing(vec![ActionId::Mizku(
-                    MizkuActionId::ShortBackSway,
-                )])],
-            ),
-        ),
-        (
-            MizkuActionId::LongSwayDash,
-            Action::new(
-                Some("f"),
-                ActionCategory::Special,
-                vec![
-                    ActionBlock {
-                        events: vec![MizkuAnimation::SwayDash.into(), ClearMovement],
-                        exit_requirement: ContinuationRequirement::Time(5),
-                        ..default()
-                    },
-                    ActionBlock {
-                        events: vec![
-                            // Overlap with each other to add more in the beginning
-                            Movement {
-                                amount: Vec2::X * 10.0,
-                                duration: 8,
-                            }
-                            .into(),
-                            Movement {
-                                amount: Vec2::X * 5.0,
-                                duration: 16,
-                            }
-                            .into(),
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelRule::specific_or_category(
-                            vec![
-                                ActionId::Mizku(MizkuActionId::SwayCancel),
-                                ActionId::Mizku(MizkuActionId::SwayOverhead),
-                                ActionId::Mizku(MizkuActionId::SwayLow),
-                                ActionId::Mizku(MizkuActionId::Pilebunker),
-                            ],
-                            ActionCategory::Super,
-                        ),
-                        ..default()
-                    },
-                    ActionBlock {
-                        events: vec![
-                            ClearMovement,
-                            Movement {
-                                amount: Vec2::X * 3.0,
-                                duration: 8,
-                            }
-                            .into(),
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(16),
-                        cancel_policy: CancelRule::specific_or_category(
-                            vec![
-                                ActionId::Mizku(MizkuActionId::SwayCancel),
-                                ActionId::Mizku(MizkuActionId::SwayOverhead),
-                                ActionId::Mizku(MizkuActionId::SwayLow),
-                                ActionId::Mizku(MizkuActionId::Pilebunker),
-                            ],
-                            ActionCategory::Super,
-                        ),
-                        ..default()
-                    },
-                ],
-                vec![ActionRequirement::ActionOngoing(vec![ActionId::Mizku(
-                    MizkuActionId::LongBackSway,
-                )])],
-            ),
-        ),
-        (
-            MizkuActionId::SwayCancel,
-            Action::new(
-                Some("g"),
-                ActionCategory::Special,
-                vec![ActionBlock {
-                    events: vec![MizkuAnimation::SwayCancel.into()],
+                            ..default()
+                        },
+                        CommonAttackProps {
+                            damage: 12,
+                            on_hit: Stun(15),
+                            on_block: Stun(10),
+                            ..default()
+                        },
+                    )
+                    .into()],
                     exit_requirement: ContinuationRequirement::Time(10),
                     cancel_policy: CancelRule::special_recovery(),
                     ..default()
-                }],
-                vec![ActionRequirement::ActionOngoing(vec![
-                    ActionId::Mizku(MizkuActionId::LongBackSway),
-                    ActionId::Mizku(MizkuActionId::LongSwayDash), // Long backdash can be cancelled, short cannot
-                    ActionId::Mizku(MizkuActionId::ShortBackSway),
-                ])],
-            ),
+                },
+            ],
+            vec![
+                ActionRequirement::ResourceValue(ResourceType::KunaiCounter, 1),
+                ActionRequirement::Grounded,
+            ],
         ),
-        (
-            MizkuActionId::SwayOverhead,
-            Action::new(
-                Some("6+w"),
-                ActionCategory::Special,
-                vec![
-                    ActionBlock {
-                        events: vec![MizkuAnimation::SwayOverhead.into()],
-                        exit_requirement: ContinuationRequirement::Time(20),
-                        ..default()
-                    },
-                    ActionBlock {
-                        events: vec![Attack::strike(
-                            ToHit {
-                                hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
-                                joint: Some(Joint::HandR),
-                                lifetime: Lifetime::frames(3),
-                                block_type: Strike(High),
-                                ..default()
-                            },
-                            CommonAttackProps {
-                                damage: 11,
-                                chip_damage: 1,
-                                on_hit: Stun(24),
-                                on_block: Stun(16),
-                                ..default()
-                            },
-                        )
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(20),
-                        cancel_policy: CancelRule::special_recovery(),
-                        ..default()
-                    },
-                ],
-                vec![ActionRequirement::ActionOngoing(vec![
-                    ActionId::Mizku(MizkuActionId::LongSwayDash),
-                    ActionId::Mizku(MizkuActionId::ShortSwayDash),
-                ])],
-            ),
-        ),
-        (
-            MizkuActionId::SwayLow,
-            Action::new(
-                Some("[123]+w"),
-                ActionCategory::Special,
-                vec![
-                    ActionBlock {
-                        events: vec![MizkuAnimation::SwayLow.into()],
-                        exit_requirement: ContinuationRequirement::Time(14),
-                        ..default()
-                    },
-                    ActionBlock {
-                        events: vec![
-                            Movement {
-                                amount: Vec2::X * 20.0,
-                                duration: 16,
-                            }
-                            .into(),
-                            Attack::strike(
-                                ToHit {
-                                    hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
-                                    joint: Some(Joint::FootL),
-                                    lifetime: Lifetime::frames(20),
-                                    block_type: Strike(Low),
-                                    ..default()
-                                },
-                                CommonAttackProps {
-                                    damage: 10,
-                                    chip_damage: 1,
-                                    on_block: Stun(16),
-                                    on_hit: Launcher(0.0),
-                                    ..default()
-                                },
-                            )
-                            .into(),
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(61),
-                        cancel_policy: CancelRule::special_recovery(),
-                        ..default()
-                    },
-                ],
-                vec![ActionRequirement::ActionOngoing(vec![
-                    ActionId::Mizku(MizkuActionId::LongSwayDash),
-                    ActionId::Mizku(MizkuActionId::ShortSwayDash),
-                ])],
-            ),
-        ),
-        (
-            MizkuActionId::Pilebunker,
-            Action::new(
-                Some("w"),
-                ActionCategory::Special,
-                vec![
-                    ActionBlock {
-                        events: vec![MizkuAnimation::Pilebunker.into()],
-                        exit_requirement: ContinuationRequirement::Time(23),
-                        ..default()
-                    },
-                    ActionBlock {
-                        events: vec![Attack::strike(
-                            ToHit {
-                                hitbox: Hitbox(Area::new(0.0, 0.0, 1.0, 1.0)),
-                                joint: Some(Joint::HandR),
-                                lifetime: Lifetime::frames(3),
-                                ..default()
-                            },
-                            CommonAttackProps {
-                                damage: 30, // It should hurt
-                                chip_damage: 1,
-                                on_hit: Roller(Vec2::new(10.0, 2.0)),
-                                on_block: Stun(20),
-                                ..default()
-                            },
-                        )
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(37),
-                        cancel_policy: CancelRule::special_recovery(),
-                        ..default()
-                    },
-                ],
-                vec![ActionRequirement::ActionOngoing(vec![
-                    ActionId::Mizku(MizkuActionId::LongSwayDash),
-                    ActionId::Mizku(MizkuActionId::ShortSwayDash),
-                ])],
-            ),
-        ),
-    ]
+    )]
     .into_iter()
 }
 
 fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
-    vec![
-        (
-            MizkuActionId::KunaiThrow,
-            Action::new(
-                Some("236f"),
-                ActionCategory::Special,
-                vec![
-                    ActionBlock {
-                        events: vec![
-                            MizkuAnimation::KunaiThrow.into(),
-                            ForceStand,
-                            Consume(ItemId::Kunai),
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(13),
-                        ..default()
-                    },
-                    ActionBlock {
-                        events: vec![Attack::strike(
-                            ToHit {
-                                hitbox: Hitbox(Area::new(1.0, 1.2, 0.3, 0.3)),
-                                velocity: Some(Vec2::new(6.0, -0.4)),
-                                lifetime: Lifetime::until_owner_hit(),
-                                projectile: Some(Projectile {
-                                    model: Model::Kunai,
-                                }),
-                                ..default()
-                            },
-                            CommonAttackProps {
-                                damage: 12,
-                                on_hit: Stun(15),
-                                on_block: Stun(10),
-                                ..default()
-                            },
-                        )
-                        .into()],
-                        exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelRule::special_recovery(),
-                        ..default()
-                    },
-                ],
-                vec![
-                    ActionRequirement::ItemsOwned(vec![ItemId::Kunai]),
-                    ActionRequirement::Grounded,
-                ],
-            ),
-        ),
-        (
-            MizkuActionId::Overhead,
-            Action::new(
-                Some("6+s"),
-                ActionCategory::NeutralNormal,
-                vec![
-                    ActionBlock {
-                        events: vec![
-                            MizkuAnimation::Overhead.into(),
-                            Movement {
-                                amount: Vec2::X * 10.0,
-                                duration: 20,
-                            }
-                            .into(),
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(25),
-                        ..default()
-                    },
-                    ActionBlock {
-                        events: vec![
-                            Attack::strike(
-                                ToHit {
-                                    hitbox: Hitbox(Area::new(-0.2, 0.0, 1.2, 0.2)),
-                                    joint: Some(Joint::FootR),
-                                    lifetime: Lifetime::frames(5),
-                                    block_type: Strike(High),
-                                    ..default()
-                                },
-                                CommonAttackProps {
-                                    damage: 10,
-                                    on_hit: Stun(40),
-                                    on_block: Stun(20),
-                                    ..default()
-                                },
-                            )
-                            .into(),
-                            Movement {
-                                amount: Vec2::X * 3.0,
-                                duration: 10,
-                            }
-                            .into(),
-                        ],
-                        exit_requirement: ContinuationRequirement::Time(35),
-                        cancel_policy: CancelRule::command_normal_recovery(),
-                        mutator: None,
-                    },
-                ],
-                vec![
-                    ActionRequirement::ItemsOwned(vec![ItemId::SteelHeelBoots]),
-                    ActionRequirement::Grounded,
-                ],
-            ),
-        ),
-    ]
-    .into_iter()
-    .map(|(k, v)| (ActionId::Mizku(k), v))
-    .chain(universal_item_actions(Animation::Mizku(
-        MizkuAnimation::GiParry,
-    )))
+    universal_item_actions(Animation::Mizku(MizkuAnimation::GiParry))
 }
 
 fn mizku_items() -> HashMap<ItemId, Item> {
     vec![
         (
-            ItemId::Kunai,
+            ItemId::SpareKunai,
             Item {
                 cost: 75,
-                explanation: "qcf+f to throw, comes in handy\n\nThat's the power...of a president!"
-                    .into(),
-                category: ItemCategory::Consumable(ConsumableType::UntilUsed),
+                explanation: "Two is better than one".into(),
+                category: ItemCategory::Basic,
                 icon: Icon::Kunai,
-                ..default()
-            },
-        ),
-        (
-            ItemId::SteelHeelBoots,
-            Item {
-                cost: 300,
-                explanation: "6s for an overhead".into(),
-                category: ItemCategory::Upgrade(vec![ItemId::SafetyBoots, ItemId::HockeyPads]),
-                ..default()
-            },
-        ),
-        (
-            ItemId::GentlemansPipe,
-            Item {
-                cost: 300,
-                explanation: "Intangibility in sway".into(),
-                category: ItemCategory::Upgrade(vec![ItemId::Cigarettes]),
-                ..default()
+                effect: Stats {
+                    extra_kunais: 1,
+                    ..default()
+                },
             },
         ),
         (

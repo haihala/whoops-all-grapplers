@@ -65,7 +65,7 @@ impl WAGResources {
                     prop.current = stats.starting_meter;
                 }
                 ResourceType::KunaiCounter => {
-                    prop.current = prop.max.unwrap();
+                    prop.current = stats.extra_kunais + 1;
                 }
                 _ => {
                     prop.current = prop.min;

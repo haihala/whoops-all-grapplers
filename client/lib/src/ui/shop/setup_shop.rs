@@ -458,7 +458,7 @@ fn fill_item_grid(
 ) -> Vec<Entity> {
     let mut pairs = character.items.iter().collect::<Vec<_>>();
 
-    pairs.sort_by_key(|(id, _)| recursive_cost(character, **id));
+    pairs.sort_by_key(|(id, _)| (recursive_cost(character, **id), **id));
 
     pairs
         .into_iter()

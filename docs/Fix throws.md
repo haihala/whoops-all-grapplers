@@ -1,0 +1,3 @@
+- [ ] Freezing position for both sides
+- [ ] Side switch doesn't seem to work
+- [ ] Position snap at the end of the animation

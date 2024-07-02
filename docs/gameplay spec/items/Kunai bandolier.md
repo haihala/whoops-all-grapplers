@@ -1,3 +1,3 @@
-- [[Mizku]] item that makes her start the round with 8 [[Mizku#Kunai]] instead of 5
+- [[Mizku]] item that makes her start the round with 8 [[Mizku#Kunai]]
 	- 8 Because Xrd Johnny has 8 coins
-- Upgrade of [[Kunai belt]]
+- Upgrade of [[Kunai pouch]]

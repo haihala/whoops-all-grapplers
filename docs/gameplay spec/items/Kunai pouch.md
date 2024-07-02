@@ -1,1 +1,2 @@
-- [[Mizku]] item that makes her start the round with 3 [[Mizku#Kunai]] instead of 1
+- [[Mizku]] item that makes her start the round with 5 [[Mizku#Kunai]]
+- Upgrade of [[Backup Kunai]]

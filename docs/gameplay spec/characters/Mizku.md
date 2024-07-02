@@ -45,8 +45,8 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Resets at the start of the round
 	- By default, 1
 - Upgrades
+	- [[Backup Kunai]]
 	- [[Kunai pouch]]
-	- [[Kunai belt]]
 	- [[Kunai bandolier]]
 
 # Moves (built-in)

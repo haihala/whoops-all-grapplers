@@ -10,6 +10,8 @@ This is the post-university design. The design before this one was more scattere
 - [ ] [[Mizku#Kunai]] / [[Mizku#Kunai throw]]
 	- [x] Animation
 	- [ ] Items
+		- [ ] [[Kunai pouch]]
+		- [ ] [[Kunai bandolier]]
 	- [x] Bigger projectile
 - [x] Forward/back dash -> Short hops
 	- [x] Animations
@@ -23,7 +25,6 @@ This is the post-university design. The design before this one was more scattere
 - [x] Put super jumps behind items
 - [x] Remove sway stuff from code, we can keep the animations
 - [x] Update [[Mizku]]
-- [x] Go over [[Mizku cleanup]]
 - [x] Go over animations that weren't listed
 	- [x] 5g
 	- [x] 2g
@@ -32,6 +33,9 @@ This is the post-university design. The design before this one was more scattere
 	- [x] Air throw
 	- [x] Stand throw
 	- [x] Crouch throw
+- [ ] [[Mizku#Falcon knee]] sweet spot
+- [ ] [[Mizku#Blade oil]]
+- [ ] [[Mizku#Smithy coupon]]
 
 
 # Design

@@ -208,7 +208,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             Action::ground_normal(
                 "[123]+s",
                 MizkuAnimation::Uppercut,
-                3,
+                8,
                 Attack::strike(
                     ToHit {
                         hitbox: Hitbox(Area::of_size(0.3, 0.5)),
@@ -225,7 +225,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                 ),
-                25,
+                42,
             ),
         ),
         (
@@ -281,7 +281,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 ActionCategory::CommandNormal,
                 vec![
                     ActionBlock {
-                        events: vec![MizkuAnimation::LowStab.into()],
+                        events: vec![MizkuAnimation::SkyStab.into()],
                         exit_requirement: ContinuationRequirement::Time(15),
                         ..default()
                     },

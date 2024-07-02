@@ -81,7 +81,7 @@ pub enum MizkuAnimation {
     KneeThrust,
     KunaiThrow,
     LowKick,
-    LowStab,
+    SkyStab,
     Overhead,
     Stagger,
     StandPose,

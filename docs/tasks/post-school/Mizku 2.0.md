@@ -10,7 +10,7 @@ This is the post-university design. The design before this one was more scattere
 - [ ] [[Mizku#Kunai]] / [[Mizku#Kunai throw]]
 	- [x] Animation
 	- [ ] Items
-		- [ ] [[Kunai pouch]]
+		- [x] [[Kunai pouch]]
 		- [ ] [[Kunai bandolier]]
 	- [x] Bigger projectile
 - [x] Forward/back dash -> Short hops

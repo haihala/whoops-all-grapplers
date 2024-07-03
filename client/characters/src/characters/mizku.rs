@@ -886,6 +886,19 @@ fn mizku_items() -> HashMap<ItemId, Item> {
             },
         ),
         (
+            ItemId::KunaiPouch,
+            Item {
+                cost: 75,
+                explanation: "5 uses for Kunai.\n\nThe more the merrier".into(),
+                category: ItemCategory::Upgrade(vec![ItemId::SpareKunai]),
+                icon: Icon::KunaiPouch,
+                effect: Stats {
+                    extra_kunais: 3,
+                    ..default()
+                },
+            },
+        ),
+        (
             ItemId::SpaceSuitBoots,
             Item {
                 category: ItemCategory::Upgrade(vec![ItemId::Boots, ItemId::Dumbbell]),

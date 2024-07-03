@@ -67,6 +67,11 @@ impl WAGResources {
                 ResourceType::KunaiCounter => {
                     prop.current = stats.extra_kunais + 1;
                 }
+                ResourceType::Sharpness => {
+                    if !stats.retain_sharpness {
+                        prop.current = prop.min;
+                    }
+                }
                 _ => {
                     prop.current = prop.min;
                 }

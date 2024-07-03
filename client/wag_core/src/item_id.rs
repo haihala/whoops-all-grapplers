@@ -35,6 +35,7 @@ pub enum ItemId {
     SpareKunai,
     KunaiPouch,
     SpaceSuitBoots,
+    BladeOil,
 
     #[default]
     Default,
@@ -58,6 +59,7 @@ impl ItemId {
             Self::Gi => "Gi of the old masters".into(),
             Self::SpareKunai => "Spare kunai".into(),
             Self::KunaiPouch => "Kunai pouch".into(),
+            Self::BladeOil => "Blade oil".into(),
             Self::ThumbTacks(n) => match n {
                 1 => "A single thumbtack".into(),
                 5 => "Fistful of thumbtacks".into(),

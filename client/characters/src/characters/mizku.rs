@@ -14,8 +14,8 @@ use crate::{
     Attack,
     AttackHeight::*,
     BlockType::*,
-    CancelRule, CommonAttackProps, ContinuationRequirement, CounterVisual, FlashRequest, Hitbox,
-    Item, ItemCategory, Lifetime, Movement, Situation,
+    CancelRule, CommonAttackProps, ConsumableType, ContinuationRequirement, CounterVisual,
+    FlashRequest, Hitbox, Item, ItemCategory, Lifetime, Movement, Situation,
     StunType::*,
     ToHit, WAGResource,
 };
@@ -881,7 +881,7 @@ fn mizku_items() -> HashMap<ItemId, Item> {
                 icon: Icon::Kunai,
                 effect: Stats {
                     extra_kunais: 1,
-                    ..default()
+                    ..Stats::identity()
                 },
             },
         ),
@@ -894,7 +894,7 @@ fn mizku_items() -> HashMap<ItemId, Item> {
                 icon: Icon::KunaiPouch,
                 effect: Stats {
                     extra_kunais: 3,
-                    ..default()
+                    ..Stats::identity()
                 },
             },
         ),
@@ -906,6 +906,19 @@ fn mizku_items() -> HashMap<ItemId, Item> {
                 cost: 800,
                 icon: Icon::SpaceSuitBoots,
                 ..default()
+            },
+        ),
+        (
+            ItemId::BladeOil,
+            Item {
+                category: ItemCategory::Consumable(ConsumableType::OneRound),
+                explanation: "Retain sharpness from the previous round.".into(),
+                cost: 100,
+                icon: Icon::BladeOil,
+                effect: Stats {
+                    retain_sharpness: true,
+                    ..Stats::identity()
+                },
             },
         ),
     ]

@@ -34,7 +34,7 @@ This is the post-university design. The design before this one was more scattere
 	- [x] Stand throw
 	- [x] Crouch throw
 - [ ] [[Mizku#Falcon knee]] sweet spot
-- [ ] [[Mizku#Blade oil]]
+- [x] [[Mizku#Blade oil]]
 - [ ] [[Mizku#Smithy coupon]]
 
 

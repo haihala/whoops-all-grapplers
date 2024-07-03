@@ -37,7 +37,7 @@ impl Character {
             moves,
             items,
             standing_pushbox: Area::from_center_size(Vec2::Y * 0.7, Vec2::new(0.4, 1.4)),
-            crouching_pushbox: Area::from_center_size(Vec2::new(0.2, 0.35), Vec2::new(0.6, 0.7)),
+            crouching_pushbox: Area::from_center_size(Vec2::new(0.1, 0.35), Vec2::new(0.6, 0.7)),
             air_pushbox: Area::from_center_size(Vec2::new(0.0, 0.55), Vec2::new(0.4, 0.6)),
             special_properties,
             base_stats,

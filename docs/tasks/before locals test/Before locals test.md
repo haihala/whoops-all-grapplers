@@ -5,7 +5,6 @@
 - [[Update Gi]]
 - [[Dev binds 2.0]]
 - Minor
-	- Hurtbox padding
 	- Jump
 		- Reduce pre-jump frames
 		- Allow direction corrections after pre-jump

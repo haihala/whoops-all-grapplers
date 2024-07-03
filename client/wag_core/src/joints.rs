@@ -101,12 +101,10 @@ impl Joint {
 
 use Joint::*;
 
-#[derive(Debug, Component, Clone, Deref, DerefMut, PartialEq, Reflect)]
-pub struct JointCollider(pub Vec<Joint>);
-impl From<Vec<Joint>> for JointCollider {
-    fn from(value: Vec<Joint>) -> Self {
-        Self(value)
-    }
+#[derive(Debug, Component, Default, Clone, PartialEq, Reflect)]
+pub struct JointCollider {
+    pub joints: Vec<Joint>,
+    pub padding: f32,
 }
 
 #[derive(Debug, Component, Reflect)]
@@ -120,24 +118,54 @@ impl Default for Joints {
             nodes: Default::default(),
             colliders: vec![
                 // Head
-                vec![Head, Neck, ShoulderL, ShoulderR].into(),
+                JointCollider {
+                    joints: vec![Head],
+                    padding: 0.2,
+                },
                 // Torso
-                vec![
-                    Neck, Chest, Abdomen, ShoulderL, ShoulderR, HipL, HipR, UpperArmL, UpperArmR,
-                ]
-                .into(),
+                JointCollider {
+                    joints: vec![
+                        Neck, Chest, Abdomen, ShoulderL, ShoulderR, HipL, HipR, UpperArmL,
+                        UpperArmR,
+                    ],
+                    padding: 0.1,
+                },
                 // Right arm
-                vec![UpperArmR, ForeArmR].into(),
-                vec![ForeArmR, HandR].into(),
+                JointCollider {
+                    joints: vec![UpperArmR, ForeArmR],
+                    padding: 0.1,
+                },
+                JointCollider {
+                    joints: vec![ForeArmR, HandR],
+                    padding: 0.1,
+                },
                 // Left arm
-                vec![UpperArmL, ForeArmL].into(),
-                vec![ForeArmL, HandL].into(),
+                JointCollider {
+                    joints: vec![UpperArmL, ForeArmL],
+                    padding: 0.1,
+                },
+                JointCollider {
+                    joints: vec![ForeArmL, HandL],
+                    padding: 0.1,
+                },
                 // Right leg
-                vec![ThighR, ShinR].into(),
-                vec![ShinR, FootR].into(),
+                JointCollider {
+                    joints: vec![ThighR, ShinR],
+                    padding: 0.1,
+                },
+                JointCollider {
+                    joints: vec![ShinR, FootR],
+                    padding: 0.1,
+                },
                 // Left leg
-                vec![ThighL, ShinL].into(),
-                vec![ShinL, FootL].into(),
+                JointCollider {
+                    joints: vec![ThighL, ShinL],
+                    padding: 0.1,
+                },
+                JointCollider {
+                    joints: vec![ShinL, FootL],
+                    padding: 0.1,
+                },
             ],
         }
     }

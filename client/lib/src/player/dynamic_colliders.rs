@@ -64,6 +64,7 @@ fn collider_joints_bounding_box(
     tfs: &Query<&GlobalTransform>,
 ) -> Option<Area> {
     let points: Vec<Vec3> = collider
+        .joints
         .iter()
         .filter_map(|joint| {
             tfs.get(*owned_joints.get(joint).unwrap())
@@ -75,11 +76,11 @@ fn collider_joints_bounding_box(
     if points.is_empty() {
         None
     } else {
-        Some(bounding_box(points))
+        Some(bounding_box(points, collider.padding))
     }
 }
 
-fn bounding_box(points: Vec<Vec3>) -> Area {
+fn bounding_box(points: Vec<Vec3>, padding: f32) -> Area {
     let mut min_x = f32::MAX;
     let mut min_y = f32::MAX;
     let mut max_x = f32::MIN;
@@ -95,7 +96,12 @@ fn bounding_box(points: Vec<Vec3>) -> Area {
         max_y = max_y.max(y);
     }
 
-    Area::from_sides(max_y, min_y, min_x, max_x)
+    Area::from_sides(
+        max_y + padding,
+        min_y - padding,
+        min_x - padding,
+        max_x + padding,
+    )
 }
 
 use strum::IntoEnumIterator;

@@ -387,5 +387,7 @@ pub(super) fn move_activator(
             parser.to_owned(),
             stats.to_owned(),
         );
+
+        buffer.clear_all()
     }
 }

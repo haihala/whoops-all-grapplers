@@ -669,11 +669,11 @@ fn take_sword_stance(strong: bool) -> Action {
         vec![
             ActionBlock {
                 events,
-                exit_requirement: ContinuationRequirement::Time(10),
+                exit_requirement: ContinuationRequirement::Time(3),
                 ..default()
             },
             ActionBlock {
-                exit_requirement: ContinuationRequirement::Time(40),
+                exit_requirement: ContinuationRequirement::Time(47),
                 cancel_policy: CancelRule::specific(vec![
                     ActionId::Mizku(MizkuActionId::Sharpen),
                     ActionId::Mizku(MizkuActionId::ViperStrike),

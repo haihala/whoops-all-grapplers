@@ -36,6 +36,7 @@ pub enum ItemId {
     KunaiPouch,
     SpaceSuitBoots,
     BladeOil,
+    SmithyCoupon,
 
     #[default]
     Default,
@@ -60,6 +61,7 @@ impl ItemId {
             Self::SpareKunai => "Spare kunai".into(),
             Self::KunaiPouch => "Kunai pouch".into(),
             Self::BladeOil => "Blade oil".into(),
+            Self::SmithyCoupon => "Smithy coupon".into(),
             Self::ThumbTacks(n) => match n {
                 1 => "A single thumbtack".into(),
                 5 => "Fistful of thumbtacks".into(),

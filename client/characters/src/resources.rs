@@ -71,6 +71,8 @@ impl WAGResources {
                     if !stats.retain_sharpness {
                         prop.current = prop.min;
                     }
+
+                    prop.current += stats.auto_sharpen;
                 }
                 _ => {
                     prop.current = prop.min;

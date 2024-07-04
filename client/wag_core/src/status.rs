@@ -30,6 +30,7 @@ pub struct Stats {
 
     // Mizku
     pub extra_kunais: i32,
+    pub auto_sharpen: i32,
     pub retain_sharpness: bool,
 }
 
@@ -70,6 +71,7 @@ impl Stats {
             direct_influence: 0.0,
 
             extra_kunais: 0,
+            auto_sharpen: 0,
             retain_sharpness: false,
         }
     }
@@ -96,6 +98,7 @@ impl Stats {
         self.direct_influence += rhs.direct_influence;
 
         self.extra_kunais += rhs.extra_kunais;
+        self.auto_sharpen += rhs.auto_sharpen;
         self.retain_sharpness |= rhs.retain_sharpness;
 
         self

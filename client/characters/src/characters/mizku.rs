@@ -921,6 +921,19 @@ fn mizku_items() -> HashMap<ItemId, Item> {
                 },
             },
         ),
+        (
+            ItemId::SmithyCoupon,
+            Item {
+                category: ItemCategory::Consumable(ConsumableType::OneRound),
+                explanation: "Pre-sharpen the sword by two levels".into(),
+                cost: 100,
+                icon: Icon::SmithyCoupon,
+                effect: Stats {
+                    auto_sharpen: 2,
+                    ..Stats::identity()
+                },
+            },
+        ),
     ]
     .into_iter()
     .chain(universal_items())

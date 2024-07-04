@@ -8,3 +8,4 @@
 	- Jump
 		- Reduce pre-jump frames
 		- Allow direction corrections after pre-jump
+- Do a quick round over the items

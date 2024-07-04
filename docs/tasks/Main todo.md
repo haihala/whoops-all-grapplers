@@ -11,6 +11,7 @@ Low priority do later tasks
 - [[Rewards 2.0]]
 - [[Yoink assets]]
 - [[Netplay]]
+- [[Optional inputs]]
 - Delay wakeup on knockdown
 - Pretty loading screen
 

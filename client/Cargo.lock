@@ -542,7 +542,6 @@ dependencies = [
  "bevy_tasks",
  "bevy_utils",
  "bytemuck",
- "serde",
 ]
 
 [[package]]
@@ -776,7 +775,6 @@ dependencies = [
  "bevy_math",
  "bevy_reflect",
  "bevy_utils",
- "serde",
  "smol_str",
  "thiserror",
 ]
@@ -1080,7 +1078,6 @@ dependencies = [
  "bevy_reflect",
  "bevy_utils",
  "crossbeam-channel",
- "serde",
  "thiserror",
 ]
 
@@ -1095,7 +1092,6 @@ dependencies = [
  "bevy_hierarchy",
  "bevy_math",
  "bevy_reflect",
- "serde",
  "thiserror",
 ]
 
@@ -1123,7 +1119,6 @@ dependencies = [
  "bevy_utils",
  "bevy_window",
  "bytemuck",
- "serde",
  "taffy",
  "thiserror",
 ]
@@ -1172,7 +1167,6 @@ dependencies = [
  "bevy_reflect",
  "bevy_utils",
  "raw-window-handle 0.6.0",
- "serde",
  "smol_str",
 ]
 
@@ -1249,17 +1243,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed570934406eb16438a4e976b1b4500774099c13b8cb96eec99f620f05090ddf"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "bitt"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbcd561b81b9ddff17e3fc27c78b3681026cf06643d3217ebc84530bdf2a2cd8"
-dependencies = [
- "bevy",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -4239,7 +4222,6 @@ name = "whoops-all-grapplers"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "bitt",
  "wag_core",
  "whoops-all-grapplers-lib",
 ]

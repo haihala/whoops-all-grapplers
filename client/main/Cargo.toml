@@ -10,4 +10,3 @@ bevy = { workspace = true }
 whoops-all-grapplers-lib = { path = "../lib" }
 wag_core = { path = "../wag_core" }
 
-bitt = { workspace = true }

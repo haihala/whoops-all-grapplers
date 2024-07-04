@@ -32,17 +32,10 @@ run_task = { name = ["format", "clippy", "test", "udeps"] }
 
 [tasks.dev]
 command = "cargo"
-args = ["run", "--bin", "main", "--", "--dev", "mizku", "mizku"]
+args = ["run", "--", "--dev", "mizku", "mizku"]
 
 [tasks.prod]
 command = "cargo"
-args = ["run", "--bin", "main", "--", "mizku", "mizku"]
+args = ["run", "--", "mizku", "mizku"]
 
 
-[tasks.sanity_check]
-command = "cargo"
-args = ["run", "--bin", "sanity_check"]
-
-[tasks.release_sanity_check]
-command = "cargo"
-args = ["run", "--release", "--bin", "sanity_check"]

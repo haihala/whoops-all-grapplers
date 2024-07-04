@@ -1,5 +1,4 @@
 # Next steps
-- [[Mizku 2.0]]
 - [[Fix throws]]
 
 # Next big milestone

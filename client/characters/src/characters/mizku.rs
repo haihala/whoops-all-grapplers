@@ -896,10 +896,23 @@ fn mizku_items() -> HashMap<ItemId, Item> {
         (
             ItemId::KunaiPouch,
             Item {
-                cost: 75,
+                cost: 200,
                 explanation: "5 uses for Kunai.\n\nThe more the merrier".into(),
                 category: ItemCategory::Upgrade(vec![ItemId::SpareKunai]),
                 icon: Icon::KunaiPouch,
+                effect: Stats {
+                    extra_kunais: 3,
+                    ..Stats::identity()
+                },
+            },
+        ),
+        (
+            ItemId::KunaiBelt,
+            Item {
+                cost: 500,
+                explanation: "8 uses for Kunai.\n\n8 is perfection.".into(),
+                category: ItemCategory::Upgrade(vec![ItemId::KunaiPouch]),
+                icon: Icon::KunaiBelt,
                 effect: Stats {
                     extra_kunais: 3,
                     ..Stats::identity()

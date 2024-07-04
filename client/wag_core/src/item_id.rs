@@ -34,6 +34,7 @@ pub enum ItemId {
     // Mizku
     SpareKunai,
     KunaiPouch,
+    KunaiBelt,
     SpaceSuitBoots,
     BladeOil,
     SmithyCoupon,
@@ -60,6 +61,7 @@ impl ItemId {
             Self::Gi => "Gi of the old masters".into(),
             Self::SpareKunai => "Spare kunai".into(),
             Self::KunaiPouch => "Kunai pouch".into(),
+            Self::KunaiBelt => "Kunai belt".into(),
             Self::BladeOil => "Blade oil".into(),
             Self::SmithyCoupon => "Smithy coupon".into(),
             Self::ThumbTacks(n) => match n {

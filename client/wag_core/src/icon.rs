@@ -26,6 +26,7 @@ pub enum Icon {
     Kunai,
     SpaceSuitBoots,
     KunaiPouch,
+    KunaiBelt,
     BladeOil,
     SmithyCoupon,
 }
@@ -52,6 +53,7 @@ impl Icon {
             (Icon::GoalieGear, "icons/goalie-gear.png".into()),
             (Icon::Kunai, "icons/kunai.png".into()),
             (Icon::KunaiPouch, "icons/kunai-pouch.png".into()),
+            (Icon::KunaiBelt, "icons/kunai-bandolier.png".into()),
             (Icon::SpaceSuitBoots, "icons/space-boots.png".into()),
             (Icon::BladeOil, "icons/blade-oil.png".into()),
             (Icon::SmithyCoupon, "icons/coupon.png".into()),

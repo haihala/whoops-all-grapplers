@@ -236,20 +236,20 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::HighStab.into()],
-                        exit_requirement: ContinuationRequirement::Time(17),
+                        exit_requirement: ContinuationRequirement::Time(7),
                         ..default()
                     },
                     ActionBlock {
                         events: vec![],
-                        exit_requirement: ContinuationRequirement::Time(43),
+                        exit_requirement: ContinuationRequirement::Time(48),
                         cancel_policy: CancelRule::neutral_normal_recovery(),
                         mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                             original.events.push(
                                 Attack::strike(
                                     ToHit {
-                                        hitbox: Hitbox(Area::new(-0.2, 0.0, 2.0, 0.2)),
+                                        hitbox: Hitbox(Area::new(0.3, 0.0, 1.8, 0.2)),
                                         joint: Some(Joint::Katana),
-                                        lifetime: Lifetime::frames(4),
+                                        lifetime: Lifetime::frames(6),
                                         ..default()
                                     },
                                     CommonAttackProps {
@@ -282,20 +282,20 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::SkyStab.into()],
-                        exit_requirement: ContinuationRequirement::Time(15),
+                        exit_requirement: ContinuationRequirement::Time(8),
                         ..default()
                     },
                     ActionBlock {
                         events: vec![],
-                        exit_requirement: ContinuationRequirement::Time(60),
+                        exit_requirement: ContinuationRequirement::Time(32),
                         cancel_policy: CancelRule::command_normal_recovery(),
                         mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                             original.events.push(
                                 Attack::strike(
                                     ToHit {
-                                        hitbox: Hitbox(Area::of_size(2.5, 0.3)),
+                                        hitbox: Hitbox(Area::new(0.3, 0.4, 1.0, 1.0)),
                                         joint: Some(Joint::Katana),
-                                        lifetime: Lifetime::frames(3),
+                                        lifetime: Lifetime::frames(5),
                                         block_type: Strike(Low),
                                         ..default()
                                     },
@@ -339,7 +339,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             original.events.push(
                                 Attack::strike(
                                     ToHit {
-                                        hitbox: Hitbox(Area::new(-0.2, 0.0, 2.0, 0.2)),
+                                        hitbox: Hitbox(Area::new(-0.2, -0.3, 1.0, 0.4)),
                                         joint: Some(Joint::Katana),
                                         lifetime: Lifetime::frames(12),
                                         ..default()
@@ -424,7 +424,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![Attack::strike(
                             ToHit {
-                                hitbox: Hitbox(Area::new(-0.35, 0.0, 0.7, 0.25)),
+                                hitbox: Hitbox(Area::new(0.1, 0.0, 0.7, 0.3)),
                                 joint: Some(Joint::FootR),
                                 lifetime: Lifetime::frames(7),
                                 block_type: Strike(High),

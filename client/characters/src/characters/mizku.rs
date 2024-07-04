@@ -689,7 +689,7 @@ fn take_sword_stance(strong: bool) -> Action {
 fn sharpen() -> Action {
     Action::new(
         Some("g"),
-        ActionCategory::Special,
+        ActionCategory::FollowUp,
         vec![
             ActionBlock {
                 events: vec![MizkuAnimation::Sharpen.into()],
@@ -714,23 +714,31 @@ fn sharpen() -> Action {
 fn viper_strike() -> Action {
     Action::new(
         Some("s"),
-        ActionCategory::Special,
+        ActionCategory::FollowUp,
         vec![
             ActionBlock {
-                events: vec![MizkuAnimation::ViperStrike.into()],
-                exit_requirement: ContinuationRequirement::Time(14),
+                events: vec![
+                    MizkuAnimation::ViperStrike.into(),
+                    Movement {
+                        amount: Vec2::X * 8.0,
+                        duration: 7,
+                    }
+                    .into(),
+                ],
+                exit_requirement: ContinuationRequirement::Time(8),
                 ..default()
             },
             ActionBlock {
                 events: vec![],
-                exit_requirement: ContinuationRequirement::Time(66),
+                exit_requirement: ContinuationRequirement::Time(67),
                 mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                     original.events.push(
                         Attack::strike(
                             ToHit {
-                                hitbox: Hitbox(Area::new(-0.2, 0.0, 2.0, 0.2)),
+                                hitbox: Hitbox(Area::new(0.0, -0.2, 2.5, 0.45)),
+                                block_type: Strike(Low),
                                 joint: Some(Joint::Katana),
-                                lifetime: Lifetime::frames(4),
+                                lifetime: Lifetime::frames(6),
                                 ..default()
                             },
                             CommonAttackProps {
@@ -767,15 +775,15 @@ fn viper_strike() -> Action {
 fn rising_sun() -> Action {
     Action::new(
         Some("f"),
-        ActionCategory::Special,
+        ActionCategory::FollowUp,
         vec![
             ActionBlock {
                 events: vec![MizkuAnimation::GrisingSun.into()],
-                exit_requirement: ContinuationRequirement::Time(11),
+                exit_requirement: ContinuationRequirement::Time(3),
                 ..default()
             },
             ActionBlock {
-                exit_requirement: ContinuationRequirement::Time(64),
+                exit_requirement: ContinuationRequirement::Time(79),
                 mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                     original.events.push(
                         Attack::strike(

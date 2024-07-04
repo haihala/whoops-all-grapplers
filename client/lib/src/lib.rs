@@ -1,6 +1,5 @@
 #![feature(trivial_bounds)]
 #![feature(extract_if)]
-#![feature(exclusive_range_pattern)]
 #![feature(iter_intersperse)]
 
 mod assets;

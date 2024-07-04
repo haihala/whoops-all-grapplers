@@ -735,7 +735,7 @@ fn viper_strike() -> Action {
                     original.events.push(
                         Attack::strike(
                             ToHit {
-                                hitbox: Hitbox(Area::new(0.0, -0.2, 2.5, 0.45)),
+                                hitbox: Hitbox(Area::new(0.4, 0.0, 1.6, 0.45)),
                                 block_type: Strike(Low),
                                 joint: Some(Joint::Katana),
                                 lifetime: Lifetime::frames(6),

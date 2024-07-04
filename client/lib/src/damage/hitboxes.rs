@@ -31,8 +31,11 @@ pub struct HitboxSpawner {
     mark_hitters: bool,
 }
 
-#[derive(Debug, Component, Deref)]
-pub struct Follow(pub Entity);
+#[derive(Debug, Component)]
+pub struct Follow {
+    pub target: Entity,
+    pub offset: Vec3,
+}
 
 #[derive(Debug, Component)]
 pub struct ProjectileMarker;
@@ -90,7 +93,10 @@ impl HitboxSpawner {
             });
             builder.insert(ProjectileMarker);
         } else {
-            builder.insert(Follow(parent));
+            builder.insert(Follow {
+                target: parent,
+                offset: offset.extend(0.0),
+            });
         }
 
         if let Some(frames) = attack.to_hit.lifetime.frames {
@@ -212,7 +218,7 @@ pub(super) fn update_followers(
     mut followers: Query<(&Follow, &mut Transform)>,
     targets: Query<&GlobalTransform>,
 ) {
-    for (target, mut tf) in &mut followers {
-        tf.translation = targets.get(**target).unwrap().translation();
+    for (follow, mut tf) in &mut followers {
+        tf.translation = targets.get(follow.target).unwrap().translation() + follow.offset;
     }
 }

@@ -140,7 +140,6 @@ pub fn flip_parsers_on_side_change(mut parsers: Query<&mut InputParser, Changed<
 
 #[cfg(test)]
 mod test {
-    use bevy::ecs::schedule::ScheduleLabel;
     use std::thread::sleep;
     use std::time::Duration;
 
@@ -256,9 +255,6 @@ mod test {
         interface.add_button_and_tick(GameButton::Fast);
         interface.assert_both_test_events_are_present();
     }
-
-    #[derive(ScheduleLabel, Hash, Debug, PartialEq, Eq, Clone, Copy)]
-    struct TestSchedule;
 
     struct TestInterface {
         app: App,

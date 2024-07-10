@@ -27,7 +27,6 @@ use crate::{
 use bevy::{
     ecs::query::QueryData, pbr::ExtendedMaterial, prelude::*, render::view::NoFrustumCulling,
 };
-use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
 pub use move_activation::MoveBuffer;
 
@@ -166,15 +165,14 @@ fn spawn_player(
             player,
         ))
         .with_children(move |parent| {
-            parent.spawn((HookedSceneBundle {
-                scene: SceneBundle {
+            parent.spawn((
+                PlayerModelHook(colors.clone()),
+                NoFrustumCulling,
+                SceneBundle {
                     scene: models[&character.model].clone(),
                     ..default()
                 },
-                hook: SceneHook::new(move |_, cmds| {
-                    cmds.insert((PlayerModelHook(colors.clone()), NoFrustumCulling));
-                }),
-            },));
+            ));
         })
         .id()
 }

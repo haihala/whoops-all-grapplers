@@ -22,7 +22,6 @@ pub(super) fn model_paths() -> HashMap<Model, &'static str> {
 #[derive(Component, Debug)]
 pub struct PlayerModelHook(pub HashMap<&'static str, Color>);
 
-// From https://github.com/bevyengine/bevy/discussions/8533
 #[allow(clippy::too_many_arguments)]
 pub fn prep_player_gltf(
     unloaded_instances: Query<(
@@ -45,7 +44,6 @@ pub fn prep_player_gltf(
     for (entity, parent, name, instance, update_material) in &unloaded_instances {
         if scene_manager.instance_is_ready(**instance) {
             cmds.entity(entity).remove::<PlayerModelHook>();
-            println!("Scene is ready");
             assign_joints(
                 name.cloned().unwrap_or_default().as_str(),
                 entity,
@@ -54,7 +52,6 @@ pub fn prep_player_gltf(
                 &children,
                 &names,
             );
-            println!("Joints are ready");
         }
 
         // Iterate over all entities in scene (once it's loaded)

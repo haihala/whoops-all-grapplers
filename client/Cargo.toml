@@ -21,7 +21,6 @@ opt-level = 3
 bevy = "0.13"
 bevy_hanabi = "0.11"
 bevy-inspector-egui = "0.24"
-bevy-scene-hook = "10.0"
 
 rand = "0.8"
 strum = "0.26"

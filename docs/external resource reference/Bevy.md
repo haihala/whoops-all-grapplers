@@ -4,7 +4,6 @@
 
 # Used crates
 - [bevy_hanabi](https://github.com/djeedai/bevy_hanabi)
-- [bevy_scene_hook](https://github.com/nicopap/bevy-scene-hook)
 - [bevy_egui_inspector](https://github.com/jakobhellermann/bevy-inspector-egui)
 
 # Check out

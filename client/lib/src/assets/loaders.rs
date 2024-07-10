@@ -192,7 +192,7 @@ fn particle_explosion(
     let gravity = AccelModifier::new(module.lit(Vec3::new(0.0, -2.0, 0.0)));
 
     let effect = effects.add(
-        EffectAsset::new(1000, spawner, module)
+        EffectAsset::new(vec![1000], spawner, module)
             .init(position_modifier)
             .init(velocity_modifier)
             .init(lifetime)
@@ -208,7 +208,7 @@ fn particle_explosion(
 
     commands
         .spawn((
-            ParticleEffectBundle::new(effect).with_spawner(spawner),
+            ParticleEffectBundle::new(effect),
             Name::new(format!("Particle system '{name}'")),
         ))
         .id()

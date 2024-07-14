@@ -153,7 +153,7 @@ fn transition_after_timer(
 
         if transition.timer.finished() {
             if transition.exit_game {
-                exit.send(AppExit);
+                exit.send(AppExit::Success);
             } else {
                 next_state.set(game_state.get().next());
                 commands.remove_resource::<TransitionTimer>()

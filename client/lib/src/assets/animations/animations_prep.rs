@@ -1,116 +1,247 @@
-use bevy::{prelude::*, utils::HashMap}; // Need to use this one for reflect to work
+use bevy::{animation::AnimationTargetId, prelude::*, utils::HashMap};
 
 use wag_core::{Animation, DummyAnimation, Facing, MizkuAnimation};
 
 #[derive(Debug, Default, Resource)]
 pub struct Animations {
-    normal: HashMap<Animation, Handle<AnimationClip>>,
-    mirrored: HashMap<Animation, Handle<AnimationClip>>,
+    normal: HashMap<Animation, Handle<AnimationGraph>>,
+    mirrored: HashMap<Animation, Handle<AnimationGraph>>,
 }
 
 impl Animations {
-    pub fn new(animations: HashMap<Animation, Handle<AnimationClip>>) -> Self {
+    pub fn new(
+        animations: HashMap<Animation, Handle<AnimationClip>>,
+        asset_server: &mut ResMut<Assets<AnimationGraph>>,
+    ) -> Self {
         Self {
-            normal: animations,
+            normal: animations
+                .into_iter()
+                .map(|(k, v)| (k, asset_server.add(AnimationGraph::from_clip(v).0)))
+                .collect(),
             mirrored: default(),
         }
     }
 
-    fn all_loaded(&self, assets: &Assets<AnimationClip>) -> bool {
-        self.normal
-            .values()
-            .map(|handle| assets.get(handle))
-            .all(|clip| clip.is_some())
+    fn all_loaded(
+        &self,
+        graph_assets: &Assets<AnimationGraph>,
+        clip_assets: &Assets<AnimationClip>,
+    ) -> bool {
+        self.normal.values().all(|handle| {
+            let Some(graph) = graph_assets.get(handle) else {
+                return false;
+            };
+
+            let node_index = graph.nodes().last().unwrap();
+            let Some(node) = graph.get(node_index) else {
+                return false;
+            };
+
+            clip_assets.get(&node.clip.clone().unwrap()).is_some()
+        })
     }
 
-    pub(super) fn get(&self, animation: Animation, flipped: &Facing) -> Handle<AnimationClip> {
-        if animation == Animation::default() {
+    pub(super) fn get(
+        &self,
+        animation: Animation,
+        flipped: &Facing,
+        graphs: &Assets<AnimationGraph>,
+    ) -> (Handle<AnimationGraph>, AnimationNodeIndex) {
+        let graph_handle = if animation == Animation::default() {
             // Default is not mirrored and mirrored animations may not be ready by the time it is requested
             // This should be irrelevant after a real loading screen.
-            return self.normal[&Animation::default()].clone();
-        }
+            self.normal[&Animation::default()].clone()
+        } else {
+            match flipped {
+                Facing::Right => self.normal.get(&animation),
+                Facing::Left => self.mirrored.get(&animation),
+            }
+            .unwrap()
+            .clone()
+        };
 
-        match flipped {
-            Facing::Right => self.normal.get(&animation),
-            Facing::Left => self.mirrored.get(&animation),
-        }
-        .unwrap()
-        .clone()
+        let graph = graphs.get(&graph_handle).unwrap();
+        let node_index = graph.nodes().last().unwrap();
+
+        (graph_handle, node_index)
     }
 }
 
 pub fn mirror_after_load(
     mut animations: ResMut<Animations>,
     mut clip_assets: ResMut<Assets<AnimationClip>>,
+    mut graph_assets: ResMut<Assets<AnimationGraph>>,
     mut done: Local<bool>,
 ) {
-    if !animations.all_loaded(&clip_assets) || !animations.mirrored.is_empty() {
+    if !animations.all_loaded(&graph_assets, &clip_assets) || !animations.mirrored.is_empty() {
         return;
     }
+
+    // TODO: This is horrendous. There is got to be a better way.
+    let base_hierarchy = vec!["Mizuki"]; // It's character specific (blender root object name)
+
+    let hand_base = vec![
+        "DEF-upper_arm.{}",
+        "DEF-upper_arm.{}.001",
+        "DEF-forearm.{}",
+        "DEF-forearm.{}.001",
+        "DEF-hand.{}",
+    ];
+
+    let hand = |new: Vec<&'static str>| {
+        let mut hc = hand_base.clone();
+        hc.extend(new);
+        hc
+    };
+
+    // Flattening hierarchy when exporting means bone structure here doesn't match one in blender
+    let mirror_map = vec![
+        // Legs
+        vec![
+            "DEF-thigh.{}",
+            "DEF-thigh.{}.001",
+            "DEF-shin.{}",
+            "DEF-shin.{}.001",
+            "DEF-foot.{}",
+            "DEF-toe.{}",
+        ],
+        // Face
+        vec!["DEF-ear.{}"],
+        vec!["DEF-ear.{}.001"],
+        vec!["DEF-ear.{}.002", "DEF-ear.{}.003"],
+        vec!["DEF-ear.{}.004"],
+        vec!["DEF-nose.{}.001"],
+        vec!["DEF-eye_master.{}"],
+        vec!["DEF-eye.{}", "DEF-eye_iris.{}"],
+        vec![
+            "DEF-lid.B.{}",
+            "DEF-lid.B.{}.001",
+            "DEF-lid.B.{}.002",
+            "DEF-lid.B.{}.003",
+        ],
+        vec![
+            "DEF-lid.T.{}",
+            "DEF-lid.T.{}.001",
+            "DEF-lid.T.{}.002",
+            "DEF-lid.T.{}.003",
+        ],
+        vec!["DEF-lip.B.{}", "DEF-lip.B.{}.001"],
+        vec!["DEF-lip.T.{}", "DEF-lip.T.{}.001"],
+        vec!["DEF-jaw.{}", "DEF-jaw.{}.001", "DEF-chin.{}"],
+        vec![
+            "DEF-brow.B.{}",
+            "DEF-brow.B.{}.001",
+            "DEF-brow.B.{}.002",
+            "DEF-brow.B.{}.003",
+        ],
+        vec!["DEF-brow.B.{}.004"],
+        vec!["DEF-brow.T.{}"],
+        vec!["DEF-brow.T.{}.001", "DEF-brow.T.{}.002"],
+        vec!["DEF-brow.T.{}.003"],
+        vec!["DEF-cheek.B.{}", "DEF-cheek.B.{}.001"],
+        vec!["DEF-cheek.T.{}", "DEF-cheek.T.{}.001"],
+        vec!["DEF-forehead.{}"],
+        vec!["DEF-forehead.{}.001"],
+        vec!["DEF-forehead.{}.002"],
+        vec!["DEF-temple.{}"],
+        // Body
+        vec!["DEF-breast.{}"],
+        vec!["DEF-pelvis.{}"],
+        vec!["DEF-shoulder.{}"],
+        // Hands
+        hand(vec!["DEF-palm.01.{}"]),
+        hand(vec!["DEF-palm.02.{}"]),
+        hand(vec!["DEF-palm.03.{}"]),
+        hand(vec!["DEF-palm.04.{}"]),
+        hand(vec![
+            "DEF-thumb.01.{}",
+            "DEF-thumb.02.{}",
+            "DEF-thumb.03.{}",
+        ]),
+        hand(vec![
+            "DEF-f_index.01.{}",
+            "DEF-f_index.02.{}",
+            "DEF-f_index.03.{}",
+        ]),
+        hand(vec![
+            "DEF-f_middle.01.{}",
+            "DEF-f_middle.02.{}",
+            "DEF-f_middle.03.{}",
+        ]),
+        hand(vec![
+            "DEF-f_ring.01.{}",
+            "DEF-f_ring.02.{}",
+            "DEF-f_ring.03.{}",
+        ]),
+        hand(vec![
+            "DEF-f_pinky.01.{}",
+            "DEF-f_pinky.02.{}",
+            "DEF-f_pinky.03.{}",
+        ]),
+    ]
+    .into_iter()
+    .flat_map(|sides| {
+        let mut coll = vec![];
+        for size in 1..=sides.len() {
+            let half_template = sides.clone().into_iter().take(size).collect::<Vec<_>>();
+
+            let (lefts, rights) = base_hierarchy
+                .clone()
+                .into_iter()
+                .chain(half_template.clone().into_iter())
+                .map(|template| {
+                    (
+                        Name::new(template.replace("{}", "L")),
+                        Name::new(template.replace("{}", "R")),
+                    )
+                })
+                .collect::<(Vec<_>, Vec<_>)>();
+
+            coll.push((
+                AnimationTargetId::from_names(rights.iter()),
+                AnimationTargetId::from_names(lefts.iter()),
+            ));
+
+            coll.push((
+                AnimationTargetId::from_names(lefts.iter()),
+                AnimationTargetId::from_names(rights.iter()),
+            ));
+        }
+
+        coll
+    })
+    .collect::<HashMap<AnimationTargetId, AnimationTargetId>>();
 
     animations.mirrored = animations
         .normal
         .iter()
         .map(|(animation, handle)| {
-            let clip = clip_assets.get(handle).unwrap();
+            let graph = graph_assets.get(handle).unwrap();
+            let node_index = graph.nodes().last().unwrap();
+            let node = graph.get(node_index).unwrap();
+            let clip_handle = node.clip.clone().unwrap();
+            let clip = clip_assets.get(&clip_handle).unwrap();
+            let curves = clip.curves();
 
-            let reflected: Box<dyn Struct> = Box::new(clip.to_owned());
-            let ref_paths = reflected.field("paths").unwrap();
-            let paths = ref_paths
-                .downcast_ref::<HashMap<EntityPath, usize>>()
-                .unwrap();
-
-            let mirrored = paths.into_iter().fold(
+            let mirrored = curves.into_iter().fold(
                 AnimationClip::default(),
-                |mut clip_acc, (path, curves_index)| {
-                    let mirrored_path = mirror_path(path.to_owned());
-
-                    for curve in clip.get_curves(*curves_index).unwrap().iter() {
-                        clip_acc.add_curve_to_path(
-                            mirrored_path.clone(),
-                            mirror_curve(curve.to_owned()),
-                        );
+                |mut clip_acc, (uuid, animation_curves)| {
+                    let mirrored_uuid = mirror_map.get(uuid).cloned().unwrap_or(uuid.to_owned());
+                    for curve in animation_curves.iter() {
+                        clip_acc.add_curve_to_target(mirrored_uuid, mirror_curve(curve.to_owned()));
                     }
 
                     clip_acc
                 },
             );
 
-            (animation.to_owned(), clip_assets.add(mirrored))
+            (
+                animation.to_owned(),
+                graph_assets.add(AnimationGraph::from_clip(clip_assets.add(mirrored)).0),
+            )
         })
         .collect();
     *done = true;
-}
-
-fn mirror_path(original: EntityPath) -> EntityPath {
-    EntityPath {
-        parts: original
-            .parts
-            .into_iter()
-            .map(|mut name| {
-                // Transforms
-                // - Bone.L -> Bone.R
-                // - Bone.R -> Bone.L
-                // - Bone.L.001 -> Bone.R.001
-                // - Bone.R.001 -> Bone.L.001
-                // Could be smarter, but I think that risks false positive hits and those seem annoying.
-                // Assumes there are fewer than 100 bones with the same name
-
-                name.mutate(|old_name| {
-                    if let Some(base_name) = old_name.strip_suffix(".L") {
-                        *old_name = base_name.to_owned() + ".R";
-                    } else if let Some(base_name) = old_name.strip_suffix(".R") {
-                        *old_name = base_name.to_owned() + ".L";
-                    } else if old_name.contains(".R.0") {
-                        *old_name = old_name.replace(".R.0", ".L.0");
-                    } else if old_name.contains(".L.0") {
-                        *old_name = old_name.replace(".L.0", ".R.0");
-                    }
-                });
-                name
-            })
-            .collect(),
-    }
 }
 
 fn mirror_curve(original: VariableCurve) -> VariableCurve {

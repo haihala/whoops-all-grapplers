@@ -18,9 +18,9 @@ incremental = true
 opt-level = 3
 
 [workspace.dependencies]
-bevy = "0.13"
-bevy_hanabi = "0.11"
-bevy-inspector-egui = "0.24"
+bevy = "0.14"
+bevy_hanabi = "0.12"
+bevy-inspector-egui = "0.25"
 
 rand = "0.8"
 strum = "0.26"

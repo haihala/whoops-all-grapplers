@@ -95,11 +95,13 @@ fn find_animation_player_entity(
 }
 
 pub fn update_animation(
+    mut commands: Commands,
     animations: Res<Animations>,
     mut main: Query<(&mut AnimationHelper, &Facing, &Stats)>,
     mut players: Query<&mut AnimationPlayer>,
     mut scenes: Query<&mut Transform, With<Handle<Scene>>>,
     maybe_hitstop: Option<ResMut<Hitstop>>,
+    graphs: ResMut<Assets<AnimationGraph>>,
 ) {
     for (mut helper, facing, stats) in &mut main {
         let mut player = players.get_mut(helper.player_entity).unwrap();
@@ -107,16 +109,28 @@ pub fn update_animation(
 
         if let Some(request) = helper.request.take() {
             // New animation set to start
-            let handle = animations.get(
+            let (graph_handle, index) = animations.get(
                 request.animation,
                 &if request.invert {
                     facing.opposite()
                 } else {
                     *facing
                 },
+                &graphs,
             );
-            player
-                .start(handle)
+
+            let graph = graphs.get(&graph_handle).unwrap();
+            dbg!(
+                index,
+                &graph_handle,
+                &graph,
+                graph.nodes().collect::<Vec<_>>()
+            );
+
+            commands.entity(helper.player_entity).insert(graph_handle);
+
+            let animation = player
+                .start(index)
                 .seek_to(request.time_offset as f32 / wag_core::FPS)
                 .set_speed(if request.ignore_action_speed {
                     1.0
@@ -127,7 +141,7 @@ pub fn update_animation(
             // FIXME: There is something wrong with this.
             // First frames of the animation bleed through occasionally
             if request.looping {
-                player.repeat();
+                animation.repeat();
             }
 
             helper.playing = request;
@@ -137,16 +151,17 @@ pub fn update_animation(
             // Looping animations like idle ought to turn when the sides switch. Non looping like moves should not
         } else if *facing != helper.facing && helper.playing.looping {
             // Sideswitch
-            let handle = animations.get(helper.playing.animation, facing);
-            let elapsed = player.elapsed();
-            player.start(handle).seek_to(elapsed).repeat();
+            let (graph, index) = animations.get(helper.playing.animation, facing, &graphs);
+            commands.entity(helper.player_entity).insert(graph);
+            let elapsed = player.playing_animations().next().unwrap().1.elapsed();
+            player.start(index).seek_to(elapsed).repeat();
             helper.facing = *facing;
-        } else if maybe_hitstop.is_none() && player.is_paused() {
+        } else if maybe_hitstop.is_none() && player.all_paused() {
             // Hitstop is over, resume playing
-            player.resume();
-        } else if maybe_hitstop.is_some() && !player.is_paused() {
+            player.resume_all();
+        } else if maybe_hitstop.is_some() && !player.all_paused() {
             // Hitstop started, pause
-            player.pause();
+            player.pause_all();
         }
     }
 }

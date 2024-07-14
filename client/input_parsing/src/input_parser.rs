@@ -275,7 +275,7 @@ mod test {
             let mut app = App::new();
             app.add_systems(Update, parse_input::<TestStream>);
 
-            app.world.spawn((
+            app.world_mut().spawn((
                 TestInputBundle::new(moves.into_iter().collect()),
                 Facing::Right,
             ));
@@ -303,9 +303,9 @@ mod test {
         fn add_input(&mut self, change: InputEvent) {
             for mut reader in self
                 .app
-                .world
+                .world_mut()
                 .query::<&mut TestStream>()
-                .iter_mut(&mut self.app.world)
+                .iter_mut(&mut self.app.world_mut())
             {
                 reader.push(change.clone());
             }
@@ -338,9 +338,9 @@ mod test {
         // Running a query requires mutable access I guess?
         fn get_parser_events(&mut self) -> Vec<ActionId> {
             self.app
-                .world
+                .world_mut()
                 .query::<&InputParser>()
-                .iter(&self.app.world)
+                .iter(&self.app.world())
                 .next()
                 .unwrap()
                 .events

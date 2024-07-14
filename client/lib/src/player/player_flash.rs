@@ -49,7 +49,7 @@ pub struct FlashMaterial {
     // Start at a high binding number to ensure bindings don't conflict
     // with the base material
     #[uniform(100)]
-    pub color: Color,
+    pub color: LinearRgba,
     #[uniform(101)]
     pub speed: f32,
     #[uniform(102)]
@@ -71,7 +71,7 @@ impl MaterialExtension for FlashMaterial {
 impl FlashMaterial {
     pub fn from_request(request: FlashRequest, time: f32) -> Self {
         Self {
-            color: request.color,
+            color: request.color.into(),
             speed: request.speed,
             depth: request.depth,
             duration: request.duration,

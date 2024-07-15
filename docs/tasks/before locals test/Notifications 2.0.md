@@ -10,6 +10,7 @@
 	- [ ] Block meter gain
 	- [ ] Damage numbers
 	- [ ] Combo counter
+	- [ ] Link bonus
 - [ ] Frame traps
 	- [ ] 'trapped' when you get counterhit out of recovery
 	- [ ] 'hard trapped' = 'trapped' + None of your moves would've been fast enough

@@ -3,6 +3,7 @@ mod charge_accumulator;
 mod cinematic_locks;
 mod condition_management;
 mod dynamic_colliders;
+mod followers;
 mod move_activation;
 mod move_advancement;
 mod movement;
@@ -28,8 +29,8 @@ use bevy::{
     ecs::query::QueryData, pbr::ExtendedMaterial, prelude::*, render::view::NoFrustumCulling,
 };
 
+pub use followers::Follow;
 pub use move_activation::MoveBuffer;
-
 pub use player_flash::{ExtendedFlashMaterial, FlashMaterial};
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
@@ -82,6 +83,7 @@ impl Plugin for PlayerPlugin {
                     condition_management::manage_conditions,
                     asset_updater::update_animation,
                     asset_updater::update_audio,
+                    followers::update_followers,
                 )
                     .chain()
                     .in_set(WAGStage::PlayerUpdates),

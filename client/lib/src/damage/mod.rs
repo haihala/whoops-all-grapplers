@@ -29,7 +29,6 @@ impl Plugin for DamagePlugin {
                 hitreg::stun_actions,
                 hitreg::snap_and_switch,
                 defense::timeout_defense_streak,
-                hitboxes::update_followers,
             )
                 .chain()
                 .in_set(WAGStage::HitReg),

@@ -4,7 +4,7 @@ use characters::{ActionEvent, Attack, Hitbox, Lifetime};
 use player_state::PlayerState;
 use wag_core::{Area, Clock, Facing, Joints, Owner, Player};
 
-use crate::{assets::Models, physics::ConstantVelocity};
+use crate::{assets::Models, physics::ConstantVelocity, player::Follow};
 
 use super::HitTracker;
 
@@ -29,12 +29,6 @@ impl From<Lifetime> for LifetimeFlags {
 pub struct HitboxSpawner {
     mark_landers: bool,
     mark_hitters: bool,
-}
-
-#[derive(Debug, Component)]
-pub struct Follow {
-    pub target: Entity,
-    pub offset: Vec3,
 }
 
 #[derive(Debug, Component)]
@@ -210,15 +204,5 @@ pub(super) fn despawn_everything(
 ) {
     for entity in &mut hitboxes {
         commands.entity(entity).insert(DespawnMarker(0));
-    }
-}
-
-// TODO: Think of a better place for this
-pub(super) fn update_followers(
-    mut followers: Query<(&Follow, &mut Transform)>,
-    targets: Query<&GlobalTransform>,
-) {
-    for (follow, mut tf) in &mut followers {
-        tf.translation = targets.get(follow.target).unwrap().translation() + follow.offset;
     }
 }

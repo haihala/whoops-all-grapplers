@@ -1,4 +1,7 @@
-use bevy::{pbr::ExtendedMaterial, prelude::*, scene::SceneInstance, utils::HashMap};
+use bevy::{
+    pbr::ExtendedMaterial, prelude::*, render::view::NoFrustumCulling, scene::SceneInstance,
+    utils::HashMap,
+};
 use characters::FlashRequest;
 use wag_core::{Joint, Joints, Model};
 
@@ -37,7 +40,7 @@ pub fn prep_player_gltf(
     pbr_materials: Res<Assets<StandardMaterial>>,
     scene_manager: Res<SceneSpawner>,
     mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
-    mut cmds: Commands,
+    mut commands: Commands,
 
     mut joints: Query<&mut Joints>,
     children: Query<&Children>,
@@ -45,7 +48,7 @@ pub fn prep_player_gltf(
 ) {
     for (entity, parent, name, instance, update_material) in &unloaded_instances {
         if scene_manager.instance_is_ready(**instance) {
-            cmds.entity(entity).remove::<PlayerModelHook>();
+            commands.entity(entity).remove::<PlayerModelHook>();
             assign_joints(
                 name.cloned().unwrap_or_default().as_str(),
                 entity,
@@ -60,6 +63,8 @@ pub fn prep_player_gltf(
         for (entity, material_handle, name) in
             material_handles.iter_many(scene_manager.iter_instance_entities(**instance))
         {
+            commands.entity(entity).insert(NoFrustumCulling);
+
             let Some(old_material) = pbr_materials.get(material_handle) else {
                 continue;
             };
@@ -75,7 +80,8 @@ pub fn prep_player_gltf(
                 extension: FlashMaterial::from_request(FlashRequest::default(), 0.0),
             });
 
-            cmds.entity(entity)
+            commands
+                .entity(entity)
                 .insert(material.clone())
                 .remove::<Handle<StandardMaterial>>();
         }

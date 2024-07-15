@@ -25,9 +25,7 @@ use crate::{
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
 
-use bevy::{
-    ecs::query::QueryData, pbr::ExtendedMaterial, prelude::*, render::view::NoFrustumCulling,
-};
+use bevy::{ecs::query::QueryData, pbr::ExtendedMaterial, prelude::*};
 
 pub use followers::Follow;
 pub use move_activation::MoveBuffer;
@@ -169,7 +167,6 @@ fn spawn_player(
         .with_children(move |parent| {
             parent.spawn((
                 PlayerModelHook(colors.clone()),
-                NoFrustumCulling,
                 SceneBundle {
                     scene: models[&character.model].clone(),
                     ..default()

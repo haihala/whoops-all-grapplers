@@ -1,7 +1,11 @@
 # Next steps
+- [[Before locals test]]
+	- [[Menus MVP]]
+	- [[Update Gi]]
+	- [[Notifications 2.0]]
 
 # Next big milestone
-- [[Before locals test]] + [[Local feedback round]]
+- [[Local feedback round]]
 
 # Backlog
 Low priority do later tasks

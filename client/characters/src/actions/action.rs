@@ -80,11 +80,7 @@ impl Action {
             None,
             ActionCategory::Forced,
             vec![ActionBlock {
-                events: vec![
-                    animation.into().into(),
-                    // TODO: This causes a bug for throwers. Air throw needs lock
-                    ActionEvent::Lock((duration, false)),
-                ],
+                events: vec![animation.into().into(), ActionEvent::Lock(duration)],
                 exit_requirement: ContinuationRequirement::Time(duration),
                 ..default()
             }],
@@ -95,14 +91,12 @@ impl Action {
     pub fn throw_target(
         animation: impl Into<Animation>,
         duration: usize,
-        sideswitch: bool,
         damage: i32,
         launch_impulse: Vec2,
     ) -> Self {
         Self::throw_target_with_split_duration(
             animation,
-            duration,
-            sideswitch,
+            duration - 1,
             duration,
             damage,
             launch_impulse,
@@ -112,7 +106,6 @@ impl Action {
     pub fn throw_target_with_split_duration(
         animation: impl Into<Animation>,
         lock_duration: usize,
-        lock_sideswitch: bool,
         animation_duration: usize,
         damage: i32,
         launch_impulse: Vec2,
@@ -137,7 +130,7 @@ impl Action {
                     },
                     ActionEvent::Flash(FlashRequest::hit_flash()),
                     ActionEvent::Hitstop,
-                    ActionEvent::Lock((lock_duration, lock_sideswitch)),
+                    ActionEvent::Lock(lock_duration),
                 ],
                 exit_requirement: ContinuationRequirement::Time(animation_duration),
                 ..default()

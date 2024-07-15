@@ -1,8 +1,8 @@
 mod asset_updater;
 mod charge_accumulator;
+mod cinematic_locks;
 mod condition_management;
 mod dynamic_colliders;
-mod locks;
 mod move_activation;
 mod move_advancement;
 mod movement;
@@ -73,7 +73,7 @@ impl Plugin for PlayerPlugin {
                     move_activation::special_cancel,
                     move_activation::move_activator,
                     move_advancement::move_advancement,
-                    locks::handle_locks, // This being the first system after hit move advancement is important
+                    cinematic_locks::handle_cinematics, // This being the first system after hit move advancement is important
                     recovery::stun_recovery,
                     recovery::ground_recovery,
                     movement::movement,

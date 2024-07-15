@@ -1,2 +1,3 @@
 - [ ] Recursive buying
 - [ ] Instant sell = undo = full refund
+- [ ] Use outline and item background colors to mean different things (own/afford status + select status)

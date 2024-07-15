@@ -446,13 +446,14 @@ pub(super) fn snap_and_switch(
     mut query: Query<(
         &mut PlayerState,
         &mut Transform,
+        &mut Facing,
         &Pushbox,
         &mut PlayerVelocity,
     )>,
     players: Res<Players>,
 ) {
     for player in Player::iter() {
-        let [(mut state, mut self_tf, self_pushbox, mut self_velocity), (_, other_tf, other_pushbox, other_velocity)] =
+        let [(mut state, mut self_tf, mut self_facing, self_pushbox, mut self_velocity), (_, other_tf, mut other_facing, other_pushbox, other_velocity)] =
             query
                 .get_many_mut([players.get(player), players.get(player.other())])
                 .unwrap();
@@ -468,16 +469,23 @@ pub(super) fn snap_and_switch(
         });
 
         if actions.contains(&ActionEvent::SnapToOpponent) {
-            let switch = actions.contains(&ActionEvent::SideSwitch);
+            let side_switch = actions.contains(&ActionEvent::SideSwitch);
 
             let raw_diff = self_tf.translation.x - other_tf.translation.x; // This ought to be positive when attacker is on the left
             let width_between = (self_pushbox.width() + other_pushbox.width()) / 2.0;
 
-            let new_position = other_tf.translation
-                + Vec3::X * raw_diff.signum() * width_between * (if switch { -1.0 } else { 1.0 });
-
-            self_tf.translation = new_position;
+            self_tf.translation = other_tf.translation
+                + Vec3::X
+                    * raw_diff.signum()
+                    * width_between
+                    * (if side_switch { -1.0 } else { 1.0 });
             self_velocity.sync_with(&other_velocity);
+
+            if side_switch {
+                // Automatic side switcher won't run in time, animations will be fucked
+                // Easier to just do this instead of fixing the system execution order
+                (*self_facing, *other_facing) = (*other_facing, *self_facing);
+            }
         }
     }
 }
@@ -487,7 +495,7 @@ pub(super) fn stun_actions(
     clock: Res<Clock>,
 ) {
     for (mut state, mut velocity, facing) in &mut query {
-        if state.unlock_frame().is_some() {
+        if state.active_cinematic().is_some() {
             continue;
         }
 

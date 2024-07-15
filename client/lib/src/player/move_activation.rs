@@ -348,7 +348,7 @@ pub(super) fn move_activator(
             continue;
         };
 
-        if state.unlock_frame().is_some() {
+        if state.active_cinematic().is_some() {
             continue;
         }
 

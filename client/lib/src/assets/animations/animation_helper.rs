@@ -119,14 +119,6 @@ pub fn update_animation(
                 &graphs,
             );
 
-            let graph = graphs.get(&graph_handle).unwrap();
-            dbg!(
-                index,
-                &graph_handle,
-                &graph,
-                graph.nodes().collect::<Vec<_>>()
-            );
-
             commands.entity(helper.player_entity).insert(graph_handle);
 
             let animation = player
@@ -140,6 +132,7 @@ pub fn update_animation(
 
             // FIXME: There is something wrong with this.
             // First frames of the animation bleed through occasionally
+            // It seems like the animation holds the first frame after it's done?
             if request.looping {
                 animation.repeat();
             }

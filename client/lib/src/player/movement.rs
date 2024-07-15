@@ -7,7 +7,7 @@ use wag_core::{Facing, StickPosition};
 
 pub fn movement(mut query: Query<(&InputParser, &mut PlayerState, &Facing)>) {
     for (reader, mut state, facing) in &mut query {
-        if state.unlock_frame().is_some() {
+        if state.active_cinematic().is_some() {
             continue;
         }
 

@@ -14,12 +14,17 @@ enum MainState {
     Stand(StandState),
     Crouch(CrouchState),
     Ground(usize),
-    Locked((usize, bool)),
+}
+
+#[derive(Reflect, Debug, Clone)]
+pub struct CinematicState {
+    return_frame: usize,
 }
 
 #[derive(Component, Debug, Clone)]
 pub struct PlayerState {
     main: MainState,
+    cinematic_state: Option<CinematicState>,
     pub free_since: Option<usize>,
     conditions: Vec<StatusCondition>,
     unprocessed_events: Vec<ActionEvent>,
@@ -29,6 +34,7 @@ impl Default for PlayerState {
     fn default() -> Self {
         Self {
             main: MainState::Stand(StandState::default()),
+            cinematic_state: None,
             free_since: Some(0),
             conditions: vec![],
             unprocessed_events: vec![],
@@ -219,7 +225,6 @@ impl PlayerState {
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Idle),
             MainState::Air(_) => MainState::Air(AirState::Idle),
             MainState::Ground(_) => MainState::Crouch(CrouchState::Idle),
-            MainState::Locked(_) => panic!("Special case, handled elsewhere"),
         };
         self.free_since = Some(frame);
     }
@@ -292,29 +297,17 @@ impl PlayerState {
             None
         }
     }
-    pub fn unlock_frame(&self) -> Option<(usize, bool)> {
-        if let MainState::Locked(lock) = self.main {
-            Some(lock)
-        } else {
-            None
-        }
+    pub fn active_cinematic(&self) -> Option<usize> {
+        self.cinematic_state.clone().map(|cs| cs.return_frame)
     }
-    pub fn lock(&mut self, frame: usize, sideswitch: bool) {
-        self.main = MainState::Locked((frame, sideswitch));
+
+    pub fn start_cinematic(&mut self, frame: usize) {
+        self.cinematic_state = Some(CinematicState {
+            return_frame: frame,
+        });
     }
-    pub fn unlock(&mut self, airborne: bool) {
-        self.main = match self.main {
-            // At the moment, locking is only used for throws
-            // Later on it could be used for supers and the likes
-            MainState::Locked((frame, _)) => {
-                if airborne {
-                    MainState::Air(AirState::Freefall)
-                } else {
-                    MainState::Ground(frame)
-                }
-            }
-            _ => panic!("Unlocking while {:?}", self.main),
-        };
+    pub fn end_cinematic(&mut self) {
+        self.cinematic_state = None;
     }
 
     // Walking
@@ -361,7 +354,7 @@ impl PlayerState {
             MainState::Stand(_) => character.standing_pushbox,
             MainState::Crouch(_) => character.crouching_pushbox,
             MainState::Air(_) => character.air_pushbox,
-            MainState::Ground(_) | MainState::Locked(_) => character.crouching_pushbox, // TODO: These could have it's own box
+            MainState::Ground(_) => character.crouching_pushbox, // TODO: These could have it's own box
         }
     }
     pub fn add_condition(&mut self, condition: StatusCondition) {

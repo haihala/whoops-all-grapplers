@@ -8,6 +8,8 @@ use crate::player::{ExtendedFlashMaterial, FlashMaterial};
 pub struct Models(pub HashMap<Model, Handle<Scene>>);
 
 pub(super) fn model_paths() -> HashMap<Model, &'static str> {
+    // TODO: This could use the bevy 0.14 typed asset handles instead of static strings
+    // So far, I think that is a waste of effort.
     vec![
         (Model::Dummy, "dummy.glb#Scene0"),
         (Model::Mizku, "mizuki.glb#Scene0"),

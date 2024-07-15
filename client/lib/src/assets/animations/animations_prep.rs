@@ -1,4 +1,4 @@
-use bevy::{animation::AnimationTargetId, prelude::*, utils::HashMap};
+use bevy::{animation::AnimationTargetId, asset::AssetPath, prelude::*, utils::HashMap};
 
 use wag_core::{Animation, DummyAnimation, Facing, MizkuAnimation};
 
@@ -268,7 +268,7 @@ fn mirror_curve(original: VariableCurve) -> VariableCurve {
     }
 }
 
-pub fn animation_paths() -> HashMap<Animation, String> {
+pub fn animation_paths() -> HashMap<Animation, AssetPath<'static>> {
     // Every time a new animation is added, other animations may get affected
     // They are alphabetically ordered
 
@@ -368,10 +368,15 @@ pub fn animation_paths() -> HashMap<Animation, String> {
 fn load_glb_animations(
     file_path: String,
     animations: Vec<impl Into<Animation>>,
-) -> HashMap<Animation, String> {
+) -> HashMap<Animation, AssetPath<'static>> {
     animations
         .into_iter()
         .enumerate()
-        .map(|(index, animation)| (animation.into(), format!("{file_path}#Animation{index}")))
+        .map(|(index, animation)| {
+            (
+                animation.into(),
+                GltfAssetLabel::Animation(index).from_asset(file_path.to_owned()),
+            )
+        })
         .collect()
 }

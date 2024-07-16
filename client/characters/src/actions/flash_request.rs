@@ -25,7 +25,7 @@ impl Default for FlashRequest {
         Self {
             color: METER_BAR_FULL_SEGMENT_COLOR,
             speed: 30.0,
-            depth: 0.5,
+            depth: 1.0,
             duration: 0.5,
         }
     }

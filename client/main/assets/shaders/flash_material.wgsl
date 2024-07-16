@@ -1,7 +1,7 @@
 #import bevy_pbr::{
     pbr_fragment::pbr_input_from_standard_material,
     pbr_functions::alpha_discard,
-    mesh_view_bindings::globals,
+    mesh_view_bindings::{globals, view},
 }
 
 #ifdef PREPASS_PIPELINE
@@ -41,9 +41,10 @@ fn fragment(
 
     var flash_age = (globals.time - flash_start);
     var age_damp = step(flash_age, flash_duration);
-    var ratio = flash_depth * pow(cos(globals.time * flash_speed), 2.0);
-    pbr_input.material.base_color = mix(pbr_input.material.base_color, flash_color, age_damp * ratio);
+    var norm = dot(in.world_normal, normalize(view.world_position.xyz - in.world_position.xyz));
+    var norm_damp = pow(1-norm, 4.0);
 
+    var ratio = flash_depth * pow(cos(globals.time * flash_speed), 2.0);
 #ifdef PREPASS_PIPELINE
     // in deferred mode we can't modify anything after that, as lighting is run in a separate fullscreen shader.
     let out = deferred_output(in, pbr_input);
@@ -58,6 +59,13 @@ fn fragment(
 
     // we can optionally modify the final result here
 #endif
+
+    out.color = mix(
+        out.color,
+        flash_color,
+        norm_damp * age_damp * ratio
+    );
+
 
     return out;
 }

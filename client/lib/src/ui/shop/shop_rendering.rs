@@ -35,7 +35,8 @@ pub fn update_top_bar_moneys(
 
 pub fn update_slot_visuals(
     player_query: Query<(&Inventory, &Character, &Player)>,
-    mut item_query: Query<(&ShopItem, &Owner, Entity, &mut BackgroundColor)>,
+    item_query: Query<(&ShopItem, &Owner, Entity, &Children)>,
+    mut colors: Query<&mut BackgroundColor>,
     shops: Res<Shops>,
 ) {
     for (inventory, character, player) in &player_query {
@@ -48,40 +49,37 @@ pub fn update_slot_visuals(
             .unwrap();
         let selected_item = character.items.get(&selected_item_id).unwrap();
 
-        for (shop_item, owner, item_entity, mut color) in &mut item_query {
+        for (shop_item, owner, item_entity, children) in &item_query {
             if *player != owner.0 {
                 continue;
             }
 
-            if item_entity == selected_slot {
-                *color = ITEM_SLOT_HIGHLIGHT_COLOR.into();
-                continue;
-            }
+            let [mut wrapper_color, mut child_color] =
+                colors.get_many_mut([item_entity, children[0]]).unwrap();
 
             let item_id = **shop_item;
-
-            if let ItemCategory::Upgrade(ref components) = selected_item.category {
-                if components.contains(&item_id) {
-                    *color = ITEM_SLOT_COMPONENT_COLOR.into();
-                    continue;
-                }
-            }
-
             let item = character.items.get(&item_id).unwrap();
 
-            if let ItemCategory::Upgrade(ref components) = item.category {
-                if components.contains(&selected_item_id) {
-                    *color = ITEM_SLOT_UPGRADE_COLOR.into();
-                    continue;
+            *wrapper_color = if item_entity == selected_slot {
+                ITEM_SLOT_HIGHLIGHT_COLOR
+            } else {
+                match (&selected_item.category, &item.category) {
+                    (ItemCategory::Upgrade(components), _) if components.contains(&item_id) => {
+                        ITEM_SLOT_COMPONENT_COLOR
+                    }
+                    (_, ItemCategory::Upgrade(ref components))
+                        if components.contains(&selected_item_id) =>
+                    {
+                        ITEM_SLOT_UPGRADE_COLOR
+                    }
+                    _ => ITEM_SLOT_DEFAULT_COLOR,
                 }
             }
+            .into();
 
-            if inventory.contains(&item_id) {
-                *color = ITEM_SLOT_OWNED_COLOR.into();
-                continue;
-            }
-
-            *color = if inventory.can_buy(item_id, item) {
+            *child_color = if inventory.contains(&item_id) {
+                ITEM_SLOT_OWNED_COLOR
+            } else if inventory.can_buy(item_id, item) {
                 ITEM_SLOT_DEFAULT_COLOR
             } else {
                 ITEM_SLOT_DISABLED_COLOR

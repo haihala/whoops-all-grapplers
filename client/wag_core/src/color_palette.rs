@@ -28,7 +28,6 @@ pub const ITEM_SLOT_OWNED_COLOR: Color = Color::Srgba(LIME);
 pub const SHOP_TIMER_BACKGROUND_COLOR: Color = Color::srgba(0.0, 0.0, 0.0, 0.8);
 pub const SHOP_DIVIDER_COLOR: Color = Color::BLACK;
 pub const SHOP_DARK_BACKGROUND_COLOR: Color = Color::srgba(0.25, 0.25, 0.25, 0.25);
-pub const SHOP_ICON_BACKGROUND_COLOR: Color = Color::WHITE;
 
 // Box visualizations
 pub const HITBOX_VISUALIZATION_COLOR: Color = Color::Srgba(RED);

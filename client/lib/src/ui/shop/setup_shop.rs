@@ -5,8 +5,7 @@ use wag_core::{
     GameState, Icon, ItemId, OnlyShowInGameState, Owner, Player, Players, GENERIC_TEXT_COLOR,
     ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
     ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR,
-    SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_ICON_BACKGROUND_COLOR,
-    SHOP_TIMER_BACKGROUND_COLOR,
+    SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_TIMER_BACKGROUND_COLOR,
 };
 
 use crate::assets::{Fonts, Icons};
@@ -492,13 +491,12 @@ fn setup_shop_item(
         .spawn((
             NodeBundle {
                 style: Style {
-                    padding: UiRect::all(Val::Px(3.0)),
+                    padding: UiRect::all(Val::Px(10.0)),
                     aspect_ratio: Some(1.0),
                     max_height: Val::Px(100.0),
                     max_width: Val::Px(100.0),
                     ..default()
                 },
-                background_color: SHOP_ICON_BACKGROUND_COLOR.into(),
                 ..default()
             },
             ShopItem(id),

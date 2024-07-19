@@ -66,9 +66,9 @@ fn move_selection(shop: &mut Shop, direction: CardinalDiretion) {
     let row = shop.selected_index / SHOP_COLUMNS;
     let col = shop.selected_index % SHOP_COLUMNS;
 
-    let selected_row_last_col = if shop.selected_index + SHOP_COLUMNS > shop.max_index {
+    let selected_row_last_col = if (row + 1) * SHOP_COLUMNS > shop.max_index {
         // Incomplete row
-        shop.max_index % SHOP_COLUMNS - 1
+        shop.max_index - row * SHOP_COLUMNS
     } else {
         SHOP_COLUMNS - 1
     };

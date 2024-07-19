@@ -223,6 +223,8 @@ fn setup_shop_root(
                     flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::FlexStart,
                     row_gap: Val::Percent(0.5),
+
+                    flex_basis: Val::Percent(100.0),
                     ..default()
                 },
                 ..default()
@@ -303,6 +305,7 @@ fn setup_info_panel(
                 background_color: SHOP_DARK_BACKGROUND_COLOR.into(),
                 style: Style {
                     padding: UiRect::all(Val::Px(3.0)),
+                    height: Val::Percent(25.0),
                     ..default()
                 },
                 ..default()
@@ -322,6 +325,7 @@ fn big_icon(commands: &mut Commands, parent: Entity) -> Entity {
             ImageBundle {
                 style: Style {
                     width: Val::Px(200.0),
+                    max_width: Val::Px(200.0),
                     flex_shrink: 0.0,
                     ..default()
                 },

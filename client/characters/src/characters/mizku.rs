@@ -50,7 +50,6 @@ pub fn mizku() -> Character {
             (
                 ResourceType::Sharpness,
                 WAGResource {
-                    max: Some(10),
                     render_instructions: RenderInstructions::Counter(CounterVisual {
                         label: "Sharpness",
                     }),
@@ -128,7 +127,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                 ),
-                17,
+                16,
             ),
         ),
         (
@@ -225,7 +224,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ..default()
                     },
                 ),
-                42,
+                40,
             ),
         ),
         (
@@ -241,7 +240,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     },
                     ActionBlock {
                         events: vec![],
-                        exit_requirement: ContinuationRequirement::Time(48),
+                        exit_requirement: ContinuationRequirement::Time(46),
                         cancel_policy: CancelRule::neutral_normal_recovery(),
                         mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                             original.events.push(
@@ -647,7 +646,7 @@ fn take_sword_stance(strong: bool) -> Action {
 
     if strong {
         events.extend(vec![
-            ModifyResource(ResourceType::Meter, 20),
+            ModifyResource(ResourceType::Meter, -20),
             Condition(StatusCondition {
                 flag: StatusFlag::Intangible,
                 // 10f of sword stance + 11f of rising sun
@@ -670,7 +669,7 @@ fn take_sword_stance(strong: bool) -> Action {
                 ..default()
             },
             ActionBlock {
-                exit_requirement: ContinuationRequirement::Time(47),
+                exit_requirement: ContinuationRequirement::Time(35),
                 cancel_policy: CancelRule::specific(vec![
                     ActionId::Mizku(MizkuActionId::Sharpen),
                     ActionId::Mizku(MizkuActionId::ViperStrike),
@@ -690,7 +689,7 @@ fn sharpen() -> Action {
         vec![
             ActionBlock {
                 events: vec![MizkuAnimation::Sharpen.into()],
-                exit_requirement: ContinuationRequirement::Time(45),
+                exit_requirement: ContinuationRequirement::Time(43),
                 ..default()
             },
             ActionBlock {
@@ -727,7 +726,7 @@ fn viper_strike() -> Action {
             },
             ActionBlock {
                 events: vec![],
-                exit_requirement: ContinuationRequirement::Time(67),
+                exit_requirement: ContinuationRequirement::Time(65),
                 mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                     original.events.push(
                         Attack::strike(
@@ -780,7 +779,7 @@ fn rising_sun() -> Action {
                 ..default()
             },
             ActionBlock {
-                exit_requirement: ContinuationRequirement::Time(79),
+                exit_requirement: ContinuationRequirement::Time(77),
                 mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                     original.events.push(
                         Attack::strike(

@@ -43,6 +43,17 @@ pub const HIT_FLASH_COLOR: Color = Color::WHITE;
 pub const GI_PARRY_FLASH_COLOR: Color = Color::Srgba(ALICE_BLUE);
 pub const TRACK_SPIKES_FLASH_COLOR: Color = Color::Srgba(YELLOW);
 
+// Shader effects
+pub const HIT_SPARK_BASE_COLOR: Color = Color::WHITE;
+pub const HIT_SPARK_MID_COLOR: Color = Color::srgb(1.0, 1.0, 0.1);
+pub const HIT_SPARK_EDGE_COLOR: Color = Color::srgb(1.0, 0.2, 0.05);
+
+pub const BLOCK_EFFECT_BASE_COLOR: Color = Color::WHITE;
+pub const BLOCK_EFFECT_EDGE_COLOR: Color = Color::srgb(0.1, 0.2, 1.0);
+
+pub const CLASH_SPARK_BASE_COLOR: Color = Color::srgb(1.0, 0.5, 1.0);
+pub const CLASH_SPARK_EDGE_COLOR: Color = Color::srgb(0.9, 0.1, 0.9);
+
 // Player colors
 pub const MIZUKI_ALT_SHIRT_COLOR: Color = Color::WHITE;
 pub const MIZUKI_ALT_JEANS_COLOR: Color = Color::Srgba(MIDNIGHT_BLUE);

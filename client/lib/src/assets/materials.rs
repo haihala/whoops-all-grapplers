@@ -4,6 +4,10 @@ use bevy::{
     render::render_resource::{AsBindGroup, ShaderRef},
 };
 use characters::FlashRequest;
+use wag_core::{
+    BLOCK_EFFECT_BASE_COLOR, BLOCK_EFFECT_EDGE_COLOR, CLASH_SPARK_BASE_COLOR,
+    CLASH_SPARK_EDGE_COLOR, HIT_SPARK_BASE_COLOR, HIT_SPARK_EDGE_COLOR, HIT_SPARK_MID_COLOR,
+};
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct HitSparkMaterial {
@@ -25,9 +29,9 @@ impl HitSparkMaterial {
 impl Default for HitSparkMaterial {
     fn default() -> Self {
         Self {
-            edge_color: LinearRgba::rgb(1.0, 0.2, 0.05),
-            mid_color: LinearRgba::rgb(1.0, 1.0, 0.1),
-            base_color: LinearRgba::rgb(1.0, 1.0, 1.0),
+            edge_color: HIT_SPARK_EDGE_COLOR.into(),
+            mid_color: HIT_SPARK_MID_COLOR.into(),
+            base_color: HIT_SPARK_BASE_COLOR.into(),
             start_time: 0.0,
         }
     }
@@ -62,8 +66,8 @@ impl BlockEffectMaterial {
 impl Default for BlockEffectMaterial {
     fn default() -> Self {
         Self {
-            edge_color: LinearRgba::rgb(0.1, 0.2, 1.0),
-            base_color: LinearRgba::rgb(1.0, 1.0, 1.0),
+            edge_color: BLOCK_EFFECT_EDGE_COLOR.into(),
+            base_color: BLOCK_EFFECT_BASE_COLOR.into(),
             speed: 1.5,
             start_time: 0.0,
         }
@@ -100,8 +104,8 @@ impl ClashSparkMaterial {
 impl Default for ClashSparkMaterial {
     fn default() -> Self {
         Self {
-            edge_color: LinearRgba::rgb(0.9, 0.1, 0.9),
-            base_color: LinearRgba::rgb(1.0, 0.5, 1.0),
+            edge_color: CLASH_SPARK_EDGE_COLOR.into(),
+            base_color: CLASH_SPARK_BASE_COLOR.into(),
             speed: 1.2,
             start_time: 0.0,
         }

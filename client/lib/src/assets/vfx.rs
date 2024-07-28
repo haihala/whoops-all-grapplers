@@ -53,7 +53,7 @@ pub fn handle_requests(
     for VfxRequest { effect, position } in particles.queue.drain(..).collect::<Vec<_>>().into_iter()
     {
         let mesh = particles.meshes.get(&effect).unwrap().clone();
-        let transform = Transform::from_translation(position + Vec3::Z);
+        let transform = Transform::from_translation(position.with_y(position.y.max(0.8)) + Vec3::Z);
         match effect {
             VisualEffect::Hit => {
                 let material_handle = particles.hit_spark_material.clone();

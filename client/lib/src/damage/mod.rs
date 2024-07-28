@@ -14,6 +14,8 @@ pub use hitboxes::HitboxSpawner;
 
 use wag_core::{GameState, WAGStage};
 
+use crate::entity_management::despawn_marked;
+
 pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
@@ -25,7 +27,7 @@ impl Plugin for DamagePlugin {
                 hitreg::clash_parry,
                 hitreg::detect_hits.pipe(hitreg::apply_connections),
                 hitboxes::handle_despawn_flags,
-                hitboxes::despawn_marked,
+                despawn_marked,
                 hitreg::stun_actions,
                 hitreg::snap_and_switch,
                 defense::timeout_defense_streak,

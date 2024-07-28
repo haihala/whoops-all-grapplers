@@ -1,7 +1,7 @@
-- [ ] Revisit current ones
-	- [ ] Hit
-	- [ ] Block
-	- [ ] Clash (make particles go into a direction to indicate meter gain)
+- [x] Revisit current ones
+	- [x] Hit
+	- [x] Block
+	- [x] Clash (make particles go into a direction to indicate meter gain)
 - [ ] Add
 	- [ ] Throw tech
 - [ ] Maybe add some of [[Notifications 2.0]] as particle effects

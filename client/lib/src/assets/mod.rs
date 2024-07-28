@@ -2,14 +2,16 @@ use bevy::{prelude::*, utils::HashMap};
 
 mod animations;
 mod loaders;
+mod materials;
 mod models;
-mod particles;
 mod sounds;
+mod vfx;
 
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
+pub use materials::{ExtendedFlashMaterial, FlashMaterial};
 pub use models::{Models, PlayerModelHook};
-pub use particles::{ParticleRequest, Particles};
 pub use sounds::Sounds;
+pub use vfx::{Vfx, VfxRequest};
 
 use wag_core::{GameState, Icon};
 
@@ -29,6 +31,12 @@ pub struct AssetsPlugin;
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<AssetsLoading>()
+            .add_plugins((
+                MaterialPlugin::<materials::HitSparkMaterial>::default(),
+                MaterialPlugin::<materials::BlockEffectMaterial>::default(),
+                MaterialPlugin::<materials::ClashSparkMaterial>::default(),
+                MaterialPlugin::<ExtendedFlashMaterial>::default(),
+            ))
             .add_systems(
                 PreStartup,
                 (
@@ -37,7 +45,7 @@ impl Plugin for AssetsPlugin {
                     loaders::models,
                     loaders::animations,
                     loaders::sounds,
-                    loaders::particles,
+                    loaders::vfx,
                 ),
             )
             .add_systems(
@@ -54,7 +62,7 @@ impl Plugin for AssetsPlugin {
                 (
                     animations::update_animation,
                     sounds::play_queued,
-                    particles::handle_requests,
+                    vfx::handle_requests,
                 ),
             );
     }

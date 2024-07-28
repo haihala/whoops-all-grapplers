@@ -4,12 +4,11 @@ use characters::{ActionEvent, Attack, Hitbox, Lifetime};
 use player_state::PlayerState;
 use wag_core::{Area, Clock, Facing, Joints, Owner, Player};
 
-use crate::{assets::Models, physics::ConstantVelocity, player::Follow};
+use crate::{
+    assets::Models, entity_management::DespawnMarker, physics::ConstantVelocity, player::Follow,
+};
 
 use super::HitTracker;
-
-#[derive(Component)]
-pub(super) struct DespawnMarker(usize);
 
 #[derive(Component)]
 pub(super) struct LifetimeFlags {
@@ -158,18 +157,6 @@ pub(super) fn spawn_new_hitboxes(
                 *player,
                 tfs.get(root).unwrap().translation(),
             );
-        }
-    }
-}
-
-pub(super) fn despawn_marked(
-    mut commands: Commands,
-    clock: Res<Clock>,
-    marks: Query<(Entity, &DespawnMarker)>,
-) {
-    for (marked, marker) in &marks {
-        if marker.0 < clock.frame {
-            commands.entity(marked).despawn_recursive();
         }
     }
 }

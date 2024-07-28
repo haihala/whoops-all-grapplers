@@ -5,7 +5,7 @@ use bevy::{
 use characters::FlashRequest;
 use wag_core::{Joint, Joints, Model};
 
-use crate::player::{ExtendedFlashMaterial, FlashMaterial};
+use super::{ExtendedFlashMaterial, FlashMaterial};
 
 #[derive(Debug, Resource, Deref, DerefMut)]
 pub struct Models(pub HashMap<Model, Handle<Scene>>);

@@ -13,7 +13,7 @@ use wag_core::{
 };
 
 use crate::{
-    assets::{ParticleRequest, Particles, Sounds},
+    assets::{Sounds, Vfx, VfxRequest},
     physics::{PlayerVelocity, Pushbox},
     ui::Notifications,
 };
@@ -69,7 +69,7 @@ pub(super) fn clash_parry(
     )>,
     clock: Res<Clock>,
     mut sounds: ResMut<Sounds>,
-    mut particles: ResMut<Particles>,
+    mut particles: ResMut<Vfx>,
     mut owners: Query<&mut WAGResources>,
     players: Res<Players>,
 ) {
@@ -99,7 +99,7 @@ pub(super) fn clash_parry(
         {
             // Hitboxes collide
             sounds.play(SoundEffect::Clash);
-            particles.spawn(ParticleRequest {
+            particles.spawn(VfxRequest {
                 effect: VisualEffect::Clash,
                 position: overlap.center().extend(0.0),
             });
@@ -251,7 +251,7 @@ pub(super) fn apply_connections(
     clock: Res<Clock>,
     mut players: Query<HitPlayerQuery>,
     mut sounds: ResMut<Sounds>,
-    mut particles: ResMut<Particles>,
+    mut particles: ResMut<Vfx>,
 ) {
     if hits.len() >= 2 {
         if hits
@@ -266,7 +266,7 @@ pub(super) fn apply_connections(
                 notifications.add(*player.player, "Throw clash".to_owned());
             }
 
-            particles.spawn(ParticleRequest {
+            particles.spawn(VfxRequest {
                 effect: VisualEffect::Clash,
                 position: hits
                     .iter()
@@ -379,7 +379,7 @@ pub(super) fn apply_connections(
         attacker.state.add_actions(attacker_actions);
         defender.state.add_actions(defender_actions);
         sounds.play(sound);
-        particles.spawn(ParticleRequest {
+        particles.spawn(VfxRequest {
             effect: particle,
             // TODO: This can be refined more
             position: hit.overlap.center().extend(0.0),

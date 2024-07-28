@@ -25,11 +25,10 @@ use crate::{
     physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
 
-use bevy::{ecs::query::QueryData, pbr::ExtendedMaterial, prelude::*};
+use bevy::{ecs::query::QueryData, prelude::*};
 
 pub use followers::Follow;
 pub use move_activation::MoveBuffer;
-pub use player_flash::{ExtendedFlashMaterial, FlashMaterial};
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
@@ -94,10 +93,7 @@ impl Plugin for PlayerPlugin {
                     dynamic_colliders::update_colliders,
                 )
                     .in_set(WAGStage::PlayerUpdates),
-            )
-            .add_plugins(MaterialPlugin::<
-                ExtendedMaterial<StandardMaterial, FlashMaterial>,
-            >::default());
+            );
     }
 }
 

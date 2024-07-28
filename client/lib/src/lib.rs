@@ -7,6 +7,7 @@ mod camera;
 mod damage;
 mod dev;
 mod economy;
+mod entity_management;
 mod physics;
 mod player;
 mod stage;
@@ -19,33 +20,18 @@ use wag_core::WagArgs;
 // Only thing exported out of this crate
 #[derive(Debug)]
 pub struct WAGLib {
-    enable_hanabi: bool,
     args: WagArgs,
 }
 
 impl WAGLib {
-    pub fn integration() -> Self {
-        Self {
-            args: WagArgs::default(),
-            enable_hanabi: false,
-        }
-    }
     pub fn with_args(args: WagArgs) -> Self {
-        Self {
-            args,
-            enable_hanabi: true,
-        }
+        Self { args }
     }
 }
 
 impl PluginGroup for WAGLib {
     fn build(self) -> PluginGroupBuilder {
         let mut group = PluginGroupBuilder::start::<Self>();
-
-        // Order matters here, loaded in the defined order
-        if self.enable_hanabi {
-            group = group.add(bevy_hanabi::HanabiPlugin);
-        }
 
         group = group
             .add(wag_core::TimePlugin) // Has to be first, since it defines labels for ordering other systems

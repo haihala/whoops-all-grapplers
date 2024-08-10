@@ -4,6 +4,7 @@ mod cinematic_locks;
 mod condition_management;
 mod dynamic_colliders;
 mod followers;
+mod meter_over_time;
 mod move_activation;
 mod move_advancement;
 mod movement;
@@ -81,6 +82,7 @@ impl Plugin for PlayerPlugin {
                     asset_updater::update_animation,
                     asset_updater::update_audio,
                     followers::update_followers,
+                    meter_over_time::meter_over_time,
                 )
                     .chain()
                     .in_set(WAGStage::PlayerUpdates),

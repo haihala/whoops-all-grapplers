@@ -23,7 +23,7 @@ pub struct Stats {
 
     // Actions
     pub action_speed_multiplier: f32,
-    pub link_bonus: i32,
+    pub meter_per_second: f32,
 
     // Direct Influence
     pub direct_influence: f32,
@@ -66,7 +66,7 @@ impl Stats {
             opener_stun_frames: 0,
 
             action_speed_multiplier: 1.0,
-            link_bonus: 0,
+            meter_per_second: 0.0,
 
             direct_influence: 0.0,
 
@@ -93,7 +93,7 @@ impl Stats {
         self.opener_stun_frames += rhs.opener_stun_frames;
 
         self.action_speed_multiplier *= rhs.action_speed_multiplier;
-        self.link_bonus += rhs.link_bonus;
+        self.meter_per_second += rhs.meter_per_second;
 
         self.direct_influence += rhs.direct_influence;
 

@@ -152,9 +152,9 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             ItemId::Stopwatch,
             Item {
                 cost: 200,
-                explanation: "Gain meter for timing links well\n\nNot my tempo!".into(),
+                explanation: "Gain meter over time\n\nTick tock.".into(),
                 effect: Stats {
-                    link_bonus: 5,
+                    meter_per_second: 2.0,
                     ..Stats::identity()
                 },
                 icon: Icon::Stopwatch,

@@ -2,8 +2,7 @@ use bevy::prelude::*;
 use std::cmp::Ordering;
 
 use characters::{
-    Action, ActionEvent, ActionRequirement, Character, Inventory, ResourceType, Situation,
-    WAGResources,
+    Action, ActionEvent, ActionRequirement, Character, Inventory, Situation, WAGResources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -64,14 +63,6 @@ impl LinkPrecision {
         }
     }
 
-    fn meter_gain(&self) -> Option<i32> {
-        match self {
-            LinkPrecision::Perfect => Some(3),
-            LinkPrecision::Good(_) => Some(1),
-            LinkPrecision::Fine(_) => None,
-        }
-    }
-
     fn message(&self) -> String {
         match self {
             LinkPrecision::Perfect => "Perfect link!".to_owned(),
@@ -94,10 +85,6 @@ impl Link {
             correction: freedom_frame,
             precision: LinkPrecision::from_frame_diff(error),
         }
-    }
-
-    pub(super) fn meter_gain(&self) -> Option<i32> {
-        self.precision.meter_gain()
     }
 
     pub(super) fn message(&self) -> String {
@@ -341,7 +328,7 @@ pub(super) fn move_activator(
     )>,
 ) {
     // Activate and clear activating move
-    for (mut buffer, mut state, mut properties, player, character, stats, inventory, parser) in
+    for (mut buffer, mut state, properties, player, character, stats, inventory, parser) in
         &mut query
     {
         let Some(activation) = buffer.activation.take() else {
@@ -356,13 +343,6 @@ pub(super) fn move_activator(
             ActivationType::Link(link) => {
                 if combo.is_some() {
                     notifications.add(*player, link.message());
-
-                    if let Some(meter_gain) = link.meter_gain() {
-                        properties
-                            .get_mut(ResourceType::Meter)
-                            .unwrap()
-                            .gain(meter_gain * stats.link_bonus);
-                    }
                 }
 
                 // Autocorrect so that the move starts sooner.

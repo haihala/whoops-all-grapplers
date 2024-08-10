@@ -1,0 +1,2 @@
+- Remove [[Link bonus]]
+- Remove offset snaps in move activation

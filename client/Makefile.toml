@@ -16,7 +16,7 @@ args = ["fmt", "--all", "--", "--check"]
 [tasks.clippy]
 install_crate = "clippy"
 command = "cargo"
-args = ["clippy", "--all", "--", "-D", "warnings"]
+args = ["clippy", "--all", "--", "-D", "warnings", "--emit=dep-info,metadata"]
 
 [tasks.test]
 command = "cargo"
@@ -27,8 +27,11 @@ install_crate = "cargo-udeps"
 command = "cargo"
 args = ["udeps"]
 
-[tasks.validate]
-run_task = { name = ["format", "clippy", "test", "udeps"] }
+[tasks.quick-validate]
+run_task = { name = ["format", "clippy", "test"] }
+
+[tasks.full-validate]
+run_task = { name = ["build", "format", "clippy", "test", "udeps"] }
 
 [tasks.dev]
 command = "cargo"

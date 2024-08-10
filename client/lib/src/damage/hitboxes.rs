@@ -5,7 +5,7 @@ use player_state::PlayerState;
 use wag_core::{Area, Clock, Facing, Joints, Owner, Player};
 
 use crate::{
-    assets::Models, entity_management::DespawnMarker, physics::ConstantVelocity, player::Follow,
+    assets::Models, entity_management::DespawnMarker, movement::ConstantVelocity, movement::Follow,
 };
 
 use super::HitTracker;

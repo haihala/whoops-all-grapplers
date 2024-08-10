@@ -5,7 +5,7 @@ use wag_core::{
     Facing, GameState, OnlyShowInGameState, Player, WagArgs, LOADING_SCREEN_BACKGROUND,
 };
 
-use crate::physics::ARENA_WIDTH;
+use crate::movement::ARENA_WIDTH;
 
 #[derive(Debug, Component, Default)]
 pub struct CameraWrapper;

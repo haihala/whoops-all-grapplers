@@ -4,7 +4,7 @@ use wag_core::{
     HITBOX_VISUALIZATION_COLOR, HURTBOX_VISUALIZATION_COLOR, PUSHBOX_VISUALIZATION_COLOR,
 };
 
-use crate::physics::Pushbox;
+use crate::movement::Pushbox;
 
 pub(super) fn visualize_hitboxes(mut gizmos: Gizmos, hitboxes: Query<(&GlobalTransform, &Hitbox)>) {
     for (gtf, hitbox) in &hitboxes {

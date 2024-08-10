@@ -1,17 +1,13 @@
-mod charge_accumulator;
 mod cinematic_locks;
 mod condition_management;
-mod dynamic_colliders;
-mod followers;
-mod meter_over_time;
 mod move_activation;
 mod move_advancement;
-mod movement;
 mod player_flash;
 mod recovery;
+mod side_switcher;
 mod size_adjustment;
 
-use characters::{dummy, mizku, Character, Inventory, WAGResources};
+use characters::{dummy, mizku, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
@@ -22,34 +18,19 @@ use wag_core::{
 use crate::{
     assets::{AnimationHelper, AnimationHelperSetup, Models, PlayerModelHook},
     damage::{Defense, HitboxSpawner},
-    physics::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
+    movement::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
 
-use bevy::{ecs::query::QueryData, prelude::*};
+use bevy::prelude::*;
 
-pub use followers::Follow;
 pub use move_activation::MoveBuffer;
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
 const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 
-#[derive(QueryData)]
-#[query_data(mutable)]
-struct PlayerQuery<'a> {
-    state: &'a mut PlayerState,
-    spawner: &'a mut HitboxSpawner,
-    character: &'a Character,
-    tf: &'a Transform,
-    buffer: &'a mut MoveBuffer,
-    properties: &'a mut WAGResources,
-    inventory: &'a mut Inventory,
-    input_parser: &'a mut InputParser,
-    player: &'a Player,
-}
+pub struct PlayerStateManagementPlugin;
 
-pub struct PlayerPlugin;
-
-impl Plugin for PlayerPlugin {
+impl Plugin for PlayerStateManagementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup)
             .add_systems(OnEnter(GameState::PreRound), setup_combat)
@@ -74,27 +55,16 @@ impl Plugin for PlayerPlugin {
                     cinematic_locks::handle_cinematics, // This being the first system after hit move advancement is important
                     recovery::stun_recovery,
                     recovery::ground_recovery,
-                    movement::movement,
                     size_adjustment::size_adjustment,
-                    charge_accumulator::manage_charge,
                     condition_management::manage_conditions,
                     crate::assets::update_animation,
                     crate::assets::update_audio,
-                    followers::update_followers,
-                    meter_over_time::meter_over_time,
+                    side_switcher::sideswitcher,
                 )
                     .chain()
                     .in_set(WAGStage::PlayerUpdates),
-            )
-            // There is a max of 15 systems per call to add_systems
-            .add_systems(
-                FixedUpdate,
-                (
-                    dynamic_colliders::create_colliders,
-                    dynamic_colliders::update_colliders,
-                )
-                    .in_set(WAGStage::PlayerUpdates),
             );
+        // There is a max of 15 systems per call to add_systems
     }
 }
 

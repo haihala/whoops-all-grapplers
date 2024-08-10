@@ -14,7 +14,7 @@ use wag_core::{
 
 use crate::{
     assets::{Sounds, Vfx, VfxRequest},
-    physics::{PlayerVelocity, Pushbox},
+    movement::{PlayerVelocity, Pushbox},
     ui::Notifications,
 };
 

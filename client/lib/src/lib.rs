@@ -6,10 +6,10 @@ mod assets;
 mod camera;
 mod damage;
 mod dev;
-mod economy;
 mod entity_management;
-mod physics;
-mod player;
+mod movement;
+mod player_state_management;
+mod resources;
 mod stage;
 mod state_transitions;
 mod ui;
@@ -38,10 +38,10 @@ impl PluginGroup for WAGLib {
             .add(assets::AssetsPlugin) // Has to be before those assets are used
             .add(ui::UIPlugin)
             .add(camera::CustomCameraPlugin)
-            .add(player::PlayerPlugin)
-            .add(economy::EconomyPlugin)
+            .add(player_state_management::PlayerStateManagementPlugin)
+            .add(resources::ResourcesPlugin)
             .add(damage::DamagePlugin)
-            .add(physics::PhysicsPlugin)
+            .add(movement::PhysicsPlugin)
             .add(input_parsing::InputParsingPlugin)
             .add(stage::StagePlugin)
             .add(state_transitions::StateTransitionPlugin)

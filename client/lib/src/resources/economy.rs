@@ -2,15 +2,7 @@ use bevy::prelude::*;
 use characters::{ActionEvent, Inventory, WAGResources};
 use player_state::PlayerState;
 
-pub struct EconomyPlugin;
-
-impl Plugin for EconomyPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Update, (modify_properties, manage_item_consumption));
-    }
-}
-
-fn modify_properties(mut query: Query<(&mut PlayerState, &mut WAGResources)>) {
+pub fn modify_properties(mut query: Query<(&mut PlayerState, &mut WAGResources)>) {
     for (mut state, mut properties) in &mut query {
         for prop in state.drain_matching_actions(|action| match action {
             ActionEvent::ModifyResource(prop, amount) => {

@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 mod combo;
 mod defense;
+mod dynamic_colliders;
 mod hit_tracker;
 mod hitboxes;
 mod hitreg;
@@ -23,6 +24,8 @@ impl Plugin for DamagePlugin {
         app.add_systems(
             FixedUpdate,
             (
+                dynamic_colliders::create_colliders,
+                dynamic_colliders::update_colliders,
                 hitboxes::spawn_new_hitboxes,
                 hitreg::clash_parry,
                 hitreg::detect_hits.pipe(hitreg::apply_connections),
@@ -37,10 +40,9 @@ impl Plugin for DamagePlugin {
         )
         .add_systems(
             FixedUpdate,
-            (
-                hitstop::clear_hitstop,
-                hitstop::handle_hitstop_events.after(WAGStage::PlayerUpdates),
-            ),
+            (hitstop::clear_hitstop, hitstop::handle_hitstop_events)
+                .chain()
+                .after(WAGStage::PlayerUpdates),
         )
         .add_systems(OnExit(GameState::Combat), hitboxes::despawn_everything);
     }

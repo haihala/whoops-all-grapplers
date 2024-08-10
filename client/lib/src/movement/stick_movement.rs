@@ -5,7 +5,7 @@ use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{Facing, StickPosition};
 
-pub fn movement(mut query: Query<(&InputParser, &mut PlayerState, &Facing)>) {
+pub fn movement_input(mut query: Query<(&InputParser, &mut PlayerState, &Facing)>) {
     for (reader, mut state, facing) in &mut query {
         if state.active_cinematic().is_some() {
             continue;

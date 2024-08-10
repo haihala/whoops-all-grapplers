@@ -11,8 +11,8 @@ use wag_core::{
 
 use crate::{
     assets::Sounds,
-    physics::{ConstantVelocity, PlayerVelocity, Pushbox},
-    player::MoveBuffer,
+    movement::{ConstantVelocity, PlayerVelocity, Pushbox},
+    player_state_management::MoveBuffer,
 };
 
 mod box_visualization;

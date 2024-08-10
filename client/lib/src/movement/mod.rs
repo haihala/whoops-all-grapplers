@@ -1,4 +1,8 @@
+mod followers;
 mod player_velocity;
+mod stick_movement;
+
+pub use followers::Follow;
 pub use player_velocity::PlayerVelocity;
 
 use bevy::{ecs::query::QueryData, prelude::*};
@@ -35,32 +39,21 @@ pub struct Pushbox(pub Area);
 pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, sideswitcher.before(WAGStage::Physics))
-            .add_systems(
-                FixedUpdate,
-                (
-                    player_input,
-                    move_players,
-                    push_players,
-                    clamp_players,
-                    move_constants,
-                    player_gravity,
-                )
-                    .chain()
-                    .in_set(WAGStage::Physics),
-            );
-    }
-}
-
-fn sideswitcher(players: Res<Players>, mut query: Query<(&Transform, &mut Facing)>) {
-    if let Ok([(tf1, mut facing1), (tf2, mut facing2)]) =
-        query.get_many_mut([players.one, players.two])
-    {
-        let p1_flipped = tf1.translation.x > tf2.translation.x;
-        if facing1.to_flipped() != p1_flipped {
-            facing1.set_flipped(p1_flipped);
-            facing2.set_flipped(!p1_flipped);
-        }
+        app.add_systems(
+            FixedUpdate,
+            (
+                stick_movement::movement_input,
+                player_input,
+                move_players,
+                push_players,
+                clamp_players,
+                move_constants,
+                player_gravity,
+                followers::update_followers,
+            )
+                .chain()
+                .in_set(WAGStage::Physics),
+        );
     }
 }
 

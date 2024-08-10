@@ -8,7 +8,7 @@ use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{ActionId, Clock, Facing, Player, Stats};
 
-use crate::{damage::Combo, physics::PlayerVelocity, ui::Notifications};
+use crate::{damage::Combo, movement::PlayerVelocity, ui::Notifications};
 
 #[derive(Debug, Default, Reflect)]
 pub(super) struct MoveActivation {

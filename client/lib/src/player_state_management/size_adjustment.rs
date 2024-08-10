@@ -4,7 +4,7 @@ use characters::Character;
 use player_state::PlayerState;
 use wag_core::{Area, Facing};
 
-use crate::physics::Pushbox;
+use crate::movement::Pushbox;
 
 pub fn size_adjustment(mut query: Query<(&mut PlayerState, &mut Pushbox, &Character, &Facing)>) {
     for (state, mut pushbox, character, facing) in &mut query {

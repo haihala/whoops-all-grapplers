@@ -132,38 +132,22 @@ impl Default for Joints {
                 },
                 // Right arm
                 JointCollider {
-                    joints: vec![UpperArmR, ForeArmR],
-                    padding: 0.1,
-                },
-                JointCollider {
-                    joints: vec![ForeArmR, HandR],
+                    joints: vec![UpperArmR, ForeArmR, ForeArmR, HandR],
                     padding: 0.1,
                 },
                 // Left arm
                 JointCollider {
-                    joints: vec![UpperArmL, ForeArmL],
-                    padding: 0.1,
-                },
-                JointCollider {
-                    joints: vec![ForeArmL, HandL],
+                    joints: vec![UpperArmL, ForeArmL, ForeArmL, HandL],
                     padding: 0.1,
                 },
                 // Right leg
                 JointCollider {
-                    joints: vec![ThighR, ShinR],
-                    padding: 0.1,
-                },
-                JointCollider {
-                    joints: vec![ShinR, FootR],
+                    joints: vec![ThighR, ShinR, ShinR, FootR],
                     padding: 0.1,
                 },
                 // Left leg
                 JointCollider {
-                    joints: vec![ThighL, ShinL],
-                    padding: 0.1,
-                },
-                JointCollider {
-                    joints: vec![ShinL, FootL],
+                    joints: vec![ThighL, ShinL, ShinL, FootL],
                     padding: 0.1,
                 },
             ],

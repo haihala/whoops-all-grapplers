@@ -1,8 +1,8 @@
 use std::f32::consts::PI;
 
 use crate::{
-    actions::ActionCategory, Action, ActionBlock, ActionEvent, ActionRequirement, AnimationRequest,
-    CancelRule, ContinuationRequirement, FlashRequest, Movement, ResourceType,
+    actions::ActionCategory, Action, ActionBlock, ActionEvent, ActionRequirement, CancelRule,
+    ContinuationRequirement, FlashRequest, Movement, ResourceType,
 };
 
 use bevy::prelude::*;
@@ -168,12 +168,7 @@ fn jump(
     let (initial_events, initial_exit_requirement) = if air_jump {
         (
             vec![
-                AnimationRequest {
-                    animation: animation.into(),
-                    time_offset: 3,
-                    ..default()
-                }
-                .into(),
+                animation.into().into(),
                 ActionEvent::ClearMovement,
                 ActionEvent::Condition(StatusCondition {
                     flag: StatusFlag::DoubleJumped,

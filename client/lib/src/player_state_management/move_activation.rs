@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use std::cmp::Ordering;
 
 use characters::{
     Action, ActionEvent, ActionRequirement, Character, Inventory, Situation, WAGResources,
@@ -8,7 +7,7 @@ use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{ActionId, Clock, Facing, Player, Stats};
 
-use crate::{damage::Combo, movement::PlayerVelocity, ui::Notifications};
+use crate::{movement::PlayerVelocity, ui::Notifications};
 
 #[derive(Debug, Default, Reflect)]
 pub(super) struct MoveActivation {
@@ -20,99 +19,8 @@ pub(super) struct MoveActivation {
 pub(super) enum ActivationType {
     Continuation,
     #[default]
-    Raw,
-    Link(Link),
-    Cancel(Cancellation),
-}
-
-// +- frames. 0 is frame perfect, 1 means +-1 aka 3 frame window
-const PERFECT_TIMING_DELTA: i32 = 0;
-const GOOD_TIMING_DELTA: i32 = 3;
-
-#[derive(Debug, Default, Reflect)]
-enum ErrorDirection {
-    Late,
-    #[default]
-    Early,
-}
-impl From<i32> for ErrorDirection {
-    fn from(error: i32) -> Self {
-        if error.signum() == 1 {
-            Self::Late
-        } else {
-            Self::Early
-        }
-    }
-}
-
-#[derive(Debug, Default, Reflect)]
-enum LinkPrecision {
-    #[default]
-    Perfect,
-    Good(ErrorDirection),
-    Fine(ErrorDirection),
-}
-impl LinkPrecision {
-    fn from_frame_diff(frame_diff: i32) -> Self {
-        if frame_diff.abs() <= PERFECT_TIMING_DELTA {
-            Self::Perfect
-        } else if frame_diff.abs() <= GOOD_TIMING_DELTA {
-            Self::Good(frame_diff.into())
-        } else {
-            Self::Fine(frame_diff.into())
-        }
-    }
-
-    fn message(&self) -> String {
-        match self {
-            LinkPrecision::Perfect => "Perfect link!".to_owned(),
-            LinkPrecision::Good(error) => format!("Good link! ({:?})", error),
-            LinkPrecision::Fine(error) => format!("Linked ({:?})", error),
-        }
-    }
-}
-
-#[derive(Debug, Default, Reflect)]
-pub(super) struct Link {
-    pub correction: usize,
-    precision: LinkPrecision,
-}
-impl Link {
-    pub(super) fn new(stored_frame: usize, freedom_frame: usize) -> Self {
-        let error = stored_frame as i32 - freedom_frame as i32;
-
-        Self {
-            correction: freedom_frame,
-            precision: LinkPrecision::from_frame_diff(error),
-        }
-    }
-
-    pub(super) fn message(&self) -> String {
-        self.precision.message()
-    }
-}
-
-#[derive(Debug, Default, Reflect)]
-pub(super) struct Cancellation {
-    pub message: String,
-}
-impl Cancellation {
-    pub(super) fn new(input_frame: usize, cancellable_since: usize) -> Self {
-        Self {
-            message: match input_frame.cmp(&cancellable_since) {
-                Ordering::Equal => "Frame perfect cancel".to_owned(),
-                Ordering::Greater => {
-                    // Input frame came after it was cancellable
-                    format!("Cancelled on frame {}", input_frame - cancellable_since)
-                }
-                Ordering::Less => format!(
-                    // Input frame came before it was cancellable
-                    "Cancel buffered for {} frames",
-                    cancellable_since - input_frame
-                ),
-            },
-        }
-    }
+    Plain,
+    Cancel,
 }
 
 const AUTOCORRECT: usize = (0.1 * wag_core::FPS) as usize;
@@ -212,7 +120,7 @@ pub(super) fn automatic_activation(
         }
     }
 }
-pub(super) fn raw_or_link(
+pub(super) fn plain_start(
     clock: Res<Clock>,
     mut query: Query<(
         &mut MoveBuffer,
@@ -226,12 +134,12 @@ pub(super) fn raw_or_link(
 ) {
     // Set activating move if one in the buffer can start raw or be linked into
     for (mut buffer, character, state, inventory, resources, stats, parser) in &mut query {
-        let Some(freedom_frame) = state.free_since else {
+        if state.free_since.is_none() {
+            // Can't link if not free
             continue;
         };
-        // Character has recently been freed
 
-        let Some((stored, id, _)) = buffer
+        let Some((_, id, _)) = buffer
             .get_situation_moves(
                 character,
                 state.build_situation(
@@ -248,14 +156,10 @@ pub(super) fn raw_or_link(
             continue;
         };
 
-        let error = stored as i32 - freedom_frame as i32;
-        let kind = if error.abs() < AUTOCORRECT as i32 {
-            ActivationType::Link(Link::new(stored, freedom_frame))
-        } else {
-            ActivationType::Raw
-        };
-
-        buffer.activation = Some(MoveActivation { id, kind });
+        buffer.activation = Some(MoveActivation {
+            id,
+            kind: ActivationType::Plain,
+        });
     }
 }
 pub(super) fn special_cancel(
@@ -282,7 +186,7 @@ pub(super) fn special_cancel(
 
         // Not free because a move is happening
         // Is current move cancellable, if so, since when
-        let Some((stored, id, cancellable_since)) = buffer
+        let Some((_, id, _)) = buffer
             .get_situation_moves(
                 character,
                 state.build_situation(
@@ -306,7 +210,7 @@ pub(super) fn special_cancel(
 
         buffer.activation = Some(MoveActivation {
             id,
-            kind: ActivationType::Cancel(Cancellation::new(stored, cancellable_since)),
+            kind: ActivationType::Cancel,
         });
     }
 }
@@ -314,13 +218,10 @@ pub(super) fn special_cancel(
 #[allow(clippy::type_complexity)]
 pub(super) fn move_activator(
     clock: Res<Clock>,
-    combo: Option<Res<Combo>>,
-    mut notifications: ResMut<Notifications>,
     mut query: Query<(
         &mut MoveBuffer,
         &mut PlayerState,
         &mut WAGResources,
-        &Player,
         &Character,
         &Stats,
         &Inventory,
@@ -328,9 +229,7 @@ pub(super) fn move_activator(
     )>,
 ) {
     // Activate and clear activating move
-    for (mut buffer, mut state, properties, player, character, stats, inventory, parser) in
-        &mut query
-    {
+    for (mut buffer, mut state, properties, character, stats, inventory, parser) in &mut query {
         let Some(activation) = buffer.activation.take() else {
             continue;
         };
@@ -339,29 +238,10 @@ pub(super) fn move_activator(
             continue;
         }
 
-        let start_frame = match activation.kind {
-            ActivationType::Link(link) => {
-                if combo.is_some() {
-                    notifications.add(*player, link.message());
-                }
-
-                // Autocorrect so that the move starts sooner.
-                link.correction
-            }
-            ActivationType::Cancel(cancellation) => {
-                if combo.is_some() {
-                    notifications.add(*player, cancellation.message);
-                }
-                clock.frame
-            }
-            _ => clock.frame,
-        };
-
         state.start_move(
             activation.id,
             character.get_move(activation.id).unwrap(),
-            start_frame,
-            clock.frame - start_frame,
+            clock.frame,
             inventory.to_owned(),
             properties.to_owned(),
             parser.to_owned(),

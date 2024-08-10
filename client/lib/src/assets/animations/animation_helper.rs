@@ -121,14 +121,15 @@ pub fn update_animation(
 
             commands.entity(helper.player_entity).insert(graph_handle);
 
-            let animation = player
-                .start(index)
-                .seek_to(request.time_offset as f32 / wag_core::FPS)
-                .set_speed(if request.ignore_action_speed {
-                    1.0
-                } else {
-                    stats.action_speed_multiplier
-                });
+            let animation =
+                player
+                    .start(index)
+                    .seek_to(0.0)
+                    .set_speed(if request.ignore_action_speed {
+                        1.0
+                    } else {
+                        stats.action_speed_multiplier
+                    });
 
             // FIXME: There is something wrong with this.
             // First frames of the animation bleed through occasionally

@@ -1,5 +1,4 @@
 # Next steps
-- [[Link rework]]
 - [[Update Gi]]
 - [[Menus MVP]]
 - [[Notifications 2.0]]

@@ -36,19 +36,6 @@ pub enum ActionEvent {
     Lock(usize), // duration, sideswitch
     Noop,        // makes writing macros easier
 }
-impl ActionEvent {
-    pub fn add_offset(self, offset: usize) -> ActionEvent {
-        match self {
-            ActionEvent::Animation(mut request) => {
-                request.time_offset += offset;
-                ActionEvent::Animation(request)
-            }
-            // TODO: Sound and particles, maybe something to do with movement?
-            // Most can't meaningfully be offset
-            other => other,
-        }
-    }
-}
 
 impl From<Attack> for ActionEvent {
     fn from(value: Attack) -> Self {

@@ -33,7 +33,6 @@ pub fn update_animation(
                         // Meant for targets
                         AnimationRequest {
                             animation: animation_request.animation,
-                            time_offset: animation_request.time_offset,
                             position_offset,
                             invert: true,
                             ..default()

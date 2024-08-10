@@ -104,23 +104,19 @@ impl PlayerState {
         action_id: ActionId,
         action: Action,
         start_frame: usize,
-        offset: usize,
         inventory: Inventory,
         resources: WAGResources,
         parser: InputParser,
         stats: Stats,
     ) {
         let events = if let Some(mutator) = action.script[0].mutator {
-            let situation =
-                self.build_situation(inventory, resources, parser, stats, start_frame + offset);
+            let situation = self.build_situation(inventory, resources, parser, stats, start_frame);
             mutator(action.script[0].clone(), &situation).events
         } else {
             action.script[0].clone().events
         };
 
-        let initial_events = events.into_iter().map(|x| x.add_offset(offset));
-
-        self.add_actions(initial_events.collect());
+        self.add_actions(events);
         let tracker = ActionTracker::new(action_id, action, start_frame);
 
         self.main = match &self.main {

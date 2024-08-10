@@ -48,7 +48,7 @@ impl Plugin for PlayerStateManagementPlugin {
                 (
                     move_activation::manage_buffer,
                     move_activation::automatic_activation,
-                    move_activation::raw_or_link,
+                    move_activation::plain_start,
                     move_activation::special_cancel,
                     move_activation::move_activator,
                     move_advancement::move_advancement,

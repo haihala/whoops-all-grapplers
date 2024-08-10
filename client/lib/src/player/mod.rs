@@ -1,4 +1,3 @@
-mod asset_updater;
 mod charge_accumulator;
 mod cinematic_locks;
 mod condition_management;
@@ -79,8 +78,8 @@ impl Plugin for PlayerPlugin {
                     size_adjustment::size_adjustment,
                     charge_accumulator::manage_charge,
                     condition_management::manage_conditions,
-                    asset_updater::update_animation,
-                    asset_updater::update_audio,
+                    crate::assets::update_animation,
+                    crate::assets::update_audio,
                     followers::update_followers,
                     meter_over_time::meter_over_time,
                 )

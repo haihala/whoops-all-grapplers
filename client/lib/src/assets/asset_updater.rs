@@ -3,7 +3,7 @@ use characters::{ActionEvent, AnimationRequest, Character};
 use player_state::PlayerState;
 use wag_core::{Facing, Players};
 
-use crate::assets::{AnimationHelper, Sounds};
+use super::{AnimationHelper, Sounds};
 
 #[allow(clippy::type_complexity)]
 pub fn update_animation(
@@ -64,7 +64,7 @@ pub fn update_animation(
     }
 }
 
-pub(super) fn update_audio(mut query: Query<&mut PlayerState>, mut sounds: ResMut<Sounds>) {
+pub fn update_audio(mut query: Query<&mut PlayerState>, mut sounds: ResMut<Sounds>) {
     for mut state in &mut query {
         for clip in state.drain_matching_actions(|animation| {
             if let ActionEvent::Sound(clip) = animation {

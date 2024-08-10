@@ -1,6 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 
 mod animations;
+mod asset_updater;
 mod loaders;
 mod materials;
 mod models;
@@ -8,6 +9,7 @@ mod sounds;
 mod vfx;
 
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
+pub use asset_updater::{update_animation, update_audio};
 pub use materials::{ExtendedFlashMaterial, FlashMaterial};
 pub use models::{Models, PlayerModelHook};
 pub use sounds::Sounds;

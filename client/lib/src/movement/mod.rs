@@ -13,7 +13,7 @@ use wag_core::{Area, Clock, Facing, Players, Stats, WAGStage};
 
 use crate::{
     camera::{CameraWrapper, VIEWPORT_HALFWIDTH},
-    damage::{HitTracker, HitboxSpawner},
+    damage::{Combo, HitTracker, HitboxSpawner},
 };
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
@@ -57,6 +57,7 @@ impl Plugin for PhysicsPlugin {
     }
 }
 
+#[allow(clippy::type_complexity)]
 fn player_gravity(
     clock: Res<Clock>,
     mut players: Query<(
@@ -65,9 +66,10 @@ fn player_gravity(
         &mut HitboxSpawner,
         &Transform,
         &Stats,
+        Option<&Combo>,
     )>,
 ) {
-    for (mut velocity, mut state, mut spawner, tf, stats) in &mut players {
+    for (mut velocity, mut state, mut spawner, tf, stats, combo) in &mut players {
         if state.active_cinematic().is_some() {
             continue;
         }
@@ -75,7 +77,11 @@ fn player_gravity(
         let is_airborne = tf.translation.y > GROUND_PLANE_HEIGHT;
 
         if is_airborne {
-            velocity.add_impulse(-Vec2::Y * stats.gravity);
+            velocity.add_impulse(
+                -Vec2::Y
+                    * (stats.gravity
+                        + stats.gravity_scaling * combo.map_or(0.0, |c| c.hits as f32)),
+            );
 
             if state.is_grounded() {
                 state.jump();

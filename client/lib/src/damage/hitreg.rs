@@ -55,6 +55,7 @@ pub struct HitPlayerQuery<'a> {
     spawner: &'a mut HitboxSpawner,
     pushbox: &'a Pushbox,
     stats: &'a Stats,
+    combo: Option<&'a mut Combo>,
 }
 
 #[allow(clippy::type_complexity)]
@@ -131,7 +132,6 @@ pub(super) fn clash_parry(
 pub(super) fn detect_hits(
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
-    combo: Option<Res<Combo>>,
     mut hitboxes: Query<(
         Entity,
         &Owner,
@@ -142,7 +142,7 @@ pub(super) fn detect_hits(
     )>,
     players: Res<Players>,
     hurtboxes: Query<(&Hurtbox, &Owner)>,
-    defenders: Query<(&Transform, &PlayerState, &InputParser)>,
+    defenders: Query<(&Transform, &PlayerState, &InputParser, Option<&Combo>)>,
 ) -> Vec<AttackConnection> {
     hitboxes
         .iter_mut()
@@ -157,7 +157,7 @@ pub(super) fn detect_hits(
 
                 let defender = players.get(defending_player);
                 let attacker = players.get(**hit_owner);
-                let (defender_tf, state, parser) = defenders.get(defender).unwrap();
+                let (defender_tf, state, parser, combo) = defenders.get(defender).unwrap();
 
                 let offset_hitbox = hitbox.with_offset(hitbox_tf.translation().truncate());
 
@@ -247,7 +247,6 @@ pub(super) fn apply_connections(
     In(mut hits): In<Vec<AttackConnection>>,
     mut commands: Commands,
     mut notifications: ResMut<Notifications>,
-    combo: Option<Res<Combo>>,
     clock: Res<Clock>,
     mut players: Query<HitPlayerQuery>,
     mut sounds: ResMut<Sounds>,
@@ -354,9 +353,14 @@ pub(super) fn apply_connections(
         };
 
         if !avoided {
-            if combo.is_none() {
-                commands.insert_resource(Combo);
-                sounds.play(SoundEffect::Whoosh); // TODO change sound effect
+            if let Some(mut combo) = defender.combo {
+                combo.hits += 1;
+            } else {
+                // First hit of a combo
+                commands.entity(hit.defender).insert(Combo { hits: 1 });
+
+                sounds.play(SoundEffect::Whoosh); // TODO: Opener sound effect
+                notifications.add(*attacker.player, "Opener!".to_owned());
                 if attacker.stats.opener_damage_multiplier > 1.0 {
                     attacker_actions = handle_opener(attacker_actions, attacker.stats);
                     attacker_actions.push(ActionEvent::ModifyResource(
@@ -365,12 +369,12 @@ pub(super) fn apply_connections(
                     ));
                     defender_actions = handle_opener(defender_actions, attacker.stats);
                 }
-                notifications.add(*attacker.player, "Opener!".to_owned());
-            } else if defender.stats.direct_influence > 0.0 {
-                defender.velocity.add_impulse(defender.facing.mirror_vec2(
-                    defender.parser.get_relative_stick_position().as_vec2()
-                        * defender.stats.direct_influence,
-                ));
+                if defender.stats.direct_influence > 0.0 {
+                    defender.velocity.add_impulse(defender.facing.mirror_vec2(
+                        defender.parser.get_relative_stick_position().as_vec2()
+                            * defender.stats.direct_influence,
+                    ));
+                }
             }
         }
 

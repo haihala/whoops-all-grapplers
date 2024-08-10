@@ -6,13 +6,12 @@ use crate::damage::Combo;
 
 pub fn stun_recovery(
     mut commands: Commands,
-    combo: Option<Res<Combo>>,
-    mut players: Query<&mut PlayerState>,
+    mut players: Query<(&mut PlayerState, Option<&Combo>, Entity)>,
     clock: Res<Clock>,
 ) {
     let mut stunned_player = false;
 
-    for mut state in &mut players {
+    for (mut state, combo, entity) in &mut players {
         if let Some(unstun_frame) = state.unstun_frame() {
             if unstun_frame <= clock.frame {
                 state.recover(clock.frame);
@@ -22,10 +21,10 @@ pub fn stun_recovery(
         if state.stunned() {
             stunned_player = true;
         }
-    }
-
-    if combo.is_some() && !stunned_player {
-        commands.remove_resource::<Combo>();
+        if combo.is_some() && !stunned_player {
+            // TODO: Combo popup
+            commands.entity(entity).remove::<Combo>();
+        }
     }
 }
 

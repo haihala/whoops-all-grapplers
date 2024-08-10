@@ -193,10 +193,10 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             ItemId::Dumbbell,
             Item {
                 cost: 350,
-                explanation: "Makes you ever so slightly heavier\n\nNot for training purposes"
+                explanation: "Makes you fall faster when comboed."
                     .into(),
                 effect: Stats {
-                    gravity: 0.02,
+                    gravity_scaling: 0.03,
                     ..Stats::identity()
                 },
                 icon: Icon::Dumbbell,

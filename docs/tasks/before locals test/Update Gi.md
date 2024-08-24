@@ -1,4 +1,6 @@
-- Fix [[Gi]] link bonus (disallow link bonus for certain things)
-- Make parry animation length depend on how long before the hit the player parried
+- Put parry on 6+f+g
+	- Long-ish animation, only active for like 5f
+	- Constant recovery animation
+- Make it uncancellable
 - Fix bug where animation occasionally doesn't trigger
 	- This could've been a cancel thing?

@@ -1,8 +1,8 @@
 use bevy::{prelude::*, utils::HashMap};
 
-use wag_core::{Clock, VisualEffect};
+use wag_core::{Clock, GameState, VisualEffect};
 
-use crate::entity_management::DespawnMarker;
+use crate::entity_management::{DespawnMarker, LivesInStates};
 
 use super::materials::{BlockEffectMaterial, ClashSparkMaterial, HitSparkMaterial};
 
@@ -71,6 +71,7 @@ pub fn handle_requests(
                         ..default()
                     },
                     DespawnMarker(clock.frame + 10),
+                    LivesInStates(vec![GameState::Combat]),
                 ));
             }
             VisualEffect::Clash => {
@@ -89,6 +90,7 @@ pub fn handle_requests(
                         ..default()
                     },
                     DespawnMarker(clock.frame + 10),
+                    LivesInStates(vec![GameState::Combat]),
                 ));
             }
             VisualEffect::Block => {
@@ -107,6 +109,7 @@ pub fn handle_requests(
                         ..default()
                     },
                     DespawnMarker(clock.frame + 10),
+                    LivesInStates(vec![GameState::Combat]),
                 ));
             }
         };

@@ -12,7 +12,4 @@ use crate::helper_types::Diff;
 
 pub trait InputStream {
     fn read(&mut self) -> Option<Diff>;
-    fn is_ready(&self) -> bool {
-        true
-    }
 }

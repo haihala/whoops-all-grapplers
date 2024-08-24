@@ -7,8 +7,8 @@ For stuff like pause and main menus
 		- [ ] Quit
 		- [ ] Rematch
 		- [ ] Main menu
-- [ ] Main menu
-	- [ ] Versus (combat)
-	- [ ] Quit
+- [x] Main menu
+	- [x] Versus (combat)
+	- [x] Quit
 
 See if https://github.com/nicopap/ui-navigation is worth using

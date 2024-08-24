@@ -1,18 +1,28 @@
 use bevy::prelude::*;
 
-use wag_core::GameState;
+use wag_core::{GameState, InMatch, PRE_ROUND_DURATION};
 
 mod combat;
 mod round_text;
 mod shop;
+mod utils;
+mod views;
+
+pub use utils::*;
 
 pub use combat::Notifications;
+
+use crate::state_transitions::TransitionTimer;
+
+#[derive(Debug, Event)]
+struct OnPress;
 
 pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(Notifications::default())
+        app.add_plugins(views::ViewsPlugin)
+            .insert_resource(Notifications::default())
             .add_systems(
                 Last,
                 (
@@ -21,11 +31,12 @@ impl Plugin for UIPlugin {
                     combat::update_score,
                     combat::update_timer,
                 )
-                    .distributive_run_if(in_state(GameState::Combat)),
+                    .run_if(in_state(GameState::Combat)),
             )
             .add_systems(
                 Update,
-                (combat::update_notifications, round_text::update_round_text),
+                (combat::update_notifications, round_text::update_round_text)
+                    .run_if(in_state(InMatch)),
             )
             .add_systems(
                 Update,
@@ -40,12 +51,21 @@ impl Plugin for UIPlugin {
                     .run_if(in_state(GameState::Shop)),
             )
             .add_systems(
-                PostStartup,
+                OnEnter(GameState::SetupMatch),
                 (
                     combat::setup_combat_hud,
                     round_text::setup_round_info_text,
                     shop::setup_shop,
-                ),
+                    // This only works because no other place uses this state
+                    |mut commands: Commands, mut state: ResMut<NextState<GameState>>| {
+                        state.set(GameState::PreRound);
+                        commands.insert_resource(TransitionTimer::from(Timer::from_seconds(
+                            PRE_ROUND_DURATION,
+                            TimerMode::Once,
+                        )));
+                    },
+                )
+                    .chain(),
             )
             .add_systems(Update, set_ui_scale);
     }

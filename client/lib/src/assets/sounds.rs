@@ -28,17 +28,17 @@ impl Sounds {
 pub fn play_queued(
     mut commands: Commands,
     mut sounds: ResMut<Sounds>,
-    spanwed: Query<(Entity, &AudioSink)>,
+    spawned: Query<(Entity, &AudioSink)>,
 ) {
     for source in sounds.queue.drain(..) {
-        commands.spawn((AudioBundle {
+        commands.spawn(AudioBundle {
             source,
             ..default()
-        },));
+        });
     }
-    for (entity, sink) in &spanwed {
+    for (entity, sink) in &spawned {
         if sink.empty() {
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
         }
     }
 }

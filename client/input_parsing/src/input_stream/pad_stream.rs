@@ -2,7 +2,7 @@ use bevy::{
     input::gamepad::{GamepadAxisChangedEvent, GamepadButtonChangedEvent, GamepadEvent},
     prelude::*,
 };
-use wag_core::{GameButton, GameState, StickPosition};
+use wag_core::{Controllers, GameButton, Player, StickPosition};
 
 use crate::{
     helper_types::{Diff, InputEvent},
@@ -13,7 +13,6 @@ use super::{InputStream, ParrotStream};
 
 #[derive(Default, Component)]
 pub struct PadStream {
-    pub pad_id: Option<Gamepad>,
     next_read: Vec<InputEvent>,
     stick_position: IVec2,
     stick_position_last_read: StickPosition,
@@ -74,44 +73,34 @@ impl PadStream {
 
 impl InputStream for PadStream {
     fn read(&mut self) -> Option<Diff> {
-        let readable = self.pad_id.is_some() && !self.next_read.is_empty();
-        if readable {
-            let temp = self.next_read.clone();
-            self.next_read.clear();
-            let mut diff = temp
-                .into_iter()
-                .fold(Diff::default(), |acc, new| acc.apply(new));
-
-            if let Some(new_stick) = diff.stick_move {
-                if new_stick == self.stick_position_last_read {
-                    diff.stick_move = None
-                }
-                self.stick_position_last_read = new_stick;
-            }
-            Some(diff)
-        } else {
-            None
+        if self.next_read.is_empty() {
+            return None;
         }
-    }
 
-    fn is_ready(&self) -> bool {
-        self.pad_id.is_some()
+        let temp = self.next_read.clone();
+        self.next_read.clear();
+        let mut diff = temp
+            .into_iter()
+            .fold(Diff::default(), |acc, new| acc.apply(new));
+
+        if let Some(new_stick) = diff.stick_move {
+            if new_stick == self.stick_position_last_read {
+                diff.stick_move = None
+            }
+            self.stick_position_last_read = new_stick;
+        }
+        Some(diff)
     }
 }
 
 pub(crate) fn update_pads(
     mut gamepad_events: EventReader<GamepadEvent>,
-    mut readers: Query<(&mut PadStream, &mut ParrotStream)>,
-    game_state: Res<State<GameState>>,
+    mut readers: Query<(&mut PadStream, &mut ParrotStream, &Player)>,
+    controllers: Res<Controllers>,
 ) {
-    let mut used_pads = readers
-        .iter_mut()
-        .filter_map(|(pad, _)| pad.pad_id)
-        .collect::<Vec<_>>();
-
     for event in gamepad_events.read() {
-        for (mut pad, mut parrot) in &mut readers {
-            let unclaimed_pad = pad.pad_id.is_none();
+        for (mut pad, mut parrot, player) in &mut readers {
+            let pad_id = controllers.get_pad(*player);
 
             match event {
                 GamepadEvent::Axis(GamepadAxisChangedEvent {
@@ -119,35 +108,22 @@ pub(crate) fn update_pads(
                     gamepad,
                     value,
                 }) => {
-                    if pad.pad_id == Some(*gamepad)
-                        && !matches!(
-                            axis_type,
-                            GamepadAxisType::RightStickX | GamepadAxisType::RightStickY
-                        )
-                    {
-                        axis_change(&mut pad, *axis_type, *value);
+                    if pad_id != *gamepad {
+                        continue;
                     }
+
+                    axis_change(&mut pad, *axis_type, *value);
                 }
                 GamepadEvent::Button(GamepadButtonChangedEvent {
                     button_type,
                     gamepad,
                     value,
                 }) => {
-                    let pressed_start = *button_type == GamepadButtonType::Start && *value == 1.0;
-                    let done_loading = game_state.get() != &GameState::Loading;
-
-                    if pad.pad_id == Some(*gamepad) {
-                        button_change(&mut pad, &mut parrot, *button_type, *value);
-                    } else if unclaimed_pad
-                        && !used_pads.contains(gamepad)
-                        && pressed_start
-                        && done_loading
-                    {
-                        // Pressed start, claim the pad
-                        println!("Claimed controller {}", gamepad.id);
-                        used_pads.push(*gamepad);
-                        pad.pad_id = Some(*gamepad);
+                    if pad_id != *gamepad {
+                        continue;
                     }
+
+                    button_change(&mut pad, &mut parrot, *button_type, *value);
                 }
                 _ => {}
             }
@@ -158,7 +134,7 @@ pub(crate) fn update_pads(
 fn axis_change(reader: &mut Mut<PadStream>, axis: GamepadAxisType, new_value: f32) {
     match axis {
         // Even though DPad axis are on the list, they don't fire
-        GamepadAxisType::LeftStickX | GamepadAxisType::RightStickX => reader.update_stick(
+        GamepadAxisType::LeftStickX => reader.update_stick(
             Some(if new_value.abs() > STICK_DEAD_ZONE {
                 new_value.signum() as i32
             } else {
@@ -166,7 +142,7 @@ fn axis_change(reader: &mut Mut<PadStream>, axis: GamepadAxisType, new_value: f3
             }),
             None,
         ),
-        GamepadAxisType::LeftStickY | GamepadAxisType::RightStickY => reader.update_stick(
+        GamepadAxisType::LeftStickY => reader.update_stick(
             None,
             Some(if new_value.abs() > STICK_DEAD_ZONE {
                 new_value.signum() as i32

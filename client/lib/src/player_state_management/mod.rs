@@ -11,13 +11,14 @@ use characters::{dummy, mizku, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
-    AnimationType, CharacterId, Clock, Facing, GameState, Joints, Player, Players, Stats, WAGStage,
-    WagArgs,
+    AnimationType, CharacterId, Characters, Clock, Facing, GameState, InMatch, Joints, Player,
+    Players, Stats, WAGStage,
 };
 
 use crate::{
     assets::{AnimationHelper, AnimationHelperSetup, Models, PlayerModelHook},
     damage::{Defense, HitboxSpawner},
+    entity_management::LivesInStates,
     movement::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
 
@@ -32,7 +33,7 @@ pub struct PlayerStateManagementPlugin;
 
 impl Plugin for PlayerStateManagementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup)
+        app.add_systems(OnEnter(GameState::Loading), setup_players)
             .add_systems(OnEnter(GameState::PreRound), setup_combat)
             // This is here so it's up to date when the round starts
             .add_systems(
@@ -68,21 +69,21 @@ impl Plugin for PlayerStateManagementPlugin {
     }
 }
 
-fn setup(mut commands: Commands, models: Res<Models>, args: Res<WagArgs>) {
+fn setup_players(mut commands: Commands, characters: Res<Characters>, models: Res<Models>) {
     let players = Players {
         one: spawn_player(
             &mut commands,
             &models,
             -PLAYER_SPAWN_DISTANCE,
             Player::One,
-            args.character1,
+            characters.p1,
         ),
         two: spawn_player(
             &mut commands,
             &models,
             PLAYER_SPAWN_DISTANCE,
             Player::Two,
-            args.character2,
+            characters.p2,
         ),
     };
 
@@ -130,6 +131,7 @@ fn spawn_player(
             character.clone(),
             PlayerState::default(),
             player,
+            LivesInStates(vec![InMatch]),
         ))
         .with_children(move |parent| {
             parent.spawn((

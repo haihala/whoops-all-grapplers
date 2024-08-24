@@ -40,7 +40,7 @@ impl Plugin for AssetsPlugin {
                 MaterialPlugin::<ExtendedFlashMaterial>::default(),
             ))
             .add_systems(
-                PreStartup,
+                Startup,
                 (
                     loaders::fonts,
                     loaders::icons,

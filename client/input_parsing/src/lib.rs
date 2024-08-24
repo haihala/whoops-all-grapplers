@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::HashMap};
-use wag_core::{ActionId, WAGStage};
+use wag_core::{ActionId, InMatch, WAGStage};
 
 mod helper_types;
 mod input_parser;
@@ -30,7 +30,8 @@ impl Plugin for InputParsingPlugin {
                 input_parser::flip_parsers_on_side_change,
             )
                 .chain()
-                .in_set(WAGStage::Inputs),
+                .in_set(WAGStage::Inputs)
+                .run_if(in_state(InMatch)),
         );
     }
 }

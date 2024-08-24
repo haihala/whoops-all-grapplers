@@ -2,13 +2,14 @@ use bevy::prelude::*;
 
 use characters::Character;
 use wag_core::{
-    GameState, Icon, ItemId, OnlyShowInGameState, Owner, Player, Players, GENERIC_TEXT_COLOR,
+    GameState, Icon, InMatch, ItemId, Owner, Player, Players, GENERIC_TEXT_COLOR,
     ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
     ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR,
     SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_TIMER_BACKGROUND_COLOR,
 };
 
 use crate::assets::{Fonts, Icons};
+use crate::entity_management::{LivesInStates, VisibleInStates};
 
 use super::shops_resource::{Shop, ShopComponents, ShopComponentsBuilder, Shops};
 use super::SHOP_COLUMNS;
@@ -39,7 +40,8 @@ pub fn setup_shop(
                 },
                 ..default()
             },
-            OnlyShowInGameState(vec![GameState::Shop]),
+            VisibleInStates(vec![GameState::Shop]),
+            LivesInStates(vec![InMatch]),
             Name::new("Shop ui root"),
         ))
         .id();

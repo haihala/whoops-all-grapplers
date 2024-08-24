@@ -8,7 +8,7 @@ mod args;
 pub use args::WagArgs;
 
 mod character_id;
-pub use character_id::CharacterId;
+pub use character_id::{CharacterId, Characters};
 
 mod color_palette;
 pub use color_palette::*;
@@ -29,7 +29,7 @@ mod icon;
 pub use icon::Icon;
 
 mod inputs;
-pub use inputs::{GameButton, StickPosition};
+pub use inputs::{Controllers, GameButton, StickPosition};
 
 mod item_id;
 pub use item_id::ItemId;

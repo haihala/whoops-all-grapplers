@@ -1,10 +1,13 @@
+use bevy::prelude::*;
 use std::str::FromStr;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+use strum_macros::EnumIter;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, EnumIter, Component)]
 pub enum CharacterId {
+    Mizku,
     #[default]
     Dummy,
-    Mizku,
 }
 impl FromStr for CharacterId {
     type Err = String;
@@ -24,4 +27,10 @@ impl std::fmt::Display for CharacterId {
             CharacterId::Mizku => write!(f, "mizku"),
         }
     }
+}
+
+#[derive(Debug, Resource)]
+pub struct Characters {
+    pub p1: CharacterId,
+    pub p2: CharacterId,
 }

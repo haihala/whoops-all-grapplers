@@ -2,10 +2,12 @@ use bevy::prelude::*;
 
 use characters::{ActionEvent, Attack, Hitbox, Lifetime};
 use player_state::PlayerState;
-use wag_core::{Area, Clock, Facing, Joints, Owner, Player};
+use wag_core::{Area, Clock, Facing, GameState, Joints, Owner, Player};
 
 use crate::{
-    assets::Models, entity_management::DespawnMarker, movement::ConstantVelocity, movement::Follow,
+    assets::Models,
+    entity_management::{DespawnMarker, LivesInStates},
+    movement::{ConstantVelocity, Follow},
 };
 
 use super::HitTracker;
@@ -65,6 +67,7 @@ impl HitboxSpawner {
             Owner(player),
             hitbox,
             attack.clone(),
+            LivesInStates(vec![GameState::Combat]),
         ));
 
         if let Some(velocity) = attack.to_hit.velocity {

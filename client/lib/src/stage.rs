@@ -1,21 +1,25 @@
 use bevy::prelude::*;
-use wag_core::Model;
+use wag_core::{GameState, InMatch, Model};
 
-use crate::assets::Models;
+use crate::{assets::Models, entity_management::LivesInStates};
 
 pub struct StagePlugin;
 
 impl Plugin for StagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, (setup_lights, add_stage));
+        app.add_systems(OnEnter(GameState::Loading), (setup_lights, add_stage));
     }
 }
 
 fn add_stage(mut commands: Commands, models: Res<Models>) {
-    commands.spawn(SceneBundle {
-        scene: models[&Model::TrainingStage].clone(),
-        ..default()
-    });
+    commands.spawn((
+        SceneBundle {
+            scene: models[&Model::TrainingStage].clone(),
+            ..default()
+        },
+        Name::new("Stage"),
+        LivesInStates(vec![InMatch]),
+    ));
 }
 
 pub fn setup_lights(mut commands: Commands) {
@@ -30,5 +34,6 @@ pub fn setup_lights(mut commands: Commands) {
             ..default()
         },
         Name::new("Point light"),
+        LivesInStates(vec![InMatch]),
     ));
 }

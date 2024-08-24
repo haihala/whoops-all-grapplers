@@ -39,6 +39,6 @@ args = ["run", "--", "--dev", "mizku", "mizku"]
 
 [tasks.prod]
 command = "cargo"
-args = ["run", "--", "mizku", "mizku"]
+args = ["run"]
 
 

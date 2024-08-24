@@ -1,11 +1,9 @@
 use bevy::{prelude::*, render::view::NoFrustumCulling};
 use characters::ActionEvent;
 use player_state::PlayerState;
-use wag_core::{
-    Facing, GameState, OnlyShowInGameState, Player, WagArgs, LOADING_SCREEN_BACKGROUND,
-};
+use wag_core::{Facing, GameState, InMatch, Player, WagArgs, LOADING_SCREEN_BACKGROUND};
 
-use crate::movement::ARENA_WIDTH;
+use crate::{entity_management::VisibleInStates, movement::ARENA_WIDTH};
 
 #[derive(Debug, Component, Default)]
 pub struct CameraWrapper;
@@ -29,7 +27,9 @@ impl Plugin for CustomCameraPlugin {
             .register_type::<ChildCameraEffects>()
             .add_systems(
                 Update,
-                (center_camera, camera_tilt, child_camera_effects).chain(),
+                (center_camera, camera_tilt, child_camera_effects)
+                    .chain()
+                    .run_if(in_state(InMatch)),
             );
     }
 }
@@ -61,6 +61,7 @@ fn add_camera(
                 ))
                 .with_children(|main_cam| {
                     if !args.dev {
+                        // This blocks the view while game is loading
                         main_cam.spawn((
                             PbrBundle {
                                 mesh: meshes.add(Mesh::from(Cuboid {
@@ -70,7 +71,7 @@ fn add_camera(
                                 transform: Transform::from_xyz(0.0, 0.0, -2.0),
                                 ..default()
                             },
-                            OnlyShowInGameState(vec![GameState::Loading]),
+                            VisibleInStates(vec![GameState::Loading, GameState::SetupMatch]),
                             NoFrustumCulling,
                         ));
                     };

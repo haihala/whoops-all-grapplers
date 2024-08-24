@@ -3,7 +3,7 @@ use std::time::Instant;
 use bevy::prelude::*;
 
 mod game_flow;
-pub use game_flow::{GameState, OnlyShowInGameState, RoundLog, RoundResult};
+pub use game_flow::{GameState, InMatch, RoundLog, RoundResult};
 
 pub const ROUNDS_TO_WIN: usize = 5;
 pub const PRE_ROUND_DURATION: f32 = 2.0;
@@ -73,8 +73,6 @@ impl Plugin for TimePlugin {
             )
                 .run_if(in_state(GameState::Combat)),
         )
-        .init_state::<GameState>()
-        .add_systems(Update, update_visibility_on_state_change)
         .init_resource::<Clock>()
         .insert_resource(Time::<Fixed>::from_seconds(1.0 / crate::FPS as f64))
         .add_systems(FixedUpdate, update_clock)
@@ -97,20 +95,4 @@ fn update_clock(
         .clamp(0.0, COMBAT_DURATION)
         .ceil() as usize;
     clock.done = clock.timer_value == 0;
-}
-
-fn update_visibility_on_state_change(
-    state: Res<State<GameState>>,
-    mut query: Query<(&mut Visibility, &OnlyShowInGameState)>,
-) {
-    // TODO FIXME: This is broken, and happens on every frame which is not performant
-    if state.is_changed() {
-        for (mut visibility, restriction) in &mut query {
-            *visibility = if restriction.contains(state.get()) {
-                Visibility::Visible
-            } else {
-                Visibility::Hidden
-            };
-        }
-    }
 }

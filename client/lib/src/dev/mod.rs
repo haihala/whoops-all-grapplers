@@ -36,7 +36,7 @@ impl Plugin for DevPlugin {
             .register_type::<Joints>()
             .register_type::<Facing>()
             .register_type::<Stats>()
-            .add_systems(Startup, setup)
+            .add_systems(Startup, setup_gizmos)
             .add_systems(
                 Update,
                 (
@@ -56,7 +56,7 @@ impl Plugin for DevPlugin {
 }
 
 // TODO: There is probably a better way to do this
-fn setup(mut config_store: ResMut<GizmoConfigStore>) {
+fn setup_gizmos(mut config_store: ResMut<GizmoConfigStore>) {
     let (config, _) = config_store.config_mut::<DefaultGizmoConfigGroup>();
     config.depth_bias = -1.0;
 }

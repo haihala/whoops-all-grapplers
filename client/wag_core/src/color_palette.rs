@@ -1,6 +1,8 @@
 use bevy::color::palettes::css::*;
 use bevy::prelude::*;
 
+const WWE_RAW_RED: Color = Color::srgb(195.0 / 255.0, 24.0 / 255.0, 24.0 / 255.0);
+
 // Resource bars
 pub const HEALTH_BAR_COLOR: Color = Color::srgb(0.9, 0.0, 0.0);
 
@@ -12,6 +14,8 @@ pub const CHARGE_BAR_FULL_SEGMENT_COLOR: Color = Color::srgb(0.9, 0.1, 0.3);
 
 // Texts (general)
 pub const GENERIC_TEXT_COLOR: Color = Color::WHITE;
+pub const MAIN_MENU_HIGHLIGHT_TEXT_COLOR: Color = Color::BLACK;
+pub const CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR: Color = WWE_RAW_RED;
 pub const ROUND_TIMER_TEXT_COLOR: Color = Color::WHITE;
 pub const RESOURCE_COUNTER_TEXT_COLOR: Color = Color::WHITE;
 
@@ -19,7 +23,7 @@ pub const RESOURCE_COUNTER_TEXT_COLOR: Color = Color::WHITE;
 pub const TRANSPARENT: Color = Color::srgba(0.0, 0.0, 0.0, 0.0);
 
 // Shop
-pub const ITEM_SLOT_HIGHLIGHT_COLOR: Color = Color::srgb(195.0 / 255.0, 24.0 / 255.0, 24.0 / 255.0); // WWE Raw red
+pub const ITEM_SLOT_HIGHLIGHT_COLOR: Color = WWE_RAW_RED;
 pub const ITEM_SLOT_DEFAULT_COLOR: Color = Color::Srgba(GRAY);
 pub const ITEM_SLOT_DISABLED_COLOR: Color = Color::Srgba(BISQUE);
 pub const ITEM_SLOT_COMPONENT_COLOR: Color = Color::Srgba(YELLOW);
@@ -61,3 +65,4 @@ pub const MIZUKI_ALT_HELMET_COLOR: Color = Color::srgb(38.0 / 255.0, 50.0 / 255.
 
 // UI
 pub const LOADING_SCREEN_BACKGROUND: Color = Color::srgb(0.2, 0.2, 0.2);
+pub const CONTROLLER_ASSIGNMENT_SIDE_COLOR: Color = Color::srgb(0.1, 0.1, 0.1);

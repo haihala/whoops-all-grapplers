@@ -3,8 +3,8 @@ use bevy::{app::AppExit, asset::LoadState, prelude::*};
 use characters::{Character, Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
-    Clock, GameState, Joints, Player, RoundLog, RoundResult, POST_ROUND_DURATION,
-    PRE_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
+    Clock, GameState, InMatch, Joints, Player, RoundLog, RoundResult, POST_ROUND_DURATION,
+    ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
 };
 
 use crate::{assets::AssetsLoading, ui::Notifications};
@@ -13,16 +13,17 @@ pub struct StateTransitionPlugin;
 
 impl Plugin for StateTransitionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (
-                end_loading.run_if(in_state(GameState::Loading)),
-                end_claiming.run_if(in_state(GameState::ClaimingControllers)),
-                end_combat.run_if(in_state(GameState::Combat)),
-                clear_between_states.run_if(state_changed::<GameState>),
-                transition_after_timer,
-            ),
-        );
+        app.init_state::<GameState>()
+            .add_computed_state::<InMatch>()
+            .add_systems(
+                Update,
+                (
+                    end_loading.run_if(in_state(GameState::Loading)),
+                    end_combat.run_if(in_state(GameState::Combat)),
+                    clear_between_states.run_if(state_changed::<GameState>),
+                    transition_after_timer,
+                ),
+            );
     }
 }
 
@@ -177,21 +178,7 @@ fn end_loading(
 
     if joints_loaded && some_assets_loading && all_assets_loaded {
         println!("Done loading assets");
-        next_state.set(GameState::ClaimingControllers);
-    }
-}
-
-fn end_claiming(
-    mut commands: Commands,
-    parsers: Query<&InputParser>,
-    mut next_state: ResMut<NextState<GameState>>,
-) {
-    if parsers.iter().all(|parser| parser.is_ready()) {
-        next_state.set(GameState::PreRound);
-        commands.insert_resource(TransitionTimer::from(Timer::from_seconds(
-            PRE_ROUND_DURATION,
-            TimerMode::Once,
-        )))
+        next_state.set(GameState::SetupMatch);
     }
 }
 

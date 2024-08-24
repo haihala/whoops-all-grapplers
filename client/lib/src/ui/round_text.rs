@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-use wag_core::{GameState, OnlyShowInGameState, RoundLog, GENERIC_TEXT_COLOR};
+use wag_core::{GameState, RoundLog, GENERIC_TEXT_COLOR};
 
-use crate::assets::Fonts;
+use crate::{assets::Fonts, entity_management::VisibleInStates};
 
 #[derive(Component)]
 pub struct RoundText;
@@ -19,7 +19,7 @@ pub fn update_round_text(
     }
 
     *visible = Visibility::Inherited;
-    if game_state.get() == &GameState::ClaimingControllers {
+    if game_state.get() == &GameState::ControllerAssignment {
         text.sections[0].value = "Press start to claim characters (first press = p1)".to_string();
     } else if game_state.get() == &GameState::PreRound {
         text.sections[0].value = "New round".to_string();
@@ -49,9 +49,9 @@ pub fn setup_round_info_text(mut commands: Commands, fonts: Res<Fonts>) {
                 ..default()
             },
             Name::new("Round info text"),
-            OnlyShowInGameState(vec![
+            VisibleInStates(vec![
                 GameState::Loading,
-                GameState::ClaimingControllers,
+                GameState::ControllerAssignment,
                 GameState::PreRound,
                 GameState::PostRound,
             ]),

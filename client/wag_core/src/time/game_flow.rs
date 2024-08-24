@@ -4,8 +4,14 @@ use bevy::prelude::*;
 #[derive(Clone, Copy, Hash, Debug, PartialEq, Eq, Default, States)]
 pub enum GameState {
     #[default]
+    MainMenu,
+
+    ControllerAssignment,
+    CharacterSelect,
     Loading,
-    ClaimingControllers,
+    SetupMatch,
+
+    // Match loop
     PreRound,
     Combat,
     PostRound,
@@ -14,19 +20,35 @@ pub enum GameState {
 impl GameState {
     pub fn next(self) -> GameState {
         match self {
-            GameState::Loading => GameState::ClaimingControllers,
-
-            GameState::ClaimingControllers => GameState::PreRound,
-
             GameState::PreRound => GameState::Combat,
             GameState::Combat => GameState::PostRound,
             GameState::PostRound => GameState::Shop,
             GameState::Shop => GameState::PreRound,
+
+            other => panic!("Should not go to next state in state {:?}", other),
         }
     }
 
     pub fn show_round_text(&self) -> bool {
         !matches!(self, GameState::Shop | GameState::Combat)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct InMatch;
+
+impl ComputedStates for InMatch {
+    type SourceStates = GameState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        if matches!(
+            sources,
+            GameState::Shop | GameState::Combat | GameState::PreRound | GameState::PostRound
+        ) {
+            Some(InMatch)
+        } else {
+            None
+        }
     }
 }
 
@@ -67,9 +89,6 @@ impl RoundLog {
 pub struct RoundResult {
     pub winner: Option<Player>,
 }
-
-#[derive(Debug, Component, Deref)]
-pub struct OnlyShowInGameState(pub Vec<GameState>);
 
 #[cfg(test)]
 mod test {

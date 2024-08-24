@@ -17,7 +17,6 @@ pub struct ParrotStream {
     mode: ParrotMode,
     buffer: Vec<Option<Diff>>,
     buffer_index: usize,
-    ready: bool,
 }
 
 impl ParrotStream {
@@ -56,16 +55,10 @@ impl InputStream for ParrotStream {
             None
         }
     }
-
-    fn is_ready(&self) -> bool {
-        self.ready
-    }
 }
 
 pub fn update_parrots<T: InputStream + Component>(mut readers: Query<(&mut ParrotStream, &mut T)>) {
     for (mut parrot, mut stream) in &mut readers {
-        parrot.ready = stream.is_ready();
-
         if parrot.mode == ParrotMode::Listening {
             parrot.listen(stream.read());
         } else if parrot.mode == ParrotMode::Repeating {

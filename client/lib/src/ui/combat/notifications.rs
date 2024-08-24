@@ -1,10 +1,7 @@
 use bevy::prelude::*;
-use wag_core::{
-    Clock, GameState, OnlyShowInGameState, Player, NOTIFICATION_BACKGROUND_COLOR,
-    NOTIFICATION_TEXT_COLOR,
-};
+use wag_core::{Clock, GameState, Player, NOTIFICATION_BACKGROUND_COLOR, NOTIFICATION_TEXT_COLOR};
 
-use crate::assets::Fonts;
+use crate::{assets::Fonts, entity_management::VisibleInStates};
 
 #[derive(Debug)]
 struct Notification {
@@ -43,7 +40,7 @@ pub fn setup_toasts(commands: &mut Commands, parent: Entity, player: Player) {
                 },
                 ..default()
             },
-            OnlyShowInGameState(vec![GameState::Combat, GameState::PostRound]),
+            VisibleInStates(vec![GameState::Combat, GameState::PostRound]),
             NotificationContainer(player),
         ))
         .set_parent(parent);

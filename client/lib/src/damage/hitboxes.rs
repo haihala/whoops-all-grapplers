@@ -11,7 +11,7 @@ use crate::{
 use super::HitTracker;
 
 #[derive(Component)]
-pub(super) struct LifetimeFlags {
+pub struct LifetimeFlags {
     on_landing: bool,
     on_hit: bool,
 }
@@ -161,7 +161,7 @@ pub(super) fn spawn_new_hitboxes(
     }
 }
 
-pub(super) fn handle_despawn_flags(
+pub fn handle_despawn_flags(
     mut commands: Commands,
     boxes: Query<(Entity, &Owner, &LifetimeFlags, &HitTracker)>,
     mut player_query: Query<(&mut HitboxSpawner, &Player)>,
@@ -182,14 +182,5 @@ pub(super) fn handle_despawn_flags(
 
         spawner.mark_hitters = false;
         spawner.mark_landers = false;
-    }
-}
-
-pub(super) fn despawn_everything(
-    mut commands: Commands,
-    mut hitboxes: Query<Entity, With<Hitbox>>,
-) {
-    for entity in &mut hitboxes {
-        commands.entity(entity).insert(DespawnMarker(0));
     }
 }

@@ -35,6 +35,7 @@ impl PluginGroup for WAGLib {
 
         group = group
             .add(wag_core::TimePlugin) // Has to be first, since it defines labels for ordering other systems
+            .add(entity_management::EntityManagementPlugin)
             .add(assets::AssetsPlugin) // Has to be before those assets are used
             .add(ui::UIPlugin)
             .add(camera::CustomCameraPlugin)

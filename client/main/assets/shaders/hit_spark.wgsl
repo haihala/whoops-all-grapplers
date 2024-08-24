@@ -9,6 +9,9 @@
 const PI = 3.14159265359;
 const offset = PI * 2 / 3;
 
+// This whole shader is a bit of a mess and should probably be rewritten
+// It looks decent so I'll leave it for now
+
 @fragment
 fn fragment(
     mesh: VertexOutput,
@@ -21,22 +24,24 @@ fn fragment(
     let base_wave = wave(angle, 1.0, 1.0, 7);
     let secondary_wave = wave(angle + 3 * time, 0.0, 3.0, 5);
     let tertiary_wave = wave(angle, 0.0, 1.0, 1);
-    let wave_field = pow(0.9 * base_wave + 0.1 * secondary_wave + 1.0 * tertiary_wave, 2.0);
+    let wave_field = 0.9 * base_wave + 0.1 * secondary_wave + 1.0 * tertiary_wave;
 
     let range = length(centered) / sqrt(2.0);
-    let radius_field = pow(1 - range, 5.0);
+    let falloff = pow(1 - range, 2.0);
+    let expansion = 1 / abs(range - 5 * time);
 
-    let field = (pow(0.2 * wave_field, 3.0) + 10.0 * radius_field) * pow(1 - range, 5.0);
-    var color = vec3(0.0);
+    let field = wave_field * falloff * expansion - (time + 1) * 10;
+    var color = vec4(0.0);
     if field > 5.0 {
-        color = base_color.xyz;
+        color = base_color;
     } else if field > 1.5 {
-        color = mid_color.xyz;
+        color = mid_color;
     } else {
-        color = edge_color.xyz;
+        color = edge_color;
+        color.a = step(0.9, field);
     }
 
-    return vec4(color, step(0.9, field));
+    return color;
 }
 
 fn wave(input: f32, start: f32, increment: f32, loops: i32) -> f32 {

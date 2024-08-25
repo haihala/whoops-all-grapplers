@@ -153,7 +153,6 @@ fn setup_end_screen_option(
     .id()
 }
 
-#[allow(clippy::too_many_arguments)]
 pub fn navigate_end_screen(
     mut nav: ResMut<EndScreenNav>,
     mut events: ResMut<MenuInputs>,

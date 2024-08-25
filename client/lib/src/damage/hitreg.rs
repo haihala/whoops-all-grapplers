@@ -128,7 +128,6 @@ pub(super) fn clash_parry(
     }
 }
 
-#[allow(clippy::too_many_arguments)]
 pub(super) fn detect_hits(
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
@@ -242,7 +241,6 @@ pub(super) fn detect_hits(
         .collect()
 }
 
-#[allow(clippy::too_many_arguments)]
 pub(super) fn apply_connections(
     In(mut hits): In<Vec<AttackConnection>>,
     mut commands: Commands,

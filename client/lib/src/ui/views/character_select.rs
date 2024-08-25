@@ -131,7 +131,6 @@ fn setup_character_options(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity
         .collect()
 }
 
-#[allow(clippy::too_many_arguments)]
 pub fn navigate_character_select(
     mut commands: Commands,
     mut nav: ResMut<CharacterSelectNav>,

@@ -6,7 +6,7 @@ use wag_core::{
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 
-use super::setup_view_title;
+use super::{setup_view_title, MenuInputs};
 
 #[derive(Debug, Resource, Default)]
 pub struct ControllerAssignment {
@@ -169,12 +169,12 @@ fn create_unused_controller_area(fonts: &Fonts, root: &mut ChildBuilder) {
 pub fn navigate_controller_assignment_menu(
     mut commands: Commands,
     mut ca: ResMut<ControllerAssignment>,
-    mut events: EventReader<GamepadEvent>,
+    mut events: ResMut<MenuInputs>,
     callback: Res<SubmitCallback>,
     mut state: ResMut<NextState<GameState>>,
 ) {
     // TODO: Analog stick
-    for ev in events.read() {
+    while let Some(ev) = events.pop_front() {
         match ev {
             GamepadEvent::Button(ev_btn) if ev_btn.value == 1.0 => match ev_btn.button_type {
                 GamepadButtonType::DPadLeft => ca.left(ev_btn.gamepad),

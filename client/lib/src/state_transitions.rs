@@ -3,7 +3,7 @@ use bevy::{asset::LoadState, prelude::*};
 use characters::{Character, Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
-    Clock, GameResult, GameState, InMatch, Joints, Player, RoundLog, RoundResult,
+    Clock, GameResult, GameState, InMatch, InMenu, Joints, Player, RoundLog, RoundResult,
     POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
 };
 
@@ -15,6 +15,7 @@ impl Plugin for StateTransitionPlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
             .add_computed_state::<InMatch>()
+            .add_computed_state::<InMenu>()
             .add_systems(
                 Update,
                 (

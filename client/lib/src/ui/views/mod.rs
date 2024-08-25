@@ -1,5 +1,7 @@
-use bevy::prelude::*;
-use wag_core::GameState;
+use std::collections::VecDeque;
+
+use bevy::{input::gamepad::GamepadEvent, prelude::*};
+use wag_core::{GameState, InMenu};
 
 use crate::assets::Fonts;
 
@@ -20,6 +22,8 @@ impl Plugin for ViewsPlugin {
                 character_select::setup_character_select,
             ),
         )
+        .init_resource::<MenuInputs>()
+        .add_systems(Update, update_menu_inputs.run_if(in_state(InMenu)))
         .add_systems(
             Update,
             (
@@ -58,6 +62,17 @@ impl Plugin for ViewsPlugin {
                 .run_if(in_state(GameState::EndScreen))
                 .after(end_screen::setup_end_screen),
         );
+    }
+}
+
+#[derive(Debug, Resource, Default, Deref, DerefMut)]
+struct MenuInputs(VecDeque<GamepadEvent>);
+
+// This is a workaround. Inputs would otherwise be duplicated per system, which causes
+// duplication issues during state transitions.
+fn update_menu_inputs(mut mi: ResMut<MenuInputs>, mut events: EventReader<GamepadEvent>) {
+    for ev in events.read() {
+        mi.push_back(ev.to_owned());
     }
 }
 

@@ -3,7 +3,7 @@ use std::time::Instant;
 use bevy::prelude::*;
 
 mod game_flow;
-pub use game_flow::{GameResult, GameState, InMatch, RoundLog, RoundResult};
+pub use game_flow::{GameResult, GameState, InMatch, InMenu, RoundLog, RoundResult};
 
 pub const ROUNDS_TO_WIN: usize = 1;
 pub const PRE_ROUND_DURATION: f32 = 2.0;

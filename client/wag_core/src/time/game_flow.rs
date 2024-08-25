@@ -33,6 +33,26 @@ impl GameState {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct InMenu;
+impl ComputedStates for InMenu {
+    type SourceStates = GameState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        if matches!(
+            sources,
+            GameState::MainMenu
+                | GameState::ControllerAssignment
+                | GameState::CharacterSelect
+                | GameState::EndScreen
+        ) {
+            Some(InMenu)
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct InMatch;
 
 impl ComputedStates for InMatch {

@@ -10,7 +10,7 @@ use wag_core::{
     GENERIC_TEXT_COLOR,
 };
 
-use super::setup_view_title;
+use super::{setup_view_title, MenuInputs};
 
 #[derive(Debug, Resource, Deref, DerefMut)]
 pub struct CharacterSelectNav(SharedVerticalNav);
@@ -135,31 +135,13 @@ fn setup_character_options(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity
 pub fn navigate_character_select(
     mut commands: Commands,
     mut nav: ResMut<CharacterSelectNav>,
-    mut events: EventReader<GamepadEvent>,
     controllers: Res<Controllers>,
     options: Query<&CharacterId>,
-    mut cludge_fix: Local<Option<Timer>>,
-    time: Res<Time>,
     mut state: ResMut<NextState<GameState>>,
+    mut events: ResMut<MenuInputs>,
 ) {
-    // There is a problem where sometimes the input that was used to confirm
-    // controllers also locks in a character. Hopefully by delaying a smidge
-    // here the problem goes away
-    let events = events.read();
-
-    let Some(ref mut timer) = *cludge_fix else {
-        *cludge_fix = Some(Timer::from_seconds(0.05, TimerMode::Once));
-        return;
-    };
-
-    timer.tick(time.delta());
-    if !timer.finished() {
-        let _useless_vec: Vec<_> = events.collect();
-        return;
-    }
-
     // TODO: Analog stick
-    for ev in events {
+    while let Some(ev) = events.pop_front() {
         match ev {
             GamepadEvent::Button(ev_btn) if ev_btn.value == 1.0 => {
                 let Some(player) = controllers.get_player(ev_btn.gamepad) else {

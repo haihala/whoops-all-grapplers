@@ -8,7 +8,7 @@ use wag_core::{
     GENERIC_TEXT_COLOR,
 };
 
-use super::{setup_view_subtitle, setup_view_title};
+use super::{setup_view_subtitle, setup_view_title, MenuInputs};
 
 #[derive(Debug, Resource, Deref, DerefMut)]
 pub struct EndScreenNav(SharedVerticalNav);
@@ -156,14 +156,14 @@ fn setup_end_screen_option(
 #[allow(clippy::too_many_arguments)]
 pub fn navigate_end_screen(
     mut nav: ResMut<EndScreenNav>,
-    mut events: EventReader<GamepadEvent>,
+    mut events: ResMut<MenuInputs>,
     controllers: Res<Controllers>,
     options: Query<&EndScreenOption>,
     mut state: ResMut<NextState<GameState>>,
     mut quitter: EventWriter<AppExit>,
 ) {
     // TODO: Analog stick
-    for ev in events.read() {
+    while let Some(ev) = events.pop_front() {
         match ev {
             GamepadEvent::Button(ev_btn) if ev_btn.value == 1.0 => {
                 let Some(player) = controllers.get_player(ev_btn.gamepad) else {

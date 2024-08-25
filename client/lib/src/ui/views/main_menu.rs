@@ -7,7 +7,7 @@ use crate::{
     ui::{OnPress, VerticalMenuNavigation},
 };
 
-use super::setup_view_title;
+use super::{setup_view_title, MenuInputs};
 
 #[derive(Debug, Resource, Deref, DerefMut)]
 pub struct MainMenuNav(VerticalMenuNavigation);
@@ -87,10 +87,10 @@ fn quit(_: Trigger<OnPress>, mut exit: EventWriter<AppExit>) {
 pub fn navigate_main_menu(
     mut commands: Commands,
     mut mmn: ResMut<MainMenuNav>,
-    mut events: EventReader<GamepadEvent>,
+    mut events: ResMut<MenuInputs>,
 ) {
     // TODO: Analog stick
-    for ev in events.read() {
+    while let Some(ev) = events.pop_front() {
         match ev {
             GamepadEvent::Button(ev_btn) if ev_btn.value == 1.0 => match ev_btn.button_type {
                 GamepadButtonType::DPadUp => mmn.up(),

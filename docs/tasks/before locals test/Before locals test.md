@@ -2,7 +2,6 @@
 - [[Particles 2.0]]
 - [[SFX 2.0]]
 - [[Update Gi]]
-- [[Dev binds 2.0]]
 - Minor
 	- Jump
 		- Reduce pre-jump frames

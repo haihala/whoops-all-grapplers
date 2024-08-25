@@ -1,6 +1,6 @@
-- Put parry on 6+f+g
-	- Long-ish animation, only active for like 5f
-	- Constant recovery animation
-- Make it uncancellable
-- Fix bug where animation occasionally doesn't trigger
-	- This could've been a cancel thing?
+- [ ] New parry properties
+	- [ ] Input to 6+f+g
+	- [ ] 30-ish frame animation
+	- [ ] Can parry for 5-ish frames
+	- [ ] Cancellable into most things after making contact 
+- [ ] Update item description

@@ -1,9 +1,9 @@
 use std::collections::VecDeque;
 
 use bevy::{input::gamepad::GamepadEvent, prelude::*};
-use wag_core::{GameState, InMenu};
+use wag_core::{GameState, InMenu, SoundEffect};
 
-use crate::assets::Fonts;
+use crate::assets::{Fonts, Sounds};
 
 mod character_select;
 mod controller_assignment;
@@ -61,7 +61,14 @@ impl Plugin for ViewsPlugin {
                 .chain()
                 .run_if(in_state(GameState::EndScreen))
                 .after(end_screen::setup_end_screen),
-        );
+        )
+        .add_systems(OnExit(GameState::MainMenu), play_transition_noise)
+        .add_systems(
+            OnExit(GameState::ControllerAssignment),
+            play_transition_noise,
+        )
+        .add_systems(OnExit(GameState::CharacterSelect), play_transition_noise)
+        .add_systems(OnExit(GameState::EndScreen), play_transition_noise);
     }
 }
 
@@ -74,6 +81,10 @@ fn update_menu_inputs(mut mi: ResMut<MenuInputs>, mut events: EventReader<Gamepa
     for ev in events.read() {
         mi.push_back(ev.to_owned());
     }
+}
+
+fn play_transition_noise(mut sounds: ResMut<Sounds>) {
+    sounds.play(SoundEffect::PlasticCupFlick);
 }
 
 fn setup_view_title(root: &mut ChildBuilder, fonts: &Fonts, text: impl Into<String>) {

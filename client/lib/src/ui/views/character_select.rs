@@ -160,7 +160,6 @@ pub fn navigate_character_select(
                     GamepadButtonType::South => {
                         nav.lock_in(player);
                         if nav.both_locked() {
-                            // Go next
                             let [p1_char, p2_char] = options
                                 .get_many([nav.p1_select.selected, nav.p2_select.selected])
                                 .unwrap();

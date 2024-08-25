@@ -57,7 +57,6 @@ impl Plugin for DevPlugin {
     }
 }
 
-// TODO: There is probably a better way to do this
 fn setup_gizmos(mut config_store: ResMut<GizmoConfigStore>) {
     let (config, _) = config_store.config_mut::<DefaultGizmoConfigGroup>();
     config.depth_bias = -1.0;

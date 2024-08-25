@@ -1,9 +1,6 @@
 use bevy::prelude::*;
 use characters::{CounterVisual, ResourceBarVisual, ResourceType, WAGResources};
-use wag_core::{Player, RoundLog, RESOURCE_COUNTER_TEXT_COLOR, TRANSPARENT};
-
-#[derive(Debug, Component, Deref)]
-pub struct ScoreText(pub Player); // TODO: Move this
+use wag_core::{Player, RESOURCE_COUNTER_TEXT_COLOR, TRANSPARENT};
 
 #[derive(Debug, Component)]
 pub struct ResourceGauge(pub Player, pub ResourceType);
@@ -199,20 +196,6 @@ pub fn update_counters(
                 }
 
                 text.sections[0].value = property.current.to_string();
-            }
-        }
-    }
-}
-
-pub fn update_score(
-    mut score_texts: Query<(&mut Text, &ScoreText)>,
-    players: Query<&Player>,
-    round_log: Res<RoundLog>,
-) {
-    for player in &players {
-        for (mut text, score_text) in &mut score_texts {
-            if *player == **score_text {
-                text.sections[0].value = round_log.wins(*player).to_string();
             }
         }
     }

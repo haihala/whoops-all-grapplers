@@ -14,9 +14,6 @@ pub use combat::Notifications;
 
 use crate::state_transitions::TransitionTimer;
 
-#[derive(Debug, Event)]
-struct OnPress;
-
 pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
@@ -28,11 +25,11 @@ impl Plugin for UIPlugin {
                 (
                     combat::update_bars,
                     combat::update_counters,
-                    combat::update_score,
                     combat::update_timer,
                 )
                     .run_if(in_state(GameState::Combat)),
             )
+            .add_systems(OnEnter(GameState::PostRound), combat::update_score)
             .add_systems(
                 Update,
                 (combat::update_notifications, round_text::update_round_text)

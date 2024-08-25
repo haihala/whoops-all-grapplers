@@ -19,15 +19,17 @@ pub enum EndScreenOption {
     QuitToMainMenu,
     QuitToDesktop,
 }
-
-impl EndScreenOption {
-    fn text(&self) -> String {
-        match self {
-            EndScreenOption::Rematch => "Rematch",
-            EndScreenOption::QuitToMainMenu => "Quit to main menu",
-            EndScreenOption::QuitToDesktop => "Quit to desktop",
-        }
-        .into()
+impl std::fmt::Display for EndScreenOption {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                EndScreenOption::Rematch => "Rematch",
+                EndScreenOption::QuitToMainMenu => "Quit to main menu",
+                EndScreenOption::QuitToDesktop => "Quit to desktop",
+            }
+        )
     }
 }
 
@@ -101,12 +103,12 @@ fn setup_end_screen_option(
             },
             ..default()
         },
-        Name::new(option.text()),
+        Name::new(option.to_string()),
         option,
     ))
     .with_children(|cb| {
         cb.spawn(TextBundle::from_section(
-            option.text(),
+            option.to_string(),
             TextStyle {
                 font: fonts.basic.clone(),
                 font_size: 30.0,

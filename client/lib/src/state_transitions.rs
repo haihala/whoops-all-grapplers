@@ -134,7 +134,7 @@ pub fn end_combat(
 
     next_state.set(GameState::PostRound);
 
-    let state = if round_log.wins(**winner) >= ROUNDS_TO_WIN {
+    let post_transition_state = if round_log.wins(**winner) >= ROUNDS_TO_WIN {
         commands.insert_resource(GameResult { winner: **winner });
         GameState::EndScreen
     } else {
@@ -142,7 +142,7 @@ pub fn end_combat(
     };
     commands.insert_resource(TransitionTimer {
         timer: Timer::from_seconds(POST_ROUND_DURATION, TimerMode::Once),
-        state: Some(state),
+        state: Some(post_transition_state),
     })
 }
 

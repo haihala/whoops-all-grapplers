@@ -348,9 +348,9 @@ impl PlayerState {
     pub fn get_pushbox(&self, character: &Character) -> Area {
         match self.main {
             MainState::Stand(_) => character.standing_pushbox,
-            MainState::Crouch(_) => character.crouching_pushbox,
             MainState::Air(_) => character.air_pushbox,
-            MainState::Ground(_) => character.crouching_pushbox, // TODO: These could have it's own box
+            // TODO: These could have it's own box
+            MainState::Crouch(_) | MainState::Ground(_) => character.crouching_pushbox,
         }
     }
     pub fn add_condition(&mut self, condition: StatusCondition) {

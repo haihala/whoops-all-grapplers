@@ -18,8 +18,6 @@ impl Plugin for EntityManagementPlugin {
             FixedUpdate,
             despawn_marked.after(crate::damage::handle_despawn_flags),
         )
-        // TODO: Check this actually works and it runs on state transitions
-        // System may get new or old state, but code assumes new
         .add_systems(
             Update,
             (despawn_on_state_change, update_visibility_on_state_change),

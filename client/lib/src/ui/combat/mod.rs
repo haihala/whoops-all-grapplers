@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 
 mod gauges;
-pub use gauges::{
-    update_bars, update_counters, update_score, ResourceCounter, ResourceGauge, ScoreText,
-};
+pub use gauges::{update_bars, update_counters, ResourceCounter, ResourceGauge};
 
 mod notifications;
 pub use notifications::{update_notifications, Notifications};
@@ -12,9 +10,12 @@ mod round_timer;
 pub use round_timer::update_timer;
 
 use characters::{RenderInstructions, ResourceBarVisual, ResourceType, WAGResources};
-use wag_core::{GameState, InMatch, Player, Players, GENERIC_TEXT_COLOR};
+use wag_core::{GameState, InMatch, Player, Players, RoundLog, GENERIC_TEXT_COLOR};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
+
+#[derive(Debug, Component, Deref)]
+pub struct ScoreText(pub Player);
 
 pub fn setup_combat_hud(
     mut commands: Commands,
@@ -213,4 +214,18 @@ fn setup_bottom_hud(
         ResourceGauge(player, ResourceType::Meter),
         "Meter bar",
     );
+}
+
+pub fn update_score(
+    mut score_texts: Query<(&mut Text, &ScoreText)>,
+    players: Query<&Player>,
+    round_log: Res<RoundLog>,
+) {
+    for player in &players {
+        for (mut text, score_text) in &mut score_texts {
+            if *player == **score_text {
+                text.sections[0].value = round_log.wins(*player).to_string();
+            }
+        }
+    }
 }

@@ -37,9 +37,8 @@ impl MoveBuffer {
 
     fn clear_old(&mut self, current_frame: usize) {
         self.buffer.retain(|(frame, _)| {
-            if current_frame > *frame {
+            if current_frame < *frame {
                 // Default case, retain those who are fresh
-                // TODO: autocorrect and buffer should be separate.
                 current_frame - frame < AUTOCORRECT
             } else {
                 // Round has restarted, clear the buffer

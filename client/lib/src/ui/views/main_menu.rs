@@ -1,16 +1,31 @@
 use bevy::{input::gamepad::GamepadEvent, prelude::*};
 use wag_core::{GameState, GENERIC_TEXT_COLOR, MAIN_MENU_HIGHLIGHT_TEXT_COLOR};
 
-use crate::{
-    assets::Fonts,
-    entity_management::VisibleInStates,
-    ui::{OnPress, VerticalMenuNavigation},
-};
+use crate::{assets::Fonts, entity_management::VisibleInStates, ui::VerticalMenuNavigation};
 
 use super::{setup_view_title, MenuInputs};
 
 #[derive(Debug, Resource, Deref, DerefMut)]
 pub struct MainMenuNav(VerticalMenuNavigation);
+
+#[derive(Debug, Component, Clone, Copy)]
+pub enum MainMenuOptions {
+    LocalPlay,
+    QuitToDesktop,
+}
+
+impl std::fmt::Display for MainMenuOptions {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                MainMenuOptions::LocalPlay => "Local play",
+                MainMenuOptions::QuitToDesktop => "Quit to desktop",
+            }
+        )
+    }
+}
 
 pub fn setup_main_menu(mut commands: Commands, fonts: Res<Fonts>) {
     let mut navigation = None;
@@ -46,57 +61,47 @@ pub fn setup_main_menu(mut commands: Commands, fonts: Res<Fonts>) {
 }
 
 fn setup_buttons(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity> {
-    vec![
-        root.spawn((
-            TextBundle::from_section(
-                "Local play!",
-                TextStyle {
-                    font: fonts.basic.clone(),
-                    font_size: 36.0,
-                    ..default()
-                },
-            ),
-            Name::new("Local play"),
-        ))
-        .observe(go_to_controller_assignment)
-        .id(),
-        root.spawn((
-            TextBundle::from_section(
-                "Quit",
-                TextStyle {
-                    font: fonts.basic.clone(),
-                    font_size: 36.0,
-                    ..default()
-                },
-            ),
-            Name::new("Quit"),
-        ))
-        .observe(quit)
-        .id(),
-    ]
-}
-
-fn go_to_controller_assignment(_: Trigger<OnPress>, mut state: ResMut<NextState<GameState>>) {
-    state.set(GameState::ControllerAssignment);
-}
-
-fn quit(_: Trigger<OnPress>, mut exit: EventWriter<AppExit>) {
-    exit.send_default();
+    vec![MainMenuOptions::LocalPlay, MainMenuOptions::QuitToDesktop]
+        .into_iter()
+        .map(|opt| {
+            root.spawn((
+                TextBundle::from_section(
+                    opt.to_string(),
+                    TextStyle {
+                        font: fonts.basic.clone(),
+                        font_size: 36.0,
+                        ..default()
+                    },
+                ),
+                Name::new("Local play"),
+                opt,
+            ))
+            .id()
+        })
+        .collect()
 }
 
 pub fn navigate_main_menu(
-    mut commands: Commands,
-    mut mmn: ResMut<MainMenuNav>,
+    mut nav: ResMut<MainMenuNav>,
     mut events: ResMut<MenuInputs>,
+    options: Query<&MainMenuOptions>,
+    mut state: ResMut<NextState<GameState>>,
+    mut exit: EventWriter<AppExit>,
 ) {
     // TODO: Analog stick
     while let Some(ev) = events.pop_front() {
         match ev {
             GamepadEvent::Button(ev_btn) if ev_btn.value == 1.0 => match ev_btn.button_type {
-                GamepadButtonType::DPadUp => mmn.up(),
-                GamepadButtonType::DPadDown => mmn.down(),
-                // TODO: This triggers automatically when rematching
-                GamepadButtonType::South => commands.trigger_targets(OnPress, mmn.selected),
+                GamepadButtonType::DPadUp => nav.up(),
+                GamepadButtonType::DPadDown => nav.down(),
+                GamepadButtonType::South => match options.get(nav.selected).unwrap() {
+                    MainMenuOptions::LocalPlay => {
+                        state.set(GameState::ControllerAssignment);
+                    }
+                    MainMenuOptions::QuitToDesktop => {
+                        exit.send_default();
+                    }
+                },
                 _ => {}
             },
             _ => {}

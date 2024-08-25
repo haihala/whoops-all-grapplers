@@ -35,7 +35,7 @@ run_task = { name = ["build", "format", "clippy", "test", "udeps"] }
 
 [tasks.dev]
 command = "cargo"
-args = ["run", "--", "--dev", "mizku", "mizku"]
+args = ["run", "--", "--dev", "0", "1", "mizku", "mizku"]
 
 [tasks.prod]
 command = "cargo"

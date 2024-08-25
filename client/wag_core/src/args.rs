@@ -10,6 +10,10 @@ pub struct WagArgs {
     #[arg(short, long, default_value_t = false)]
     pub dev: bool,
     #[arg(requires = "dev")]
+    pub pad1: Option<usize>,
+    #[arg(requires = "dev")]
+    pub pad2: Option<usize>,
+    #[arg(requires = "dev")]
     pub character1: Option<CharacterId>,
     #[arg(requires = "dev")]
     pub character2: Option<CharacterId>,

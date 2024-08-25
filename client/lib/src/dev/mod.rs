@@ -6,7 +6,8 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use characters::{ActionEvent, FlashRequest, Hitbox, Hurtbox, Inventory};
 use player_state::PlayerState;
 use wag_core::{
-    Clock, Facing, GameState, Joints, Player, SoundEffect, Stats, GI_PARRY_FLASH_COLOR,
+    Characters, Clock, Controllers, Facing, GameState, Joints, Player, SoundEffect, Stats, WagArgs,
+    GI_PARRY_FLASH_COLOR,
 };
 
 use crate::{
@@ -37,6 +38,7 @@ impl Plugin for DevPlugin {
             .register_type::<Facing>()
             .register_type::<Stats>()
             .add_systems(Startup, setup_gizmos)
+            .add_systems(PostStartup, skip_menus)
             .add_systems(
                 Update,
                 (
@@ -59,6 +61,27 @@ impl Plugin for DevPlugin {
 fn setup_gizmos(mut config_store: ResMut<GizmoConfigStore>) {
     let (config, _) = config_store.config_mut::<DefaultGizmoConfigGroup>();
     config.depth_bias = -1.0;
+}
+
+fn skip_menus(
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<GameState>>,
+    args: Res<WagArgs>,
+) {
+    next_state.set(GameState::Loading);
+    commands.insert_resource(Controllers {
+        p1: Gamepad {
+            id: args.pad1.unwrap(),
+        },
+        p2: Gamepad {
+            id: args.pad2.unwrap(),
+        },
+    });
+
+    commands.insert_resource(Characters {
+        p1: args.character1.unwrap(),
+        p2: args.character2.unwrap(),
+    })
 }
 
 fn shader_test_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<&mut PlayerState>) {

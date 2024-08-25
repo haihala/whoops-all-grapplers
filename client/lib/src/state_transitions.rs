@@ -1,10 +1,10 @@
-use bevy::{app::AppExit, asset::LoadState, prelude::*};
+use bevy::{asset::LoadState, prelude::*};
 
 use characters::{Character, Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
-    Clock, GameState, InMatch, Joints, Player, RoundLog, RoundResult, POST_ROUND_DURATION,
-    ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
+    Clock, GameResult, GameState, InMatch, Joints, Player, RoundLog, RoundResult,
+    POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
 };
 
 use crate::{assets::AssetsLoading, ui::Notifications};
@@ -30,14 +30,11 @@ impl Plugin for StateTransitionPlugin {
 #[derive(Debug, Resource)]
 pub struct TransitionTimer {
     timer: Timer,
-    exit_game: bool,
+    state: Option<GameState>,
 }
 impl From<Timer> for TransitionTimer {
     fn from(timer: Timer) -> Self {
-        Self {
-            timer,
-            exit_game: false,
-        }
+        Self { timer, state: None }
     }
 }
 
@@ -135,9 +132,16 @@ pub fn end_combat(
     round_log.add(result);
 
     next_state.set(GameState::PostRound);
+
+    let state = if round_log.wins(**winner) >= ROUNDS_TO_WIN {
+        commands.insert_resource(GameResult { winner: **winner });
+        GameState::EndScreen
+    } else {
+        GameState::Shop
+    };
     commands.insert_resource(TransitionTimer {
         timer: Timer::from_seconds(POST_ROUND_DURATION, TimerMode::Once),
-        exit_game: round_log.wins(**winner) >= ROUNDS_TO_WIN,
+        state: Some(state),
     })
 }
 
@@ -147,18 +151,13 @@ fn transition_after_timer(
     game_state: Res<State<GameState>>,
     mut next_state: ResMut<NextState<GameState>>,
     time: Res<Time>,
-    mut exit: EventWriter<AppExit>,
 ) {
     if let Some(mut transition) = timer_resource {
         transition.timer.tick(time.delta());
 
         if transition.timer.finished() {
-            if transition.exit_game {
-                exit.send(AppExit::Success);
-            } else {
-                next_state.set(game_state.get().next());
-                commands.remove_resource::<TransitionTimer>()
-            }
+            next_state.set(transition.state.unwrap_or(game_state.get().next()));
+            commands.remove_resource::<TransitionTimer>()
         }
     }
 }
@@ -168,7 +167,9 @@ fn end_loading(
     loading_assets: Res<AssetsLoading>,
     server: Res<AssetServer>,
     mut next_state: ResMut<NextState<GameState>>,
+    mut latch: Local<bool>,
 ) {
+    let two_players = players.iter().count() == 2;
     let joints_loaded = players.iter().all(|joints| !joints.nodes.is_empty());
     let some_assets_loading = !loading_assets.0.is_empty();
     let all_assets_loaded = loading_assets
@@ -176,9 +177,13 @@ fn end_loading(
         .iter()
         .all(|h| server.get_load_state(h.id()) == Some(LoadState::Loaded));
 
-    if joints_loaded && some_assets_loading && all_assets_loaded {
-        println!("Done loading assets");
-        next_state.set(GameState::SetupMatch);
+    if two_players && joints_loaded && some_assets_loading && all_assets_loaded {
+        if *latch {
+            println!("Done loading assets");
+            next_state.set(GameState::SetupMatch);
+        } else {
+            *latch = true;
+        }
     }
 }
 

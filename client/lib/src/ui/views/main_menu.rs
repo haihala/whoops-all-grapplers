@@ -95,6 +95,7 @@ pub fn navigate_main_menu(
             GamepadEvent::Button(ev_btn) if ev_btn.value == 1.0 => match ev_btn.button_type {
                 GamepadButtonType::DPadUp => mmn.up(),
                 GamepadButtonType::DPadDown => mmn.down(),
+                // TODO: This triggers automatically when rematching
                 GamepadButtonType::South => commands.trigger_targets(OnPress, mmn.selected),
                 _ => {}
             },

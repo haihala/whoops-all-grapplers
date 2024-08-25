@@ -9,7 +9,7 @@ use wag_core::{
 };
 
 use crate::assets::{Fonts, Icons};
-use crate::entity_management::{LivesInStates, VisibleInStates};
+use crate::entity_management::VisibleInStates;
 
 use super::shops_resource::{Shop, ShopComponents, ShopComponentsBuilder, Shops};
 use super::SHOP_COLUMNS;
@@ -41,7 +41,7 @@ pub fn setup_shop(
                 ..default()
             },
             VisibleInStates(vec![GameState::Shop]),
-            LivesInStates(vec![InMatch]),
+            StateScoped(InMatch),
             Name::new("Shop ui root"),
         ))
         .id();

@@ -81,26 +81,26 @@ fn add_camera(
 
 #[allow(clippy::type_complexity)]
 fn center_camera(
-    mut queryies: ParamSet<(
+    mut queries: ParamSet<(
         Query<&Transform, With<Player>>,
         Query<&mut Transform, With<CameraWrapper>>,
     )>,
     mut cam_zooms: Query<&mut ChildCameraEffects>,
 ) {
-    let avg_player_x = queryies.p0().iter().map(|tf| tf.translation.x).sum::<f32>() / 2.0;
+    let avg_player_x = queries.p0().iter().map(|tf| tf.translation.x).sum::<f32>() / 2.0;
 
     let mut cam_zoom = cam_zooms.single_mut();
     cam_zoom.player_midpoint = avg_player_x;
-    cam_zoom.player_distance = queryies
+    cam_zoom.player_distance = queries
         .p0()
         .iter()
         .map(|tf| tf.translation.x)
         .reduce(|a, b| a - b)
-        .unwrap()
+        .unwrap_or_default()
         .abs();
 
     // Do some light lerping to make backthrows less jarring
-    let mut camquery = queryies.p1();
+    let mut camquery = queries.p1();
     let mut tf = camquery.single_mut();
     let target = Vec3 {
         x: avg_player_x.clamp(-CAMERA_CLAMP, CAMERA_CLAMP),

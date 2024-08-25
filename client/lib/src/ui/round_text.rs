@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{GameState, RoundLog, GENERIC_TEXT_COLOR};
+use wag_core::{GameState, InMatch, RoundLog, GENERIC_TEXT_COLOR};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 
@@ -7,21 +7,15 @@ use crate::{assets::Fonts, entity_management::VisibleInStates};
 pub struct RoundText;
 
 pub fn update_round_text(
-    mut query: Query<(&mut Visibility, &mut Text), With<RoundText>>,
+    mut query: Query<&mut Text, With<RoundText>>,
     round_log: Res<RoundLog>,
     game_state: Res<State<GameState>>,
 ) {
-    let (mut visible, mut text) = query.single_mut();
-
-    if !game_state.get().show_round_text() {
-        *visible = Visibility::Hidden;
+    let Ok(ref mut text) = query.get_single_mut() else {
         return;
-    }
+    };
 
-    *visible = Visibility::Inherited;
-    if game_state.get() == &GameState::ControllerAssignment {
-        text.sections[0].value = "Press start to claim characters (first press = p1)".to_string();
-    } else if game_state.get() == &GameState::PreRound {
+    if game_state.get() == &GameState::PreRound {
         text.sections[0].value = "New round".to_string();
     } else if let Some(result) = round_log.last() {
         text.sections[0].value = if let Some(winner) = result.winner {
@@ -69,6 +63,12 @@ pub fn setup_round_info_text(mut commands: Commands, fonts: Res<Fonts>) {
                     ),
                     ..default()
                 },
+                StateScoped(InMatch),
+                VisibleInStates(vec![
+                    GameState::Loading,
+                    GameState::PreRound,
+                    GameState::PostRound,
+                ]),
                 RoundText,
             ));
         });

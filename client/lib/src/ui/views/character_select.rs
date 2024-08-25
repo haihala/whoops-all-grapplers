@@ -1,4 +1,8 @@
-use crate::{assets::Fonts, entity_management::VisibleInStates, ui::VerticalMenuNavigation};
+use crate::{
+    assets::Fonts,
+    entity_management::VisibleInStates,
+    ui::{SharedVerticalNav, VerticalMenuNavigation},
+};
 use bevy::{input::gamepad::GamepadEvent, prelude::*};
 use strum::IntoEnumIterator;
 use wag_core::{
@@ -8,63 +12,8 @@ use wag_core::{
 
 use super::setup_view_title;
 
-#[derive(Debug, Resource)]
-pub struct CharacterSelectNav {
-    p1_select: VerticalMenuNavigation,
-    p1_locked: bool,
-    p2_select: VerticalMenuNavigation,
-    p2_locked: bool,
-}
-
-impl CharacterSelectNav {
-    fn up(&mut self, player: Player) {
-        match player {
-            Player::One => {
-                if !self.p1_locked {
-                    self.p1_select.up()
-                }
-            }
-            Player::Two => {
-                if !self.p2_locked {
-                    self.p2_select.up()
-                }
-            }
-        }
-    }
-
-    fn down(&mut self, player: Player) {
-        match player {
-            Player::One => {
-                if !self.p1_locked {
-                    self.p1_select.down()
-                }
-            }
-            Player::Two => {
-                if !self.p2_locked {
-                    self.p2_select.down()
-                }
-            }
-        }
-    }
-
-    fn both_locked(&self) -> bool {
-        self.p1_locked && self.p2_locked
-    }
-
-    fn lock_in(&mut self, player: Player) {
-        match player {
-            Player::One => self.p1_locked = true,
-            Player::Two => self.p2_locked = true,
-        }
-    }
-
-    fn unlock(&mut self, player: Player) {
-        match player {
-            Player::One => self.p1_locked = false,
-            Player::Two => self.p2_locked = false,
-        }
-    }
-}
+#[derive(Debug, Resource, Deref, DerefMut)]
+pub struct CharacterSelectNav(SharedVerticalNav);
 
 pub fn setup_character_select(mut commands: Commands, fonts: Res<Fonts>) {
     let mut navigation = None;
@@ -96,12 +45,12 @@ pub fn setup_character_select(mut commands: Commands, fonts: Res<Fonts>) {
         });
 
     if let Some(nav) = navigation {
-        commands.insert_resource(CharacterSelectNav {
+        commands.insert_resource(CharacterSelectNav(SharedVerticalNav {
             p1_select: nav.clone(),
             p2_select: nav,
             p1_locked: false,
             p2_locked: false,
-        });
+        }));
     }
 }
 
@@ -221,7 +170,11 @@ pub fn navigate_character_select(
                     GamepadButtonType::DPadUp => nav.up(player),
                     GamepadButtonType::DPadDown => nav.down(player),
                     GamepadButtonType::East => {
-                        nav.unlock(player);
+                        if nav.locked(player) {
+                            nav.unlock(player);
+                        } else {
+                            state.set(GameState::ControllerAssignment);
+                        }
                     }
                     GamepadButtonType::South => {
                         nav.lock_in(player);

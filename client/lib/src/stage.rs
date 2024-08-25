@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use wag_core::{GameState, InMatch, Model};
 
-use crate::{assets::Models, entity_management::LivesInStates};
+use crate::assets::Models;
 
 pub struct StagePlugin;
 
@@ -18,7 +18,7 @@ fn add_stage(mut commands: Commands, models: Res<Models>) {
             ..default()
         },
         Name::new("Stage"),
-        LivesInStates(vec![InMatch]),
+        StateScoped(InMatch),
     ));
 }
 
@@ -34,6 +34,6 @@ pub fn setup_lights(mut commands: Commands) {
             ..default()
         },
         Name::new("Point light"),
-        LivesInStates(vec![InMatch]),
+        StateScoped(InMatch),
     ));
 }

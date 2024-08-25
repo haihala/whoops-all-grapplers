@@ -171,6 +171,7 @@ pub fn navigate_controller_assignment_menu(
     mut ca: ResMut<ControllerAssignment>,
     mut events: EventReader<GamepadEvent>,
     callback: Res<SubmitCallback>,
+    mut state: ResMut<NextState<GameState>>,
 ) {
     // TODO: Analog stick
     for ev in events.read() {
@@ -182,6 +183,9 @@ pub fn navigate_controller_assignment_menu(
                     if ca.is_complete() {
                         commands.run_system(callback.0);
                     }
+                }
+                GamepadButtonType::East => {
+                    state.set(GameState::MainMenu);
                 }
                 _ => {}
             },

@@ -8,7 +8,7 @@ pub struct DespawnMarker(pub usize);
 pub struct VisibleInStates(pub Vec<GameState>);
 
 #[derive(Debug, Component, Deref)]
-pub struct LivesInStates<T: States>(pub Vec<T>);
+pub struct LivesInStates(pub Vec<GameState>);
 
 pub struct EntityManagementPlugin;
 
@@ -22,12 +22,9 @@ impl Plugin for EntityManagementPlugin {
         // System may get new or old state, but code assumes new
         .add_systems(
             Update,
-            (
-                despawn_on_state_change::<GameState>,
-                despawn_on_state_change::<InMatch>,
-                update_visibility_on_state_change,
-            ),
-        );
+            (despawn_on_state_change, update_visibility_on_state_change),
+        )
+        .enable_state_scoped_entities::<InMatch>();
     }
 }
 
@@ -43,12 +40,11 @@ fn despawn_marked(
     }
 }
 
-fn despawn_on_state_change<T: States>(
-    maybe_state: Option<Res<State<T>>>,
+fn despawn_on_state_change(
+    state: Res<State<GameState>>,
     mut commands: Commands,
-    query: Query<(Entity, &LivesInStates<T>)>,
+    query: Query<(Entity, &LivesInStates)>,
 ) {
-    let Some(state) = maybe_state else { return };
     if state.is_changed() {
         for (entity, restriction) in &query {
             if !restriction.contains(state.get()) {

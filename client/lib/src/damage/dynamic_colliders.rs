@@ -113,7 +113,8 @@ pub(super) fn update_colliders(
     players: Res<Players>,
 ) {
     for player in Player::iter() {
-        let (player_joints, player_tf) = joints.get(players.get(player)).unwrap();
+        let player_entity = players.get(player);
+        let (player_joints, player_tf) = joints.get(player_entity).unwrap();
         for collider in &player_joints.colliders {
             if let Some(mut hurtbox) = colliders
                 .iter_mut()

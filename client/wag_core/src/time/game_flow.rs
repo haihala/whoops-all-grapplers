@@ -16,6 +16,8 @@ pub enum GameState {
     Combat,
     PostRound,
     Shop,
+
+    EndScreen,
 }
 impl GameState {
     pub fn next(self) -> GameState {
@@ -28,10 +30,6 @@ impl GameState {
             other => panic!("Should not go to next state in state {:?}", other),
         }
     }
-
-    pub fn show_round_text(&self) -> bool {
-        !matches!(self, GameState::Shop | GameState::Combat)
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -43,7 +41,12 @@ impl ComputedStates for InMatch {
     fn compute(sources: Self::SourceStates) -> Option<Self> {
         if matches!(
             sources,
-            GameState::Shop | GameState::Combat | GameState::PreRound | GameState::PostRound
+            GameState::Loading
+                | GameState::SetupMatch
+                | GameState::PreRound
+                | GameState::Combat
+                | GameState::PostRound
+                | GameState::Shop
         ) {
             Some(InMatch)
         } else {
@@ -83,6 +86,11 @@ impl RoundLog {
             .filter(|round| round.winner == Some(player))
             .count()
     }
+}
+
+#[derive(Debug, Clone, Copy, Resource)]
+pub struct GameResult {
+    pub winner: Player,
 }
 
 #[derive(Debug, Clone, Copy)]

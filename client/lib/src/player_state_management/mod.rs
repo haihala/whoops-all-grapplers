@@ -18,7 +18,6 @@ use wag_core::{
 use crate::{
     assets::{AnimationHelper, AnimationHelperSetup, Models, PlayerModelHook},
     damage::{Defense, HitboxSpawner},
-    entity_management::LivesInStates,
     movement::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
 
@@ -131,7 +130,7 @@ fn spawn_player(
             character.clone(),
             PlayerState::default(),
             player,
-            LivesInStates(vec![InMatch]),
+            StateScoped(InMatch),
         ))
         .with_children(move |parent| {
             parent.spawn((

@@ -8,6 +8,10 @@ pub enum SoundEffect {
     Hit,
     #[default]
     Silence,
+    GlassClink,
+    PotLidGong,
+    PlasticCupFlick,
+    PlasticCupTap,
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]

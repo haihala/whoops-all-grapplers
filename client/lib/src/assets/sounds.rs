@@ -1,3 +1,4 @@
+use bevy::asset::AssetPath;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 use rand::prelude::*;
@@ -43,21 +44,51 @@ pub fn play_queued(
     }
 }
 
-pub fn get_sound_paths() -> HashMap<SoundEffect, Vec<&'static str>> {
+pub fn get_sound_paths() -> HashMap<SoundEffect, Vec<impl Into<AssetPath<'static>>>> {
     vec![
-        (SoundEffect::Whoosh, vec!["sound_effects/whoosh.ogg"]),
-        (SoundEffect::Block, vec!["sound_effects/block.ogg"]),
+        (
+            SoundEffect::Whoosh,
+            vec!["sound_effects/whoosh.ogg".to_string()],
+        ),
+        (
+            SoundEffect::Block,
+            vec!["sound_effects/block.ogg".to_string()],
+        ),
         (
             SoundEffect::Hit,
-            vec![
-                "sound_effects/hit1.ogg",
-                "sound_effects/hit2.ogg",
-                "sound_effects/hit3.ogg",
-            ],
+            (1..=3)
+                .map(|int| format!("sound_effects/hit{}.ogg", int))
+                .collect(),
         ),
         (
             SoundEffect::Clash,
-            vec!["sound_effects/clink1.ogg", "sound_effects/clink2.ogg"],
+            (1..=2)
+                .map(|int| format!("sound_effects/clink{}.ogg", int))
+                .collect(),
+        ),
+        (
+            SoundEffect::GlassClink,
+            (1..=10)
+                .map(|int| format!("sound_effects/glass-{:0>2}.ogg", int))
+                .collect(),
+        ),
+        (
+            SoundEffect::PlasticCupFlick,
+            (1..=23)
+                .map(|int| format!("sound_effects/plastic-cup-flick-{:0>2}.ogg", int))
+                .collect(),
+        ),
+        (
+            SoundEffect::PotLidGong,
+            (1..=4)
+                .map(|int| format!("sound_effects/pot-lid-{:0>2}.ogg", int))
+                .collect(),
+        ),
+        (
+            SoundEffect::PlasticCupTap,
+            (1..=20)
+                .map(|int| format!("sound_effects/plastic-cup-tap-{:0>2}.ogg", int))
+                .collect(),
         ),
     ]
     .into_iter()

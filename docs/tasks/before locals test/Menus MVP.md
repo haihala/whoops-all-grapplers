@@ -10,6 +10,7 @@ For stuff like pause and main menus
 - [x] Main menu
 	- [x] Versus (combat)
 	- [x] Quit
-- [ ] Fix bug where keybinds "carry over" from previous menus
+- [x] Fix bug where keybinds "carry over" from previous menus (newtype)
+- [x] Fix bug where end screen stays
 
 See if https://github.com/nicopap/ui-navigation is worth using

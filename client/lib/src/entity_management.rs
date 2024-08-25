@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{Clock, GameState, InMatch};
+use wag_core::{Clock, GameState, InMatch, InMenu};
 
 #[derive(Component)]
 pub struct DespawnMarker(pub usize);
@@ -24,6 +24,8 @@ impl Plugin for EntityManagementPlugin {
             Update,
             (despawn_on_state_change, update_visibility_on_state_change),
         )
+        .enable_state_scoped_entities::<GameState>()
+        .enable_state_scoped_entities::<InMenu>()
         .enable_state_scoped_entities::<InMatch>();
     }
 }

@@ -99,7 +99,7 @@ pub(super) fn clash_parry(
             .intersection(&hitbox2.with_offset(gtf2.translation().truncate()))
         {
             // Hitboxes collide
-            sounds.play(SoundEffect::Clash);
+            sounds.play(SoundEffect::PotLidGong);
             particles.spawn(VfxRequest {
                 effect: VisualEffect::Clash,
                 position: overlap.center().extend(0.0),
@@ -326,7 +326,7 @@ pub(super) fn apply_connections(
                     } else {
                         hit.attack.target_on_block
                     },
-                    SoundEffect::Block,
+                    SoundEffect::PlasticCupTap,
                     VisualEffect::Block,
                     true,
                 )

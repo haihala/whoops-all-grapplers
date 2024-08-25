@@ -4,7 +4,7 @@ use bevy::prelude::*;
 pub enum SoundEffect {
     Whoosh,
     Clash,
-    Block,
+    Block, // Unused
     Hit,
     #[default]
     Silence,

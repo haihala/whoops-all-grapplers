@@ -6,7 +6,7 @@ use super::{
     animations::animation_paths,
     materials::{BlockEffectMaterial, ClashSparkMaterial, HitSparkMaterial},
     models::model_paths,
-    sounds::{get_sound_paths, Sounds},
+    sounds::Sounds,
     Animations, AssetsLoading, Fonts, Icons, Models, Vfx,
 };
 
@@ -78,7 +78,7 @@ pub fn sounds(
     asset_server: Res<AssetServer>,
     mut loading_assets: ResMut<AssetsLoading>,
 ) {
-    let handles: HashMap<SoundEffect, Vec<Handle<AudioSource>>> = get_sound_paths()
+    let handles: HashMap<SoundEffect, Vec<Handle<AudioSource>>> = SoundEffect::paths()
         .into_iter()
         .map(|(id, paths)| {
             (

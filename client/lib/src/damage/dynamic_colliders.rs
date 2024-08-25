@@ -7,13 +7,7 @@ pub(super) fn create_colliders(
     players: Query<(Entity, &Player, &Joints)>,
     joint_tfs: Query<&GlobalTransform>,
     existing_colliders: Query<(&JointCollider, &Owner)>,
-    mut done: Local<bool>,
 ) {
-    if *done {
-        return;
-    }
-    let mut all_ready = true;
-
     for (entity, player, joints) in &players {
         // Can't create colliders before nodes have been linked
         if joints.nodes.is_empty() {
@@ -36,8 +30,6 @@ pub(super) fn create_colliders(
                 continue;
             };
 
-            all_ready = false;
-
             let hitbox = Hurtbox(bounding_box);
             let name = format!("{:?}", collider);
 
@@ -51,10 +43,6 @@ pub(super) fn create_colliders(
                 ))
                 .set_parent(entity);
         }
-    }
-
-    if all_ready {
-        *done = true;
     }
 }
 

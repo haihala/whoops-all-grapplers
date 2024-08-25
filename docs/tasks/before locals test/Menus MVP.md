@@ -12,5 +12,6 @@ For stuff like pause and main menus
 	- [x] Quit
 - [x] Fix bug where keybinds "carry over" from previous menus (newtype)
 - [x] Fix bug where end screen stays
+- [x] Fix rematches
 
 See if https://github.com/nicopap/ui-navigation is worth using

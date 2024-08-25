@@ -76,6 +76,7 @@ impl Plugin for TimePlugin {
         .init_resource::<Clock>()
         .insert_resource(Time::<Fixed>::from_seconds(1.0 / crate::FPS as f64))
         .add_systems(FixedUpdate, update_clock)
+        .add_systems(OnExit(GameState::EndScreen), clear_round_log)
         .insert_resource(RoundLog::default());
     }
 }
@@ -95,4 +96,8 @@ fn update_clock(
         .clamp(0.0, COMBAT_DURATION)
         .ceil() as usize;
     clock.done = clock.timer_value == 0;
+}
+
+fn clear_round_log(mut log: ResMut<RoundLog>) {
+    log.clear();
 }

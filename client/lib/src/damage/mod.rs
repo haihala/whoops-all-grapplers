@@ -15,7 +15,7 @@ pub use defense::Defense;
 pub use hit_tracker::HitTracker;
 pub use hitboxes::HitboxSpawner;
 
-use wag_core::WAGStage;
+use wag_core::{InMatch, WAGStage};
 
 pub struct DamagePlugin;
 
@@ -35,7 +35,8 @@ impl Plugin for DamagePlugin {
                 defense::timeout_defense_streak,
             )
                 .chain()
-                .in_set(WAGStage::HitReg),
+                .in_set(WAGStage::HitReg)
+                .run_if(in_state(InMatch)),
         )
         .add_systems(
             FixedUpdate,

@@ -80,6 +80,9 @@ pub struct RoundLog {
     log: Vec<RoundResult>,
 }
 impl RoundLog {
+    pub fn clear(&mut self) {
+        self.log.clear();
+    }
     pub fn add(&mut self, result: RoundResult) {
         self.log.push(result);
     }

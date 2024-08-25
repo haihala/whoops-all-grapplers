@@ -2,8 +2,8 @@ use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
     ActionId, Animation, AnimationType, Area, GameButton, Icon, ItemId, Joint, MizkuActionId,
-    MizkuAnimation, Model, Stats, StatusCondition, StatusFlag, MIZUKI_ALT_HELMET_COLOR,
-    MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
+    MizkuAnimation, Model, SoundEffect, Stats, StatusCondition, StatusFlag,
+    MIZUKI_ALT_HELMET_COLOR, MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
 };
 
 use crate::{
@@ -168,6 +168,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 duration: 20,
                             }
                             .into(),
+                            SoundEffect::FemaleExhale.into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(9),
                         ..default()

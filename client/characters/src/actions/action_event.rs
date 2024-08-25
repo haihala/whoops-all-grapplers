@@ -57,6 +57,11 @@ impl From<AnimationRequest> for ActionEvent {
         ActionEvent::Animation(value)
     }
 }
+impl From<SoundEffect> for ActionEvent {
+    fn from(value: SoundEffect) -> Self {
+        ActionEvent::Sound(value)
+    }
+}
 // This isn't a great way to do this, but it's the best I can think of for now
 impl From<DummyAnimation> for ActionEvent {
     fn from(value: DummyAnimation) -> Self {

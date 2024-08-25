@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::Animation;
+use wag_core::{Animation, SoundEffect};
 
 use crate::{
     ActionBlock, ActionEvent, ActionRequirement, AnimationRequest, Attack, CancelRule,
@@ -191,7 +191,11 @@ impl Action {
             category.clone(),
             vec![
                 ActionBlock {
-                    events: vec![animation.into().into()],
+                    events: vec![
+                        animation.into().into(),
+                        // TODO: Make this character-dependent
+                        SoundEffect::FemaleExhale.into(),
+                    ],
                     exit_requirement: ContinuationRequirement::Time(startup),
                     ..default()
                 },

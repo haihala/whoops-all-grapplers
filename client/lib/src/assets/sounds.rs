@@ -33,7 +33,11 @@ pub fn play_queued(
     for source in sounds.queue.drain(..) {
         commands.spawn(AudioBundle {
             source,
-            ..default()
+            settings: PlaybackSettings {
+                // Shift speed (pitch) by up to about 10% either way
+                speed: rand::thread_rng().gen_range(0.9..1.1),
+                ..default()
+            },
         });
     }
     for (entity, sink) in &spawned {

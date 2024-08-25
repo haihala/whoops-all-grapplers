@@ -1,6 +1,5 @@
 # Next steps
 - [[Update Gi]]
-- [[Menus MVP]]
 - [[Notifications 2.0]]
 
 # Next big milestone

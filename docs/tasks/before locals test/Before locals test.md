@@ -1,4 +1,3 @@
-- [[Menus MVP]]
 - [[Notifications 2.0]]
 - [[Particles 2.0]]
 - [[SFX 2.0]]

@@ -7,7 +7,7 @@ use bevy::{input::gamepad::GamepadEvent, prelude::*};
 use strum::IntoEnumIterator;
 use wag_core::{
     CharacterId, Characters, Controllers, GameState, Player, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR,
-    GENERIC_TEXT_COLOR,
+    GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
 use super::{setup_view_title, MenuInputs};
@@ -65,7 +65,7 @@ fn setup_character_options(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity
         .map(|character| {
             root.spawn((
                 NodeBundle {
-                    background_color: Color::BLACK.into(),
+                    background_color: VERTICAL_MENU_OPTION_BACKGROUND.into(),
                     style: Style {
                         flex_direction: FlexDirection::Column,
                         align_items: AlignItems::Center,

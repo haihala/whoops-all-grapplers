@@ -69,3 +69,4 @@ pub const MIZUKI_ALT_HELMET_COLOR: Color = Color::srgb(38.0 / 255.0, 50.0 / 255.
 // UI
 pub const LOADING_SCREEN_BACKGROUND: Color = Color::srgb(0.2, 0.2, 0.2);
 pub const CONTROLLER_ASSIGNMENT_SIDE_COLOR: Color = Color::srgb(0.1, 0.1, 0.1);
+pub const VERTICAL_MENU_OPTION_BACKGROUND: Color = Color::srgb(0.1, 0.1, 0.1);

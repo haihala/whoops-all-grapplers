@@ -1,8 +1,5 @@
 use bevy::{ecs::system::SystemId, input::gamepad::GamepadEvent, prelude::*};
-use wag_core::{
-    Controllers, GameState, Player, CONTROLLER_ASSIGNMENT_SIDE_COLOR,
-    MAIN_MENU_HIGHLIGHT_TEXT_COLOR,
-};
+use wag_core::{Controllers, GameState, Player, CONTROLLER_ASSIGNMENT_SIDE_COLOR};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 
@@ -92,7 +89,6 @@ fn go_to_character_select(
 fn setup_areas(root: &mut ChildBuilder, fonts: &Fonts) {
     root.spawn((
         NodeBundle {
-            background_color: MAIN_MENU_HIGHLIGHT_TEXT_COLOR.into(),
             style: Style {
                 flex_grow: 1.0,
                 flex_direction: FlexDirection::Row,

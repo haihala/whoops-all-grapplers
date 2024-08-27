@@ -5,7 +5,7 @@ use crate::{
 use bevy::{input::gamepad::GamepadEvent, prelude::*};
 use wag_core::{
     Controllers, GameResult, GameState, Player, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR,
-    GENERIC_TEXT_COLOR,
+    GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
 use super::{setup_view_subtitle, setup_view_title, MenuInputs};
@@ -93,7 +93,7 @@ fn setup_end_screen_option(
 ) -> Entity {
     root.spawn((
         NodeBundle {
-            background_color: Color::BLACK.into(),
+            background_color: VERTICAL_MENU_OPTION_BACKGROUND.into(),
             style: Style {
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Center,

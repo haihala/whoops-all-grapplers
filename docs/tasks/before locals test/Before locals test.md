@@ -1,5 +1,5 @@
-- [[Notifications 2.0]]
-- [[Particles 2.0]]
+- [[Popups 2.0]]
+- [[VFX 2.0]]
 - [[SFX 2.0]]
 - [[Update Gi]]
 - Minor

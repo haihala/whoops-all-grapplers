@@ -1,0 +1,3 @@
+- [ ] Meter gain number pop-up
+- [ ] Damage numbers
+- [ ] Combo counter

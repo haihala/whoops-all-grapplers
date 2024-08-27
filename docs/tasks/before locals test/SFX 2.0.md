@@ -1,7 +1,8 @@
 - [ ] Announcer voices for
 	- [ ] Round start
 	- [ ] Game over
-	- [ ] Some of [[Notifications 2.0]]?
+	- [ ] Some of [[Popups 2.0]]?
 - [ ] VA work for [[Mizku]]
-	- [ ] Yells and grunts for various places
+	- [x] Sharp exhales for most normals
+	- [ ] Grunts for specials / sword moves
 	- [ ] Idle barks

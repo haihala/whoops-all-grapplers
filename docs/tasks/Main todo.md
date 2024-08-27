@@ -1,6 +1,10 @@
 # Next steps
 - [[Update Gi]]
-- [[Notifications 2.0]]
+- [[Popups 2.0]]
+- [[VFX 2.0]]
+- [[SFX 2.0]]
+
+Make a new dev update video after those
 
 # Next big milestone
 - [[Before locals test]]

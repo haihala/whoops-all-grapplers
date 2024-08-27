@@ -37,6 +37,7 @@ impl Plugin for AssetsPlugin {
                 MaterialPlugin::<materials::HitSparkMaterial>::default(),
                 MaterialPlugin::<materials::BlockEffectMaterial>::default(),
                 MaterialPlugin::<materials::ClashSparkMaterial>::default(),
+                MaterialPlugin::<materials::RingRippleMaterial>::default(),
                 MaterialPlugin::<ExtendedFlashMaterial>::default(),
             ))
             .add_systems(

@@ -4,7 +4,7 @@ use wag_core::{Animation, Icon, Model, SoundEffect, VisualEffect};
 
 use super::{
     animations::animation_paths,
-    materials::{BlockEffectMaterial, ClashSparkMaterial, HitSparkMaterial},
+    materials::{BlockEffectMaterial, ClashSparkMaterial, HitSparkMaterial, RingRippleMaterial},
     models::model_paths,
     sounds::Sounds,
     Animations, AssetsLoading, Fonts, Icons, Models, Vfx,
@@ -107,11 +107,16 @@ pub fn vfx(
     mut clash_spark_materials: ResMut<Assets<ClashSparkMaterial>>,
     mut block_effect_materials: ResMut<Assets<BlockEffectMaterial>>,
     mut hit_spark_materials: ResMut<Assets<HitSparkMaterial>>,
+    mut ring_ripple_materials: ResMut<Assets<RingRippleMaterial>>,
 ) {
     let mesh_handles = vec![
         (VisualEffect::Block, meshes.add(Rectangle::new(1.1, 2.0))),
-        (VisualEffect::Hit, meshes.add(Rectangle::new(1.5, 1.5))),
+        (VisualEffect::Hit, meshes.add(Rectangle::new(1.1, 1.1))),
         (VisualEffect::Clash, meshes.add(Rectangle::new(1.5, 1.5))),
+        (
+            VisualEffect::ThrowTech,
+            meshes.add(Rectangle::new(2.0, 2.0)),
+        ),
     ]
     .into_iter()
     .collect();
@@ -119,11 +124,13 @@ pub fn vfx(
     let clash_spark_material = clash_spark_materials.add(ClashSparkMaterial::default());
     let block_effect_material = block_effect_materials.add(BlockEffectMaterial::default());
     let hit_spark_material = hit_spark_materials.add(HitSparkMaterial::default());
+    let throw_tech_material = ring_ripple_materials.add(RingRippleMaterial::default());
 
     commands.insert_resource(Vfx::new(
         mesh_handles,
         clash_spark_material,
         block_effect_material,
         hit_spark_material,
+        throw_tech_material,
     ));
 }

@@ -16,6 +16,7 @@ pub enum SoundEffect {
     PlasticCupTap,
     CheekSlap,
     FemaleExhale,
+    BottleBonk,
 }
 
 impl SoundEffect {
@@ -36,6 +37,7 @@ impl SoundEffect {
             SoundEffect::PlasticCupTap => Self::clips("plastic-cup-tap", 20),
             SoundEffect::CheekSlap => Self::clips("cheek-slap", 20),
             SoundEffect::FemaleExhale => Self::clips("female-exhale", 16),
+            SoundEffect::BottleBonk => Self::clips("bottle-bonk", 12),
         }
     }
 
@@ -51,4 +53,5 @@ pub enum VisualEffect {
     Clash,
     Block,
     Hit,
+    ThrowTech,
 }

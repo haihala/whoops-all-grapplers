@@ -7,6 +7,7 @@ use characters::FlashRequest;
 use wag_core::{
     BLOCK_EFFECT_BASE_COLOR, BLOCK_EFFECT_EDGE_COLOR, CLASH_SPARK_BASE_COLOR,
     CLASH_SPARK_EDGE_COLOR, HIT_SPARK_BASE_COLOR, HIT_SPARK_EDGE_COLOR, HIT_SPARK_MID_COLOR,
+    RING_RIPPLE_BASE_COLOR, RING_RIPPLE_EDGE_COLOR,
 };
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -115,6 +116,46 @@ impl Default for ClashSparkMaterial {
 impl Material for ClashSparkMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/clash_spark.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
+}
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct RingRippleMaterial {
+    #[uniform(0)]
+    base_color: LinearRgba,
+    #[uniform(1)]
+    edge_color: LinearRgba,
+    #[uniform(2)]
+    duration: f32,
+    #[uniform(3)]
+    ring_thickness: f32,
+    #[uniform(4)]
+    start_time: f32,
+}
+impl RingRippleMaterial {
+    pub(crate) fn reset(&mut self, time: f32) {
+        self.start_time = time;
+    }
+}
+impl Default for RingRippleMaterial {
+    fn default() -> Self {
+        Self {
+            edge_color: RING_RIPPLE_EDGE_COLOR.into(),
+            base_color: RING_RIPPLE_BASE_COLOR.into(),
+            duration: 0.7,
+            ring_thickness: 0.05,
+            start_time: 0.0,
+        }
+    }
+}
+
+impl Material for RingRippleMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/ring_ripple.wgsl".into()
     }
 
     fn alpha_mode(&self) -> AlphaMode {

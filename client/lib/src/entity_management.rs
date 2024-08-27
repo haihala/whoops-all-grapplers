@@ -7,9 +7,6 @@ pub struct DespawnMarker(pub usize);
 #[derive(Debug, Component, Deref)]
 pub struct VisibleInStates(pub Vec<GameState>);
 
-#[derive(Debug, Component, Deref)]
-pub struct LivesInStates(pub Vec<GameState>);
-
 pub struct EntityManagementPlugin;
 
 impl Plugin for EntityManagementPlugin {
@@ -18,10 +15,7 @@ impl Plugin for EntityManagementPlugin {
             FixedUpdate,
             despawn_marked.after(crate::damage::handle_despawn_flags),
         )
-        .add_systems(
-            Update,
-            (despawn_on_state_change, update_visibility_on_state_change),
-        )
+        .add_systems(Update, update_visibility_on_state_change)
         .enable_state_scoped_entities::<GameState>()
         .enable_state_scoped_entities::<InMenu>()
         .enable_state_scoped_entities::<InMatch>();
@@ -36,20 +30,6 @@ fn despawn_marked(
     for (marked, marker) in &marks {
         if marker.0 < clock.frame {
             commands.entity(marked).despawn_recursive();
-        }
-    }
-}
-
-fn despawn_on_state_change(
-    state: Res<State<GameState>>,
-    mut commands: Commands,
-    query: Query<(Entity, &LivesInStates)>,
-) {
-    if state.is_changed() {
-        for (entity, restriction) in &query {
-            if !restriction.contains(state.get()) {
-                commands.entity(entity).despawn_recursive();
-            }
         }
     }
 }

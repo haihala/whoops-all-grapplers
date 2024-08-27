@@ -6,7 +6,7 @@ use wag_core::{Area, Clock, Facing, GameState, Joints, Owner, Player};
 
 use crate::{
     assets::Models,
-    entity_management::{DespawnMarker, LivesInStates},
+    entity_management::DespawnMarker,
     movement::{ConstantVelocity, Follow},
 };
 
@@ -67,7 +67,7 @@ impl HitboxSpawner {
             Owner(player),
             hitbox,
             attack.clone(),
-            LivesInStates(vec![GameState::Combat]),
+            StateScoped(GameState::Combat),
         ));
 
         if let Some(velocity) = attack.to_hit.velocity {

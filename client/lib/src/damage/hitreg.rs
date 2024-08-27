@@ -344,8 +344,8 @@ pub(super) fn apply_connections(
             ConnectionType::Tech | ConnectionType::Stunlock => (
                 vec![Movement::impulse(Vec2::X * -4.0).into()],
                 vec![],
-                SoundEffect::Clash,
-                VisualEffect::Clash,
+                SoundEffect::BottleBonk,
+                VisualEffect::ThrowTech,
                 true,
             ),
         };

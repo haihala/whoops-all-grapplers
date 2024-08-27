@@ -55,6 +55,9 @@ pub const HIT_SPARK_EDGE_COLOR: Color = Color::srgb(1.0, 1.0, 0.1);
 pub const BLOCK_EFFECT_BASE_COLOR: Color = Color::WHITE;
 pub const BLOCK_EFFECT_EDGE_COLOR: Color = Color::srgb(0.1, 0.2, 1.0);
 
+pub const RING_RIPPLE_EDGE_COLOR: Color = Color::WHITE;
+pub const RING_RIPPLE_BASE_COLOR: Color = Color::srgb(0.2, 1.0, 0.5);
+
 pub const CLASH_SPARK_BASE_COLOR: Color = Color::srgb(1.0, 0.5, 1.0);
 pub const CLASH_SPARK_EDGE_COLOR: Color = Color::srgb(0.9, 0.1, 0.9);
 

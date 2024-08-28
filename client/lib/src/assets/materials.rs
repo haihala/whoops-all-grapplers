@@ -10,6 +10,10 @@ use wag_core::{
     RING_RIPPLE_BASE_COLOR, RING_RIPPLE_EDGE_COLOR,
 };
 
+pub trait Reset {
+    fn reset(&mut self, time: f32);
+}
+
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct HitSparkMaterial {
     #[uniform(0)]
@@ -21,8 +25,8 @@ pub struct HitSparkMaterial {
     #[uniform(3)]
     start_time: f32,
 }
-impl HitSparkMaterial {
-    pub(crate) fn reset(&mut self, time: f32) {
+impl Reset for HitSparkMaterial {
+    fn reset(&mut self, time: f32) {
         self.start_time = time;
     }
 }
@@ -59,8 +63,8 @@ pub struct BlockEffectMaterial {
     #[uniform(3)]
     start_time: f32,
 }
-impl BlockEffectMaterial {
-    pub(crate) fn reset(&mut self, time: f32) {
+impl Reset for BlockEffectMaterial {
+    fn reset(&mut self, time: f32) {
         self.start_time = time;
     }
 }
@@ -96,8 +100,8 @@ pub struct ClashSparkMaterial {
     #[uniform(3)]
     start_time: f32,
 }
-impl ClashSparkMaterial {
-    pub(crate) fn reset(&mut self, time: f32) {
+impl Reset for ClashSparkMaterial {
+    fn reset(&mut self, time: f32) {
         self.start_time = time;
     }
 }
@@ -136,8 +140,8 @@ pub struct RingRippleMaterial {
     #[uniform(4)]
     start_time: f32,
 }
-impl RingRippleMaterial {
-    pub(crate) fn reset(&mut self, time: f32) {
+impl Reset for RingRippleMaterial {
+    fn reset(&mut self, time: f32) {
         self.start_time = time;
     }
 }

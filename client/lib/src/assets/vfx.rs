@@ -5,7 +5,7 @@ use wag_core::{Clock, GameState, VisualEffect};
 use crate::entity_management::DespawnMarker;
 
 use super::materials::{
-    BlockEffectMaterial, ClashSparkMaterial, HitSparkMaterial, RingRippleMaterial,
+    BlockEffectMaterial, ClashSparkMaterial, HitSparkMaterial, Reset, RingRippleMaterial,
 };
 
 #[derive(Debug)]
@@ -46,6 +46,33 @@ impl Vfx {
     }
 }
 
+fn spawn_vfx<M>(
+    commands: &mut Commands,
+    mesh: Handle<Mesh>,
+    translation: Vec3,
+    material_handle: Handle<M>,
+    material_asset: &mut ResMut<Assets<M>>,
+    elapsed_seconds: f32,
+    despawn_frame: usize,
+) where
+    M: Material + Reset,
+{
+    material_asset
+        .get_mut(&material_handle)
+        .unwrap()
+        .reset(elapsed_seconds);
+    commands.spawn((
+        MaterialMeshBundle {
+            mesh,
+            transform: Transform::from_translation(translation),
+            material: material_handle,
+            ..default()
+        },
+        DespawnMarker(despawn_frame),
+        StateScoped(GameState::Combat),
+    ));
+}
+
 #[allow(clippy::too_many_arguments)]
 pub fn handle_requests(
     mut commands: Commands,
@@ -59,83 +86,51 @@ pub fn handle_requests(
 ) {
     for VfxRequest { effect, position } in vfx.queue.drain(..).collect::<Vec<_>>().into_iter() {
         let mesh = vfx.meshes.get(&effect).unwrap().clone();
-        let transform = Transform::from_translation(position.with_y(position.y.max(0.8)) + Vec3::Z);
+        let translation = position.with_y(position.y.max(0.8)) + Vec3::Z;
         match effect {
             VisualEffect::Hit => {
-                let material_handle = vfx.hit_spark_material.clone();
-
-                hit_spark_materials
-                    .get_mut(&material_handle)
-                    .unwrap()
-                    .reset(time.elapsed_seconds());
-
-                commands.spawn((
-                    MaterialMeshBundle {
-                        mesh,
-                        transform,
-                        material: material_handle,
-                        ..default()
-                    },
-                    DespawnMarker(clock.frame + 10),
-                    StateScoped(GameState::Combat),
-                ));
+                spawn_vfx(
+                    &mut commands,
+                    mesh,
+                    translation,
+                    vfx.hit_spark_material.clone(),
+                    &mut hit_spark_materials,
+                    time.elapsed_seconds(),
+                    clock.frame + 10,
+                );
             }
             VisualEffect::Clash => {
-                let material_handle = vfx.clash_spark_material.clone();
-
-                clash_materials
-                    .get_mut(&material_handle)
-                    .unwrap()
-                    .reset(time.elapsed_seconds());
-
-                commands.spawn((
-                    MaterialMeshBundle {
-                        mesh,
-                        transform,
-                        material: material_handle,
-                        ..default()
-                    },
-                    DespawnMarker(clock.frame + 10),
-                    StateScoped(GameState::Combat),
-                ));
+                spawn_vfx(
+                    &mut commands,
+                    mesh,
+                    translation,
+                    vfx.clash_spark_material.clone(),
+                    &mut clash_materials,
+                    time.elapsed_seconds(),
+                    clock.frame + 10,
+                );
             }
             VisualEffect::Block => {
-                let material_handle = vfx.block_effect_material.clone();
-
-                block_materials
-                    .get_mut(&material_handle)
-                    .unwrap()
-                    .reset(time.elapsed_seconds());
-
-                commands.spawn((
-                    MaterialMeshBundle {
-                        mesh,
-                        transform,
-                        material: material_handle,
-                        ..default()
-                    },
-                    DespawnMarker(clock.frame + 10),
-                    StateScoped(GameState::Combat),
-                ));
+                spawn_vfx(
+                    &mut commands,
+                    mesh,
+                    translation,
+                    vfx.block_effect_material.clone(),
+                    &mut block_materials,
+                    time.elapsed_seconds(),
+                    clock.frame + 10,
+                );
             }
             VisualEffect::ThrowTech => {
-                let material_handle = vfx.throw_tech_material.clone();
-
-                throw_tech_material
-                    .get_mut(&material_handle)
-                    .unwrap()
-                    .reset(time.elapsed_seconds());
-
-                commands.spawn((
-                    MaterialMeshBundle {
-                        mesh,
-                        transform,
-                        material: material_handle,
-                        ..default()
-                    },
-                    DespawnMarker(clock.frame + 60),
-                    StateScoped(GameState::Combat),
-                ));
+                spawn_vfx(
+                    &mut commands,
+                    mesh,
+                    translation,
+                    vfx.throw_tech_material.clone(),
+                    &mut throw_tech_material,
+                    time.elapsed_seconds(),
+                    clock.frame + 60,
+                );
             }
         };
     }

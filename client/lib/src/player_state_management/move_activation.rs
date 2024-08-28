@@ -132,10 +132,13 @@ pub(super) fn plain_start(
         &WAGResources,
         &Stats,
         &InputParser,
+        &Facing,
     )>,
 ) {
     // Set activating move if one in the buffer can start raw or be linked into
-    for (mut buffer, tf, character, state, inventory, resources, stats, parser) in &mut query {
+    for (mut buffer, tf, character, state, inventory, resources, stats, parser, facing) in
+        &mut query
+    {
         if state.free_since.is_none() {
             // Can't link if not free
             continue;
@@ -151,6 +154,7 @@ pub(super) fn plain_start(
                     stats.to_owned(),
                     clock.frame,
                     tf.translation,
+                    *facing,
                 ),
             )
             .into_iter()
@@ -178,10 +182,13 @@ pub(super) fn special_cancel(
         &WAGResources,
         &Stats,
         &InputParser,
+        &Facing,
     )>,
 ) {
     // Set activating move if one in the buffer can be cancelled into
-    for (mut buffer, tf, character, state, inventory, resources, stats, parser) in &mut query {
+    for (mut buffer, tf, character, state, inventory, resources, stats, parser, facing) in
+        &mut query
+    {
         if state.free_since.is_some() {
             continue;
         }
@@ -202,6 +209,7 @@ pub(super) fn special_cancel(
                     stats.to_owned(),
                     clock.frame,
                     tf.translation,
+                    *facing,
                 ),
             )
             .into_iter()
@@ -234,10 +242,13 @@ pub(super) fn move_activator(
         &Stats,
         &Inventory,
         &InputParser,
+        &Facing,
     )>,
 ) {
     // Activate and clear activating move
-    for (mut buffer, mut state, tf, properties, character, stats, inventory, parser) in &mut query {
+    for (mut buffer, mut state, tf, properties, character, stats, inventory, parser, facing) in
+        &mut query
+    {
         let Some(activation) = buffer.activation.take() else {
             continue;
         };
@@ -255,6 +266,7 @@ pub(super) fn move_activator(
             parser.to_owned(),
             stats.to_owned(),
             tf.translation,
+            *facing,
         );
 
         buffer.clear_all()

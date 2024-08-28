@@ -11,5 +11,5 @@
 - [ ] Trails (sharp lines that align with the movement direction)
 	- [ ] [[Mizku]] sword swings
 	- [x] Jump
-	- [ ] Dash
-	- [ ] Remove angling from the shader code.
+	- [x] Dash
+	- [x] Remove angling from the shader code.

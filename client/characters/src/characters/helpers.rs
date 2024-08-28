@@ -320,7 +320,15 @@ fn dash(
     backdash: bool,
     track_spikes: bool,
 ) -> Action {
-    let mut initial_events = vec![animation.into().into()];
+    let mut initial_events = vec![
+        animation.into().into(),
+        VfxRequest {
+            effect: VisualEffect::SpeedLines,
+            position: Vec3::ZERO,
+            rotation: None,
+        }
+        .into(),
+    ];
 
     if first_impulse != Vec2::ZERO {
         initial_events.push(Movement::impulse(first_impulse).into());
@@ -374,10 +382,37 @@ fn dash(
                                     expiration: Some(situation.stats.backdash_invuln as usize),
                                 }));
                         }
+
+                        // This has to go here so that it gets the position.
+                        for ev in original.events.iter_mut() {
+                            if let ActionEvent::VisualEffect(vfx_request) = ev {
+                                vfx_request.position =
+                                    situation.position + Vec3::new(-0.5, 1.3, 0.0);
+                                let rot =
+                                    -situation.facing.to_signum() * std::f32::consts::PI / 2.0;
+                                vfx_request.rotation = Some(rot);
+                            }
+                        }
+
                         original
                     })
                 } else {
-                    None
+                    // This is a bit retarded, but you fn doesn't let you store the bool "backdash"
+                    // TODO: Try to get real big boy closures to work with this
+                    Some(|mut original, situation| {
+                        // This has to go here so that it gets the position.
+                        for ev in original.events.iter_mut() {
+                            if let ActionEvent::VisualEffect(vfx_request) = ev {
+                                vfx_request.position =
+                                    situation.position + Vec3::new(-0.5, 1.3, 0.0);
+                                let rot =
+                                    -situation.facing.to_signum() * std::f32::consts::PI / 2.0;
+                                vfx_request.rotation = Some(rot);
+                            }
+                        }
+
+                        original
+                    })
                 },
             },
             ActionBlock {

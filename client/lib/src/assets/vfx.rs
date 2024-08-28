@@ -150,7 +150,7 @@ pub fn handle_requests(
                     vfx.speed_lines_material.clone(),
                     &mut speed_lines_materials,
                     time.elapsed_seconds(),
-                    clock.frame + 60,
+                    clock.frame + 20,
                 );
             }
         };

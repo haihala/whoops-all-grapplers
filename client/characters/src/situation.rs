@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 use bevy::utils::HashSet;
-use wag_core::{GameButton, Stats, StatusFlag};
+use wag_core::{Facing, GameButton, Stats, StatusFlag};
 
 use crate::{ActionTracker, Inventory, ResourceType, WAGResource};
 
 #[derive(Debug, Clone, Default)]
 pub struct Situation {
     pub grounded: bool,
+    pub facing: Facing,
     pub tracker: Option<ActionTracker>,
     pub inventory: Inventory,
     pub resources: Vec<(ResourceType, WAGResource)>,

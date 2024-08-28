@@ -109,6 +109,7 @@ impl PlayerState {
         parser: InputParser,
         stats: Stats,
         player_position: Vec3,
+        player_facing: Facing,
     ) {
         let events = if let Some(mutator) = action.script[0].mutator {
             let situation = self.build_situation(
@@ -118,6 +119,7 @@ impl PlayerState {
                 stats,
                 start_frame,
                 player_position,
+                player_facing,
             );
             mutator(action.script[0].clone(), &situation).events
         } else {
@@ -136,6 +138,8 @@ impl PlayerState {
         };
         self.free_since = None;
     }
+
+    #[allow(clippy::too_many_arguments)]
     pub fn proceed_move(
         &mut self,
         inventory: Inventory,
@@ -144,9 +148,17 @@ impl PlayerState {
         stats: Stats,
         frame: usize,
         player_position: Vec3,
+        player_facing: Facing,
     ) {
-        let situation =
-            self.build_situation(inventory, resources, parser, stats, frame, player_position);
+        let situation = self.build_situation(
+            inventory,
+            resources,
+            parser,
+            stats,
+            frame,
+            player_position,
+            player_facing,
+        );
         let tracker = self.get_action_tracker_mut().unwrap();
 
         if tracker.blocker.fulfilled(&situation) {
@@ -160,6 +172,8 @@ impl PlayerState {
             }
         }
     }
+
+    #[allow(clippy::too_many_arguments)]
     pub fn build_situation(
         &self,
         inventory: Inventory,
@@ -168,6 +182,7 @@ impl PlayerState {
         stats: Stats,
         frame: usize,
         player_position: Vec3,
+        player_facing: Facing,
     ) -> Situation {
         Situation {
             inventory,
@@ -179,6 +194,7 @@ impl PlayerState {
             held_buttons: input_parser.get_pressed(),
             status_flags: self.conditions.iter().map(|c| c.flag).collect(),
             position: player_position,
+            facing: player_facing,
         }
     }
     pub fn get_action_tracker(&self) -> Option<&ActionTracker> {

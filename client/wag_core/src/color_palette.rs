@@ -59,7 +59,7 @@ pub const RING_RIPPLE_EDGE_COLOR: Color = Color::WHITE;
 pub const RING_RIPPLE_BASE_COLOR: Color = Color::srgb(0.2, 1.0, 0.5);
 
 pub const SPEED_LINES_BASE_COLOR: Color = Color::srgb(1.0, 1.0, 1.0);
-pub const SPEED_LINES_EDGE_COLOR: Color = Color::srgb(0.9, 0.3, 0.0);
+pub const SPEED_LINES_EDGE_COLOR: Color = Color::srgb(0.6, 0.6, 0.6);
 
 pub const CLASH_SPARK_BASE_COLOR: Color = Color::srgb(1.0, 0.5, 1.0);
 pub const CLASH_SPARK_EDGE_COLOR: Color = Color::srgb(0.9, 0.1, 0.9);

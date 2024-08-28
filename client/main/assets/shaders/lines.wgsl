@@ -4,11 +4,10 @@
 @group(2) @binding(0) var<uniform> base_color: vec4<f32>;
 @group(2) @binding(1) var<uniform> edge_color: vec4<f32>;
 @group(2) @binding(2) var<uniform> speed: f32;
-@group(2) @binding(3) var<uniform> angle: f32;
-@group(2) @binding(4) var<uniform> line_thickness: f32;
-@group(2) @binding(5) var<uniform> layer_count: i32;
-@group(2) @binding(6) var<uniform> start_time: f32;
-@group(2) @binding(7) var<uniform> duration: f32;
+@group(2) @binding(3) var<uniform> line_thickness: f32;
+@group(2) @binding(4) var<uniform> layer_count: i32;
+@group(2) @binding(5) var<uniform> start_time: f32;
+@group(2) @binding(6) var<uniform> duration: f32;
 
 const PI = 3.14159265359;
 const offset = PI * 2 / 3;
@@ -26,9 +25,11 @@ fn fragment(
     let centered = 2 * (mesh.uv - 0.5);
 
     var layers = 0.0;
-    for (var i = 0; i < layer_count; i++) {
-        let t = speed * time * f32(i) + 1.0 / f32(i);
-        layers += clamp(layer(t, angle, centered), 0.0, 1.0);
+    for (var i = 1; i < layer_count; i++) {
+        let t = (speed * time + 1) * f32(i);
+        // The angle was originally a shader uniform, but turns out it's easier
+        // to rotate in engine
+        layers += clamp(layer(t, 0.0, centered), 0.0, 1.0);
     }
     layers *= wave;
 

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use characters::{Inventory, WAGResources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{Clock, Stats};
+use wag_core::{Clock, Facing, Stats};
 
 pub(super) fn move_advancement(
     clock: Res<Clock>,
@@ -13,9 +13,10 @@ pub(super) fn move_advancement(
         &WAGResources,
         &InputParser,
         &Stats,
+        &Facing,
     )>,
 ) {
-    for (mut state, tf, inventory, resources, parser, stats) in &mut query {
+    for (mut state, tf, inventory, resources, parser, stats, facing) in &mut query {
         if state.action_in_progress() {
             state.proceed_move(
                 inventory.to_owned(),
@@ -24,6 +25,7 @@ pub(super) fn move_advancement(
                 stats.to_owned(),
                 clock.frame,
                 tf.translation,
+                *facing,
             );
         }
     }

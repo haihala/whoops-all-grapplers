@@ -23,14 +23,12 @@ pub struct LineFieldMaterial {
     #[uniform(2)]
     speed: f32,
     #[uniform(3)]
-    angle: f32,
-    #[uniform(4)]
     line_thickness: f32,
-    #[uniform(5)]
+    #[uniform(4)]
     layer_count: i32,
-    #[uniform(6)]
+    #[uniform(5)]
     start_time: f32,
-    #[uniform(7)]
+    #[uniform(6)]
     duration: f32,
 }
 
@@ -40,9 +38,8 @@ impl Default for LineFieldMaterial {
             base_color: SPEED_LINES_BASE_COLOR.into(),
             edge_color: SPEED_LINES_EDGE_COLOR.into(),
             speed: 1.0,
-            angle: 0.0,
-            line_thickness: 0.08,
-            layer_count: 10,
+            line_thickness: 0.3,
+            layer_count: 5,
             start_time: 0.0,
             duration: 1.0,
         }

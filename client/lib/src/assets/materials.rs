@@ -38,10 +38,10 @@ impl Default for LineFieldMaterial {
             base_color: SPEED_LINES_BASE_COLOR.into(),
             edge_color: SPEED_LINES_EDGE_COLOR.into(),
             speed: 1.0,
-            line_thickness: 0.3,
+            line_thickness: 0.2,
             layer_count: 5,
             start_time: 0.0,
-            duration: 1.0,
+            duration: 0.2,
         }
     }
 }

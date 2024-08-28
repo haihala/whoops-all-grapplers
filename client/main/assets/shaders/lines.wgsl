@@ -19,9 +19,9 @@ fn fragment(
 ) -> @location(0) vec4<f32> {
     let time = (globals.time - start_time);
 
-    let wt = 1 - (time / duration);
+    let wt = time / duration;
     // Ease-in-quint
-    let wave = pow(wt, 5.0);
+    let wave = 1 - pow(wt, 5.0);
     let centered = 2 * (mesh.uv - 0.5);
 
     var layers = 0.0;

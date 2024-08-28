@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use wag_core::{
     ActionId, Animation, DummyAnimation, ItemId, MizkuAnimation, SoundEffect, StatusCondition,
+    VfxRequest,
 };
 
 use crate::{Attack, FlashRequest, Movement, ResourceType};
@@ -33,6 +34,7 @@ pub enum ActionEvent {
     CameraTilt(Vec2),
     CameraShake, // TODO: Add strength
     Flash(FlashRequest),
+    VisualEffect(VfxRequest),
     Lock(usize), // duration, sideswitch
     Noop,        // makes writing macros easier
 }
@@ -60,6 +62,11 @@ impl From<AnimationRequest> for ActionEvent {
 impl From<SoundEffect> for ActionEvent {
     fn from(value: SoundEffect) -> Self {
         ActionEvent::Sound(value)
+    }
+}
+impl From<VfxRequest> for ActionEvent {
+    fn from(value: VfxRequest) -> Self {
+        ActionEvent::VisualEffect(value)
     }
 }
 // This isn't a great way to do this, but it's the best I can think of for now

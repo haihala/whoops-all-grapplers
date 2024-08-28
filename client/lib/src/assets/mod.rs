@@ -9,11 +9,11 @@ mod sounds;
 mod vfx;
 
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
-pub use asset_updater::{update_animation, update_audio};
+pub use asset_updater::{update_animation, update_audio, update_vfx};
 pub use materials::{ExtendedFlashMaterial, FlashMaterial};
 pub use models::{Models, PlayerModelHook};
 pub use sounds::Sounds;
-pub use vfx::{Vfx, VfxRequest};
+pub use vfx::Vfx;
 
 use wag_core::{GameState, Icon};
 
@@ -38,6 +38,7 @@ impl Plugin for AssetsPlugin {
                 MaterialPlugin::<materials::BlockEffectMaterial>::default(),
                 MaterialPlugin::<materials::ClashSparkMaterial>::default(),
                 MaterialPlugin::<materials::RingRippleMaterial>::default(),
+                MaterialPlugin::<materials::LineFieldMaterial>::default(),
                 MaterialPlugin::<ExtendedFlashMaterial>::default(),
             ))
             .add_systems(

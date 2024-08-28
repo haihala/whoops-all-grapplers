@@ -119,10 +119,13 @@ pub(super) fn automatic_activation(
         }
     }
 }
+
+#[allow(clippy::type_complexity)]
 pub(super) fn plain_start(
     clock: Res<Clock>,
     mut query: Query<(
         &mut MoveBuffer,
+        &Transform,
         &Character,
         &PlayerState,
         &Inventory,
@@ -132,7 +135,7 @@ pub(super) fn plain_start(
     )>,
 ) {
     // Set activating move if one in the buffer can start raw or be linked into
-    for (mut buffer, character, state, inventory, resources, stats, parser) in &mut query {
+    for (mut buffer, tf, character, state, inventory, resources, stats, parser) in &mut query {
         if state.free_since.is_none() {
             // Can't link if not free
             continue;
@@ -147,6 +150,7 @@ pub(super) fn plain_start(
                     parser.to_owned(),
                     stats.to_owned(),
                     clock.frame,
+                    tf.translation,
                 ),
             )
             .into_iter()
@@ -161,10 +165,13 @@ pub(super) fn plain_start(
         });
     }
 }
+
+#[allow(clippy::type_complexity)]
 pub(super) fn special_cancel(
     clock: Res<Clock>,
     mut query: Query<(
         &mut MoveBuffer,
+        &Transform,
         &Character,
         &PlayerState,
         &Inventory,
@@ -174,7 +181,7 @@ pub(super) fn special_cancel(
     )>,
 ) {
     // Set activating move if one in the buffer can be cancelled into
-    for (mut buffer, character, state, inventory, resources, stats, parser) in &mut query {
+    for (mut buffer, tf, character, state, inventory, resources, stats, parser) in &mut query {
         if state.free_since.is_some() {
             continue;
         }
@@ -194,6 +201,7 @@ pub(super) fn special_cancel(
                     parser.to_owned(),
                     stats.to_owned(),
                     clock.frame,
+                    tf.translation,
                 ),
             )
             .into_iter()
@@ -220,7 +228,8 @@ pub(super) fn move_activator(
     mut query: Query<(
         &mut MoveBuffer,
         &mut PlayerState,
-        &mut WAGResources,
+        &Transform,
+        &WAGResources,
         &Character,
         &Stats,
         &Inventory,
@@ -228,7 +237,7 @@ pub(super) fn move_activator(
     )>,
 ) {
     // Activate and clear activating move
-    for (mut buffer, mut state, properties, character, stats, inventory, parser) in &mut query {
+    for (mut buffer, mut state, tf, properties, character, stats, inventory, parser) in &mut query {
         let Some(activation) = buffer.activation.take() else {
             continue;
         };
@@ -245,6 +254,7 @@ pub(super) fn move_activator(
             properties.to_owned(),
             parser.to_owned(),
             stats.to_owned(),
+            tf.translation,
         );
 
         buffer.clear_all()

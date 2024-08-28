@@ -3,7 +3,7 @@ use characters::{ActionEvent, AnimationRequest, Character};
 use player_state::PlayerState;
 use wag_core::{Facing, Players};
 
-use super::{AnimationHelper, Sounds};
+use super::{AnimationHelper, Sounds, Vfx};
 
 #[allow(clippy::type_complexity)]
 pub fn update_animation(
@@ -73,6 +73,20 @@ pub fn update_audio(mut query: Query<&mut PlayerState>, mut sounds: ResMut<Sound
             }
         }) {
             sounds.play(clip);
+        }
+    }
+}
+
+pub fn update_vfx(mut query: Query<&mut PlayerState>, mut effects: ResMut<Vfx>) {
+    for mut state in &mut query {
+        for request in state.drain_matching_actions(|animation| {
+            if let ActionEvent::VisualEffect(vfx) = animation {
+                Some(vfx.clone())
+            } else {
+                None
+            }
+        }) {
+            effects.spawn(request)
         }
     }
 }

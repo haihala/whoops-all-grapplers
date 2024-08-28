@@ -7,11 +7,62 @@ use characters::FlashRequest;
 use wag_core::{
     BLOCK_EFFECT_BASE_COLOR, BLOCK_EFFECT_EDGE_COLOR, CLASH_SPARK_BASE_COLOR,
     CLASH_SPARK_EDGE_COLOR, HIT_SPARK_BASE_COLOR, HIT_SPARK_EDGE_COLOR, HIT_SPARK_MID_COLOR,
-    RING_RIPPLE_BASE_COLOR, RING_RIPPLE_EDGE_COLOR,
+    RING_RIPPLE_BASE_COLOR, RING_RIPPLE_EDGE_COLOR, SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR,
 };
 
-pub trait Reset {
+pub trait Reset: Material + Default {
     fn reset(&mut self, time: f32);
+}
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct LineFieldMaterial {
+    #[uniform(0)]
+    base_color: LinearRgba,
+    #[uniform(1)]
+    edge_color: LinearRgba,
+    #[uniform(2)]
+    speed: f32,
+    #[uniform(3)]
+    angle: f32,
+    #[uniform(4)]
+    line_thickness: f32,
+    #[uniform(5)]
+    layer_count: i32,
+    #[uniform(6)]
+    start_time: f32,
+    #[uniform(7)]
+    duration: f32,
+}
+
+impl Default for LineFieldMaterial {
+    fn default() -> Self {
+        Self {
+            base_color: SPEED_LINES_BASE_COLOR.into(),
+            edge_color: SPEED_LINES_EDGE_COLOR.into(),
+            speed: 1.0,
+            angle: 0.0,
+            line_thickness: 0.08,
+            layer_count: 10,
+            start_time: 0.0,
+            duration: 1.0,
+        }
+    }
+}
+
+impl Reset for LineFieldMaterial {
+    fn reset(&mut self, time: f32) {
+        self.start_time = time;
+    }
+}
+
+impl Material for LineFieldMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/lines.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]

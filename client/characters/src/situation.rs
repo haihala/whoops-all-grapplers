@@ -1,3 +1,4 @@
+use bevy::prelude::*;
 use bevy::utils::HashSet;
 use wag_core::{GameButton, Stats, StatusFlag};
 
@@ -13,6 +14,7 @@ pub struct Situation {
     pub frame: usize,
     pub stats: Stats,
     pub held_buttons: HashSet<GameButton>,
+    pub position: Vec3,
     // Kept minimal so far, but will grow as needed
 }
 impl Situation {

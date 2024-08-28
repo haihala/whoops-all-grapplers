@@ -108,9 +108,17 @@ impl PlayerState {
         resources: WAGResources,
         parser: InputParser,
         stats: Stats,
+        player_position: Vec3,
     ) {
         let events = if let Some(mutator) = action.script[0].mutator {
-            let situation = self.build_situation(inventory, resources, parser, stats, start_frame);
+            let situation = self.build_situation(
+                inventory,
+                resources,
+                parser,
+                stats,
+                start_frame,
+                player_position,
+            );
             mutator(action.script[0].clone(), &situation).events
         } else {
             action.script[0].clone().events
@@ -135,8 +143,10 @@ impl PlayerState {
         parser: InputParser,
         stats: Stats,
         frame: usize,
+        player_position: Vec3,
     ) {
-        let situation = self.build_situation(inventory, resources, parser, stats, frame);
+        let situation =
+            self.build_situation(inventory, resources, parser, stats, frame, player_position);
         let tracker = self.get_action_tracker_mut().unwrap();
 
         if tracker.blocker.fulfilled(&situation) {
@@ -157,6 +167,7 @@ impl PlayerState {
         input_parser: InputParser,
         stats: Stats,
         frame: usize,
+        player_position: Vec3,
     ) -> Situation {
         Situation {
             inventory,
@@ -167,6 +178,7 @@ impl PlayerState {
             tracker: self.get_action_tracker().cloned(),
             held_buttons: input_parser.get_pressed(),
             status_flags: self.conditions.iter().map(|c| c.flag).collect(),
+            position: player_position,
         }
     }
     pub fn get_action_tracker(&self) -> Option<&ActionTracker> {

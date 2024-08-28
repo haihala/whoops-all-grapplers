@@ -8,13 +8,14 @@ pub(super) fn move_advancement(
     clock: Res<Clock>,
     mut query: Query<(
         &mut PlayerState,
+        &Transform,
         &Inventory,
         &WAGResources,
         &InputParser,
         &Stats,
     )>,
 ) {
-    for (mut state, inventory, resources, parser, stats) in &mut query {
+    for (mut state, tf, inventory, resources, parser, stats) in &mut query {
         if state.action_in_progress() {
             state.proceed_move(
                 inventory.to_owned(),
@@ -22,6 +23,7 @@ pub(super) fn move_advancement(
                 parser.to_owned(),
                 stats.to_owned(),
                 clock.frame,
+                tf.translation,
             );
         }
     }

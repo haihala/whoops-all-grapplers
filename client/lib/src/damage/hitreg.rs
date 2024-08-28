@@ -9,11 +9,11 @@ use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{
     ActionId, Area, Clock, Facing, Owner, Player, Players, SoundEffect, Stats, StatusFlag,
-    StickPosition, VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
+    StickPosition, VfxRequest, VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
 };
 
 use crate::{
-    assets::{Sounds, Vfx, VfxRequest},
+    assets::{Sounds, Vfx},
     movement::{PlayerVelocity, Pushbox},
     ui::Notifications,
 };
@@ -103,6 +103,7 @@ pub(super) fn clash_parry(
             particles.spawn(VfxRequest {
                 effect: VisualEffect::Clash,
                 position: overlap.center().extend(0.0),
+                rotation: None,
             });
 
             for (mut tracker, owner, is_projectile) in [
@@ -272,6 +273,7 @@ pub(super) fn apply_connections(
                     .unwrap()
                     .extend(0.0)
                     * 0.5,
+                rotation: None,
             });
 
             sounds.play(SoundEffect::Whoosh); // TODO change sound effect
@@ -385,6 +387,7 @@ pub(super) fn apply_connections(
             effect: particle,
             // TODO: This can be refined more
             position: hit.overlap.center().extend(0.0),
+            rotation: None,
         });
 
         defender.spawner.despawn_on_hit();

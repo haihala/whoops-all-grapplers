@@ -4,7 +4,10 @@ use wag_core::{Animation, Icon, Model, SoundEffect, VisualEffect};
 
 use super::{
     animations::animation_paths,
-    materials::{BlockEffectMaterial, ClashSparkMaterial, HitSparkMaterial, RingRippleMaterial},
+    materials::{
+        BlockEffectMaterial, ClashSparkMaterial, HitSparkMaterial, LineFieldMaterial,
+        RingRippleMaterial,
+    },
     models::model_paths,
     sounds::Sounds,
     Animations, AssetsLoading, Fonts, Icons, Models, Vfx,
@@ -108,6 +111,7 @@ pub fn vfx(
     mut block_effect_materials: ResMut<Assets<BlockEffectMaterial>>,
     mut hit_spark_materials: ResMut<Assets<HitSparkMaterial>>,
     mut ring_ripple_materials: ResMut<Assets<RingRippleMaterial>>,
+    mut speed_lines_materials: ResMut<Assets<LineFieldMaterial>>,
 ) {
     let mesh_handles = vec![
         (VisualEffect::Block, meshes.add(Rectangle::new(1.1, 2.0))),
@@ -117,6 +121,10 @@ pub fn vfx(
             VisualEffect::ThrowTech,
             meshes.add(Rectangle::new(2.0, 2.0)),
         ),
+        (
+            VisualEffect::SpeedLines,
+            meshes.add(Rectangle::new(1.0, 1.0)),
+        ),
     ]
     .into_iter()
     .collect();
@@ -125,6 +133,7 @@ pub fn vfx(
     let block_effect_material = block_effect_materials.add(BlockEffectMaterial::default());
     let hit_spark_material = hit_spark_materials.add(HitSparkMaterial::default());
     let throw_tech_material = ring_ripple_materials.add(RingRippleMaterial::default());
+    let speed_lines_material = speed_lines_materials.add(LineFieldMaterial::default());
 
     commands.insert_resource(Vfx::new(
         mesh_handles,
@@ -132,5 +141,6 @@ pub fn vfx(
         block_effect_material,
         hit_spark_material,
         throw_tech_material,
+        speed_lines_material,
     ));
 }

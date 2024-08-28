@@ -17,7 +17,7 @@ mod economy;
 pub use economy::*;
 
 mod effects;
-pub use effects::{SoundEffect, VisualEffect};
+pub use effects::{SoundEffect, VfxRequest, VisualEffect};
 
 mod facing;
 pub use facing::Facing;

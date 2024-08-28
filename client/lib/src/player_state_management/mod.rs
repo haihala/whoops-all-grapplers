@@ -59,6 +59,7 @@ impl Plugin for PlayerStateManagementPlugin {
                     condition_management::manage_conditions,
                     crate::assets::update_animation,
                     crate::assets::update_audio,
+                    crate::assets::update_vfx,
                     side_switcher::sideswitcher,
                 )
                     .chain()

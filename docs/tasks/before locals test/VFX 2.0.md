@@ -10,5 +10,6 @@
 		- [ ] Attack height (angle, color or both)
 - [ ] Trails (sharp lines that align with the movement direction)
 	- [ ] [[Mizku]] sword swings
-	- [ ] Jump
+	- [x] Jump
 	- [ ] Dash
+	- [ ] Remove angling from the shader code.

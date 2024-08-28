@@ -7,7 +7,8 @@ use crate::{
 
 use bevy::prelude::*;
 use wag_core::{
-    ActionId, Animation, ItemId, StatusCondition, StatusFlag, TRACK_SPIKES_FLASH_COLOR,
+    ActionId, Animation, ItemId, StatusCondition, StatusFlag, VfxRequest, VisualEffect,
+    TRACK_SPIKES_FLASH_COLOR,
 };
 
 pub fn jumps(
@@ -203,7 +204,19 @@ fn jump(
                 mutator: None,
             },
             ActionBlock {
-                events: vec![Movement::impulse(impulse).into()],
+                events: vec![
+                    Movement::impulse(impulse).into(),
+                    VfxRequest {
+                        effect: VisualEffect::SpeedLines,
+                        position: Vec3::ZERO,
+                        rotation: if impulse.x != 0.0 {
+                            Some(-impulse.x)
+                        } else {
+                            Some(std::f32::consts::PI)
+                        },
+                    }
+                    .into(),
+                ],
                 exit_requirement: ContinuationRequirement::Time(5),
                 cancel_policy: CancelRule::jump(),
                 mutator: Some(|mut original, situation| {
@@ -218,6 +231,13 @@ fn jump(
                             other => other,
                         })
                         .collect();
+
+                    // This has to go here so that it gets the position.
+                    for ev in original.events.iter_mut() {
+                        if let ActionEvent::VisualEffect(vfx_request) = ev {
+                            vfx_request.position = situation.position + Vec3::new(-0.5, 1.3, 0.0);
+                        }
+                    }
 
                     original
                 }),

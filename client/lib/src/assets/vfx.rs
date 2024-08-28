@@ -1,18 +1,13 @@
 use bevy::{prelude::*, utils::HashMap};
 
-use wag_core::{Clock, GameState, VisualEffect};
+use wag_core::{Clock, GameState, VfxRequest, VisualEffect};
 
 use crate::entity_management::DespawnMarker;
 
 use super::materials::{
-    BlockEffectMaterial, ClashSparkMaterial, HitSparkMaterial, Reset, RingRippleMaterial,
+    BlockEffectMaterial, ClashSparkMaterial, HitSparkMaterial, LineFieldMaterial, Reset,
+    RingRippleMaterial,
 };
-
-#[derive(Debug)]
-pub struct VfxRequest {
-    pub effect: VisualEffect,
-    pub position: Vec3,
-}
 
 #[derive(Debug, Resource)]
 pub struct Vfx {
@@ -22,6 +17,7 @@ pub struct Vfx {
     block_effect_material: Handle<BlockEffectMaterial>,
     hit_spark_material: Handle<HitSparkMaterial>,
     throw_tech_material: Handle<RingRippleMaterial>,
+    speed_lines_material: Handle<LineFieldMaterial>,
 }
 impl Vfx {
     pub fn new(
@@ -30,6 +26,7 @@ impl Vfx {
         block_effect_material: Handle<BlockEffectMaterial>,
         hit_spark_material: Handle<HitSparkMaterial>,
         throw_tech_material: Handle<RingRippleMaterial>,
+        speed_lines_material: Handle<LineFieldMaterial>,
     ) -> Vfx {
         Vfx {
             meshes,
@@ -38,6 +35,7 @@ impl Vfx {
             clash_spark_material,
             block_effect_material,
             throw_tech_material,
+            speed_lines_material,
         }
     }
 
@@ -49,7 +47,7 @@ impl Vfx {
 fn spawn_vfx<M>(
     commands: &mut Commands,
     mesh: Handle<Mesh>,
-    translation: Vec3,
+    transform: Transform,
     material_handle: Handle<M>,
     material_asset: &mut ResMut<Assets<M>>,
     elapsed_seconds: f32,
@@ -64,7 +62,7 @@ fn spawn_vfx<M>(
     commands.spawn((
         MaterialMeshBundle {
             mesh,
-            transform: Transform::from_translation(translation),
+            transform,
             material: material_handle,
             ..default()
         },
@@ -82,17 +80,29 @@ pub fn handle_requests(
     mut block_materials: ResMut<Assets<BlockEffectMaterial>>,
     mut clash_materials: ResMut<Assets<ClashSparkMaterial>>,
     mut hit_spark_materials: ResMut<Assets<HitSparkMaterial>>,
-    mut throw_tech_material: ResMut<Assets<RingRippleMaterial>>,
+    mut throw_tech_materials: ResMut<Assets<RingRippleMaterial>>,
+    mut speed_lines_materials: ResMut<Assets<LineFieldMaterial>>,
 ) {
-    for VfxRequest { effect, position } in vfx.queue.drain(..).collect::<Vec<_>>().into_iter() {
+    for VfxRequest {
+        effect,
+        position,
+        rotation,
+    } in vfx.queue.drain(..).collect::<Vec<_>>().into_iter()
+    {
         let mesh = vfx.meshes.get(&effect).unwrap().clone();
-        let translation = position.with_y(position.y.max(0.8)) + Vec3::Z;
+        let mut transform =
+            Transform::from_translation(position.with_y(position.y.max(0.8)) + Vec3::Z);
+
+        if let Some(angle) = rotation {
+            transform.rotate_z(angle);
+        }
+
         match effect {
             VisualEffect::Hit => {
                 spawn_vfx(
                     &mut commands,
                     mesh,
-                    translation,
+                    transform,
                     vfx.hit_spark_material.clone(),
                     &mut hit_spark_materials,
                     time.elapsed_seconds(),
@@ -103,7 +113,7 @@ pub fn handle_requests(
                 spawn_vfx(
                     &mut commands,
                     mesh,
-                    translation,
+                    transform,
                     vfx.clash_spark_material.clone(),
                     &mut clash_materials,
                     time.elapsed_seconds(),
@@ -114,7 +124,7 @@ pub fn handle_requests(
                 spawn_vfx(
                     &mut commands,
                     mesh,
-                    translation,
+                    transform,
                     vfx.block_effect_material.clone(),
                     &mut block_materials,
                     time.elapsed_seconds(),
@@ -125,9 +135,20 @@ pub fn handle_requests(
                 spawn_vfx(
                     &mut commands,
                     mesh,
-                    translation,
+                    transform,
                     vfx.throw_tech_material.clone(),
-                    &mut throw_tech_material,
+                    &mut throw_tech_materials,
+                    time.elapsed_seconds(),
+                    clock.frame + 60,
+                );
+            }
+            VisualEffect::SpeedLines => {
+                spawn_vfx(
+                    &mut commands,
+                    mesh,
+                    transform,
+                    vfx.speed_lines_material.clone(),
+                    &mut speed_lines_materials,
                     time.elapsed_seconds(),
                     clock.frame + 60,
                 );

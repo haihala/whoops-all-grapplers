@@ -54,4 +54,12 @@ pub enum VisualEffect {
     Block,
     Hit,
     ThrowTech,
+    SpeedLines,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct VfxRequest {
+    pub effect: VisualEffect,
+    pub position: Vec3,
+    pub rotation: Option<f32>,
 }

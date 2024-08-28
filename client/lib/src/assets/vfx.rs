@@ -5,8 +5,8 @@ use wag_core::{Clock, GameState, VfxRequest, VisualEffect};
 use crate::entity_management::DespawnMarker;
 
 use super::materials::{
-    BlockEffectMaterial, ClashSparkMaterial, HitSparkMaterial, LineFieldMaterial, Reset,
-    RingRippleMaterial,
+    BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial, HitSparkMaterial,
+    LineFieldMaterial, Reset, RingRippleMaterial,
 };
 
 #[derive(Debug, Resource)]
@@ -18,6 +18,7 @@ pub struct Vfx {
     hit_spark_material: Handle<HitSparkMaterial>,
     throw_tech_material: Handle<RingRippleMaterial>,
     speed_lines_material: Handle<LineFieldMaterial>,
+    throw_target_material: Handle<FocalPointLinesMaterial>,
 }
 impl Vfx {
     pub fn new(
@@ -27,6 +28,7 @@ impl Vfx {
         hit_spark_material: Handle<HitSparkMaterial>,
         throw_tech_material: Handle<RingRippleMaterial>,
         speed_lines_material: Handle<LineFieldMaterial>,
+        throw_target_material: Handle<FocalPointLinesMaterial>,
     ) -> Vfx {
         Vfx {
             meshes,
@@ -36,6 +38,7 @@ impl Vfx {
             block_effect_material,
             throw_tech_material,
             speed_lines_material,
+            throw_target_material,
         }
     }
 
@@ -82,6 +85,7 @@ pub fn handle_requests(
     mut hit_spark_materials: ResMut<Assets<HitSparkMaterial>>,
     mut throw_tech_materials: ResMut<Assets<RingRippleMaterial>>,
     mut speed_lines_materials: ResMut<Assets<LineFieldMaterial>>,
+    mut throw_target_materials: ResMut<Assets<FocalPointLinesMaterial>>,
 ) {
     for VfxRequest {
         effect,
@@ -151,6 +155,17 @@ pub fn handle_requests(
                     &mut speed_lines_materials,
                     time.elapsed_seconds(),
                     clock.frame + 20,
+                );
+            }
+            VisualEffect::ThrowTarget => {
+                spawn_vfx(
+                    &mut commands,
+                    mesh,
+                    transform,
+                    vfx.throw_target_material.clone(),
+                    &mut throw_target_materials,
+                    time.elapsed_seconds(),
+                    clock.frame + 60,
                 );
             }
         };

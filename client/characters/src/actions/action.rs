@@ -115,11 +115,12 @@ impl Action {
             ActionCategory::Forced,
             vec![ActionBlock {
                 events: vec![
-                    ActionEvent::Animation(AnimationRequest {
+                    AnimationRequest {
                         animation: animation.into(),
                         invert: true,
                         ..default()
-                    }),
+                    }
+                    .into(),
                     ActionEvent::ModifyResource(ResourceType::Health, -damage),
                     if launch_impulse == Vec2::ZERO {
                         ActionEvent::Noop

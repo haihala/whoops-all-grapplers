@@ -77,16 +77,17 @@ pub fn update_audio(mut query: Query<&mut PlayerState>, mut sounds: ResMut<Sound
     }
 }
 
-pub fn update_vfx(mut query: Query<&mut PlayerState>, mut effects: ResMut<Vfx>) {
-    for mut state in &mut query {
-        for request in state.drain_matching_actions(|animation| {
+pub fn update_vfx(mut query: Query<(&mut PlayerState, &Transform)>, mut effects: ResMut<Vfx>) {
+    for (mut state, tf) in &mut query {
+        for mut request in state.drain_matching_actions(|animation| {
             if let ActionEvent::VisualEffect(vfx) = animation {
                 Some(vfx.clone())
             } else {
                 None
             }
         }) {
-            effects.spawn(request)
+            request.position += tf.translation;
+            effects.spawn(request);
         }
     }
 }

@@ -4,7 +4,7 @@
 	- [x] Clash (make particles go into a direction to indicate meter gain)
 - [x] Add
 	- [x] Throw tech
-	- [ ] Throw (sharp lines converging on a point)
+	- [x] Throw (sharp lines converging on a point)
 	- [ ] Hit spark variations that indicate
 		- [ ] Counter hit
 		- [ ] Attack height (angle, color or both)

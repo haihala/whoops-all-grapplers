@@ -39,6 +39,7 @@ impl Plugin for AssetsPlugin {
                 MaterialPlugin::<materials::ClashSparkMaterial>::default(),
                 MaterialPlugin::<materials::RingRippleMaterial>::default(),
                 MaterialPlugin::<materials::LineFieldMaterial>::default(),
+                MaterialPlugin::<materials::FocalPointLinesMaterial>::default(),
                 MaterialPlugin::<ExtendedFlashMaterial>::default(),
             ))
             .add_systems(

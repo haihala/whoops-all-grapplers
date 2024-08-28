@@ -15,6 +15,34 @@ pub trait Reset: Material + Default {
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct FocalPointLinesMaterial {
+    #[uniform(0)]
+    start_time: f32,
+}
+
+impl Default for FocalPointLinesMaterial {
+    fn default() -> Self {
+        Self { start_time: 0.0 }
+    }
+}
+
+impl Reset for FocalPointLinesMaterial {
+    fn reset(&mut self, time: f32) {
+        self.start_time = time;
+    }
+}
+
+impl Material for FocalPointLinesMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/focal_point_lines.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
+}
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct LineFieldMaterial {
     #[uniform(0)]
     base_color: LinearRgba,

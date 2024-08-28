@@ -208,7 +208,7 @@ fn jump(
                     Movement::impulse(impulse).into(),
                     VfxRequest {
                         effect: VisualEffect::SpeedLines,
-                        position: Vec3::ZERO,
+                        position: Vec3::new(-0.5, 1.3, 0.0),
                         rotation: if impulse.x != 0.0 {
                             Some(-impulse.x)
                         } else {
@@ -231,13 +231,6 @@ fn jump(
                             other => other,
                         })
                         .collect();
-
-                    // This has to go here so that it gets the position.
-                    for ev in original.events.iter_mut() {
-                        if let ActionEvent::VisualEffect(vfx_request) = ev {
-                            vfx_request.position = situation.position + Vec3::new(-0.5, 1.3, 0.0);
-                        }
-                    }
 
                     original
                 }),
@@ -324,7 +317,7 @@ fn dash(
         animation.into().into(),
         VfxRequest {
             effect: VisualEffect::SpeedLines,
-            position: Vec3::ZERO,
+            position: Vec3::new(-0.5, 1.3, 0.0),
             rotation: None,
         }
         .into(),
@@ -386,8 +379,6 @@ fn dash(
                         // This has to go here so that it gets the position.
                         for ev in original.events.iter_mut() {
                             if let ActionEvent::VisualEffect(vfx_request) = ev {
-                                vfx_request.position =
-                                    situation.position + Vec3::new(-0.5, 1.3, 0.0);
                                 let rot =
                                     -situation.facing.to_signum() * std::f32::consts::PI / 2.0;
                                 vfx_request.rotation = Some(rot);
@@ -403,8 +394,6 @@ fn dash(
                         // This has to go here so that it gets the position.
                         for ev in original.events.iter_mut() {
                             if let ActionEvent::VisualEffect(vfx_request) = ev {
-                                vfx_request.position =
-                                    situation.position + Vec3::new(-0.5, 1.3, 0.0);
                                 let rot =
                                     -situation.facing.to_signum() * std::f32::consts::PI / 2.0;
                                 vfx_request.rotation = Some(rot);

@@ -55,6 +55,7 @@ pub enum VisualEffect {
     Hit,
     ThrowTech,
     SpeedLines,
+    ThrowTarget,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -62,4 +63,14 @@ pub struct VfxRequest {
     pub effect: VisualEffect,
     pub position: Vec3,
     pub rotation: Option<f32>,
+}
+
+impl From<VisualEffect> for VfxRequest {
+    fn from(effect: VisualEffect) -> Self {
+        Self {
+            effect,
+            position: Vec3::ZERO,
+            rotation: None,
+        }
+    }
 }

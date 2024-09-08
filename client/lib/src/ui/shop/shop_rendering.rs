@@ -1,9 +1,10 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
 use wag_core::{
-    GameState, Owner, Player, Players, RoundLog, ITEM_SLOT_COMPONENT_COLOR,
-    ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR, ITEM_SLOT_HIGHLIGHT_COLOR,
-    ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
+    GameState, LocalState, MatchState, OnlineState, Owner, Player, Players, RoundLog,
+    ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
+    ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION,
+    PRE_ROUND_DURATION,
 };
 
 use crate::{assets::Icons, state_transitions::TransitionTimer};
@@ -147,10 +148,12 @@ pub fn update_info_panel(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn handle_shop_ending(
     mut commands: Commands,
     mut shops: ResMut<Shops>,
     mut next_state: ResMut<NextState<GameState>>,
+    current_state: Res<State<GameState>>,
     mut local_timer: Local<Option<Timer>>,
     mut countdown_roots: Query<&mut Visibility>,
     mut countdown_texts: Query<&mut Text>,
@@ -160,6 +163,7 @@ pub fn handle_shop_ending(
         end_shopping(
             &mut shops,
             &mut next_state,
+            *current_state.get(),
             &mut commands,
             &mut countdown_roots,
         );
@@ -194,6 +198,7 @@ pub fn handle_shop_ending(
         end_shopping(
             &mut shops,
             &mut next_state,
+            *current_state.get(),
             &mut commands,
             &mut countdown_roots,
         );
@@ -207,15 +212,24 @@ pub fn handle_shop_ending(
 fn end_shopping(
     shops: &mut Shops,
     next_state: &mut ResMut<NextState<GameState>>,
+    current_state: GameState,
     commands: &mut Commands,
     countdown_roots: &mut Query<&mut Visibility>,
 ) {
-    next_state.set(GameState::PreRound);
+    next_state.set(if current_state.is_online() {
+        GameState::Online(OnlineState::Match(MatchState::PreRound))
+    } else {
+        GameState::Local(LocalState::Match(MatchState::PreRound))
+    });
 
-    commands.insert_resource(TransitionTimer::from(Timer::from_seconds(
-        PRE_ROUND_DURATION,
-        TimerMode::Once,
-    )));
+    commands.insert_resource(TransitionTimer {
+        timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),
+        state: if current_state.is_online() {
+            GameState::Online(OnlineState::Match(MatchState::Combat))
+        } else {
+            GameState::Local(LocalState::Match(MatchState::Combat))
+        },
+    });
 
     for shop in [&mut shops.player_one, &mut shops.player_two] {
         shop.closed = false;

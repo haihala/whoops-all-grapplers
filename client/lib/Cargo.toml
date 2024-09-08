@@ -7,6 +7,8 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 [dependencies]
 bevy = { workspace = true, features = ["mp3"] }
 bevy-inspector-egui = { workspace = true }
+bevy_matchbox = { workspace = true }
+bevy_ggrs = { workspace = true }
 rand = { workspace = true }
 strum = { workspace = true }
 

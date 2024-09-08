@@ -3,8 +3,9 @@ use bevy::{asset::LoadState, prelude::*};
 use characters::{Character, Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
-    Clock, GameResult, GameState, InMatch, InMenu, Joints, Player, RoundLog, RoundResult,
-    POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
+    Clock, GameResult, GameState, InCharacterSelect, InCombat, InEndScreen, InLoadingScreen,
+    InMatch, InMatchSetup, InMenu, Joints, LocalState, MatchState, OnlineState, Player, RoundLog,
+    RoundResult, POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
 };
 
 use crate::{assets::AssetsLoading, ui::Notifications};
@@ -16,11 +17,17 @@ impl Plugin for StateTransitionPlugin {
         app.init_state::<GameState>()
             .add_computed_state::<InMatch>()
             .add_computed_state::<InMenu>()
+            .add_computed_state::<InCombat>()
+            .add_computed_state::<InEndScreen>()
+            .add_computed_state::<InLoadingScreen>()
+            .add_computed_state::<InMatchSetup>()
+            .add_computed_state::<InCharacterSelect>()
+            .add_computed_state::<MatchState>()
             .add_systems(
                 Update,
                 (
-                    end_loading.run_if(in_state(GameState::Loading)),
-                    end_combat.run_if(in_state(GameState::Combat)),
+                    end_loading.run_if(in_state(InLoadingScreen)),
+                    end_combat.run_if(in_state(InCombat)),
                     clear_between_states.run_if(state_changed::<GameState>),
                     transition_after_timer,
                 ),
@@ -30,13 +37,8 @@ impl Plugin for StateTransitionPlugin {
 
 #[derive(Debug, Resource)]
 pub struct TransitionTimer {
-    timer: Timer,
-    state: Option<GameState>,
-}
-impl From<Timer> for TransitionTimer {
-    fn from(timer: Timer) -> Self {
-        Self { timer, state: None }
-    }
+    pub timer: Timer,
+    pub state: GameState,
 }
 
 pub fn end_combat(
@@ -45,6 +47,7 @@ pub fn end_combat(
     mut notifications: ResMut<Notifications>,
     mut round_log: ResMut<RoundLog>,
     mut players: Query<(&WAGResources, &Player, &mut Inventory, &Character)>,
+    game_state: Res<State<GameState>>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     let round_over = players
@@ -131,25 +134,29 @@ pub fn end_combat(
     };
 
     round_log.add(result);
-
-    next_state.set(GameState::PostRound);
-
-    let post_transition_state = if round_log.wins(**winner) >= ROUNDS_TO_WIN {
-        commands.insert_resource(GameResult { winner: **winner });
-        GameState::EndScreen
-    } else {
-        GameState::Shop
+    let (next, after) = match **game_state {
+        GameState::Local(_) => (
+            GameState::Local(LocalState::Match(MatchState::PostRound)),
+            if round_log.wins(**winner) >= ROUNDS_TO_WIN {
+                commands.insert_resource(GameResult { winner: **winner });
+                GameState::Local(LocalState::EndScreen)
+            } else {
+                GameState::Local(LocalState::Match(MatchState::Shop))
+            },
+        ),
+        _ => panic!("Out of match transitions!"),
     };
+    next_state.set(next);
+
     commands.insert_resource(TransitionTimer {
         timer: Timer::from_seconds(POST_ROUND_DURATION, TimerMode::Once),
-        state: Some(post_transition_state),
+        state: after,
     })
 }
 
 fn transition_after_timer(
     mut commands: Commands,
     timer_resource: Option<ResMut<TransitionTimer>>,
-    game_state: Res<State<GameState>>,
     mut next_state: ResMut<NextState<GameState>>,
     time: Res<Time>,
 ) {
@@ -157,7 +164,7 @@ fn transition_after_timer(
         transition.timer.tick(time.delta());
 
         if transition.timer.finished() {
-            next_state.set(transition.state.unwrap_or(game_state.get().next()));
+            next_state.set(transition.state);
             commands.remove_resource::<TransitionTimer>()
         }
     }
@@ -168,6 +175,7 @@ fn end_loading(
     loading_assets: Res<AssetsLoading>,
     server: Res<AssetServer>,
     mut next_state: ResMut<NextState<GameState>>,
+    current_state: Res<State<GameState>>,
     mut latch: Local<bool>,
 ) {
     let two_players = players.iter().count() == 2;
@@ -181,7 +189,11 @@ fn end_loading(
     if two_players && joints_loaded && some_assets_loading && all_assets_loaded {
         if *latch {
             println!("Done loading assets");
-            next_state.set(GameState::SetupMatch);
+            next_state.set(match *current_state.get() {
+                GameState::Local(_) => GameState::Local(LocalState::SetupMatch),
+                GameState::Online(_) => GameState::Online(OnlineState::SetupMatch),
+                _ => panic!("Loading while not in a loading situation"),
+            });
         } else {
             *latch = true;
         }

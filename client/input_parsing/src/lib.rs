@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::HashMap};
-use wag_core::{ActionId, InMatch, WAGStage};
+use wag_core::{ActionId, InMatch, RollbackSchedule, WAGStage};
 
 mod helper_types;
 mod input_parser;
@@ -12,14 +12,13 @@ pub use input_parser::InputParser;
 use input_stream::{update_pads, update_parrots, PadStream, ParrotStream};
 
 const MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS: f32 = 0.2; // In seconds
-const STICK_DEAD_ZONE: f32 = 0.2;
 
 pub struct InputParsingPlugin;
 
 impl Plugin for InputParsingPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            FixedUpdate,
+            RollbackSchedule,
             (
                 update_pads,
                 update_parrots::<PadStream>,

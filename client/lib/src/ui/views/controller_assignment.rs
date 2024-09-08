@@ -1,5 +1,7 @@
-use bevy::{ecs::system::SystemId, input::gamepad::GamepadEvent, prelude::*};
-use wag_core::{Controllers, GameState, Player, CONTROLLER_ASSIGNMENT_SIDE_COLOR};
+use bevy::{ecs::system::SystemId, prelude::*};
+use wag_core::{
+    Controllers, GameState, LocalState, Player, WagInputButton, CONTROLLER_ASSIGNMENT_SIDE_COLOR,
+};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 
@@ -7,23 +9,23 @@ use super::{setup_view_title, MenuInputs};
 
 #[derive(Debug, Resource, Default)]
 pub struct ControllerAssignment {
-    p1: Option<Gamepad>,
-    p2: Option<Gamepad>,
+    p1: Option<usize>,
+    p2: Option<usize>,
 }
 impl ControllerAssignment {
-    fn left(&mut self, pad: Gamepad) {
-        if self.p2 == Some(pad) {
+    fn left(&mut self, player_handle: usize) {
+        if self.p2 == Some(player_handle) {
             self.p2 = None;
         } else if self.p1.is_none() {
-            self.p1 = Some(pad);
+            self.p1 = Some(player_handle);
         }
     }
 
-    fn right(&mut self, pad: Gamepad) {
-        if self.p1 == Some(pad) {
+    fn right(&mut self, player_handle: usize) {
+        if self.p1 == Some(player_handle) {
             self.p1 = None;
         } else if self.p2.is_none() {
-            self.p2 = Some(pad);
+            self.p2 = Some(player_handle);
         }
     }
 
@@ -59,7 +61,7 @@ pub fn setup_controller_assignment(mut commands: Commands, fonts: Res<Fonts>) {
                 },
                 ..default()
             },
-            VisibleInStates(vec![GameState::ControllerAssignment]),
+            VisibleInStates(vec![GameState::Local(LocalState::ControllerAssignment)]),
             Name::new("Controller assignment UI"),
         ))
         .with_children(|cb| {
@@ -83,7 +85,7 @@ fn go_to_character_select(
         p2: ca.p2.unwrap(),
     });
 
-    state.set(GameState::CharacterSelect);
+    state.set(GameState::Local(LocalState::CharacterSelect));
 }
 
 fn setup_areas(root: &mut ChildBuilder, fonts: &Fonts) {
@@ -169,22 +171,22 @@ pub fn navigate_controller_assignment_menu(
     callback: Res<SubmitCallback>,
     mut state: ResMut<NextState<GameState>>,
 ) {
-    // TODO: Analog stick
     while let Some(ev) = events.pop_front() {
-        match ev {
-            GamepadEvent::Button(ev_btn) if ev_btn.value == 1.0 => match ev_btn.button_type {
-                GamepadButtonType::DPadLeft => ca.left(ev_btn.gamepad),
-                GamepadButtonType::DPadRight => ca.right(ev_btn.gamepad),
-                GamepadButtonType::South => {
-                    if ca.is_complete() {
-                        commands.run_system(callback.0);
-                    }
+        if !ev.pressed {
+            continue;
+        }
+
+        match ev.button {
+            WagInputButton::Left => ca.left(ev.player_handle),
+            WagInputButton::Right => ca.right(ev.player_handle),
+            WagInputButton::South => {
+                if ca.is_complete() {
+                    commands.run_system(callback.0);
                 }
-                GamepadButtonType::East => {
-                    state.set(GameState::MainMenu);
-                }
-                _ => {}
-            },
+            }
+            WagInputButton::East => {
+                state.set(GameState::MainMenu);
+            }
             _ => {}
         }
     }
@@ -225,11 +227,11 @@ pub fn update_controller_assignment_menu_visuals(
     let unused = free_container.get_single().unwrap();
 
     for pad in pads.iter() {
-        if ca.p1 == Some(pad) {
+        if ca.p1 == Some(pad.id) {
             commands
                 .entity(p1_selected)
                 .with_children(create_icon(pad.id, &fonts));
-        } else if ca.p2 == Some(pad) {
+        } else if ca.p2 == Some(pad.id) {
             commands
                 .entity(p2_selected)
                 .with_children(create_icon(pad.id, &fonts));

@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use wag_core::{Clock, GameState, InMatch, InMenu};
+use wag_core::{
+    Clock, GameState, InCombat, InEndScreen, InMatch, InMenu, MatchState, RollbackSchedule,
+};
 
 #[derive(Component)]
 pub struct DespawnMarker(pub usize);
@@ -12,12 +14,15 @@ pub struct EntityManagementPlugin;
 impl Plugin for EntityManagementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            FixedUpdate,
+            RollbackSchedule,
             despawn_marked.after(crate::damage::handle_despawn_flags),
         )
         .add_systems(Update, update_visibility_on_state_change)
         .enable_state_scoped_entities::<GameState>()
+        .enable_state_scoped_entities::<MatchState>()
         .enable_state_scoped_entities::<InMenu>()
+        .enable_state_scoped_entities::<InCombat>()
+        .enable_state_scoped_entities::<InEndScreen>()
         .enable_state_scoped_entities::<InMatch>();
     }
 }

@@ -8,6 +8,7 @@ mod damage;
 mod dev;
 mod entity_management;
 mod movement;
+mod networking;
 mod player_state_management;
 mod resources;
 mod stage;
@@ -46,6 +47,7 @@ impl PluginGroup for WAGLib {
             .add(input_parsing::InputParsingPlugin)
             .add(stage::StagePlugin)
             .add(state_transitions::StateTransitionPlugin)
+            .add(networking::NetworkPlugin)
             .add(entity_management::EntityManagementPlugin);
 
         if self.args.dev {

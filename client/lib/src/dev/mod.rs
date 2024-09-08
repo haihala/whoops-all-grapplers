@@ -6,8 +6,8 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use characters::{ActionEvent, FlashRequest, Hitbox, Hurtbox, Inventory};
 use player_state::PlayerState;
 use wag_core::{
-    Characters, Clock, Controllers, Facing, GameState, Joints, Player, SoundEffect, Stats, WagArgs,
-    GI_PARRY_FLASH_COLOR,
+    Characters, Clock, Controllers, Facing, GameState, Joints, LocalState, Player, SoundEffect,
+    Stats, WagArgs, GI_PARRY_FLASH_COLOR,
 };
 
 use crate::{
@@ -46,7 +46,6 @@ impl Plugin for DevPlugin {
                     shader_test_system,
                     fullscreen_toggle,
                     pause_toggle,
-                    cycle_game_state,
                     input_leniency_test_system,
                     box_visualization::visualize_hitboxes,
                     box_visualization::visualize_hurtboxes,
@@ -67,14 +66,10 @@ fn skip_menus(
     mut next_state: ResMut<NextState<GameState>>,
     args: Res<WagArgs>,
 ) {
-    next_state.set(GameState::Loading);
+    next_state.set(GameState::Local(LocalState::Loading));
     commands.insert_resource(Controllers {
-        p1: Gamepad {
-            id: args.pad1.unwrap(),
-        },
-        p2: Gamepad {
-            id: args.pad2.unwrap(),
-        },
+        p1: args.pad1.unwrap(),
+        p2: args.pad2.unwrap(),
     });
 
     commands.insert_resource(Characters {
@@ -204,22 +199,5 @@ fn log_diff(
 
         *a_status = None;
         *b_status = None;
-    }
-}
-
-fn cycle_game_state(
-    keys: Res<ButtonInput<KeyCode>>,
-    game_state: Res<State<GameState>>,
-    mut next_state: ResMut<NextState<GameState>>,
-    mut clock: ResMut<Clock>,
-) {
-    // Can be converted to a non-dev system eventually (to start game press start type of deal)
-    if keys.just_pressed(KeyCode::Enter) {
-        if game_state.get() == &GameState::Combat {
-            // Set clock to zero to go through the same route as time out
-            clock.time_out();
-        } else {
-            next_state.set(game_state.get().next());
-        }
     }
 }

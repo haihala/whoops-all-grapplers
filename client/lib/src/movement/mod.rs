@@ -9,7 +9,7 @@ use bevy::{ecs::query::QueryData, prelude::*};
 
 use characters::{ActionEvent, Character};
 use player_state::PlayerState;
-use wag_core::{Area, Clock, Facing, Players, Stats, WAGStage};
+use wag_core::{Area, Clock, Facing, Players, RollbackSchedule, Stats, WAGStage};
 
 use crate::{
     camera::{CameraWrapper, VIEWPORT_HALFWIDTH},
@@ -40,7 +40,7 @@ pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            FixedUpdate,
+            RollbackSchedule,
             (
                 stick_movement::movement_input,
                 player_input,

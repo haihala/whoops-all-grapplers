@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{GameState, InMatch, Model};
+use wag_core::{InLoadingScreen, InMatch, Model};
 
 use crate::assets::Models;
 
@@ -7,7 +7,7 @@ pub struct StagePlugin;
 
 impl Plugin for StagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Loading), (setup_lights, add_stage));
+        app.add_systems(OnEnter(InLoadingScreen), (setup_lights, add_stage));
     }
 }
 

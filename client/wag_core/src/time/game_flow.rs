@@ -1,34 +1,69 @@
 use crate::{Player, LOSS_BONUS};
 use bevy::prelude::*;
 
+#[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
+pub enum LocalState {
+    ControllerAssignment,
+    CharacterSelect,
+    Loading,
+    SetupMatch,
+    Match(MatchState),
+    EndScreen,
+}
+
+#[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
+pub enum OnlineState {
+    CharacterSelect,
+    Lobby,
+    Loading,
+    SetupMatch,
+    Match(MatchState),
+    EndScreen,
+}
+
+impl ComputedStates for OnlineState {
+    type SourceStates = GameState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        match sources {
+            GameState::Online(ol) => Some(ol),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
+pub enum MatchState {
+    PreRound,
+    Combat,
+    PostRound,
+    Shop,
+}
+
+impl ComputedStates for MatchState {
+    type SourceStates = GameState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        match sources {
+            GameState::Local(LocalState::Match(cs)) | GameState::Online(OnlineState::Match(cs)) => {
+                Some(cs)
+            }
+            _ => None,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Hash, Debug, PartialEq, Eq, Default, States)]
 pub enum GameState {
     #[default]
     MainMenu,
 
-    ControllerAssignment,
-    CharacterSelect,
-    Loading,
-    SetupMatch,
-
-    // Match loop
-    PreRound,
-    Combat,
-    PostRound,
-    Shop,
-
-    EndScreen,
+    Local(LocalState),
+    Online(OnlineState),
 }
-impl GameState {
-    pub fn next(self) -> GameState {
-        match self {
-            GameState::PreRound => GameState::Combat,
-            GameState::Combat => GameState::PostRound,
-            GameState::PostRound => GameState::Shop,
-            GameState::Shop => GameState::PreRound,
 
-            other => panic!("Should not go to next state in state {:?}", other),
-        }
+impl GameState {
+    pub fn is_online(&self) -> bool {
+        matches!(self, GameState::Online(_))
     }
 }
 
@@ -41,9 +76,11 @@ impl ComputedStates for InMenu {
         if matches!(
             sources,
             GameState::MainMenu
-                | GameState::ControllerAssignment
-                | GameState::CharacterSelect
-                | GameState::EndScreen
+                | GameState::Local(LocalState::ControllerAssignment)
+                | GameState::Local(LocalState::CharacterSelect)
+                | GameState::Local(LocalState::EndScreen)
+                | GameState::Online(OnlineState::CharacterSelect)
+                | GameState::Online(OnlineState::EndScreen)
         ) {
             Some(InMenu)
         } else {
@@ -53,6 +90,95 @@ impl ComputedStates for InMenu {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct InCharacterSelect;
+impl ComputedStates for InCharacterSelect {
+    type SourceStates = GameState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        if matches!(
+            sources,
+            GameState::Local(LocalState::CharacterSelect)
+                | GameState::Online(OnlineState::CharacterSelect)
+        ) {
+            Some(InCharacterSelect)
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct InMatchSetup;
+
+impl ComputedStates for InMatchSetup {
+    type SourceStates = GameState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        if matches!(
+            sources,
+            GameState::Local(LocalState::SetupMatch) | GameState::Online(OnlineState::SetupMatch)
+        ) {
+            Some(InMatchSetup)
+        } else {
+            None
+        }
+    }
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct InEndScreen;
+
+impl ComputedStates for InEndScreen {
+    type SourceStates = GameState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        if matches!(
+            sources,
+            GameState::Local(LocalState::EndScreen) | GameState::Online(OnlineState::EndScreen)
+        ) {
+            Some(InEndScreen)
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct InCombat;
+
+impl ComputedStates for InCombat {
+    type SourceStates = GameState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        if matches!(
+            sources,
+            GameState::Local(LocalState::Match(MatchState::Combat))
+                | GameState::Online(OnlineState::Match(MatchState::Combat))
+        ) {
+            Some(InCombat)
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct InLoadingScreen;
+
+impl ComputedStates for InLoadingScreen {
+    type SourceStates = GameState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        if matches!(
+            sources,
+            GameState::Local(LocalState::Loading) | GameState::Online(OnlineState::Loading)
+        ) {
+            Some(InLoadingScreen)
+        } else {
+            None
+        }
+    }
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct InMatch;
 
 impl ComputedStates for InMatch {
@@ -61,12 +187,12 @@ impl ComputedStates for InMatch {
     fn compute(sources: Self::SourceStates) -> Option<Self> {
         if matches!(
             sources,
-            GameState::Loading
-                | GameState::SetupMatch
-                | GameState::PreRound
-                | GameState::Combat
-                | GameState::PostRound
-                | GameState::Shop
+            GameState::Local(LocalState::Loading)
+                | GameState::Local(LocalState::SetupMatch)
+                | GameState::Local(LocalState::Match(_))
+                | GameState::Online(OnlineState::Loading)
+                | GameState::Online(OnlineState::SetupMatch)
+                | GameState::Online(OnlineState::Match(_))
         ) {
             Some(InMatch)
         } else {

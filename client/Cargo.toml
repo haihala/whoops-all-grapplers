@@ -19,6 +19,8 @@ opt-level = 3
 [workspace.dependencies]
 bevy = "0.14"
 bevy-inspector-egui = "0.25"
+bevy_matchbox = { version = "0.10", features = ["ggrs"] }
+bevy_ggrs = "0.16"
 
 rand = "0.8"
 strum = "0.26"

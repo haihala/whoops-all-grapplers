@@ -1,7 +1,9 @@
 use std::collections::VecDeque;
 
-use bevy::{input::gamepad::GamepadEvent, prelude::*};
-use wag_core::{GameState, InMenu, SoundEffect};
+use bevy::prelude::*;
+use wag_core::{
+    GameState, InCharacterSelect, InEndScreen, InMenu, LocalState, SoundEffect, WagInputEvent,
+};
 
 use crate::assets::{Fonts, Sounds};
 
@@ -40,7 +42,7 @@ impl Plugin for ViewsPlugin {
                 controller_assignment::update_controller_assignment_menu_visuals,
             )
                 .chain()
-                .run_if(in_state(GameState::ControllerAssignment)),
+                .run_if(in_state(GameState::Local(LocalState::ControllerAssignment))),
         )
         .add_systems(
             Update,
@@ -49,9 +51,9 @@ impl Plugin for ViewsPlugin {
                 character_select::update_character_select_visuals,
             )
                 .chain()
-                .run_if(in_state(GameState::CharacterSelect)),
+                .run_if(in_state(InCharacterSelect)),
         )
-        .add_systems(OnEnter(GameState::EndScreen), end_screen::setup_end_screen)
+        .add_systems(OnEnter(InEndScreen), end_screen::setup_end_screen)
         .add_systems(
             Update,
             (
@@ -59,25 +61,28 @@ impl Plugin for ViewsPlugin {
                 end_screen::update_end_screen_visuals,
             )
                 .chain()
-                .run_if(in_state(GameState::EndScreen))
+                .run_if(in_state(InEndScreen))
                 .after(end_screen::setup_end_screen),
         )
         .add_systems(OnExit(GameState::MainMenu), play_transition_noise)
         .add_systems(
-            OnExit(GameState::ControllerAssignment),
+            OnExit(GameState::Local(LocalState::ControllerAssignment)),
             play_transition_noise,
         )
-        .add_systems(OnExit(GameState::CharacterSelect), play_transition_noise)
-        .add_systems(OnExit(GameState::EndScreen), play_transition_noise);
+        .add_systems(
+            OnExit(GameState::Local(LocalState::CharacterSelect)),
+            play_transition_noise,
+        )
+        .add_systems(OnExit(InEndScreen), play_transition_noise);
     }
 }
 
 #[derive(Debug, Resource, Default, Deref, DerefMut)]
-struct MenuInputs(VecDeque<GamepadEvent>);
+struct MenuInputs(VecDeque<WagInputEvent>);
 
 // This is a workaround. Inputs would otherwise be duplicated per system, which causes
 // duplication issues during state transitions.
-fn update_menu_inputs(mut mi: ResMut<MenuInputs>, mut events: EventReader<GamepadEvent>) {
+fn update_menu_inputs(mut mi: ResMut<MenuInputs>, mut events: EventReader<WagInputEvent>) {
     for ev in events.read() {
         mi.push_back(ev.to_owned());
     }

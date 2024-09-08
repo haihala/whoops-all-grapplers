@@ -15,10 +15,11 @@ Low priority do later tasks
 - [[Emote button]]
 - [[Rewards 2.0]]
 - [[Yoink assets]]
-- [[Netplay]]
+- [[Netplay 2.0]]
 - [[Optional inputs]]
 - Delay wakeup on knockdown
 - Pretty loading screen
+- Orthogonal states instead of nested ones?
 
 # Overarching plan
 - [x] MVP (Not a rushed one, but one that is maintainable)

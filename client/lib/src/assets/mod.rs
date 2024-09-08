@@ -15,7 +15,7 @@ pub use models::{Models, PlayerModelHook};
 pub use sounds::Sounds;
 pub use vfx::Vfx;
 
-use wag_core::{GameState, Icon};
+use wag_core::{Icon, InLoadingScreen};
 
 #[derive(Debug, Resource)]
 pub struct Fonts {
@@ -60,7 +60,7 @@ impl Plugin for AssetsPlugin {
                     animations::mirror_after_load,
                     models::prep_player_gltf,
                 )
-                    .run_if(in_state(GameState::Loading)),
+                    .run_if(in_state(InLoadingScreen)),
             )
             .add_systems(
                 Update,

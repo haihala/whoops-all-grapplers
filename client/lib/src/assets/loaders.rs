@@ -104,6 +104,7 @@ pub fn sounds(
     );
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn vfx(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,

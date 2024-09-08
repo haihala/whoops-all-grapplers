@@ -2,10 +2,11 @@ use crate::{
     assets::Fonts,
     ui::{SharedVerticalNav, VerticalMenuNavigation},
 };
-use bevy::{input::gamepad::GamepadEvent, prelude::*};
+use bevy::prelude::*;
 use wag_core::{
-    Controllers, GameResult, GameState, Player, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR,
-    GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
+    Controllers, GameResult, GameState, InEndScreen, LocalState, OnlineState, Player,
+    WagInputButton, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR,
+    VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
 use super::{setup_view_subtitle, setup_view_title, MenuInputs};
@@ -53,7 +54,7 @@ pub fn setup_end_screen(mut commands: Commands, fonts: Res<Fonts>, game_result: 
                 },
                 ..default()
             },
-            StateScoped(GameState::EndScreen),
+            StateScoped(InEndScreen),
             Name::new("End screen UI"),
         ))
         .with_children(|cb| {
@@ -160,44 +161,48 @@ pub fn navigate_end_screen(
     mut events: ResMut<MenuInputs>,
     controllers: Res<Controllers>,
     options: Query<&EndScreenOption>,
-    mut state: ResMut<NextState<GameState>>,
+    mut next_state: ResMut<NextState<GameState>>,
+    current_state: Res<State<GameState>>,
     mut quitter: EventWriter<AppExit>,
 ) {
     // TODO: Analog stick
     while let Some(ev) = events.pop_front() {
-        match ev {
-            GamepadEvent::Button(ev_btn) if ev_btn.value == 1.0 => {
-                let Some(player) = controllers.get_player(ev_btn.gamepad) else {
-                    continue;
-                };
+        let Some(player) = controllers.get_player(ev.player_handle) else {
+            continue;
+        };
 
-                match ev_btn.button_type {
-                    GamepadButtonType::DPadUp => nav.up(player),
-                    GamepadButtonType::DPadDown => nav.down(player),
-                    GamepadButtonType::East => {
-                        nav.unlock(player);
-                    }
-                    GamepadButtonType::South => {
-                        let selected = nav.selected(player);
-                        let option_type = options.get(selected).unwrap();
+        if !ev.pressed {
+            continue;
+        }
 
-                        match option_type {
-                            EndScreenOption::Rematch => {
-                                nav.lock_in(player);
-                                if nav.both_locked() {
-                                    // TODO: May need additional cleanup
-                                    state.set(GameState::Loading);
-                                }
-                            }
-                            EndScreenOption::QuitToMainMenu => {
-                                state.set(GameState::MainMenu);
-                            }
-                            EndScreenOption::QuitToDesktop => {
-                                quitter.send_default();
-                            }
+        match ev.button {
+            WagInputButton::Up => nav.up(player),
+            WagInputButton::Down => nav.down(player),
+            WagInputButton::East => {
+                nav.unlock(player);
+            }
+            WagInputButton::West => {
+                let selected = nav.selected(player);
+                let option_type = options.get(selected).unwrap();
+
+                match option_type {
+                    EndScreenOption::Rematch => {
+                        nav.lock_in(player);
+                        if nav.both_locked() {
+                            // TODO: May need additional cleanup
+                            next_state.set(if current_state.is_online() {
+                                GameState::Online(OnlineState::Loading)
+                            } else {
+                                GameState::Local(LocalState::Loading)
+                            });
                         }
                     }
-                    _ => {}
+                    EndScreenOption::QuitToMainMenu => {
+                        next_state.set(GameState::MainMenu);
+                    }
+                    EndScreenOption::QuitToDesktop => {
+                        quitter.send_default();
+                    }
                 }
             }
             _ => {}

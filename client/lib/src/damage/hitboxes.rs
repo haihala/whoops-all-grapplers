@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use characters::{ActionEvent, Attack, Hitbox, Lifetime};
 use player_state::PlayerState;
-use wag_core::{Area, Clock, Facing, GameState, Joints, Owner, Player};
+use wag_core::{Area, Clock, Facing, InCombat, Joints, Owner, Player};
 
 use crate::{
     assets::Models,
@@ -67,7 +67,7 @@ impl HitboxSpawner {
             Owner(player),
             hitbox,
             attack.clone(),
-            StateScoped(GameState::Combat),
+            StateScoped(InCombat),
         ));
 
         if let Some(velocity) = attack.to_hit.velocity {

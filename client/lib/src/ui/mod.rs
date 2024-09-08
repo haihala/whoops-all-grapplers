@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-use wag_core::{GameState, InMatch, PRE_ROUND_DURATION};
+use wag_core::{
+    GameState, InMatch, InMatchSetup, LocalState, MatchState, OnlineState, PRE_ROUND_DURATION,
+};
 
 mod combat;
 mod round_text;
@@ -27,9 +29,9 @@ impl Plugin for UIPlugin {
                     combat::update_counters,
                     combat::update_timer,
                 )
-                    .run_if(in_state(GameState::Combat)),
+                    .run_if(in_state(MatchState::Combat)),
             )
-            .add_systems(OnEnter(GameState::PostRound), combat::update_score)
+            .add_systems(OnEnter(MatchState::PostRound), combat::update_score)
             .add_systems(
                 Update,
                 (combat::update_notifications, round_text::update_round_text)
@@ -45,22 +47,16 @@ impl Plugin for UIPlugin {
                     shop::update_info_panel,
                     shop::handle_shop_ending,
                 )
-                    .run_if(in_state(GameState::Shop)),
+                    .run_if(in_state(MatchState::Shop)),
             )
             .add_systems(
-                OnEnter(GameState::SetupMatch),
+                OnEnter(InMatchSetup),
                 (
                     combat::setup_combat_hud,
                     round_text::setup_round_info_text,
                     shop::setup_shop,
                     // This only works because no other place uses this state
-                    |mut commands: Commands, mut state: ResMut<NextState<GameState>>| {
-                        state.set(GameState::PreRound);
-                        commands.insert_resource(TransitionTimer::from(Timer::from_seconds(
-                            PRE_ROUND_DURATION,
-                            TimerMode::Once,
-                        )));
-                    },
+                    exit_match_setup,
                 )
                     .chain(),
             )
@@ -81,4 +77,28 @@ fn set_ui_scale(
 
     ui_scale.0 = window.width() / 1920.0;
     *local_width = window.width();
+}
+
+fn exit_match_setup(
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<GameState>>,
+    current_state: Res<State<GameState>>,
+) {
+    let (next, after) = if current_state.is_online() {
+        (
+            GameState::Online(OnlineState::Match(MatchState::PreRound)),
+            GameState::Online(OnlineState::Match(MatchState::Combat)),
+        )
+    } else {
+        (
+            GameState::Local(LocalState::Match(MatchState::PreRound)),
+            GameState::Local(LocalState::Match(MatchState::Combat)),
+        )
+    };
+
+    next_state.set(next);
+    commands.insert_resource(TransitionTimer {
+        timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),
+        state: after,
+    });
 }

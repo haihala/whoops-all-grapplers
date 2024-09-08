@@ -1,5 +1,8 @@
-use bevy::{input::gamepad::GamepadEvent, prelude::*};
-use wag_core::{GameState, GENERIC_TEXT_COLOR, MAIN_MENU_HIGHLIGHT_TEXT_COLOR};
+use bevy::prelude::*;
+use wag_core::{
+    GameState, LocalController, LocalState, OnlineState, WagInputButton, GENERIC_TEXT_COLOR,
+    MAIN_MENU_HIGHLIGHT_TEXT_COLOR,
+};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates, ui::VerticalMenuNavigation};
 
@@ -11,6 +14,7 @@ pub struct MainMenuNav(VerticalMenuNavigation);
 #[derive(Debug, Component, Clone, Copy)]
 pub enum MainMenuOptions {
     LocalPlay,
+    OnlinePlay,
     QuitToDesktop,
 }
 
@@ -21,6 +25,7 @@ impl std::fmt::Display for MainMenuOptions {
             "{}",
             match self {
                 MainMenuOptions::LocalPlay => "Local play",
+                MainMenuOptions::OnlinePlay => "Online play",
                 MainMenuOptions::QuitToDesktop => "Quit to desktop",
             }
         )
@@ -61,27 +66,32 @@ pub fn setup_main_menu(mut commands: Commands, fonts: Res<Fonts>) {
 }
 
 fn setup_buttons(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity> {
-    vec![MainMenuOptions::LocalPlay, MainMenuOptions::QuitToDesktop]
-        .into_iter()
-        .map(|opt| {
-            root.spawn((
-                TextBundle::from_section(
-                    opt.to_string(),
-                    TextStyle {
-                        font: fonts.basic.clone(),
-                        font_size: 36.0,
-                        ..default()
-                    },
-                ),
-                Name::new("Local play"),
-                opt,
-            ))
-            .id()
-        })
-        .collect()
+    vec![
+        MainMenuOptions::LocalPlay,
+        MainMenuOptions::OnlinePlay,
+        MainMenuOptions::QuitToDesktop,
+    ]
+    .into_iter()
+    .map(|opt| {
+        root.spawn((
+            TextBundle::from_section(
+                opt.to_string(),
+                TextStyle {
+                    font: fonts.basic.clone(),
+                    font_size: 36.0,
+                    ..default()
+                },
+            ),
+            Name::new(opt.to_string()),
+            opt,
+        ))
+        .id()
+    })
+    .collect()
 }
 
 pub fn navigate_main_menu(
+    mut commands: Commands,
     mut nav: ResMut<MainMenuNav>,
     mut events: ResMut<MenuInputs>,
     options: Query<&MainMenuOptions>,
@@ -90,19 +100,24 @@ pub fn navigate_main_menu(
 ) {
     // TODO: Analog stick
     while let Some(ev) = events.pop_front() {
-        match ev {
-            GamepadEvent::Button(ev_btn) if ev_btn.value == 1.0 => match ev_btn.button_type {
-                GamepadButtonType::DPadUp => nav.up(),
-                GamepadButtonType::DPadDown => nav.down(),
-                GamepadButtonType::South => match options.get(nav.selected).unwrap() {
-                    MainMenuOptions::LocalPlay => {
-                        state.set(GameState::ControllerAssignment);
-                    }
-                    MainMenuOptions::QuitToDesktop => {
-                        exit.send_default();
-                    }
-                },
-                _ => {}
+        if !ev.pressed {
+            continue;
+        }
+
+        match ev.button {
+            WagInputButton::Up => nav.up(),
+            WagInputButton::Down => nav.down(),
+            WagInputButton::South => match options.get(nav.selected).unwrap() {
+                MainMenuOptions::LocalPlay => {
+                    state.set(GameState::Local(LocalState::ControllerAssignment));
+                }
+                MainMenuOptions::OnlinePlay => {
+                    commands.insert_resource(LocalController(ev.player_handle));
+                    state.set(GameState::Online(OnlineState::CharacterSelect));
+                }
+                MainMenuOptions::QuitToDesktop => {
+                    exit.send_default();
+                }
             },
             _ => {}
         }

@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use wag_core::{GameState, InMatch, RoundLog, GENERIC_TEXT_COLOR};
+use wag_core::{
+    GameState, InMatch, LocalState, MatchState, OnlineState, RoundLog, GENERIC_TEXT_COLOR,
+};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 
@@ -9,13 +11,17 @@ pub struct RoundText;
 pub fn update_round_text(
     mut query: Query<&mut Text, With<RoundText>>,
     round_log: Res<RoundLog>,
-    game_state: Res<State<GameState>>,
+    game_state: Option<Res<State<MatchState>>>,
 ) {
     let Ok(ref mut text) = query.get_single_mut() else {
         return;
     };
 
-    if game_state.get() == &GameState::PreRound {
+    let Some(gs) = game_state else {
+        return;
+    };
+
+    if gs.get() == &MatchState::PreRound {
         text.sections[0].value = "New round".to_string();
     } else if let Some(result) = round_log.last() {
         text.sections[0].value = if let Some(winner) = result.winner {
@@ -44,10 +50,12 @@ pub fn setup_round_info_text(mut commands: Commands, fonts: Res<Fonts>) {
             },
             Name::new("Round info text"),
             VisibleInStates(vec![
-                GameState::Loading,
-                GameState::ControllerAssignment,
-                GameState::PreRound,
-                GameState::PostRound,
+                GameState::Local(LocalState::Loading),
+                GameState::Local(LocalState::Match(MatchState::PreRound)),
+                GameState::Local(LocalState::Match(MatchState::PostRound)),
+                GameState::Online(OnlineState::Loading),
+                GameState::Online(OnlineState::Match(MatchState::PreRound)),
+                GameState::Online(OnlineState::Match(MatchState::PostRound)),
             ]),
         ))
         .with_children(|parent| {
@@ -65,9 +73,12 @@ pub fn setup_round_info_text(mut commands: Commands, fonts: Res<Fonts>) {
                 },
                 StateScoped(InMatch),
                 VisibleInStates(vec![
-                    GameState::Loading,
-                    GameState::PreRound,
-                    GameState::PostRound,
+                    GameState::Local(LocalState::Loading),
+                    GameState::Local(LocalState::Match(MatchState::PreRound)),
+                    GameState::Local(LocalState::Match(MatchState::PostRound)),
+                    GameState::Online(OnlineState::Loading),
+                    GameState::Online(OnlineState::Match(MatchState::PreRound)),
+                    GameState::Online(OnlineState::Match(MatchState::PostRound)),
                 ]),
                 RoundText,
             ));

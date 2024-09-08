@@ -1,9 +1,12 @@
 use std::time::Instant;
 
-use bevy::prelude::*;
+use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
 
 mod game_flow;
-pub use game_flow::{GameResult, GameState, InMatch, InMenu, RoundLog, RoundResult};
+pub use game_flow::{
+    GameResult, GameState, InCharacterSelect, InCombat, InEndScreen, InLoadingScreen, InMatch,
+    InMatchSetup, InMenu, LocalState, MatchState, OnlineState, RoundLog, RoundResult,
+};
 
 pub const ROUNDS_TO_WIN: usize = 5;
 pub const PRE_ROUND_DURATION: f32 = 2.0;
@@ -52,6 +55,11 @@ impl Clock {
 #[derive(Debug, Resource, Deref)]
 pub struct Hitstop(pub Instant);
 
+// This needs to be defined here because it gets used here
+// It is a workaround that allows running the same systems in both online and offline
+#[derive(Debug, ScheduleLabel, Clone, Copy, Hash, PartialEq, Eq)]
+pub struct RollbackSchedule;
+
 #[derive(Debug, SystemSet, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum WAGStage {
     Inputs,
@@ -65,18 +73,18 @@ pub struct TimePlugin;
 impl Plugin for TimePlugin {
     fn build(&self, app: &mut App) {
         app.configure_sets(
-            FixedUpdate,
+            RollbackSchedule,
             (
                 WAGStage::Physics.after(WAGStage::Inputs),
                 WAGStage::HitReg.after(WAGStage::Physics),
                 WAGStage::PlayerUpdates.after(WAGStage::HitReg),
             )
-                .run_if(in_state(GameState::Combat)),
+                .run_if(in_state(InCombat)),
         )
         .init_resource::<Clock>()
         .insert_resource(Time::<Fixed>::from_seconds(1.0 / crate::FPS as f64))
-        .add_systems(FixedUpdate, update_clock)
-        .add_systems(OnExit(GameState::EndScreen), clear_round_log)
+        .add_systems(RollbackSchedule, update_clock)
+        .add_systems(OnExit(InEndScreen), clear_round_log)
         .insert_resource(RoundLog::default());
     }
 }

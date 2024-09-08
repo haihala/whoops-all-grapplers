@@ -1,13 +1,7 @@
-use bevy::{
-    input::gamepad::{GamepadAxisChangedEvent, GamepadButtonChangedEvent, GamepadEvent},
-    prelude::*,
-};
-use wag_core::{Controllers, GameButton, Player, StickPosition};
+use bevy::prelude::*;
+use wag_core::{Controllers, GameButton, Player, StickPosition, WagInputButton, WagInputEvent};
 
-use crate::{
-    helper_types::{Diff, InputEvent},
-    STICK_DEAD_ZONE,
-};
+use crate::helper_types::{Diff, InputEvent};
 
 use super::{InputStream, ParrotStream};
 
@@ -22,17 +16,6 @@ impl PadStream {
     fn update_next_diff_stick(&mut self) {
         let discrete_stick = self.stick_position.into();
         self.next_read.push(InputEvent::Point(discrete_stick));
-    }
-
-    fn update_stick(&mut self, new_x: Option<i32>, new_y: Option<i32>) {
-        if let Some(x) = new_x {
-            self.stick_position.x = x;
-        }
-        if let Some(y) = new_y {
-            self.stick_position.y = y;
-        }
-
-        self.update_next_diff_stick();
     }
 
     fn press_button(&mut self, button: GameButton) {
@@ -94,97 +77,49 @@ impl InputStream for PadStream {
 }
 
 pub(crate) fn update_pads(
-    mut gamepad_events: EventReader<GamepadEvent>,
+    mut gamepad_events: EventReader<WagInputEvent>,
     mut readers: Query<(&mut PadStream, &mut ParrotStream, &Player)>,
     controllers: Res<Controllers>,
 ) {
     for event in gamepad_events.read() {
         for (mut pad, mut parrot, player) in &mut readers {
-            let pad_id = controllers.get_pad(*player);
+            let pad_id = controllers.get_handle(*player);
 
-            match event {
-                GamepadEvent::Axis(GamepadAxisChangedEvent {
-                    axis_type,
-                    gamepad,
-                    value,
-                }) => {
-                    if pad_id != *gamepad {
-                        continue;
-                    }
-
-                    axis_change(&mut pad, *axis_type, *value);
-                }
-                GamepadEvent::Button(GamepadButtonChangedEvent {
-                    button_type,
-                    gamepad,
-                    value,
-                }) => {
-                    if pad_id != *gamepad {
-                        continue;
-                    }
-
-                    button_change(&mut pad, &mut parrot, *button_type, *value);
-                }
-                _ => {}
+            if pad_id != event.player_handle {
+                continue;
             }
-        }
-    }
-}
 
-fn axis_change(reader: &mut Mut<PadStream>, axis: GamepadAxisType, new_value: f32) {
-    match axis {
-        // Even though DPad axis are on the list, they don't fire
-        GamepadAxisType::LeftStickX => reader.update_stick(
-            Some(if new_value.abs() > STICK_DEAD_ZONE {
-                new_value.signum() as i32
-            } else {
-                0
-            }),
-            None,
-        ),
-        GamepadAxisType::LeftStickY => reader.update_stick(
-            None,
-            Some(if new_value.abs() > STICK_DEAD_ZONE {
-                new_value.signum() as i32
-            } else {
-                0
-            }),
-        ),
-        _ => {}
+            button_change(&mut pad, &mut parrot, event.button, event.pressed);
+        }
     }
 }
 
 fn button_change(
     reader: &mut Mut<PadStream>,
     parrot: &mut Mut<ParrotStream>,
-    button: GamepadButtonType,
-    new_value: f32,
+    button: WagInputButton,
+    press: bool,
 ) {
-    // TODO: real button mappings
-
-    let press = new_value > 0.1;
-    let handle_gamebutton = move |reader: &mut Mut<PadStream>, button: GameButton| {
-        if press {
-            reader.press_button(button)
-        } else {
-            reader.release_button(button)
-        }
+    let handle_gamebutton = if press {
+        move |reader: &mut Mut<PadStream>, button: GameButton| reader.press_button(button)
+    } else {
+        move |reader: &mut Mut<PadStream>, button: GameButton| reader.release_button(button)
     };
 
     match button {
-        GamepadButtonType::Start => handle_gamebutton(reader, GameButton::Start),
+        WagInputButton::Start => handle_gamebutton(reader, GameButton::Start),
 
-        GamepadButtonType::South => handle_gamebutton(reader, GameButton::Fast),
-        GamepadButtonType::East => handle_gamebutton(reader, GameButton::Strong),
-        GamepadButtonType::North => handle_gamebutton(reader, GameButton::Wrestling),
-        GamepadButtonType::West => handle_gamebutton(reader, GameButton::Gimmick),
+        WagInputButton::South => handle_gamebutton(reader, GameButton::Fast),
+        WagInputButton::East => handle_gamebutton(reader, GameButton::Strong),
+        WagInputButton::North => handle_gamebutton(reader, GameButton::Wrestling),
+        WagInputButton::West => handle_gamebutton(reader, GameButton::Gimmick),
 
-        GamepadButtonType::DPadUp => reader.update_dpad(press, None, Some(1)),
-        GamepadButtonType::DPadDown => reader.update_dpad(press, None, Some(-1)),
-        GamepadButtonType::DPadLeft => reader.update_dpad(press, Some(-1), None),
-        GamepadButtonType::DPadRight => reader.update_dpad(press, Some(1), None),
+        WagInputButton::Up => reader.update_dpad(press, None, Some(1)),
+        WagInputButton::Down => reader.update_dpad(press, None, Some(-1)),
+        WagInputButton::Left => reader.update_dpad(press, Some(-1), None),
+        WagInputButton::Right => reader.update_dpad(press, Some(1), None),
 
-        GamepadButtonType::Select => {
+        WagInputButton::Select => {
             if press {
                 parrot.cycle()
             }

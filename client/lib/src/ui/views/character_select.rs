@@ -3,11 +3,12 @@ use crate::{
     entity_management::VisibleInStates,
     ui::{SharedVerticalNav, VerticalMenuNavigation},
 };
-use bevy::{input::gamepad::GamepadEvent, prelude::*};
+use bevy::prelude::*;
 use strum::IntoEnumIterator;
 use wag_core::{
-    CharacterId, Characters, Controllers, GameState, Player, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR,
-    GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
+    CharacterId, Characters, Controllers, GameState, LocalCharacter, LocalController, LocalState,
+    OnlineState, Player, WagInputButton, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR,
+    VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
 use super::{setup_view_title, MenuInputs};
@@ -35,7 +36,10 @@ pub fn setup_character_select(mut commands: Commands, fonts: Res<Fonts>) {
                 },
                 ..default()
             },
-            VisibleInStates(vec![GameState::CharacterSelect]),
+            VisibleInStates(vec![
+                GameState::Local(LocalState::CharacterSelect),
+                GameState::Online(OnlineState::CharacterSelect),
+            ]),
             Name::new("Character select UI"),
         ))
         .with_children(|cb| {
@@ -131,46 +135,65 @@ fn setup_character_options(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity
         .collect()
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn navigate_character_select(
     mut commands: Commands,
     mut nav: ResMut<CharacterSelectNav>,
-    controllers: Res<Controllers>,
+    controllers: Option<Res<Controllers>>,
     options: Query<&CharacterId>,
     mut state: ResMut<NextState<GameState>>,
     mut events: ResMut<MenuInputs>,
+    local_controller: Option<Res<LocalController>>,
 ) {
-    // TODO: Analog stick
     while let Some(ev) = events.pop_front() {
-        match ev {
-            GamepadEvent::Button(ev_btn) if ev_btn.value == 1.0 => {
-                let Some(player) = controllers.get_player(ev_btn.gamepad) else {
-                    continue;
-                };
+        if !ev.pressed {
+            continue;
+        }
 
-                match ev_btn.button_type {
-                    GamepadButtonType::DPadUp => nav.up(player),
-                    GamepadButtonType::DPadDown => nav.down(player),
-                    GamepadButtonType::East => {
-                        if nav.locked(player) {
-                            nav.unlock(player);
-                        } else {
-                            state.set(GameState::ControllerAssignment);
-                        }
-                    }
-                    GamepadButtonType::South => {
-                        nav.lock_in(player);
-                        if nav.both_locked() {
-                            let [p1_char, p2_char] = options
-                                .get_many([nav.p1_select.selected, nav.p2_select.selected])
-                                .unwrap();
-                            commands.insert_resource(Characters {
-                                p1: *p1_char,
-                                p2: *p2_char,
-                            });
-                            state.set(GameState::Loading);
-                        }
-                    }
-                    _ => {}
+        let player = if let Some(ref lc) = local_controller {
+            if lc.0 != ev.player_handle {
+                continue;
+            }
+            // Always player one in online
+            Player::One
+        } else {
+            // Local play
+            controllers
+                .as_ref()
+                .unwrap()
+                .get_player(ev.player_handle)
+                .unwrap()
+        };
+
+        match ev.button {
+            WagInputButton::Up => nav.up(player),
+            WagInputButton::Down => nav.down(player),
+            WagInputButton::East => {
+                if nav.locked(player) {
+                    nav.unlock(player);
+                } else {
+                    state.set(GameState::Local(LocalState::ControllerAssignment));
+                }
+            }
+            WagInputButton::South => {
+                if local_controller.is_some() {
+                    state.set(GameState::Online(OnlineState::Lobby));
+                    commands.insert_resource(LocalCharacter(
+                        *options.get(nav.p1_select.selected).unwrap(),
+                    ));
+                    return;
+                }
+
+                nav.lock_in(player);
+                if nav.both_locked() {
+                    let [p1_char, p2_char] = options
+                        .get_many([nav.p1_select.selected, nav.p2_select.selected])
+                        .unwrap();
+                    commands.insert_resource(Characters {
+                        p1: *p1_char,
+                        p2: *p2_char,
+                    });
+                    state.set(GameState::Local(LocalState::Loading));
                 }
             }
             _ => {}
@@ -182,6 +205,7 @@ pub fn update_character_select_visuals(
     mut indicators: Query<(&mut Visibility, &mut Text, &CharacterHoverIndicator)>,
     navigator: Res<CharacterSelectNav>,
     options: Query<&CharacterId>,
+    local_controller: Option<Res<LocalController>>,
 ) {
     let [p1_char, p2_char] = options
         .get_many([navigator.p1_select.selected, navigator.p2_select.selected])
@@ -193,16 +217,19 @@ pub fn update_character_select_visuals(
             Player::Two => (navigator.p2_locked, p2_char),
         };
 
+        *visibility = if indicator.character == *character
+            // This is to hide other character selector in online
+            && (local_controller.is_none() || indicator.player == Player::One)
+        {
+            Visibility::Inherited // Visible, but only if parent is
+        } else {
+            Visibility::Hidden
+        };
+
         text.sections[0].style.color = if locked {
             CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR
         } else {
             GENERIC_TEXT_COLOR
-        };
-
-        *visibility = if indicator.character == *character {
-            Visibility::Inherited // Visible, but only if parent is
-        } else {
-            Visibility::Hidden
         };
     }
 }

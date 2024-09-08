@@ -2,10 +2,11 @@ use bevy::prelude::*;
 
 use characters::Character;
 use wag_core::{
-    GameState, Icon, InMatch, ItemId, Owner, Player, Players, GENERIC_TEXT_COLOR,
-    ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
-    ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR,
-    SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_TIMER_BACKGROUND_COLOR,
+    GameState, Icon, InMatch, ItemId, LocalState, MatchState, OnlineState, Owner, Player, Players,
+    GENERIC_TEXT_COLOR, ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR,
+    ITEM_SLOT_DISABLED_COLOR, ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR,
+    ITEM_SLOT_UPGRADE_COLOR, SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR,
+    SHOP_TIMER_BACKGROUND_COLOR,
 };
 
 use crate::assets::{Fonts, Icons};
@@ -40,7 +41,10 @@ pub fn setup_shop(
                 },
                 ..default()
             },
-            VisibleInStates(vec![GameState::Shop]),
+            VisibleInStates(vec![
+                GameState::Local(LocalState::Match(MatchState::Shop)),
+                GameState::Online(OnlineState::Match(MatchState::Shop)),
+            ]),
             StateScoped(InMatch),
             Name::new("Shop ui root"),
         ))

@@ -11,8 +11,8 @@ use characters::{dummy, mizku, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
-    AnimationType, CharacterId, Characters, Clock, Facing, GameState, InMatch, Joints, Player,
-    Players, Stats, WAGStage,
+    AnimationType, CharacterId, Characters, Clock, Facing, InLoadingScreen, InMatch, Joints,
+    MatchState, Player, Players, RollbackSchedule, Stats, WAGStage,
 };
 
 use crate::{
@@ -22,6 +22,7 @@ use crate::{
 };
 
 use bevy::prelude::*;
+use bevy_ggrs::AddRollbackCommandExtension;
 
 pub use move_activation::MoveBuffer;
 
@@ -32,11 +33,11 @@ pub struct PlayerStateManagementPlugin;
 
 impl Plugin for PlayerStateManagementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Loading), setup_players)
-            .add_systems(OnEnter(GameState::PreRound), setup_combat)
+        app.add_systems(OnEnter(InLoadingScreen), setup_players)
+            .add_systems(OnEnter(MatchState::PreRound), setup_combat)
             // This is here so it's up to date when the round starts
             .add_systems(
-                FixedUpdate,
+                RollbackSchedule,
                 (
                     condition_management::update_combined_status_effect
                         .before(WAGStage::PlayerUpdates),
@@ -44,7 +45,7 @@ impl Plugin for PlayerStateManagementPlugin {
                 ),
             )
             .add_systems(
-                FixedUpdate,
+                RollbackSchedule,
                 (
                     move_activation::manage_buffer,
                     move_activation::automatic_activation,
@@ -142,6 +143,7 @@ fn spawn_player(
                 },
             ));
         })
+        .add_rollback()
         .id()
 }
 

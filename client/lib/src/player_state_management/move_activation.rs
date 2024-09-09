@@ -9,13 +9,13 @@ use wag_core::{ActionId, Clock, Facing, Player, Stats};
 
 use crate::{movement::PlayerVelocity, ui::Notifications};
 
-#[derive(Debug, Default, Reflect)]
+#[derive(Debug, Default, Reflect, Clone, Copy)]
 pub(super) struct MoveActivation {
     pub kind: ActivationType,
     pub id: ActionId,
 }
 
-#[derive(Debug, Default, Reflect)]
+#[derive(Debug, Default, Reflect, Clone, Copy)]
 pub(super) enum ActivationType {
     Continuation,
     #[default]
@@ -25,7 +25,7 @@ pub(super) enum ActivationType {
 
 const AUTOCORRECT: usize = (0.1 * wag_core::FPS) as usize;
 
-#[derive(Debug, Default, Component, Reflect)]
+#[derive(Debug, Default, Component, Reflect, Clone)]
 pub struct MoveBuffer {
     buffer: Vec<(usize, ActionId)>,
     activation: Option<MoveActivation>,

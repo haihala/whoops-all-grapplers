@@ -1,10 +1,15 @@
 use bevy::{input::gamepad::GamepadEvent, prelude::*, utils::HashMap};
 use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
+use characters::WAGResources;
+use input_parsing::{InputParser, PadStream};
+use player_state::PlayerState;
 use wag_core::{
-    Characters, Controllers, GameState, LocalCharacter, LocalController, OnlineState,
-    RollbackSchedule, WagInputButton, WagInputEvent,
+    Characters, Clock, Controllers, Facing, GameState, LocalCharacter, LocalController,
+    OnlineState, RollbackSchedule, WagInputButton, WagInputEvent,
 };
+
+use crate::{damage::Defense, movement::PlayerVelocity};
 
 type Config = bevy_ggrs::GgrsConfig<u16, PeerId>;
 
@@ -33,7 +38,16 @@ impl Plugin for NetworkPlugin {
                     .run_if(|session: Option<Res<bevy_ggrs::Session<Config>>>| session.is_none()),
             )
             .add_plugins(GgrsPlugin::<Config>::default())
-            .rollback_component_with_clone::<Transform>();
+            // Probably an incomplete list of things to roll back
+            .rollback_resource_with_copy::<Clock>()
+            .rollback_component_with_clone::<PlayerState>()
+            .rollback_component_with_clone::<PadStream>()
+            .rollback_component_with_clone::<InputParser>()
+            .rollback_component_with_clone::<WAGResources>()
+            .rollback_component_with_clone::<PlayerVelocity>()
+            .rollback_component_with_copy::<Defense>()
+            .rollback_component_with_copy::<Facing>()
+            .rollback_component_with_copy::<Transform>();
     }
 }
 

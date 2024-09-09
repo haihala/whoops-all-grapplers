@@ -14,7 +14,7 @@ pub const COMBAT_DURATION: f32 = 99.0;
 pub const POST_ROUND_DURATION: f32 = 4.0;
 pub const POST_SHOP_DURATION: f32 = 11.0;
 
-#[derive(Reflect, Resource, Debug)]
+#[derive(Reflect, Resource, Debug, Clone, Copy)]
 pub struct Clock {
     pub frame: usize,
     start_time: f32,

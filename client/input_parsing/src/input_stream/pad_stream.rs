@@ -5,7 +5,7 @@ use crate::helper_types::{Diff, InputEvent};
 
 use super::{InputStream, ParrotStream};
 
-#[derive(Default, Component)]
+#[derive(Default, Component, Clone)]
 pub struct PadStream {
     next_read: Vec<InputEvent>,
     stick_position: IVec2,
@@ -76,7 +76,7 @@ impl InputStream for PadStream {
     }
 }
 
-pub(crate) fn update_pads(
+pub fn update_pads(
     mut gamepad_events: EventReader<WagInputEvent>,
     mut readers: Query<(&mut PadStream, &mut ParrotStream, &Player)>,
     controllers: Res<Controllers>,

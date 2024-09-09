@@ -6,7 +6,7 @@ const REWARD_FLOOR: i32 = 5;
 const REWARD_RAMP: i32 = 3;
 const TIME_UNTIL_RESET: usize = (wag_core::FPS * 1.0) as usize;
 
-#[derive(Debug, Default, Component)]
+#[derive(Debug, Default, Component, Clone, Copy)]
 pub struct Defense {
     streak: i32,
     streak_last_event: Option<usize>,

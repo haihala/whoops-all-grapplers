@@ -1,3 +1,4 @@
+use bevy::audio::Volume;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 use rand::prelude::*;
@@ -7,7 +8,7 @@ use wag_core::SoundEffect;
 #[derive(Debug, Resource)]
 pub struct Sounds {
     handles: HashMap<SoundEffect, Vec<Handle<AudioSource>>>,
-    queue: Vec<Handle<AudioSource>>,
+    queue: Vec<SoundEffect>,
 }
 impl Sounds {
     pub fn new(handles: HashMap<SoundEffect, Vec<Handle<AudioSource>>>) -> Sounds {
@@ -18,10 +19,7 @@ impl Sounds {
     }
 
     pub fn play(&mut self, key: SoundEffect) {
-        if let Some(clips) = self.handles.get(&key) {
-            let clip = clips[rand::thread_rng().gen_range(0..clips.len())].clone();
-            self.queue.push(clip);
-        }
+        self.queue.push(key);
     }
 }
 
@@ -30,12 +28,17 @@ pub fn play_queued(
     mut sounds: ResMut<Sounds>,
     spawned: Query<(Entity, &AudioSink)>,
 ) {
-    for source in sounds.queue.drain(..) {
+    for effect in sounds.queue.drain(..).collect::<Vec<_>>().into_iter() {
+        let Some(clips) = sounds.handles.get(&effect) else {
+            continue;
+        };
+        let source = clips[rand::thread_rng().gen_range(0..clips.len())].clone();
         commands.spawn(AudioBundle {
             source,
             settings: PlaybackSettings {
                 // Shift speed (pitch) by up to about 10% either way
                 speed: rand::thread_rng().gen_range(0.9..1.1),
+                volume: Volume::new(effect.volume()),
                 ..default()
             },
         });

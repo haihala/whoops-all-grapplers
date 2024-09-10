@@ -31,7 +31,7 @@ impl SoundEffect {
             SoundEffect::Block => vec!["sound_effects/block.ogg".to_string()],
             SoundEffect::Hit => Self::clips("hit", 3),
             SoundEffect::Silence => vec![],
-            SoundEffect::GlassClink => Self::clips("glass", 10),
+            SoundEffect::GlassClink => Self::clips("glass", 8),
             SoundEffect::PotLidGong => Self::clips("pot-lid", 4),
             SoundEffect::PlasticCupFlick => Self::clips("plastic-cup-flick", 23),
             SoundEffect::PlasticCupTap => Self::clips("plastic-cup-tap", 20),
@@ -45,6 +45,15 @@ impl SoundEffect {
         (1..=amount)
             .map(|int| format!("sound_effects/{}-{:0>2}.ogg", base_file_name, int))
             .collect()
+    }
+
+    pub fn volume(self) -> f32 {
+        match self {
+            SoundEffect::FemaleExhale => 0.1,
+            SoundEffect::PlasticCupFlick => 0.1,
+            SoundEffect::PotLidGong => 0.8,
+            _ => 1.0,
+        }
     }
 }
 

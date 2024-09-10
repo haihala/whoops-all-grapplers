@@ -99,7 +99,7 @@ pub(super) fn clash_parry(
             .intersection(&hitbox2.with_offset(gtf2.translation().truncate()))
         {
             // Hitboxes collide
-            sounds.play(SoundEffect::PotLidGong);
+            sounds.play(SoundEffect::GlassClink);
             particles.spawn(VfxRequest {
                 effect: VisualEffect::Clash,
                 position: overlap.center().extend(0.0),
@@ -276,7 +276,6 @@ pub(super) fn apply_connections(
                 rotation: None,
             });
 
-            sounds.play(SoundEffect::Whoosh); // TODO change sound effect
             return;
         } else if hits
             .iter()
@@ -363,7 +362,7 @@ pub(super) fn apply_connections(
                 // First hit of a combo
                 commands.entity(hit.defender).insert(Combo { hits: 1 });
 
-                sounds.play(SoundEffect::Whoosh); // TODO: Opener sound effect
+                sounds.play(SoundEffect::PotLidGong);
                 notifications.add(*attacker.player, "Opener!".to_owned());
                 if attacker.stats.opener_damage_multiplier > 1.0 {
                     attacker_actions = handle_opener(attacker_actions, attacker.stats);

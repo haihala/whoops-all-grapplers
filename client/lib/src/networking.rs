@@ -9,7 +9,11 @@ use wag_core::{
     OnlineState, RollbackSchedule, WagInputButton, WagInputEvent,
 };
 
-use crate::{damage::Defense, movement::PlayerVelocity};
+use crate::{
+    damage::{Defense, HitboxSpawner},
+    movement::PlayerVelocity,
+    player_state_management::MoveBuffer,
+};
 
 type Config = bevy_ggrs::GgrsConfig<u16, PeerId>;
 
@@ -45,6 +49,8 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_clone::<InputParser>()
             .rollback_component_with_clone::<WAGResources>()
             .rollback_component_with_clone::<PlayerVelocity>()
+            .rollback_component_with_clone::<MoveBuffer>()
+            .rollback_component_with_copy::<HitboxSpawner>()
             .rollback_component_with_copy::<Defense>()
             .rollback_component_with_copy::<Facing>()
             .rollback_component_with_copy::<Transform>();

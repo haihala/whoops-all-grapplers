@@ -19,7 +19,7 @@ pub(super) struct MoveActivation {
 pub(super) enum ActivationType {
     Continuation,
     #[default]
-    Plain,
+    NewMove,
     Cancel,
 }
 
@@ -165,7 +165,7 @@ pub(super) fn plain_start(
 
         buffer.activation = Some(MoveActivation {
             id,
-            kind: ActivationType::Plain,
+            kind: ActivationType::NewMove,
         });
     }
 }

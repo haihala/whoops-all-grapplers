@@ -26,7 +26,7 @@ impl From<Lifetime> for LifetimeFlags {
     }
 }
 
-#[derive(Default, Component)]
+#[derive(Default, Component, Clone, Copy)]
 pub struct HitboxSpawner {
     mark_landers: bool,
     mark_hitters: bool,

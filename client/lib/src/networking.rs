@@ -1,4 +1,9 @@
-use bevy::{input::gamepad::GamepadEvent, prelude::*, utils::HashMap};
+use bevy::{
+    ecs::schedule::{LogLevel, ScheduleBuildSettings},
+    input::gamepad::GamepadEvent,
+    prelude::*,
+    utils::HashMap,
+};
 use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
 use characters::WAGResources;
@@ -29,6 +34,13 @@ impl Plugin for NetworkPlugin {
             )
             .add_systems(ReadInputs, read_local_inputs)
             .init_schedule(RollbackSchedule)
+            .edit_schedule(RollbackSchedule, |schedule| {
+                schedule.set_build_settings(ScheduleBuildSettings {
+                    ambiguity_detection: LogLevel::Error,
+                    hierarchy_detection: LogLevel::Error,
+                    ..default()
+                });
+            })
             .add_systems(
                 GgrsSchedule,
                 (generate_online_input_streams, run_rollback_schedule)

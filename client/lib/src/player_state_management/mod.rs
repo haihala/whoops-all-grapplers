@@ -35,14 +35,11 @@ impl Plugin for PlayerStateManagementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(InLoadingScreen), setup_players)
             .add_systems(OnEnter(MatchState::PreRound), setup_combat)
-            // This is here so it's up to date when the round starts
             .add_systems(
                 RollbackSchedule,
-                (
-                    condition_management::update_combined_status_effect
-                        .before(WAGStage::PlayerUpdates),
-                    player_flash::handle_flash_events,
-                ),
+                condition_management::update_combined_status_effect
+                    .after(WAGStage::MovePipeline)
+                    .before(WAGStage::PlayerUpdates),
             )
             .add_systems(
                 RollbackSchedule,
@@ -53,20 +50,34 @@ impl Plugin for PlayerStateManagementPlugin {
                     move_activation::special_cancel,
                     move_activation::move_activator,
                     move_advancement::move_advancement,
+                )
+                    .chain()
+                    .in_set(WAGStage::MovePipeline),
+            )
+            .add_systems(
+                RollbackSchedule,
+                (
                     cinematic_locks::handle_cinematics, // This being the first system after hit move advancement is important
+                    player_flash::handle_flash_events,
                     recovery::stun_recovery,
                     recovery::ground_recovery,
                     size_adjustment::size_adjustment,
                     condition_management::manage_conditions,
-                    crate::assets::update_animation,
-                    crate::assets::update_audio,
-                    crate::assets::update_vfx,
                     side_switcher::sideswitcher,
                 )
                     .chain()
                     .in_set(WAGStage::PlayerUpdates),
+            )
+            .add_systems(
+                RollbackSchedule,
+                (
+                    crate::assets::update_animation,
+                    crate::assets::update_audio,
+                    crate::assets::update_vfx,
+                )
+                    .chain()
+                    .in_set(WAGStage::Presentation),
             );
-        // There is a max of 15 systems per call to add_systems
     }
 }
 

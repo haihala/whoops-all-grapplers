@@ -15,7 +15,7 @@ pub use defense::Defense;
 pub use hit_tracker::HitTracker;
 pub use hitboxes::HitboxSpawner;
 
-use wag_core::{InMatch, RollbackSchedule, WAGStage};
+use wag_core::{RollbackSchedule, WAGStage};
 
 pub struct DamagePlugin;
 
@@ -35,14 +35,13 @@ impl Plugin for DamagePlugin {
                 defense::timeout_defense_streak,
             )
                 .chain()
-                .in_set(WAGStage::HitReg)
-                .run_if(in_state(InMatch)),
+                .in_set(WAGStage::HitReg),
         )
         .add_systems(
             RollbackSchedule,
             (hitstop::clear_hitstop, hitstop::handle_hitstop_events)
                 .chain()
-                .after(WAGStage::PlayerUpdates),
+                .after(WAGStage::Presentation),
         );
     }
 }

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::RollbackSchedule;
+use wag_core::{RollbackSchedule, WAGStage};
 
 mod charge_accumulator;
 mod economy;
@@ -18,7 +18,9 @@ impl Plugin for ResourcesPlugin {
             (
                 charge_accumulator::manage_charge,
                 meter_over_time::meter_over_time,
-            ),
+            )
+                .chain()
+                .after(WAGStage::PlayerUpdates),
         );
     }
 }

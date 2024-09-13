@@ -74,7 +74,7 @@ fn run_rollback_schedule(world: &mut World) {
 }
 
 fn setup_socket(mut commands: Commands) {
-    let room_url = "ws://127.0.0.1:3536/wag?next=2";
+    let room_url = "ws://wag.tunk.org:3536/wag?next=2";
     info!("connecting to matchbox server: {room_url}");
     let sock = WebRtcSocketBuilder::new(room_url)
         .add_reliable_channel()

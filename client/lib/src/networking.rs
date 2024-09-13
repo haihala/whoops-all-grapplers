@@ -1,6 +1,6 @@
 use bevy::{
     ecs::schedule::{LogLevel, ScheduleBuildSettings},
-    input::gamepad::GamepadEvent,
+    input::{gamepad::GamepadEvent, keyboard::KeyboardInput},
     prelude::*,
     utils::HashMap,
 };
@@ -9,6 +9,7 @@ use bevy_matchbox::prelude::*;
 use characters::WAGResources;
 use input_parsing::{InputParser, PadStream};
 use player_state::PlayerState;
+use strum::IntoEnumIterator;
 use wag_core::{
     Characters, Clock, Controllers, Facing, GameState, LocalCharacter, LocalController,
     OnlineState, RollbackSchedule, WagInputButton, WagInputEvent,
@@ -180,28 +181,10 @@ fn wait_for_players(
     };
 }
 
-const INPUT_TABLE: [GamepadButtonType; 16] = [
-    GamepadButtonType::DPadUp,
-    GamepadButtonType::DPadDown,
-    GamepadButtonType::DPadLeft,
-    GamepadButtonType::DPadRight,
-    GamepadButtonType::South,
-    GamepadButtonType::West,
-    GamepadButtonType::North,
-    GamepadButtonType::East,
-    GamepadButtonType::Start,
-    GamepadButtonType::Select,
-    GamepadButtonType::LeftTrigger,
-    GamepadButtonType::LeftTrigger2,
-    GamepadButtonType::RightTrigger,
-    GamepadButtonType::RightTrigger2,
-    GamepadButtonType::LeftThumb,
-    GamepadButtonType::RightThumb,
-];
-
 fn read_local_inputs(
     mut commands: Commands,
-    buttons: Res<ButtonInput<GamepadButton>>,
+    gamepad_buttons: Res<ButtonInput<GamepadButton>>,
+    keyboard_keys: Res<ButtonInput<KeyCode>>,
     maybe_controller: Option<Res<LocalController>>,
     local_players: Res<LocalPlayers>,
 ) {
@@ -217,10 +200,10 @@ fn read_local_inputs(
         let mut input = 0u16;
 
         // TODO: Analog stick
-        for (shift, button_type) in INPUT_TABLE.into_iter().enumerate() {
-            if buttons.pressed(GamepadButton {
+        for (shift, wag_button) in WagInputButton::iter().enumerate() {
+            if gamepad_buttons.pressed(GamepadButton {
                 gamepad,
-                button_type,
+                button_type: wag_button.to_gamepad_button_type(),
             }) {
                 input |= 1 << shift;
             }
@@ -229,12 +212,24 @@ fn read_local_inputs(
         inputs.insert(*handle, input);
     }
 
+    inputs.insert(69, {
+        let mut input = 0u16;
+        for (shift, wag_button) in WagInputButton::iter().enumerate() {
+            if keyboard_keys.pressed(wag_button.to_keycode()) {
+                input |= 1 << shift;
+            }
+        }
+
+        input
+    });
+
     commands.insert_resource(LocalInputs::<Config>(inputs));
 }
 
 fn generate_offline_input_streams(
     mut writer: EventWriter<WagInputEvent>,
     mut gamepad_events: EventReader<GamepadEvent>,
+    mut keyboard_events: EventReader<KeyboardInput>,
 ) {
     // TODO: Analog input
     for event in gamepad_events.read() {
@@ -251,6 +246,19 @@ fn generate_offline_input_streams(
             });
         }
     }
+
+    for event in keyboard_events.read() {
+        let Some(button) = WagInputButton::from_key(event.key_code) else {
+            dbg!("Pressed non-mapped key", event.key_code);
+            continue;
+        };
+
+        writer.send(WagInputEvent {
+            pressed: event.state.is_pressed(),
+            player_handle: 69, // Hehe special id for keyboard
+            button,
+        });
+    }
 }
 
 fn generate_online_input_streams(
@@ -264,7 +272,7 @@ fn generate_online_input_streams(
             continue;
         };
 
-        for (shift, button_type) in INPUT_TABLE.into_iter().enumerate() {
+        for (shift, button_type) in WagInputButton::iter().enumerate() {
             let was_pressed = ((old_state >> shift) & 1) == 1;
             let is_pressed = ((input >> shift) & 1) == 1;
 
@@ -272,8 +280,7 @@ fn generate_online_input_streams(
                 writer.send(WagInputEvent {
                     player_handle,
                     pressed: is_pressed,
-                    button: WagInputButton::from_gamepad_button_type(button_type)
-                        .expect("Only viable inputs to be sent over"),
+                    button: button_type,
                 });
             }
         }

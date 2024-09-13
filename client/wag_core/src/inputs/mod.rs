@@ -23,7 +23,7 @@ pub enum GameButton {
 }
 
 // Game runs with strictly digital input, this is an abstraction
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, EnumIter)]
 pub enum WagInputButton {
     Up,
     Down,
@@ -64,6 +64,70 @@ impl WagInputButton {
             GamepadButtonType::DPadRight => WagInputButton::Right,
             _ => return None,
         })
+    }
+
+    pub fn from_key(value: KeyCode) -> Option<Self> {
+        Some(match value {
+            KeyCode::KeyJ => WagInputButton::South,
+            KeyCode::KeyK => WagInputButton::East,
+            KeyCode::KeyI => WagInputButton::North,
+            KeyCode::KeyU => WagInputButton::West,
+            KeyCode::KeyY => WagInputButton::L1,
+            KeyCode::KeyH => WagInputButton::L2,
+            KeyCode::KeyO => WagInputButton::R1,
+            KeyCode::KeyL => WagInputButton::R2,
+            KeyCode::KeyV => WagInputButton::Select,
+            KeyCode::KeyB => WagInputButton::Start,
+            KeyCode::KeyN => WagInputButton::L3,
+            KeyCode::KeyM => WagInputButton::R3,
+            KeyCode::KeyW => WagInputButton::Up,
+            KeyCode::KeyS => WagInputButton::Down,
+            KeyCode::KeyA => WagInputButton::Left,
+            KeyCode::KeyD => WagInputButton::Right,
+            _ => return None,
+        })
+    }
+
+    pub fn to_gamepad_button_type(&self) -> GamepadButtonType {
+        match self {
+            WagInputButton::South => GamepadButtonType::South,
+            WagInputButton::East => GamepadButtonType::East,
+            WagInputButton::North => GamepadButtonType::North,
+            WagInputButton::West => GamepadButtonType::West,
+            WagInputButton::L1 => GamepadButtonType::LeftTrigger,
+            WagInputButton::L2 => GamepadButtonType::LeftTrigger2,
+            WagInputButton::R1 => GamepadButtonType::RightTrigger,
+            WagInputButton::R2 => GamepadButtonType::RightTrigger2,
+            WagInputButton::Select => GamepadButtonType::Select,
+            WagInputButton::Start => GamepadButtonType::Start,
+            WagInputButton::L3 => GamepadButtonType::LeftThumb,
+            WagInputButton::R3 => GamepadButtonType::RightThumb,
+            WagInputButton::Up => GamepadButtonType::DPadUp,
+            WagInputButton::Down => GamepadButtonType::DPadDown,
+            WagInputButton::Left => GamepadButtonType::DPadLeft,
+            WagInputButton::Right => GamepadButtonType::DPadRight,
+        }
+    }
+
+    pub fn to_keycode(&self) -> KeyCode {
+        match self {
+            WagInputButton::South => KeyCode::KeyJ,
+            WagInputButton::East => KeyCode::KeyK,
+            WagInputButton::North => KeyCode::KeyI,
+            WagInputButton::West => KeyCode::KeyU,
+            WagInputButton::L1 => KeyCode::KeyY,
+            WagInputButton::L2 => KeyCode::KeyH,
+            WagInputButton::R1 => KeyCode::KeyO,
+            WagInputButton::R2 => KeyCode::KeyL,
+            WagInputButton::Select => KeyCode::KeyV,
+            WagInputButton::Start => KeyCode::KeyB,
+            WagInputButton::L3 => KeyCode::KeyN,
+            WagInputButton::R3 => KeyCode::KeyM,
+            WagInputButton::Up => KeyCode::KeyW,
+            WagInputButton::Down => KeyCode::KeyS,
+            WagInputButton::Left => KeyCode::KeyA,
+            WagInputButton::Right => KeyCode::KeyD,
+        }
     }
 }
 

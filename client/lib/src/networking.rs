@@ -187,6 +187,7 @@ fn read_local_inputs(
     keyboard_keys: Res<ButtonInput<KeyCode>>,
     maybe_controller: Option<Res<LocalController>>,
     local_players: Res<LocalPlayers>,
+    local_controller: Res<LocalController>,
 ) {
     let Some(controller) = maybe_controller else {
         return;
@@ -196,6 +197,7 @@ fn read_local_inputs(
 
     let mut inputs = HashMap::new();
 
+    // There is only ever one, but the value can be 1 or 0
     for handle in &local_players.0 {
         let mut input = 0u16;
 
@@ -209,19 +211,17 @@ fn read_local_inputs(
             }
         }
 
-        inputs.insert(*handle, input);
-    }
-
-    inputs.insert(69, {
-        let mut input = 0u16;
-        for (shift, wag_button) in WagInputButton::iter().enumerate() {
-            if keyboard_keys.pressed(wag_button.to_keycode()) {
-                input |= 1 << shift;
+        // Keyboard
+        if local_controller.0 == 69 {
+            for (shift, wag_button) in WagInputButton::iter().enumerate() {
+                if keyboard_keys.pressed(wag_button.to_keycode()) {
+                    input |= 1 << shift;
+                }
             }
         }
 
-        input
-    });
+        inputs.insert(*handle, input);
+    }
 
     commands.insert_resource(LocalInputs::<Config>(inputs));
 }

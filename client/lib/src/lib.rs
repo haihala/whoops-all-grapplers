@@ -50,7 +50,7 @@ impl PluginGroup for WAGLib {
             .add(networking::NetworkPlugin)
             .add(entity_management::EntityManagementPlugin);
 
-        if self.args.dev {
+        if self.args.dev.is_some() {
             group = group.add(dev::DevPlugin);
         }
         group

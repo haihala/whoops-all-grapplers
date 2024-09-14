@@ -6,8 +6,9 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use characters::{ActionEvent, FlashRequest, Hitbox, Hurtbox, Inventory};
 use player_state::PlayerState;
 use wag_core::{
-    Characters, Clock, Controllers, Facing, GameState, Joints, LocalState, Player, SoundEffect,
-    Stats, WagArgs, GI_PARRY_FLASH_COLOR,
+    Characters, Clock, Controllers, Dev, Facing, GameState, Joints, LocalCharacter,
+    LocalController, LocalState, OnlineState, Player, SoundEffect, Stats, WagArgs,
+    GI_PARRY_FLASH_COLOR,
 };
 
 use crate::{
@@ -66,16 +67,34 @@ fn skip_menus(
     mut next_state: ResMut<NextState<GameState>>,
     args: Res<WagArgs>,
 ) {
-    next_state.set(GameState::Local(LocalState::Loading));
-    commands.insert_resource(Controllers {
-        p1: args.pad1.unwrap(),
-        p2: args.pad2.unwrap(),
-    });
+    let Some(dev_mode) = args.dev else {
+        panic!("In dev plugin but not in dev mode")
+    };
 
-    commands.insert_resource(Characters {
-        p1: args.character1.unwrap(),
-        p2: args.character2.unwrap(),
-    })
+    match dev_mode {
+        Dev::Online {
+            local_controller,
+            local_character,
+        } => {
+            next_state.set(GameState::Online(OnlineState::Lobby));
+            commands.insert_resource(LocalController(local_controller));
+            commands.insert_resource(LocalCharacter(local_character));
+        }
+        Dev::Local {
+            pad1,
+            pad2,
+            character1,
+            character2,
+        } => {
+            next_state.set(GameState::Local(LocalState::Loading));
+            commands.insert_resource(Controllers { p1: pad1, p2: pad2 });
+
+            commands.insert_resource(Characters {
+                p1: character1,
+                p2: character2,
+            })
+        }
+    }
 }
 
 fn shader_test_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<&mut PlayerState>) {

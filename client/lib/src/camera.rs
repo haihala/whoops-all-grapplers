@@ -62,7 +62,7 @@ fn add_camera(
                     InheritedVisibility::VISIBLE,
                 ))
                 .with_children(|main_cam| {
-                    if !args.dev {
+                    if args.dev.is_none() {
                         // This blocks the view while game is loading
                         main_cam.spawn((
                             PbrBundle {

@@ -2,13 +2,14 @@
 use bevy::{
     ecs::schedule::{LogLevel, ScheduleBuildSettings},
     prelude::*,
-    window::WindowMode,
+    window::{WindowMode, WindowResolution},
 };
 use wag_core::WagArgs;
 use whoops_all_grapplers_lib::WAGLib;
 
 fn main() {
     let args = WagArgs::from_cli();
+    let base_size = 30.0;
 
     // Happens roughly in order, so add stages, click and assets before using them
     App::new()
@@ -20,14 +21,19 @@ fn main() {
             });
         })
         .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                mode: if args.dev {
-                    WindowMode::Windowed
-                } else {
-                    WindowMode::BorderlessFullscreen
-                },
-                resizable: false,
-                ..default()
+            primary_window: Some(if args.dev.is_some() {
+                Window {
+                    mode: WindowMode::Windowed,
+                    resizable: true,
+                    resolution: WindowResolution::new(base_size * 16.0, base_size * 9.0),
+                    ..default()
+                }
+            } else {
+                Window {
+                    mode: WindowMode::BorderlessFullscreen,
+                    resizable: false,
+                    ..default()
+                }
             }),
             ..default()
         }))

@@ -1,3 +1,5 @@
+use std::hash::{Hash, Hasher};
+
 use bevy::{
     ecs::schedule::{LogLevel, ScheduleBuildSettings},
     input::{gamepad::GamepadEvent, keyboard::KeyboardInput},
@@ -71,7 +73,8 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_copy::<HitboxSpawner>()
             .rollback_component_with_copy::<Defense>()
             .rollback_component_with_copy::<Facing>()
-            .rollback_component_with_copy::<Transform>();
+            .rollback_component_with_copy::<Transform>()
+            .checksum_component::<Transform>(tf_hasher);
     }
 }
 
@@ -186,7 +189,13 @@ fn wait_for_players(
     };
 }
 
-fn start_synctest_session(mut commands: Commands) {
+fn start_synctest_session(mut commands: Commands, mut started: Local<bool>) {
+    if *started {
+        return;
+    }
+
+    *started = true;
+
     info!("Starting synctest session");
     let num_players = 2;
 
@@ -311,4 +320,28 @@ fn generate_online_input_streams(
 
         input_states.insert(player_handle, *input);
     }
+}
+
+fn tf_hasher(transform: &Transform) -> u64 {
+    let mut hasher = checksum_hasher();
+
+    assert!(
+        transform.is_finite(),
+        "Hashing is not stable for NaN f32 values."
+    );
+
+    transform.translation.x.to_bits().hash(&mut hasher);
+    transform.translation.y.to_bits().hash(&mut hasher);
+    transform.translation.z.to_bits().hash(&mut hasher);
+
+    transform.rotation.x.to_bits().hash(&mut hasher);
+    transform.rotation.y.to_bits().hash(&mut hasher);
+    transform.rotation.z.to_bits().hash(&mut hasher);
+    transform.rotation.w.to_bits().hash(&mut hasher);
+
+    transform.scale.x.to_bits().hash(&mut hasher);
+    transform.scale.y.to_bits().hash(&mut hasher);
+    transform.scale.z.to_bits().hash(&mut hasher);
+
+    hasher.finish()
 }

@@ -9,6 +9,8 @@ pub struct WagArgs {
     /// Dev mode (shows hitboxes and dev binds)
     #[command(subcommand)]
     pub dev: Option<Dev>,
+    #[clap(long, default_value = "2")]
+    pub input_delay: usize,
 }
 impl WagArgs {
     pub fn from_cli() -> Self {

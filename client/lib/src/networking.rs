@@ -14,7 +14,7 @@ use player_state::PlayerState;
 use strum::IntoEnumIterator;
 use wag_core::{
     Characters, Clock, Controllers, Facing, GameState, LocalCharacter, LocalController,
-    OnlineState, RollbackSchedule, SynctestState, WagInputButton, WagInputEvent,
+    OnlineState, RollbackSchedule, SynctestState, WagArgs, WagInputButton, WagInputEvent,
 };
 
 use crate::{
@@ -105,6 +105,7 @@ fn wait_for_players(
     mut connection_state: Local<ConnectionState>,
     mut socket: ResMut<MatchboxSocket<MultipleChannels>>,
     local_character: Res<LocalCharacter>,
+    args: Res<WagArgs>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     match &mut *connection_state {
@@ -166,7 +167,7 @@ fn wait_for_players(
         ConnectionState::StartSession => {
             let mut session_builder = ggrs::SessionBuilder::<Config>::new()
                 .with_num_players(2)
-                .with_input_delay(2);
+                .with_input_delay(args.input_delay);
 
             for (i, player) in socket.players().into_iter().enumerate() {
                 session_builder = session_builder
@@ -189,7 +190,7 @@ fn wait_for_players(
     };
 }
 
-fn start_synctest_session(mut commands: Commands, mut started: Local<bool>) {
+fn start_synctest_session(mut commands: Commands, args: Res<WagArgs>, mut started: Local<bool>) {
     if *started {
         return;
     }
@@ -199,7 +200,9 @@ fn start_synctest_session(mut commands: Commands, mut started: Local<bool>) {
     info!("Starting synctest session");
     let num_players = 2;
 
-    let mut session_builder = ggrs::SessionBuilder::<Config>::new().with_num_players(num_players);
+    let mut session_builder = ggrs::SessionBuilder::<Config>::new()
+        .with_num_players(num_players)
+        .with_input_delay(args.input_delay);
 
     for i in 0..num_players {
         session_builder = session_builder

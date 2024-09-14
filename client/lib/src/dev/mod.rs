@@ -111,7 +111,7 @@ fn shader_test_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<&mut P
 }
 
 fn audio_test_system(keys: Res<ButtonInput<KeyCode>>, mut sounds: ResMut<Sounds>) {
-    if keys.just_pressed(KeyCode::KeyA) {
+    if keys.just_pressed(KeyCode::KeyP) {
         println!("Playing whoosh audio");
         sounds.play(SoundEffect::Whoosh);
     }

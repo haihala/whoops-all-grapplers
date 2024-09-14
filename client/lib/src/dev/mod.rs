@@ -7,7 +7,7 @@ use characters::{ActionEvent, FlashRequest, Hitbox, Hurtbox, Inventory};
 use player_state::PlayerState;
 use wag_core::{
     Characters, Clock, Controllers, Dev, Facing, GameState, Joints, LocalCharacter,
-    LocalController, LocalState, OnlineState, Player, SoundEffect, Stats, WagArgs,
+    LocalController, LocalState, OnlineState, Player, SoundEffect, Stats, SynctestState, WagArgs,
     GI_PARRY_FLASH_COLOR,
 };
 
@@ -47,7 +47,6 @@ impl Plugin for DevPlugin {
                     shader_test_system,
                     fullscreen_toggle,
                     pause_toggle,
-                    input_leniency_test_system,
                     box_visualization::visualize_hitboxes,
                     box_visualization::visualize_hurtboxes,
                     box_visualization::visualize_pushboxes,
@@ -94,11 +93,27 @@ fn skip_menus(
                 p2: character2,
             })
         }
+        Dev::Synctest {
+            local_controller,
+            local_character,
+        } => {
+            next_state.set(GameState::Synctest(SynctestState::Loading));
+            commands.insert_resource(LocalController(local_controller));
+            commands.insert_resource(LocalCharacter(local_character));
+            commands.insert_resource(Controllers {
+                p1: local_controller,
+                p2: 0,
+            });
+            commands.insert_resource(Characters {
+                p1: local_character,
+                p2: local_character,
+            });
+        }
     }
 }
 
 fn shader_test_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<&mut PlayerState>) {
-    if keys.just_pressed(KeyCode::KeyS) {
+    if keys.just_pressed(KeyCode::Digit1) {
         println!("Playing shader flash");
         for mut player in &mut players {
             player.add_actions(vec![ActionEvent::Flash(FlashRequest {
@@ -111,14 +126,14 @@ fn shader_test_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<&mut P
 }
 
 fn audio_test_system(keys: Res<ButtonInput<KeyCode>>, mut sounds: ResMut<Sounds>) {
-    if keys.just_pressed(KeyCode::KeyP) {
+    if keys.just_pressed(KeyCode::Digit2) {
         println!("Playing whoosh audio");
         sounds.play(SoundEffect::Whoosh);
     }
 }
 
 fn fullscreen_toggle(keys: Res<ButtonInput<KeyCode>>, mut windows: Query<&mut Window>) {
-    if keys.just_pressed(KeyCode::KeyF) {
+    if keys.just_pressed(KeyCode::Digit3) {
         let mut win = windows.get_single_mut().unwrap();
         println!("Fullscreen toggle");
 
@@ -136,7 +151,7 @@ fn pause_toggle(
     clock: Res<Clock>,
     mut local_frame: Local<Option<usize>>,
 ) {
-    if keys.just_pressed(KeyCode::KeyP) {
+    if keys.just_pressed(KeyCode::Digit4) {
         if keys.pressed(KeyCode::ShiftLeft) || keys.pressed(KeyCode::ShiftRight) {
             if time.relative_speed() == 0.0 {
                 println!("Frame step");
@@ -156,67 +171,5 @@ fn pause_toggle(
             time.set_relative_speed(0.0);
             *local_frame = None;
         }
-    }
-}
-
-fn input_leniency_test_system(
-    keys: Res<ButtonInput<KeyCode>>,
-    pad_buttons: Res<ButtonInput<GamepadButton>>,
-    clock: Res<Clock>,
-    mut h_pressed: Local<Option<usize>>,
-    mut j_pressed: Local<Option<usize>>,
-    mut south_pressed: Local<Option<usize>>,
-    mut east_pressed: Local<Option<usize>>,
-) {
-    if keys.just_pressed(KeyCode::KeyH) {
-        *h_pressed = Some(clock.frame);
-    }
-    if keys.just_pressed(KeyCode::KeyJ) {
-        *j_pressed = Some(clock.frame);
-    }
-    log_diff(&mut h_pressed, "H", &mut j_pressed, "J");
-
-    if pad_buttons.just_pressed(GamepadButton {
-        gamepad: Gamepad { id: 0 },
-        button_type: GamepadButtonType::South,
-    }) {
-        *south_pressed = Some(clock.frame);
-    }
-    if pad_buttons.just_pressed(GamepadButton {
-        gamepad: Gamepad { id: 0 },
-        button_type: GamepadButtonType::East,
-    }) {
-        *east_pressed = Some(clock.frame);
-    }
-    log_diff(&mut south_pressed, "A", &mut east_pressed, "B");
-}
-
-fn log_diff(
-    a_status: &mut Option<usize>,
-    a_name: &'static str,
-    b_status: &mut Option<usize>,
-    b_name: &'static str,
-) {
-    if let (Some(a_frame), Some(b_frame)) = (*a_status, *b_status) {
-        match a_frame.cmp(&b_frame) {
-            std::cmp::Ordering::Equal => {
-                println!("{a_name} and {b_name} pressed on same frame ({a_frame})",)
-            }
-            std::cmp::Ordering::Less => {
-                println!(
-                    "{a_name} was pressed {} frames before {b_name}",
-                    b_frame - a_frame
-                )
-            }
-            std::cmp::Ordering::Greater => {
-                println!(
-                    "{a_name} was pressed {} frames after {b_name}",
-                    a_frame - b_frame
-                )
-            }
-        }
-
-        *a_status = None;
-        *b_status = None;
     }
 }

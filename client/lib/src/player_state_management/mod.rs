@@ -37,6 +37,10 @@ impl Plugin for PlayerStateManagementPlugin {
             .add_systems(OnEnter(MatchState::PreRound), setup_combat)
             .add_systems(
                 RollbackSchedule,
+                side_switcher::sideswitcher.in_set(WAGStage::HouseKeeping),
+            )
+            .add_systems(
+                RollbackSchedule,
                 condition_management::update_combined_status_effect
                     .after(WAGStage::MovePipeline)
                     .before(WAGStage::PlayerUpdates),
@@ -63,7 +67,6 @@ impl Plugin for PlayerStateManagementPlugin {
                     recovery::ground_recovery,
                     size_adjustment::size_adjustment,
                     condition_management::manage_conditions,
-                    side_switcher::sideswitcher,
                 )
                     .chain()
                     .in_set(WAGStage::PlayerUpdates),
@@ -110,7 +113,6 @@ fn spawn_player(
     player: Player,
     character: CharacterId,
 ) -> Entity {
-    dbg!(character, player);
     let character = match character {
         CharacterId::Dummy => dummy(),
         CharacterId::Mizku => mizku(),

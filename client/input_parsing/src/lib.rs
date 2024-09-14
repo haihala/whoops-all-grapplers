@@ -27,7 +27,7 @@ impl Plugin for InputParsingPlugin {
                 // If an entity has a parrot stream, it will drain the basic pad stream
                 input_parser::parse_input::<PadStream>,
                 input_parser::parse_input::<ParrotStream>,
-                input_parser::flip_parsers_on_side_change,
+                input_parser::flip_parsers,
             )
                 .chain()
                 .in_set(WAGStage::Inputs)

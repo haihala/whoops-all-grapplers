@@ -21,6 +21,7 @@ pub struct InputParser {
     moves: HashMap<&'static str, Vec<ActionId>>,
     inputs: HashMap<&'static str, MotionInput>,
     head: Frame,
+    facing: Facing, // Ugly but this fixes a bug with ggrs
 }
 impl InputParser {
     pub(crate) fn new(new_inputs: HashMap<ActionId, &'static str>) -> Self {
@@ -75,7 +76,11 @@ impl InputParser {
         self.head.stick_position == StickPosition::Neutral && self.head.pressed.is_empty()
     }
 
-    fn flip(&mut self) {
+    fn flip(&mut self, facing: Facing) {
+        if self.facing == facing {
+            return;
+        }
+        self.facing = facing;
         let diff = Diff {
             stick_move: Some(self.head.stick_position.mirror()),
             ..default()
@@ -126,9 +131,9 @@ pub fn parse_input<T: InputStream + Component>(
 }
 
 // Since the parser doesn't get events if the inputs don't change, it's good to give a pseudo event when sides change
-pub fn flip_parsers_on_side_change(mut parsers: Query<&mut InputParser, Changed<Facing>>) {
-    for mut parser in &mut parsers {
-        parser.flip();
+pub fn flip_parsers(mut parsers: Query<(&mut InputParser, &Facing)>) {
+    for (mut parser, facing) in &mut parsers {
+        parser.flip(*facing);
     }
 }
 

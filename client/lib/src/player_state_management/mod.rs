@@ -120,6 +120,7 @@ fn spawn_player(
     player: Player,
     character: CharacterId,
 ) -> Entity {
+    dbg!(character, player);
     let character = match character {
         CharacterId::Dummy => dummy(),
         CharacterId::Mizku => mizku(),

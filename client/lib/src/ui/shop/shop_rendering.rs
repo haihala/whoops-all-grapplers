@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
 use wag_core::{
     GameState, LocalState, MatchState, OnlineState, Owner, Player, Players, RoundLog,
-    ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
+    SynctestState, ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
     ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION,
     PRE_ROUND_DURATION,
 };
@@ -216,19 +216,27 @@ fn end_shopping(
     commands: &mut Commands,
     countdown_roots: &mut Query<&mut Visibility>,
 ) {
-    next_state.set(if current_state.is_online() {
-        GameState::Online(OnlineState::Match(MatchState::PreRound))
-    } else {
-        GameState::Local(LocalState::Match(MatchState::PreRound))
-    });
+    let (immediate, next) = match current_state {
+        GameState::Online(_) => (
+            GameState::Online(OnlineState::Match(MatchState::PreRound)),
+            GameState::Online(OnlineState::Match(MatchState::Combat)),
+        ),
+        GameState::Local(_) => (
+            GameState::Local(LocalState::Match(MatchState::PreRound)),
+            GameState::Local(LocalState::Match(MatchState::Combat)),
+        ),
+        GameState::Synctest(_) => (
+            GameState::Synctest(SynctestState::Match(MatchState::PreRound)),
+            GameState::Synctest(SynctestState::Match(MatchState::Combat)),
+        ),
+        GameState::MainMenu => panic!("Trying to go to shop in main menu"),
+    };
+
+    next_state.set(immediate);
 
     commands.insert_resource(TransitionTimer {
         timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),
-        state: if current_state.is_online() {
-            GameState::Online(OnlineState::Match(MatchState::Combat))
-        } else {
-            GameState::Local(LocalState::Match(MatchState::Combat))
-        },
+        state: next,
     });
 
     for shop in [&mut shops.player_one, &mut shops.player_two] {

@@ -33,13 +33,17 @@ run_task = { name = ["format", "clippy", "test"] }
 [tasks.full-validate]
 run_task = { name = ["build", "format", "clippy", "test", "udeps"] }
 
-[tasks.local-dev]
+[tasks.dev-local]
 command = "cargo"
 args = ["run", "--", "local", "0", "1", "mizku", "mizku"]
 
-[tasks.online-dev]
+[tasks.dev-online]
 command = "cargo"
 args = ["run", "--", "online", "69", "mizku"]
+
+[tasks.dev-synctest]
+command = "cargo"
+args = ["run", "--", "synctest", "69", "mizku"]
 
 [tasks.prod]
 command = "cargo"

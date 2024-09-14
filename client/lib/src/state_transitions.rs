@@ -5,7 +5,7 @@ use input_parsing::InputParser;
 use wag_core::{
     Clock, GameResult, GameState, InCharacterSelect, InCombat, InEndScreen, InLoadingScreen,
     InMatch, InMatchSetup, InMenu, Joints, LocalState, MatchState, OnlineState, Player, RoundLog,
-    RoundResult, POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
+    RoundResult, SynctestState, POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
 };
 
 use crate::{assets::AssetsLoading, ui::Notifications};
@@ -192,6 +192,7 @@ fn end_loading(
             next_state.set(match *current_state.get() {
                 GameState::Local(_) => GameState::Local(LocalState::SetupMatch),
                 GameState::Online(_) => GameState::Online(OnlineState::SetupMatch),
+                GameState::Synctest(_) => GameState::Synctest(SynctestState::SetupMatch),
                 _ => panic!("Loading while not in a loading situation"),
             });
         } else {

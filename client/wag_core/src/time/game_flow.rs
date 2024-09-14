@@ -10,6 +10,16 @@ pub enum LocalState {
     Match(MatchState),
     EndScreen,
 }
+impl ComputedStates for LocalState {
+    type SourceStates = GameState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        match sources {
+            GameState::Local(ls) => Some(ls),
+            _ => None,
+        }
+    }
+}
 
 #[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
 pub enum OnlineState {
@@ -20,17 +30,36 @@ pub enum OnlineState {
     Match(MatchState),
     EndScreen,
 }
-
 impl ComputedStates for OnlineState {
     type SourceStates = GameState;
 
     fn compute(sources: Self::SourceStates) -> Option<Self> {
         match sources {
-            GameState::Online(ol) => Some(ol),
+            GameState::Online(os) => Some(os),
             _ => None,
         }
     }
 }
+
+#[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
+pub enum SynctestState {
+    Loading,
+    SetupMatch,
+    Match(MatchState),
+    EndScreen,
+}
+
+impl ComputedStates for SynctestState {
+    type SourceStates = GameState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        match sources {
+            GameState::Synctest(sts) => Some(sts),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
 pub enum MatchState {
     PreRound,
@@ -44,9 +73,9 @@ impl ComputedStates for MatchState {
 
     fn compute(sources: Self::SourceStates) -> Option<Self> {
         match sources {
-            GameState::Local(LocalState::Match(cs)) | GameState::Online(OnlineState::Match(cs)) => {
-                Some(cs)
-            }
+            GameState::Local(LocalState::Match(cs))
+            | GameState::Synctest(SynctestState::Match(cs))
+            | GameState::Online(OnlineState::Match(cs)) => Some(cs),
             _ => None,
         }
     }
@@ -59,11 +88,12 @@ pub enum GameState {
 
     Local(LocalState),
     Online(OnlineState),
+    Synctest(SynctestState),
 }
 
 impl GameState {
     pub fn is_online(&self) -> bool {
-        matches!(self, GameState::Online(_))
+        matches!(self, GameState::Online(_) | GameState::Synctest(_))
     }
 }
 
@@ -81,6 +111,7 @@ impl ComputedStates for InMenu {
                 | GameState::Local(LocalState::EndScreen)
                 | GameState::Online(OnlineState::CharacterSelect)
                 | GameState::Online(OnlineState::EndScreen)
+                | GameState::Synctest(SynctestState::EndScreen)
         ) {
             Some(InMenu)
         } else {
@@ -116,7 +147,9 @@ impl ComputedStates for InMatchSetup {
     fn compute(sources: Self::SourceStates) -> Option<Self> {
         if matches!(
             sources,
-            GameState::Local(LocalState::SetupMatch) | GameState::Online(OnlineState::SetupMatch)
+            GameState::Local(LocalState::SetupMatch)
+                | GameState::Online(OnlineState::SetupMatch)
+                | GameState::Synctest(SynctestState::SetupMatch)
         ) {
             Some(InMatchSetup)
         } else {
@@ -133,7 +166,9 @@ impl ComputedStates for InEndScreen {
     fn compute(sources: Self::SourceStates) -> Option<Self> {
         if matches!(
             sources,
-            GameState::Local(LocalState::EndScreen) | GameState::Online(OnlineState::EndScreen)
+            GameState::Local(LocalState::EndScreen)
+                | GameState::Online(OnlineState::EndScreen)
+                | GameState::Synctest(SynctestState::EndScreen)
         ) {
             Some(InEndScreen)
         } else {
@@ -152,6 +187,7 @@ impl ComputedStates for InCombat {
         if matches!(
             sources,
             GameState::Local(LocalState::Match(MatchState::Combat))
+                | GameState::Synctest(SynctestState::Match(MatchState::Combat))
                 | GameState::Online(OnlineState::Match(MatchState::Combat))
         ) {
             Some(InCombat)
@@ -170,7 +206,9 @@ impl ComputedStates for InLoadingScreen {
     fn compute(sources: Self::SourceStates) -> Option<Self> {
         if matches!(
             sources,
-            GameState::Local(LocalState::Loading) | GameState::Online(OnlineState::Loading)
+            GameState::Local(LocalState::Loading)
+                | GameState::Online(OnlineState::Loading)
+                | GameState::Synctest(SynctestState::Loading)
         ) {
             Some(InLoadingScreen)
         } else {
@@ -193,6 +231,9 @@ impl ComputedStates for InMatch {
                 | GameState::Online(OnlineState::Loading)
                 | GameState::Online(OnlineState::SetupMatch)
                 | GameState::Online(OnlineState::Match(_))
+                | GameState::Synctest(SynctestState::Loading)
+                | GameState::Synctest(SynctestState::SetupMatch)
+                | GameState::Synctest(SynctestState::Match(_))
         ) {
             Some(InMatch)
         } else {

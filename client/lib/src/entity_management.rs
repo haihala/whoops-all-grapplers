@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use wag_core::{
-    Clock, GameState, InCombat, InEndScreen, InMatch, InMenu, MatchState, RollbackSchedule,
+    Clock, GameState, InCombat, InEndScreen, InLoadingScreen, InMatch, InMenu, MatchState,
+    RollbackSchedule,
 };
 
 #[derive(Component)]
@@ -23,6 +24,7 @@ impl Plugin for EntityManagementPlugin {
         .enable_state_scoped_entities::<InMenu>()
         .enable_state_scoped_entities::<InCombat>()
         .enable_state_scoped_entities::<InEndScreen>()
+        .enable_state_scoped_entities::<InLoadingScreen>()
         .enable_state_scoped_entities::<InMatch>();
     }
 }

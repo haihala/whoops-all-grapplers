@@ -12,7 +12,7 @@ use player_state::PlayerState;
 use strum::IntoEnumIterator;
 use wag_core::{
     Characters, Clock, Controllers, Facing, GameState, LocalCharacter, LocalController,
-    OnlineState, RollbackSchedule, WagInputButton, WagInputEvent,
+    OnlineState, RollbackSchedule, SynctestState, WagInputButton, WagInputEvent,
 };
 
 use crate::{
@@ -32,6 +32,11 @@ impl Plugin for NetworkPlugin {
             .add_systems(
                 FixedUpdate,
                 wait_for_players.run_if(in_state(GameState::Online(OnlineState::Lobby))),
+            )
+            .add_systems(
+                FixedUpdate,
+                start_synctest_session
+                    .run_if(in_state(GameState::Synctest(SynctestState::SetupMatch))),
             )
             .add_systems(ReadInputs, read_local_inputs)
             .init_schedule(RollbackSchedule)
@@ -179,6 +184,25 @@ fn wait_for_players(
             next_state.set(GameState::Online(OnlineState::Loading));
         }
     };
+}
+
+fn start_synctest_session(mut commands: Commands) {
+    info!("Starting synctest session");
+    let num_players = 2;
+
+    let mut session_builder = ggrs::SessionBuilder::<Config>::new().with_num_players(num_players);
+
+    for i in 0..num_players {
+        session_builder = session_builder
+            .add_player(ggrs::PlayerType::Local, i)
+            .expect("failed to add player");
+    }
+
+    let ggrs_session = session_builder
+        .start_synctest_session()
+        .expect("failed to start session");
+
+    commands.insert_resource(bevy_ggrs::Session::SyncTest(ggrs_session));
 }
 
 fn read_local_inputs(

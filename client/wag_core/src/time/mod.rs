@@ -6,6 +6,7 @@ mod game_flow;
 pub use game_flow::{
     GameResult, GameState, InCharacterSelect, InCombat, InEndScreen, InLoadingScreen, InMatch,
     InMatchSetup, InMenu, LocalState, MatchState, OnlineState, RoundLog, RoundResult,
+    SynctestState,
 };
 
 pub const ROUNDS_TO_WIN: usize = 5;

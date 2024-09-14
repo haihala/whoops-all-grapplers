@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
 use wag_core::{
-    GameState, InMatch, InMatchSetup, LocalState, MatchState, OnlineState, PRE_ROUND_DURATION,
+    GameState, InMatch, InMatchSetup, LocalState, MatchState, OnlineState, SynctestState,
+    PRE_ROUND_DURATION,
 };
 
 mod combat;
@@ -84,16 +85,20 @@ fn exit_match_setup(
     mut next_state: ResMut<NextState<GameState>>,
     current_state: Res<State<GameState>>,
 ) {
-    let (next, after) = if current_state.is_online() {
-        (
+    let (next, after) = match current_state.get() {
+        GameState::Online(_) => (
             GameState::Online(OnlineState::Match(MatchState::PreRound)),
             GameState::Online(OnlineState::Match(MatchState::Combat)),
-        )
-    } else {
-        (
+        ),
+        GameState::Local(_) => (
             GameState::Local(LocalState::Match(MatchState::PreRound)),
             GameState::Local(LocalState::Match(MatchState::Combat)),
-        )
+        ),
+        GameState::Synctest(_) => (
+            GameState::Synctest(SynctestState::Match(MatchState::PreRound)),
+            GameState::Synctest(SynctestState::Match(MatchState::Combat)),
+        ),
+        GameState::MainMenu => panic!("Trying to exit match setup in main menu"),
     };
 
     next_state.set(next);

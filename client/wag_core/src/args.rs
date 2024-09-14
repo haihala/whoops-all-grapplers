@@ -22,7 +22,10 @@ pub enum Dev {
         local_controller: usize,
         local_character: CharacterId,
     },
-
+    Synctest {
+        local_controller: usize,
+        local_character: CharacterId,
+    },
     Local {
         pad1: usize,
         pad2: usize,

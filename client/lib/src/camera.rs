@@ -2,7 +2,8 @@ use bevy::{prelude::*, render::view::NoFrustumCulling};
 use characters::ActionEvent;
 use player_state::PlayerState;
 use wag_core::{
-    Facing, GameState, InMatch, LocalState, OnlineState, Player, WagArgs, LOADING_SCREEN_BACKGROUND,
+    Facing, GameState, InMatch, LocalState, OnlineState, Player, SynctestState, WagArgs,
+    LOADING_SCREEN_BACKGROUND,
 };
 
 use crate::{entity_management::VisibleInStates, movement::ARENA_WIDTH};
@@ -78,6 +79,8 @@ fn add_camera(
                                 GameState::Local(LocalState::SetupMatch),
                                 GameState::Online(OnlineState::Loading),
                                 GameState::Online(OnlineState::SetupMatch),
+                                GameState::Synctest(SynctestState::Loading),
+                                GameState::Synctest(SynctestState::SetupMatch),
                             ]),
                             NoFrustumCulling,
                         ));

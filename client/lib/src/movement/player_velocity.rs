@@ -14,6 +14,8 @@ pub struct PlayerVelocity {
     movements: Vec<AppliedMovement>,
     /// Keep track of if pushing is currently happening for wall clamp reasons
     pub(super) pushing: bool,
+    pub on_floor: bool,
+    pub next_pos: Vec2,
 }
 
 const PROPORTIONAL_DRAG: f32 = 0.03;
@@ -28,6 +30,7 @@ impl PlayerVelocity {
         self.velocity = other.velocity;
         // This may need other actions, used primarily when snapping to the other player
     }
+
     pub(super) fn get_shift(&self) -> Vec2 {
         self.velocity / wag_core::FPS
     }

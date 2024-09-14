@@ -18,8 +18,9 @@ use wag_core::{
 };
 
 use crate::{
+    camera::ChildCameraEffects,
     damage::{Defense, HitboxSpawner},
-    movement::PlayerVelocity,
+    movement::{PlayerVelocity, Pushbox, Walls},
     player_state_management::MoveBuffer,
 };
 
@@ -65,6 +66,8 @@ impl Plugin for NetworkPlugin {
             .init_resource::<InputGenCache>()
             // Probably an incomplete list of things to roll back
             .rollback_resource_with_copy::<Clock>()
+            .rollback_resource_with_copy::<Time>()
+            .rollback_resource_with_copy::<Walls>()
             .rollback_resource_with_clone::<InputGenCache>()
             .rollback_component_with_clone::<PlayerState>()
             .rollback_component_with_clone::<PadStream>()
@@ -73,10 +76,13 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_clone::<WAGResources>()
             .rollback_component_with_clone::<PlayerVelocity>()
             .rollback_component_with_clone::<MoveBuffer>()
+            .rollback_component_with_clone::<ChildCameraEffects>()
+            .rollback_component_with_copy::<Pushbox>()
             .rollback_component_with_copy::<HitboxSpawner>()
             .rollback_component_with_copy::<Defense>()
             .rollback_component_with_copy::<Facing>()
             .rollback_component_with_copy::<Transform>()
+            .rollback_component_with_copy::<GlobalTransform>()
             .checksum_component::<Transform>(tf_hasher);
     }
 }

@@ -107,8 +107,10 @@ fn center_camera(
         .iter()
         .map(|tf| tf.translation.x)
         .reduce(|a, b| a - b)
-        .unwrap_or_default()
+        .unwrap()
         .abs();
+
+    dbg!(cam_zoom);
 
     // Do some light lerping to make backthrows less jarring
     let mut camquery = queries.p1();
@@ -162,8 +164,8 @@ fn camera_tilt(
     );
 }
 
-#[derive(Debug, Component, Default, Reflect)]
-struct ChildCameraEffects {
+#[derive(Debug, Component, Default, Reflect, Clone)]
+pub struct ChildCameraEffects {
     last_shake_start: f32,
     player_distance: f32,
     player_midpoint: f32,
@@ -176,27 +178,28 @@ const SHAKE_TWIST: f32 = 1000.0;
 
 fn child_camera_effects(
     mut players: Query<&mut PlayerState>,
-    mut cams: Query<(&mut Transform, &GlobalTransform, &mut ChildCameraEffects)>,
+    mut cams: Query<(&mut Transform, &mut ChildCameraEffects)>,
     time: Res<Time>,
 ) {
-    let (mut tf, gtf, mut childcam_fx) = cams.single_mut();
+    let (mut tf, mut childcam_fx) = cams.single_mut();
 
-    if childcam_fx.pivot.is_some() {
+    let translation = if childcam_fx.pivot.is_some() {
         // This does NOT go from 0-1, because various factors
         let ratio = childcam_fx.player_distance / ARENA_WIDTH;
 
         // These could live in a different system, but as the code here is quite simple,
         // I think using one function for all child cam things is easier to reason about (system execution order).
-        let root_pos = gtf.translation() - tf.translation;
 
-        childcam_fx.pivot = Some(Vec3::new(
-            childcam_fx.player_midpoint - root_pos.x,
+        Vec3::new(
+            0.0,
             MIN_CAMERA_HEIGHT * (1.0 - ratio) + MAX_CAMERA_HEIGHT * ratio,
             MIN_CAMERA_DISTANCE * (1.0 - ratio) + MAX_CAMERA_DISTANCE * ratio,
-        ));
+        )
     } else {
-        childcam_fx.pivot = Some(tf.translation);
-    }
+        tf.translation
+    };
+
+    childcam_fx.pivot = Some(translation);
 
     if players
         .iter_mut()
@@ -217,8 +220,7 @@ fn child_camera_effects(
     }
 
     let progress = (time.elapsed_seconds() - childcam_fx.last_shake_start) / SHAKE_DURATION;
-
-    let magnitude = SHAKE_INITIAL_MAGNITUDE * (1.0 - progress.min(1.0));
+    let magnitude = SHAKE_INITIAL_MAGNITUDE * (1.0 - progress).max(0.0);
     let angle = time.elapsed_seconds() * SHAKE_TWIST;
     let offset = magnitude * Vec3::new(angle.sin(), angle.cos(), 0.0);
 

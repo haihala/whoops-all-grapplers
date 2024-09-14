@@ -67,16 +67,6 @@ impl Plugin for PlayerStateManagementPlugin {
                 )
                     .chain()
                     .in_set(WAGStage::PlayerUpdates),
-            )
-            .add_systems(
-                RollbackSchedule,
-                (
-                    crate::assets::update_animation,
-                    crate::assets::update_audio,
-                    crate::assets::update_vfx,
-                )
-                    .chain()
-                    .in_set(WAGStage::Presentation),
             );
     }
 }

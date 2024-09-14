@@ -4,6 +4,7 @@ use bevy::{prelude::*, window::WindowMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use characters::{ActionEvent, FlashRequest, Hitbox, Hurtbox, Inventory};
+use input_parsing::{InputParser, PadStream, ParrotStream};
 use player_state::PlayerState;
 use wag_core::{
     Characters, Clock, Controllers, Dev, Facing, GameState, Joints, LocalCharacter,
@@ -38,6 +39,9 @@ impl Plugin for DevPlugin {
             .register_type::<Joints>()
             .register_type::<Facing>()
             .register_type::<Stats>()
+            .register_type::<InputParser>()
+            .register_type::<PadStream>()
+            .register_type::<ParrotStream>()
             .add_systems(Startup, setup_gizmos)
             .add_systems(PostStartup, skip_menus)
             .add_systems(

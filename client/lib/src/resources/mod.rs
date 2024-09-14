@@ -10,17 +10,15 @@ pub struct ResourcesPlugin;
 impl Plugin for ResourcesPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
-            (economy::modify_properties, economy::manage_item_consumption),
-        )
-        .add_systems(
             RollbackSchedule,
             (
+                economy::modify_properties,
+                economy::manage_item_consumption,
                 charge_accumulator::manage_charge,
                 meter_over_time::meter_over_time,
             )
                 .chain()
-                .after(WAGStage::PlayerUpdates),
+                .in_set(WAGStage::ResourceUpdates),
         );
     }
 }

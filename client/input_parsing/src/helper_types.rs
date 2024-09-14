@@ -1,8 +1,8 @@
-use bevy::utils::HashSet;
+use bevy::{reflect::Reflect, utils::HashSet};
 
 use wag_core::{GameButton, StickPosition};
 
-#[derive(Clone, Eq, PartialEq, Debug, Default)]
+#[derive(Clone, Eq, PartialEq, Debug, Default, Reflect)]
 /// Frame is a situation, diff is a change
 pub struct Frame {
     pub stick_position: StickPosition,
@@ -36,7 +36,7 @@ impl Frame {
     }
 }
 
-#[derive(Default, Clone, PartialEq, Eq, Debug)]
+#[derive(Default, Clone, PartialEq, Eq, Debug, Reflect)]
 /// A single update in input state
 pub struct Diff {
     pub stick_move: Option<StickPosition>,
@@ -83,7 +83,7 @@ fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Reflect)]
 pub enum InputEvent {
     Point(StickPosition),
     Press(GameButton),
@@ -111,7 +111,7 @@ impl From<char> for InputEvent {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Reflect)]
 pub struct InputRequirement {
     pub sticky: bool,
     pub events: Vec<InputEvent>,

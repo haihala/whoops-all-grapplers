@@ -8,9 +8,9 @@ mod motion_input;
 
 pub use helper_types::InputEvent;
 pub use input_parser::InputParser;
-pub use input_stream::PadStream;
+pub use input_stream::{PadStream, ParrotStream};
 
-use input_stream::{update_pads, update_parrots, ParrotStream};
+use input_stream::{update_pads, update_parrots};
 
 const MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS: f32 = 0.2; // In seconds
 

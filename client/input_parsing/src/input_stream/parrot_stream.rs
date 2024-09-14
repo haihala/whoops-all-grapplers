@@ -4,7 +4,7 @@ use crate::helper_types::Diff;
 
 use super::InputStream;
 
-#[derive(PartialEq, Eq, Default)]
+#[derive(PartialEq, Eq, Default, Clone, Copy, Reflect)]
 enum ParrotMode {
     Listening,
     Repeating,
@@ -12,7 +12,7 @@ enum ParrotMode {
     Noop,
 }
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Clone, Reflect)]
 pub struct ParrotStream {
     mode: ParrotMode,
     buffer: Vec<Option<Diff>>,

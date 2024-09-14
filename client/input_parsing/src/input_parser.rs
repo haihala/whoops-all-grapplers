@@ -13,7 +13,7 @@ use wag_core::{ActionId, Facing, GameButton, StickPosition};
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
-#[derive(Debug, Default, Component, Clone)]
+#[derive(Debug, Default, Component, Clone, Reflect)]
 pub struct InputParser {
     events: Vec<ActionId>,
 

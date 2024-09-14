@@ -41,7 +41,7 @@ impl Plugin for DamagePlugin {
             RollbackSchedule,
             (hitstop::clear_hitstop, hitstop::handle_hitstop_events)
                 .chain()
-                .after(WAGStage::Presentation),
+                .in_set(WAGStage::HitStop),
         );
     }
 }

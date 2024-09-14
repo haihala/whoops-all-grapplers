@@ -9,7 +9,7 @@ use bevy::{
 use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
 use characters::WAGResources;
-use input_parsing::{InputParser, PadStream};
+use input_parsing::{InputParser, PadStream, ParrotStream};
 use player_state::PlayerState;
 use strum::IntoEnumIterator;
 use wag_core::{
@@ -62,10 +62,13 @@ impl Plugin for NetworkPlugin {
                     .run_if(|session: Option<Res<bevy_ggrs::Session<Config>>>| session.is_none()),
             )
             .add_plugins(GgrsPlugin::<Config>::default())
+            .init_resource::<InputGenCache>()
             // Probably an incomplete list of things to roll back
             .rollback_resource_with_copy::<Clock>()
+            .rollback_resource_with_clone::<InputGenCache>()
             .rollback_component_with_clone::<PlayerState>()
             .rollback_component_with_clone::<PadStream>()
+            .rollback_component_with_clone::<ParrotStream>()
             .rollback_component_with_clone::<InputParser>()
             .rollback_component_with_clone::<WAGResources>()
             .rollback_component_with_clone::<PlayerVelocity>()
@@ -297,10 +300,13 @@ fn generate_offline_input_streams(
     }
 }
 
+#[derive(Debug, Resource, Deref, DerefMut, Default, Clone)]
+struct InputGenCache(HashMap<usize, u16>);
+
 fn generate_online_input_streams(
     mut writer: EventWriter<WagInputEvent>,
     inputs: Res<PlayerInputs<Config>>,
-    mut input_states: Local<HashMap<usize, u16>>,
+    mut input_states: ResMut<InputGenCache>,
 ) {
     for (player_handle, (input, _)) in inputs.iter().enumerate() {
         let Some(old_state) = input_states.get(&player_handle) else {

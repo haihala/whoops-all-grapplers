@@ -1,11 +1,14 @@
+use std::time::Duration;
+
 use bevy::{asset::LoadState, prelude::*};
 
 use characters::{Character, Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
     Clock, GameResult, GameState, InCharacterSelect, InCombat, InEndScreen, InLoadingScreen,
-    InMatch, InMatchSetup, InMenu, Joints, LocalState, MatchState, OnlineState, Player, RoundLog,
-    RoundResult, SynctestState, POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
+    InMatch, InMatchSetup, InMenu, Joints, LocalState, MatchState, OnlineState, Player,
+    RollbackSchedule, RoundLog, RoundResult, SynctestState, WAGStage, POST_ROUND_DURATION,
+    ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
 };
 
 use crate::{assets::AssetsLoading, ui::Notifications};
@@ -24,13 +27,15 @@ impl Plugin for StateTransitionPlugin {
             .add_computed_state::<InCharacterSelect>()
             .add_computed_state::<MatchState>()
             .add_systems(
-                Update,
+                RollbackSchedule,
                 (
                     end_loading.run_if(in_state(InLoadingScreen)),
                     end_combat.run_if(in_state(InCombat)),
                     clear_between_states.run_if(state_changed::<GameState>),
                     transition_after_timer,
-                ),
+                )
+                    .chain()
+                    .in_set(WAGStage::StateTransitions),
             );
     }
 }
@@ -158,10 +163,11 @@ fn transition_after_timer(
     mut commands: Commands,
     timer_resource: Option<ResMut<TransitionTimer>>,
     mut next_state: ResMut<NextState<GameState>>,
-    time: Res<Time>,
 ) {
     if let Some(mut transition) = timer_resource {
-        transition.timer.tick(time.delta());
+        transition
+            .timer
+            .tick(Duration::from_millis((1000.0 / wag_core::FPS) as u64));
 
         if transition.timer.finished() {
             next_state.set(transition.state);

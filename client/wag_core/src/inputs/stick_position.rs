@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use std::fmt::Debug;
 use strum_macros::EnumIter;
 
-#[derive(EnumIter, Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
+#[derive(EnumIter, Clone, Copy, Debug, PartialEq, Eq, Hash, Default, Reflect)]
 pub enum StickPosition {
     NW,
     N,

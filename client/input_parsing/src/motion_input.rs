@@ -6,7 +6,7 @@ use crate::{
     MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
 };
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Reflect)]
 struct ParserHead {
     index: usize,
     last_update: Instant,
@@ -95,7 +95,7 @@ impl ParserHead {
     }
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Reflect)]
 pub struct MotionInput {
     heads: Vec<ParserHead>,
     requirements: Vec<InputRequirement>,

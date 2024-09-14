@@ -5,7 +5,7 @@ use crate::helper_types::{Diff, InputEvent};
 
 use super::{InputStream, ParrotStream};
 
-#[derive(Default, Component, Clone)]
+#[derive(Default, Component, Clone, Reflect)]
 pub struct PadStream {
     next_read: Vec<InputEvent>,
     stick_position: IVec2,

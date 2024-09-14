@@ -2,8 +2,8 @@ use bevy::{prelude::*, render::view::NoFrustumCulling};
 use characters::ActionEvent;
 use player_state::PlayerState;
 use wag_core::{
-    Facing, GameState, InMatch, LocalState, OnlineState, Player, SynctestState, WagArgs,
-    LOADING_SCREEN_BACKGROUND,
+    Facing, GameState, InMatch, LocalState, OnlineState, Player, RollbackSchedule, SynctestState,
+    WAGStage, WagArgs, LOADING_SCREEN_BACKGROUND,
 };
 
 use crate::{entity_management::VisibleInStates, movement::ARENA_WIDTH};
@@ -29,9 +29,10 @@ impl Plugin for CustomCameraPlugin {
             .register_type::<RootCameraEffects>()
             .register_type::<ChildCameraEffects>()
             .add_systems(
-                Update,
+                RollbackSchedule,
                 (center_camera, camera_tilt, child_camera_effects)
                     .chain()
+                    .in_set(WAGStage::Camera)
                     .run_if(in_state(InMatch)),
             );
     }

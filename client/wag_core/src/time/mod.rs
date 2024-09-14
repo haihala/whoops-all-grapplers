@@ -64,12 +64,16 @@ pub struct RollbackSchedule;
 #[derive(Debug, SystemSet, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum WAGStage {
     HouseKeeping,
+    StateTransitions,
     Inputs,
     Physics,
     HitReg,
     MovePipeline,
     PlayerUpdates,
+    ResourceUpdates,
     Presentation,
+    HitStop,
+    Camera,
 }
 
 pub struct TimePlugin;
@@ -78,20 +82,25 @@ impl Plugin for TimePlugin {
     fn build(&self, app: &mut App) {
         app.configure_sets(
             RollbackSchedule,
+            (WAGStage::HouseKeeping, WAGStage::StateTransitions)
+                .chain()
+                .before(WAGStage::Inputs),
+        )
+        .configure_sets(
+            RollbackSchedule,
             (
                 WAGStage::Physics,
                 WAGStage::HitReg,
                 WAGStage::MovePipeline,
                 WAGStage::PlayerUpdates,
                 WAGStage::Presentation,
+                WAGStage::ResourceUpdates,
+                WAGStage::HitStop,
+                WAGStage::Camera,
             )
-                .run_if(in_state(InCombat))
                 .chain()
+                .run_if(in_state(InCombat))
                 .after(WAGStage::Inputs),
-        )
-        .configure_sets(
-            RollbackSchedule,
-            WAGStage::HouseKeeping.before(WAGStage::Inputs),
         )
         .init_resource::<Clock>()
         .insert_resource(Time::<Fixed>::from_seconds(1.0 / crate::FPS as f64))

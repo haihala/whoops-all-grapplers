@@ -9,13 +9,12 @@ mod sounds;
 mod vfx;
 
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
-pub use asset_updater::{update_animation, update_audio, update_vfx};
 pub use materials::{ExtendedFlashMaterial, FlashMaterial};
 pub use models::{Models, PlayerModelHook};
 pub use sounds::Sounds;
 pub use vfx::Vfx;
 
-use wag_core::{Icon, InLoadingScreen};
+use wag_core::{Icon, InLoadingScreen, RollbackSchedule, WAGStage};
 
 #[derive(Debug, Resource)]
 pub struct Fonts {
@@ -63,12 +62,17 @@ impl Plugin for AssetsPlugin {
                     .run_if(in_state(InLoadingScreen)),
             )
             .add_systems(
-                Update,
+                RollbackSchedule,
                 (
+                    asset_updater::update_animation,
+                    asset_updater::update_audio,
+                    asset_updater::update_vfx,
                     animations::update_animation,
                     sounds::play_queued,
                     vfx::handle_requests,
-                ),
+                )
+                    .chain()
+                    .in_set(WAGStage::Presentation),
             );
     }
 }

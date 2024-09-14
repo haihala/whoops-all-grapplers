@@ -17,7 +17,9 @@ pub fn manage_conditions(mut query: Query<&mut PlayerState>, clock: Res<Clock>) 
             }
         }) {
             state.add_condition(StatusCondition {
-                expiration: new_condition.expiration.map(|delta| clock.frame + delta),
+                expiration: new_condition
+                    .expiration
+                    .map(|duration| clock.frame + duration),
                 ..new_condition
             });
         }

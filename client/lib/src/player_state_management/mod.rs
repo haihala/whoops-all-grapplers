@@ -27,7 +27,6 @@ use bevy_ggrs::AddRollbackCommandExtension;
 pub use move_activation::MoveBuffer;
 
 const PLAYER_SPAWN_DISTANCE: f32 = 2.5; // Distance from x=0(middle)
-const PLAYER_SPAWN_HEIGHT: f32 = GROUND_PLANE_HEIGHT + 0.001;
 
 pub struct PlayerStateManagementPlugin;
 
@@ -123,7 +122,7 @@ fn spawn_player(
     commands
         .spawn((
             SpatialBundle {
-                transform: Transform::from_translation((offset, PLAYER_SPAWN_HEIGHT, 0.0).into()),
+                transform: Transform::from_translation((offset, GROUND_PLANE_HEIGHT, 0.0).into()),
                 ..default()
             },
             WAGResources::from_stats(&character.base_stats, character.special_properties.clone()),
@@ -194,7 +193,7 @@ fn setup_combat(
                 Player::One => -PLAYER_SPAWN_DISTANCE,
                 Player::Two => PLAYER_SPAWN_DISTANCE,
             },
-            PLAYER_SPAWN_HEIGHT,
+            GROUND_PLANE_HEIGHT,
             0.0,
         );
     }

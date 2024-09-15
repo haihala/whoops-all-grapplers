@@ -14,7 +14,6 @@ pub struct PlayerVelocity {
     movements: Vec<AppliedMovement>,
     /// Keep track of if pushing is currently happening for wall clamp reasons
     pub(super) pushing: bool,
-    pub on_floor: bool,
     pub next_pos: Vec2,
 }
 

@@ -11,15 +11,13 @@ use bevy::prelude::*;
 
 use characters::ActionEvent;
 use player_state::PlayerState;
-use wag_core::{Area, Clock, Facing, Players, RollbackSchedule, Stats, WAGStage};
+use wag_core::{Area, Clock, Facing, Player, Players, RollbackSchedule, Stats, WAGStage};
 
-use crate::{
-    camera::{CameraWrapper, VIEWPORT_HALFWIDTH},
-    damage::{Combo, HitTracker, HitboxSpawner},
-};
+use crate::damage::{Combo, HitTracker, HitboxSpawner};
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
-pub const ARENA_WIDTH: f32 = 9.5;
+pub const ARENA_WIDTH: f32 = 8.5;
+pub const MAX_PLAYER_DISTANCE: f32 = 8.0;
 
 #[derive(Debug, Default, Reflect, Component)]
 pub struct ConstantVelocity {
@@ -75,10 +73,15 @@ impl Plugin for PhysicsPlugin {
 }
 
 const CAMERA_EDGE_COLLISION_PADDING: f32 = 0.5;
-fn update_walls(mut walls: ResMut<Walls>, cam_query: Query<&Transform, With<CameraWrapper>>) {
-    let camera_x = cam_query.single().translation.x;
-    walls.left = camera_x - VIEWPORT_HALFWIDTH + CAMERA_EDGE_COLLISION_PADDING;
-    walls.right = camera_x + VIEWPORT_HALFWIDTH - CAMERA_EDGE_COLLISION_PADDING;
+fn update_walls(mut walls: ResMut<Walls>, player_query: Query<&Transform, With<Player>>) {
+    let mut xs: Vec<_> = player_query
+        .into_iter()
+        .map(|tf| tf.translation.x)
+        .collect();
+    xs.sort_by(|a, b| a.total_cmp(b));
+    let [left, right] = xs[..] else { panic!() };
+    walls.left = (right - MAX_PLAYER_DISTANCE + CAMERA_EDGE_COLLISION_PADDING).max(-ARENA_WIDTH);
+    walls.right = (left + MAX_PLAYER_DISTANCE - CAMERA_EDGE_COLLISION_PADDING).min(ARENA_WIDTH);
 }
 
 #[allow(clippy::type_complexity)]
@@ -98,9 +101,9 @@ fn player_gravity(
             continue;
         }
 
-        velocity.on_floor = tf.translation.y <= GROUND_PLANE_HEIGHT;
+        let on_floor = tf.translation.y <= GROUND_PLANE_HEIGHT;
 
-        if velocity.on_floor {
+        if on_floor {
             if !state.is_grounded() && velocity.get_shift().y <= 0.0 {
                 // Velocity check ensures that we don't call land on the frame we're being launched
                 state.land(clock.frame);
@@ -226,17 +229,19 @@ fn resolve_constraints(
     let right_wall = walls.right - pushbox_right.width() / 2.0;
     let right_wall_collision = velocity_right.next_pos.x + shift > right_wall;
 
-    if left_wall_collision {
+    let half_widths = pushbox_left.width() / 2.0 + pushbox_right.width() / 2.0;
+
+    if left_wall_collision && !right_wall_collision {
         velocity_left.next_pos.x = left_wall;
         velocity_left.x_collision();
 
-        let pseudo_wall = left_wall + pushbox_left.width() / 2.0 + pushbox_right.width() / 2.0;
+        let pseudo_wall = left_wall + half_widths;
         velocity_right.next_pos.x = (velocity_right.next_pos.x + shift).max(pseudo_wall);
-    } else if right_wall_collision {
+    } else if right_wall_collision && !left_wall_collision {
         velocity_right.next_pos.x = right_wall;
         velocity_right.x_collision();
 
-        let pseudo_wall = right_wall - pushbox_left.width() / 2.0 - pushbox_right.width() / 2.0;
+        let pseudo_wall = right_wall - half_widths;
         velocity_left.next_pos.x = (velocity_left.next_pos.x - shift).min(pseudo_wall);
     } else {
         // No wall

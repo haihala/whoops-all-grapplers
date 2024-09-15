@@ -6,12 +6,15 @@ use wag_core::{
     WAGStage, WagArgs, LOADING_SCREEN_BACKGROUND,
 };
 
-use crate::{entity_management::VisibleInStates, movement::ARENA_WIDTH};
+use crate::{
+    entity_management::VisibleInStates,
+    movement::{ARENA_WIDTH, MAX_PLAYER_DISTANCE},
+};
 
 #[derive(Debug, Component, Default)]
 pub struct CameraWrapper;
 
-pub const VIEWPORT_HALFWIDTH: f32 = 4.0; // This is used to control stage border relative to the camera
+pub const VIEWPORT_HALFWIDTH: f32 = MAX_PLAYER_DISTANCE / 2.0; // This is used to control stage border relative to the camera
 const CAMERA_CLAMP: f32 = ARENA_WIDTH - VIEWPORT_HALFWIDTH;
 
 // It never quite gets to either extreme because the math is fucked
@@ -109,8 +112,6 @@ fn center_camera(
         .reduce(|a, b| a - b)
         .unwrap()
         .abs();
-
-    dbg!(cam_zoom);
 
     // Do some light lerping to make backthrows less jarring
     let mut camquery = queries.p1();

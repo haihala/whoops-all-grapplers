@@ -256,8 +256,8 @@ fn read_local_inputs(
             }
         }
 
-        // Keyboard
-        if local_controller.0 == 69 {
+        // Keyboard -> Player 1
+        if local_controller.0 == 69 && *handle == 0 {
             for (shift, wag_button) in WagInputButton::iter().enumerate() {
                 if keyboard_keys.pressed(wag_button.to_keycode()) {
                     input |= 1 << shift;
@@ -314,7 +314,7 @@ fn generate_online_input_streams(
     inputs: Res<PlayerInputs<Config>>,
     mut input_states: ResMut<InputGenCache>,
 ) {
-    for (player_handle, (input, _)) in inputs.iter().enumerate() {
+    for (player_handle, (index, _)) in inputs.iter().enumerate() {
         let Some(old_state) = input_states.get(&player_handle) else {
             input_states.insert(player_handle, 0);
             continue;
@@ -322,7 +322,7 @@ fn generate_online_input_streams(
 
         for (shift, button_type) in WagInputButton::iter().enumerate() {
             let was_pressed = ((old_state >> shift) & 1) == 1;
-            let is_pressed = ((input >> shift) & 1) == 1;
+            let is_pressed = ((index >> shift) & 1) == 1;
 
             if was_pressed != is_pressed {
                 writer.send(WagInputEvent {
@@ -333,7 +333,7 @@ fn generate_online_input_streams(
             }
         }
 
-        input_states.insert(player_handle, *input);
+        input_states.insert(player_handle, *index);
     }
 }
 

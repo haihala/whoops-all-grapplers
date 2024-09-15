@@ -85,11 +85,9 @@ pub fn update_pads(
         for (mut pad, mut parrot, player) in &mut readers {
             let pad_id = controllers.get_handle(*player);
 
-            if pad_id != event.player_handle {
-                continue;
+            if pad_id == event.player_handle {
+                button_change(&mut pad, &mut parrot, event.button, event.pressed);
             }
-
-            button_change(&mut pad, &mut parrot, event.button, event.pressed);
         }
     }
 }

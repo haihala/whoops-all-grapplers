@@ -144,6 +144,12 @@ pub struct Controllers {
     pub p2: usize,
 }
 
+impl Default for Controllers {
+    fn default() -> Self {
+        Controllers { p1: 0, p2: 1 }
+    }
+}
+
 impl Controllers {
     pub fn get_handle(&self, player: Player) -> usize {
         match player {

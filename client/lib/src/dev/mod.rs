@@ -104,10 +104,7 @@ fn skip_menus(
             next_state.set(GameState::Synctest(SynctestState::Loading));
             commands.insert_resource(LocalController(local_controller));
             commands.insert_resource(LocalCharacter(local_character));
-            commands.insert_resource(Controllers {
-                p1: local_controller,
-                p2: 0,
-            });
+            commands.insert_resource(Controllers::default());
             commands.insert_resource(Characters {
                 p1: local_character,
                 p2: local_character,

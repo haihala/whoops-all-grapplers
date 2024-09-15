@@ -58,11 +58,11 @@ impl Plugin for PhysicsPlugin {
             RollbackSchedule,
             (
                 update_walls,
-                stick_movement::movement_input,
                 player_gravity,
                 player_input,
                 set_target_position,
                 resolve_constraints,
+                stick_movement::movement_input,
                 move_constants,
                 followers::update_followers,
             )
@@ -223,15 +223,17 @@ fn resolve_constraints(
         0.0
     };
 
-    let left_wall = walls.left + pushbox_left.width() / 2.0;
+    let left_wall = walls.left + (pushbox_left.width() / 2.0);
     let left_wall_collision = velocity_left.next_pos.x - shift < left_wall;
 
-    let right_wall = walls.right - pushbox_right.width() / 2.0;
+    let right_wall = walls.right - (pushbox_right.width() / 2.0);
     let right_wall_collision = velocity_right.next_pos.x + shift > right_wall;
 
     let half_widths = pushbox_left.width() / 2.0 + pushbox_right.width() / 2.0;
 
-    if left_wall_collision && !right_wall_collision {
+    if left_wall_collision && right_wall_collision {
+        return;
+    } else if left_wall_collision && !right_wall_collision {
         velocity_left.next_pos.x = left_wall;
         velocity_left.x_collision();
 

@@ -5,4 +5,3 @@
 - [ ] VA work for [[Mizku]]
 	- [x] Sharp exhales for most normals
 	- [ ] Grunts for specials / sword moves
-	- [ ] Idle barks

@@ -8,8 +8,7 @@
 	- [ ] Hit spark variations that indicate
 		- [ ] Counter hit
 		- [ ] Attack height (angle, color or both)
-- [ ] Trails (sharp lines that align with the movement direction)
-	- [ ] [[Mizku]] sword swings
+- [x] Trails (sharp lines that align with the movement direction)
 	- [x] Jump
 	- [x] Dash
 	- [x] Remove angling from the shader code.

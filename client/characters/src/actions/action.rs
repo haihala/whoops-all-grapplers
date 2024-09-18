@@ -12,8 +12,7 @@ pub enum ActionCategory {
     Jump,
     Throw,
     Other,
-    NeutralNormal,
-    CommandNormal,
+    Normal,
     Special,
     Super,
     FollowUp,
@@ -24,8 +23,7 @@ impl ActionCategory {
         match self {
             ActionCategory::Dash
             | ActionCategory::Jump
-            | ActionCategory::NeutralNormal
-            | ActionCategory::CommandNormal
+            | ActionCategory::Normal
             | ActionCategory::Special
             | ActionCategory::Super => true,
 
@@ -181,15 +179,9 @@ impl Action {
         attack: Attack,
         recovery: usize,
     ) -> Self {
-        let category = if input.len() == 1 {
-            ActionCategory::NeutralNormal
-        } else {
-            ActionCategory::CommandNormal
-        };
-
         Action::new(
             Some(input),
-            category.clone(),
+            ActionCategory::Normal,
             vec![
                 ActionBlock {
                     events: vec![
@@ -203,7 +195,7 @@ impl Action {
                 ActionBlock {
                     events: vec![attack.into()],
                     exit_requirement: ContinuationRequirement::Time(recovery),
-                    cancel_policy: CancelRule::cancel_out_of(category),
+                    cancel_policy: CancelRule::cancel_out_of(ActionCategory::Normal),
                     mutator: None,
                 },
             ],
@@ -216,7 +208,7 @@ impl Default for Action {
     fn default() -> Self {
         Self::grounded(
             None,
-            ActionCategory::NeutralNormal, // Not a huge fan of this
+            ActionCategory::Normal, // Not a huge fan of this
             vec![ActionBlock {
                 events: vec![Animation::default().into()],
                 exit_requirement: ContinuationRequirement::Time(100),

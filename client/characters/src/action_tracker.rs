@@ -103,7 +103,7 @@ mod test_cancellable_into_since {
             tracker.cancellable_into_since(
                 ActionId::TestMove,
                 Action {
-                    category: ActionCategory::NeutralNormal,
+                    category: ActionCategory::Normal,
                     ..default()
                 }
             ),
@@ -116,7 +116,7 @@ mod test_cancellable_into_since {
             tracker.cancellable_into_since(
                 ActionId::TestMove,
                 Action {
-                    category: ActionCategory::NeutralNormal,
+                    category: ActionCategory::Normal,
                     ..default()
                 }
             ),
@@ -151,7 +151,7 @@ mod test_cancellable_into_since {
             tracker.cancellable_into_since(
                 ActionId::TestMove,
                 Action {
-                    category: ActionCategory::NeutralNormal,
+                    category: ActionCategory::Normal,
                     ..default()
                 }
             ),
@@ -162,7 +162,7 @@ mod test_cancellable_into_since {
     #[test]
     fn closed_window() {
         let basic_normal = Action {
-            category: ActionCategory::NeutralNormal,
+            category: ActionCategory::Normal,
             ..default()
         };
 
@@ -218,12 +218,7 @@ mod test_cancellable_into_since {
             Action {
                 script: vec![
                     ActionBlock {
-                        cancel_policy: CancelRule::command_normal_recovery(),
-                        exit_requirement: ContinuationRequirement::Time(10),
-                        ..default()
-                    },
-                    ActionBlock {
-                        cancel_policy: CancelRule::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::normal_recovery(),
                         exit_requirement: ContinuationRequirement::Time(10),
                         ..default()
                     },
@@ -257,22 +252,11 @@ mod test_cancellable_into_since {
             tracker.cancellable_into_since(
                 ActionId::TestMove,
                 Action {
-                    category: ActionCategory::CommandNormal,
+                    category: ActionCategory::Normal,
                     ..default()
                 }
             ),
             Some(10)
-        );
-
-        assert_eq!(
-            tracker.cancellable_into_since(
-                ActionId::TestMove,
-                Action {
-                    category: ActionCategory::NeutralNormal,
-                    ..default()
-                }
-            ),
-            Some(20)
         );
     }
 }

@@ -158,7 +158,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::HeelKick,
             Action::grounded(
                 Some("s"),
-                ActionCategory::NeutralNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![
@@ -197,7 +197,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(28),
-                        cancel_policy: CancelRule::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -232,7 +232,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::HighStab,
             Action::grounded(
                 Some("g"),
-                ActionCategory::NeutralNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::HighStab.into()],
@@ -242,7 +242,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![],
                         exit_requirement: ContinuationRequirement::Time(46),
-                        cancel_policy: CancelRule::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::normal_recovery(),
                         mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                             original.events.push(
                                 Attack::strike(
@@ -278,7 +278,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::SkySlash,
             Action::grounded(
                 Some("[123]+g"),
-                ActionCategory::CommandNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::SkyStab.into()],
@@ -288,7 +288,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![],
                         exit_requirement: ContinuationRequirement::Time(32),
-                        cancel_policy: CancelRule::command_normal_recovery(),
+                        cancel_policy: CancelRule::normal_recovery(),
                         mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                             original.events.push(
                                 Attack::strike(
@@ -324,7 +324,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::AirSlice,
             Action::airborne(
                 Some("g"),
-                ActionCategory::NeutralNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::AirStab.into()],
@@ -334,7 +334,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     ActionBlock {
                         events: vec![],
                         exit_requirement: ContinuationRequirement::Time(63),
-                        cancel_policy: CancelRule::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::normal_recovery(),
                         mutator: Some(|mut original: ActionBlock, situation: &Situation| {
                             original.events.push(
                                 Attack::strike(
@@ -394,7 +394,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::FootDive,
             Action::airborne(
                 Some("s"),
-                ActionCategory::NeutralNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![
@@ -539,7 +539,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             MizkuActionId::CrouchThrow,
             Action::grounded(
                 Some("[123]+w"),
-                ActionCategory::CommandNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![MizkuAnimation::CrouchThrowStartup.into()],

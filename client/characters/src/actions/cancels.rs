@@ -44,20 +44,12 @@ impl CancelRule {
     pub fn jump() -> Self {
         Self {
             requires_hit: false,
-            category: ActionCategory::NeutralNormal,
+            category: ActionCategory::Normal,
             ..default()
         }
     }
 
-    pub fn neutral_normal_recovery() -> Self {
-        Self {
-            requires_hit: true,
-            category: ActionCategory::CommandNormal,
-            ..default()
-        }
-    }
-
-    pub fn command_normal_recovery() -> Self {
+    pub fn normal_recovery() -> Self {
         Self {
             requires_hit: true,
             category: ActionCategory::Special,
@@ -103,8 +95,7 @@ impl CancelRule {
 
     pub fn cancel_out_of(category: ActionCategory) -> Self {
         match category {
-            ActionCategory::NeutralNormal => Self::neutral_normal_recovery(),
-            ActionCategory::CommandNormal => Self::command_normal_recovery(),
+            ActionCategory::Normal => Self::normal_recovery(),
             ActionCategory::Special => Self::special_recovery(),
             _ => panic!("Cancels out of {:?} are not supported", category),
         }
@@ -124,12 +115,12 @@ mod test {
 
     #[test]
     fn cancel_steps() {
-        assert!(CancelRule::neutral_normal_recovery().can_cancel(
+        assert!(!CancelRule::normal_recovery().can_cancel(
             true,
             ActionId::TestMove,
-            ActionCategory::CommandNormal
+            ActionCategory::Normal
         ));
-        assert!(CancelRule::command_normal_recovery().can_cancel(
+        assert!(CancelRule::normal_recovery().can_cancel(
             true,
             ActionId::TestMove,
             ActionCategory::Special

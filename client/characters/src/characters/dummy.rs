@@ -104,7 +104,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::Slap,
             Action::grounded(
                 Some("f"),
-                ActionCategory::NeutralNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::Slap.into()],
@@ -123,7 +123,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelRule::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -133,7 +133,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::LowChop,
             Action::grounded(
                 Some("[123]f"),
-                ActionCategory::CommandNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::CrouchChop.into()],
@@ -152,7 +152,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(7),
-                        cancel_policy: CancelRule::command_normal_recovery(),
+                        cancel_policy: CancelRule::normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -162,7 +162,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::BurnStraight,
             Action::grounded(
                 Some("s"),
-                ActionCategory::NeutralNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::BurnStraight.into()],
@@ -192,7 +192,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                             .into(),
                         ],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelRule::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::normal_recovery(),
                         mutator: Some(|block, situation| {
                             if !situation.inventory.contains(&ItemId::Roids) {
                                 return block.clone();
@@ -235,7 +235,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::AntiAir,
             Action::grounded(
                 Some("[123]s"),
-                ActionCategory::CommandNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::AntiAir.into()],
@@ -254,7 +254,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(13),
-                        cancel_policy: CancelRule::command_normal_recovery(),
+                        cancel_policy: CancelRule::normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -264,7 +264,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::AirSlap,
             Action::airborne(
                 Some("f"),
-                ActionCategory::NeutralNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::AirSlap.into()],
@@ -284,7 +284,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelRule::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -294,7 +294,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::Divekick,
             Action::new(
                 Some("s"),
-                ActionCategory::NeutralNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::Divekick.into(), Consume(ItemId::Boots)],
@@ -314,7 +314,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(10),
-                        cancel_policy: CancelRule::neutral_normal_recovery(),
+                        cancel_policy: CancelRule::normal_recovery(),
                         mutator: None,
                     },
                 ],
@@ -411,7 +411,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::Sweep,
             Action::grounded(
                 Some("[123]w"),
-                ActionCategory::CommandNormal,
+                ActionCategory::Normal,
                 vec![
                     ActionBlock {
                         events: vec![DummyAnimation::Sweep.into()],
@@ -434,7 +434,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()],
                         exit_requirement: ContinuationRequirement::Time(15),
-                        cancel_policy: CancelRule::command_normal_recovery(),
+                        cancel_policy: CancelRule::normal_recovery(),
                         mutator: None,
                     },
                 ],

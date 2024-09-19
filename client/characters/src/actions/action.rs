@@ -1,222 +1,13 @@
-use bevy::prelude::*;
-use wag_core::{Animation, SoundEffect};
+use wag_core::ActionCategory;
 
-use crate::{
-    ActionBlock, ActionEvent, ActionRequirement, AnimationRequest, Attack, CancelRule,
-    ContinuationRequirement, FlashRequest, ResourceType,
-};
-
-#[derive(Clone, PartialEq, Eq, Debug, PartialOrd, Ord, Reflect)]
-pub enum ActionCategory {
-    Dash,
-    Jump,
-    Throw,
-    Other,
-    Normal,
-    Special,
-    Super,
-    FollowUp,
-    Forced, // For throw recipients
-}
-impl ActionCategory {
-    pub fn can_be_standard_cancelled_into(&self) -> bool {
-        match self {
-            ActionCategory::Dash
-            | ActionCategory::Jump
-            | ActionCategory::Normal
-            | ActionCategory::Special
-            | ActionCategory::Super => true,
-
-            ActionCategory::Other   // For stuff like parry
-            | ActionCategory::Throw // For throws
-            | ActionCategory::FollowUp  // These use a different cancel mechanism
-            | ActionCategory::Forced => false,  // These are forced actions like parry flash and throw recipient
-        }
-    }
-}
+use crate::{ActionEvent, ActionRequirement, Situation};
 
 #[derive(Clone)]
 pub struct Action {
     pub input: Option<&'static str>,
     pub category: ActionCategory,
-    pub script: Vec<ActionBlock>,
+    pub script: fn(&Situation) -> Vec<ActionEvent>,
     pub requirements: Vec<ActionRequirement>,
-}
-impl Action {
-    pub fn new(
-        input: Option<&'static str>,
-        category: ActionCategory,
-        script: Vec<ActionBlock>,
-        requirements: Vec<ActionRequirement>,
-    ) -> Self {
-        Self {
-            input,
-            category,
-            script,
-            requirements,
-        }
-    }
-
-    pub fn grounded(
-        input: Option<&'static str>,
-        category: ActionCategory,
-        script: Vec<ActionBlock>,
-    ) -> Self {
-        Self::new(input, category, script, vec![ActionRequirement::Grounded])
-    }
-
-    pub fn airborne(
-        input: Option<&'static str>,
-        category: ActionCategory,
-        script: Vec<ActionBlock>,
-    ) -> Self {
-        Self::new(input, category, script, vec![ActionRequirement::Airborne])
-    }
-
-    pub fn throw_hit(animation: impl Into<Animation>, duration: usize) -> Self {
-        Action::new(
-            None,
-            ActionCategory::Forced,
-            vec![ActionBlock {
-                events: vec![animation.into().into(), ActionEvent::Lock(duration)],
-                exit_requirement: ContinuationRequirement::Time(duration),
-                ..default()
-            }],
-            vec![],
-        )
-    }
-
-    pub fn throw_target(
-        animation: impl Into<Animation>,
-        duration: usize,
-        damage: i32,
-        launch_impulse: Vec2,
-    ) -> Self {
-        Self::throw_target_with_split_duration(
-            animation,
-            duration - 1,
-            duration,
-            damage,
-            launch_impulse,
-        )
-    }
-
-    pub fn throw_target_with_split_duration(
-        animation: impl Into<Animation>,
-        lock_duration: usize,
-        animation_duration: usize,
-        damage: i32,
-        launch_impulse: Vec2,
-    ) -> Self {
-        Action::new(
-            None,
-            ActionCategory::Forced,
-            vec![ActionBlock {
-                events: vec![
-                    AnimationRequest {
-                        animation: animation.into(),
-                        invert: true,
-                        ..default()
-                    }
-                    .into(),
-                    ActionEvent::ModifyResource(ResourceType::Health, -damage),
-                    if launch_impulse == Vec2::ZERO {
-                        ActionEvent::Noop
-                    } else {
-                        ActionEvent::Launch {
-                            impulse: launch_impulse,
-                        }
-                    },
-                    ActionEvent::Flash(FlashRequest::hit_flash()),
-                    ActionEvent::Hitstop,
-                    ActionEvent::Lock(lock_duration),
-                ],
-                exit_requirement: ContinuationRequirement::Time(animation_duration),
-                ..default()
-            }],
-            vec![],
-        )
-    }
-    pub fn ground_normal(
-        input: &'static str,
-        animation: impl Into<Animation>,
-        startup: usize,
-        attack: Attack,
-        recovery: usize,
-    ) -> Self {
-        Self::normal(
-            vec![ActionRequirement::Grounded],
-            input,
-            animation,
-            startup,
-            attack,
-            recovery,
-        )
-    }
-
-    pub fn air_normal(
-        input: &'static str,
-        animation: impl Into<Animation>,
-        startup: usize,
-        attack: Attack,
-        recovery: usize,
-    ) -> Self {
-        Self::normal(
-            vec![ActionRequirement::Airborne],
-            input,
-            animation,
-            startup,
-            attack,
-            recovery,
-        )
-    }
-
-    pub fn normal(
-        requirements: Vec<ActionRequirement>,
-        input: &'static str,
-        animation: impl Into<Animation>,
-        startup: usize,
-        attack: Attack,
-        recovery: usize,
-    ) -> Self {
-        Action::new(
-            Some(input),
-            ActionCategory::Normal,
-            vec![
-                ActionBlock {
-                    events: vec![
-                        animation.into().into(),
-                        // TODO: Make this character-dependent
-                        SoundEffect::FemaleExhale.into(),
-                    ],
-                    exit_requirement: ContinuationRequirement::Time(startup),
-                    ..default()
-                },
-                ActionBlock {
-                    events: vec![attack.into()],
-                    exit_requirement: ContinuationRequirement::Time(recovery),
-                    cancel_policy: CancelRule::cancel_out_of(ActionCategory::Normal),
-                    mutator: None,
-                },
-            ],
-            requirements,
-        )
-    }
-}
-
-impl Default for Action {
-    fn default() -> Self {
-        Self::grounded(
-            None,
-            ActionCategory::Normal, // Not a huge fan of this
-            vec![ActionBlock {
-                events: vec![Animation::default().into()],
-                exit_requirement: ContinuationRequirement::Time(100),
-                cancel_policy: CancelRule::never(),
-                mutator: None,
-            }],
-        )
-    }
 }
 
 impl std::fmt::Debug for Action {
@@ -227,4 +18,157 @@ impl std::fmt::Debug for Action {
             .field("cancel category", &self.category)
             .finish()
     }
+}
+
+#[macro_export]
+macro_rules! throw_hit {
+    ($animation:expr, $duration:expr) => {
+        Action {
+            input: None,
+            category: ActionCategory::Forced,
+            script: |situation: &Situation| {
+                if situation.elapsed() == 0 {
+                    return vec![
+                        Into::<Animation>::into($animation).into(),
+                        ActionEvent::Lock($duration),
+                    ];
+                }
+
+                situation.end_at($duration)
+            },
+            requirements: vec![],
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! throw_target {
+    ($animation:expr, $duration:expr, $damage:expr, $launch_impulse:expr) => {
+        throw_target!(
+            $animation,
+            $duration - 1,
+            $duration,
+            $damage,
+            $launch_impulse
+        )
+    };
+
+    ($animation:expr, $lock_duration:expr, $animation_duration:expr, $damage:expr, $launch_impulse:expr) => {{
+        use $crate::{AnimationRequest, FlashRequest};
+
+        Action {
+            input: None,
+            category: ActionCategory::Forced,
+            script: |situation: &Situation| {
+                if situation.elapsed() == 0 {
+                    vec![
+                        AnimationRequest {
+                            animation: $animation.into(),
+                            invert: true,
+                            ..default()
+                        }
+                        .into(),
+                        ActionEvent::ModifyResource(ResourceType::Health, -$damage),
+                        if $launch_impulse == Vec2::ZERO {
+                            ActionEvent::Noop
+                        } else {
+                            ActionEvent::Launch {
+                                impulse: $launch_impulse,
+                            }
+                        },
+                        ActionEvent::Flash(FlashRequest::hit_flash()),
+                        ActionEvent::Hitstop,
+                        ActionEvent::Lock($lock_duration),
+                    ];
+                }
+
+                situation.end_at($animation_duration)
+            },
+            requirements: vec![],
+        }
+    }};
+}
+
+#[macro_export]
+macro_rules! attack_action {
+    ($requirements:expr, $input:expr, $category:expr, $animation:expr, $startup:expr, $attack:expr, $recovery:expr) => {{
+        use wag_core::{CancelType, CancelWindow};
+
+        attack_action!(
+            $requirements,
+            $input,
+            $category,
+            $animation,
+            if $category == ActionCategory::Normal {
+                ActionEvent::AllowCancel(CancelWindow {
+                    duration: $recovery,
+                    cancel_type: CancelType::Special,
+                    require_hit: true,
+                })
+            } else {
+                ActionEvent::Noop
+            },
+            $startup,
+            $attack,
+            $recovery
+        )
+    }};
+    ($requirements:expr, $input:expr, $category:expr, $animation:expr, $cancel_type:expr, $startup:expr, $attack:expr, $recovery:expr) => {{
+        use wag_core::SoundEffect;
+        use $crate::ActionEvent;
+
+        Action {
+            input: Some($input),
+            category: $category,
+            script: |situation: &Situation| {
+                if situation.elapsed() == 0 {
+                    return vec![
+                        Into::<Animation>::into($animation).into(),
+                        // TODO: Make this character-dependent
+                        SoundEffect::FemaleExhale.into(),
+                    ];
+                }
+
+                if situation.elapsed() == $startup {
+                    return vec![$attack.into(), $cancel_type];
+                }
+
+                situation.end_at($startup + $recovery)
+            },
+            requirements: $requirements,
+        }
+    }};
+}
+
+#[macro_export]
+macro_rules! air_action {
+    ($input:expr, $category:expr, $animation:expr, $startup:expr, $attack:expr, $recovery:expr) => {{
+        use $crate::{attack_action, ActionRequirement};
+
+        attack_action!(
+            vec![ActionRequirement::Airborne],
+            $input,
+            $category,
+            $animation,
+            $startup,
+            $attack,
+            $recovery
+        )
+    }};
+}
+
+#[macro_export]
+macro_rules! ground_action {
+    ($input:expr, $category:expr, $animation:expr, $startup:expr, $attack:expr, $recovery:expr) => {{
+        use $crate::{attack_action, ActionRequirement};
+        attack_action!(
+            vec![ActionRequirement::Grounded],
+            $input,
+            $category,
+            $animation,
+            $startup,
+            $attack,
+            $recovery
+        )
+    }};
 }

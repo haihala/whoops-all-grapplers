@@ -7,6 +7,9 @@ pub use area::Area;
 mod args;
 pub use args::{Dev, WagArgs};
 
+mod cancels;
+pub use cancels::*;
+
 mod character_id;
 pub use character_id::{CharacterId, Characters, LocalCharacter};
 

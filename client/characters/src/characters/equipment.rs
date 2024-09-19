@@ -1,86 +1,100 @@
 use bevy::prelude::*;
-use wag_core::{
-    ActionId, Animation, Icon, ItemId, Stats, StatusCondition, StatusFlag, GI_PARRY_FLASH_COLOR,
-};
+use wag_core::{ActionCategory, Icon, ItemId, Stats, StatusCondition, StatusFlag};
 
 use crate::{
-    actions::{ActionCategory, ActionRequirement},
-    Action, ActionBlock, ActionEvent, CancelRule,
-    ConsumableType::*,
-    ContinuationRequirement, Item,
-    ItemCategory::*,
-    Movement,
+    actions::ActionRequirement, Action, ActionEvent, ConsumableType::*, Item, ItemCategory::*,
+    Movement, Situation,
 };
 
-fn get_high_gi_parry() -> Action {
-    Action::new(
-        Some("56"),
-        ActionCategory::Other,
-        vec![ActionBlock {
-            events: vec![
+pub fn get_high_gi_parry() -> Action {
+    Action {
+        input: Some("56"),
+        category: ActionCategory::Other,
+        script: |_| {
+            vec![
                 ActionEvent::ForceStand,
                 ActionEvent::Condition(StatusCondition {
                     flag: StatusFlag::Parry,
                     effect: None,
                     expiration: Some(15),
                 }),
-            ],
-            exit_requirement: ContinuationRequirement::None,
-            cancel_policy: CancelRule::never(),
-            mutator: None,
-        }],
-        vec![
+                ActionEvent::End,
+            ]
+        },
+        requirements: vec![
             ActionRequirement::Grounded,
             ActionRequirement::ItemsOwned(vec![ItemId::Gi]),
         ],
-    )
+    }
 }
 
-fn parry_flash(parry_animation: Animation) -> Action {
-    Action::new(
-        None,
-        ActionCategory::Forced,
-        vec![ActionBlock {
-            events: vec![
-                parry_animation.into(),
-                ActionEvent::Flash(GI_PARRY_FLASH_COLOR.into()),
+#[macro_export]
+macro_rules! parry_flash {
+    ($parry_animation:expr) => {{
+        use wag_core::GI_PARRY_FLASH_COLOR;
+
+        use $crate::ActionEvent;
+
+        Action {
+            input: None,
+            category: ActionCategory::Forced,
+            script: |situation: &Situation| {
+                if situation.elapsed() == 0 {
+                    return vec![
+                        $parry_animation.into(),
+                        ActionEvent::Flash(GI_PARRY_FLASH_COLOR.into()),
+                    ];
+                }
+
+                if situation.elapsed() >= 10 {
+                    return vec![ActionEvent::End];
+                }
+
+                vec![]
+            },
+            requirements: vec![
+                ActionRequirement::Grounded,
+                ActionRequirement::ItemsOwned(vec![ItemId::Gi]),
             ],
-            exit_requirement: ContinuationRequirement::Time(10),
-            ..default()
-        }],
-        vec![
-            ActionRequirement::Grounded,
-            ActionRequirement::ItemsOwned(vec![ItemId::Gi]),
-        ],
-    )
+        }
+    }};
 }
 
-fn fast_fall() -> Action {
-    Action::new(
-        Some("[456789][123]"),
-        ActionCategory::Other,
-        vec![ActionBlock {
-            events: vec![Movement::impulse(Vec2::Y * -1.5).into()],
-            exit_requirement: ContinuationRequirement::Time(10),
-            cancel_policy: CancelRule::any(),
-            ..default()
-        }],
-        vec![
+pub fn fast_fall() -> Action {
+    Action {
+        input: Some("[456789][123]"),
+        category: ActionCategory::Other,
+        script: |situation: &Situation| {
+            if situation.elapsed() == 0 {
+                return vec![Movement::impulse(Vec2::Y * -1.5).into()];
+            }
+
+            if situation.elapsed() >= 10 {
+                return vec![ActionEvent::End];
+            }
+
+            vec![]
+        },
+        requirements: vec![
             ActionRequirement::Airborne,
             ActionRequirement::ItemsOwned(vec![ItemId::DivingHelmet]),
         ],
-    )
+    }
 }
 
-pub fn universal_item_actions(
-    parry_animation: Animation,
-) -> impl Iterator<Item = (ActionId, Action)> {
-    vec![
-        (ActionId::HighGiParry, get_high_gi_parry()),
-        (ActionId::ParryFlash, parry_flash(parry_animation)),
-        (ActionId::FastFall, fast_fall()),
-    ]
-    .into_iter()
+#[macro_export]
+macro_rules! universal_item_actions {
+    ($parry_animation:expr) => {{
+        use $crate::characters::equipment::{fast_fall, get_high_gi_parry};
+        use $crate::parry_flash;
+
+        vec![
+            (ActionId::HighGiParry, get_high_gi_parry()),
+            (ActionId::ParryFlash, parry_flash!($parry_animation)),
+            (ActionId::FastFall, fast_fall()),
+        ]
+        .into_iter()
+    }};
 }
 
 pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {

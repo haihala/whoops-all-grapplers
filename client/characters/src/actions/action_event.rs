@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 use wag_core::{
-    ActionId, Animation, DummyAnimation, ItemId, MizkuAnimation, SoundEffect, StatusCondition,
-    VfxRequest,
+    ActionId, Animation, CancelWindow, DummyAnimation, ItemId, MizkuAnimation, SoundEffect,
+    StatusCondition, VfxRequest,
 };
 
 use crate::{Attack, FlashRequest, Movement, ResourceType};
@@ -11,6 +11,7 @@ use super::AnimationRequest;
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub enum ActionEvent {
+    AllowCancel(CancelWindow),
     Animation(AnimationRequest),
     Consume(ItemId),
     Sound(SoundEffect),
@@ -19,7 +20,6 @@ pub enum ActionEvent {
     ClearMovement,
     Movement(Movement),
     Condition(StatusCondition),
-    #[default]
     ForceStand,
     ModifyResource(ResourceType, i32),
     ClearResource(ResourceType),
@@ -36,7 +36,9 @@ pub enum ActionEvent {
     Flash(FlashRequest),
     VisualEffect(VfxRequest),
     Lock(usize), // duration, sideswitch
-    Noop,        // makes writing macros easier
+    #[default]
+    Noop, // makes writing macros easier
+    End,         // Ends the move, return to neutral
 }
 
 impl From<Attack> for ActionEvent {

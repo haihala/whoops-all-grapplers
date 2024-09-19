@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::utils::HashSet;
 use wag_core::{Facing, GameButton, Stats, StatusFlag};
 
-use crate::{ActionTracker, Inventory, ResourceType, WAGResource};
+use crate::{ActionEvent, ActionTracker, Inventory, ResourceType, WAGResource};
 
 #[derive(Debug, Clone, Default)]
 pub struct Situation {
@@ -27,5 +27,17 @@ impl Situation {
                 None
             }
         })
+    }
+
+    pub fn end_at(&self, frame: usize) -> Vec<ActionEvent> {
+        if self.elapsed() >= frame {
+            vec![ActionEvent::End]
+        } else {
+            vec![]
+        }
+    }
+
+    pub fn elapsed(&self) -> usize {
+        self.tracker.map_or(0, |t| self.frame - t.start_frame)
     }
 }

@@ -56,15 +56,6 @@ impl PlayerState {
             .collect()
     }
 
-    pub fn last_breakpoint_frame(&self) -> Option<usize> {
-        match self.main {
-            MainState::Stand(StandState::Move(ref tracker))
-            | MainState::Crouch(CrouchState::Move(ref tracker))
-            | MainState::Air(AirState::Move(ref tracker)) => tracker.last_breakpoint_frame(),
-            _ => None,
-        }
-    }
-
     pub fn add_actions(&mut self, actions: Vec<ActionEvent>) {
         self.unprocessed_events.extend(
             actions
@@ -111,23 +102,18 @@ impl PlayerState {
         player_position: Vec3,
         player_facing: Facing,
     ) {
-        let events = if let Some(mutator) = action.script[0].mutator {
-            let situation = self.build_situation(
-                inventory,
-                resources,
-                parser,
-                stats,
-                start_frame,
-                player_position,
-                player_facing,
-            );
-            mutator(action.script[0].clone(), &situation).events
-        } else {
-            action.script[0].clone().events
-        };
+        let events = (action.script)(&self.build_situation(
+            inventory,
+            resources,
+            parser,
+            stats,
+            start_frame,
+            player_position,
+            player_facing,
+        ));
 
         self.add_actions(events);
-        let tracker = ActionTracker::new(action_id, action, start_frame);
+        let tracker = ActionTracker::new(start_frame, action_id);
 
         self.main = match &self.main {
             MainState::Stand(_) => MainState::Stand(StandState::Move(tracker)),
@@ -143,6 +129,7 @@ impl PlayerState {
     pub fn proceed_move(
         &mut self,
         inventory: Inventory,
+        character: Character,
         resources: WAGResources,
         parser: InputParser,
         stats: Stats,
@@ -159,18 +146,9 @@ impl PlayerState {
             player_position,
             player_facing,
         );
-        let tracker = self.get_action_tracker_mut().unwrap();
 
-        if tracker.blocker.fulfilled(&situation) {
-            if let Some(next_block) = tracker.pop_next(frame) {
-                let mutated = next_block.apply_mutator(&situation);
-                tracker.blocker = mutated.exit_requirement;
-                tracker.cancel_policy = mutated.cancel_policy;
-                self.add_actions(mutated.events);
-            } else {
-                self.recover(frame);
-            }
-        }
+        let action_id = self.get_action_tracker_mut().unwrap().action_id;
+        self.add_actions((character.get_move(action_id).unwrap().script)(&situation));
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -205,6 +183,7 @@ impl PlayerState {
             _ => None,
         }
     }
+
     pub fn get_action_tracker_mut(&mut self) -> Option<&mut ActionTracker> {
         match self.main {
             MainState::Stand(StandState::Move(ref mut history))
@@ -417,11 +396,7 @@ mod test {
     fn generic_animation_mid_move() {
         // TODO: Creating testing states should be easier
         let mut move_state = PlayerState {
-            main: MainState::Stand(StandState::Move(ActionTracker::new(
-                ActionId::TestMove,
-                Action::default(),
-                0,
-            ))),
+            main: MainState::Stand(StandState::Move(ActionTracker::new(0, ActionId::TestMove))),
             ..default()
         };
 

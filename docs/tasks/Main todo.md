@@ -1,10 +1,3 @@
-# Fast lane
-I got carried away
-
-- Instead of mutators, just store the moves as function pointers that take in the situation
-- Separate inputs from actions
-- Remove concept of command normals
-
 # Next steps
 - [[Update Gi]]
 - [[Popups 2.0]]

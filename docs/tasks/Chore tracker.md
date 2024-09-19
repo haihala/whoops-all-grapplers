@@ -9,3 +9,4 @@
 - Could you mirror player animation/model with shaders?
 	- Boxes may be harder to draw?
 - Disable parrots in prod
+- Is there a more elegant way to encode concepts such as "charge move" and "meter cost"

@@ -11,8 +11,8 @@ use characters::{dummy, mizku, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
-    AnimationType, CharacterId, Characters, Clock, Facing, InLoadingScreen, InMatch, Joints,
-    MatchState, Player, Players, RollbackSchedule, Stats, WAGStage,
+    AnimationType, AvailableCancels, CharacterId, Characters, Clock, Facing, InLoadingScreen,
+    InMatch, Joints, MatchState, Player, Players, RollbackSchedule, Stats, WAGStage,
 };
 
 use crate::{
@@ -48,11 +48,13 @@ impl Plugin for PlayerStateManagementPlugin {
                 RollbackSchedule,
                 (
                     move_activation::manage_buffer,
+                    move_activation::manage_cancel_windows,
                     move_activation::automatic_activation,
                     move_activation::plain_start,
-                    move_activation::special_cancel,
+                    move_activation::cancel_start,
                     move_activation::move_activator,
                     move_advancement::move_advancement,
+                    move_advancement::end_moves,
                 )
                     .chain()
                     .in_set(WAGStage::MovePipeline),
@@ -103,6 +105,7 @@ struct PlayerDefaults {
     move_buffer: MoveBuffer,
     joints: Joints,
     status_effects: Stats,
+    available_cancels: AvailableCancels,
 }
 
 fn spawn_player(

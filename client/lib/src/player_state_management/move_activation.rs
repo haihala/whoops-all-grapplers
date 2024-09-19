@@ -5,7 +5,7 @@ use characters::{
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{ActionId, Clock, Facing, Player, Stats};
+use wag_core::{ActionId, AvailableCancels, Clock, Facing, Player, Stats};
 
 use crate::{movement::PlayerVelocity, ui::Notifications};
 
@@ -81,6 +81,24 @@ pub(super) fn manage_buffer(
         parser.clear();
     }
 }
+
+pub fn manage_cancel_windows(
+    clock: Res<Clock>,
+    mut query: Query<(&mut AvailableCancels, &mut PlayerState)>,
+) {
+    for (mut cancels, mut state) in &mut query {
+        let new_cancels = state.drain_matching_actions(|action| {
+            if let ActionEvent::AllowCancel(cancel_window) = action {
+                Some(cancel_window.to_owned())
+            } else {
+                None
+            }
+        });
+
+        cancels.update(new_cancels, clock.frame);
+    }
+}
+
 pub(super) fn automatic_activation(
     mut notifications: ResMut<Notifications>,
     mut query: Query<(
@@ -171,10 +189,11 @@ pub(super) fn plain_start(
 }
 
 #[allow(clippy::type_complexity)]
-pub(super) fn special_cancel(
+pub(super) fn cancel_start(
     clock: Res<Clock>,
     mut query: Query<(
         &mut MoveBuffer,
+        &AvailableCancels,
         &Transform,
         &Character,
         &PlayerState,
@@ -186,8 +205,18 @@ pub(super) fn special_cancel(
     )>,
 ) {
     // Set activating move if one in the buffer can be cancelled into
-    for (mut buffer, tf, character, state, inventory, resources, stats, parser, facing) in
-        &mut query
+    for (
+        mut buffer,
+        available_cancels,
+        tf,
+        character,
+        state,
+        inventory,
+        resources,
+        stats,
+        parser,
+        facing,
+    ) in &mut query
     {
         if state.free_since.is_some() {
             continue;
@@ -199,7 +228,7 @@ pub(super) fn special_cancel(
 
         // Not free because a move is happening
         // Is current move cancellable, if so, since when
-        let Some((_, id, _)) = buffer
+        let Some(id) = buffer
             .get_situation_moves(
                 character,
                 state.build_situation(
@@ -213,12 +242,14 @@ pub(super) fn special_cancel(
                 ),
             )
             .into_iter()
-            .filter_map(|(frame, id, action)| {
-                tracker
-                    .cancellable_into_since(id, action.clone())
-                    .map(|freedom| (frame, id, freedom))
+            .filter_map(|(_, id, action)| {
+                if available_cancels.can_cancel_to(action.category, id, tracker.has_hit) {
+                    Some(id)
+                } else {
+                    None
+                }
             })
-            .max_by_key(|(_, id, _)| (parser.get_complexity(*id), *id))
+            .max_by_key(|id| (parser.get_complexity(*id), *id))
         else {
             continue;
         };

@@ -1,9 +1,9 @@
 use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
-    ActionCategory, ActionId, Animation, AnimationType, Area, GameButton, Icon, ItemId, Joint,
-    MizkuActionId, MizkuAnimation, Model, SoundEffect, Stats, StatusCondition, StatusFlag,
-    MIZUKI_ALT_HELMET_COLOR, MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
+    ActionCategory, ActionId, Animation, AnimationType, Area, CancelType, CancelWindow, GameButton,
+    Icon, ItemId, Joint, MizkuActionId, MizkuAnimation, Model, SoundEffect, Stats, StatusCondition,
+    StatusFlag, MIZUKI_ALT_HELMET_COLOR, MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
 };
 
 use crate::{
@@ -671,28 +671,35 @@ fn viper_strike() -> Action {
             }
 
             if situation.elapsed() == 8 {
-                return vec![Attack::strike(
-                    ToHit {
-                        hitbox: Hitbox(Area::new(0.4, 0.0, 1.6, 0.45)),
-                        block_type: Strike(Low),
-                        joint: Some(Joint::Katana),
-                        lifetime: Lifetime::frames(6),
-                        ..default()
-                    },
-                    CommonAttackProps {
-                        damage: 20
-                            + situation
-                                .get_resource(ResourceType::Sharpness)
-                                .unwrap()
-                                .current
-                                * 10,
-                        on_hit: Stun(40),
-                        on_block: Stun(30),
-                        chip_damage: 5,
-                        ..default()
-                    },
-                )
-                .into()];
+                return vec![
+                    Attack::strike(
+                        ToHit {
+                            hitbox: Hitbox(Area::new(0.4, 0.0, 1.6, 0.45)),
+                            block_type: Strike(Low),
+                            joint: Some(Joint::Katana),
+                            lifetime: Lifetime::frames(6),
+                            ..default()
+                        },
+                        CommonAttackProps {
+                            damage: 20
+                                + situation
+                                    .get_resource(ResourceType::Sharpness)
+                                    .unwrap()
+                                    .current
+                                    * 10,
+                            on_hit: Stun(40),
+                            on_block: Stun(30),
+                            chip_damage: 5,
+                            ..default()
+                        },
+                    )
+                    .into(),
+                    ActionEvent::AllowCancel(CancelWindow {
+                        cancel_type: CancelType::Super,
+                        require_hit: true,
+                        duration: 30,
+                    }),
+                ];
             }
 
             situation.end_at(72)
@@ -717,27 +724,34 @@ fn rising_sun() -> Action {
             }
 
             if situation.elapsed() == 3 {
-                return vec![Attack::strike(
-                    ToHit {
-                        hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
-                        joint: Some(Joint::Katana),
-                        lifetime: Lifetime::frames(6),
-                        ..default()
-                    },
-                    CommonAttackProps {
-                        damage: 20
-                            + situation
-                                .get_resource(ResourceType::Sharpness)
-                                .unwrap()
-                                .current
-                                * 10,
-                        on_hit: Launcher(3.0),
-                        on_block: Stun(40),
-                        chip_damage: 10,
-                        ..default()
-                    },
-                )
-                .into()];
+                return vec![
+                    Attack::strike(
+                        ToHit {
+                            hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
+                            joint: Some(Joint::Katana),
+                            lifetime: Lifetime::frames(6),
+                            ..default()
+                        },
+                        CommonAttackProps {
+                            damage: 20
+                                + situation
+                                    .get_resource(ResourceType::Sharpness)
+                                    .unwrap()
+                                    .current
+                                    * 10,
+                            on_hit: Launcher(3.0),
+                            on_block: Stun(40),
+                            chip_damage: 10,
+                            ..default()
+                        },
+                    )
+                    .into(),
+                    ActionEvent::AllowCancel(CancelWindow {
+                        cancel_type: CancelType::Super,
+                        require_hit: true,
+                        duration: 30,
+                    }),
+                ];
             }
             situation.end_at(77)
         },
@@ -767,24 +781,31 @@ fn kunai_throw() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 }
 
                 if situation.elapsed() == 13 {
-                    return vec![Attack::strike(
-                        ToHit {
-                            hitbox: Hitbox(Area::new(1.0, 1.2, 0.3, 0.3)),
-                            velocity: Some(Vec2::new(6.0, -0.4)),
-                            lifetime: Lifetime::until_owner_hit(),
-                            projectile: Some(Projectile {
-                                model: Model::Kunai,
-                            }),
-                            ..default()
-                        },
-                        CommonAttackProps {
-                            damage: 12,
-                            on_hit: Stun(15),
-                            on_block: Stun(10),
-                            ..default()
-                        },
-                    )
-                    .into()];
+                    return vec![
+                        Attack::strike(
+                            ToHit {
+                                hitbox: Hitbox(Area::new(1.0, 1.2, 0.3, 0.3)),
+                                velocity: Some(Vec2::new(6.0, -0.4)),
+                                lifetime: Lifetime::until_owner_hit(),
+                                projectile: Some(Projectile {
+                                    model: Model::Kunai,
+                                }),
+                                ..default()
+                            },
+                            CommonAttackProps {
+                                damage: 12,
+                                on_hit: Stun(15),
+                                on_block: Stun(10),
+                                ..default()
+                            },
+                        )
+                        .into(),
+                        ActionEvent::AllowCancel(CancelWindow {
+                            cancel_type: CancelType::Super,
+                            require_hit: true,
+                            duration: 10,
+                        }),
+                    ];
                 }
 
                 situation.end_at(23)

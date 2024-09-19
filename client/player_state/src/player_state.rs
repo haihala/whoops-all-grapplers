@@ -340,7 +340,7 @@ impl PlayerState {
                 self.main = match cs {
                     CrouchState::Stun(stun) => MainState::Stand(StandState::Stun(stun.clone())),
                     CrouchState::Move(move_history) => {
-                        MainState::Stand(StandState::Move(move_history.clone()))
+                        MainState::Stand(StandState::Move(*move_history))
                     }
                     CrouchState::Idle => MainState::Stand(StandState::Idle),
                 }

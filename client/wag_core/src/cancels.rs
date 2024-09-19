@@ -18,6 +18,7 @@ pub enum ActionCategory {
 #[derive(Debug, PartialEq, Clone)]
 pub enum CancelType {
     Special,
+    Super,
     Specific(Vec<ActionId>),
 }
 
@@ -52,7 +53,10 @@ impl AvailableCancels {
     pub fn can_cancel_to(&self, category: ActionCategory, id: ActionId, has_hit: bool) -> bool {
         for win in self.0.iter() {
             let matching_cancel = match win.cancel_type {
-                CancelType::Special => category == ActionCategory::Special,
+                CancelType::Special => {
+                    matches!(category, ActionCategory::Special | ActionCategory::Super)
+                }
+                CancelType::Super => category == ActionCategory::Super,
                 CancelType::Specific(ref options) => options.contains(&id),
             };
 

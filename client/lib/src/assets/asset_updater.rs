@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use characters::{ActionEvent, AnimationRequest, Character};
+use characters::{ActionEvent, ActionEvents, AnimationRequest, Character};
 use player_state::PlayerState;
 use wag_core::{Facing, Players};
 
@@ -10,7 +10,8 @@ pub fn update_animation(
     mut query: Query<
         (
             &Character,
-            &mut PlayerState,
+            &PlayerState,
+            &ActionEvents,
             &Facing,
             &mut AnimationHelper,
             Entity,
@@ -21,13 +22,13 @@ pub fn update_animation(
     players: Res<Players>,
 ) {
     // TODO: This is somewhat faulty as a concept, fix at some point.
-    for (character, mut state, facing, mut helper, entity) in &mut query {
+    for (character, state, events, facing, mut helper, entity) in &mut query {
         let [active, opponent] = tfs
             .get_many([entity, players.get_other_entity(entity)])
             .unwrap();
         let position_offset = (opponent.translation - active.translation).truncate();
-        if let Some(req) = state
-            .drain_matching_actions(|action| match action {
+        if let Some(req) = events
+            .get_matching_events(|action| match action {
                 ActionEvent::Animation(animation_request) => {
                     Some(if animation_request.invert {
                         // Meant for targets
@@ -63,9 +64,9 @@ pub fn update_animation(
     }
 }
 
-pub fn update_audio(mut query: Query<&mut PlayerState>, mut sounds: ResMut<Sounds>) {
-    for mut state in &mut query {
-        for clip in state.drain_matching_actions(|animation| {
+pub fn update_audio(mut query: Query<&ActionEvents>, mut sounds: ResMut<Sounds>) {
+    for events in &mut query {
+        for clip in events.get_matching_events(|animation| {
             if let ActionEvent::Sound(clip) = animation {
                 Some(*clip)
             } else {
@@ -77,9 +78,9 @@ pub fn update_audio(mut query: Query<&mut PlayerState>, mut sounds: ResMut<Sound
     }
 }
 
-pub fn update_vfx(mut query: Query<(&mut PlayerState, &Transform)>, mut effects: ResMut<Vfx>) {
-    for (mut state, tf) in &mut query {
-        for mut request in state.drain_matching_actions(|animation| {
+pub fn update_vfx(mut query: Query<(&ActionEvents, &Transform)>, mut effects: ResMut<Vfx>) {
+    for (events, tf) in &mut query {
+        for mut request in events.get_matching_events(|animation| {
             if let ActionEvent::VisualEffect(vfx) = animation {
                 Some(vfx.clone())
             } else {

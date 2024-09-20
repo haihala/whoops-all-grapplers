@@ -3,9 +3,8 @@ use std::vec;
 use bevy::{prelude::*, window::WindowMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-use characters::{ActionEvent, FlashRequest, Hitbox, Hurtbox, Inventory};
+use characters::{ActionEvent, ActionEvents, FlashRequest, Hitbox, Hurtbox, Inventory};
 use input_parsing::{InputParser, PadStream, ParrotStream};
-use player_state::PlayerState;
 use wag_core::{
     Characters, Clock, Controllers, Dev, Facing, GameState, Joints, LocalCharacter,
     LocalController, LocalState, OnlineState, Player, SoundEffect, Stats, SynctestState, WagArgs,
@@ -113,11 +112,11 @@ fn skip_menus(
     }
 }
 
-fn shader_test_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<&mut PlayerState>) {
+fn shader_test_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<&mut ActionEvents>) {
     if keys.just_pressed(KeyCode::Digit1) {
         println!("Playing shader flash");
         for mut player in &mut players {
-            player.add_actions(vec![ActionEvent::Flash(FlashRequest {
+            player.add_events(vec![ActionEvent::Flash(FlashRequest {
                 color: GI_PARRY_FLASH_COLOR,
                 speed: 0.0,
                 ..default()

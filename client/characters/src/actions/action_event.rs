@@ -9,6 +9,31 @@ use crate::{Attack, FlashRequest, Movement, ResourceType};
 
 use super::AnimationRequest;
 
+#[derive(Debug, Clone, PartialEq, Default, Component)]
+pub struct ActionEvents {
+    events: Vec<ActionEvent>,
+}
+impl ActionEvents {
+    pub fn get_matching_events<T>(&self, predicate: impl Fn(&ActionEvent) -> Option<T>) -> Vec<T> {
+        self.events
+            .iter()
+            .filter_map(|action| (predicate)(action))
+            .collect()
+    }
+
+    pub fn add_events(&mut self, actions: Vec<ActionEvent>) {
+        self.events.extend(
+            actions
+                .into_iter()
+                .filter(|ev| !matches!(ev, ActionEvent::Noop)),
+        );
+    }
+
+    pub fn clear(&mut self) {
+        self.events.clear();
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Default)]
 pub enum ActionEvent {
     AllowCancel(CancelWindow),

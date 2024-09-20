@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use characters::{ActionEvent, Character, Inventory, WAGResources};
+use characters::{ActionEvent, ActionEvents, Character, Inventory, WAGResources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{AvailableCancels, Clock, Facing, Stats};
@@ -9,6 +9,7 @@ pub(super) fn move_advancement(
     clock: Res<Clock>,
     mut query: Query<(
         &mut PlayerState,
+        &mut ActionEvents,
         &Transform,
         &Inventory,
         &Character,
@@ -18,9 +19,11 @@ pub(super) fn move_advancement(
         &Facing,
     )>,
 ) {
-    for (mut state, tf, inventory, character, resources, parser, stats, facing) in &mut query {
+    for (mut state, mut events, tf, inventory, character, resources, parser, stats, facing) in
+        &mut query
+    {
         if state.action_in_progress() {
-            state.proceed_move(
+            events.add_events(state.proceed_move(
                 inventory.to_owned(),
                 character.to_owned(),
                 resources.to_owned(),
@@ -29,15 +32,18 @@ pub(super) fn move_advancement(
                 clock.frame,
                 tf.translation,
                 *facing,
-            );
+            ));
         }
     }
 }
 
-pub fn end_moves(clock: Res<Clock>, mut query: Query<(&mut PlayerState, &mut AvailableCancels)>) {
-    for (mut state, mut windows) in &mut query {
-        let end_event_present = !state
-            .drain_matching_actions(|action| {
+pub fn end_moves(
+    clock: Res<Clock>,
+    mut query: Query<(&ActionEvents, &mut PlayerState, &mut AvailableCancels)>,
+) {
+    for (events, mut state, mut windows) in &mut query {
+        let end_event_present = !events
+            .get_matching_events(|action| {
                 if *action == ActionEvent::End {
                     Some(0)
                 } else {

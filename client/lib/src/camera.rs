@@ -1,6 +1,5 @@
 use bevy::{prelude::*, render::view::NoFrustumCulling};
-use characters::ActionEvent;
-use player_state::PlayerState;
+use characters::{ActionEvent, ActionEvents};
 use wag_core::{
     Facing, GameState, InMatch, LocalState, OnlineState, Player, RollbackSchedule, SynctestState,
     WAGStage, WagArgs, LOADING_SCREEN_BACKGROUND,
@@ -132,13 +131,13 @@ const TILT_DAMPENING: f32 = 0.9;
 const TILT_GRAVITY: f32 = 0.01;
 
 fn camera_tilt(
-    mut players: Query<(&mut PlayerState, &Facing)>,
+    mut players: Query<(&ActionEvents, &Facing)>,
     mut cams: Query<(&mut Transform, &mut RootCameraEffects), With<CameraWrapper>>,
 ) {
     let event_tilt = players
         .iter_mut()
-        .flat_map(|(mut ps, facing)| {
-            ps.drain_matching_actions(|a| {
+        .flat_map(|(events, facing)| {
+            events.get_matching_events(|a| {
                 if let ActionEvent::CameraTilt(amount) = a {
                     Some(facing.mirror_vec2(amount.to_owned()))
                 } else {
@@ -178,7 +177,7 @@ const SHAKE_DURATION: f32 = 0.1;
 const SHAKE_TWIST: f32 = 1000.0;
 
 fn child_camera_effects(
-    mut players: Query<&mut PlayerState>,
+    players: Query<&ActionEvents>,
     mut cams: Query<(&mut Transform, &mut ChildCameraEffects)>,
     time: Res<Time>,
 ) {
@@ -203,9 +202,9 @@ fn child_camera_effects(
     childcam_fx.pivot = Some(translation);
 
     if players
-        .iter_mut()
-        .flat_map(|mut ps| {
-            ps.drain_matching_actions(|a| {
+        .iter()
+        .flat_map(|events| {
+            events.get_matching_events(|a| {
                 if &ActionEvent::CameraShake == a {
                     Some(())
                 } else {

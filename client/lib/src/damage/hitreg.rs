@@ -2,8 +2,8 @@ use bevy::{ecs::query::QueryData, prelude::*};
 use strum::IntoEnumIterator;
 
 use characters::{
-    ActionEvent, Attack, AttackHeight, BlockType, Hitbox, Hurtbox, Movement, ResourceType,
-    WAGResources,
+    ActionEvent, ActionEvents, Attack, AttackHeight, BlockType, Hitbox, Hurtbox, Movement,
+    ResourceType, WAGResources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -53,6 +53,7 @@ pub struct HitPlayerQuery<'a> {
     velocity: &'a mut PlayerVelocity,
     facing: &'a Facing,
     spawner: &'a mut HitboxSpawner,
+    events: &'a mut ActionEvents,
     pushbox: &'a Pushbox,
     stats: &'a Stats,
     combo: Option<&'a mut Combo>,
@@ -383,8 +384,8 @@ pub(super) fn apply_connections(
 
         defender_actions =
             apply_damage_multiplier(defender_actions, attacker.stats.damage_multiplier);
-        attacker.state.add_actions(attacker_actions);
-        defender.state.add_actions(defender_actions);
+        attacker.events.add_events(attacker_actions);
+        defender.events.add_events(defender_actions);
         sounds.play(sound);
         particles.spawn(VfxRequest {
             effect: particle,
@@ -452,7 +453,7 @@ fn apply_damage_multiplier(actions: Vec<ActionEvent>, multiplier: f32) -> Vec<Ac
 
 pub(super) fn snap_and_switch(
     mut query: Query<(
-        &mut PlayerState,
+        &ActionEvents,
         &mut Transform,
         &mut Facing,
         &Pushbox,
@@ -461,11 +462,11 @@ pub(super) fn snap_and_switch(
     players: Res<Players>,
 ) {
     for player in Player::iter() {
-        let [(mut state, mut self_tf, mut self_facing, self_pushbox, mut self_velocity), (_, other_tf, mut other_facing, other_pushbox, other_velocity)] =
+        let [(events, mut self_tf, mut self_facing, self_pushbox, mut self_velocity), (_, other_tf, mut other_facing, other_pushbox, other_velocity)] =
             query
                 .get_many_mut([players.get(player), players.get(player.other())])
                 .unwrap();
-        let actions = state.drain_matching_actions(|action| {
+        let actions = events.get_matching_events(|action| {
             if matches!(
                 *action,
                 ActionEvent::SnapToOpponent | ActionEvent::SideSwitch
@@ -499,15 +500,20 @@ pub(super) fn snap_and_switch(
 }
 
 pub(super) fn stun_actions(
-    mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &Facing)>,
+    mut query: Query<(
+        &mut PlayerState,
+        &ActionEvents,
+        &mut PlayerVelocity,
+        &Facing,
+    )>,
     clock: Res<Clock>,
 ) {
-    for (mut state, mut velocity, facing) in &mut query {
+    for (mut state, events, mut velocity, facing) in &mut query {
         if state.active_cinematic().is_some() {
             continue;
         }
 
-        for action in state.drain_matching_actions(|action| {
+        for action in events.get_matching_events(|action| {
             if matches!(
                 *action,
                 ActionEvent::Launch { impulse: _ }

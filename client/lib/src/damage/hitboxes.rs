@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
-use characters::{ActionEvent, Attack, Hitbox, Lifetime};
-use player_state::PlayerState;
+use characters::{ActionEvent, ActionEvents, Attack, Hitbox, Lifetime};
 use wag_core::{Area, Clock, Facing, InCombat, Joints, Owner, Player};
 
 use crate::{
@@ -117,16 +116,16 @@ pub(super) fn spawn_new_hitboxes(
     tfs: Query<&GlobalTransform>,
     mut query: Query<(
         &mut HitboxSpawner,
-        &mut PlayerState,
+        &ActionEvents,
         &Joints,
         Entity,
         &Facing,
         &Player,
     )>,
 ) {
-    for (mut spawner, mut state, joints, parent, facing, player) in &mut query {
-        for attack in state
-            .drain_matching_actions(|action| {
+    for (mut spawner, events, joints, parent, facing, player) in &mut query {
+        for attack in events
+            .get_matching_events(|action| {
                 if let ActionEvent::Attack(attack) = action {
                     Some(attack.to_owned())
                 } else {

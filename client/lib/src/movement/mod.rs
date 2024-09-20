@@ -9,7 +9,7 @@ pub use player_velocity::PlayerVelocity;
 
 use bevy::prelude::*;
 
-use characters::ActionEvent;
+use characters::{ActionEvent, ActionEvents};
 use player_state::PlayerState;
 use wag_core::{Area, Clock, Facing, Player, Players, RollbackSchedule, Stats, WAGStage};
 
@@ -127,14 +127,20 @@ fn player_gravity(
 
 fn player_input(
     clock: Res<Clock>,
-    mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &Stats, &Facing)>,
+    mut query: Query<(
+        &PlayerState,
+        &ActionEvents,
+        &mut PlayerVelocity,
+        &Stats,
+        &Facing,
+    )>,
 ) {
-    for (mut state, mut velocity, status_effects, facing) in &mut query {
+    for (state, events, mut velocity, status_effects, facing) in &mut query {
         if state.active_cinematic().is_some() {
             continue;
         }
 
-        for _ in state.drain_matching_actions(|action| {
+        for _ in events.get_matching_events(|action| {
             if ActionEvent::ClearMovement == *action {
                 Some(())
             } else {
@@ -144,7 +150,7 @@ fn player_input(
             velocity.clear_movements();
         }
 
-        for movement in state.drain_matching_actions(|action| {
+        for movement in events.get_matching_events(|action| {
             if let ActionEvent::Movement(movement) = action {
                 Some(movement.to_owned())
             } else {

@@ -27,7 +27,6 @@ pub struct PlayerState {
     cinematic_state: Option<CinematicState>,
     pub free_since: Option<usize>,
     conditions: Vec<StatusCondition>,
-    unprocessed_events: Vec<ActionEvent>,
 }
 
 impl Default for PlayerState {
@@ -37,31 +36,12 @@ impl Default for PlayerState {
             cinematic_state: None,
             free_since: Some(0),
             conditions: vec![],
-            unprocessed_events: vec![],
         }
     }
 }
 impl PlayerState {
     pub fn reset(&mut self) {
         *self = PlayerState::default();
-    }
-
-    pub fn drain_matching_actions<T>(
-        &mut self,
-        predicate: impl Fn(&mut ActionEvent) -> Option<T>,
-    ) -> Vec<T> {
-        self.unprocessed_events
-            .extract_if(|action| (predicate)(action).is_some())
-            .map(|mut action| (predicate)(&mut action).unwrap())
-            .collect()
-    }
-
-    pub fn add_actions(&mut self, actions: Vec<ActionEvent>) {
-        self.unprocessed_events.extend(
-            actions
-                .into_iter()
-                .filter(|ev| !matches!(ev, ActionEvent::Noop)),
-        );
     }
 
     pub fn get_generic_animation(&self, facing: Facing) -> Option<AnimationType> {
@@ -101,7 +81,7 @@ impl PlayerState {
         stats: Stats,
         player_position: Vec3,
         player_facing: Facing,
-    ) {
+    ) -> Vec<ActionEvent> {
         let events = (action.script)(&self.build_situation(
             inventory,
             resources,
@@ -112,7 +92,6 @@ impl PlayerState {
             player_facing,
         ));
 
-        self.add_actions(events);
         let tracker = ActionTracker::new(start_frame, action_id);
 
         self.main = match &self.main {
@@ -123,6 +102,7 @@ impl PlayerState {
             other => panic!("Starting a move while {:?}", other),
         };
         self.free_since = None;
+        events
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -136,7 +116,7 @@ impl PlayerState {
         frame: usize,
         player_position: Vec3,
         player_facing: Facing,
-    ) {
+    ) -> Vec<ActionEvent> {
         let situation = self.build_situation(
             inventory,
             resources,
@@ -148,7 +128,7 @@ impl PlayerState {
         );
 
         let action_id = self.get_action_tracker_mut().unwrap().action_id;
-        self.add_actions((character.get_move(action_id).unwrap().script)(&situation));
+        (character.get_move(action_id).unwrap().script)(&situation)
     }
 
     #[allow(clippy::too_many_arguments)]

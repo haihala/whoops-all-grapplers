@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 
-use characters::ActionEvent;
+use characters::{ActionEvent, ActionEvents};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{Facing, StickPosition};
 
-pub fn movement_input(mut query: Query<(&InputParser, &mut PlayerState, &Facing)>) {
-    for (reader, mut state, facing) in &mut query {
+pub fn movement_input(mut query: Query<(&InputParser, &mut PlayerState, &ActionEvents, &Facing)>) {
+    for (reader, mut state, events, facing) in &mut query {
         if state.active_cinematic().is_some() {
             continue;
         }
@@ -27,7 +27,7 @@ pub fn movement_input(mut query: Query<(&InputParser, &mut PlayerState, &Facing)
             }
         }
 
-        for _ in state.drain_matching_actions(|action| {
+        for _ in events.get_matching_events(|action| {
             if *action == ActionEvent::ForceStand {
                 Some(action.to_owned())
             } else {

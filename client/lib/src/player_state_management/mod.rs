@@ -7,7 +7,7 @@ mod recovery;
 mod side_switcher;
 mod size_adjustment;
 
-use characters::{dummy, mizku, Inventory, WAGResources};
+use characters::{dummy, mizku, ActionEvents, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
@@ -52,6 +52,11 @@ impl Plugin for PlayerStateManagementPlugin {
                     move_activation::automatic_activation,
                     move_activation::plain_start,
                     move_activation::cancel_start,
+                    |mut q: Query<&mut ActionEvents>| {
+                        for mut events in &mut q {
+                            events.clear();
+                        }
+                    },
                     move_activation::move_activator,
                     move_advancement::move_advancement,
                     move_advancement::end_moves,
@@ -106,6 +111,8 @@ struct PlayerDefaults {
     joints: Joints,
     status_effects: Stats,
     available_cancels: AvailableCancels,
+    unprocessed_events: ActionEvents,
+    state: PlayerState,
 }
 
 fn spawn_player(
@@ -136,7 +143,6 @@ fn spawn_player(
             Facing::from_flipped(offset.is_sign_positive()),
             Pushbox(character.standing_pushbox),
             character.clone(),
-            PlayerState::default(),
             player,
             StateScoped(InMatch),
         ))

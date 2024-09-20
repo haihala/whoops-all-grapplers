@@ -1,6 +1,5 @@
 use bevy::prelude::*;
-use characters::ActionEvent;
-use player_state::PlayerState;
+use characters::{ActionEvent, ActionEvents};
 
 use crate::assets::{ExtendedFlashMaterial, FlashMaterial};
 
@@ -8,11 +7,11 @@ pub fn handle_flash_events(
     mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
     handles: Query<(Entity, &Handle<ExtendedFlashMaterial>)>,
     parents: Query<&Parent>,
-    mut players: Query<(Entity, &mut PlayerState)>,
+    players: Query<(Entity, &ActionEvents)>,
     time: Res<Time>,
 ) {
-    for (root, mut state) in &mut players {
-        for flash_request in state.drain_matching_actions(|action| {
+    for (root, events) in &players {
+        for flash_request in events.get_matching_events(|action| {
             if let ActionEvent::Flash(flash_request) = action {
                 Some(flash_request.to_owned())
             } else {

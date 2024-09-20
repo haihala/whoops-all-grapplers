@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
 use characters::{
-    Action, ActionEvent, ActionRequirement, Character, Inventory, Situation, WAGResources,
+    Action, ActionEvent, ActionEvents, ActionRequirement, Character, Inventory, Situation,
+    WAGResources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -84,10 +85,10 @@ pub(super) fn manage_buffer(
 
 pub fn manage_cancel_windows(
     clock: Res<Clock>,
-    mut query: Query<(&mut AvailableCancels, &mut PlayerState)>,
+    mut query: Query<(&mut AvailableCancels, &ActionEvents)>,
 ) {
-    for (mut cancels, mut state) in &mut query {
-        let new_cancels = state.drain_matching_actions(|action| {
+    for (mut cancels, events) in &mut query {
+        let new_cancels = events.get_matching_events(|action| {
             if let ActionEvent::AllowCancel(cancel_window) = action {
                 Some(cancel_window.to_owned())
             } else {
@@ -103,15 +104,14 @@ pub(super) fn automatic_activation(
     mut notifications: ResMut<Notifications>,
     mut query: Query<(
         &mut MoveBuffer,
-        &mut PlayerState,
+        &ActionEvents,
         &mut PlayerVelocity,
         &Player,
         &Facing,
     )>,
 ) {
-    // Read from state, set activating move if an Action demands it
-    for (mut buffer, mut state, mut velocity, player, facing) in &mut query {
-        let move_continuations = state.drain_matching_actions(|action| {
+    for (mut buffer, events, mut velocity, player, facing) in &mut query {
+        let move_continuations = events.get_matching_events(|action| {
             if let ActionEvent::StartAction(move_id) = action {
                 Some(*move_id)
             } else {
@@ -267,6 +267,7 @@ pub(super) fn move_activator(
     mut query: Query<(
         &mut MoveBuffer,
         &mut PlayerState,
+        &mut ActionEvents,
         &Transform,
         &WAGResources,
         &Character,
@@ -277,8 +278,18 @@ pub(super) fn move_activator(
     )>,
 ) {
     // Activate and clear activating move
-    for (mut buffer, mut state, tf, properties, character, stats, inventory, parser, facing) in
-        &mut query
+    for (
+        mut buffer,
+        mut state,
+        mut events,
+        tf,
+        properties,
+        character,
+        stats,
+        inventory,
+        parser,
+        facing,
+    ) in &mut query
     {
         let Some(activation) = buffer.activation.take() else {
             continue;
@@ -288,7 +299,7 @@ pub(super) fn move_activator(
             continue;
         }
 
-        state.start_move(
+        events.add_events(state.start_move(
             activation.id,
             character.get_move(activation.id).unwrap(),
             clock.frame,
@@ -298,7 +309,7 @@ pub(super) fn move_activator(
             stats.to_owned(),
             tf.translation,
             *facing,
-        );
+        ));
 
         buffer.clear_all()
     }

@@ -1,19 +1,18 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use characters::ActionEvent;
-use player_state::PlayerState;
+use characters::{ActionEvent, ActionEvents};
 use wag_core::Hitstop;
 
 const HITSTOP_DURATION: Duration = Duration::from_millis(100);
 
 pub fn handle_hitstop_events(
     mut commands: Commands,
-    mut players: Query<&mut PlayerState>,
+    players: Query<&ActionEvents>,
     real_time: Res<Time<Real>>,
 ) {
-    for mut state in &mut players {
-        for _ in state.drain_matching_actions(|action| {
+    for events in &players {
+        for _ in events.get_matching_events(|action| {
             if matches!(*action, ActionEvent::Hitstop) {
                 Some(action.to_owned())
             } else {

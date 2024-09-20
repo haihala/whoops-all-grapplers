@@ -12,7 +12,7 @@ pub use round_timer::update_timer;
 use characters::{RenderInstructions, ResourceBarVisual, ResourceType, WAGResources};
 use wag_core::{
     GameState, InMatch, LocalState, MatchState, OnlineState, Player, Players, RoundLog,
-    GENERIC_TEXT_COLOR,
+    SynctestState, GENERIC_TEXT_COLOR,
 };
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
@@ -45,6 +45,8 @@ pub fn setup_combat_hud(
                 GameState::Local(LocalState::Match(MatchState::PostRound)),
                 GameState::Online(OnlineState::Match(MatchState::Combat)),
                 GameState::Online(OnlineState::Match(MatchState::PostRound)),
+                GameState::Synctest(SynctestState::Match(MatchState::Combat)),
+                GameState::Synctest(SynctestState::Match(MatchState::PostRound)),
             ]),
             StateScoped(InMatch),
             Name::new("Combat UI container"),

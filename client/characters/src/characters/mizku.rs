@@ -186,6 +186,11 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 },
                             )
                             .into(),
+                            ActionEvent::AllowCancel(CancelWindow {
+                                require_hit: true,
+                                cancel_type: CancelType::Special,
+                                duration: 20,
+                            }),
                             Movement {
                                 amount: Vec2::X * 3.0,
                                 duration: 10,

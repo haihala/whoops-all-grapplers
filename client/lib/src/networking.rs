@@ -258,6 +258,7 @@ fn read_local_inputs(
         }
 
         // Keyboard -> Player 1
+        // TODO: This is probably broken online, it's useful for synctesting
         if local_controller.0 == 69 && *handle == 0 {
             for (shift, wag_button) in WagInputButton::iter().enumerate() {
                 if keyboard_keys.pressed(wag_button.to_keycode()) {

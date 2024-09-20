@@ -139,15 +139,37 @@ pub fn end_combat(
     };
 
     round_log.add(result);
+
+    let game_over = round_log.wins(**winner) >= ROUNDS_TO_WIN;
+
+    if game_over {
+        commands.insert_resource(GameResult { winner: **winner });
+    }
+
     let (next, after) = match **game_state {
         GameState::Local(_) => (
             GameState::Local(LocalState::Match(MatchState::PostRound)),
-            if round_log.wins(**winner) >= ROUNDS_TO_WIN {
-                commands.insert_resource(GameResult { winner: **winner });
-                GameState::Local(LocalState::EndScreen)
+            GameState::Local(if game_over {
+                LocalState::EndScreen
             } else {
-                GameState::Local(LocalState::Match(MatchState::Shop))
-            },
+                LocalState::Match(MatchState::Shop)
+            }),
+        ),
+        GameState::Online(_) => (
+            GameState::Online(OnlineState::Match(MatchState::PostRound)),
+            GameState::Online(if game_over {
+                OnlineState::EndScreen
+            } else {
+                OnlineState::Match(MatchState::Shop)
+            }),
+        ),
+        GameState::Synctest(_) => (
+            GameState::Synctest(SynctestState::Match(MatchState::PostRound)),
+            GameState::Synctest(if game_over {
+                SynctestState::EndScreen
+            } else {
+                SynctestState::Match(MatchState::Shop)
+            }),
         ),
         _ => panic!("Out of match transitions!"),
     };

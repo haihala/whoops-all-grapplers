@@ -15,10 +15,7 @@ pub struct ActionEvents {
 }
 impl ActionEvents {
     pub fn get_matching_events<T>(&self, predicate: impl Fn(&ActionEvent) -> Option<T>) -> Vec<T> {
-        self.events
-            .iter()
-            .filter_map(|action| (predicate)(action))
-            .collect()
+        self.events.iter().filter_map(predicate).collect()
     }
 
     pub fn add_events(&mut self, actions: Vec<ActionEvent>) {

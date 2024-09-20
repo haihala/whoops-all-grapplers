@@ -351,43 +351,29 @@ fn generate_online_input_streams(
 }
 
 fn handle_ggrs_events(mut sesh: ResMut<Session<Config>>) {
-    match sesh.as_mut() {
-        Session::P2P(s) => {
-            for event in s.events() {
-                match event {
-                    ggrs::GgrsEvent::Synchronizing { addr, total, count } => {
-                        dbg!("sync", addr, total, count);
-                    }
-                    ggrs::GgrsEvent::Synchronized { addr } => {
-                        dbg!("synched", addr);
-                    }
-                    ggrs::GgrsEvent::Disconnected { addr } => {
-                        dbg!("Disconnected", addr);
-                    }
-                    ggrs::GgrsEvent::NetworkInterrupted {
-                        addr,
-                        disconnect_timeout,
-                    } => {
-                        dbg!("Network interrupt", addr, disconnect_timeout);
-                    }
-                    ggrs::GgrsEvent::NetworkResumed { addr } => {
-                        dbg!("net resume", addr);
-                    }
-                    ggrs::GgrsEvent::WaitRecommendation { skip_frames } => {
-                        dbg!("Wait recommendation", skip_frames);
-                    }
-                    ggrs::GgrsEvent::DesyncDetected {
-                        frame,
-                        local_checksum,
-                        remote_checksum,
-                        addr,
-                    } => {
-                        dbg!("Desync", frame, local_checksum, remote_checksum, addr);
-                    }
-                }
+    let Session::P2P(s) = sesh.as_mut() else {
+        return;
+    };
+
+    for event in s.events() {
+        match event {
+            ggrs::GgrsEvent::Disconnected { addr: _ }
+            | ggrs::GgrsEvent::NetworkInterrupted {
+                addr: _,
+                disconnect_timeout: _,
             }
+            | ggrs::GgrsEvent::NetworkResumed { addr: _ }
+            | ggrs::GgrsEvent::WaitRecommendation { skip_frames: _ }
+            | ggrs::GgrsEvent::DesyncDetected {
+                frame: _,
+                local_checksum: _,
+                remote_checksum: _,
+                addr: _,
+            } => {
+                dbg!(event);
+            }
+            _ => {}
         }
-        _ => {}
     }
 }
 

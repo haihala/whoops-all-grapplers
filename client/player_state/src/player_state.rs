@@ -8,7 +8,7 @@ use wag_core::{ActionId, AnimationType, Area, Facing, Stats, StatusCondition, St
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 
-#[derive(Reflect, Debug, Component, Clone)]
+#[derive(Reflect, Debug, Component, Clone, Hash)]
 enum MainState {
     Air(AirState),
     Stand(StandState),
@@ -16,12 +16,12 @@ enum MainState {
     Ground(usize),
 }
 
-#[derive(Reflect, Debug, Clone)]
+#[derive(Reflect, Debug, Clone, Hash)]
 pub struct CinematicState {
     return_frame: usize,
 }
 
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Debug, Clone, Hash)]
 pub struct PlayerState {
     main: MainState,
     cinematic_state: Option<CinematicState>,

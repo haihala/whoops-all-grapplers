@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use wag_core::ActionId;
 
-#[derive(Debug, Clone, Default, Reflect, Copy)]
+#[derive(Debug, Clone, Default, Reflect, Copy, Hash)]
 pub struct ActionTracker {
     pub has_hit: bool,
     pub start_frame: usize,

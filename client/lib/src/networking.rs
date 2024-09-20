@@ -83,7 +83,8 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_copy::<Facing>()
             .rollback_component_with_copy::<Transform>()
             .rollback_component_with_copy::<GlobalTransform>()
-            .checksum_component::<Transform>(tf_hasher);
+            .checksum_component::<Transform>(tf_hasher)
+            .checksum_component::<PlayerState>(player_state_hasher);
     }
 }
 
@@ -358,5 +359,11 @@ fn tf_hasher(transform: &Transform) -> u64 {
     transform.scale.y.to_bits().hash(&mut hasher);
     transform.scale.z.to_bits().hash(&mut hasher);
 
+    hasher.finish()
+}
+
+fn player_state_hasher(state: &PlayerState) -> u64 {
+    let mut hasher = checksum_hasher();
+    state.hash(&mut hasher);
     hasher.finish()
 }

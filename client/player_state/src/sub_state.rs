@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use characters::ActionTracker;
 use wag_core::Facing;
 
-#[derive(Reflect, Clone, Debug)]
+#[derive(Reflect, Clone, Debug, Hash)]
 pub enum Stun {
     Block(usize),
     Hit(usize),
@@ -22,7 +22,7 @@ impl Stun {
     }
 }
 
-#[derive(Reflect, Clone, Debug, Default)]
+#[derive(Reflect, Clone, Debug, Default, Hash)]
 pub enum AirState {
     Freefall,
     Move(ActionTracker),
@@ -30,7 +30,7 @@ pub enum AirState {
     Idle,
 }
 
-#[derive(Reflect, Clone, Debug, Default)]
+#[derive(Reflect, Clone, Debug, Default, Hash)]
 pub enum StandState {
     Stun(Stun),
     Move(ActionTracker),
@@ -39,7 +39,7 @@ pub enum StandState {
     Idle,
 }
 
-#[derive(Reflect, Clone, Debug, Default)]
+#[derive(Reflect, Clone, Debug, Default, Hash)]
 pub enum CrouchState {
     Stun(Stun),
     Move(ActionTracker),

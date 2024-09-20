@@ -35,6 +35,35 @@ pub struct Stats {
     pub retain_sharpness: bool,
 }
 
+impl std::hash::Hash for Stats {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.max_health.hash(state);
+        self.starting_meter.hash(state);
+
+        self.damage_multiplier.to_bits().hash(state);
+        self.chip_damage.hash(state);
+        self.backdash_invuln.hash(state);
+
+        self.walk_speed.to_bits().hash(state);
+        self.gravity.to_bits().hash(state);
+        self.gravity_scaling.to_bits().hash(state);
+        self.jump_force_multiplier.to_bits().hash(state);
+
+        self.opener_damage_multiplier.to_bits().hash(state);
+        self.opener_meter_gain.hash(state);
+        self.opener_stun_frames.hash(state);
+
+        self.action_speed_multiplier.to_bits().hash(state);
+        self.meter_per_second.to_bits().hash(state);
+
+        self.direct_influence.to_bits().hash(state);
+
+        self.extra_kunais.hash(state);
+        self.auto_sharpen.hash(state);
+        self.retain_sharpness.hash(state);
+    }
+}
+
 impl Default for Stats {
     fn default() -> Self {
         Self {
@@ -117,7 +146,7 @@ pub enum StatusFlag {
     DoubleJumped,
 }
 
-#[derive(Reflect, Debug, Clone, Copy, Default, PartialEq)]
+#[derive(Reflect, Debug, Clone, Copy, Default, PartialEq, Hash)]
 pub struct StatusCondition {
     pub flag: StatusFlag,
     pub effect: Option<Stats>,

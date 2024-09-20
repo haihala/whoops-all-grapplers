@@ -47,7 +47,7 @@ pub struct OpenCancelWindow {
     pub cancel_type: CancelType,
 }
 
-#[derive(Debug, Default, Component)]
+#[derive(Debug, Default, Component, Clone)]
 pub struct AvailableCancels(pub Vec<OpenCancelWindow>);
 impl AvailableCancels {
     pub fn can_cancel_to(&self, category: ActionCategory, id: ActionId, has_hit: bool) -> bool {

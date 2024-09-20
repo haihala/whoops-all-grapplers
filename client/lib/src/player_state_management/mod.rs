@@ -52,14 +52,14 @@ impl Plugin for PlayerStateManagementPlugin {
                     move_activation::automatic_activation,
                     move_activation::plain_start,
                     move_activation::cancel_start,
+                    move_activation::move_activator,
+                    move_advancement::move_advancement,
+                    move_advancement::end_moves,
                     |mut q: Query<&mut ActionEvents>| {
                         for mut events in &mut q {
                             events.clear();
                         }
                     },
-                    move_activation::move_activator,
-                    move_advancement::move_advancement,
-                    move_advancement::end_moves,
                 )
                     .chain()
                     .in_set(WAGStage::MovePipeline),

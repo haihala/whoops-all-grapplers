@@ -94,8 +94,8 @@ impl HitboxSpawner {
             });
         }
 
-        if let Some(frames) = attack.to_hit.lifetime.frames {
-            builder.insert(DespawnMarker(frames + frame));
+        if let Some(lifetime) = attack.to_hit.lifetime.frames {
+            builder.insert(DespawnMarker(lifetime + frame));
         }
         builder.insert(LifetimeFlags::from(attack.to_hit.lifetime));
     }

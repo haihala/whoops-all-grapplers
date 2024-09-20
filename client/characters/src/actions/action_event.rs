@@ -11,23 +11,31 @@ use super::AnimationRequest;
 
 #[derive(Debug, Clone, PartialEq, Default, Component)]
 pub struct ActionEvents {
-    events: Vec<ActionEvent>,
+    new_events: Vec<ActionEvent>,
+    old_events: Vec<ActionEvent>,
 }
 impl ActionEvents {
     pub fn get_matching_events<T>(&self, predicate: impl Fn(&ActionEvent) -> Option<T>) -> Vec<T> {
-        self.events.iter().filter_map(predicate).collect()
+        self.events().filter_map(predicate).collect()
     }
 
     pub fn add_events(&mut self, actions: Vec<ActionEvent>) {
-        self.events.extend(
+        self.new_events.extend(
             actions
                 .into_iter()
                 .filter(|ev| !matches!(ev, ActionEvent::Noop)),
         );
     }
 
+    fn events(&self) -> impl Iterator<Item = &ActionEvent> {
+        self.new_events.iter().chain(self.old_events.iter())
+    }
+
     pub fn clear(&mut self) {
-        self.events.clear();
+        // This way, hopefully, all events will get one lap around the sun.
+        // Assuming all readers also only happen once per tick either before or after this one
+        self.old_events = self.new_events.clone();
+        self.new_events.clear();
     }
 }
 

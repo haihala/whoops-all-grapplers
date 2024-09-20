@@ -13,8 +13,9 @@ use input_parsing::{InputParser, PadStream, ParrotStream};
 use player_state::PlayerState;
 use strum::IntoEnumIterator;
 use wag_core::{
-    Characters, Clock, Controllers, Facing, GameState, LocalCharacter, LocalController,
-    OnlineState, RollbackSchedule, SynctestState, WagArgs, WagInputButton, WagInputEvent,
+    AvailableCancels, Characters, Clock, Controllers, Facing, GameState, Hitstop, LocalCharacter,
+    LocalController, OnlineState, RollbackSchedule, SynctestState, WagArgs, WagInputButton,
+    WagInputEvent,
 };
 
 use crate::{
@@ -52,7 +53,11 @@ impl Plugin for NetworkPlugin {
             })
             .add_systems(
                 GgrsSchedule,
-                (generate_online_input_streams, run_rollback_schedule)
+                (
+                    generate_online_input_streams,
+                    run_rollback_schedule,
+                    handle_ggrs_events,
+                )
                     .chain()
                     .run_if(|session: Option<Res<bevy_ggrs::Session<Config>>>| session.is_some()),
             )
@@ -65,10 +70,12 @@ impl Plugin for NetworkPlugin {
             .add_plugins(GgrsPlugin::<Config>::default())
             .init_resource::<InputGenCache>()
             // Probably an incomplete list of things to roll back
+            // Resources
             .rollback_resource_with_copy::<Clock>()
-            .rollback_resource_with_copy::<Time>()
+            .rollback_resource_with_copy::<Hitstop>()
             .rollback_resource_with_copy::<Walls>()
             .rollback_resource_with_clone::<InputGenCache>()
+            // Player components
             .rollback_component_with_clone::<PlayerState>()
             .rollback_component_with_clone::<PadStream>()
             .rollback_component_with_clone::<ParrotStream>()
@@ -77,11 +84,13 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_clone::<PlayerVelocity>()
             .rollback_component_with_clone::<MoveBuffer>()
             .rollback_component_with_clone::<ActionEvents>()
+            .rollback_component_with_clone::<AvailableCancels>()
             .rollback_component_with_clone::<ChildCameraEffects>()
             .rollback_component_with_copy::<Pushbox>()
             .rollback_component_with_copy::<HitboxSpawner>()
             .rollback_component_with_copy::<Defense>()
             .rollback_component_with_copy::<Facing>()
+            // Bevy inbuilts
             .rollback_component_with_copy::<Transform>()
             .rollback_component_with_copy::<GlobalTransform>()
             .checksum_component::<Transform>(tf_hasher)
@@ -178,6 +187,7 @@ fn wait_for_players(
         ConnectionState::StartSession => {
             let mut session_builder = ggrs::SessionBuilder::<Config>::new()
                 .with_num_players(2)
+                .with_desync_detection_mode(ggrs::DesyncDetection::On { interval: 1 })
                 .with_input_delay(args.input_delay);
 
             for (i, player) in socket.players().into_iter().enumerate() {
@@ -337,6 +347,47 @@ fn generate_online_input_streams(
         }
 
         input_states.insert(player_handle, *index);
+    }
+}
+
+fn handle_ggrs_events(mut sesh: ResMut<Session<Config>>) {
+    match sesh.as_mut() {
+        Session::P2P(s) => {
+            for event in s.events() {
+                match event {
+                    ggrs::GgrsEvent::Synchronizing { addr, total, count } => {
+                        dbg!("sync", addr, total, count);
+                    }
+                    ggrs::GgrsEvent::Synchronized { addr } => {
+                        dbg!("synched", addr);
+                    }
+                    ggrs::GgrsEvent::Disconnected { addr } => {
+                        dbg!("Disconnected", addr);
+                    }
+                    ggrs::GgrsEvent::NetworkInterrupted {
+                        addr,
+                        disconnect_timeout,
+                    } => {
+                        dbg!("Network interrupt", addr, disconnect_timeout);
+                    }
+                    ggrs::GgrsEvent::NetworkResumed { addr } => {
+                        dbg!("net resume", addr);
+                    }
+                    ggrs::GgrsEvent::WaitRecommendation { skip_frames } => {
+                        dbg!("Wait recommendation", skip_frames);
+                    }
+                    ggrs::GgrsEvent::DesyncDetected {
+                        frame,
+                        local_checksum,
+                        remote_checksum,
+                        addr,
+                    } => {
+                        dbg!("Desync", frame, local_checksum, remote_checksum, addr);
+                    }
+                }
+            }
+        }
+        _ => {}
     }
 }
 

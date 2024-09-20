@@ -53,7 +53,7 @@ impl Clock {
     }
 }
 
-#[derive(Debug, Resource, Deref)]
+#[derive(Debug, Resource, Deref, Clone, Copy)]
 pub struct Hitstop(pub Instant);
 
 // This needs to be defined here because it gets used here

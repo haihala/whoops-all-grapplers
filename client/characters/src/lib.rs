@@ -1,5 +1,4 @@
 #![feature(trivial_bounds)]
-#![feature(extract_if)]
 
 mod action_tracker;
 mod actions;

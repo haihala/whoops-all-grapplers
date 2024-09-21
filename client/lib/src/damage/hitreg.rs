@@ -301,7 +301,7 @@ pub(super) fn apply_connections(
                 (
                     hit.attack.self_on_hit,
                     hit.attack.target_on_hit,
-                    SoundEffect::Hit,
+                    SoundEffect::PastaPat,
                     if hit.contact_type == ConnectionType::Strike {
                         VisualEffect::Hit
                     } else {

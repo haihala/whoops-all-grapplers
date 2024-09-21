@@ -17,6 +17,7 @@ pub enum SoundEffect {
     CheekSlap,
     FemaleExhale,
     BottleBonk,
+    PastaPat,
 }
 
 impl SoundEffect {
@@ -38,6 +39,7 @@ impl SoundEffect {
             SoundEffect::CheekSlap => Self::clips("cheek-slap", 20),
             SoundEffect::FemaleExhale => Self::clips("female-exhale", 16),
             SoundEffect::BottleBonk => Self::clips("bottle-bonk", 12),
+            SoundEffect::PastaPat => Self::clips("pasta-pat", 11),
         }
     }
 

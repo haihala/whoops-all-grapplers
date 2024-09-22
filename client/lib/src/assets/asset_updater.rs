@@ -1,53 +1,48 @@
-use bevy::prelude::*;
-use characters::{ActionEvent, ActionEvents, AnimationRequest, Character};
+use bevy::{audio::Volume, prelude::*};
+use characters::{AnimationRequest, Character};
 use player_state::PlayerState;
+use rand::Rng;
 use wag_core::{Facing, Players};
+
+use crate::event_spreading::{PlaySound, SpawnVfx, StartAnimation};
 
 use super::{AnimationHelper, Sounds, Vfx};
 
-#[allow(clippy::type_complexity)]
-pub fn update_animation(
-    mut query: Query<
-        (
-            &Character,
-            &PlayerState,
-            &ActionEvents,
-            &Facing,
-            &mut AnimationHelper,
-            Entity,
-        ),
-        Or<(Changed<PlayerState>, Changed<Facing>)>,
-    >,
+pub fn start_animation(
+    trigger: Trigger<StartAnimation>,
+    mut query: Query<&mut AnimationHelper>,
     tfs: Query<&Transform>,
     players: Res<Players>,
 ) {
-    // TODO: This is somewhat faulty as a concept, fix at some point.
-    for (character, state, events, facing, mut helper, entity) in &mut query {
+    let mut helper = query.get_mut(trigger.entity()).unwrap();
+    let animation_request = trigger.event().0;
+
+    helper.play(if animation_request.invert {
+        // Meant for targets
         let [active, opponent] = tfs
-            .get_many([entity, players.get_other_entity(entity)])
+            .get_many([trigger.entity(), players.get_other_entity(trigger.entity())])
             .unwrap();
         let position_offset = (opponent.translation - active.translation).truncate();
-        if let Some(req) = events
-            .get_matching_events(|action| match action {
-                ActionEvent::Animation(animation_request) => {
-                    Some(if animation_request.invert {
-                        // Meant for targets
-                        AnimationRequest {
-                            animation: animation_request.animation,
-                            position_offset,
-                            invert: true,
-                            ..default()
-                        }
-                    } else {
-                        animation_request.to_owned()
-                    })
-                }
-                _ => None,
-            })
-            .last()
-        {
-            helper.play(req.to_owned());
-        } else if let Some(generic) = state.get_generic_animation(*facing) {
+        AnimationRequest {
+            animation: animation_request.animation,
+            position_offset,
+            invert: true,
+            ..default()
+        }
+    } else {
+        animation_request.to_owned()
+    });
+}
+
+#[allow(clippy::type_complexity)]
+pub fn update_generic_animation(
+    mut query: Query<
+        (&Character, &PlayerState, &Facing, &mut AnimationHelper),
+        Or<(Changed<PlayerState>, Changed<Facing>)>,
+    >,
+) {
+    for (character, state, facing, mut helper) in &mut query {
+        if let Some(generic) = state.get_generic_animation(*facing) {
             let animation = character
                 .generic_animations
                 .get(&generic)
@@ -64,31 +59,34 @@ pub fn update_animation(
     }
 }
 
-pub fn update_audio(mut query: Query<&ActionEvents>, mut sounds: ResMut<Sounds>) {
-    for events in &mut query {
-        for clip in events.get_matching_events(|animation| {
-            if let ActionEvent::Sound(clip) = animation {
-                Some(*clip)
-            } else {
-                None
-            }
-        }) {
-            sounds.play(clip);
+pub fn play_audio(trigger: Trigger<PlaySound>, mut commands: Commands, sounds: Res<Sounds>) {
+    let effect = trigger.event().0;
+
+    let clips = sounds.handles.get(&effect).unwrap();
+
+    let source = clips[rand::thread_rng().gen_range(0..clips.len())].clone();
+    commands.spawn(AudioBundle {
+        source,
+        settings: PlaybackSettings {
+            // Shift speed (pitch) by up to about 10% either way
+            speed: rand::thread_rng().gen_range(0.9..1.1),
+            volume: Volume::new(effect.volume()),
+            ..default()
+        },
+    });
+}
+
+pub fn clear_empty_audio_players(mut commands: Commands, spawned: Query<(Entity, &AudioSink)>) {
+    for (entity, sink) in &spawned {
+        if sink.empty() {
+            commands.entity(entity).despawn_recursive();
         }
     }
 }
 
-pub fn update_vfx(mut query: Query<(&ActionEvents, &Transform)>, mut effects: ResMut<Vfx>) {
-    for (events, tf) in &mut query {
-        for mut request in events.get_matching_events(|animation| {
-            if let ActionEvent::VisualEffect(vfx) = animation {
-                Some(vfx.clone())
-            } else {
-                None
-            }
-        }) {
-            request.position += tf.translation;
-            effects.spawn(request);
-        }
-    }
+pub fn start_vfx(trigger: Trigger<SpawnVfx>, query: Query<&Transform>, mut effects: ResMut<Vfx>) {
+    let tf = query.get(trigger.entity()).unwrap();
+    let mut request = trigger.event().0;
+    request.position += tf.translation;
+    effects.spawn(request);
 }

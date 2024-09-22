@@ -1,18 +1,17 @@
-use std::vec;
-
 use bevy::{prelude::*, window::WindowMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-use characters::{ActionEvent, ActionEvents, FlashRequest, Hitbox, Hurtbox, Inventory};
+use characters::{ActionEvent, FlashRequest, Hitbox, Hurtbox, Inventory};
 use input_parsing::{InputParser, PadStream, ParrotStream};
+use strum::IntoEnumIterator;
 use wag_core::{
     Characters, Clock, Controllers, Dev, Facing, GameState, Joints, LocalCharacter,
-    LocalController, LocalState, OnlineState, Player, SoundEffect, Stats, SynctestState, WagArgs,
-    GI_PARRY_FLASH_COLOR,
+    LocalController, LocalState, OnlineState, Player, Players, SoundEffect, Stats, SynctestState,
+    WagArgs, GI_PARRY_FLASH_COLOR,
 };
 
 use crate::{
-    assets::Sounds,
+    event_spreading::PlaySound,
     movement::{ConstantVelocity, PlayerVelocity, Pushbox},
     player_state_management::MoveBuffer,
 };
@@ -112,23 +111,30 @@ fn skip_menus(
     }
 }
 
-fn shader_test_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<&mut ActionEvents>) {
+fn shader_test_system(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut commands: Commands,
+    players: Res<Players>,
+) {
     if keys.just_pressed(KeyCode::Digit1) {
         println!("Playing shader flash");
-        for mut player in &mut players {
-            player.add_events(vec![ActionEvent::Flash(FlashRequest {
-                color: GI_PARRY_FLASH_COLOR,
-                speed: 0.0,
-                ..default()
-            })])
+        for player in Player::iter() {
+            commands.trigger_targets(
+                ActionEvent::Flash(FlashRequest {
+                    color: GI_PARRY_FLASH_COLOR,
+                    speed: 0.0,
+                    ..default()
+                }),
+                players.get(player),
+            );
         }
     }
 }
 
-fn audio_test_system(keys: Res<ButtonInput<KeyCode>>, mut sounds: ResMut<Sounds>) {
+fn audio_test_system(mut commands: Commands, keys: Res<ButtonInput<KeyCode>>) {
     if keys.just_pressed(KeyCode::Digit2) {
         println!("Playing whoosh audio");
-        sounds.play(SoundEffect::Whoosh);
+        commands.trigger(PlaySound(SoundEffect::Whoosh));
     }
 }
 

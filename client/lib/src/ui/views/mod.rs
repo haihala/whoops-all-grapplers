@@ -5,7 +5,7 @@ use wag_core::{
     GameState, InCharacterSelect, InEndScreen, InMenu, LocalState, SoundEffect, WagInputEvent,
 };
 
-use crate::assets::{Fonts, Sounds};
+use crate::{assets::Fonts, event_spreading::PlaySound};
 
 mod character_select;
 mod controller_assignment;
@@ -88,8 +88,8 @@ fn update_menu_inputs(mut mi: ResMut<MenuInputs>, mut events: EventReader<WagInp
     }
 }
 
-fn play_transition_noise(mut sounds: ResMut<Sounds>) {
-    sounds.play(SoundEffect::PlasticCupFlick);
+fn play_transition_noise(mut commands: Commands) {
+    commands.trigger(PlaySound(SoundEffect::PlasticCupFlick));
 }
 
 fn setup_view_title(root: &mut ChildBuilder, fonts: &Fonts, text: impl Into<String>) {

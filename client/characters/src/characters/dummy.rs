@@ -229,7 +229,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                 category: ActionCategory::Normal,
                 script: |situation: &Situation| {
                     if situation.elapsed() == 0 {
-                        return vec![DummyAnimation::Divekick.into(), Consume(ItemId::Boots)];
+                        return vec![DummyAnimation::Divekick.into()];
                     }
 
                     if situation.elapsed() == 5 {
@@ -275,12 +275,12 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     },
                     CommonAttackProps {
                         damage: 25,
-                        on_hit: Launcher(0.0),
+                        on_hit: Knockdown,
                         ..default()
                     },
                 )
                 .with_to_target_on_hit(vec![
-                    SnapToOpponent,
+                    ActionEvent::SnapToOpponent { sideswitch: false },
                     Animation(AnimationRequest {
                         animation: DummyAnimation::NormalThrowRecipient.into(),
                         invert: true,
@@ -307,13 +307,12 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     },
                     CommonAttackProps {
                         damage: 25,
-                        on_hit: Launcher(0.0),
+                        on_hit: Knockdown,
                         ..default()
                     },
                 )
                 .with_to_target_on_hit(vec![
-                    SnapToOpponent,
-                    SideSwitch,
+                    ActionEvent::SnapToOpponent { sideswitch: true },
                     Animation(AnimationRequest {
                         animation: DummyAnimation::NormalThrowRecipient.into(),
                         invert: true,
@@ -339,7 +338,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ..default()
                     },
                     CommonAttackProps {
-                        on_hit: Launcher(8.0),
+                        on_hit: Launch(Vec2::new(1.0, 8.0)),
                         ..default()
                     },
                 ),
@@ -363,12 +362,12 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     },
                     CommonAttackProps {
                         damage: 25,
-                        on_hit: Launcher(-4.0),
+                        on_hit: Launch(Vec2::new(1.0, -4.0)),
                         ..default()
                     },
                 )
                 .with_to_target_on_hit(vec![
-                    SnapToOpponent,
+                    SnapToOpponent { sideswitch: false },
                     Animation(AnimationRequest {
                         animation: DummyAnimation::AirThrowRecipient.into(),
                         invert: true,

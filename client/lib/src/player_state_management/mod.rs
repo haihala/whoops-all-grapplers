@@ -1,5 +1,6 @@
 mod cinematic_locks;
 mod condition_management;
+mod force_stand;
 mod move_activation;
 mod move_advancement;
 mod player_flash;
@@ -7,7 +8,7 @@ mod recovery;
 mod side_switcher;
 mod size_adjustment;
 
-use characters::{dummy, mizku, ActionEvents, Inventory, WAGResources};
+use characters::{dummy, mizku, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
@@ -18,6 +19,7 @@ use wag_core::{
 use crate::{
     assets::{AnimationHelper, AnimationHelperSetup, Models, PlayerModelHook},
     damage::{Defense, HitboxSpawner},
+    event_spreading,
     movement::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
 
@@ -48,18 +50,10 @@ impl Plugin for PlayerStateManagementPlugin {
                 RollbackSchedule,
                 (
                     move_activation::manage_buffer,
-                    move_activation::manage_cancel_windows,
-                    move_activation::automatic_activation,
                     move_activation::plain_start,
                     move_activation::cancel_start,
                     move_activation::move_activator,
                     move_advancement::move_advancement,
-                    move_advancement::end_moves,
-                    |mut q: Query<&mut ActionEvents>| {
-                        for mut events in &mut q {
-                            events.clear();
-                        }
-                    },
                 )
                     .chain()
                     .in_set(WAGStage::MovePipeline),
@@ -68,11 +62,9 @@ impl Plugin for PlayerStateManagementPlugin {
                 RollbackSchedule,
                 (
                     cinematic_locks::handle_cinematics, // This being the first system after hit move advancement is important
-                    player_flash::handle_flash_events,
                     recovery::stun_recovery,
                     recovery::ground_recovery,
                     size_adjustment::size_adjustment,
-                    condition_management::manage_conditions,
                 )
                     .chain()
                     .in_set(WAGStage::PlayerUpdates),
@@ -111,7 +103,6 @@ struct PlayerDefaults {
     joints: Joints,
     status_effects: Stats,
     available_cancels: AvailableCancels,
-    unprocessed_events: ActionEvents,
     state: PlayerState,
 }
 
@@ -156,6 +147,26 @@ fn spawn_player(
             ));
         })
         .add_rollback()
+        .observe(event_spreading::spread_events)
+        .observe(force_stand::force_stand)
+        .observe(player_flash::handle_flash_events)
+        .observe(condition_management::manage_conditions)
+        .observe(cinematic_locks::start_lock)
+        .observe(move_advancement::end_moves)
+        .observe(move_activation::manage_cancel_windows)
+        .observe(move_activation::automatic_activation)
+        .observe(crate::assets::start_animation)
+        .observe(crate::assets::start_vfx)
+        .observe(crate::camera::tilt_camera)
+        .observe(crate::damage::snap_and_switch)
+        .observe(crate::damage::hitstun_events)
+        .observe(crate::damage::blockstun_events)
+        .observe(crate::damage::launch_events)
+        .observe(crate::damage::spawn_new_hitboxes)
+        .observe(crate::movement::clear_movement)
+        .observe(crate::movement::add_movement)
+        .observe(crate::resources::modify_properties)
+        .observe(crate::resources::clear_properties)
         .id()
 }
 

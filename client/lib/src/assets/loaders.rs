@@ -94,7 +94,9 @@ pub fn sounds(
         })
         .collect();
 
-    commands.insert_resource(Sounds::new(handles.clone()));
+    commands.insert_resource(Sounds {
+        handles: handles.clone(),
+    });
 
     loading_assets.0.extend(
         handles

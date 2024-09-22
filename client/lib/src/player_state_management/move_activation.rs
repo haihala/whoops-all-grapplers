@@ -1,14 +1,11 @@
 use bevy::prelude::*;
 
-use characters::{
-    Action, ActionEvent, ActionEvents, ActionRequirement, Character, Inventory, Situation,
-    WAGResources,
-};
+use characters::{Action, ActionRequirement, Character, Inventory, Situation, WAGResources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{ActionId, AvailableCancels, Clock, Facing, Player, Stats};
+use wag_core::{ActionId, AvailableCancels, Clock, Facing, Stats};
 
-use crate::{movement::PlayerVelocity, ui::Notifications};
+use crate::event_spreading::{AllowCancel, StartAction};
 
 #[derive(Debug, Default, Reflect, Clone, Copy)]
 pub(super) struct MoveActivation {
@@ -84,58 +81,24 @@ pub(super) fn manage_buffer(
 }
 
 pub fn manage_cancel_windows(
+    trigger: Trigger<AllowCancel>,
     clock: Res<Clock>,
-    mut query: Query<(&mut AvailableCancels, &ActionEvents)>,
+    mut query: Query<&mut AvailableCancels>,
 ) {
-    for (mut cancels, events) in &mut query {
-        let new_cancels = events.get_matching_events(|action| {
-            if let ActionEvent::AllowCancel(cancel_window) = action {
-                Some(cancel_window.to_owned())
-            } else {
-                None
-            }
-        });
-
-        cancels.update(new_cancels, clock.frame);
-    }
+    let mut cancels = query.get_mut(trigger.entity()).unwrap();
+    cancels.open(trigger.event().0.to_owned(), clock.frame);
 }
 
 pub(super) fn automatic_activation(
-    mut notifications: ResMut<Notifications>,
-    mut query: Query<(
-        &mut MoveBuffer,
-        &ActionEvents,
-        &mut PlayerVelocity,
-        &Player,
-        &Facing,
-    )>,
+    trigger: Trigger<StartAction>,
+    mut query: Query<&mut MoveBuffer>,
 ) {
-    for (mut buffer, events, mut velocity, player, facing) in &mut query {
-        let move_continuations = events.get_matching_events(|action| {
-            if let ActionEvent::StartAction(move_id) = action {
-                Some(*move_id)
-            } else {
-                None
-            }
-        });
+    let mut buffer = query.get_mut(trigger.entity()).unwrap();
 
-        match move_continuations.len() {
-            1 => {
-                buffer.activation = Some(MoveActivation {
-                    kind: ActivationType::Continuation,
-                    id: move_continuations[0],
-                })
-            }
-            0 => {
-                // Nothing to do, so do nothing
-            }
-            _ => {
-                // This may happen if follow up and grab land on the same frame
-                velocity.add_impulse(facing.mirror_vec2(Vec2::X * -10.0));
-                notifications.add(*player, "Twin starters".to_owned());
-            }
-        }
-    }
+    buffer.activation = Some(MoveActivation {
+        kind: ActivationType::Continuation,
+        id: trigger.event().0,
+    })
 }
 
 #[allow(clippy::type_complexity)]
@@ -263,11 +226,11 @@ pub(super) fn cancel_start(
 
 #[allow(clippy::type_complexity)]
 pub(super) fn move_activator(
+    mut commands: Commands,
     clock: Res<Clock>,
     mut query: Query<(
         &mut MoveBuffer,
         &mut PlayerState,
-        &mut ActionEvents,
         &Transform,
         &WAGResources,
         &Character,
@@ -275,13 +238,13 @@ pub(super) fn move_activator(
         &Inventory,
         &InputParser,
         &Facing,
+        Entity,
     )>,
 ) {
     // Activate and clear activating move
     for (
         mut buffer,
         mut state,
-        mut events,
         tf,
         properties,
         character,
@@ -289,6 +252,7 @@ pub(super) fn move_activator(
         inventory,
         parser,
         facing,
+        entity,
     ) in &mut query
     {
         let Some(activation) = buffer.activation.take() else {
@@ -299,7 +263,7 @@ pub(super) fn move_activator(
             continue;
         }
 
-        events.add_events(state.start_move(
+        for event in state.start_move(
             activation.id,
             character.get_move(activation.id).unwrap(),
             clock.frame,
@@ -309,7 +273,9 @@ pub(super) fn move_activator(
             stats.to_owned(),
             tf.translation,
             *facing,
-        ));
+        ) {
+            commands.trigger_targets(event, entity);
+        }
 
         buffer.clear_all()
     }

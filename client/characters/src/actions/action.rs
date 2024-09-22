@@ -72,9 +72,7 @@ macro_rules! throw_target {
                         if $launch_impulse == Vec2::ZERO {
                             ActionEvent::Noop
                         } else {
-                            ActionEvent::Launch {
-                                impulse: $launch_impulse,
-                            }
+                            ActionEvent::LaunchStun($launch_impulse)
                         },
                         ActionEvent::Flash(FlashRequest::hit_flash()),
                         ActionEvent::Hitstop,

@@ -24,7 +24,7 @@ impl Attack {
             self_on_hit: vec![ActionEvent::StartAction(self_hit)],
             self_on_block: vec![],
             target_on_hit: vec![
-                ActionEvent::SnapToOpponent,
+                ActionEvent::SnapToOpponent { sideswitch: false },
                 ActionEvent::StartAction(recipient_move),
             ],
             target_on_block: vec![],
@@ -37,8 +37,7 @@ impl Attack {
             self_on_hit: vec![ActionEvent::StartAction(self_hit)],
             self_on_block: vec![],
             target_on_hit: vec![
-                ActionEvent::SnapToOpponent,
-                ActionEvent::SideSwitch,
+                ActionEvent::SnapToOpponent { sideswitch: true },
                 ActionEvent::StartAction(recipient_move),
             ],
             target_on_block: vec![],
@@ -86,9 +85,9 @@ impl Attack {
 
 #[derive(Debug, Clone, Copy, Reflect)]
 pub enum StunType {
-    Launcher(f32),
-    Roller(Vec2),
+    Launch(Vec2),
     Stun(usize),
+    Knockdown,
 }
 
 #[derive(Debug, Clone, Copy, Reflect)]
@@ -98,7 +97,7 @@ pub struct CommonAttackProps {
     pub knock_back: f32,
     pub push_back: f32,
     pub on_hit: StunType,
-    pub on_block: StunType,
+    pub on_block: usize,
 }
 
 impl Default for CommonAttackProps {
@@ -109,7 +108,7 @@ impl Default for CommonAttackProps {
             knock_back: 2.0,
             push_back: 3.0,
             on_hit: StunType::Stun(20),
-            on_block: StunType::Stun(10),
+            on_block: 10,
         }
     }
 }
@@ -158,23 +157,15 @@ impl CommonAttackProps {
 
     fn get_stun(&self, blocked: bool) -> ActionEvent {
         if blocked {
-            match self.on_block {
-                StunType::Launcher(_) | StunType::Roller(_) => {
-                    // If launching on block, the design needs to be re-evaluated
-                    todo!()
-                }
-                StunType::Stun(frames) => ActionEvent::BlockStun(frames),
-            }
+            ActionEvent::BlockStun(self.on_block)
         } else {
             match self.on_hit {
-                StunType::Launcher(height) => ActionEvent::Launch {
-                    impulse: height * Vec2::Y,
-                },
-                // This lets us use positive numbers when defining rollers
-                StunType::Roller(impulse) => ActionEvent::Launch {
-                    impulse: Vec2::new(-impulse.x, impulse.y),
-                },
+                // This lets us use positive numbers for pushing back
+                StunType::Launch(impulse) => {
+                    ActionEvent::LaunchStun(Vec2::new(-impulse.x, impulse.y))
+                }
                 StunType::Stun(frames) => ActionEvent::HitStun(frames),
+                StunType::Knockdown => ActionEvent::LaunchStun(Vec2::ZERO),
             }
         }
     }

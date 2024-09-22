@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use wag_core::{
-    ActionId, Animation, CancelWindow, DummyAnimation, ItemId, MizkuAnimation, SoundEffect,
+    ActionId, Animation, CancelWindow, DummyAnimation, MizkuAnimation, SoundEffect,
     StatusCondition, VfxRequest,
 };
 
@@ -9,41 +9,10 @@ use crate::{Attack, FlashRequest, Movement, ResourceType};
 
 use super::AnimationRequest;
 
-#[derive(Debug, Clone, PartialEq, Default, Component)]
-pub struct ActionEvents {
-    new_events: Vec<ActionEvent>,
-    old_events: Vec<ActionEvent>,
-}
-impl ActionEvents {
-    pub fn get_matching_events<T>(&self, predicate: impl Fn(&ActionEvent) -> Option<T>) -> Vec<T> {
-        self.events().filter_map(predicate).collect()
-    }
-
-    pub fn add_events(&mut self, actions: Vec<ActionEvent>) {
-        self.new_events.extend(
-            actions
-                .into_iter()
-                .filter(|ev| !matches!(ev, ActionEvent::Noop)),
-        );
-    }
-
-    fn events(&self) -> impl Iterator<Item = &ActionEvent> {
-        self.new_events.iter().chain(self.old_events.iter())
-    }
-
-    pub fn clear(&mut self) {
-        // This way, hopefully, all events will get one lap around the sun.
-        // Assuming all readers also only happen once per tick either before or after this one
-        self.old_events = self.new_events.clone();
-        self.new_events.clear();
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default, Event)]
 pub enum ActionEvent {
     AllowCancel(CancelWindow),
     Animation(AnimationRequest),
-    Consume(ItemId),
     Sound(SoundEffect),
     StartAction(ActionId),
     Attack(Attack),
@@ -53,13 +22,12 @@ pub enum ActionEvent {
     ForceStand,
     ModifyResource(ResourceType, i32),
     ClearResource(ResourceType),
-    SnapToOpponent,
-    SideSwitch,
+    SnapToOpponent {
+        sideswitch: bool,
+    },
     HitStun(usize),
     BlockStun(usize),
-    Launch {
-        impulse: Vec2,
-    },
+    LaunchStun(Vec2),
     Hitstop, // TODO: Add strength
     CameraTilt(Vec2),
     CameraShake, // TODO: Add strength

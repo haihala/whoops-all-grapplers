@@ -1,9 +1,8 @@
 use bevy::{ecs::query::QueryData, prelude::*};
-use strum::IntoEnumIterator;
 
 use characters::{
-    ActionEvent, ActionEvents, Attack, AttackHeight, BlockType, Hitbox, Hurtbox, Movement,
-    ResourceType, WAGResources,
+    ActionEvent, Attack, AttackHeight, BlockType, Hitbox, Hurtbox, Movement, ResourceType,
+    WAGResources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -13,7 +12,8 @@ use wag_core::{
 };
 
 use crate::{
-    assets::{Sounds, Vfx},
+    assets::Vfx,
+    event_spreading::{LaunchImpulse, PlaySound, SnapToOpponent, UpdateBlockstun, UpdateHitstun},
     movement::{PlayerVelocity, Pushbox},
     ui::Notifications,
 };
@@ -53,7 +53,6 @@ pub struct HitPlayerQuery<'a> {
     velocity: &'a mut PlayerVelocity,
     facing: &'a Facing,
     spawner: &'a mut HitboxSpawner,
-    events: &'a mut ActionEvents,
     pushbox: &'a Pushbox,
     stats: &'a Stats,
     combo: Option<&'a mut Combo>,
@@ -61,6 +60,7 @@ pub struct HitPlayerQuery<'a> {
 
 #[allow(clippy::type_complexity)]
 pub(super) fn clash_parry(
+    mut commands: Commands,
     mut hitboxes: Query<(
         &Owner,
         &GlobalTransform,
@@ -70,7 +70,6 @@ pub(super) fn clash_parry(
         Option<&ProjectileMarker>,
     )>,
     clock: Res<Clock>,
-    mut sounds: ResMut<Sounds>,
     mut particles: ResMut<Vfx>,
     mut owners: Query<&mut WAGResources>,
     players: Res<Players>,
@@ -100,7 +99,7 @@ pub(super) fn clash_parry(
             .intersection(&hitbox2.with_offset(gtf2.translation().truncate()))
         {
             // Hitboxes collide
-            sounds.play(SoundEffect::GlassClink);
+            commands.trigger(PlaySound(SoundEffect::GlassClink));
             particles.spawn(VfxRequest {
                 effect: VisualEffect::Clash,
                 position: overlap.center().extend(0.0),
@@ -249,7 +248,6 @@ pub(super) fn apply_connections(
     mut notifications: ResMut<Notifications>,
     clock: Res<Clock>,
     mut players: Query<HitPlayerQuery>,
-    mut sounds: ResMut<Sounds>,
     mut particles: ResMut<Vfx>,
 ) {
     if hits.len() >= 2 {
@@ -301,6 +299,7 @@ pub(super) fn apply_connections(
                 (
                     hit.attack.self_on_hit,
                     hit.attack.target_on_hit,
+                    // TODO: Attack hit sound should not be generic
                     SoundEffect::PastaPat,
                     if hit.contact_type == ConnectionType::Strike {
                         VisualEffect::Hit
@@ -363,7 +362,7 @@ pub(super) fn apply_connections(
                 // First hit of a combo
                 commands.entity(hit.defender).insert(Combo { hits: 1 });
 
-                sounds.play(SoundEffect::PotLidGong);
+                commands.trigger(PlaySound(SoundEffect::PotLidGong));
                 notifications.add(*attacker.player, "Opener!".to_owned());
                 if attacker.stats.opener_damage_multiplier > 1.0 {
                     attacker_actions = handle_opener(attacker_actions, attacker.stats);
@@ -384,9 +383,14 @@ pub(super) fn apply_connections(
 
         defender_actions =
             apply_damage_multiplier(defender_actions, attacker.stats.damage_multiplier);
-        attacker.events.add_events(attacker_actions);
-        defender.events.add_events(defender_actions);
-        sounds.play(sound);
+
+        for event in attacker_actions {
+            commands.trigger_targets(event, hit.attacker);
+        }
+        for event in defender_actions {
+            commands.trigger_targets(event, hit.defender);
+        }
+        commands.trigger(PlaySound(sound));
         particles.spawn(VfxRequest {
             effect: particle,
             // TODO: This can be refined more
@@ -451,89 +455,60 @@ fn apply_damage_multiplier(actions: Vec<ActionEvent>, multiplier: f32) -> Vec<Ac
         .collect()
 }
 
-pub(super) fn snap_and_switch(
-    mut query: Query<(
-        &ActionEvents,
-        &mut Transform,
-        &mut Facing,
-        &Pushbox,
-        &mut PlayerVelocity,
-    )>,
+pub fn snap_and_switch(
+    trigger: Trigger<SnapToOpponent>,
+    mut query: Query<(&mut Transform, &mut Facing, &Pushbox, &mut PlayerVelocity)>,
     players: Res<Players>,
 ) {
-    for player in Player::iter() {
-        let [(events, mut self_tf, mut self_facing, self_pushbox, mut self_velocity), (_, other_tf, mut other_facing, other_pushbox, other_velocity)] =
-            query
-                .get_many_mut([players.get(player), players.get(player.other())])
-                .unwrap();
-        let actions = events.get_matching_events(|action| {
-            if matches!(
-                *action,
-                ActionEvent::SnapToOpponent | ActionEvent::SideSwitch
-            ) {
-                Some(action.to_owned())
+    let [(mut self_tf, mut self_facing, self_pushbox, mut self_velocity), (other_tf, mut other_facing, other_pushbox, other_velocity)] =
+        query
+            .get_many_mut([trigger.entity(), players.get_other_entity(trigger.entity())])
+            .unwrap();
+
+    let raw_diff = self_tf.translation.x - other_tf.translation.x; // This ought to be positive when attacker is on the left
+    let width_between = (self_pushbox.width() + other_pushbox.width()) / 2.0;
+
+    self_tf.translation = other_tf.translation
+        + Vec3::X
+            * raw_diff.signum()
+            * width_between
+            * (if trigger.event().sideswitch {
+                -1.0
             } else {
-                None
-            }
-        });
+                1.0
+            });
+    self_velocity.sync_with(&other_velocity);
 
-        if actions.contains(&ActionEvent::SnapToOpponent) {
-            let side_switch = actions.contains(&ActionEvent::SideSwitch);
-
-            let raw_diff = self_tf.translation.x - other_tf.translation.x; // This ought to be positive when attacker is on the left
-            let width_between = (self_pushbox.width() + other_pushbox.width()) / 2.0;
-
-            self_tf.translation = other_tf.translation
-                + Vec3::X
-                    * raw_diff.signum()
-                    * width_between
-                    * (if side_switch { -1.0 } else { 1.0 });
-            self_velocity.sync_with(&other_velocity);
-
-            if side_switch {
-                // Automatic side switcher won't run in time, animations will be fucked
-                // Easier to just do this instead of fixing the system execution order
-                (*self_facing, *other_facing) = (*other_facing, *self_facing);
-            }
-        }
+    if trigger.event().sideswitch {
+        // Automatic side switcher won't run in time, animations will be fucked
+        // Easier to just do this instead of fixing the system execution order
+        (*self_facing, *other_facing) = (*other_facing, *self_facing);
     }
 }
 
-pub(super) fn stun_actions(
-    mut query: Query<(
-        &mut PlayerState,
-        &ActionEvents,
-        &mut PlayerVelocity,
-        &Facing,
-    )>,
+pub fn hitstun_events(
+    trigger: Trigger<UpdateHitstun>,
+    mut query: Query<&mut PlayerState>,
     clock: Res<Clock>,
 ) {
-    for (mut state, events, mut velocity, facing) in &mut query {
-        if state.active_cinematic().is_some() {
-            continue;
-        }
+    let mut state = query.get_mut(trigger.entity()).unwrap();
+    state.stun(clock.frame + trigger.event().0);
+}
 
-        for action in events.get_matching_events(|action| {
-            if matches!(
-                *action,
-                ActionEvent::Launch { impulse: _ }
-                    | ActionEvent::HitStun(_)
-                    | ActionEvent::BlockStun(_)
-            ) {
-                Some(action.to_owned())
-            } else {
-                None
-            }
-        }) {
-            match action {
-                ActionEvent::HitStun(frames) => state.stun(clock.frame + frames),
-                ActionEvent::BlockStun(frames) => state.block(clock.frame + frames),
-                ActionEvent::Launch { impulse } => {
-                    state.launch();
-                    velocity.add_impulse(facing.mirror_vec2(impulse));
-                }
-                _ => panic!("Leaking"),
-            }
-        }
-    }
+pub fn blockstun_events(
+    trigger: Trigger<UpdateBlockstun>,
+    mut query: Query<&mut PlayerState>,
+    clock: Res<Clock>,
+) {
+    let mut state = query.get_mut(trigger.entity()).unwrap();
+    state.block(clock.frame + trigger.event().0);
+}
+
+pub fn launch_events(
+    trigger: Trigger<LaunchImpulse>,
+    mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &Facing)>,
+) {
+    let (mut state, mut velocity, facing) = query.get_mut(trigger.entity()).unwrap();
+    state.launch();
+    velocity.add_impulse(facing.mirror_vec2(trigger.event().0));
 }

@@ -1,11 +1,12 @@
 use bevy::prelude::*;
 
-use characters::{ActionEvent, ActionEvents, Attack, Hitbox, Lifetime};
+use characters::{Attack, Hitbox, Lifetime};
 use wag_core::{Area, Clock, Facing, InCombat, Joints, Owner, Player};
 
 use crate::{
     assets::Models,
     entity_management::DespawnMarker,
+    event_spreading::SpawnHitbox,
     movement::{ConstantVelocity, Follow},
 };
 
@@ -109,58 +110,41 @@ impl HitboxSpawner {
     }
 }
 
-pub(super) fn spawn_new_hitboxes(
+pub fn spawn_new_hitboxes(
+    trigger: Trigger<SpawnHitbox>,
     mut commands: Commands,
     clock: Res<Clock>,
     models: Res<Models>,
     tfs: Query<&GlobalTransform>,
-    mut query: Query<(
-        &mut HitboxSpawner,
-        &ActionEvents,
-        &Joints,
-        Entity,
-        &Facing,
-        &Player,
-    )>,
+    mut query: Query<(&mut HitboxSpawner, &Joints, Entity, &Facing, &Player)>,
 ) {
-    for (mut spawner, events, joints, parent, facing, player) in &mut query {
-        for attack in events
-            .get_matching_events(|action| {
-                if let ActionEvent::Attack(attack) = action {
-                    Some(attack.to_owned())
-                } else {
-                    None
-                }
-            })
-            .into_iter()
-        {
-            let root = if let Some(joint) = attack.to_hit.joint {
-                // Attach to that joint if joint is presented
-                *joints
-                    .nodes
-                    // Need to use the opposite joint if model is flipped
-                    .get(&if facing.to_flipped() {
-                        joint.flip()
-                    } else {
-                        joint
-                    })
-                    .unwrap()
-            } else {
-                parent
-            };
+    let (mut spawner, joints, parent, facing, player) = query.get_mut(trigger.entity()).unwrap();
 
-            spawner.spawn_attack(
-                &mut commands,
-                &models,
-                attack,
-                clock.frame,
-                root,
-                facing,
-                *player,
-                tfs.get(root).unwrap().translation(),
-            );
-        }
-    }
+    let root = if let Some(joint) = trigger.event().0.to_hit.joint {
+        // Attach to that joint if joint is presented
+        *joints
+            .nodes
+            // Need to use the opposite joint if model is flipped
+            .get(&if facing.to_flipped() {
+                joint.flip()
+            } else {
+                joint
+            })
+            .unwrap()
+    } else {
+        parent
+    };
+
+    spawner.spawn_attack(
+        &mut commands,
+        &models,
+        trigger.event().0.to_owned(),
+        clock.frame,
+        root,
+        facing,
+        *player,
+        tfs.get(root).unwrap().translation(),
+    );
 }
 
 pub fn handle_despawn_flags(

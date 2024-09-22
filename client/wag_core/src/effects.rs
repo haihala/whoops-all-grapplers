@@ -69,7 +69,7 @@ pub enum VisualEffect {
     ThrowTarget,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct VfxRequest {
     pub effect: VisualEffect,
     pub position: Vec3,

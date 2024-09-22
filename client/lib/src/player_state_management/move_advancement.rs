@@ -1,15 +1,17 @@
 use bevy::prelude::*;
-use characters::{ActionEvent, ActionEvents, Character, Inventory, WAGResources};
+use characters::{Character, Inventory, WAGResources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{AvailableCancels, Clock, Facing, Stats};
 
+use crate::event_spreading::EndAction;
+
 #[allow(clippy::type_complexity)]
 pub(super) fn move_advancement(
+    mut commands: Commands,
     clock: Res<Clock>,
     mut query: Query<(
         &mut PlayerState,
-        &mut ActionEvents,
         &Transform,
         &Inventory,
         &Character,
@@ -17,13 +19,14 @@ pub(super) fn move_advancement(
         &InputParser,
         &Stats,
         &Facing,
+        Entity,
     )>,
 ) {
-    for (mut state, mut events, tf, inventory, character, resources, parser, stats, facing) in
+    for (mut state, tf, inventory, character, resources, parser, stats, facing, entity) in
         &mut query
     {
         if state.action_in_progress() {
-            events.add_events(state.proceed_move(
+            for event in state.proceed_move(
                 inventory.to_owned(),
                 character.to_owned(),
                 resources.to_owned(),
@@ -32,29 +35,19 @@ pub(super) fn move_advancement(
                 clock.frame,
                 tf.translation,
                 *facing,
-            ));
+            ) {
+                commands.trigger_targets(event, entity)
+            }
         }
     }
 }
 
 pub fn end_moves(
+    trigger: Trigger<EndAction>,
     clock: Res<Clock>,
-    mut query: Query<(&ActionEvents, &mut PlayerState, &mut AvailableCancels)>,
+    mut query: Query<(&mut PlayerState, &mut AvailableCancels)>,
 ) {
-    for (events, mut state, mut windows) in &mut query {
-        let end_event_present = !events
-            .get_matching_events(|action| {
-                if *action == ActionEvent::End {
-                    Some(0)
-                } else {
-                    None
-                }
-            })
-            .is_empty();
-
-        if end_event_present {
-            state.recover(clock.frame);
-            windows.clear();
-        }
-    }
+    let (mut state, mut windows) = query.get_mut(trigger.entity()).unwrap();
+    state.recover(clock.frame);
+    windows.clear();
 }

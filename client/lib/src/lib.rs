@@ -7,6 +7,7 @@ mod camera;
 mod damage;
 mod dev;
 mod entity_management;
+mod event_spreading;
 mod movement;
 mod networking;
 mod player_state_management;

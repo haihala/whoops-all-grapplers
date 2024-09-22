@@ -71,8 +71,8 @@ impl AvailableCancels {
         self.0.clear();
     }
 
-    pub fn update(&mut self, new: Vec<CancelWindow>, frame: usize) {
+    pub fn open(&mut self, new: CancelWindow, frame: usize) {
         self.0.retain(|window| window.to >= frame);
-        self.0.extend(new.into_iter().map(|cw| cw.open_at(frame)));
+        self.0.push(new.open_at(frame));
     }
 }

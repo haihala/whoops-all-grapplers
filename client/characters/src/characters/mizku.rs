@@ -119,7 +119,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     CommonAttackProps {
                         damage: 5,
                         on_hit: Stun(20),
-                        on_block: Stun(15),
+                        on_block: 15,
                         ..default()
                     },
                 ),
@@ -144,7 +144,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     CommonAttackProps {
                         damage: 8,
                         on_hit: Stun(18),
-                        on_block: Stun(11),
+                        on_block: 11,
                         ..default()
                     },
                 ),
@@ -181,7 +181,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                 CommonAttackProps {
                                     damage: 15,
                                     on_hit: Stun(31),
-                                    on_block: Stun(20),
+                                    on_block: 20,
                                     ..default()
                                 },
                             )
@@ -222,8 +222,8 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         damage: 16,
                         knock_back: 0.5,
                         push_back: 0.7,
-                        on_hit: Launcher(6.0),
-                        on_block: Stun(10),
+                        on_hit: Launch(Vec2::new(1.0, 6.0)),
+                        on_block: 10,
                         ..default()
                     },
                 ),
@@ -256,7 +256,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                         .current
                                         * 10,
                                 on_hit: Stun(40),
-                                on_block: Stun(30),
+                                on_block: 30,
                                 chip_damage: 5,
                                 ..default()
                             },
@@ -295,7 +295,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                     .current
                                     * 10,
                                 on_hit: Stun(55),
-                                on_block: Stun(25),
+                                on_block: 25,
                                 chip_damage: 3,
                                 ..default()
                             },
@@ -334,7 +334,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                         .current
                                         * 10,
                                 on_hit: Stun(40),
-                                on_block: Stun(30),
+                                on_block: 30,
                                 chip_damage: 5,
                                 ..default()
                             },
@@ -411,11 +411,11 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                                     knock_back: 0.8,
                                     on_hit: if situation.inventory.contains(&ItemId::SpaceSuitBoots)
                                     {
-                                        Roller(Vec2::new(-1.0, 15.0))
+                                        Launch(Vec2::new(-1.0, 15.0))
                                     } else {
                                         Stun(40)
                                     },
-                                    on_block: Stun(25),
+                                    on_block: 25,
                                     ..default()
                                 },
                             )
@@ -693,7 +693,7 @@ fn viper_strike() -> Action {
                                     .current
                                     * 10,
                             on_hit: Stun(40),
-                            on_block: Stun(30),
+                            on_block: 30,
                             chip_damage: 5,
                             ..default()
                         },
@@ -744,8 +744,8 @@ fn rising_sun() -> Action {
                                     .unwrap()
                                     .current
                                     * 10,
-                            on_hit: Launcher(3.0),
-                            on_block: Stun(40),
+                            on_hit: Launch(Vec2::new(1.0, 3.0)),
+                            on_block: 40,
                             chip_damage: 10,
                             ..default()
                         },
@@ -800,7 +800,7 @@ fn kunai_throw() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             CommonAttackProps {
                                 damage: 12,
                                 on_hit: Stun(15),
-                                on_block: Stun(10),
+                                on_block: 10,
                                 ..default()
                             },
                         )

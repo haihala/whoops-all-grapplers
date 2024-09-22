@@ -8,7 +8,7 @@ mod movement;
 mod to_hit;
 
 pub use action::Action;
-pub use action_event::{ActionEvent, ActionEvents};
+pub use action_event::ActionEvent;
 pub use action_requirement::ActionRequirement;
 pub use animation_request::AnimationRequest;
 pub use attack::{Attack, CommonAttackProps, StunType};

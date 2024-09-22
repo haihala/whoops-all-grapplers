@@ -8,7 +8,7 @@ use bevy::{
 };
 use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
-use characters::{ActionEvents, WAGResources};
+use characters::WAGResources;
 use input_parsing::{InputParser, PadStream, ParrotStream};
 use player_state::PlayerState;
 use strum::IntoEnumIterator;
@@ -83,7 +83,6 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_clone::<WAGResources>()
             .rollback_component_with_clone::<PlayerVelocity>()
             .rollback_component_with_clone::<MoveBuffer>()
-            .rollback_component_with_clone::<ActionEvents>()
             .rollback_component_with_clone::<AvailableCancels>()
             .rollback_component_with_clone::<ChildCameraEffects>()
             .rollback_component_with_copy::<Pushbox>()

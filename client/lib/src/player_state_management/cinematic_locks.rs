@@ -1,15 +1,16 @@
 use bevy::prelude::*;
-use characters::{ActionEvent, ActionEvents};
 use player_state::PlayerState;
 use wag_core::{Clock, Joint, Joints};
 
+use crate::event_spreading::LockPlayer;
+
 pub fn handle_cinematics(
-    mut players: Query<(&mut PlayerState, &ActionEvents, Entity, &Joints)>,
+    mut players: Query<(&mut PlayerState, Entity, &Joints)>,
     clock: Res<Clock>,
     mut tfs: Query<&mut Transform>,
     gtfs: Query<&GlobalTransform>,
 ) {
-    for (mut state, events, player_entity, joints) in &mut players {
+    for (mut state, player_entity, joints) in &mut players {
         let mut player_tf = tfs.get_mut(player_entity).unwrap();
         if let Some(unlock_frame) = state.active_cinematic() {
             if unlock_frame <= clock.frame {
@@ -30,15 +31,14 @@ pub fn handle_cinematics(
                 state.end_cinematic();
             }
         }
-
-        for duration in events.get_matching_events(|action| {
-            if let ActionEvent::Lock(frames) = action {
-                Some(frames.to_owned())
-            } else {
-                None
-            }
-        }) {
-            state.start_cinematic(duration + clock.frame);
-        }
     }
+}
+
+pub fn start_lock(
+    trigger: Trigger<LockPlayer>,
+    clock: Res<Clock>,
+    mut players: Query<&mut PlayerState>,
+) {
+    let mut state = players.get_mut(trigger.entity()).unwrap();
+    state.start_cinematic(trigger.event().0 + clock.frame);
 }

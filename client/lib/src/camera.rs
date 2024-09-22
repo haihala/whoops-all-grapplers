@@ -1,5 +1,4 @@
 use bevy::{prelude::*, render::view::NoFrustumCulling};
-use characters::{ActionEvent, ActionEvents};
 use wag_core::{
     Facing, GameState, InMatch, LocalState, OnlineState, Player, RollbackSchedule, SynctestState,
     WAGStage, WagArgs, LOADING_SCREEN_BACKGROUND,
@@ -7,6 +6,7 @@ use wag_core::{
 
 use crate::{
     entity_management::VisibleInStates,
+    event_spreading::{ShakeCamera, TiltCamera},
     movement::{ARENA_WIDTH, MAX_PLAYER_DISTANCE},
 };
 
@@ -32,11 +32,12 @@ impl Plugin for CustomCameraPlugin {
             .register_type::<ChildCameraEffects>()
             .add_systems(
                 RollbackSchedule,
-                (center_camera, camera_tilt, child_camera_effects)
+                (center_camera, reset_camera_tilt, child_camera_effects)
                     .chain()
                     .in_set(WAGStage::Camera)
                     .run_if(in_state(InMatch)),
-            );
+            )
+            .observe(shake_camera);
     }
 }
 
@@ -123,34 +124,29 @@ fn center_camera(
 }
 
 #[derive(Debug, Component, Default, Reflect)]
-struct RootCameraEffects {
+pub struct RootCameraEffects {
     tilt_velocity: Vec2,
 }
 
 const TILT_DAMPENING: f32 = 0.9;
 const TILT_GRAVITY: f32 = 0.01;
 
-fn camera_tilt(
-    mut players: Query<(&ActionEvents, &Facing)>,
+pub fn tilt_camera(
+    trigger: Trigger<TiltCamera>,
+    mut cams: Query<&mut RootCameraEffects>,
+    players: Query<&Facing>,
+) {
+    let mut tilt = cams.single_mut();
+    let facing = players.get(trigger.entity()).unwrap();
+    tilt.tilt_velocity += facing.mirror_vec2(trigger.event().0);
+}
+
+fn reset_camera_tilt(
     mut cams: Query<(&mut Transform, &mut RootCameraEffects), With<CameraWrapper>>,
 ) {
-    let event_tilt = players
-        .iter_mut()
-        .flat_map(|(events, facing)| {
-            events.get_matching_events(|a| {
-                if let ActionEvent::CameraTilt(amount) = a {
-                    Some(facing.mirror_vec2(amount.to_owned()))
-                } else {
-                    None
-                }
-            })
-        })
-        .fold(Vec2::ZERO, |acc, tilt| acc + tilt);
-
     let (mut tf, mut tilt) = cams.single_mut();
 
     tilt.tilt_velocity *= TILT_DAMPENING;
-    tilt.tilt_velocity += event_tilt;
 
     let current_euler_tuple = tf.rotation.to_euler(EulerRot::XYZ);
     let current_euler = Vec2::new(current_euler_tuple.1, current_euler_tuple.0);
@@ -176,8 +172,17 @@ const SHAKE_INITIAL_MAGNITUDE: f32 = 0.2;
 const SHAKE_DURATION: f32 = 0.1;
 const SHAKE_TWIST: f32 = 1000.0;
 
+fn shake_camera(
+    _trigger: Trigger<ShakeCamera>,
+    mut cams: Query<&mut ChildCameraEffects>,
+    time: Res<Time>,
+) {
+    let mut childcam_fx = cams.single_mut();
+    // Done after to avoid division by zero.
+    childcam_fx.last_shake_start = time.elapsed_seconds();
+}
+
 fn child_camera_effects(
-    players: Query<&ActionEvents>,
     mut cams: Query<(&mut Transform, &mut ChildCameraEffects)>,
     time: Res<Time>,
 ) {
@@ -200,24 +205,6 @@ fn child_camera_effects(
     };
 
     childcam_fx.pivot = Some(translation);
-
-    if players
-        .iter()
-        .flat_map(|events| {
-            events.get_matching_events(|a| {
-                if &ActionEvent::CameraShake == a {
-                    Some(())
-                } else {
-                    None
-                }
-            })
-        })
-        .next()
-        .is_some()
-    {
-        // Done after to avoid division by zero.
-        childcam_fx.last_shake_start = time.elapsed_seconds();
-    }
 
     let progress = (time.elapsed_seconds() - childcam_fx.last_shake_start) / SHAKE_DURATION;
     let magnitude = SHAKE_INITIAL_MAGNITUDE * (1.0 - progress).max(0.0);

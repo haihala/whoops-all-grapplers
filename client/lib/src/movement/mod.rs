@@ -9,11 +9,13 @@ pub use player_velocity::PlayerVelocity;
 
 use bevy::prelude::*;
 
-use characters::{ActionEvent, ActionEvents};
 use player_state::PlayerState;
 use wag_core::{Area, Clock, Facing, Player, Players, RollbackSchedule, Stats, WAGStage};
 
-use crate::damage::{Combo, HitTracker, HitboxSpawner};
+use crate::{
+    damage::{Combo, HitTracker, HitboxSpawner},
+    event_spreading::{AddMovement, ClearMovement},
+};
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
 pub const ARENA_WIDTH: f32 = 8.5;
@@ -125,39 +127,27 @@ fn player_gravity(
     }
 }
 
+pub fn clear_movement(trigger: Trigger<ClearMovement>, mut query: Query<&mut PlayerVelocity>) {
+    let mut vel = query.get_mut(trigger.entity()).unwrap();
+    vel.clear_movements();
+}
+
+pub fn add_movement(
+    trigger: Trigger<AddMovement>,
+    clock: Res<Clock>,
+    mut query: Query<(&mut PlayerVelocity, &Facing)>,
+) {
+    let (mut vel, facing) = query.get_mut(trigger.entity()).unwrap();
+    vel.handle_movement(clock.frame, *facing, trigger.event().0);
+}
+
 fn player_input(
     clock: Res<Clock>,
-    mut query: Query<(
-        &PlayerState,
-        &ActionEvents,
-        &mut PlayerVelocity,
-        &Stats,
-        &Facing,
-    )>,
+    mut query: Query<(&PlayerState, &mut PlayerVelocity, &Stats, &Facing)>,
 ) {
-    for (state, events, mut velocity, status_effects, facing) in &mut query {
+    for (state, mut velocity, status_effects, facing) in &mut query {
         if state.active_cinematic().is_some() {
             continue;
-        }
-
-        for _ in events.get_matching_events(|action| {
-            if ActionEvent::ClearMovement == *action {
-                Some(())
-            } else {
-                None
-            }
-        }) {
-            velocity.clear_movements();
-        }
-
-        for movement in events.get_matching_events(|action| {
-            if let ActionEvent::Movement(movement) = action {
-                Some(movement.to_owned())
-            } else {
-                None
-            }
-        }) {
-            velocity.handle_movement(clock.frame, *facing, movement);
         }
 
         if let Some(walk_direction) = state.get_walk_direction() {
@@ -166,8 +156,8 @@ fn player_input(
             velocity.drag();
         }
 
-        velocity.cleanup_movements(clock.frame);
         velocity.apply_movements();
+        velocity.cleanup_movements(clock.frame);
     }
 }
 

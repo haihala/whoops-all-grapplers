@@ -9,6 +9,7 @@ mod sounds;
 mod vfx;
 
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
+pub use asset_updater::{start_animation, start_vfx};
 pub use materials::{ExtendedFlashMaterial, FlashMaterial};
 pub use models::{Models, PlayerModelHook};
 pub use sounds::Sounds;
@@ -64,15 +65,14 @@ impl Plugin for AssetsPlugin {
             .add_systems(
                 RollbackSchedule,
                 (
-                    asset_updater::update_animation,
-                    asset_updater::update_audio,
-                    asset_updater::update_vfx,
+                    asset_updater::clear_empty_audio_players,
+                    asset_updater::update_generic_animation,
                     animations::update_animation,
-                    sounds::play_queued,
                     vfx::handle_requests,
                 )
                     .chain()
                     .in_set(WAGStage::Presentation),
-            );
+            )
+            .observe(asset_updater::play_audio);
     }
 }

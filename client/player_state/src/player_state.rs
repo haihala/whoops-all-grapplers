@@ -164,7 +164,7 @@ impl PlayerState {
         }
     }
 
-    pub fn get_action_tracker_mut(&mut self) -> Option<&mut ActionTracker> {
+    fn get_action_tracker_mut(&mut self) -> Option<&mut ActionTracker> {
         match self.main {
             MainState::Stand(StandState::Move(ref mut history))
             | MainState::Crouch(CrouchState::Move(ref mut history))
@@ -193,7 +193,7 @@ impl PlayerState {
         };
         self.free_since = None;
     }
-    pub fn stun(&mut self, recovery_frame: usize) {
+    pub fn hit_stun(&mut self, recovery_frame: usize) {
         self.main = match &self.main {
             MainState::Stand(_) => MainState::Stand(StandState::Stun(Stun::Hit(recovery_frame))),
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Stun(Stun::Hit(recovery_frame))),

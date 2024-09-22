@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use bevy_ggrs::AddRollbackCommandExtension;
 use characters::{Attack, Hitbox, Lifetime};
 use wag_core::{Area, Clock, Facing, InCombat, Joints, Owner, Player};
 
@@ -12,7 +13,7 @@ use crate::{
 
 use super::HitTracker;
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy)]
 pub struct LifetimeFlags {
     on_landing: bool,
     on_hit: bool,
@@ -99,6 +100,7 @@ impl HitboxSpawner {
             builder.insert(DespawnMarker(lifetime + frame));
         }
         builder.insert(LifetimeFlags::from(attack.to_hit.lifetime));
+        builder.add_rollback();
     }
 
     pub fn despawn_on_hit(&mut self) {

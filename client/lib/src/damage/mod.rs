@@ -8,7 +8,7 @@ mod hitboxes;
 mod hitreg;
 mod hitstop;
 
-pub use hitboxes::{handle_despawn_flags, spawn_new_hitboxes};
+pub use hitboxes::{handle_despawn_flags, spawn_new_hitboxes, LifetimeFlags};
 pub use hitreg::{blockstun_events, hitstun_events, launch_events, snap_and_switch};
 
 pub use combo::Combo;

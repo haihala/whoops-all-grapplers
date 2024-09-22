@@ -8,20 +8,22 @@ use bevy::{
 };
 use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
-use characters::WAGResources;
+use characters::{Attack, Hitbox, Inventory, WAGResources};
 use input_parsing::{InputParser, PadStream, ParrotStream};
 use player_state::PlayerState;
 use strum::IntoEnumIterator;
 use wag_core::{
-    AvailableCancels, Characters, Clock, Controllers, Facing, GameState, Hitstop, LocalCharacter,
-    LocalController, OnlineState, RollbackSchedule, SynctestState, WagArgs, WagInputButton,
-    WagInputEvent,
+    AvailableCancels, Characters, Clock, Controllers, Facing, GameState, Hitstop, Joints,
+    LocalCharacter, LocalController, OnlineState, Owner, Player, RollbackSchedule, Stats,
+    SynctestState, WagArgs, WagInputButton, WagInputEvent,
 };
 
 use crate::{
+    assets::AnimationHelper,
     camera::ChildCameraEffects,
-    damage::{Defense, HitboxSpawner},
-    movement::{PlayerVelocity, Pushbox, Walls},
+    damage::{Combo, Defense, HitTracker, HitboxSpawner, LifetimeFlags},
+    entity_management::DespawnMarker,
+    movement::{ConstantVelocity, Follow, PlayerVelocity, Pushbox, Walls},
     player_state_management::MoveBuffer,
 };
 
@@ -71,29 +73,49 @@ impl Plugin for NetworkPlugin {
             .init_resource::<InputGenCache>()
             // Probably an incomplete list of things to roll back
             // Resources
+            .rollback_resource_with_clone::<InputGenCache>()
             .rollback_resource_with_copy::<Clock>()
             .rollback_resource_with_copy::<Hitstop>()
             .rollback_resource_with_copy::<Walls>()
-            .rollback_resource_with_clone::<InputGenCache>()
             // Player components
-            .rollback_component_with_clone::<PlayerState>()
-            .rollback_component_with_clone::<PadStream>()
-            .rollback_component_with_clone::<ParrotStream>()
-            .rollback_component_with_clone::<InputParser>()
-            .rollback_component_with_clone::<WAGResources>()
-            .rollback_component_with_clone::<PlayerVelocity>()
-            .rollback_component_with_clone::<MoveBuffer>()
             .rollback_component_with_clone::<AvailableCancels>()
             .rollback_component_with_clone::<ChildCameraEffects>()
-            .rollback_component_with_copy::<Pushbox>()
-            .rollback_component_with_copy::<HitboxSpawner>()
+            .rollback_component_with_clone::<InputParser>()
+            .rollback_component_with_clone::<Inventory>()
+            .rollback_component_with_clone::<Joints>()
+            .rollback_component_with_clone::<MoveBuffer>()
+            .rollback_component_with_clone::<PadStream>()
+            .rollback_component_with_clone::<ParrotStream>()
+            .rollback_component_with_clone::<PlayerState>()
+            .rollback_component_with_clone::<PlayerVelocity>()
+            .rollback_component_with_clone::<WAGResources>()
+            .rollback_component_with_copy::<AnimationHelper>()
+            .rollback_component_with_copy::<Combo>()
             .rollback_component_with_copy::<Defense>()
             .rollback_component_with_copy::<Facing>()
+            .rollback_component_with_copy::<HitboxSpawner>()
+            .rollback_component_with_copy::<Player>()
+            .rollback_component_with_copy::<Pushbox>()
+            .rollback_component_with_copy::<Stats>()
+            // Hitboxes
+            .rollback_component_with_clone::<Attack>()
+            .rollback_component_with_copy::<ConstantVelocity>()
+            .rollback_component_with_copy::<DespawnMarker>()
+            .rollback_component_with_copy::<Follow>()
+            .rollback_component_with_copy::<HitTracker>()
+            .rollback_component_with_copy::<Hitbox>()
+            .rollback_component_with_copy::<LifetimeFlags>()
+            .rollback_component_with_copy::<Owner>()
             // Bevy inbuilts
-            .rollback_component_with_copy::<Transform>()
+            .rollback_component_with_clone::<Name>()
             .rollback_component_with_copy::<GlobalTransform>()
+            .rollback_component_with_copy::<InheritedVisibility>()
+            .rollback_component_with_copy::<Transform>()
+            .rollback_component_with_copy::<ViewVisibility>()
+            .rollback_component_with_copy::<Visibility>()
+            // Checksums
             .checksum_component::<Transform>(tf_hasher)
-            .checksum_component::<PlayerState>(player_state_hasher);
+            .checksum_component_with_hash::<PlayerState>();
     }
 }
 
@@ -397,11 +419,5 @@ fn tf_hasher(transform: &Transform) -> u64 {
     transform.scale.y.to_bits().hash(&mut hasher);
     transform.scale.z.to_bits().hash(&mut hasher);
 
-    hasher.finish()
-}
-
-fn player_state_hasher(state: &PlayerState) -> u64 {
-    let mut hasher = checksum_hasher();
-    state.hash(&mut hasher);
     hasher.finish()
 }

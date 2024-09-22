@@ -7,7 +7,7 @@ use wag_core::{Animation, Facing, Hitstop, Stats};
 
 use super::Animations;
 
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Clone, Copy)]
 pub struct AnimationHelper {
     pub player_entity: Entity,
     pub scene_root: Entity,

@@ -21,7 +21,7 @@ pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
 pub const ARENA_WIDTH: f32 = 8.5;
 pub const MAX_PLAYER_DISTANCE: f32 = 8.0;
 
-#[derive(Debug, Default, Reflect, Component)]
+#[derive(Debug, Default, Reflect, Component, Clone, Copy)]
 pub struct ConstantVelocity {
     pub shift: Vec3,
     pub speed: Vec3,

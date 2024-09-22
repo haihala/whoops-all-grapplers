@@ -242,7 +242,7 @@ pub(super) fn detect_hits(
         .collect()
 }
 
-pub(super) fn apply_connections(
+pub fn apply_connections(
     In(mut hits): In<Vec<AttackConnection>>,
     mut commands: Commands,
     mut notifications: ResMut<Notifications>,
@@ -492,7 +492,7 @@ pub fn hitstun_events(
     clock: Res<Clock>,
 ) {
     let mut state = query.get_mut(trigger.entity()).unwrap();
-    state.stun(clock.frame + trigger.event().0);
+    state.hit_stun(clock.frame + trigger.event().0);
 }
 
 pub fn blockstun_events(

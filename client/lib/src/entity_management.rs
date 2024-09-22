@@ -4,7 +4,7 @@ use wag_core::{
     RollbackSchedule,
 };
 
-#[derive(Component)]
+#[derive(Component, Copy, Clone)]
 pub struct DespawnMarker(pub usize);
 
 #[derive(Debug, Component, Deref)]

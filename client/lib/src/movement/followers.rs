@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Debug, Component)]
+#[derive(Debug, Clone, Copy, Component)]
 pub struct Follow {
     pub target: Entity,
     pub offset: Vec3,

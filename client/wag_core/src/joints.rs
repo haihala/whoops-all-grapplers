@@ -107,7 +107,7 @@ pub struct JointCollider {
     pub padding: f32,
 }
 
-#[derive(Debug, Component, Reflect)]
+#[derive(Debug, Component, Clone, Reflect)]
 pub struct Joints {
     pub nodes: HashMap<Joint, Entity>,
     pub colliders: Vec<JointCollider>,

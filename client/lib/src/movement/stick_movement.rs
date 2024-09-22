@@ -10,7 +10,7 @@ pub fn movement_input(mut query: Query<(&InputParser, &mut PlayerState, &Facing)
             continue;
         }
 
-        if state.is_grounded() && state.get_action_tracker().is_none() && !state.stunned() {
+        if state.is_grounded() && !state.action_in_progress() && !state.stunned() {
             let relative_stick = reader.get_relative_stick_position();
             let stick = if facing.to_flipped() {
                 relative_stick.mirror()

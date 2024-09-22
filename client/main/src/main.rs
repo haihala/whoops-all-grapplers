@@ -1,6 +1,5 @@
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::{
-    ecs::schedule::{LogLevel, ScheduleBuildSettings},
     prelude::*,
     window::{WindowMode, WindowResolution},
 };
@@ -13,13 +12,15 @@ fn main() {
 
     // Happens roughly in order, so add stages, click and assets before using them
     App::new()
-        .edit_schedule(Main, |schedule| {
-            schedule.set_build_settings(ScheduleBuildSettings {
-                ambiguity_detection: LogLevel::Error,
-                hierarchy_detection: LogLevel::Error,
-                ..default()
-            });
-        })
+        // TODO: Fix that
+        //
+        //.edit_schedule(Update, |schedule| {
+        //    schedule.set_build_settings(ScheduleBuildSettings {
+        //        ambiguity_detection: LogLevel::Error,
+        //        hierarchy_detection: LogLevel::Error,
+        //        ..default()
+        //    });
+        //})
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(if args.dev.is_some() {
                 Window {

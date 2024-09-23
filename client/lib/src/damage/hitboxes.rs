@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use bevy_ggrs::AddRollbackCommandExtension;
 use characters::{Attack, Hitbox, Lifetime};
-use wag_core::{Area, Clock, Facing, InCombat, Joints, Owner, Player};
+use wag_core::{Area, Clock, Facing, InCombat, Owner, Player};
 
 use crate::{
     assets::Models,
@@ -118,34 +118,19 @@ pub fn spawn_new_hitboxes(
     clock: Res<Clock>,
     models: Res<Models>,
     tfs: Query<&GlobalTransform>,
-    mut query: Query<(&mut HitboxSpawner, &Joints, Entity, &Facing, &Player)>,
+    mut query: Query<(&mut HitboxSpawner, Entity, &Facing, &Player)>,
 ) {
-    let (mut spawner, joints, parent, facing, player) = query.get_mut(trigger.entity()).unwrap();
-
-    let root = if let Some(joint) = trigger.event().0.to_hit.joint {
-        // Attach to that joint if joint is presented
-        *joints
-            .nodes
-            // Need to use the opposite joint if model is flipped
-            .get(&if facing.to_flipped() {
-                joint.flip()
-            } else {
-                joint
-            })
-            .unwrap()
-    } else {
-        parent
-    };
+    let (mut spawner, parent, facing, player) = query.get_mut(trigger.entity()).unwrap();
 
     spawner.spawn_attack(
         &mut commands,
         &models,
         trigger.event().0.to_owned(),
         clock.frame,
-        root,
+        parent,
         facing,
         *player,
-        tfs.get(root).unwrap().translation(),
+        tfs.get(parent).unwrap().translation(),
     );
 }
 

@@ -2,7 +2,7 @@ use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
     ActionCategory, ActionId, Animation, AnimationType, Area, CancelType, CancelWindow, GameButton,
-    Icon, ItemId, Joint, MizkuActionId, MizkuAnimation, Model, SoundEffect, Stats, StatusCondition,
+    Icon, ItemId, MizkuActionId, MizkuAnimation, Model, SoundEffect, Stats, StatusCondition,
     StatusFlag, MIZUKI_ALT_HELMET_COLOR, MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
 };
 
@@ -111,9 +111,8 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 5,
                 Attack::strike(
                     ToHit {
-                        hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.35)),
-                        joint: Some(Joint::ShinL),
-                        lifetime: Lifetime::frames(5),
+                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.35, 0.35)),
+                        lifetime: Lifetime::frames(2),
                         ..default()
                     },
                     CommonAttackProps {
@@ -135,8 +134,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 3,
                 Attack::strike(
                     ToHit {
-                        hitbox: Hitbox(Area::new(-0.4, 0.0, 0.9, 0.2)),
-                        joint: Some(Joint::FootL),
+                        hitbox: Hitbox(Area::new(0.4, 0.1, 0.9, 0.2)),
                         lifetime: Lifetime::frames(3),
                         block_type: Strike(Low),
                         ..default()
@@ -173,9 +171,8 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         return vec![
                             Attack::strike(
                                 ToHit {
-                                    hitbox: Hitbox(Area::new(-0.2, 0.0, 1.2, 0.2)),
-                                    joint: Some(Joint::FootL),
-                                    lifetime: Lifetime::frames(5),
+                                    hitbox: Hitbox(Area::new(1.2, 1.0, 1.2, 0.2)),
+                                    lifetime: Lifetime::frames(6),
                                     ..default()
                                 },
                                 CommonAttackProps {
@@ -213,8 +210,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 8,
                 Attack::strike(
                     ToHit {
-                        hitbox: Hitbox(Area::of_size(0.3, 0.5)),
-                        joint: Some(Joint::HandR),
+                        hitbox: Hitbox(Area::new(0.3, 0.7, 0.3, 0.5)),
                         lifetime: Lifetime::frames(8),
                         ..default()
                     },
@@ -243,8 +239,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     if situation.elapsed() == 7 {
                         return vec![Attack::strike(
                             ToHit {
-                                hitbox: Hitbox(Area::new(0.3, 0.0, 1.8, 0.2)),
-                                joint: Some(Joint::Katana),
+                                hitbox: Hitbox(Area::new(1.5, 1.3, 1.8, 0.2)),
                                 lifetime: Lifetime::frames(6),
                                 ..default()
                             },
@@ -282,8 +277,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     if situation.elapsed() == 8 {
                         return vec![Attack::strike(
                             ToHit {
-                                hitbox: Hitbox(Area::new(0.3, 0.4, 1.0, 1.0)),
-                                joint: Some(Joint::Katana),
+                                hitbox: Hitbox(Area::new(1.8, 0.9, 1.0, 1.0)),
                                 lifetime: Lifetime::frames(5),
                                 block_type: Strike(Low),
                                 ..default()
@@ -321,8 +315,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                     if situation.elapsed() == 7 {
                         return vec![Attack::strike(
                             ToHit {
-                                hitbox: Hitbox(Area::new(-0.2, -0.3, 1.0, 0.4)),
-                                joint: Some(Joint::Katana),
+                                hitbox: Hitbox(Area::new(0.0, -0.5, 1.0, 0.4)),
                                 lifetime: Lifetime::frames(12),
                                 ..default()
                             },
@@ -356,8 +349,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 2,
                 Attack::strike(
                     ToHit {
-                        hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.25)),
-                        joint: Some(Joint::ShinR),
+                        hitbox: Hitbox(Area::new(0.3, 0.2, 0.35, 0.25)),
                         lifetime: Lifetime::frames(5),
                         block_type: Strike(High),
                         ..default()
@@ -399,8 +391,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             // system makes that hard, maybe think of a way to reintroduce that.
                             Attack::strike(
                                 ToHit {
-                                    hitbox: Hitbox(Area::new(0.1, 0.0, 0.7, 0.3)),
-                                    joint: Some(Joint::FootR),
+                                    hitbox: Hitbox(Area::new(0.8, -0.2, 0.7, 0.3)),
                                     lifetime: Lifetime::frames(7),
                                     block_type: Strike(High),
                                     ..default()
@@ -438,8 +429,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 Attack::forward_throw(
                     ToHit {
                         block_type: Grab,
-                        hitbox: Hitbox(Area::of_size(0.5, 0.5)),
-                        joint: Some(Joint::HandR),
+                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.5, 0.5)),
                         lifetime: Lifetime::frames(3),
                         ..default()
                     },
@@ -459,8 +449,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 Attack::back_throw(
                     ToHit {
                         block_type: Grab,
-                        hitbox: Hitbox(Area::of_size(0.5, 0.5)),
-                        joint: Some(Joint::HandR),
+                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.5, 0.5)),
                         lifetime: Lifetime::frames(3),
                         ..default()
                     },
@@ -493,8 +482,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 Attack::forward_throw(
                     ToHit {
                         block_type: Grab,
-                        hitbox: Hitbox(Area::of_size(0.5, 0.2)),
-                        joint: Some(Joint::HandL),
+                        hitbox: Hitbox(Area::new(0.7, 0.1, 0.5, 0.2)),
                         lifetime: Lifetime::frames(3),
                         ..default()
                     },
@@ -527,8 +515,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 Attack::forward_throw(
                     ToHit {
                         block_type: Grab,
-                        hitbox: Hitbox(Area::new(-0.2, 0.0, 0.8, 0.8)),
-                        joint: Some(Joint::HandL),
+                        hitbox: Hitbox(Area::new(0.4, 0.5, 0.8, 0.8)),
                         lifetime: Lifetime::frames(2),
                         ..default()
                     },
@@ -679,9 +666,8 @@ fn viper_strike() -> Action {
                 return vec![
                     Attack::strike(
                         ToHit {
-                            hitbox: Hitbox(Area::new(0.4, 0.0, 1.6, 0.45)),
+                            hitbox: Hitbox(Area::new(1.2, 0.225, 1.6, 0.45)),
                             block_type: Strike(Low),
-                            joint: Some(Joint::Katana),
                             lifetime: Lifetime::frames(6),
                             ..default()
                         },
@@ -732,9 +718,8 @@ fn rising_sun() -> Action {
                 return vec![
                     Attack::strike(
                         ToHit {
-                            hitbox: Hitbox(Area::new(0.0, 0.0, 2.0, 1.0)),
-                            joint: Some(Joint::Katana),
-                            lifetime: Lifetime::frames(6),
+                            hitbox: Hitbox(Area::new(0.2, 1.5, 3.0, 1.5)),
+                            lifetime: Lifetime::frames(8),
                             ..default()
                         },
                         CommonAttackProps {

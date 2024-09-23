@@ -4,7 +4,7 @@ use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
     ActionCategory, ActionId, Animation, AnimationType, Area, DummyActionId, DummyAnimation,
-    ItemId, Joint, Model, Stats, StatusCondition, StatusFlag, CHARGE_BAR_FULL_SEGMENT_COLOR,
+    ItemId, Model, Stats, StatusCondition, StatusFlag, CHARGE_BAR_FULL_SEGMENT_COLOR,
     CHARGE_BAR_PARTIAL_SEGMENT_COLOR, FPS,
 };
 
@@ -107,8 +107,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                 9,
                 Attack::strike(
                     ToHit {
-                        hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.35)),
-                        joint: Some(Joint::HandR),
+                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.35, 0.35)),
                         lifetime: Lifetime::frames(5),
                         ..default()
                     },
@@ -126,8 +125,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                 8,
                 Attack::strike(
                     ToHit {
-                        hitbox: Hitbox(Area::new(0.1, -0.2, 0.3, 0.2)),
-                        joint: Some(Joint::HandL),
+                        hitbox: Hitbox(Area::new(0.4, 0.1, 0.3, 0.2)),
                         lifetime: Lifetime::frames(5),
                         ..default()
                     },
@@ -152,8 +150,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         return vec![
                             Attack::strike(
                                 ToHit {
-                                    hitbox: Hitbox(Area::new(-0.3, 0.0, 1.0, 0.2)),
-                                    joint: Some(Joint::HandR),
+                                    hitbox: Hitbox(Area::new(0.6, 1.1, 1.0, 0.2)),
                                     lifetime: Lifetime::frames(8),
                                     ..default()
                                 },
@@ -192,12 +189,11 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                 13,
                 Attack::strike(
                     ToHit {
-                        hitbox: Hitbox(Area::of_size(0.3, 0.5)),
-                        joint: Some(Joint::HandR),
+                        hitbox: Hitbox(Area::new(1.0, 1.3, 0.3, 0.5)),
                         lifetime: Lifetime::frames(4),
                         ..default()
                     },
-                    CommonAttackProps { ..default() },
+                    CommonAttackProps::default(),
                 ),
                 13
             ),
@@ -211,8 +207,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                 8,
                 Attack::strike(
                     ToHit {
-                        hitbox: Hitbox(Area::new(0.1, 0.0, 0.35, 0.25)),
-                        joint: Some(Joint::HandR),
+                        hitbox: Hitbox(Area::new(0.3, 0.6, 0.35, 0.25)),
                         lifetime: Lifetime::frames(5),
                         block_type: Strike(High),
                         ..default()
@@ -235,8 +230,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     if situation.elapsed() == 5 {
                         return vec![Attack::strike(
                             ToHit {
-                                hitbox: Hitbox(Area::of_size(0.35, 0.25)),
-                                joint: Some(Joint::FootR),
+                                hitbox: Hitbox(Area::new(0.6, -0.2, 0.35, 0.25)),
                                 lifetime: Lifetime::frames(10),
                                 block_type: Strike(High),
                                 ..default()
@@ -268,8 +262,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                 Attack::strike(
                     ToHit {
                         block_type: Grab,
-                        hitbox: Hitbox(Area::of_size(0.5, 0.5)),
-                        joint: Some(Joint::HandL),
+                        hitbox: Hitbox(Area::new(0.4, 1.0, 0.5, 0.5)),
                         lifetime: Lifetime::frames(5),
                         ..default()
                     },
@@ -300,8 +293,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                 Attack::strike(
                     ToHit {
                         block_type: Grab,
-                        hitbox: Hitbox(Area::of_size(0.5, 0.5)),
-                        joint: Some(Joint::HandL),
+                        hitbox: Hitbox(Area::new(0.4, 1.0, 0.5, 0.5)),
                         lifetime: Lifetime::frames(5),
                         ..default()
                     },
@@ -332,8 +324,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                 Attack::strike(
                     ToHit {
                         block_type: Grab,
-                        hitbox: Hitbox(Area::new(-0.3, 0.0, 1.0, 0.2)),
-                        joint: Some(Joint::HandR),
+                        hitbox: Hitbox(Area::new(0.6, 0.1, 1.0, 0.2)),
                         lifetime: Lifetime::frames(5),
                         ..default()
                     },
@@ -355,8 +346,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                 Attack::strike(
                     ToHit {
                         block_type: Grab,
-                        hitbox: Hitbox(Area::of_size(0.8, 0.8)),
-                        joint: Some(Joint::HandR),
+                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.8, 0.8)),
                         lifetime: Lifetime::frames(5),
                         ..default()
                     },

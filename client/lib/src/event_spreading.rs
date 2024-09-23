@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::{ActionEvent, AnimationRequest, Attack, FlashRequest, Movement, ResourceType};
-use wag_core::{ActionId, CancelWindow, SoundEffect, StatusCondition, VfxRequest};
+use wag_core::{ActionId, Area, CancelWindow, SoundEffect, StatusCondition, VfxRequest};
 
 #[derive(Debug, Event)]
 pub struct AllowCancel(pub CancelWindow);
@@ -72,6 +72,12 @@ pub struct LockPlayer(pub usize);
 
 #[derive(Debug, Event)]
 pub struct EndAction;
+
+#[derive(Debug, Event)]
+pub struct ExpandHurtbox {
+    pub area: Area,
+    pub duration: usize,
+}
 
 pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
     match trigger.event() {
@@ -152,6 +158,15 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
         }
         ActionEvent::End => {
             commands.trigger_targets(EndAction, trigger.entity());
+        }
+        ActionEvent::ExpandHurtbox(area, duration) => {
+            commands.trigger_targets(
+                ExpandHurtbox {
+                    area: *area,
+                    duration: *duration,
+                },
+                trigger.entity(),
+            );
         }
         ActionEvent::Noop => {}
     }

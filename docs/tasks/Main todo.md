@@ -1,7 +1,6 @@
 # Network priority queue
-- Desyncing because animations are not consistent speed -> inconsistent joint placement (floating point error precision)
-	- Scrape animations for joint positions
-	- Or just simplify and write them manually
+- Find next desync
+- Find a better way to describe attacks
 
 # Next steps
 - [[Update Gi]]

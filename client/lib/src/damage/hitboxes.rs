@@ -112,15 +112,14 @@ impl HitboxSpawner {
     }
 }
 
-pub fn spawn_new_hitboxes(
+pub fn spawn_hitbox(
     trigger: Trigger<SpawnHitbox>,
     mut commands: Commands,
     clock: Res<Clock>,
     models: Res<Models>,
-    tfs: Query<&GlobalTransform>,
-    mut query: Query<(&mut HitboxSpawner, Entity, &Facing, &Player)>,
+    mut query: Query<(&mut HitboxSpawner, &Transform, Entity, &Facing, &Player)>,
 ) {
-    let (mut spawner, parent, facing, player) = query.get_mut(trigger.entity()).unwrap();
+    let (mut spawner, tf, parent, facing, player) = query.get_mut(trigger.entity()).unwrap();
 
     spawner.spawn_attack(
         &mut commands,
@@ -130,7 +129,7 @@ pub fn spawn_new_hitboxes(
         parent,
         facing,
         *player,
-        tfs.get(parent).unwrap().translation(),
+        tf.translation,
     );
 }
 

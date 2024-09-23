@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use wag_core::{
-    ActionId, Animation, CancelWindow, DummyAnimation, MizkuAnimation, SoundEffect,
+    ActionId, Animation, Area, CancelWindow, DummyAnimation, MizkuAnimation, SoundEffect,
     StatusCondition, VfxRequest,
 };
 
@@ -33,10 +33,11 @@ pub enum ActionEvent {
     CameraShake, // TODO: Add strength
     Flash(FlashRequest),
     VisualEffect(VfxRequest),
-    Lock(usize), // duration, sideswitch
+    Lock(usize),                // duration
+    ExpandHurtbox(Area, usize), // New area, how long it should hang around
     #[default]
-    Noop, // makes writing macros easier
-    End,         // Ends the move, return to neutral
+    Noop,        // makes writing macros easier
+    End,                        // Ends the move, return to neutral
 }
 
 impl From<Attack> for ActionEvent {

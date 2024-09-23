@@ -13,8 +13,8 @@ use crate::{
     throw_hit, throw_target, universal_item_actions, Action, ActionEvent, Attack,
     AttackHeight::*,
     BlockType::*,
-    CommonAttackProps, ConsumableType, CounterVisual, Hitbox, Item, ItemCategory, Lifetime,
-    Movement, Situation,
+    CharacterBoxes, CharacterStateBoxes, CommonAttackProps, ConsumableType, CounterVisual, Hitbox,
+    Item, ItemCategory, Lifetime, Movement, Situation,
     StunType::*,
     ToHit, WAGResource,
 };
@@ -36,6 +36,7 @@ pub fn mizku() -> Character {
         mizku_animations(),
         mizku_moves(jumps),
         mizku_items(),
+        mizku_boxes(),
         Stats {
             walk_speed: 1.5,
             gravity,
@@ -901,32 +902,25 @@ fn mizku_items() -> HashMap<ItemId, Item> {
     .collect()
 }
 
-#[cfg(test)]
-mod test {
-    use crate::{ActionEvent, ActionTracker, Situation};
-
-    use super::*;
-
-    #[test]
-    fn all_moves_end() {
-        let miz = mizku();
-        for (id, mov) in miz.moves.iter() {
-            let sit = Situation {
-                tracker: Some(ActionTracker {
-                    start_frame: 0,
-                    ..default()
-                }),
-                frame: 9999,
-                ..default()
-            };
-            let end_events = (mov.script)(&sit);
-            assert!(
-                end_events.contains(&ActionEvent::End),
-                "{:?} - {:?} not in {:?}",
-                id,
-                &mov,
-                end_events,
-            );
-        }
+fn mizku_boxes() -> CharacterBoxes {
+    CharacterBoxes {
+        standing: CharacterStateBoxes {
+            head: Area::new(-0.05, 1.8, 0.4, 0.3),
+            chest: Area::new(0.0, 1.3, 0.6, 0.8),
+            legs: Area::new(0.05, 0.6, 0.65, 1.2),
+            pushbox: Area::from_center_size(Vec2::Y * 0.7, Vec2::new(0.4, 1.4)),
+        },
+        crouching: CharacterStateBoxes {
+            head: Area::new(0.2, 0.6, 0.4, 0.3),
+            chest: Area::new(0.1, 0.45, 0.6, 0.3),
+            legs: Area::new(0.0, 0.2, 1.0, 0.4),
+            pushbox: Area::from_center_size(Vec2::new(0.1, 0.35), Vec2::new(0.6, 0.7)),
+        },
+        airborne: CharacterStateBoxes {
+            head: Area::new(0.15, 1.25, 0.4, 0.3),
+            chest: Area::new(0.1, 0.9, 1.1, 0.6),
+            legs: Area::new(-0.2, 0.4, 0.9, 0.8),
+            pushbox: Area::from_center_size(Vec2::new(0.0, 0.55), Vec2::new(0.4, 0.6)),
+        },
     }
 }

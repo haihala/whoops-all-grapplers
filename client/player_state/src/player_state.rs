@@ -1,10 +1,11 @@
 use bevy::prelude::*;
 
 use characters::{
-    Action, ActionEvent, ActionTracker, Character, Inventory, Situation, WAGResources,
+    Action, ActionEvent, ActionTracker, Character, CharacterStateBoxes, Inventory, Situation,
+    WAGResources,
 };
 use input_parsing::InputParser;
-use wag_core::{ActionId, AnimationType, Area, Facing, Stats, StatusCondition, StatusFlag};
+use wag_core::{ActionId, AnimationType, Facing, Stats, StatusCondition, StatusFlag};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 
@@ -332,12 +333,12 @@ impl PlayerState {
         matches!(self.main, MainState::Crouch(_))
     }
 
-    pub fn get_pushbox(&self, character: &Character) -> Area {
+    pub fn get_boxes(&self, character: &Character) -> CharacterStateBoxes {
         match self.main {
-            MainState::Stand(_) => character.standing_pushbox,
-            MainState::Air(_) => character.air_pushbox,
+            MainState::Stand(_) => character.boxes.standing,
+            MainState::Air(_) => character.boxes.airborne,
             // TODO: These could have it's own box
-            MainState::Crouch(_) | MainState::Ground(_) => character.crouching_pushbox,
+            MainState::Crouch(_) | MainState::Ground(_) => character.boxes.crouching,
         }
     }
     pub fn add_condition(&mut self, condition: StatusCondition) {

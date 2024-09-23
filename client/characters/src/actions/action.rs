@@ -128,7 +128,15 @@ macro_rules! attack_action {
                 }
 
                 if situation.elapsed() == $startup {
-                    return vec![$attack.into(), $cancel_type];
+                    // This could probably be more elegant somehow
+                    return vec![
+                        $attack.into(),
+                        ActionEvent::ExpandHurtbox(
+                            $attack.to_hit.hitbox.grow(0.1),
+                            $attack.to_hit.lifetime.frames.unwrap_or_default() + 4,
+                        ),
+                        $cancel_type,
+                    ];
                 }
 
                 situation.end_at($startup + $recovery)

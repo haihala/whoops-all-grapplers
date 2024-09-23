@@ -1,7 +1,7 @@
 use bevy::{ecs::query::QueryData, prelude::*};
 
 use characters::{
-    ActionEvent, Attack, AttackHeight, BlockType, Hitbox, Hurtbox, Movement, ResourceType,
+    ActionEvent, Attack, AttackHeight, BlockType, Hitbox, Hurtboxes, Movement, ResourceType,
     WAGResources,
 };
 use input_parsing::InputParser;
@@ -53,7 +53,6 @@ pub struct HitPlayerQuery<'a> {
     velocity: &'a mut PlayerVelocity,
     facing: &'a Facing,
     spawner: &'a mut HitboxSpawner,
-    pushbox: &'a Pushbox,
     stats: &'a Stats,
     combo: Option<&'a mut Combo>,
 }
@@ -129,6 +128,7 @@ pub(super) fn clash_parry(
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub(super) fn detect_hits(
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
@@ -141,8 +141,14 @@ pub(super) fn detect_hits(
         &mut HitTracker,
     )>,
     players: Res<Players>,
-    hurtboxes: Query<(&Hurtbox, &Owner)>,
-    defenders: Query<(&Transform, &PlayerState, &InputParser, Option<&Combo>)>,
+    defenders: Query<(
+        &Transform,
+        &Facing,
+        &Hurtboxes,
+        &PlayerState,
+        &InputParser,
+        Option<&Combo>,
+    )>,
 ) -> Vec<AttackConnection> {
     hitboxes
         .iter_mut()
@@ -157,20 +163,20 @@ pub(super) fn detect_hits(
 
                 let defender = players.get(defending_player);
                 let attacker = players.get(**hit_owner);
-                let (defender_tf, state, parser, combo) = defenders.get(defender).unwrap();
+                let (defender_tf, facing, hurtboxes, state, parser, combo) =
+                    defenders.get(defender).unwrap();
 
                 let offset_hitbox = hitbox.with_offset(hitbox_tf.translation().truncate());
 
                 // This technically doesn't get the actual overlap, as it just gets some overlap with one of the hitboxes
-                let overlap = hurtboxes.iter().find_map(|(hurtbox, hurt_owner)| {
-                    if **hurt_owner == **hit_owner {
-                        None
-                    } else {
-                        // Different owners, hit can register
-                        hurtbox
-                            .with_offset(defender_tf.translation.truncate())
-                            .intersection(&offset_hitbox)
-                    }
+                let overlap = hurtboxes.as_vec().iter().find_map(|hurtbox| {
+                    // Different owners, hit can register
+                    hurtbox
+                        .with_center(
+                            facing.mirror_vec2(hurtbox.center())
+                                + defender_tf.translation.truncate(),
+                        )
+                        .intersection(&offset_hitbox)
                 })?;
 
                 if state.is_intangible() {

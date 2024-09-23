@@ -49,8 +49,51 @@ pub struct Projectile {
     pub model: Model,
 }
 
-#[derive(Debug, Clone, Copy, Default, Component, DerefMut, Deref, Reflect)]
-pub struct Hurtbox(pub Area);
+#[derive(Debug, Clone, Copy, Reflect)]
+pub struct CharacterStateBoxes {
+    pub head: Area,
+    pub chest: Area,
+    pub legs: Area,
+    pub pushbox: Area,
+}
+
+#[derive(Debug, Clone, Copy, Reflect)]
+pub struct CharacterBoxes {
+    pub standing: CharacterStateBoxes,
+    pub crouching: CharacterStateBoxes,
+    pub airborne: CharacterStateBoxes,
+}
+
+#[derive(Debug, Clone, Default, Component, Reflect)]
+pub struct Hurtboxes {
+    pub head: Area,
+    pub chest: Area,
+    pub legs: Area,
+    pub extra: Vec<(Area, usize)>,
+}
+impl From<CharacterStateBoxes> for Hurtboxes {
+    fn from(value: CharacterStateBoxes) -> Self {
+        Self {
+            head: value.head,
+            chest: value.chest,
+            legs: value.legs,
+            extra: vec![],
+        }
+    }
+}
+
+impl Hurtboxes {
+    pub fn as_vec(&self) -> Vec<Area> {
+        vec![self.head, self.chest, self.legs]
+            .into_iter()
+            .chain(self.extra.clone().into_iter().map(|(a, _)| a))
+            .collect()
+    }
+
+    pub fn expire(&mut self, frame: usize) {
+        self.extra.retain(|(_, end)| frame <= *end);
+    }
+}
 
 #[derive(Default, Clone, Copy, Deref, DerefMut, Debug, Component, Reflect, PartialEq)]
 pub struct Hitbox(pub Area);

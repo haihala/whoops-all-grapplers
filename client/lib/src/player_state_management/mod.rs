@@ -8,7 +8,7 @@ mod recovery;
 mod side_switcher;
 mod size_adjustment;
 
-use characters::{dummy, mizku, Inventory, WAGResources};
+use characters::{dummy, mizku, Hurtboxes, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
@@ -64,7 +64,8 @@ impl Plugin for PlayerStateManagementPlugin {
                     cinematic_locks::handle_cinematics, // This being the first system after hit move advancement is important
                     recovery::stun_recovery,
                     recovery::ground_recovery,
-                    size_adjustment::size_adjustment,
+                    size_adjustment::update_box_sizes_from_state,
+                    size_adjustment::remove_old_hurtbox_expansions,
                 )
                     .chain()
                     .in_set(WAGStage::PlayerUpdates),
@@ -131,7 +132,8 @@ fn spawn_player(
             Name::new(format!("Player {player}")),
             AnimationHelperSetup(character.generic_animations[&AnimationType::Default]),
             Facing::from_flipped(offset.is_sign_positive()),
-            Pushbox(character.standing_pushbox),
+            Pushbox(character.boxes.standing.pushbox),
+            Hurtboxes::from(character.boxes.standing),
             character.clone(),
             player,
             StateScoped(InMatch),
@@ -147,13 +149,14 @@ fn spawn_player(
         })
         .add_rollback()
         .observe(event_spreading::spread_events)
-        .observe(force_stand::force_stand)
-        .observe(player_flash::handle_flash_events)
-        .observe(condition_management::manage_conditions)
         .observe(cinematic_locks::start_lock)
-        .observe(move_advancement::end_moves)
-        .observe(move_activation::manage_cancel_windows)
+        .observe(condition_management::manage_conditions)
+        .observe(force_stand::force_stand)
         .observe(move_activation::automatic_activation)
+        .observe(move_activation::manage_cancel_windows)
+        .observe(move_advancement::end_moves)
+        .observe(player_flash::handle_flash_events)
+        .observe(size_adjustment::expand_hurtboxes)
         .observe(crate::assets::start_animation)
         .observe(crate::assets::start_vfx)
         .observe(crate::camera::tilt_camera)
@@ -161,7 +164,7 @@ fn spawn_player(
         .observe(crate::damage::hitstun_events)
         .observe(crate::damage::blockstun_events)
         .observe(crate::damage::launch_events)
-        .observe(crate::damage::spawn_new_hitboxes)
+        .observe(crate::damage::spawn_hitbox)
         .observe(crate::movement::clear_movement)
         .observe(crate::movement::add_movement)
         .observe(crate::resources::modify_properties)

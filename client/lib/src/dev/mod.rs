@@ -1,7 +1,7 @@
 use bevy::{prelude::*, window::WindowMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-use characters::{ActionEvent, FlashRequest, Hitbox, Hurtbox, Inventory};
+use characters::{ActionEvent, FlashRequest, Hitbox, Hurtboxes, Inventory};
 use input_parsing::{InputParser, PadStream, ParrotStream};
 use strum::IntoEnumIterator;
 use wag_core::{
@@ -31,7 +31,7 @@ impl Plugin for DevPlugin {
             .register_type::<ConstantVelocity>()
             .register_type::<Pushbox>()
             .register_type::<Area>()
-            .register_type::<Hurtbox>()
+            .register_type::<Hurtboxes>()
             .register_type::<Hitbox>()
             .register_type::<MoveBuffer>()
             .register_type::<Inventory>()

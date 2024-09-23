@@ -56,6 +56,9 @@ impl Area {
     pub fn with_offset(self, new_origin: Vec2) -> Self {
         Self::from_center_size(self.center + new_origin, self.size())
     }
+    pub fn grow(self, delta: f32) -> Self {
+        Self::from_center_size(self.center, self.size() + Vec2::ONE * delta)
+    }
     pub fn intersection(&self, other: &Area) -> Option<Area> {
         let x_overlap = self.left() < other.right() && self.right() > other.left();
         let y_overlap = self.bottom() < other.top() && self.top() > other.bottom();

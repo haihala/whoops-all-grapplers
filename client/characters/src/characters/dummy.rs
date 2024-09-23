@@ -17,7 +17,7 @@ use crate::{
     AnimationRequest, Attack,
     AttackHeight::*,
     BlockType::*,
-    ChargeProperty, CommonAttackProps, Hitbox, Item,
+    CharacterBoxes, CharacterStateBoxes, ChargeProperty, CommonAttackProps, Hitbox, Item,
     ItemCategory::*,
     Lifetime, Movement, Projectile, ResourceBarVisual, Situation, SpecialProperty,
     StunType::*,
@@ -38,6 +38,7 @@ pub fn dummy() -> Character {
         dummy_animations(),
         dummy_moves(jumps),
         dummy_items(),
+        dummy_boxes(),
         Stats {
             gravity,
             ..default()
@@ -606,4 +607,27 @@ fn dummy_items() -> HashMap<ItemId, Item> {
     .into_iter()
     .chain(universal_items())
     .collect()
+}
+
+fn dummy_boxes() -> CharacterBoxes {
+    CharacterBoxes {
+        standing: CharacterStateBoxes {
+            head: Area::new(-0.05, 1.8, 0.4, 0.3),
+            chest: Area::new(0.0, 1.3, 0.6, 0.8),
+            legs: Area::new(0.05, 0.6, 0.65, 1.2),
+            pushbox: Area::from_center_size(Vec2::Y * 0.7, Vec2::new(0.4, 1.4)),
+        },
+        crouching: CharacterStateBoxes {
+            head: Area::new(0.2, 0.6, 0.4, 0.3),
+            chest: Area::new(0.1, 0.45, 0.6, 0.3),
+            legs: Area::new(0.0, 0.2, 1.0, 0.4),
+            pushbox: Area::from_center_size(Vec2::new(0.1, 0.35), Vec2::new(0.6, 0.7)),
+        },
+        airborne: CharacterStateBoxes {
+            head: Area::new(0.15, 1.25, 0.4, 0.3),
+            chest: Area::new(0.1, 0.9, 1.1, 0.6),
+            legs: Area::new(-0.2, 0.4, 0.9, 0.8),
+            pushbox: Area::from_center_size(Vec2::new(0.0, 0.55), Vec2::new(0.4, 0.6)),
+        },
+    }
 }

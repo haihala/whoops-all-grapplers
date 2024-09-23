@@ -14,4 +14,7 @@ pub use animation_request::AnimationRequest;
 pub use attack::{Attack, CommonAttackProps, StunType};
 pub use flash_request::FlashRequest;
 pub use movement::Movement;
-pub use to_hit::{AttackHeight, BlockType, Hitbox, Hurtbox, Lifetime, Projectile, ToHit};
+pub use to_hit::{
+    AttackHeight, BlockType, CharacterBoxes, CharacterStateBoxes, Hitbox, Hurtboxes, Lifetime,
+    Projectile, ToHit,
+};

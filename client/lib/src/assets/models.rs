@@ -3,7 +3,7 @@ use bevy::{
     utils::HashMap,
 };
 use characters::FlashRequest;
-use wag_core::{Joint, Joints, Model};
+use wag_core::Model;
 
 use super::{ExtendedFlashMaterial, FlashMaterial};
 
@@ -29,34 +29,16 @@ pub struct PlayerModelHook(pub HashMap<&'static str, Color>);
 
 #[allow(clippy::too_many_arguments)]
 pub fn prep_player_gltf(
-    unloaded_instances: Query<(
-        Entity,
-        &Parent,
-        Option<&Name>,
-        &SceneInstance,
-        &PlayerModelHook,
-    )>,
+    unloaded_instances: Query<(Entity, &SceneInstance, &PlayerModelHook)>,
     material_handles: Query<(Entity, &Handle<StandardMaterial>, &Name)>,
     pbr_materials: Res<Assets<StandardMaterial>>,
     scene_manager: Res<SceneSpawner>,
     mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
     mut commands: Commands,
-
-    mut joints: Query<&mut Joints>,
-    children: Query<&Children>,
-    names: Query<&Name>,
 ) {
-    for (entity, parent, name, instance, update_material) in &unloaded_instances {
+    for (entity, instance, update_material) in &unloaded_instances {
         if scene_manager.instance_is_ready(**instance) {
             commands.entity(entity).remove::<PlayerModelHook>();
-            assign_joints(
-                name.cloned().unwrap_or_default().as_str(),
-                entity,
-                **parent,
-                &mut joints,
-                &children,
-                &names,
-            );
         }
 
         // Iterate over all entities in scene (once it's loaded)
@@ -84,29 +66,6 @@ pub fn prep_player_gltf(
                 .entity(entity)
                 .insert(material.clone())
                 .remove::<Handle<StandardMaterial>>();
-        }
-    }
-}
-
-fn assign_joints(
-    name: &str,
-    entity: Entity,
-    root: Entity,
-    joints: &mut Query<&mut Joints>,
-    children: &Query<&Children>,
-    names: &Query<&Name>,
-) {
-    if let Some(joint) = Joint::from_model_string(name) {
-        if let Ok(mut joints) = joints.get_mut(root) {
-            joints.nodes.insert(joint, entity);
-        }
-    }
-
-    if let Ok(direct_children) = children.get(entity) {
-        for child in direct_children {
-            let child_name = names.get(*child).cloned().unwrap_or_default();
-
-            assign_joints(child_name.as_str(), *child, root, joints, children, names);
         }
     }
 }

@@ -5,9 +5,9 @@ use characters::{ActionEvent, FlashRequest, Hitbox, Hurtbox, Inventory};
 use input_parsing::{InputParser, PadStream, ParrotStream};
 use strum::IntoEnumIterator;
 use wag_core::{
-    Characters, Clock, Controllers, Dev, Facing, GameState, Joints, LocalCharacter,
-    LocalController, LocalState, OnlineState, Player, Players, SoundEffect, Stats, SynctestState,
-    WagArgs, GI_PARRY_FLASH_COLOR,
+    Area, Characters, Clock, Controllers, Dev, Facing, GameState, LocalCharacter, LocalController,
+    LocalState, OnlineState, Player, Players, SoundEffect, Stats, SynctestState, WagArgs,
+    GI_PARRY_FLASH_COLOR,
 };
 
 use crate::{
@@ -30,11 +30,11 @@ impl Plugin for DevPlugin {
             .register_type::<PlayerVelocity>()
             .register_type::<ConstantVelocity>()
             .register_type::<Pushbox>()
+            .register_type::<Area>()
             .register_type::<Hurtbox>()
             .register_type::<Hitbox>()
             .register_type::<MoveBuffer>()
             .register_type::<Inventory>()
-            .register_type::<Joints>()
             .register_type::<Facing>()
             .register_type::<Stats>()
             .register_type::<InputParser>()

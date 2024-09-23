@@ -13,9 +13,9 @@ use input_parsing::{InputParser, PadStream, ParrotStream};
 use player_state::PlayerState;
 use strum::IntoEnumIterator;
 use wag_core::{
-    AvailableCancels, Characters, Clock, Controllers, Facing, GameState, Hitstop, Joints,
-    LocalCharacter, LocalController, OnlineState, Owner, Player, RollbackSchedule, Stats,
-    SynctestState, WagArgs, WagInputButton, WagInputEvent,
+    AvailableCancels, Characters, Clock, Controllers, Facing, GameState, Hitstop, LocalCharacter,
+    LocalController, OnlineState, Owner, Player, RollbackSchedule, Stats, SynctestState, WagArgs,
+    WagInputButton, WagInputEvent,
 };
 
 use crate::{
@@ -82,7 +82,6 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_clone::<ChildCameraEffects>()
             .rollback_component_with_clone::<InputParser>()
             .rollback_component_with_clone::<Inventory>()
-            .rollback_component_with_clone::<Joints>()
             .rollback_component_with_clone::<MoveBuffer>()
             .rollback_component_with_clone::<PadStream>()
             .rollback_component_with_clone::<ParrotStream>()

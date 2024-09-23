@@ -39,9 +39,6 @@ pub use inputs::{
 mod item_id;
 pub use item_id::ItemId;
 
-mod joints;
-pub use joints::{Joint, JointCollider, Joints};
-
 mod player;
 pub use player::{Owner, Player, Players};
 

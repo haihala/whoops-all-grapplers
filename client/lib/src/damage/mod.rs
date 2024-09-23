@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 mod combo;
 mod defense;
-mod dynamic_colliders;
 mod hit_tracker;
 mod hitboxes;
 mod hitreg;
@@ -24,8 +23,6 @@ impl Plugin for DamagePlugin {
         app.add_systems(
             RollbackSchedule,
             (
-                dynamic_colliders::create_colliders,
-                dynamic_colliders::update_colliders,
                 hitreg::clash_parry,
                 hitreg::detect_hits.pipe(hitreg::apply_connections),
                 hitboxes::handle_despawn_flags,

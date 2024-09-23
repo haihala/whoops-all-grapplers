@@ -6,12 +6,15 @@ use characters::{Character, Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
     Clock, GameResult, GameState, InCharacterSelect, InCombat, InEndScreen, InLoadingScreen,
-    InMatch, InMatchSetup, InMenu, Joints, LocalState, MatchState, OnlineState, Player,
-    RollbackSchedule, RoundLog, RoundResult, SynctestState, WAGStage, POST_ROUND_DURATION,
-    ROUNDS_TO_WIN, ROUND_MONEY, VICTORY_BONUS,
+    InMatch, InMatchSetup, InMenu, LocalState, MatchState, OnlineState, Player, RollbackSchedule,
+    RoundLog, RoundResult, SynctestState, WAGStage, POST_ROUND_DURATION, ROUNDS_TO_WIN,
+    ROUND_MONEY, VICTORY_BONUS,
 };
 
-use crate::{assets::AssetsLoading, ui::Notifications};
+use crate::{
+    assets::{AssetsLoading, PlayerModelHook},
+    ui::Notifications,
+};
 
 pub struct StateTransitionPlugin;
 
@@ -199,22 +202,21 @@ fn transition_after_timer(
 }
 
 fn end_loading(
-    players: Query<&Joints>,
+    ready_players: Query<&Player, Without<PlayerModelHook>>,
     loading_assets: Res<AssetsLoading>,
     server: Res<AssetServer>,
     mut next_state: ResMut<NextState<GameState>>,
     current_state: Res<State<GameState>>,
     mut latch: Local<bool>,
 ) {
-    let two_players = players.iter().count() == 2;
-    let joints_loaded = players.iter().all(|joints| !joints.nodes.is_empty());
+    let two_players = ready_players.iter().count() == 2;
     let some_assets_loading = !loading_assets.0.is_empty();
     let all_assets_loaded = loading_assets
         .0
         .iter()
         .all(|h| server.get_load_state(h.id()) == Some(LoadState::Loaded));
 
-    if two_players && joints_loaded && some_assets_loading && all_assets_loaded {
+    if two_players && some_assets_loading && all_assets_loaded {
         if *latch {
             println!("Done loading assets");
             next_state.set(match *current_state.get() {

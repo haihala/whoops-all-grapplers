@@ -13,7 +13,7 @@ use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
     AnimationType, AvailableCancels, CharacterId, Characters, Clock, Facing, InLoadingScreen,
-    InMatch, Joints, MatchState, Player, Players, RollbackSchedule, Stats, WAGStage,
+    InMatch, MatchState, Player, Players, RollbackSchedule, Stats, WAGStage,
 };
 
 use crate::{
@@ -100,7 +100,6 @@ struct PlayerDefaults {
     spawner: HitboxSpawner,
     player_velocity: PlayerVelocity,
     move_buffer: MoveBuffer,
-    joints: Joints,
     status_effects: Stats,
     available_cancels: AvailableCancels,
     state: PlayerState,

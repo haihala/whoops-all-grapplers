@@ -5,7 +5,7 @@ use crate::{resources::ResourceType, Action, Item, WAGResource};
 
 #[derive(Debug, Component, Clone)]
 pub struct Character {
-    moves: HashMap<ActionId, Action>,
+    pub(crate) moves: HashMap<ActionId, Action>,
     pub colors: HashMap<Player, HashMap<&'static str, Color>>,
     pub items: HashMap<ItemId, Item>,
     pub model: Model,
@@ -53,5 +53,36 @@ impl Character {
             .iter()
             .filter_map(|(key, move_data)| move_data.input.map(|input| (*key, input)))
             .collect()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{characters::mizku, dummy, ActionEvent, ActionTracker, Situation};
+
+    use super::*;
+
+    #[test]
+    fn all_moves_end() {
+        for char in [mizku(), dummy()] {
+            for (id, mov) in char.moves.iter() {
+                let sit = Situation {
+                    tracker: Some(ActionTracker {
+                        start_frame: 0,
+                        ..default()
+                    }),
+                    frame: 9999,
+                    ..default()
+                };
+                let end_events = (mov.script)(&sit);
+                assert!(
+                    end_events.contains(&ActionEvent::End),
+                    "{:?} - {:?} not in {:?}",
+                    id,
+                    &mov,
+                    end_events,
+                );
+            }
+        }
     }
 }

@@ -171,11 +171,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ];
                     }
 
-                    if situation.elapsed() == 20 {
-                        return vec![ActionEvent::End];
-                    }
-
-                    vec![]
+                    situation.end_at(20)
                 },
                 requirements: vec![],
             },
@@ -239,12 +235,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         )
                         .into()];
                     }
-
-                    if situation.elapsed() == 15 {
-                        vec![ActionEvent::End];
-                    }
-
-                    vec![]
+                    situation.end_at(15)
                 },
                 requirements: vec![
                     ActionRequirement::ItemsOwned(vec![ItemId::Boots]),
@@ -391,11 +382,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ];
                     }
 
-                    if situation.elapsed() == 45 {
-                        return vec![ActionEvent::End];
-                    }
-
-                    vec![]
+                    situation.end_at(45)
                 },
                 requirements: vec![],
             },
@@ -432,10 +419,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ];
                     }
 
-                    if situation.elapsed() == 34 {
-                        return vec![ActionEvent::End];
-                    }
-                    vec![]
+                    situation.end_at(34)
                 },
                 requirements: vec![ActionRequirement::Grounded],
             },
@@ -472,10 +456,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         ];
                     }
 
-                    if situation.elapsed() == 49 {
-                        return vec![ActionEvent::End];
-                    }
-                    vec![]
+                    situation.end_at(49)
                 },
                 requirements: vec![ActionRequirement::Grounded],
             },
@@ -536,10 +517,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         .into()];
                     }
 
-                    if situation.elapsed() == 15 {
-                        return vec![ActionEvent::End];
-                    }
-                    vec![]
+                    situation.end_at(15)
                 },
             },
         ),
@@ -596,11 +574,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                         .into()];
                     }
 
-                    if situation.elapsed() == 50 {
-                        return vec![ActionEvent::End];
-                    }
-
-                    vec![]
+                    situation.end_at(50)
                 },
                 requirements: vec![ActionRequirement::ResourceValue(ResourceType::Meter, 30)],
             },

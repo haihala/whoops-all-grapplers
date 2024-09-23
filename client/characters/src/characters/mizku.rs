@@ -381,6 +381,11 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         ];
                     }
 
+                    // Fallback (also for tests) of ending after a minute
+                    if situation.elapsed() > 60 * 60 {
+                        return vec![ActionEvent::End];
+                    }
+
                     // TODO: Add an item to speed this up for instant overheads
                     if situation.elapsed() >= 20
                         && !situation.held_buttons.contains(&GameButton::Strong)
@@ -627,8 +632,8 @@ fn sharpen() -> Action {
                 return vec![MizkuAnimation::Sharpen.into()];
             }
 
-            if situation.elapsed() == 43 {
-                vec![
+            if situation.elapsed() >= 43 {
+                return vec![
                     ActionEvent::ModifyResource(ResourceType::Sharpness, 1),
                     ActionEvent::End,
                 ];
@@ -894,4 +899,34 @@ fn mizku_items() -> HashMap<ItemId, Item> {
     .into_iter()
     .chain(universal_items())
     .collect()
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{ActionEvent, ActionTracker, Situation};
+
+    use super::*;
+
+    #[test]
+    fn all_moves_end() {
+        let miz = mizku();
+        for (id, mov) in miz.moves.iter() {
+            let sit = Situation {
+                tracker: Some(ActionTracker {
+                    start_frame: 0,
+                    ..default()
+                }),
+                frame: 9999,
+                ..default()
+            };
+            let end_events = (mov.script)(&sit);
+            assert!(
+                end_events.contains(&ActionEvent::End),
+                "{:?} - {:?} not in {:?}",
+                id,
+                &mov,
+                end_events,
+            );
+        }
+    }
 }

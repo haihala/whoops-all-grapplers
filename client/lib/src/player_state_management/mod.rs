@@ -111,14 +111,15 @@ fn spawn_player(
     models: &Models,
     offset: f32,
     player: Player,
-    character: CharacterId,
+    character_id: CharacterId,
 ) -> Entity {
-    let character = match character {
+    let character = match character_id {
         CharacterId::Dummy => dummy(),
         CharacterId::Mizku => mizku(),
     };
 
     let colors = character.colors[&player].clone();
+    let model = character.model;
 
     commands
         .spawn((
@@ -134,7 +135,7 @@ fn spawn_player(
             Facing::from_flipped(offset.is_sign_positive()),
             Pushbox(character.boxes.standing.pushbox),
             Hurtboxes::from(character.boxes.standing),
-            character.clone(),
+            character,
             player,
             StateScoped(InMatch),
         ))
@@ -142,7 +143,7 @@ fn spawn_player(
             parent.spawn((
                 PlayerModelHook(colors.clone()),
                 SceneBundle {
-                    scene: models[&character.model].clone(),
+                    scene: models[&model].clone(),
                     ..default()
                 },
             ));

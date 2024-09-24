@@ -61,7 +61,7 @@ impl JumpDirection {
 #[macro_export]
 macro_rules! jump {
     ($height:expr, $duration:expr, $animation:expr, $dir:expr, $type:expr) => {{
-        use wag_core::{VfxRequest, VisualEffect};
+        use wag_core::{StatusCondition, StatusFlag, VfxRequest, VisualEffect};
         use $crate::characters::helpers::{JumpDirection, JumpType};
 
         let input = $dir.input($type);
@@ -81,7 +81,7 @@ macro_rules! jump {
         Action {
             input: Some(input),
             category: ActionCategory::Jump,
-            script: |situation: &Situation| {
+            script: Box::new(|situation: &Situation| {
                 /*
                 // Math for gravity
                 x = x0 + v0*t + 1/2*a*t^2
@@ -160,7 +160,7 @@ macro_rules! jump {
                 }
 
                 situation.end_at(delay + 5)
-            },
+            }),
             requirements,
         }
     }};
@@ -294,7 +294,7 @@ macro_rules! dash_script {
         };
         use $crate::{ActionEvent::*, FlashRequest, Movement, ResourceType, Situation};
 
-        |situation: &Situation| {
+        Box::new(|situation: &Situation| {
             if situation.elapsed() == 0 {
                 let mut initial_events = vec![
                     Into::<Animation>::into($animation).into(),
@@ -334,7 +334,7 @@ macro_rules! dash_script {
             }
 
             situation.end_at($total_duration)
-        }
+        })
     }};
 }
 

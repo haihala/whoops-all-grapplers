@@ -7,7 +7,7 @@ pub struct ToHit {
     pub block_type: BlockType,
     pub hitbox: Hitbox,
     pub lifetime: Lifetime,
-    pub velocity: Option<Vec2>,
+    pub velocity: Vec2,
     pub projectile: Option<Projectile>,
     pub hits: usize,
 }
@@ -25,9 +25,10 @@ impl Default for ToHit {
     }
 }
 
-#[derive(Clone, Copy, Debug, Reflect, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Reflect, Eq, PartialEq, Default)]
 pub enum AttackHeight {
     Low,
+    #[default]
     Mid,
     High,
 }
@@ -118,16 +119,14 @@ impl Default for Lifetime {
 impl Lifetime {
     pub(crate) fn until_owner_hit() -> Self {
         Self {
-            despawn_on_hit: true,
-            despawn_on_landing: false,
             frames: None,
+            ..default()
         }
     }
-
     pub(crate) fn frames(frames: usize) -> Self {
         Self {
             frames: Some(frames),
-            ..Default::default()
+            ..default()
         }
     }
 }

@@ -18,6 +18,15 @@ impl FlashRequest {
             ..default()
         }
     }
+
+    pub fn meter_use() -> Self {
+        Self {
+            color: METER_BAR_FULL_SEGMENT_COLOR,
+            speed: 30.0,
+            depth: 1.0,
+            duration: 0.5,
+        }
+    }
 }
 
 impl Default for FlashRequest {

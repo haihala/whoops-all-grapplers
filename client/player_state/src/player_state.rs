@@ -74,7 +74,7 @@ impl PlayerState {
     pub fn start_move(
         &mut self,
         action_id: ActionId,
-        action: Action,
+        action: &Action,
         start_frame: usize,
         inventory: Inventory,
         resources: WAGResources,
@@ -110,7 +110,7 @@ impl PlayerState {
     pub fn proceed_move(
         &mut self,
         inventory: Inventory,
-        character: Character,
+        character: &Character,
         resources: WAGResources,
         parser: InputParser,
         stats: Stats,

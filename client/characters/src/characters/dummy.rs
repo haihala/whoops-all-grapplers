@@ -10,18 +10,14 @@ use wag_core::{
 
 use crate::{
     actions::ActionRequirement,
-    air_action, dashes, ground_action, jumps,
+    dashes, jumps,
     resources::{RenderInstructions, ResourceType},
     universal_item_actions, Action,
     ActionEvent::{self, *},
-    AnimationRequest, Attack,
-    AttackHeight::*,
-    BlockType::*,
-    CharacterBoxes, CharacterStateBoxes, ChargeProperty, CommonAttackProps, Hitbox, Item,
+    Attack, AttackBuilder, CharacterBoxes, CharacterStateBoxes, ChargeProperty, Hitbox,
+    IntermediateStrike, Item,
     ItemCategory::*,
-    Lifetime, Movement, Projectile, ResourceBarVisual, Situation, SpecialProperty,
-    StunType::*,
-    ToHit, WAGResource,
+    Lifetime, Movement, ResourceBarVisual, Situation, SpecialProperty, ToHit, WAGResource,
 };
 
 use super::{equipment::universal_items, Character};
@@ -98,49 +94,29 @@ fn dummy_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<Actio
 }
 
 fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
-    let vec = vec![
+    vec![
         (
             DummyActionId::Slap,
-            ground_action!(
-                "f",
-                ActionCategory::Normal,
-                DummyAnimation::Slap,
-                9,
-                Attack::strike(
-                    ToHit {
-                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.35, 0.35)),
-                        lifetime: Lifetime::frames(5),
-                        ..default()
-                    },
-                    CommonAttackProps::default(),
-                ),
-                10
-            ),
+            AttackBuilder::normal("f")
+                .with_frame_data(9, 5, 10)
+                .with_hitbox(Area::new(0.5, 1.0, 0.35, 0.35))
+                .with_animation(DummyAnimation::Slap)
+                .build(),
         ),
         (
             DummyActionId::LowChop,
-            ground_action!(
-                "[123]f",
-                ActionCategory::Normal,
-                DummyAnimation::CrouchChop,
-                8,
-                Attack::strike(
-                    ToHit {
-                        hitbox: Hitbox(Area::new(0.4, 0.1, 0.3, 0.2)),
-                        lifetime: Lifetime::frames(5),
-                        ..default()
-                    },
-                    CommonAttackProps::default(),
-                ),
-                7
-            ),
+            AttackBuilder::normal("[123]f")
+                .with_animation(DummyAnimation::CrouchChop)
+                .with_frame_data(8, 5, 7)
+                .with_hitbox(Area::new(0.4, 0.1, 0.3, 0.2))
+                .build(),
         ),
         (
             DummyActionId::BurnStraight,
             Action {
                 input: Some("s"),
                 category: ActionCategory::Normal,
-                script: |situation: &Situation| {
+                script: Box::new(|situation: &Situation| {
                     if situation.elapsed() == 0 {
                         return vec![DummyAnimation::BurnStraight.into()];
                     }
@@ -149,20 +125,21 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                         let has_roids = situation.inventory.contains(&ItemId::Roids);
 
                         return vec![
-                            Attack::strike(
-                                ToHit {
+                            Attack {
+                                to_hit: ToHit {
                                     hitbox: Hitbox(Area::new(0.6, 1.1, 1.0, 0.2)),
                                     lifetime: Lifetime::frames(8),
                                     ..default()
                                 },
-                                CommonAttackProps {
-                                    damage: 20,
-                                    on_hit: Stun(20),
-                                    knock_back: if has_roids { 1.0 } else { 2.0 },
-                                    push_back: if has_roids { 0.0 } else { 3.0 },
+                                ..IntermediateStrike {
+                                    base_damage: 20,
+                                    hit_stun_event: ActionEvent::HitStun(20),
+                                    attacker_push_on_hit: if has_roids { 1.0 } else { 2.0 },
+                                    attacker_push_on_block: if has_roids { 0.0 } else { 3.0 },
                                     ..default()
-                                },
-                            )
+                                }
+                                .build_attack(situation)
+                            }
                             .into(),
                             Movement {
                                 amount: Vec2::X * 2.0,
@@ -173,194 +150,48 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     }
 
                     situation.end_at(20)
-                },
+                }),
                 requirements: vec![],
             },
         ),
         (
             DummyActionId::AntiAir,
-            ground_action!(
-                "[123]s",
-                ActionCategory::Normal,
-                DummyAnimation::AntiAir,
-                13,
-                Attack::strike(
-                    ToHit {
-                        hitbox: Hitbox(Area::new(1.0, 1.3, 0.3, 0.5)),
-                        lifetime: Lifetime::frames(4),
-                        ..default()
-                    },
-                    CommonAttackProps::default(),
-                ),
-                13
-            ),
+            AttackBuilder::normal("[123]s")
+                .with_animation(DummyAnimation::AntiAir)
+                .with_frame_data(13, 4, 13)
+                .with_hitbox(Area::new(1.0, 1.3, 0.3, 0.5))
+                .build(),
         ),
         (
             DummyActionId::AirSlap,
-            air_action!(
-                "f",
-                ActionCategory::Normal,
-                DummyAnimation::AirSlap,
-                8,
-                Attack::strike(
-                    ToHit {
-                        hitbox: Hitbox(Area::new(0.3, 0.6, 0.35, 0.25)),
-                        lifetime: Lifetime::frames(5),
-                        block_type: Strike(High),
-                        ..default()
-                    },
-                    CommonAttackProps::default(),
-                ),
-                10
-            ),
+            AttackBuilder::normal("f")
+                .air_only()
+                .with_animation(DummyAnimation::AirSlap)
+                .with_frame_data(8, 5, 10)
+                .with_hitbox(Area::new(0.3, 0.6, 0.35, 0.25))
+                .build(),
         ),
         (
             DummyActionId::Divekick,
-            Action {
-                input: Some("s"),
-                category: ActionCategory::Normal,
-                script: |situation: &Situation| {
-                    if situation.elapsed() == 0 {
-                        return vec![DummyAnimation::Divekick.into()];
-                    }
-
-                    if situation.elapsed() == 5 {
-                        return vec![Attack::strike(
-                            ToHit {
-                                hitbox: Hitbox(Area::new(0.6, -0.2, 0.35, 0.25)),
-                                lifetime: Lifetime::frames(10),
-                                block_type: Strike(High),
-                                ..default()
-                            },
-                            CommonAttackProps::default(),
-                        )
-                        .into()];
-                    }
-                    situation.end_at(15)
-                },
-                requirements: vec![
-                    ActionRequirement::ItemsOwned(vec![ItemId::Boots]),
-                    ActionRequirement::Airborne,
-                ],
-            },
-        ),
-        (
-            DummyActionId::ForwardThrow,
-            ground_action!(
-                "w",
-                ActionCategory::Normal,
-                DummyAnimation::NormalThrow,
-                5,
-                Attack::strike(
-                    ToHit {
-                        block_type: Grab,
-                        hitbox: Hitbox(Area::new(0.4, 1.0, 0.5, 0.5)),
-                        lifetime: Lifetime::frames(5),
-                        ..default()
-                    },
-                    CommonAttackProps {
-                        damage: 25,
-                        on_hit: Knockdown,
-                        ..default()
-                    },
-                )
-                .with_to_target_on_hit(vec![
-                    ActionEvent::SnapToOpponent { sideswitch: false },
-                    Animation(AnimationRequest {
-                        animation: DummyAnimation::NormalThrowRecipient.into(),
-                        invert: true,
-                        ..default()
-                    }),
-                ]),
-                40
-            ),
-        ),
-        (
-            DummyActionId::BackThrow,
-            ground_action!(
-                "4w",
-                ActionCategory::Normal,
-                DummyAnimation::NormalThrow,
-                5,
-                Attack::strike(
-                    ToHit {
-                        block_type: Grab,
-                        hitbox: Hitbox(Area::new(0.4, 1.0, 0.5, 0.5)),
-                        lifetime: Lifetime::frames(5),
-                        ..default()
-                    },
-                    CommonAttackProps {
-                        damage: 25,
-                        on_hit: Knockdown,
-                        ..default()
-                    },
-                )
-                .with_to_target_on_hit(vec![
-                    ActionEvent::SnapToOpponent { sideswitch: true },
-                    Animation(AnimationRequest {
-                        animation: DummyAnimation::NormalThrowRecipient.into(),
-                        invert: true,
-                        ..default()
-                    }),
-                ]),
-                40
-            ),
+            AttackBuilder::normal("s")
+                .air_only()
+                .with_animation(DummyAnimation::Divekick)
+                .with_frame_data(5, 10, 15)
+                .with_hitbox(Area::new(0.6, -0.2, 0.35, 0.25))
+                .with_extra_requirements(vec![ActionRequirement::ItemsOwned(vec![ItemId::Boots])])
+                .build(),
         ),
         (
             DummyActionId::Sweep,
-            ground_action!(
-                "[123]w",
-                ActionCategory::Normal,
-                DummyAnimation::Sweep,
-                10,
-                Attack::strike(
-                    ToHit {
-                        block_type: Grab,
-                        hitbox: Hitbox(Area::new(0.6, 0.1, 1.0, 0.2)),
-                        lifetime: Lifetime::frames(5),
-                        ..default()
-                    },
-                    CommonAttackProps {
-                        on_hit: Launch(Vec2::new(1.0, 8.0)),
-                        ..default()
-                    },
-                ),
-                15
-            ),
+            AttackBuilder::normal("[123]w")
+                .with_animation(DummyAnimation::Sweep)
+                .with_frame_data(10, 5, 15)
+                .launches(Vec2::new(1.0, 8.0))
+                .with_hitbox(Area::new(0.6, 0.1, 1.0, 0.2))
+                .build(),
         ),
-        (
-            DummyActionId::AirThrow,
-            air_action!(
-                "w",
-                ActionCategory::Throw,
-                DummyAnimation::AirThrow,
-                9,
-                Attack::strike(
-                    ToHit {
-                        block_type: Grab,
-                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.8, 0.8)),
-                        lifetime: Lifetime::frames(5),
-                        ..default()
-                    },
-                    CommonAttackProps {
-                        damage: 25,
-                        on_hit: Launch(Vec2::new(1.0, -4.0)),
-                        ..default()
-                    },
-                )
-                .with_to_target_on_hit(vec![
-                    SnapToOpponent { sideswitch: false },
-                    Animation(AnimationRequest {
-                        animation: DummyAnimation::AirThrowRecipient.into(),
-                        invert: true,
-                        ..default()
-                    }),
-                ]),
-                30
-            ),
-        ),
-    ];
-    vec.into_iter()
+    ]
+    .into_iter()
 }
 
 fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
@@ -370,7 +201,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             Action {
                 input: Some("252"),
                 category: ActionCategory::Special,
-                script: |situation: &Situation| {
+                script: Box::new(|situation: &Situation| {
                     if situation.elapsed() == 0 {
                         return vec![
                             ForceStand,
@@ -384,201 +215,87 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                     }
 
                     situation.end_at(45)
-                },
+                }),
                 requirements: vec![],
             },
         ),
         (
             DummyActionId::GroundSlam,
-            Action {
-                input: Some("[789]6s"),
-                category: ActionCategory::Special,
-                script: |situation: &Situation| {
-                    if situation.elapsed() == 0 {
-                        return vec![DummyAnimation::GroundSlam.into()];
-                    }
-
-                    if situation.elapsed() == 14 {
-                        return vec![
-                            Attack::strike(
-                                ToHit {
-                                    hitbox: Hitbox(Area::new(0.7, 1.25, 0.8, 0.8)),
-                                    lifetime: Lifetime::frames(8),
-                                    ..default()
-                                },
-                                CommonAttackProps {
-                                    damage: 20,
-                                    ..default()
-                                },
-                            )
-                            .into(),
-                            Movement {
-                                amount: Vec2::X * 2.0,
-                                duration: 1,
-                            }
-                            .into(),
-                        ];
-                    }
-
-                    situation.end_at(34)
-                },
-                requirements: vec![ActionRequirement::Grounded],
-            },
+            AttackBuilder::special("[789]6s")
+                .with_animation(DummyAnimation::GroundSlam)
+                .with_frame_data(14, 8, 20)
+                .with_hitbox(Area::new(0.7, 1.25, 0.8, 0.8))
+                .with_damage(20)
+                .with_extra_activation_events(vec![Movement {
+                    amount: Vec2::X * 2.0,
+                    duration: 1,
+                }
+                .into()])
+                .build(),
         ),
         (
             DummyActionId::AirSlam,
-            Action {
-                input: Some("[789]6s"),
-                category: ActionCategory::Special,
-                script: |situation: &Situation| {
-                    if situation.elapsed() == 0 {
-                        return vec![DummyAnimation::AirSlam.into()];
-                    }
-
-                    if situation.elapsed() == 14 {
-                        return vec![
-                            Attack::strike(
-                                ToHit {
-                                    hitbox: Hitbox(Area::new(0.9, 1.25, 0.8, 0.8)),
-                                    lifetime: Lifetime::frames(8),
-                                    ..default()
-                                },
-                                CommonAttackProps {
-                                    damage: 20,
-                                    ..default()
-                                },
-                            )
-                            .into(),
-                            Movement {
-                                amount: Vec2::X * 1.0,
-                                duration: 2,
-                            }
-                            .into(),
-                        ];
-                    }
-
-                    situation.end_at(49)
-                },
-                requirements: vec![ActionRequirement::Grounded],
-            },
+            AttackBuilder::special("[789]6s")
+                .air_only()
+                .with_animation(DummyAnimation::AirSlam)
+                .with_frame_data(14, 8, 35)
+                .with_hitbox(Area::new(0.9, 1.25, 0.8, 0.8))
+                .with_damage(20)
+                .with_extra_activation_events(vec![Movement {
+                    amount: Vec2::X * 1.0,
+                    duration: 3,
+                }
+                .into()])
+                .build(),
         ),
         (
             DummyActionId::BudgetBoom,
-            ground_action!(
-                "[41]6f",
-                ActionCategory::Special,
-                DummyAnimation::TPose,
-                10,
-                Attack::strike(
-                    ToHit {
-                        hitbox: Hitbox(Area::new(0.5, 1.2, 0.3, 0.2)),
-                        velocity: Some(5.0 * Vec2::X),
-                        lifetime: Lifetime::frames((wag_core::FPS * 0.25) as usize),
-                        projectile: Some(Projectile {
-                            model: Model::Fireball,
-                        }),
-                        ..default()
-                    },
-                    CommonAttackProps::default(),
-                ),
-                5
-            ),
+            AttackBuilder::special("[41]6f")
+                .with_projectile(Model::Fireball, 5.0 * Vec2::X)
+                .with_frame_data(10, 15, 4)
+                .with_hitbox(Area::new(0.5, 1.2, 0.3, 0.2))
+                .with_damage(20)
+                .with_extra_activation_events(vec![Movement {
+                    amount: Vec2::X * 1.0,
+                    duration: 3,
+                }
+                .into()])
+                .build(),
         ),
         (
             DummyActionId::SonicBoom,
-            Action {
-                input: Some("[41]6f"),
-                category: ActionCategory::Special,
-                requirements: vec![
-                    ActionRequirement::Grounded,
-                    ActionRequirement::ResourceFull(ResourceType::Charge),
-                ],
-                script: |situation: &Situation| {
-                    if situation.elapsed() == 0 {
-                        return vec![ForceStand, ClearResource(ResourceType::Charge)];
-                    }
-
-                    if situation.elapsed() == 10 {
-                        return vec![Attack::strike(
-                            ToHit {
-                                hitbox: Hitbox(Area::new(0.5, 1.2, 0.4, 0.3)),
-                                velocity: Some(6.0 * Vec2::X),
-                                lifetime: Lifetime::until_owner_hit(),
-                                projectile: Some(Projectile {
-                                    model: Model::Fireball,
-                                }),
-                                hits: 3,
-                                ..default()
-                            },
-                            CommonAttackProps {
-                                damage: 10,
-                                ..default()
-                            },
-                        )
-                        .into()];
-                    }
-
-                    situation.end_at(15)
-                },
-            },
+            AttackBuilder::special("[41]6f")
+                .if_charged()
+                .with_projectile(Model::Fireball, 6.0 * Vec2::X)
+                .with_timings(10, 5)
+                .with_hitbox(Area::new(0.5, 1.2, 0.4, 0.3))
+                .with_damage(10)
+                .with_multiple_hits(3)
+                .with_extra_activation_events(vec![Movement {
+                    amount: Vec2::X * 1.0,
+                    duration: 3,
+                }
+                .into()])
+                .build(),
         ),
         (
             DummyActionId::Hadouken,
-            ground_action!(
-                "236f",
-                ActionCategory::Special,
-                DummyAnimation::TPose,
-                30,
-                Attack::strike(
-                    ToHit {
-                        hitbox: Hitbox(Area::new(0.5, 1.0, 0.3, 0.3)),
-                        velocity: Some(4.0 * Vec2::X),
-                        lifetime: Lifetime::until_owner_hit(),
-                        projectile: Some(Projectile {
-                            model: Model::Fireball,
-                        }),
-                        hits: 3,
-                        ..default()
-                    },
-                    CommonAttackProps::default(),
-                ),
-                30
-            ),
+            AttackBuilder::special("236f")
+                .with_frame_data(30, 3600, 30)
+                .with_projectile(Model::Fireball, 4.0 * Vec2::X)
+                .with_hitbox(Area::new(0.5, 1.0, 0.3, 0.3))
+                .with_multiple_hits(3)
+                .build(),
         ),
         (
             DummyActionId::HeavyHadouken,
-            Action {
-                input: Some("236s"),
-                category: ActionCategory::Special,
-                script: |situation: &Situation| {
-                    if situation.elapsed() == 0 {
-                        return vec![ForceStand, ModifyResource(ResourceType::Meter, -30)];
-                    }
-
-                    if situation.elapsed() == 30 {
-                        return vec![Attack::strike(
-                            ToHit {
-                                hitbox: Hitbox(Area::new(0.5, 1.0, 0.4, 0.5)),
-                                velocity: Some(5.0 * Vec2::X),
-                                lifetime: Lifetime::until_owner_hit(),
-                                projectile: Some(Projectile {
-                                    model: Model::Fireball,
-                                }),
-                                hits: 2,
-                                ..default()
-                            },
-                            CommonAttackProps {
-                                on_hit: Stun(30),
-                                ..default()
-                            },
-                        )
-                        .into()];
-                    }
-
-                    situation.end_at(50)
-                },
-                requirements: vec![ActionRequirement::ResourceValue(ResourceType::Meter, 30)],
-            },
+            AttackBuilder::special("236s")
+                .with_meter_cost(30)
+                .with_timings(30, 30)
+                .with_projectile(Model::Fireball, 5.0 * Vec2::X)
+                .with_hitbox(Area::new(0.5, 1.0, 0.4, 0.5))
+                .with_multiple_hits(2)
+                .build(),
         ),
     ]
     .into_iter()

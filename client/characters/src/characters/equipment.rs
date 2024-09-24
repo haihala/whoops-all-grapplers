@@ -10,7 +10,7 @@ pub fn get_high_gi_parry() -> Action {
     Action {
         input: Some("56"),
         category: ActionCategory::Other,
-        script: |_| {
+        script: Box::new(|_| {
             vec![
                 ActionEvent::ForceStand,
                 ActionEvent::Condition(StatusCondition {
@@ -20,7 +20,7 @@ pub fn get_high_gi_parry() -> Action {
                 }),
                 ActionEvent::End,
             ]
-        },
+        }),
         requirements: vec![
             ActionRequirement::Grounded,
             ActionRequirement::ItemsOwned(vec![ItemId::Gi]),
@@ -32,13 +32,12 @@ pub fn get_high_gi_parry() -> Action {
 macro_rules! parry_flash {
     ($parry_animation:expr) => {{
         use wag_core::GI_PARRY_FLASH_COLOR;
-
         use $crate::ActionEvent;
 
         Action {
             input: None,
             category: ActionCategory::Forced,
-            script: |situation: &Situation| {
+            script: Box::new(|situation: &Situation| {
                 if situation.elapsed() == 0 {
                     return vec![
                         $parry_animation.into(),
@@ -51,7 +50,7 @@ macro_rules! parry_flash {
                 }
 
                 vec![]
-            },
+            }),
             requirements: vec![
                 ActionRequirement::Grounded,
                 ActionRequirement::ItemsOwned(vec![ItemId::Gi]),
@@ -64,7 +63,7 @@ pub fn fast_fall() -> Action {
     Action {
         input: Some("[456789][123]"),
         category: ActionCategory::Other,
-        script: |situation: &Situation| {
+        script: Box::new(|situation: &Situation| {
             if situation.elapsed() == 0 {
                 return vec![Movement::impulse(Vec2::Y * -1.5).into()];
             }
@@ -74,7 +73,7 @@ pub fn fast_fall() -> Action {
             }
 
             vec![]
-        },
+        }),
         requirements: vec![
             ActionRequirement::Airborne,
             ActionRequirement::ItemsOwned(vec![ItemId::DivingHelmet]),

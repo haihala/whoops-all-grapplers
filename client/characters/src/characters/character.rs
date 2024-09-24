@@ -3,7 +3,7 @@ use wag_core::{ActionId, Animation, AnimationType, ItemId, Model, Player, Stats}
 
 use crate::{resources::ResourceType, Action, CharacterBoxes, Item, WAGResource};
 
-#[derive(Debug, Component, Clone)]
+#[derive(Debug, Component)]
 pub struct Character {
     pub(crate) moves: HashMap<ActionId, Action>,
     pub colors: HashMap<Player, HashMap<&'static str, Color>>,
@@ -41,8 +41,8 @@ impl Character {
         }
     }
 
-    pub fn get_move(&self, id: ActionId) -> Option<Action> {
-        self.moves.get(&id).map(|opt| opt.to_owned())
+    pub fn get_move(&self, id: ActionId) -> Option<&Action> {
+        self.moves.get(&id)
     }
 
     pub fn get_inputs(&self) -> HashMap<ActionId, &'static str> {

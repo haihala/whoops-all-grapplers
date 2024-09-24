@@ -2,12 +2,13 @@ use bevy::prelude::*;
 
 use crate::ActionId;
 
-#[derive(Clone, PartialEq, Eq, Debug, PartialOrd, Ord, Reflect)]
+#[derive(Clone, PartialEq, Eq, Debug, PartialOrd, Ord, Reflect, Default)]
 pub enum ActionCategory {
     Dash,
     Jump,
     Throw,
     Other,
+    #[default]
     Normal,
     Special,
     Super,
@@ -15,14 +16,15 @@ pub enum ActionCategory {
     Forced, // For throw recipients
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Default)]
 pub enum CancelType {
+    #[default]
     Special,
     Super,
     Specific(Vec<ActionId>),
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Default)]
 pub struct CancelWindow {
     pub duration: usize,
     pub require_hit: bool,

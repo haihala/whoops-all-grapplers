@@ -98,3 +98,9 @@ pub enum MizkuActionId {
     FalconKnee,
     KneeThrust,
 }
+
+impl From<MizkuActionId> for ActionId {
+    fn from(value: MizkuActionId) -> Self {
+        Self::Mizku(value)
+    }
+}

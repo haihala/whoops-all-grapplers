@@ -71,9 +71,9 @@ impl HitboxSpawner {
             StateScoped(InCombat),
         ));
 
-        if let Some(velocity) = attack.to_hit.velocity {
+        if attack.to_hit.velocity != Vec2::ZERO {
             builder.insert(ConstantVelocity::new(
-                facing.mirror_vec3(velocity.extend(0.0)),
+                facing.mirror_vec3(attack.to_hit.velocity.extend(0.0)),
             ));
         }
 

@@ -49,11 +49,11 @@ impl MoveBuffer {
         *self = MoveBuffer::default();
     }
 
-    fn get_situation_moves(
+    fn get_situation_moves<'a>(
         &self,
-        character: &Character,
+        character: &'a Character,
         situation: Situation,
-    ) -> Vec<(usize, ActionId, Action)> {
+    ) -> Vec<(usize, ActionId, &'a Action)> {
         self.buffer
             .iter()
             .filter_map(|(frame, id)| {
@@ -206,7 +206,8 @@ pub(super) fn cancel_start(
             )
             .into_iter()
             .filter_map(|(_, id, action)| {
-                if available_cancels.can_cancel_to(action.category, id, tracker.has_hit) {
+                if available_cancels.can_cancel_to(action.category.to_owned(), id, tracker.has_hit)
+                {
                     Some(id)
                 } else {
                     None

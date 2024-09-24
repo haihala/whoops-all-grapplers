@@ -2,12 +2,12 @@ use wag_core::ActionCategory;
 
 use crate::{ActionEvent, ActionRequirement, Situation};
 
-#[derive(Clone)]
 pub struct Action {
     pub input: Option<&'static str>,
     pub category: ActionCategory,
-    pub script: fn(&Situation) -> Vec<ActionEvent>,
     pub requirements: Vec<ActionRequirement>,
+    #[allow(clippy::type_complexity)]
+    pub script: Box<dyn Fn(&Situation) -> Vec<ActionEvent> + Send + Sync>,
 }
 
 impl std::fmt::Debug for Action {
@@ -26,7 +26,7 @@ macro_rules! throw_hit {
         Action {
             input: None,
             category: ActionCategory::Forced,
-            script: |situation: &Situation| {
+            script: Box::new(|situation: &Situation| {
                 if situation.elapsed() == 0 {
                     return vec![
                         Into::<Animation>::into($animation).into(),
@@ -35,7 +35,7 @@ macro_rules! throw_hit {
                 }
 
                 situation.end_at($duration)
-            },
+            }),
             requirements: vec![],
         }
     };
@@ -59,7 +59,7 @@ macro_rules! throw_target {
         Action {
             input: None,
             category: ActionCategory::Forced,
-            script: |situation: &Situation| {
+            script: Box::new(|situation: &Situation| {
                 if situation.elapsed() == 0 {
                     vec![
                         AnimationRequest {
@@ -81,100 +81,8 @@ macro_rules! throw_target {
                 }
 
                 situation.end_at($animation_duration)
-            },
+            }),
             requirements: vec![],
         }
-    }};
-}
-
-#[macro_export]
-macro_rules! attack_action {
-    ($requirements:expr, $input:expr, $category:expr, $animation:expr, $startup:expr, $attack:expr, $recovery:expr) => {{
-        use wag_core::{CancelType, CancelWindow};
-
-        attack_action!(
-            $requirements,
-            $input,
-            $category,
-            $animation,
-            if $category == ActionCategory::Normal {
-                ActionEvent::AllowCancel(CancelWindow {
-                    duration: $recovery,
-                    cancel_type: CancelType::Special,
-                    require_hit: true,
-                })
-            } else {
-                ActionEvent::Noop
-            },
-            $startup,
-            $attack,
-            $recovery
-        )
-    }};
-    ($requirements:expr, $input:expr, $category:expr, $animation:expr, $cancel_type:expr, $startup:expr, $attack:expr, $recovery:expr) => {{
-        use wag_core::SoundEffect;
-        use $crate::ActionEvent;
-
-        Action {
-            input: Some($input),
-            category: $category,
-            script: |situation: &Situation| {
-                if situation.elapsed() == 0 {
-                    return vec![
-                        Into::<Animation>::into($animation).into(),
-                        // TODO: Make this character-dependent
-                        SoundEffect::FemaleExhale.into(),
-                    ];
-                }
-
-                if situation.elapsed() == $startup {
-                    // This could probably be more elegant somehow
-                    return vec![
-                        $attack.into(),
-                        ActionEvent::ExpandHurtbox(
-                            $attack.to_hit.hitbox.grow(0.1),
-                            $attack.to_hit.lifetime.frames.unwrap_or_default() + 4,
-                        ),
-                        $cancel_type,
-                    ];
-                }
-
-                situation.end_at($startup + $recovery)
-            },
-            requirements: $requirements,
-        }
-    }};
-}
-
-#[macro_export]
-macro_rules! air_action {
-    ($input:expr, $category:expr, $animation:expr, $startup:expr, $attack:expr, $recovery:expr) => {{
-        use $crate::{attack_action, ActionRequirement};
-
-        attack_action!(
-            vec![ActionRequirement::Airborne],
-            $input,
-            $category,
-            $animation,
-            $startup,
-            $attack,
-            $recovery
-        )
-    }};
-}
-
-#[macro_export]
-macro_rules! ground_action {
-    ($input:expr, $category:expr, $animation:expr, $startup:expr, $attack:expr, $recovery:expr) => {{
-        use $crate::{attack_action, ActionRequirement};
-        attack_action!(
-            vec![ActionRequirement::Grounded],
-            $input,
-            $category,
-            $animation,
-            $startup,
-            $attack,
-            $recovery
-        )
     }};
 }

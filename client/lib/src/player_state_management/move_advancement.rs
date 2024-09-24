@@ -28,7 +28,7 @@ pub(super) fn move_advancement(
         if state.action_in_progress() {
             for event in state.proceed_move(
                 inventory.to_owned(),
-                character.to_owned(),
+                character,
                 resources.to_owned(),
                 parser.to_owned(),
                 stats.to_owned(),

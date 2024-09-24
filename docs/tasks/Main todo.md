@@ -1,3 +1,9 @@
+# Move format rework priority priority queue
+- Move actions like hitsparks to moves from lib
+- Plug holes (bugs)
+	- Add validation for building (and better debugging)
+- Should ToHit exist?
+
 # Network priority queue
 - Find next desync
 - Find a better way to describe attacks

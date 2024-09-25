@@ -1,4 +1,0 @@
-- Universal upgrade from two [Hockey pads](docs/gameplay_spec/items/hockey_pads.md)
-- Will
-	- Add some more health
-	- Prevent chip damage when blocking

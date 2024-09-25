@@ -1,0 +1,2 @@
+- Universal upgrade of [[Feather]] and [[Dumbbell]]
+- Allows you to tap down for a fast fall.

@@ -1,3 +1,0 @@
-- [Mizku](docs/gameplay_spec/characters/mizku.md) item that makes her start the round with 8 [Mizku#Kunai](docs/gameplay_spec/characters/mizku.md#Kunai)
-	- 8 Because Xrd Johnny has 8 coins
-- Upgrade of [Kunai pouch](docs/gameplay_spec/items/kunai_pouch.md)

@@ -1,7 +1,0 @@
-- [ ] Announcer voices for
-	- [ ] Round start
-	- [ ] Game over
-	- [ ] Some of [Popups 2.0](docs/tasks/before_locals_test/popups_2.0.md)?
-- [ ] VA work for [Mizku](docs/gameplay_spec/characters/mizku.md)
-	- [x] Sharp exhales for most normals
-	- [ ] Grunts for specials / sword moves

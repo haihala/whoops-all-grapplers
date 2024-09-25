@@ -1,1 +1,0 @@
-Health is pretty standard. You run out, you lose the [Combat](docs/gameplay_spec/flow/combat.md) phase.

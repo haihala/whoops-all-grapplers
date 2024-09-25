@@ -1,0 +1,2 @@
+- Universal upgrade from [[Boots]] and [[Feather]]
+- Gives the user a superjump

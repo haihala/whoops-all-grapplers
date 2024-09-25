@@ -1,3 +1,0 @@
-- Universal basic item
-- [Intangible](docs/gameplay_spec/genre_mechanics/intangible.md) on the first few frames of a back dash
-	- Base for things that make you [Intangible](docs/gameplay_spec/genre_mechanics/intangible.md), generally smoking themed

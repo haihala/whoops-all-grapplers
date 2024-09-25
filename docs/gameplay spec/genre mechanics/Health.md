@@ -1,0 +1,1 @@
+Health is pretty standard. You run out, you lose the [[Combat]] phase.

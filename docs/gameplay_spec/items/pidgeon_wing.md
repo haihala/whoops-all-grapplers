@@ -1,2 +1,0 @@
-- Universal upgrade from two [Feather](docs/gameplay_spec/items/feather.md)s
-- Allows you to double jump

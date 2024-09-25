@@ -1,0 +1,9 @@
+- [[Popups 2.0]]
+- [[VFX 2.0]]
+- [[SFX 2.0]]
+- [[Update Gi]]
+- Minor
+	- Jump
+		- Reduce pre-jump frames
+		- Allow direction corrections after pre-jump
+- Do a quick round over the items

@@ -1,0 +1,2 @@
+- An [Intangible](/docs/gameplay_spec/genre_mechanics/intangible.md) character cannot interact with hitboxes
+- There is a [Toast](/docs/gameplay_spec/interface/toast.md) for hitting an intangible character and one for meaty attacks

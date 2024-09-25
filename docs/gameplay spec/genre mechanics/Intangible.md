@@ -1,2 +1,0 @@
-- An [[Intangible]] character cannot interact with hitboxes
-- There is a [[Toast]] for hitting an intangible character and one for meaty attacks

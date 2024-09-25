@@ -1,7 +1,0 @@
-- [ ] Announcer voices for
-	- [ ] Round start
-	- [ ] Game over
-	- [ ] Some of [[Popups 2.0]]?
-- [ ] VA work for [[Mizku]]
-	- [x] Sharp exhales for most normals
-	- [ ] Grunts for specials / sword moves

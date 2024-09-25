@@ -1,0 +1,1 @@
+The game has a very generous two way buffer system that helps with links. This is so that every player can get those links to land. If you land closer to the frame you are supposed to press on, you gain a bonus. At the moment that bonus is [Meter](/docs/gameplay_spec/genre_mechanics/meter.md), but [Rewards 2.0](/docs/tasks/backlog/rewards_2.0.md) may change that.

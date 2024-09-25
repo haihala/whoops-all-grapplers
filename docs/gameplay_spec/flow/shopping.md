@@ -1,0 +1,1 @@
+Phase of the game where [Money](/docs/gameplay_spec/unique_mechanics/money.md) can be used to buy and sell [Items](/docs/gameplay_spec/unique_mechanics/items.md)

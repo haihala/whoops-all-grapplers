@@ -1,0 +1,1 @@
+- Trails for [Mizku](/docs/gameplay_spec/characters/mizku.md) sword slashes

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use characters::{Character, Inventory, WAGResources};
+use characters::{Character, Hurtboxes, Inventory, WAGResources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{AvailableCancels, Clock, Facing, Stats};
@@ -45,9 +45,10 @@ pub(super) fn move_advancement(
 pub fn end_moves(
     trigger: Trigger<EndAction>,
     clock: Res<Clock>,
-    mut query: Query<(&mut PlayerState, &mut AvailableCancels)>,
+    mut query: Query<(&mut PlayerState, &mut Hurtboxes, &mut AvailableCancels)>,
 ) {
-    let (mut state, mut windows) = query.get_mut(trigger.entity()).unwrap();
+    let (mut state, mut hurtboxes, mut windows) = query.get_mut(trigger.entity()).unwrap();
     state.recover(clock.frame);
     windows.clear();
+    hurtboxes.extra.clear();
 }

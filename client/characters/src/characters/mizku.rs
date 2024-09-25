@@ -491,11 +491,12 @@ fn rising_sun() -> Action {
             ActionId::Mizku(MizkuActionId::SSwordStance),
         ])
         .with_frame_data(3, 8, 74)
+        .with_animation(MizkuAnimation::GrisingSun)
         .sword()
         .with_damage(20)
         .launches(Vec2::new(1.0, 3.0))
         .with_advantage_on_block(-30)
-        .with_hitbox(Area::new(0.2, 1.5, 3.0, 1.5))
+        .with_hitbox(Area::new(0.5, 1.5, 2.5, 1.5))
         .build()
 }
 

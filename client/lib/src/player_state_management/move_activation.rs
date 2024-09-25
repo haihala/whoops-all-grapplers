@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-use characters::{Action, ActionRequirement, Character, Inventory, Situation, WAGResources};
+use characters::{
+    Action, ActionRequirement, Character, Hurtboxes, Inventory, Situation, WAGResources,
+};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{ActionId, AvailableCancels, Clock, Facing, Stats};
@@ -232,6 +234,7 @@ pub(super) fn move_activator(
     mut query: Query<(
         &mut MoveBuffer,
         &mut PlayerState,
+        &mut Hurtboxes,
         &Transform,
         &WAGResources,
         &Character,
@@ -246,6 +249,7 @@ pub(super) fn move_activator(
     for (
         mut buffer,
         mut state,
+        mut hurtboxes,
         tf,
         properties,
         character,
@@ -263,6 +267,9 @@ pub(super) fn move_activator(
         if state.active_cinematic().is_some() {
             continue;
         }
+
+        // Remove old extra expanded hurtboxes (if a move is cancelled)
+        hurtboxes.extra.clear();
 
         for event in state.start_move(
             activation.id,

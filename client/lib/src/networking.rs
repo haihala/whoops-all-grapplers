@@ -21,7 +21,7 @@ use wag_core::{
 use crate::{
     assets::AnimationHelper,
     camera::ChildCameraEffects,
-    damage::{Combo, Defense, HitTracker, HitboxSpawner, LifetimeFlags},
+    damage::{Combo, HitTracker, HitboxSpawner, LifetimeFlags},
     entity_management::DespawnMarker,
     movement::{ConstantVelocity, Follow, PlayerVelocity, Pushbox, Walls},
     player_state_management::MoveBuffer,
@@ -91,7 +91,6 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_clone::<WAGResources>()
             .rollback_component_with_copy::<AnimationHelper>()
             .rollback_component_with_copy::<Combo>()
-            .rollback_component_with_copy::<Defense>()
             .rollback_component_with_copy::<Facing>()
             .rollback_component_with_copy::<HitboxSpawner>()
             .rollback_component_with_copy::<Player>()

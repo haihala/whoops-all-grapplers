@@ -509,7 +509,7 @@ impl AttackBuilder {
                 chip_damage: sb.chip_damage,
                 hit_stun_event: match sb.hit_stun {
                     HitStun::StunAdvantage(frame_advantage) => {
-                        ActionEvent::BlockStun((self.recovery as i32 + frame_advantage) as usize)
+                        ActionEvent::HitStun((self.recovery as i32 + frame_advantage) as usize)
                     }
                     HitStun::Knockdown => ActionEvent::LaunchStun(Vec2::ZERO),
                     HitStun::Launch(impulse) => ActionEvent::LaunchStun(impulse),
@@ -649,6 +649,7 @@ impl IntermediateStrike {
                 Movement::impulse(-Vec2::X * self.attacker_push_on_block).into(),
                 ActionEvent::CameraTilt(-Vec2::X * 0.01),
                 ActionEvent::Hitstop,
+                ActionEvent::Sound(SoundEffect::PlasticCupTap),
                 ActionEvent::VisualEffect(VfxRequest {
                     effect: VisualEffect::Block,
                     position: hitbox_pos,
@@ -663,7 +664,6 @@ impl IntermediateStrike {
                 self.hit_stun_event.clone(),
                 Movement::impulse(-Vec2::X * self.defender_push_on_block).into(),
                 ActionEvent::Flash(FlashRequest::hit_flash()),
-                ActionEvent::Sound(SoundEffect::PlasticCupTap),
             ],
             target_on_avoid: vec![
                 if self.chip_damage > 0 {
@@ -671,7 +671,7 @@ impl IntermediateStrike {
                 } else {
                     ActionEvent::Noop
                 },
-                ActionEvent::HitStun(self.block_stun),
+                ActionEvent::BlockStun(self.block_stun),
                 Movement::impulse(-Vec2::X * self.defender_push_on_block).into(),
             ],
             ..default()

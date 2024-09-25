@@ -22,6 +22,7 @@ pub struct Vfx {
     throw_target_material: Handle<FocalPointLinesMaterial>,
 }
 impl Vfx {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         meshes: HashMap<VisualEffect, Handle<Mesh>>,
         blank_material: Handle<BlankMaterial>,

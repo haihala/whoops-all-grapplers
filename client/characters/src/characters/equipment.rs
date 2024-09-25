@@ -311,12 +311,13 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             Item {
                 category: Upgrade(vec![ItemId::HockeyPads]),
                 explanation:
-                    "Increases health and removes chip damage on block\n\nI'm fucking <title card>!"
+                    "Increases health, removes chip damage on block and rewards blocking with meter\n\nI'm fucking <title card>!"
                         .into(),
                 cost: 300,
                 effect: Stats {
                     max_health: 10,
                     chip_damage: false,
+                    defense_meter: 1,
                     ..Stats::identity()
                 },
                 icon: Icon::GoalieGear,

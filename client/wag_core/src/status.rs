@@ -10,6 +10,7 @@ pub struct Stats {
     pub damage_multiplier: f32,
     pub chip_damage: bool,
     pub backdash_invuln: i32,
+    pub defense_meter: i32,
 
     // Movement
     pub walk_speed: f32,
@@ -43,6 +44,7 @@ impl std::hash::Hash for Stats {
         self.damage_multiplier.to_bits().hash(state);
         self.chip_damage.hash(state);
         self.backdash_invuln.hash(state);
+        self.defense_meter.hash(state);
 
         self.walk_speed.to_bits().hash(state);
         self.gravity.to_bits().hash(state);
@@ -86,6 +88,7 @@ impl Stats {
             damage_multiplier: 1.0,
             chip_damage: true,
             backdash_invuln: 0,
+            defense_meter: 0,
 
             walk_speed: 0.0,
             gravity: 0.0,
@@ -114,6 +117,7 @@ impl Stats {
         self.damage_multiplier *= rhs.damage_multiplier;
         self.chip_damage &= rhs.chip_damage; // If a source disables chip it's disabled forever
         self.backdash_invuln += rhs.backdash_invuln;
+        self.defense_meter += rhs.defense_meter;
 
         self.walk_speed += rhs.walk_speed;
         self.gravity += rhs.gravity;

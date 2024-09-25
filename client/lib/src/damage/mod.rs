@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
 mod combo;
-mod defense;
 mod hit_tracker;
 mod hitboxes;
 mod hitreg;
@@ -11,7 +10,6 @@ pub use hitboxes::{handle_despawn_flags, spawn_hitbox, LifetimeFlags};
 pub use hitreg::{blockstun_events, hitstun_events, launch_events, snap_and_switch};
 
 pub use combo::Combo;
-pub use defense::Defense;
 pub use hit_tracker::HitTracker;
 pub use hitboxes::HitboxSpawner;
 
@@ -26,7 +24,6 @@ impl Plugin for DamagePlugin {
                 hitreg::clash_parry,
                 hitreg::detect_hits.pipe(hitreg::apply_connections),
                 hitboxes::handle_despawn_flags,
-                defense::timeout_defense_streak,
             )
                 .chain()
                 .in_set(WAGStage::HitReg),

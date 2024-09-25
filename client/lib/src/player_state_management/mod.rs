@@ -18,7 +18,7 @@ use wag_core::{
 
 use crate::{
     assets::{AnimationHelper, AnimationHelperSetup, Models, PlayerModelHook},
-    damage::{Defense, HitboxSpawner},
+    damage::HitboxSpawner,
     event_spreading,
     movement::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
 };
@@ -96,7 +96,6 @@ fn setup_players(mut commands: Commands, characters: Res<Characters>, models: Re
 
 #[derive(Bundle, Default)]
 struct PlayerDefaults {
-    defense: Defense,
     inventory: Inventory,
     spawner: HitboxSpawner,
     player_velocity: PlayerVelocity,

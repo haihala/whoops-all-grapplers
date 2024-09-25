@@ -17,7 +17,7 @@ use crate::{
     ui::Notifications,
 };
 
-use super::{hitboxes::ProjectileMarker, Combo, Defense, HitTracker, HitboxSpawner};
+use super::{hitboxes::ProjectileMarker, Combo, HitTracker, HitboxSpawner};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub(super) enum ConnectionType {
@@ -43,7 +43,6 @@ pub(super) struct AttackConnection {
 #[query_data(mutable)]
 /// Used for querying all the components that are required when a player is hit.
 pub struct HitPlayerQuery<'a> {
-    defense: &'a mut Defense,
     tf: &'a mut Transform,
     properties: &'a mut WAGResources,
     player: &'a Player,
@@ -251,7 +250,6 @@ pub fn apply_connections(
     In(mut hits): In<Vec<AttackConnection>>,
     mut commands: Commands,
     mut notifications: ResMut<Notifications>,
-    clock: Res<Clock>,
     mut players: Query<HitPlayerQuery>,
     mut particles: ResMut<Vfx>,
 ) {
@@ -298,17 +296,17 @@ pub fn apply_connections(
             ConnectionType::Strike | ConnectionType::Throw => {
                 // Handle blocking and state transitions here
                 attacker.state.register_hit();
-                defender.defense.reset();
                 (hit.attack.self_on_hit, hit.attack.target_on_hit, false)
             }
             ConnectionType::Block => {
                 attacker.state.register_hit();
-                defender.defense.bump_streak(clock.frame);
-                defender
-                    .properties
-                    .get_mut(ResourceType::Meter)
-                    .unwrap()
-                    .gain(defender.defense.get_reward());
+                if defender.stats.defense_meter != 0 {
+                    defender
+                        .properties
+                        .get_mut(ResourceType::Meter)
+                        .unwrap()
+                        .gain(defender.stats.defense_meter);
+                }
 
                 (
                     hit.attack.self_on_avoid,

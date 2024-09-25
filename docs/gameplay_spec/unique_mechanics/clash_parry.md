@@ -1,0 +1,2 @@
+- If two strike hitboxes collide, they cause a clash parry, which consumes a hit from both
+- If one of them was not a projectile, the non-projectile user gains some [Meter](docs/gameplay_spec/genre_mechanics/meter.md)

@@ -1,2 +1,0 @@
-- Upgrade from [[Safety boots]] and [[Hockey pads]] for [[Mizku]]
-- Gives access to 6s overhead

@@ -1,0 +1,5 @@
+- Gained from
+	- Playing
+	- Winning
+- Spent on
+	- [Items](docs/gameplay_spec/unique_mechanics/items.md) in the [Shopping](docs/gameplay_spec/flow/shopping.md) phase

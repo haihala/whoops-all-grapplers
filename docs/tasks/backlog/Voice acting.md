@@ -1,3 +1,0 @@
-- [[Mizku]]
-	- Idle barks
-	- Special move name yelling

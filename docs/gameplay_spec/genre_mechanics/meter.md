@@ -1,0 +1,10 @@
+- Gained from
+	- Playing well
+		- [Link bonus](docs/gameplay_spec/unique_mechanics/link_bonus.md)
+		- [Opener](docs/gameplay_spec/unique_mechanics/opener.md)
+	- Character unique mechanics
+- Spent on
+	- Enhanced special moves
+	- Items like [Track spikes](docs/gameplay_spec/items/track_spikes.md)
+- Turned to money at the end of each round
+- Visualized as a bar of 5 segments, meter is always spent in full segments

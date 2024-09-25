@@ -1,0 +1,3 @@
+- Universal upgrade from [Stopwatch](docs/gameplay_spec/items/stopwatch.md) + [Boots](docs/gameplay_spec/items/boots.md)
+- Allows owner to dash cancel any move at the cost of some meter
+- Flavortext something like: Now with Fast Action Disruption Compatible soles.

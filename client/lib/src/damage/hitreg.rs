@@ -365,12 +365,14 @@ pub fn apply_connections(
                     ));
                     defender_actions = handle_opener(defender_actions, attacker.stats);
                 }
-                if defender.stats.direct_influence > 0.0 {
-                    defender.velocity.add_impulse(defender.facing.mirror_vec2(
-                        defender.parser.get_relative_stick_position().as_vec2()
-                            * defender.stats.direct_influence,
-                    ));
-                }
+            }
+
+            // This may break throws
+            if defender.stats.direct_influence > 0.0 {
+                defender.velocity.add_impulse(defender.facing.mirror_vec2(
+                    defender.parser.get_relative_stick_position().as_vec2()
+                        * defender.stats.direct_influence,
+                ));
             }
         }
 

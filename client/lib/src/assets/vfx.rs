@@ -5,14 +5,15 @@ use wag_core::{Clock, InCombat, VfxRequest, VisualEffect};
 use crate::entity_management::DespawnMarker;
 
 use super::materials::{
-    BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial, HitSparkMaterial,
-    LineFieldMaterial, Reset, RingRippleMaterial,
+    BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial,
+    HitSparkMaterial, LineFieldMaterial, Reset, RingRippleMaterial,
 };
 
 #[derive(Debug, Resource)]
 pub struct Vfx {
     meshes: HashMap<VisualEffect, Handle<Mesh>>,
     queue: Vec<VfxRequest>,
+    blank_material: Handle<BlankMaterial>,
     clash_spark_material: Handle<ClashSparkMaterial>,
     block_effect_material: Handle<BlockEffectMaterial>,
     hit_spark_material: Handle<HitSparkMaterial>,
@@ -23,6 +24,7 @@ pub struct Vfx {
 impl Vfx {
     pub fn new(
         meshes: HashMap<VisualEffect, Handle<Mesh>>,
+        blank_material: Handle<BlankMaterial>,
         clash_spark_material: Handle<ClashSparkMaterial>,
         block_effect_material: Handle<BlockEffectMaterial>,
         hit_spark_material: Handle<HitSparkMaterial>,
@@ -33,6 +35,7 @@ impl Vfx {
         Vfx {
             meshes,
             queue: vec![],
+            blank_material,
             hit_spark_material,
             clash_spark_material,
             block_effect_material,
@@ -80,6 +83,7 @@ pub fn handle_requests(
     mut vfx: ResMut<Vfx>,
     clock: Res<Clock>,
     time: Res<Time>,
+    mut blank_materials: ResMut<Assets<BlankMaterial>>,
     mut block_materials: ResMut<Assets<BlockEffectMaterial>>,
     mut clash_materials: ResMut<Assets<ClashSparkMaterial>>,
     mut hit_spark_materials: ResMut<Assets<HitSparkMaterial>>,
@@ -94,14 +98,22 @@ pub fn handle_requests(
     } in vfx.queue.drain(..).collect::<Vec<_>>().into_iter()
     {
         let mesh = vfx.meshes.get(&effect).unwrap().clone();
-        let mut transform =
-            Transform::from_translation(position.with_y(position.y.max(0.8)) + Vec3::Z);
+        let mut transform = Transform::from_translation(position + 0.1 * Vec3::Z);
 
         if let Some(angle) = rotation {
             transform.rotate_z(angle);
         }
 
         match effect {
+            VisualEffect::Blank => spawn_vfx(
+                &mut commands,
+                mesh,
+                transform,
+                vfx.blank_material.clone(),
+                &mut blank_materials,
+                time.elapsed_seconds(),
+                clock.frame + 15,
+            ),
             VisualEffect::Hit => {
                 spawn_vfx(
                     &mut commands,

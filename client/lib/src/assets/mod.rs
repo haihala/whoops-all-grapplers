@@ -35,6 +35,7 @@ impl Plugin for AssetsPlugin {
         app.init_resource::<AssetsLoading>()
             .add_plugins((
                 MaterialPlugin::<materials::HitSparkMaterial>::default(),
+                MaterialPlugin::<materials::BlankMaterial>::default(),
                 MaterialPlugin::<materials::BlockEffectMaterial>::default(),
                 MaterialPlugin::<materials::ClashSparkMaterial>::default(),
                 MaterialPlugin::<materials::RingRippleMaterial>::default(),

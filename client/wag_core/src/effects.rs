@@ -59,8 +59,10 @@ impl SoundEffect {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default)]
 pub enum VisualEffect {
+    #[default]
+    Blank,
     Clash,
     Block,
     Hit,
@@ -69,7 +71,7 @@ pub enum VisualEffect {
     ThrowTarget,
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Default)]
 pub struct VfxRequest {
     pub effect: VisualEffect,
     pub position: Vec3,

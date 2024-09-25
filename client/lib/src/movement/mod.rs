@@ -201,7 +201,11 @@ fn resolve_constraints(
                         std::cmp::Ordering::Less
                     }
                 }
-                std::cmp::Ordering::Equal => panic!("Perfectly identical next pos"),
+                std::cmp::Ordering::Equal => {
+                    // This could be due to a NaN
+                    dbg!(v1, v2);
+                    panic!("Perfectly identical next pos");
+                }
             },
             other => other,
         },

@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use wag_core::{
     ActionCategory, ActionId, Animation, Area, CancelType, CancelWindow, Model, SoundEffect,
+    VfxRequest, VisualEffect,
 };
 
 use crate::{ActionRequirement, ResourceType, Situation};
@@ -497,6 +498,7 @@ impl AttackBuilder {
                 sideswitch: tb.sideswitch,
                 self_move: tb.on_hit_action,
                 target_move: tb.target_action,
+                hitbox_position: self.hitbox.center(),
             }),
             SubBuilder::Strike(sb) => IntermediateAttack::Strike(IntermediateStrike {
                 sharpness_scaling: sb.sharpness_scaling,
@@ -513,6 +515,7 @@ impl AttackBuilder {
                     HitStun::Launch(impulse) => ActionEvent::LaunchStun(impulse),
                 },
                 block_stun: (self.recovery as i32 + sb.advantage_on_block) as usize,
+                hitbox_position: self.hitbox.center(),
             }),
         };
 
@@ -560,14 +563,35 @@ pub struct IntermediateThrow {
     pub lock_duration: usize,
     pub target_move: ActionId,
     pub self_move: ActionId,
+    pub hitbox_position: Vec2,
 }
 impl IntermediateThrow {
-    fn build_attack(&self, _situation: &Situation) -> Attack {
+    fn build_attack(&self, situation: &Situation) -> Attack {
+        let hitbox_pos = situation
+            .facing
+            .mirror_vec2(self.hitbox_position)
+            .extend(0.0);
+
         Attack {
             self_on_hit: vec![
                 ActionEvent::StartAction(self.self_move),
                 ActionEvent::Hitstop,
                 ActionEvent::Lock(self.lock_duration),
+                ActionEvent::Sound(SoundEffect::PastaPat),
+                ActionEvent::VisualEffect(VfxRequest {
+                    effect: VisualEffect::ThrowTarget,
+                    position: hitbox_pos,
+                    ..default()
+                }),
+            ],
+            self_on_avoid: vec![
+                ActionEvent::Sound(SoundEffect::BottleBonk),
+                Movement::impulse(Vec2::X * -2.0).into(),
+                ActionEvent::VisualEffect(VfxRequest {
+                    effect: VisualEffect::ThrowTech,
+                    position: hitbox_pos,
+                    ..default()
+                }),
             ],
 
             target_on_hit: vec![
@@ -577,10 +601,7 @@ impl IntermediateThrow {
                 ActionEvent::StartAction(self.target_move),
                 ActionEvent::Lock(self.lock_duration),
             ],
-
-            // Impossible
-            self_on_block: vec![],
-            target_on_block: vec![],
+            target_on_avoid: vec![Movement::impulse(Vec2::X * -2.0).into()],
 
             ..default()
         }
@@ -597,6 +618,7 @@ pub struct IntermediateStrike {
     pub hit_stun_event: ActionEvent,
     pub block_stun: usize,
     pub sharpness_scaling: i32,
+    pub hitbox_position: Vec2,
 }
 impl IntermediateStrike {
     pub fn build_attack(&self, situation: &Situation) -> Attack {
@@ -605,17 +627,33 @@ impl IntermediateStrike {
             .unwrap()
             .current;
 
+        let hitbox_pos = situation
+            .facing
+            .mirror_vec2(self.hitbox_position)
+            .extend(0.0);
+
         Attack {
             self_on_hit: vec![
                 Movement::impulse(-Vec2::X * self.attacker_push_on_hit).into(),
                 ActionEvent::CameraTilt(Vec2::X * 0.02),
                 ActionEvent::CameraShake,
                 ActionEvent::Hitstop,
+                ActionEvent::Sound(SoundEffect::PastaPat),
+                ActionEvent::VisualEffect(VfxRequest {
+                    effect: VisualEffect::Hit,
+                    position: hitbox_pos,
+                    ..default()
+                }),
             ],
-            self_on_block: vec![
+            self_on_avoid: vec![
                 Movement::impulse(-Vec2::X * self.attacker_push_on_block).into(),
                 ActionEvent::CameraTilt(-Vec2::X * 0.01),
                 ActionEvent::Hitstop,
+                ActionEvent::VisualEffect(VfxRequest {
+                    effect: VisualEffect::Block,
+                    position: hitbox_pos,
+                    ..default()
+                }),
             ],
             target_on_hit: vec![
                 ActionEvent::ModifyResource(
@@ -625,8 +663,9 @@ impl IntermediateStrike {
                 self.hit_stun_event.clone(),
                 Movement::impulse(-Vec2::X * self.defender_push_on_block).into(),
                 ActionEvent::Flash(FlashRequest::hit_flash()),
+                ActionEvent::Sound(SoundEffect::PlasticCupTap),
             ],
-            target_on_block: vec![
+            target_on_avoid: vec![
                 if self.chip_damage > 0 {
                     ActionEvent::ModifyResource(ResourceType::Health, -self.chip_damage)
                 } else {

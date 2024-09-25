@@ -1,8 +1,7 @@
 use bevy::{ecs::query::QueryData, prelude::*};
 
 use characters::{
-    ActionEvent, Attack, AttackHeight, BlockType, Hitbox, Hurtboxes, Movement, ResourceType,
-    WAGResources,
+    ActionEvent, Attack, AttackHeight, BlockType, Hitbox, Hurtboxes, ResourceType, WAGResources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -295,25 +294,12 @@ pub fn apply_connections(
         let [mut attacker, mut defender] =
             players.get_many_mut([hit.attacker, hit.defender]).unwrap();
 
-        let (mut attacker_actions, mut defender_actions, sound, particle, avoided) = match hit
-            .contact_type
-        {
+        let (mut attacker_actions, mut defender_actions, avoided) = match hit.contact_type {
             ConnectionType::Strike | ConnectionType::Throw => {
                 // Handle blocking and state transitions here
                 attacker.state.register_hit();
                 defender.defense.reset();
-                (
-                    hit.attack.self_on_hit,
-                    hit.attack.target_on_hit,
-                    // TODO: Attack hit sound should not be generic
-                    SoundEffect::PastaPat,
-                    if hit.contact_type == ConnectionType::Strike {
-                        VisualEffect::Hit
-                    } else {
-                        VisualEffect::ThrowTarget
-                    },
-                    false,
-                )
+                (hit.attack.self_on_hit, hit.attack.target_on_hit, false)
             }
             ConnectionType::Block => {
                 attacker.state.register_hit();
@@ -325,40 +311,41 @@ pub fn apply_connections(
                     .gain(defender.defense.get_reward());
 
                 (
-                    hit.attack.self_on_block,
+                    hit.attack.self_on_avoid,
                     if !defender.stats.chip_damage {
                         hit.attack
-                            .target_on_block
+                            .target_on_avoid
                             .into_iter()
                             .filter(|ev| {
                                 !matches!(ev, ActionEvent::ModifyResource(ResourceType::Health, _))
                             })
                             .collect()
                     } else {
-                        hit.attack.target_on_block
+                        hit.attack.target_on_avoid
                     },
-                    SoundEffect::PlasticCupTap,
-                    VisualEffect::Block,
                     true,
                 )
             }
-            ConnectionType::Parry => (
-                vec![],
-                vec![
+            ConnectionType::Tech | ConnectionType::Stunlock => {
+                (hit.attack.self_on_avoid, hit.attack.target_on_avoid, true)
+            }
+            ConnectionType::Parry => {
+                commands.trigger(PlaySound(SoundEffect::Clash));
+                for event in vec![
                     ActionEvent::ModifyResource(ResourceType::Meter, GI_PARRY_METER_GAIN),
                     ActionEvent::StartAction(ActionId::ParryFlash),
-                ],
-                SoundEffect::Clash,
-                VisualEffect::Clash,
-                true,
-            ),
-            ConnectionType::Tech | ConnectionType::Stunlock => (
-                vec![Movement::impulse(Vec2::X * -4.0).into()],
-                vec![],
-                SoundEffect::BottleBonk,
-                VisualEffect::ThrowTech,
-                true,
-            ),
+                ] {
+                    commands.trigger_targets(event, hit.defender)
+                }
+
+                particles.spawn(VfxRequest {
+                    effect: VisualEffect::Clash,
+                    position: hit.overlap.center().extend(0.0),
+                    rotation: None,
+                });
+
+                return;
+            }
         };
 
         if !avoided {
@@ -396,13 +383,6 @@ pub fn apply_connections(
         for event in defender_actions {
             commands.trigger_targets(event, hit.defender);
         }
-        commands.trigger(PlaySound(sound));
-        particles.spawn(VfxRequest {
-            effect: particle,
-            // TODO: This can be refined more
-            position: hit.overlap.center().extend(0.0),
-            rotation: None,
-        });
 
         defender.spawner.despawn_on_hit();
     }

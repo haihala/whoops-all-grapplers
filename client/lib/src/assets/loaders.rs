@@ -5,8 +5,8 @@ use wag_core::{Animation, Icon, Model, SoundEffect, VisualEffect};
 use super::{
     animations::animation_paths,
     materials::{
-        BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial, HitSparkMaterial,
-        LineFieldMaterial, RingRippleMaterial,
+        BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial,
+        HitSparkMaterial, LineFieldMaterial, RingRippleMaterial,
     },
     models::model_paths,
     sounds::Sounds,
@@ -110,6 +110,7 @@ pub fn sounds(
 pub fn vfx(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
+    mut blank_materials: ResMut<Assets<BlankMaterial>>,
     mut clash_spark_materials: ResMut<Assets<ClashSparkMaterial>>,
     mut block_effect_materials: ResMut<Assets<BlockEffectMaterial>>,
     mut hit_spark_materials: ResMut<Assets<HitSparkMaterial>>,
@@ -118,6 +119,7 @@ pub fn vfx(
     mut focal_point_line_materials: ResMut<Assets<FocalPointLinesMaterial>>,
 ) {
     let mesh_handles = vec![
+        (VisualEffect::Blank, meshes.add(Rectangle::new(1.0, 1.0))),
         (VisualEffect::Block, meshes.add(Rectangle::new(1.1, 2.0))),
         (VisualEffect::Hit, meshes.add(Rectangle::new(1.1, 1.1))),
         (VisualEffect::Clash, meshes.add(Rectangle::new(1.5, 1.5))),
@@ -137,6 +139,7 @@ pub fn vfx(
     .into_iter()
     .collect();
 
+    let blank_material = blank_materials.add(BlankMaterial::default());
     let clash_spark_material = clash_spark_materials.add(ClashSparkMaterial::default());
     let block_effect_material = block_effect_materials.add(BlockEffectMaterial::default());
     let hit_spark_material = hit_spark_materials.add(HitSparkMaterial::default());
@@ -146,6 +149,7 @@ pub fn vfx(
 
     commands.insert_resource(Vfx::new(
         mesh_handles,
+        blank_material,
         clash_spark_material,
         block_effect_material,
         hit_spark_material,

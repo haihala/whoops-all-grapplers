@@ -203,6 +203,22 @@ impl Material for ClashSparkMaterial {
     }
 }
 
+#[derive(Asset, AsBindGroup, TypePath, Debug, Clone, Default)]
+pub struct BlankMaterial {}
+impl Reset for BlankMaterial {
+    fn reset(&mut self, _time: f32) {}
+}
+
+impl Material for BlankMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/blank.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
+}
+
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct RingRippleMaterial {
     #[uniform(0)]

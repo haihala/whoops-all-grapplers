@@ -1,14 +1,13 @@
 use std::time::Duration;
 
-use bevy::{asset::LoadState, prelude::*};
+use bevy::{asset::LoadState, prelude::*, state::state::FreelyMutableState};
 
 use characters::{Character, Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
-    Clock, GameResult, GameState, InCharacterSelect, InCombat, InEndScreen, InLoadingScreen,
-    InMatch, InMatchSetup, InMenu, LocalState, MatchState, OnlineState, Player, RollbackSchedule,
-    RoundLog, RoundResult, SynctestState, WAGStage, POST_ROUND_DURATION, ROUNDS_TO_WIN,
-    ROUND_MONEY, VICTORY_BONUS,
+    Clock, GameResult, GameState, InCharacterSelect, InMatch, MatchState, Player, RollbackSchedule,
+    RoundLog, RoundResult, WAGStage, POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY,
+    VICTORY_BONUS,
 };
 
 use crate::{
@@ -21,21 +20,17 @@ pub struct StateTransitionPlugin;
 impl Plugin for StateTransitionPlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
+            .init_state::<MatchState>()
             .add_computed_state::<InMatch>()
-            .add_computed_state::<InMenu>()
-            .add_computed_state::<InCombat>()
-            .add_computed_state::<InEndScreen>()
-            .add_computed_state::<InLoadingScreen>()
-            .add_computed_state::<InMatchSetup>()
             .add_computed_state::<InCharacterSelect>()
-            .add_computed_state::<MatchState>()
             .add_systems(
                 RollbackSchedule,
                 (
-                    end_loading.run_if(in_state(InLoadingScreen)),
-                    end_combat.run_if(in_state(InCombat)),
+                    end_loading.run_if(in_state(MatchState::Loading)),
+                    end_combat.run_if(in_state(MatchState::Combat)),
                     clear_between_states.run_if(state_changed::<GameState>),
-                    transition_after_timer,
+                    transition_after_timer::<GameState>,
+                    transition_after_timer::<MatchState>,
                 )
                     .chain()
                     .in_set(WAGStage::StateTransitions),
@@ -44,9 +39,9 @@ impl Plugin for StateTransitionPlugin {
 }
 
 #[derive(Debug, Resource)]
-pub struct TransitionTimer {
+pub struct TransitionTimer<T: States> {
     pub timer: Timer,
-    pub state: GameState,
+    pub state: T,
 }
 
 pub fn end_combat(
@@ -55,8 +50,7 @@ pub fn end_combat(
     mut notifications: ResMut<Notifications>,
     mut round_log: ResMut<RoundLog>,
     mut players: Query<(&WAGResources, &Player, &mut Inventory, &Character)>,
-    game_state: Res<State<GameState>>,
-    mut next_state: ResMut<NextState<GameState>>,
+    mut next_match_state: ResMut<NextState<MatchState>>,
 ) {
     let round_over = players
         .iter()
@@ -149,45 +143,21 @@ pub fn end_combat(
         commands.insert_resource(GameResult { winner: **winner });
     }
 
-    let (next, after) = match **game_state {
-        GameState::Local(_) => (
-            GameState::Local(LocalState::Match(MatchState::PostRound)),
-            GameState::Local(if game_over {
-                LocalState::EndScreen
-            } else {
-                LocalState::Match(MatchState::Shop)
-            }),
-        ),
-        GameState::Online(_) => (
-            GameState::Online(OnlineState::Match(MatchState::PostRound)),
-            GameState::Online(if game_over {
-                OnlineState::EndScreen
-            } else {
-                OnlineState::Match(MatchState::Shop)
-            }),
-        ),
-        GameState::Synctest(_) => (
-            GameState::Synctest(SynctestState::Match(MatchState::PostRound)),
-            GameState::Synctest(if game_over {
-                SynctestState::EndScreen
-            } else {
-                SynctestState::Match(MatchState::Shop)
-            }),
-        ),
-        _ => panic!("Out of match transitions!"),
-    };
-    next_state.set(next);
-
+    next_match_state.set(MatchState::PostRound);
     commands.insert_resource(TransitionTimer {
         timer: Timer::from_seconds(POST_ROUND_DURATION, TimerMode::Once),
-        state: after,
-    })
+        state: if game_over {
+            MatchState::EndScreen
+        } else {
+            MatchState::Shop
+        },
+    });
 }
 
-fn transition_after_timer(
+fn transition_after_timer<T: FreelyMutableState>(
     mut commands: Commands,
-    timer_resource: Option<ResMut<TransitionTimer>>,
-    mut next_state: ResMut<NextState<GameState>>,
+    timer_resource: Option<ResMut<TransitionTimer<T>>>,
+    mut next_state: ResMut<NextState<T>>,
 ) {
     if let Some(mut transition) = timer_resource {
         transition
@@ -195,8 +165,8 @@ fn transition_after_timer(
             .tick(Duration::from_millis((1000.0 / wag_core::FPS) as u64));
 
         if transition.timer.finished() {
-            next_state.set(transition.state);
-            commands.remove_resource::<TransitionTimer>()
+            next_state.set(transition.state.clone());
+            commands.remove_resource::<TransitionTimer<T>>()
         }
     }
 }
@@ -205,8 +175,7 @@ fn end_loading(
     ready_players: Query<&Player, Without<PlayerModelHook>>,
     loading_assets: Res<AssetsLoading>,
     server: Res<AssetServer>,
-    mut next_state: ResMut<NextState<GameState>>,
-    current_state: Res<State<GameState>>,
+    mut next_match_state: ResMut<NextState<MatchState>>,
     mut latch: Local<bool>,
 ) {
     let two_players = ready_players.iter().count() == 2;
@@ -219,12 +188,7 @@ fn end_loading(
     if two_players && some_assets_loading && all_assets_loaded {
         if *latch {
             println!("Done loading assets");
-            next_state.set(match *current_state.get() {
-                GameState::Local(_) => GameState::Local(LocalState::SetupMatch),
-                GameState::Online(_) => GameState::Online(OnlineState::SetupMatch),
-                GameState::Synctest(_) => GameState::Synctest(SynctestState::SetupMatch),
-                _ => panic!("Loading while not in a loading situation"),
-            });
+            next_match_state.set(MatchState::PostLoad);
         } else {
             *latch = true;
         }

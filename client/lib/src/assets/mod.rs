@@ -15,7 +15,7 @@ pub use models::{Models, PlayerModelHook};
 pub use sounds::Sounds;
 pub use vfx::Vfx;
 
-use wag_core::{Icon, InLoadingScreen, RollbackSchedule, WAGStage};
+use wag_core::{Icon, MatchState, RollbackSchedule, WAGStage};
 
 #[derive(Debug, Resource)]
 pub struct Fonts {
@@ -61,7 +61,7 @@ impl Plugin for AssetsPlugin {
                     animations::mirror_after_load,
                     models::prep_player_gltf,
                 )
-                    .run_if(in_state(InLoadingScreen)),
+                    .run_if(in_state(MatchState::Loading)),
             )
             .add_systems(
                 RollbackSchedule,

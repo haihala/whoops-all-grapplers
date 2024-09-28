@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::HashMap};
 
-use wag_core::{Clock, InCombat, VfxRequest, VisualEffect};
+use wag_core::{Clock, MatchState, VfxRequest, VisualEffect};
 
 use crate::entity_management::DespawnMarker;
 
@@ -74,7 +74,7 @@ fn spawn_vfx<M>(
             ..default()
         },
         DespawnMarker(despawn_frame),
-        StateScoped(InCombat),
+        StateScoped(MatchState::Combat),
     ));
 }
 

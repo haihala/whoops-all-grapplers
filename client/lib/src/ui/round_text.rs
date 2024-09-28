@@ -1,7 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{
-    GameState, InMatch, LocalState, MatchState, OnlineState, RoundLog, GENERIC_TEXT_COLOR,
-};
+use wag_core::{InMatch, MatchState, RoundLog, GENERIC_TEXT_COLOR};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 
@@ -50,12 +48,9 @@ pub fn setup_round_info_text(mut commands: Commands, fonts: Res<Fonts>) {
             },
             Name::new("Round info text"),
             VisibleInStates(vec![
-                GameState::Local(LocalState::Loading),
-                GameState::Local(LocalState::Match(MatchState::PreRound)),
-                GameState::Local(LocalState::Match(MatchState::PostRound)),
-                GameState::Online(OnlineState::Loading),
-                GameState::Online(OnlineState::Match(MatchState::PreRound)),
-                GameState::Online(OnlineState::Match(MatchState::PostRound)),
+                MatchState::Loading,
+                MatchState::PreRound,
+                MatchState::PostRound,
             ]),
         ))
         .with_children(|parent| {
@@ -73,12 +68,9 @@ pub fn setup_round_info_text(mut commands: Commands, fonts: Res<Fonts>) {
                 },
                 StateScoped(InMatch),
                 VisibleInStates(vec![
-                    GameState::Local(LocalState::Loading),
-                    GameState::Local(LocalState::Match(MatchState::PreRound)),
-                    GameState::Local(LocalState::Match(MatchState::PostRound)),
-                    GameState::Online(OnlineState::Loading),
-                    GameState::Online(OnlineState::Match(MatchState::PreRound)),
-                    GameState::Online(OnlineState::Match(MatchState::PostRound)),
+                    MatchState::Loading,
+                    MatchState::PreRound,
+                    MatchState::PostRound,
                 ]),
                 RoundText,
             ));

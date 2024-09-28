@@ -1,14 +1,11 @@
 use bevy::prelude::*;
-use wag_core::{
-    Clock, GameState, InCombat, InEndScreen, InLoadingScreen, InMatch, InMenu, MatchState,
-    RollbackSchedule,
-};
+use wag_core::{Clock, GameState, InMatch, MatchState, RollbackSchedule};
 
 #[derive(Component, Copy, Clone)]
 pub struct DespawnMarker(pub usize);
 
 #[derive(Debug, Component, Deref)]
-pub struct VisibleInStates(pub Vec<GameState>);
+pub struct VisibleInStates<T: States>(pub Vec<T>);
 
 pub struct EntityManagementPlugin;
 
@@ -18,13 +15,15 @@ impl Plugin for EntityManagementPlugin {
             RollbackSchedule,
             despawn_marked.after(crate::damage::handle_despawn_flags),
         )
-        .add_systems(Update, update_visibility_on_state_change)
+        .add_systems(
+            Update,
+            (
+                update_visibility_on_state_change::<GameState>,
+                update_visibility_on_state_change::<MatchState>,
+            ),
+        )
         .enable_state_scoped_entities::<GameState>()
         .enable_state_scoped_entities::<MatchState>()
-        .enable_state_scoped_entities::<InMenu>()
-        .enable_state_scoped_entities::<InCombat>()
-        .enable_state_scoped_entities::<InEndScreen>()
-        .enable_state_scoped_entities::<InLoadingScreen>()
         .enable_state_scoped_entities::<InMatch>();
     }
 }
@@ -41,9 +40,9 @@ fn despawn_marked(
     }
 }
 
-fn update_visibility_on_state_change(
-    state: Res<State<GameState>>,
-    mut query: Query<(&mut Visibility, &VisibleInStates)>,
+fn update_visibility_on_state_change<T: States>(
+    state: Res<State<T>>,
+    mut query: Query<(&mut Visibility, &VisibleInStates<T>)>,
 ) {
     if state.is_changed() {
         dbg!(state.get());

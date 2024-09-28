@@ -1,9 +1,7 @@
 use std::collections::VecDeque;
 
 use bevy::prelude::*;
-use wag_core::{
-    GameState, InCharacterSelect, InEndScreen, InMenu, LocalState, SoundEffect, WagInputEvent,
-};
+use wag_core::{GameState, InCharacterSelect, LocalState, MatchState, SoundEffect, WagInputEvent};
 
 use crate::{assets::Fonts, event_spreading::PlaySound};
 
@@ -25,7 +23,7 @@ impl Plugin for ViewsPlugin {
             ),
         )
         .init_resource::<MenuInputs>()
-        .add_systems(Update, update_menu_inputs.run_if(in_state(InMenu)))
+        .add_systems(Update, update_menu_inputs)
         .add_systems(
             Update,
             (
@@ -53,7 +51,7 @@ impl Plugin for ViewsPlugin {
                 .chain()
                 .run_if(in_state(InCharacterSelect)),
         )
-        .add_systems(OnEnter(InEndScreen), end_screen::setup_end_screen)
+        .add_systems(OnEnter(MatchState::EndScreen), end_screen::setup_end_screen)
         .add_systems(
             Update,
             (
@@ -61,7 +59,7 @@ impl Plugin for ViewsPlugin {
                 end_screen::update_end_screen_visuals,
             )
                 .chain()
-                .run_if(in_state(InEndScreen))
+                .run_if(in_state(MatchState::EndScreen))
                 .after(end_screen::setup_end_screen),
         )
         .add_systems(OnExit(GameState::MainMenu), play_transition_noise)
@@ -73,7 +71,7 @@ impl Plugin for ViewsPlugin {
             OnExit(GameState::Local(LocalState::CharacterSelect)),
             play_transition_noise,
         )
-        .add_systems(OnExit(InEndScreen), play_transition_noise);
+        .add_systems(OnExit(MatchState::EndScreen), play_transition_noise);
     }
 }
 
@@ -82,8 +80,18 @@ struct MenuInputs(VecDeque<WagInputEvent>);
 
 // This is a workaround. Inputs would otherwise be duplicated per system, which causes
 // duplication issues during state transitions.
-fn update_menu_inputs(mut mi: ResMut<MenuInputs>, mut events: EventReader<WagInputEvent>) {
-    for ev in events.read() {
+fn update_menu_inputs(
+    mut mi: ResMut<MenuInputs>,
+    mut events: EventReader<WagInputEvent>,
+    match_state: Res<State<MatchState>>,
+) {
+    let evs = events.read();
+
+    if !matches!(*match_state.get(), MatchState::EndScreen | MatchState::None) {
+        return;
+    }
+
+    for ev in evs {
         mi.push_back(ev.to_owned());
     }
 }

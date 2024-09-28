@@ -7,8 +7,8 @@ use bevy::prelude::*;
 use strum::IntoEnumIterator;
 use wag_core::{
     CharacterId, Characters, Controllers, GameState, LocalCharacter, LocalController, LocalState,
-    OnlineState, Player, WagInputButton, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR,
-    VERTICAL_MENU_OPTION_BACKGROUND,
+    MatchState, OnlineState, Player, WagInputButton, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR,
+    GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
 use super::{setup_view_title, MenuInputs};
@@ -141,7 +141,8 @@ pub fn navigate_character_select(
     mut nav: ResMut<CharacterSelectNav>,
     controllers: Option<Res<Controllers>>,
     options: Query<&CharacterId>,
-    mut state: ResMut<NextState<GameState>>,
+    mut game_state: ResMut<NextState<GameState>>,
+    mut match_state: ResMut<NextState<MatchState>>,
     mut events: ResMut<MenuInputs>,
     local_controller: Option<Res<LocalController>>,
 ) {
@@ -172,12 +173,12 @@ pub fn navigate_character_select(
                 if nav.locked(player) {
                     nav.unlock(player);
                 } else {
-                    state.set(GameState::Local(LocalState::ControllerAssignment));
+                    game_state.set(GameState::Local(LocalState::ControllerAssignment));
                 }
             }
             WagInputButton::South => {
                 if local_controller.is_some() {
-                    state.set(GameState::Online(OnlineState::Lobby));
+                    game_state.set(GameState::Online(OnlineState::Lobby));
                     commands.insert_resource(LocalCharacter(
                         *options.get(nav.p1_select.selected).unwrap(),
                     ));
@@ -193,7 +194,8 @@ pub fn navigate_character_select(
                         p1: *p1_char,
                         p2: *p2_char,
                     });
-                    state.set(GameState::Local(LocalState::Loading));
+                    game_state.set(GameState::Local(LocalState::Match));
+                    match_state.set(MatchState::Loading);
                 }
             }
             _ => {}

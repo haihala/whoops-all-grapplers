@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use bevy_ggrs::AddRollbackCommandExtension;
 use characters::{Attack, Hitbox, Lifetime};
-use wag_core::{Area, Clock, Facing, InCombat, Owner, Player};
+use wag_core::{Area, Clock, Facing, MatchState, Owner, Player};
 
 use crate::{
     assets::Models,
@@ -68,7 +68,7 @@ impl HitboxSpawner {
             Owner(player),
             hitbox,
             attack.clone(),
-            StateScoped(InCombat),
+            StateScoped(MatchState::Combat),
         ));
 
         if attack.to_hit.velocity != Vec2::ZERO {

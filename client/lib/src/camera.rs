@@ -1,7 +1,7 @@
 use bevy::{prelude::*, render::view::NoFrustumCulling};
 use wag_core::{
-    Facing, GameState, InMatch, LocalState, OnlineState, Player, RollbackSchedule, SynctestState,
-    WAGStage, WagArgs, LOADING_SCREEN_BACKGROUND,
+    Facing, InMatch, MatchState, Player, RollbackSchedule, WAGStage, WagArgs,
+    LOADING_SCREEN_BACKGROUND,
 };
 
 use crate::{
@@ -78,14 +78,7 @@ fn add_camera(
                                 transform: Transform::from_xyz(0.0, 0.0, -2.0),
                                 ..default()
                             },
-                            VisibleInStates(vec![
-                                GameState::Local(LocalState::Loading),
-                                GameState::Local(LocalState::SetupMatch),
-                                GameState::Online(OnlineState::Loading),
-                                GameState::Online(OnlineState::SetupMatch),
-                                GameState::Synctest(SynctestState::Loading),
-                                GameState::Synctest(SynctestState::SetupMatch),
-                            ]),
+                            VisibleInStates(vec![MatchState::Loading, MatchState::PostLoad]),
                             NoFrustumCulling,
                         ));
                     };

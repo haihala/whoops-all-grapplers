@@ -1,10 +1,9 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
 use wag_core::{
-    GameState, LocalState, MatchState, OnlineState, Owner, Player, Players, RoundLog,
-    SynctestState, ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
-    ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION,
-    PRE_ROUND_DURATION,
+    MatchState, Owner, Player, Players, RoundLog, ITEM_SLOT_COMPONENT_COLOR,
+    ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR, ITEM_SLOT_HIGHLIGHT_COLOR,
+    ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
 };
 
 use crate::{assets::Icons, state_transitions::TransitionTimer};
@@ -152,8 +151,7 @@ pub fn update_info_panel(
 pub fn handle_shop_ending(
     mut commands: Commands,
     mut shops: ResMut<Shops>,
-    mut next_state: ResMut<NextState<GameState>>,
-    current_state: Res<State<GameState>>,
+    mut next_state: ResMut<NextState<MatchState>>,
     mut local_timer: Local<Option<Timer>>,
     mut countdown_roots: Query<&mut Visibility>,
     mut countdown_texts: Query<&mut Text>,
@@ -163,7 +161,6 @@ pub fn handle_shop_ending(
         end_shopping(
             &mut shops,
             &mut next_state,
-            *current_state.get(),
             &mut commands,
             &mut countdown_roots,
         );
@@ -198,7 +195,6 @@ pub fn handle_shop_ending(
         end_shopping(
             &mut shops,
             &mut next_state,
-            *current_state.get(),
             &mut commands,
             &mut countdown_roots,
         );
@@ -211,32 +207,15 @@ pub fn handle_shop_ending(
 
 fn end_shopping(
     shops: &mut Shops,
-    next_state: &mut ResMut<NextState<GameState>>,
-    current_state: GameState,
+    next_state: &mut ResMut<NextState<MatchState>>,
     commands: &mut Commands,
     countdown_roots: &mut Query<&mut Visibility>,
 ) {
-    let (immediate, next) = match current_state {
-        GameState::Online(_) => (
-            GameState::Online(OnlineState::Match(MatchState::PreRound)),
-            GameState::Online(OnlineState::Match(MatchState::Combat)),
-        ),
-        GameState::Local(_) => (
-            GameState::Local(LocalState::Match(MatchState::PreRound)),
-            GameState::Local(LocalState::Match(MatchState::Combat)),
-        ),
-        GameState::Synctest(_) => (
-            GameState::Synctest(SynctestState::Match(MatchState::PreRound)),
-            GameState::Synctest(SynctestState::Match(MatchState::Combat)),
-        ),
-        GameState::MainMenu => panic!("Trying to go to shop in main menu"),
-    };
-
-    next_state.set(immediate);
+    next_state.set(MatchState::PreRound);
 
     commands.insert_resource(TransitionTimer {
         timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),
-        state: next,
+        state: MatchState::Combat,
     });
 
     for shop in [&mut shops.player_one, &mut shops.player_two] {

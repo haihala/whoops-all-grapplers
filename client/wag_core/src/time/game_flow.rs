@@ -5,10 +5,7 @@ use bevy::prelude::*;
 pub enum LocalState {
     ControllerAssignment,
     CharacterSelect,
-    Loading,
-    SetupMatch,
-    Match(MatchState),
-    EndScreen,
+    Match,
 }
 impl ComputedStates for LocalState {
     type SourceStates = GameState;
@@ -25,10 +22,7 @@ impl ComputedStates for LocalState {
 pub enum OnlineState {
     CharacterSelect,
     Lobby,
-    Loading,
-    SetupMatch,
-    Match(MatchState),
-    EndScreen,
+    Match,
 }
 impl ComputedStates for OnlineState {
     type SourceStates = GameState;
@@ -41,44 +35,17 @@ impl ComputedStates for OnlineState {
     }
 }
 
-#[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
-pub enum SynctestState {
-    Loading,
-    SetupMatch,
-    Match(MatchState),
-    EndScreen,
-}
-
-impl ComputedStates for SynctestState {
-    type SourceStates = GameState;
-
-    fn compute(sources: Self::SourceStates) -> Option<Self> {
-        match sources {
-            GameState::Synctest(sts) => Some(sts),
-            _ => None,
-        }
-    }
-}
-
-#[derive(Clone, Copy, Hash, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Hash, Debug, PartialEq, Eq, States, Default)]
 pub enum MatchState {
-    PreRound,
+    #[default]
+    None,
+    Loading,
+    PostLoad,
+    PreRound, // TODO: Rename to countdown
     Combat,
     PostRound,
     Shop,
-}
-
-impl ComputedStates for MatchState {
-    type SourceStates = GameState;
-
-    fn compute(sources: Self::SourceStates) -> Option<Self> {
-        match sources {
-            GameState::Local(LocalState::Match(cs))
-            | GameState::Synctest(SynctestState::Match(cs))
-            | GameState::Online(OnlineState::Match(cs)) => Some(cs),
-            _ => None,
-        }
-    }
+    EndScreen,
 }
 
 #[derive(Clone, Copy, Hash, Debug, PartialEq, Eq, Default, States)]
@@ -88,35 +55,12 @@ pub enum GameState {
 
     Local(LocalState),
     Online(OnlineState),
-    Synctest(SynctestState),
+    Synctest,
 }
 
 impl GameState {
     pub fn is_online(&self) -> bool {
-        matches!(self, GameState::Online(_) | GameState::Synctest(_))
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct InMenu;
-impl ComputedStates for InMenu {
-    type SourceStates = GameState;
-
-    fn compute(sources: Self::SourceStates) -> Option<Self> {
-        if matches!(
-            sources,
-            GameState::MainMenu
-                | GameState::Local(LocalState::ControllerAssignment)
-                | GameState::Local(LocalState::CharacterSelect)
-                | GameState::Local(LocalState::EndScreen)
-                | GameState::Online(OnlineState::CharacterSelect)
-                | GameState::Online(OnlineState::EndScreen)
-                | GameState::Synctest(SynctestState::EndScreen)
-        ) {
-            Some(InMenu)
-        } else {
-            None
-        }
+        matches!(self, GameState::Online(_) | GameState::Synctest)
     }
 }
 
@@ -139,102 +83,13 @@ impl ComputedStates for InCharacterSelect {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct InMatchSetup;
-
-impl ComputedStates for InMatchSetup {
-    type SourceStates = GameState;
-
-    fn compute(sources: Self::SourceStates) -> Option<Self> {
-        if matches!(
-            sources,
-            GameState::Local(LocalState::SetupMatch)
-                | GameState::Online(OnlineState::SetupMatch)
-                | GameState::Synctest(SynctestState::SetupMatch)
-        ) {
-            Some(InMatchSetup)
-        } else {
-            None
-        }
-    }
-}
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct InEndScreen;
-
-impl ComputedStates for InEndScreen {
-    type SourceStates = GameState;
-
-    fn compute(sources: Self::SourceStates) -> Option<Self> {
-        if matches!(
-            sources,
-            GameState::Local(LocalState::EndScreen)
-                | GameState::Online(OnlineState::EndScreen)
-                | GameState::Synctest(SynctestState::EndScreen)
-        ) {
-            Some(InEndScreen)
-        } else {
-            None
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct InCombat;
-
-impl ComputedStates for InCombat {
-    type SourceStates = GameState;
-
-    fn compute(sources: Self::SourceStates) -> Option<Self> {
-        if matches!(
-            sources,
-            GameState::Local(LocalState::Match(MatchState::Combat))
-                | GameState::Synctest(SynctestState::Match(MatchState::Combat))
-                | GameState::Online(OnlineState::Match(MatchState::Combat))
-        ) {
-            Some(InCombat)
-        } else {
-            None
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct InLoadingScreen;
-
-impl ComputedStates for InLoadingScreen {
-    type SourceStates = GameState;
-
-    fn compute(sources: Self::SourceStates) -> Option<Self> {
-        if matches!(
-            sources,
-            GameState::Local(LocalState::Loading)
-                | GameState::Online(OnlineState::Loading)
-                | GameState::Synctest(SynctestState::Loading)
-        ) {
-            Some(InLoadingScreen)
-        } else {
-            None
-        }
-    }
-}
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct InMatch;
 
 impl ComputedStates for InMatch {
-    type SourceStates = GameState;
+    type SourceStates = MatchState;
 
     fn compute(sources: Self::SourceStates) -> Option<Self> {
-        if matches!(
-            sources,
-            GameState::Local(LocalState::Loading)
-                | GameState::Local(LocalState::SetupMatch)
-                | GameState::Local(LocalState::Match(_))
-                | GameState::Online(OnlineState::Loading)
-                | GameState::Online(OnlineState::SetupMatch)
-                | GameState::Online(OnlineState::Match(_))
-                | GameState::Synctest(SynctestState::Loading)
-                | GameState::Synctest(SynctestState::SetupMatch)
-                | GameState::Synctest(SynctestState::Match(_))
-        ) {
+        if !matches!(sources, MatchState::None) {
             Some(InMatch)
         } else {
             None

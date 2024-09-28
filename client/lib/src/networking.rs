@@ -14,7 +14,7 @@ use player_state::PlayerState;
 use strum::IntoEnumIterator;
 use wag_core::{
     AvailableCancels, Characters, Clock, Controllers, Facing, GameState, Hitstop, LocalCharacter,
-    LocalController, OnlineState, Owner, Player, RollbackSchedule, Stats, SynctestState, WagArgs,
+    LocalController, MatchState, OnlineState, Owner, Player, RollbackSchedule, Stats, WagArgs,
     WagInputButton, WagInputEvent,
 };
 
@@ -41,8 +41,7 @@ impl Plugin for NetworkPlugin {
             )
             .add_systems(
                 FixedUpdate,
-                start_synctest_session
-                    .run_if(in_state(GameState::Synctest(SynctestState::SetupMatch))),
+                start_synctest_session.run_if(in_synctest_postload),
             )
             .add_systems(ReadInputs, read_local_inputs)
             .init_schedule(RollbackSchedule)
@@ -146,7 +145,8 @@ fn wait_for_players(
     mut socket: ResMut<MatchboxSocket<MultipleChannels>>,
     local_character: Res<LocalCharacter>,
     args: Res<WagArgs>,
-    mut next_state: ResMut<NextState<GameState>>,
+    mut next_game_state: ResMut<NextState<GameState>>,
+    mut next_match_state: ResMut<NextState<MatchState>>,
 ) {
     match &mut *connection_state {
         ConnectionState::WaitingToEstablish => {
@@ -226,9 +226,17 @@ fn wait_for_players(
 
             commands.insert_resource(bevy_ggrs::Session::P2P(ggrs_session));
 
-            next_state.set(GameState::Online(OnlineState::Loading));
+            next_game_state.set(GameState::Online(OnlineState::Match));
+            next_match_state.set(MatchState::Loading);
         }
     };
+}
+
+fn in_synctest_postload(
+    game_state: Res<State<GameState>>,
+    match_state: Res<State<MatchState>>,
+) -> bool {
+    *game_state.get() == GameState::Synctest && *match_state.get() == MatchState::PostLoad
 }
 
 fn start_synctest_session(mut commands: Commands, args: Res<WagArgs>, mut started: Local<bool>) {

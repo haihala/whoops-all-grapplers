@@ -4,9 +4,8 @@ use crate::{
 };
 use bevy::prelude::*;
 use wag_core::{
-    Controllers, GameResult, GameState, InEndScreen, LocalState, OnlineState, Player,
-    WagInputButton, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR,
-    VERTICAL_MENU_OPTION_BACKGROUND,
+    Controllers, GameResult, GameState, MatchState, Player, WagInputButton,
+    CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
 use super::{setup_view_subtitle, setup_view_title, MenuInputs};
@@ -54,7 +53,7 @@ pub fn setup_end_screen(mut commands: Commands, fonts: Res<Fonts>, game_result: 
                 },
                 ..default()
             },
-            StateScoped(InEndScreen),
+            StateScoped(MatchState::EndScreen),
             Name::new("End screen UI"),
         ))
         .with_children(|cb| {
@@ -161,8 +160,8 @@ pub fn navigate_end_screen(
     mut events: ResMut<MenuInputs>,
     controllers: Res<Controllers>,
     options: Query<&EndScreenOption>,
-    mut next_state: ResMut<NextState<GameState>>,
-    current_state: Res<State<GameState>>,
+    mut next_game_state: ResMut<NextState<GameState>>,
+    mut next_match_state: ResMut<NextState<MatchState>>,
     mut quitter: EventWriter<AppExit>,
 ) {
     // TODO: Analog stick
@@ -190,15 +189,11 @@ pub fn navigate_end_screen(
                         nav.lock_in(player);
                         if nav.both_locked() {
                             // TODO: May need additional cleanup
-                            next_state.set(if current_state.is_online() {
-                                GameState::Online(OnlineState::Loading)
-                            } else {
-                                GameState::Local(LocalState::Loading)
-                            });
+                            next_match_state.set(MatchState::Loading);
                         }
                     }
                     EndScreenOption::QuitToMainMenu => {
-                        next_state.set(GameState::MainMenu);
+                        next_game_state.set(GameState::MainMenu);
                     }
                     EndScreenOption::QuitToDesktop => {
                         quitter.send_default();

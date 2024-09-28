@@ -4,9 +4,8 @@ use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
 
 mod game_flow;
 pub use game_flow::{
-    GameResult, GameState, InCharacterSelect, InCombat, InEndScreen, InLoadingScreen, InMatch,
-    InMatchSetup, InMenu, LocalState, MatchState, OnlineState, RoundLog, RoundResult,
-    SynctestState,
+    GameResult, GameState, InCharacterSelect, InMatch, LocalState, MatchState, OnlineState,
+    RoundLog, RoundResult,
 };
 
 pub const ROUNDS_TO_WIN: usize = 5;
@@ -93,14 +92,17 @@ impl Plugin for TimePlugin {
                 WAGStage::HitReg,
                 WAGStage::MovePipeline,
                 WAGStage::PlayerUpdates,
-                WAGStage::Presentation,
                 WAGStage::ResourceUpdates,
-                WAGStage::HitStop,
-                WAGStage::Camera,
             )
                 .chain()
-                .run_if(in_state(InCombat))
+                .run_if(in_state(MatchState::Combat))
                 .after(WAGStage::Inputs),
+        )
+        .configure_sets(
+            RollbackSchedule,
+            (WAGStage::Presentation, WAGStage::HitStop, WAGStage::Camera)
+                .chain()
+                .after(WAGStage::ResourceUpdates),
         )
         .init_resource::<Clock>()
         .insert_resource(Time::<Fixed>::from_seconds(1.0 / crate::FPS as f64))
@@ -108,7 +110,7 @@ impl Plugin for TimePlugin {
             RollbackSchedule,
             update_clock.in_set(WAGStage::HouseKeeping),
         )
-        .add_systems(OnExit(InEndScreen), clear_round_log)
+        .add_systems(OnExit(MatchState::EndScreen), clear_round_log)
         .insert_resource(RoundLog::default());
     }
 }

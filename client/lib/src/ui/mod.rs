@@ -1,9 +1,6 @@
 use bevy::prelude::*;
 
-use wag_core::{
-    GameState, InMatch, InMatchSetup, LocalState, MatchState, OnlineState, SynctestState,
-    PRE_ROUND_DURATION,
-};
+use wag_core::{InMatch, MatchState, PRE_ROUND_DURATION};
 
 mod combat;
 mod round_text;
@@ -51,12 +48,11 @@ impl Plugin for UIPlugin {
                     .run_if(in_state(MatchState::Shop)),
             )
             .add_systems(
-                OnEnter(InMatchSetup),
+                OnEnter(MatchState::PostLoad),
                 (
                     combat::setup_combat_hud,
                     round_text::setup_round_info_text,
                     shop::setup_shop,
-                    // This only works because no other place uses this state
                     exit_match_setup,
                 )
                     .chain(),
@@ -80,30 +76,10 @@ fn set_ui_scale(
     *local_width = window.width();
 }
 
-fn exit_match_setup(
-    mut commands: Commands,
-    mut next_state: ResMut<NextState<GameState>>,
-    current_state: Res<State<GameState>>,
-) {
-    let (next, after) = match current_state.get() {
-        GameState::Online(_) => (
-            GameState::Online(OnlineState::Match(MatchState::PreRound)),
-            GameState::Online(OnlineState::Match(MatchState::Combat)),
-        ),
-        GameState::Local(_) => (
-            GameState::Local(LocalState::Match(MatchState::PreRound)),
-            GameState::Local(LocalState::Match(MatchState::Combat)),
-        ),
-        GameState::Synctest(_) => (
-            GameState::Synctest(SynctestState::Match(MatchState::PreRound)),
-            GameState::Synctest(SynctestState::Match(MatchState::Combat)),
-        ),
-        GameState::MainMenu => panic!("Trying to exit match setup in main menu"),
-    };
-
-    next_state.set(next);
+fn exit_match_setup(mut commands: Commands, mut next_state: ResMut<NextState<MatchState>>) {
+    next_state.set(MatchState::PreRound);
     commands.insert_resource(TransitionTimer {
         timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),
-        state: after,
+        state: MatchState::Combat,
     });
 }

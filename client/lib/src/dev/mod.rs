@@ -6,7 +6,7 @@ use input_parsing::{InputParser, PadStream, ParrotStream};
 use strum::IntoEnumIterator;
 use wag_core::{
     Area, Characters, Clock, Controllers, Dev, Facing, GameState, LocalCharacter, LocalController,
-    LocalState, OnlineState, Player, Players, SoundEffect, Stats, SynctestState, WagArgs,
+    LocalState, MatchState, OnlineState, Player, Players, SoundEffect, Stats, WagArgs,
     GI_PARRY_FLASH_COLOR,
 };
 
@@ -65,7 +65,8 @@ fn setup_gizmos(mut config_store: ResMut<GizmoConfigStore>) {
 
 fn skip_menus(
     mut commands: Commands,
-    mut next_state: ResMut<NextState<GameState>>,
+    mut next_game_state: ResMut<NextState<GameState>>,
+    mut next_match_state: ResMut<NextState<MatchState>>,
     args: Res<WagArgs>,
 ) {
     let Some(dev_mode) = args.dev else {
@@ -77,7 +78,7 @@ fn skip_menus(
             local_controller,
             local_character,
         } => {
-            next_state.set(GameState::Online(OnlineState::Lobby));
+            next_game_state.set(GameState::Online(OnlineState::Lobby));
             commands.insert_resource(LocalController(local_controller));
             commands.insert_resource(LocalCharacter(local_character));
         }
@@ -87,7 +88,8 @@ fn skip_menus(
             character1,
             character2,
         } => {
-            next_state.set(GameState::Local(LocalState::Loading));
+            next_game_state.set(GameState::Local(LocalState::Match));
+            next_match_state.set(MatchState::Loading);
             commands.insert_resource(Controllers { p1: pad1, p2: pad2 });
 
             commands.insert_resource(Characters {
@@ -99,7 +101,8 @@ fn skip_menus(
             local_controller,
             local_character,
         } => {
-            next_state.set(GameState::Synctest(SynctestState::Loading));
+            next_game_state.set(GameState::Synctest);
+            next_match_state.set(MatchState::Loading);
             commands.insert_resource(LocalController(local_controller));
             commands.insert_resource(LocalCharacter(local_character));
             commands.insert_resource(Controllers::default());

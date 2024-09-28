@@ -12,8 +12,8 @@ use characters::{dummy, mizku, Hurtboxes, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
-    AnimationType, AvailableCancels, CharacterId, Characters, Clock, Facing, InLoadingScreen,
-    InMatch, MatchState, Player, Players, RollbackSchedule, Stats, WAGStage,
+    AnimationType, AvailableCancels, CharacterId, Characters, Clock, Facing, InMatch, MatchState,
+    Player, Players, RollbackSchedule, Stats, WAGStage,
 };
 
 use crate::{
@@ -34,7 +34,7 @@ pub struct PlayerStateManagementPlugin;
 
 impl Plugin for PlayerStateManagementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(InLoadingScreen), setup_players)
+        app.add_systems(OnEnter(MatchState::Loading), setup_players)
             .add_systems(OnEnter(MatchState::PreRound), setup_combat)
             .add_systems(
                 RollbackSchedule,

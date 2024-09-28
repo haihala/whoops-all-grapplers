@@ -1,8 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{
-    Clock, GameState, LocalState, MatchState, OnlineState, Player, NOTIFICATION_BACKGROUND_COLOR,
-    NOTIFICATION_TEXT_COLOR,
-};
+use wag_core::{Clock, MatchState, Player, NOTIFICATION_BACKGROUND_COLOR, NOTIFICATION_TEXT_COLOR};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 
@@ -43,12 +40,7 @@ pub fn setup_toasts(commands: &mut Commands, parent: Entity, player: Player) {
                 },
                 ..default()
             },
-            VisibleInStates(vec![
-                GameState::Local(LocalState::Match(MatchState::Combat)),
-                GameState::Local(LocalState::Match(MatchState::PostRound)),
-                GameState::Online(OnlineState::Match(MatchState::Combat)),
-                GameState::Online(OnlineState::Match(MatchState::PostRound)),
-            ]),
+            VisibleInStates(vec![MatchState::Combat, MatchState::PostRound]),
             NotificationContainer(player),
         ))
         .set_parent(parent);

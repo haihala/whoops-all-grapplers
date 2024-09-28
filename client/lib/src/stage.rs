@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{InLoadingScreen, InMatch, Model};
+use wag_core::{InMatch, MatchState, Model};
 
 use crate::assets::Models;
 
@@ -7,11 +7,19 @@ pub struct StagePlugin;
 
 impl Plugin for StagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(InLoadingScreen), (setup_lights, add_stage));
+        app.add_systems(OnEnter(MatchState::Loading), (setup_lights, add_stage));
     }
 }
 
-fn add_stage(mut commands: Commands, models: Res<Models>) {
+#[derive(Debug, Component)]
+struct Stage;
+
+fn add_stage(mut commands: Commands, models: Res<Models>, stages: Query<&Stage>) {
+    if stages.get_single().is_ok() {
+        // Stage already exists
+        return;
+    }
+
     commands.spawn((
         SceneBundle {
             scene: models[&Model::TrainingStage].clone(),
@@ -22,7 +30,15 @@ fn add_stage(mut commands: Commands, models: Res<Models>) {
     ));
 }
 
-pub fn setup_lights(mut commands: Commands) {
+#[derive(Debug, Component)]
+struct Spotlight;
+
+fn setup_lights(mut commands: Commands, lights: Query<&Spotlight>) {
+    if lights.get_single().is_ok() {
+        // Light already exists
+        return;
+    }
+
     commands.insert_resource(AmbientLight {
         brightness: 1.0,
         ..default()

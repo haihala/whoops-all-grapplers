@@ -10,11 +10,11 @@
 See [Tool design](/docs/gameplay_spec/guides/tool_design.md)
 
 ## Moves
-A character has [[#Normals]] and [[#Specials]]. By default, the character should have the following:
+A character has [#Normals](#Normals) and [#Specials](#Specials). By default, the character should have the following:
 - A [Gimmick](/docs/gameplay_spec/genre_mechanics/gimmick.md) that happens when they are on the ground
 	- Maybe an air one
 - Air, stand, crouch for all other [Inputs](/docs/gameplay_spec/genre_mechanics/inputs.md)
-- At least two [[#Specials]]
+- At least two [#Specials](#Specials)
 - No glaring weaknesses they can't cope with
 
 ### Normals

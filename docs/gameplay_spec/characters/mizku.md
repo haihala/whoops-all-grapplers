@@ -14,10 +14,10 @@ She is a young but competent second generation Korean American immigrant. She's 
   - Visual indicators
     - Samurai outfit
     - Oni mask
-    - [#Kunai](/#Kunai)s
+    - [[#Kunai]]s
     - Katana
   - Effectiveness through effort and practice
-    - [#Sharpness](/#Sharpness) mechanic
+    - [[#Sharpness]] mechanic
     - Kurosawa-esque staredowns
 - Born and raised in the states
   - Laid back, take cues from Baiken in animations.
@@ -31,10 +31,10 @@ She is a young but competent second generation Korean American immigrant. She's 
   - All other characters ought to be balanced around her
 - Strengths
   - Hard reads => hit hard
-  - Snowballs with [#Sharpen](/#Sharpen)
+  - Snowballs with [[#Sharpen]]
 - Weaknesses
-  - Effectiveness depends on [#Sharpness](/#Sharpness) stacks
-  - Limited [#Kunai](/#Kunai) projectiles make longer rounds hard
+  - Effectiveness depends on [[#Sharpness]] stacks
+  - Limited [[#Kunai]] projectiles make longer rounds hard
   - Meh pokes
 
 ## Mechanics
@@ -44,13 +44,13 @@ She is a young but competent second generation Korean American immigrant. She's 
 ### Sharpness
 
 - Stacking buff
-- [#Sharpen](/#Sharpen) adds a stack
+- [[#Sharpen]] adds a stack
 - Having stacks makes sword moves do more damage
 - Resets between rounds
 
 ### Kunai
 
-- Limited resource used for [#Kunai throw](/#Kunai throw)
+- Limited resource used for [[#Kunai throw]]
 - Resets at the start of the round
   - By default, 1
 - Upgrades
@@ -134,7 +134,7 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Shoulder level stab
   - Fast start up relative to range
   - Slow to recover
-- Is a sword move, so it deals good damage, especially with [#Sharpness](/#Sharpness)
+- Is a sword move, so it deals good damage, especially with [[#Sharpness]]
 
 ##### Sky stab
 
@@ -145,7 +145,7 @@ She is a young but competent second generation Korean American immigrant. She's 
   - Slow to recover
   - Disjointed
   - Hard to convert off of?
-- Is a sword move, so it deals good damage, especially with [#Sharpness](/#Sharpness)
+- Is a sword move, so it deals good damage, especially with [[#Sharpness]]
 
 ##### Air stab
 
@@ -153,7 +153,7 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Downwards stab sort of similar to Baiken j.h, but the sword doesn't go as far down
 - Easy cross-ups
 - Most damaging jump-in before [Space suit boots](/docs/gameplay_spec/items/space_suit_boots.md)
-- Is a sword move, so it deals good damage, especially with [#Sharpness](/#Sharpness)
+- Is a sword move, so it deals good damage, especially with [[#Sharpness]]
 
 #### Specials
 
@@ -162,11 +162,11 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Input: `214` + `f` (or `s`)
 - Enters a stance similar to [Azami from Xrd Baiken](https://www.dustloop.com/w/GGXRD-R2/Baiken#Azami)
 - Follow ups
-  - `g` - [#Sharpen](/#Sharpen)
-  - `f` - [#Viper strike](/#Viper strike)
-  - `s` - [#Rising sun](/#Rising sun)
+  - `g` - [[#Sharpen]]
+  - `f` - [[#Viper strike]]
+  - `s` - [[#Rising sun]]
 - If no follow up is input relatively quickly, it recovers naturally.
-  - This makes some moves like [#Sky stab](/#Sky stab) safer
+  - This makes some moves like [[#Sky stab]] safer
 - Upgrades
   - Can back dash out of the stance for an evasive recovery
   - `s` version invincibility
@@ -176,8 +176,8 @@ She is a young but competent second generation Korean American immigrant. She's 
   - `s` version follow-up amplification
     - Costs bar
     - Improves all follow-ups
-      - [#Sharpen](/#Sharpen) gives two stacks
-      - [#Viper strike](/#Viper strike) and [#Rising sun](/#Rising sun)
+      - [[#Sharpen]] gives two stacks
+      - [[#Viper strike]] and [[#Rising sun]]
         - Deal more damage
         - Have better combo properties
         - Push back on block to make them safer
@@ -185,28 +185,28 @@ She is a young but competent second generation Korean American immigrant. She's 
 
 ##### Sharpen
 
-- Input: `g` while in [#Sword stance](/#Sword stance)
+- Input: `g` while in [[#Sword-stance]]
 - Visual: Run a whetstone by the sword before putting it back
-- Gain a point of [#Sharpness](/#Sharpness) and some [Meter](/docs/gameplay_spec/genre_mechanics/meter.md)
+- Gain a point of [[#Sharpness]] and some [Meter](/docs/gameplay_spec/genre_mechanics/meter.md)
 
 ##### Viper strike
 
-- Input: `f` while in [#Sword stance](/#Sword stance)
+- Input: `f` while in [[#Sword stance]]
 - Visual: Lunging low sword thrust
 - Hits low
 - Death on block and whiff
 - Knockdown on hit
   - Ground combo ender
-- Is a sword move, so it deals good damage, especially with [#Sharpness](/#Sharpness)
+- Is a sword move, so it deals good damage, especially with [[#Sharpness]]
 
 ##### Rising sun
 
-- Input: `s` while in [#Sword stance](/#Sword stance)
+- Input: `s` while in [[#Sword stance]]
 - Visual: Arching sword swing
 - Functions: Anti-air, air combo ender, hard read, whiff punish
 - Death on block and whiff
   - Decent range, not trivial to whiff punish
-- Is a sword move, so it deals good damage, especially with [#Sharpness](/#Sharpness)
+- Is a sword move, so it deals good damage, especially with [[#Sharpness]]
 
 ### Kunai throw
 
@@ -214,10 +214,10 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Visual: Ibuki kunai throw in SFV
 - Function: Projectile
   - Relatively fast projectile with a slight arc to it
-  - Consumes a [#Kunai](/#Kunai) on use, can't use if you have none
+  - Consumes a [[#Kunai]] on use, can't use if you have none
 - `s` version throws two in a fan
 - Upgrades
-  - More [#Kunai](/#Kunai) per round
+  - More [[#Kunai]] per round
   - Control (joystick position based, maybe several levels)
     - Ability to control speed (forward = fast, back = slow)
     - Ability to control the angle (up = up, down = down)
@@ -230,9 +230,9 @@ She is a young but competent second generation Korean American immigrant. She's 
 ### Blade oil
 
 - Consumable
-- Retains [#Sharpness](/#Sharpness) from the previous round
+- Retains [[#Sharpness]] from the previous round
 
 ### Smithy coupon
 
 - Consumable
-- Add [#Sharpness](/#Sharpness) on round start
+- Add [[#Sharpness]] on round start

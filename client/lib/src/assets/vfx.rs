@@ -6,7 +6,7 @@ use crate::entity_management::DespawnMarker;
 
 use super::materials::{
     BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial,
-    HitSparkMaterial, LineFieldMaterial, Reset, RingRippleMaterial,
+    HitSparkMaterial, LightningBoltMaterial, LineFieldMaterial, Reset, RingRippleMaterial,
 };
 
 #[derive(Debug, Resource)]
@@ -20,6 +20,7 @@ pub struct Vfx {
     throw_tech_material: Handle<RingRippleMaterial>,
     speed_lines_material: Handle<LineFieldMaterial>,
     throw_target_material: Handle<FocalPointLinesMaterial>,
+    lightning_material: Handle<LightningBoltMaterial>,
 }
 impl Vfx {
     #[allow(clippy::too_many_arguments)]
@@ -32,6 +33,7 @@ impl Vfx {
         throw_tech_material: Handle<RingRippleMaterial>,
         speed_lines_material: Handle<LineFieldMaterial>,
         throw_target_material: Handle<FocalPointLinesMaterial>,
+        lightning_material: Handle<LightningBoltMaterial>,
     ) -> Vfx {
         Vfx {
             meshes,
@@ -43,6 +45,7 @@ impl Vfx {
             throw_tech_material,
             speed_lines_material,
             throw_target_material,
+            lightning_material,
         }
     }
 
@@ -91,6 +94,7 @@ pub fn handle_requests(
     mut throw_tech_materials: ResMut<Assets<RingRippleMaterial>>,
     mut speed_lines_materials: ResMut<Assets<LineFieldMaterial>>,
     mut throw_target_materials: ResMut<Assets<FocalPointLinesMaterial>>,
+    mut lightning_materials: ResMut<Assets<LightningBoltMaterial>>,
 ) {
     for VfxRequest {
         effect,
@@ -177,6 +181,17 @@ pub fn handle_requests(
                     transform,
                     vfx.throw_target_material.clone(),
                     &mut throw_target_materials,
+                    time.elapsed_seconds(),
+                    clock.frame + 60,
+                );
+            }
+            VisualEffect::Lightning => {
+                spawn_vfx(
+                    &mut commands,
+                    mesh,
+                    transform,
+                    vfx.lightning_material.clone(),
+                    &mut lightning_materials,
                     time.elapsed_seconds(),
                     clock.frame + 60,
                 );

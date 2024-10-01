@@ -64,6 +64,9 @@ pub const SPEED_LINES_EDGE_COLOR: Color = Color::srgb(0.6, 0.6, 0.6);
 pub const CLASH_SPARK_BASE_COLOR: Color = Color::srgb(1.0, 0.5, 1.0);
 pub const CLASH_SPARK_EDGE_COLOR: Color = Color::srgb(0.9, 0.1, 0.9);
 
+pub const LIGHTNING_BOLT_INNER_COLOR: Color = Color::WHITE;
+pub const LIGHTNING_BOLT_OUTER_COLOR: Color = Color::srgb(0.3, 0.4, 1.0);
+
 // Player colors
 pub const MIZUKI_ALT_SHIRT_COLOR: Color = Color::WHITE;
 pub const MIZUKI_ALT_JEANS_COLOR: Color = Color::Srgba(MIDNIGHT_BLUE);

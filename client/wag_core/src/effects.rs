@@ -69,6 +69,7 @@ pub enum VisualEffect {
     ThrowTech,
     SpeedLines,
     ThrowTarget,
+    Lightning,
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Default)]

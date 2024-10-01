@@ -6,9 +6,13 @@
 	- [x] Throw tech
 	- [x] Throw (sharp lines converging on a point)
 	- [ ] Hit spark variations that indicate
-		- [ ] Counter hit
-		- [ ] Attack height (angle, color or both)
+        - [ ] First attack only particles
+            - [x] Lightning bolt for overheads
+            - [x] Spark for mids
+            - [ ] Magma burst for lows
+        - [ ] Smaller particle for hits in combos
 - [x] Trails (sharp lines that align with the movement direction)
 	- [x] Jump
 	- [x] Dash
 	- [x] Remove angling from the shader code.
+- [ ] Consider removing one level of abstraction and just creating the shader assets live. (this would simplify a few things)

@@ -7,11 +7,48 @@ use characters::FlashRequest;
 use wag_core::{
     BLOCK_EFFECT_BASE_COLOR, BLOCK_EFFECT_EDGE_COLOR, CLASH_SPARK_BASE_COLOR,
     CLASH_SPARK_EDGE_COLOR, HIT_SPARK_BASE_COLOR, HIT_SPARK_EDGE_COLOR, HIT_SPARK_MID_COLOR,
-    RING_RIPPLE_BASE_COLOR, RING_RIPPLE_EDGE_COLOR, SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR,
+    LIGHTNING_BOLT_INNER_COLOR, LIGHTNING_BOLT_OUTER_COLOR, RING_RIPPLE_BASE_COLOR,
+    RING_RIPPLE_EDGE_COLOR, SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR,
 };
 
 pub trait Reset: Material + Default {
     fn reset(&mut self, time: f32);
+}
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct LightningBoltMaterial {
+    #[uniform(0)]
+    inner_color: LinearRgba,
+    #[uniform(1)]
+    outer_color: LinearRgba,
+    #[uniform(2)]
+    start_time: f32,
+}
+
+impl Default for LightningBoltMaterial {
+    fn default() -> Self {
+        Self {
+            inner_color: LIGHTNING_BOLT_INNER_COLOR.into(),
+            outer_color: LIGHTNING_BOLT_OUTER_COLOR.into(),
+            start_time: 0.0,
+        }
+    }
+}
+
+impl Reset for LightningBoltMaterial {
+    fn reset(&mut self, time: f32) {
+        self.start_time = time;
+    }
+}
+
+impl Material for LightningBoltMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/lightning_bolt.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]

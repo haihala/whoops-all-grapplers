@@ -6,7 +6,7 @@ use super::{
     animations::animation_paths,
     materials::{
         BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial,
-        HitSparkMaterial, LineFieldMaterial, RingRippleMaterial,
+        HitSparkMaterial, LightningBoltMaterial, LineFieldMaterial, RingRippleMaterial,
     },
     models::model_paths,
     sounds::Sounds,
@@ -117,9 +117,10 @@ pub fn vfx(
     mut ring_ripple_materials: ResMut<Assets<RingRippleMaterial>>,
     mut speed_lines_materials: ResMut<Assets<LineFieldMaterial>>,
     mut focal_point_line_materials: ResMut<Assets<FocalPointLinesMaterial>>,
+    mut lightning_materials: ResMut<Assets<LightningBoltMaterial>>,
 ) {
     let mesh_handles = vec![
-        (VisualEffect::Blank, meshes.add(Rectangle::new(1.0, 1.0))),
+        (VisualEffect::Blank, meshes.add(Rectangle::default())),
         (VisualEffect::Block, meshes.add(Rectangle::new(1.1, 2.0))),
         (VisualEffect::Hit, meshes.add(Rectangle::new(1.1, 1.1))),
         (VisualEffect::Clash, meshes.add(Rectangle::new(1.5, 1.5))),
@@ -127,14 +128,12 @@ pub fn vfx(
             VisualEffect::ThrowTech,
             meshes.add(Rectangle::new(2.0, 2.0)),
         ),
-        (
-            VisualEffect::SpeedLines,
-            meshes.add(Rectangle::new(1.0, 1.0)),
-        ),
+        (VisualEffect::SpeedLines, meshes.add(Rectangle::default())),
         (
             VisualEffect::ThrowTarget,
             meshes.add(Rectangle::new(2.0, 2.0)),
         ),
+        (VisualEffect::Lightning, meshes.add(Rectangle::default())),
     ]
     .into_iter()
     .collect();
@@ -146,6 +145,7 @@ pub fn vfx(
     let throw_tech_material = ring_ripple_materials.add(RingRippleMaterial::default());
     let speed_lines_material = speed_lines_materials.add(LineFieldMaterial::default());
     let throw_target_material = focal_point_line_materials.add(FocalPointLinesMaterial::default());
+    let lightning_material = lightning_materials.add(LightningBoltMaterial::default());
 
     commands.insert_resource(Vfx::new(
         mesh_handles,
@@ -156,5 +156,6 @@ pub fn vfx(
         throw_tech_material,
         speed_lines_material,
         throw_target_material,
+        lightning_material,
     ));
 }

@@ -1,9 +1,3 @@
-#import bevy_pbr::{
-    pbr_fragment::pbr_input_from_standard_material,
-    pbr_functions::alpha_discard,
-    mesh_view_bindings::{globals, view},
-}
-
 #ifdef PREPASS_PIPELINE
 #import bevy_pbr::{
     prepass_io::{VertexOutput, FragmentOutput},
@@ -11,7 +5,7 @@
 }
 #else
 #import bevy_pbr::{
-    forward_io::{VertexOutput, FragmentOutput},
+    forward_io::{VertexOutput, Vertex, FragmentOutput},
     pbr_functions::{apply_pbr_lighting, main_pass_post_lighting_processing},
 }
 #endif
@@ -27,6 +21,11 @@ var<uniform> flash_duration: f32;
 @group(2) @binding(104)
 var<uniform> flash_start: f32;
 
+#import bevy_pbr::{
+    pbr_fragment::pbr_input_from_standard_material,
+    pbr_functions::alpha_discard,
+    mesh_view_bindings::{globals, view},
+}
 
 @fragment
 fn fragment(
@@ -42,7 +41,7 @@ fn fragment(
     var flash_age = (globals.time - flash_start);
     var age_damp = step(flash_age, flash_duration);
     var norm = dot(in.world_normal, normalize(view.world_position.xyz - in.world_position.xyz));
-    var norm_damp = pow(1-norm, 4.0);
+    var norm_damp = pow(1 - norm, 4.0);
 
     var ratio = flash_depth * pow(cos(globals.time * flash_speed), 2.0);
 #ifdef PREPASS_PIPELINE

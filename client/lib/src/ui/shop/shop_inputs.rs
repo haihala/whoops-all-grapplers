@@ -31,7 +31,7 @@ pub fn navigate_shop(
                 ActionId::Back => move_selection(shop, Left.mirror_if(facing.to_flipped())),
                 ActionId::Forward => move_selection(shop, Right.mirror_if(facing.to_flipped())),
                 ActionId::Primary => buy(shop, &mut inventory, character, &slots),
-                ActionId::Secondary => sell(shop, &mut inventory, character, &slots),
+                ActionId::Cancel => sell(shop, &mut inventory, character, &slots),
                 ActionId::Start => shop.closed = true,
                 _ => {}
             };

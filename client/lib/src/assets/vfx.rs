@@ -1,79 +1,32 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::prelude::*;
 
-use wag_core::{Clock, MatchState, VfxRequest, VisualEffect};
+use wag_core::{Clock, Facing, MatchState, VfxRequest, VisualEffect};
 
-use crate::entity_management::DespawnMarker;
-
-use super::materials::{
-    BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial,
-    HitSparkMaterial, LightningBoltMaterial, LineFieldMaterial, Reset, RingRippleMaterial,
+use crate::{
+    entity_management::DespawnMarker,
+    event_spreading::{SpawnRelativeVfx, SpawnVfx},
 };
 
-#[derive(Debug, Resource)]
-pub struct Vfx {
-    meshes: HashMap<VisualEffect, Handle<Mesh>>,
-    queue: Vec<VfxRequest>,
-    blank_material: Handle<BlankMaterial>,
-    clash_spark_material: Handle<ClashSparkMaterial>,
-    block_effect_material: Handle<BlockEffectMaterial>,
-    hit_spark_material: Handle<HitSparkMaterial>,
-    throw_tech_material: Handle<RingRippleMaterial>,
-    speed_lines_material: Handle<LineFieldMaterial>,
-    throw_target_material: Handle<FocalPointLinesMaterial>,
-    lightning_material: Handle<LightningBoltMaterial>,
-}
-impl Vfx {
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        meshes: HashMap<VisualEffect, Handle<Mesh>>,
-        blank_material: Handle<BlankMaterial>,
-        clash_spark_material: Handle<ClashSparkMaterial>,
-        block_effect_material: Handle<BlockEffectMaterial>,
-        hit_spark_material: Handle<HitSparkMaterial>,
-        throw_tech_material: Handle<RingRippleMaterial>,
-        speed_lines_material: Handle<LineFieldMaterial>,
-        throw_target_material: Handle<FocalPointLinesMaterial>,
-        lightning_material: Handle<LightningBoltMaterial>,
-    ) -> Vfx {
-        Vfx {
-            meshes,
-            queue: vec![],
-            blank_material,
-            hit_spark_material,
-            clash_spark_material,
-            block_effect_material,
-            throw_tech_material,
-            speed_lines_material,
-            throw_target_material,
-            lightning_material,
-        }
-    }
-
-    pub fn spawn(&mut self, request: VfxRequest) {
-        self.queue.push(request);
-    }
-}
+use super::materials::{
+    BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial, FromTime,
+    HitSparkMaterial, LightningBoltMaterial, LineFieldMaterial, RingRippleMaterial,
+};
 
 fn spawn_vfx<M>(
     commands: &mut Commands,
     mesh: Handle<Mesh>,
     transform: Transform,
-    material_handle: Handle<M>,
     material_asset: &mut ResMut<Assets<M>>,
-    elapsed_seconds: f32,
+    current_time: f32,
     despawn_frame: usize,
 ) where
-    M: Material + Reset,
+    M: Material + FromTime,
 {
-    material_asset
-        .get_mut(&material_handle)
-        .unwrap()
-        .reset(elapsed_seconds);
     commands.spawn((
         MaterialMeshBundle {
             mesh,
             transform,
-            material: material_handle,
+            material: material_asset.add(M::from_time(current_time)),
             ..default()
         },
         DespawnMarker(despawn_frame),
@@ -82,11 +35,26 @@ fn spawn_vfx<M>(
 }
 
 #[allow(clippy::too_many_arguments)]
-pub fn handle_requests(
+pub fn start_relative_vfx(
+    trigger: Trigger<SpawnRelativeVfx>,
+    query: Query<(&Transform, &Facing)>,
     mut commands: Commands,
-    mut vfx: ResMut<Vfx>,
+) {
+    // from previous trigger
+    let (tf, facing) = query.get(trigger.entity()).unwrap();
+    let mut request = trigger.event().0;
+    request.position += tf.translation;
+    request.mirror ^= facing.to_flipped();
+    commands.trigger(SpawnVfx(request));
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn start_absolute_vfx(
+    trigger: Trigger<SpawnVfx>,
+    mut commands: Commands,
     clock: Res<Clock>,
     time: Res<Time>,
+    mut meshes: ResMut<Assets<Mesh>>,
     mut blank_materials: ResMut<Assets<BlankMaterial>>,
     mut block_materials: ResMut<Assets<BlockEffectMaterial>>,
     mut clash_materials: ResMut<Assets<ClashSparkMaterial>>,
@@ -96,106 +64,102 @@ pub fn handle_requests(
     mut throw_target_materials: ResMut<Assets<FocalPointLinesMaterial>>,
     mut lightning_materials: ResMut<Assets<LightningBoltMaterial>>,
 ) {
-    for VfxRequest {
+    let SpawnVfx(VfxRequest {
         effect,
         position,
         rotation,
-    } in vfx.queue.drain(..).collect::<Vec<_>>().into_iter()
-    {
-        let mesh = vfx.meshes.get(&effect).unwrap().clone();
-        let mut transform = Transform::from_translation(position + 0.1 * Vec3::Z);
+        mirror,
+    }) = trigger.event();
 
-        if let Some(angle) = rotation {
-            transform.rotate_z(angle);
-        }
+    let mesh = meshes.add(effect.mesh_size());
+    let mut transform = Transform::from_translation(*position + 0.1 * Vec3::Z);
 
-        match effect {
-            VisualEffect::Blank => spawn_vfx(
+    if let Some(angle) = rotation {
+        transform.rotate_z(*angle);
+    }
+
+    if *mirror {
+        transform.scale.x *= -1.0;
+    }
+
+    match effect {
+        VisualEffect::Blank => spawn_vfx(
+            &mut commands,
+            mesh,
+            transform,
+            &mut blank_materials,
+            time.elapsed_seconds(),
+            clock.frame + 15,
+        ),
+        VisualEffect::Hit => {
+            spawn_vfx(
                 &mut commands,
                 mesh,
                 transform,
-                vfx.blank_material.clone(),
-                &mut blank_materials,
+                &mut hit_spark_materials,
                 time.elapsed_seconds(),
-                clock.frame + 15,
-            ),
-            VisualEffect::Hit => {
-                spawn_vfx(
-                    &mut commands,
-                    mesh,
-                    transform,
-                    vfx.hit_spark_material.clone(),
-                    &mut hit_spark_materials,
-                    time.elapsed_seconds(),
-                    clock.frame + 10,
-                );
-            }
-            VisualEffect::Clash => {
-                spawn_vfx(
-                    &mut commands,
-                    mesh,
-                    transform,
-                    vfx.clash_spark_material.clone(),
-                    &mut clash_materials,
-                    time.elapsed_seconds(),
-                    clock.frame + 10,
-                );
-            }
-            VisualEffect::Block => {
-                spawn_vfx(
-                    &mut commands,
-                    mesh,
-                    transform,
-                    vfx.block_effect_material.clone(),
-                    &mut block_materials,
-                    time.elapsed_seconds(),
-                    clock.frame + 10,
-                );
-            }
-            VisualEffect::ThrowTech => {
-                spawn_vfx(
-                    &mut commands,
-                    mesh,
-                    transform,
-                    vfx.throw_tech_material.clone(),
-                    &mut throw_tech_materials,
-                    time.elapsed_seconds(),
-                    clock.frame + 60,
-                );
-            }
-            VisualEffect::SpeedLines => {
-                spawn_vfx(
-                    &mut commands,
-                    mesh,
-                    transform,
-                    vfx.speed_lines_material.clone(),
-                    &mut speed_lines_materials,
-                    time.elapsed_seconds(),
-                    clock.frame + 20,
-                );
-            }
-            VisualEffect::ThrowTarget => {
-                spawn_vfx(
-                    &mut commands,
-                    mesh,
-                    transform,
-                    vfx.throw_target_material.clone(),
-                    &mut throw_target_materials,
-                    time.elapsed_seconds(),
-                    clock.frame + 60,
-                );
-            }
-            VisualEffect::Lightning => {
-                spawn_vfx(
-                    &mut commands,
-                    mesh,
-                    transform,
-                    vfx.lightning_material.clone(),
-                    &mut lightning_materials,
-                    time.elapsed_seconds(),
-                    clock.frame + 60,
-                );
-            }
-        };
-    }
+                clock.frame + 10,
+            );
+        }
+        VisualEffect::Clash => {
+            spawn_vfx(
+                &mut commands,
+                mesh,
+                transform,
+                &mut clash_materials,
+                time.elapsed_seconds(),
+                clock.frame + 10,
+            );
+        }
+        VisualEffect::Block => {
+            spawn_vfx(
+                &mut commands,
+                mesh,
+                transform,
+                &mut block_materials,
+                time.elapsed_seconds(),
+                clock.frame + 10,
+            );
+        }
+        VisualEffect::ThrowTech => {
+            spawn_vfx(
+                &mut commands,
+                mesh,
+                transform,
+                &mut throw_tech_materials,
+                time.elapsed_seconds(),
+                clock.frame + 60,
+            );
+        }
+        VisualEffect::SpeedLines => {
+            spawn_vfx(
+                &mut commands,
+                mesh,
+                transform,
+                &mut speed_lines_materials,
+                time.elapsed_seconds(),
+                clock.frame + 20,
+            );
+        }
+        VisualEffect::ThrowTarget => {
+            spawn_vfx(
+                &mut commands,
+                mesh,
+                transform,
+                &mut throw_target_materials,
+                time.elapsed_seconds(),
+                clock.frame + 60,
+            );
+        }
+        VisualEffect::Lightning => {
+            spawn_vfx(
+                &mut commands,
+                mesh,
+                transform,
+                &mut lightning_materials,
+                time.elapsed_seconds(),
+                clock.frame + 60,
+            );
+        }
+    };
 }

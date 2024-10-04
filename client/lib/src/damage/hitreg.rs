@@ -11,8 +11,9 @@ use wag_core::{
 };
 
 use crate::{
-    assets::Vfx,
-    event_spreading::{LaunchImpulse, PlaySound, SnapToOpponent, UpdateBlockstun, UpdateHitstun},
+    event_spreading::{
+        LaunchImpulse, PlaySound, SnapToOpponent, SpawnVfx, UpdateBlockstun, UpdateHitstun,
+    },
     movement::{PlayerVelocity, Pushbox},
     ui::Notifications,
 };
@@ -67,7 +68,6 @@ pub(super) fn clash_parry(
         Option<&ProjectileMarker>,
     )>,
     clock: Res<Clock>,
-    mut particles: ResMut<Vfx>,
     mut owners: Query<&mut WAGResources>,
     players: Res<Players>,
 ) {
@@ -97,11 +97,11 @@ pub(super) fn clash_parry(
         {
             // Hitboxes collide
             commands.trigger(PlaySound(SoundEffect::GlassClink));
-            particles.spawn(VfxRequest {
+            commands.trigger(SpawnVfx(VfxRequest {
                 effect: VisualEffect::Clash,
                 position: overlap.center().extend(0.0),
-                rotation: None,
-            });
+                ..default()
+            }));
 
             for (mut tracker, owner, is_projectile) in [
                 (tracker1, owner1, maybe_proj1.is_some()),
@@ -251,7 +251,6 @@ pub fn apply_connections(
     mut commands: Commands,
     mut notifications: ResMut<Notifications>,
     mut players: Query<HitPlayerQuery>,
-    mut particles: ResMut<Vfx>,
 ) {
     if hits.len() >= 2 {
         if hits
@@ -266,7 +265,7 @@ pub fn apply_connections(
                 notifications.add(*player.player, "Throw clash".to_owned());
             }
 
-            particles.spawn(VfxRequest {
+            commands.trigger(SpawnVfx(VfxRequest {
                 effect: VisualEffect::Clash,
                 position: hits
                     .iter()
@@ -275,8 +274,8 @@ pub fn apply_connections(
                     .unwrap()
                     .extend(0.0)
                     * 0.5,
-                rotation: None,
-            });
+                ..default()
+            }));
 
             return;
         } else if hits
@@ -336,11 +335,11 @@ pub fn apply_connections(
                     commands.trigger_targets(event, hit.defender)
                 }
 
-                particles.spawn(VfxRequest {
+                commands.trigger(SpawnVfx(VfxRequest {
                     effect: VisualEffect::Clash,
                     position: hit.overlap.center().extend(0.0),
-                    rotation: None,
-                });
+                    ..default()
+                }));
 
                 return;
             }

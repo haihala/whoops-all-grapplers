@@ -11,8 +11,8 @@ use wag_core::{
     RING_RIPPLE_EDGE_COLOR, SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR,
 };
 
-pub trait Reset: Material + Default {
-    fn reset(&mut self, time: f32);
+pub trait FromTime: Material + Default {
+    fn from_time(start_time: f32) -> Self;
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -35,9 +35,12 @@ impl Default for LightningBoltMaterial {
     }
 }
 
-impl Reset for LightningBoltMaterial {
-    fn reset(&mut self, time: f32) {
-        self.start_time = time;
+impl FromTime for LightningBoltMaterial {
+    fn from_time(start_time: f32) -> Self {
+        Self {
+            start_time,
+            ..default()
+        }
     }
 }
 
@@ -63,9 +66,9 @@ impl Default for FocalPointLinesMaterial {
     }
 }
 
-impl Reset for FocalPointLinesMaterial {
-    fn reset(&mut self, time: f32) {
-        self.start_time = time;
+impl FromTime for FocalPointLinesMaterial {
+    fn from_time(start_time: f32) -> Self {
+        Self { start_time }
     }
 }
 
@@ -111,9 +114,12 @@ impl Default for LineFieldMaterial {
     }
 }
 
-impl Reset for LineFieldMaterial {
-    fn reset(&mut self, time: f32) {
-        self.start_time = time;
+impl FromTime for LineFieldMaterial {
+    fn from_time(start_time: f32) -> Self {
+        Self {
+            start_time,
+            ..default()
+        }
     }
 }
 
@@ -138,9 +144,12 @@ pub struct HitSparkMaterial {
     #[uniform(3)]
     start_time: f32,
 }
-impl Reset for HitSparkMaterial {
-    fn reset(&mut self, time: f32) {
-        self.start_time = time;
+impl FromTime for HitSparkMaterial {
+    fn from_time(start_time: f32) -> Self {
+        Self {
+            start_time,
+            ..default()
+        }
     }
 }
 
@@ -176,9 +185,12 @@ pub struct BlockEffectMaterial {
     #[uniform(3)]
     start_time: f32,
 }
-impl Reset for BlockEffectMaterial {
-    fn reset(&mut self, time: f32) {
-        self.start_time = time;
+impl FromTime for BlockEffectMaterial {
+    fn from_time(start_time: f32) -> Self {
+        Self {
+            start_time,
+            ..default()
+        }
     }
 }
 impl Default for BlockEffectMaterial {
@@ -213,9 +225,12 @@ pub struct ClashSparkMaterial {
     #[uniform(3)]
     start_time: f32,
 }
-impl Reset for ClashSparkMaterial {
-    fn reset(&mut self, time: f32) {
-        self.start_time = time;
+impl FromTime for ClashSparkMaterial {
+    fn from_time(start_time: f32) -> Self {
+        Self {
+            start_time,
+            ..default()
+        }
     }
 }
 
@@ -242,8 +257,10 @@ impl Material for ClashSparkMaterial {
 
 #[derive(Asset, AsBindGroup, TypePath, Debug, Clone, Default)]
 pub struct BlankMaterial {}
-impl Reset for BlankMaterial {
-    fn reset(&mut self, _time: f32) {}
+impl FromTime for BlankMaterial {
+    fn from_time(_start_time: f32) -> Self {
+        Self {}
+    }
 }
 
 impl Material for BlankMaterial {
@@ -269,9 +286,12 @@ pub struct RingRippleMaterial {
     #[uniform(4)]
     start_time: f32,
 }
-impl Reset for RingRippleMaterial {
-    fn reset(&mut self, time: f32) {
-        self.start_time = time;
+impl FromTime for RingRippleMaterial {
+    fn from_time(start_time: f32) -> Self {
+        Self {
+            start_time,
+            ..default()
+        }
     }
 }
 impl Default for RingRippleMaterial {

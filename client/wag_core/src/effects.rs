@@ -71,20 +71,31 @@ pub enum VisualEffect {
     ThrowTarget,
     Lightning,
 }
+impl VisualEffect {
+    pub fn mesh_size(&self) -> Rectangle {
+        match self {
+            VisualEffect::Clash => Rectangle::new(1.5, 1.5),
+            VisualEffect::Block => Rectangle::new(1.1, 2.0),
+            VisualEffect::Hit => Rectangle::new(1.1, 1.1),
+            VisualEffect::ThrowTech | VisualEffect::ThrowTarget => Rectangle::new(2.0, 2.0),
+            _ => Rectangle::default(),
+        }
+    }
+}
 
 #[derive(Debug, PartialEq, Clone, Copy, Default)]
 pub struct VfxRequest {
     pub effect: VisualEffect,
     pub position: Vec3,
     pub rotation: Option<f32>,
+    pub mirror: bool,
 }
 
 impl From<VisualEffect> for VfxRequest {
     fn from(effect: VisualEffect) -> Self {
         Self {
             effect,
-            position: Vec3::ZERO,
-            rotation: None,
+            ..default()
         }
     }
 }

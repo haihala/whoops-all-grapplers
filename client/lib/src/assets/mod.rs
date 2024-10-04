@@ -9,11 +9,11 @@ mod sounds;
 mod vfx;
 
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
-pub use asset_updater::{start_animation, start_vfx};
+pub use asset_updater::start_animation;
 pub use materials::{ExtendedFlashMaterial, FlashMaterial};
 pub use models::{Models, PlayerModelHook};
 pub use sounds::Sounds;
-pub use vfx::Vfx;
+pub use vfx::start_relative_vfx;
 
 use wag_core::{Icon, MatchState, RollbackSchedule, WAGStage};
 
@@ -52,7 +52,6 @@ impl Plugin for AssetsPlugin {
                     loaders::models,
                     loaders::animations,
                     loaders::sounds,
-                    loaders::vfx,
                 ),
             )
             .add_systems(
@@ -70,11 +69,11 @@ impl Plugin for AssetsPlugin {
                     asset_updater::clear_empty_audio_players,
                     asset_updater::update_generic_animation,
                     animations::update_animation,
-                    vfx::handle_requests,
                 )
                     .chain()
                     .in_set(WAGStage::Presentation),
             )
-            .observe(asset_updater::play_audio);
+            .observe(asset_updater::play_audio)
+            .observe(vfx::start_absolute_vfx);
     }
 }

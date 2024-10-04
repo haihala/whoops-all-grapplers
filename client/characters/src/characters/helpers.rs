@@ -149,11 +149,13 @@ macro_rules! jump {
                         VfxRequest {
                             effect: VisualEffect::SpeedLines,
                             position: Vec3::new(-0.5, 1.3, 0.0),
+                            // TODO: Proper mirroring
                             rotation: if impulse.x == 0.0 {
                                 Some(std::f32::consts::PI)
                             } else {
                                 Some(-impulse.x)
                             },
+                            ..default()
                         }
                         .into(),
                     ];
@@ -302,6 +304,7 @@ macro_rules! dash_script {
                         effect: VisualEffect::SpeedLines,
                         position: Vec3::new(-0.5, 1.3, 0.0),
                         rotation: Some(-situation.facing.to_signum() * std::f32::consts::PI / 2.0),
+                        ..default()
                     }
                     .into(),
                 ];

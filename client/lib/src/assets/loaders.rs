@@ -1,16 +1,10 @@
 use bevy::{prelude::*, utils::HashMap};
 
-use wag_core::{Animation, Icon, Model, SoundEffect, VisualEffect};
+use wag_core::{Animation, Icon, Model, SoundEffect};
 
 use super::{
-    animations::animation_paths,
-    materials::{
-        BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial,
-        HitSparkMaterial, LightningBoltMaterial, LineFieldMaterial, RingRippleMaterial,
-    },
-    models::model_paths,
-    sounds::Sounds,
-    Animations, AssetsLoading, Fonts, Icons, Models, Vfx,
+    animations::animation_paths, models::model_paths, sounds::Sounds, Animations, AssetsLoading,
+    Fonts, Icons, Models,
 };
 
 pub fn fonts(
@@ -104,58 +98,4 @@ pub fn sounds(
             .cloned()
             .flat_map(|audio_type| audio_type.into_iter().map(|h| h.untyped())),
     );
-}
-
-#[allow(clippy::too_many_arguments)]
-pub fn vfx(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut blank_materials: ResMut<Assets<BlankMaterial>>,
-    mut clash_spark_materials: ResMut<Assets<ClashSparkMaterial>>,
-    mut block_effect_materials: ResMut<Assets<BlockEffectMaterial>>,
-    mut hit_spark_materials: ResMut<Assets<HitSparkMaterial>>,
-    mut ring_ripple_materials: ResMut<Assets<RingRippleMaterial>>,
-    mut speed_lines_materials: ResMut<Assets<LineFieldMaterial>>,
-    mut focal_point_line_materials: ResMut<Assets<FocalPointLinesMaterial>>,
-    mut lightning_materials: ResMut<Assets<LightningBoltMaterial>>,
-) {
-    let mesh_handles = vec![
-        (VisualEffect::Blank, meshes.add(Rectangle::default())),
-        (VisualEffect::Block, meshes.add(Rectangle::new(1.1, 2.0))),
-        (VisualEffect::Hit, meshes.add(Rectangle::new(1.1, 1.1))),
-        (VisualEffect::Clash, meshes.add(Rectangle::new(1.5, 1.5))),
-        (
-            VisualEffect::ThrowTech,
-            meshes.add(Rectangle::new(2.0, 2.0)),
-        ),
-        (VisualEffect::SpeedLines, meshes.add(Rectangle::default())),
-        (
-            VisualEffect::ThrowTarget,
-            meshes.add(Rectangle::new(2.0, 2.0)),
-        ),
-        (VisualEffect::Lightning, meshes.add(Rectangle::default())),
-    ]
-    .into_iter()
-    .collect();
-
-    let blank_material = blank_materials.add(BlankMaterial::default());
-    let clash_spark_material = clash_spark_materials.add(ClashSparkMaterial::default());
-    let block_effect_material = block_effect_materials.add(BlockEffectMaterial::default());
-    let hit_spark_material = hit_spark_materials.add(HitSparkMaterial::default());
-    let throw_tech_material = ring_ripple_materials.add(RingRippleMaterial::default());
-    let speed_lines_material = speed_lines_materials.add(LineFieldMaterial::default());
-    let throw_target_material = focal_point_line_materials.add(FocalPointLinesMaterial::default());
-    let lightning_material = lightning_materials.add(LightningBoltMaterial::default());
-
-    commands.insert_resource(Vfx::new(
-        mesh_handles,
-        blank_material,
-        clash_spark_material,
-        block_effect_material,
-        hit_spark_material,
-        throw_tech_material,
-        speed_lines_material,
-        throw_target_material,
-        lightning_material,
-    ));
 }

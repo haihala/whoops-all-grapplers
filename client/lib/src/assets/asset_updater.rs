@@ -4,9 +4,9 @@ use player_state::PlayerState;
 use rand::Rng;
 use wag_core::{Facing, Players};
 
-use crate::event_spreading::{PlaySound, SpawnVfx, StartAnimation};
+use crate::event_spreading::{PlaySound, StartAnimation};
 
-use super::{AnimationHelper, Sounds, Vfx};
+use super::{AnimationHelper, Sounds};
 
 pub fn start_animation(
     trigger: Trigger<StartAnimation>,
@@ -82,11 +82,4 @@ pub fn clear_empty_audio_players(mut commands: Commands, spawned: Query<(Entity,
             commands.entity(entity).despawn_recursive();
         }
     }
-}
-
-pub fn start_vfx(trigger: Trigger<SpawnVfx>, query: Query<&Transform>, mut effects: ResMut<Vfx>) {
-    let tf = query.get(trigger.entity()).unwrap();
-    let mut request = trigger.event().0;
-    request.position += tf.translation;
-    effects.spawn(request);
 }

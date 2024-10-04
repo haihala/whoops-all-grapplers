@@ -65,6 +65,9 @@ pub struct ShakeCamera;
 pub struct FlashPlayer(pub FlashRequest);
 
 #[derive(Debug, Event)]
+pub struct SpawnRelativeVfx(pub VfxRequest);
+
+#[derive(Debug, Event)]
 pub struct SpawnVfx(pub VfxRequest);
 
 #[derive(Debug, Event)]
@@ -151,7 +154,7 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
             commands.trigger_targets(FlashPlayer(*fr), trigger.entity());
         }
         ActionEvent::VisualEffect(vfx) => {
-            commands.trigger_targets(SpawnVfx(*vfx), trigger.entity());
+            commands.trigger_targets(SpawnRelativeVfx(*vfx), trigger.entity());
         }
         ActionEvent::Lock(dur) => {
             commands.trigger_targets(LockPlayer(*dur), trigger.entity());

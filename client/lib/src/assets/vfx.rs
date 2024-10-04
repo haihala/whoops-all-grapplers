@@ -1,3 +1,5 @@
+use core::f32;
+
 use bevy::prelude::*;
 
 use wag_core::{Clock, Facing, MatchState, VfxRequest, VisualEffect};
@@ -80,6 +82,7 @@ pub fn start_absolute_vfx(
 
     if *mirror {
         transform.scale.x *= -1.0;
+        transform.rotate_y(f32::consts::PI);
     }
 
     match effect {

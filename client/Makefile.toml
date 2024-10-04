@@ -8,6 +8,10 @@ default_to_workspace = false
 command = "cargo"
 args = ["build"]
 
+[tasks.check]
+command = "cargo"
+args = ["check"]
+
 [tasks.format]
 install_crate = "rustfmt"
 command = "cargo"
@@ -28,10 +32,10 @@ command = "cargo"
 args = ["udeps"]
 
 [tasks.quick-validate]
-run_task = { name = ["format", "clippy", "test"] }
+run_task = { name = ["check", "format", "clippy", "test"] }
 
 [tasks.full-validate]
-run_task = { name = ["build", "format", "clippy", "test", "udeps"] }
+run_task = { name = ["check", "format", "clippy", "test", "udeps"] }
 
 [tasks.dev-local]
 command = "cargo"

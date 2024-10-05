@@ -17,19 +17,28 @@ const wave_speed = 18.0;
 @group(2) @binding(0) var<uniform> inner_color: vec4<f32>;
 @group(2) @binding(1) var<uniform> outer_color: vec4<f32>;
 @group(2) @binding(2) var<uniform> start_time: f32;
+@group(2) @binding(3) var<uniform> mirror: i32;
 
 @fragment
 fn fragment(
     mesh: VertexOutput,
 ) -> @location(0) vec4<f32> {
-    let time = globals.time + 10000;
-    let cycle = (time - start_time);
+    let cycle = (globals.time - start_time);
 
     let shake = pow((1 - cycle), 5.0) * 0.1;
 
     let scale = (zigzags - (1 - sharpness));
-    let x = mesh.uv.x * scale + shake * sin(250 * time);
-    let y = mesh.uv.y * scale + shake * cos(170 * time);
+    let y = mesh.uv.y * scale + shake * cos(170 * globals.time);
+    let base_x = mesh.uv.x * scale + shake * sin(250 * globals.time);
+   
+    var x = 0.0;
+    if mirror == 1 {
+        x = scale-base_x;
+    }
+    else {
+        x = base_x;
+    }
+
     let segment = i32(x);
 
     let dip = max_dip * zigzags;

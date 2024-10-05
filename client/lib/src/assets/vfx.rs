@@ -1,5 +1,3 @@
-use core::f32;
-
 use bevy::prelude::*;
 
 use wag_core::{Clock, Facing, MatchState, VfxRequest, VisualEffect};
@@ -10,7 +8,7 @@ use crate::{
 };
 
 use super::materials::{
-    BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial, FromTime,
+    BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial,
     HitSparkMaterial, LightningBoltMaterial, LineFieldMaterial, RingRippleMaterial,
 };
 
@@ -19,16 +17,16 @@ fn spawn_vfx<M>(
     mesh: Handle<Mesh>,
     transform: Transform,
     material_asset: &mut ResMut<Assets<M>>,
-    current_time: f32,
+    material: M,
     despawn_frame: usize,
 ) where
-    M: Material + FromTime,
+    M: Material,
 {
     commands.spawn((
         MaterialMeshBundle {
             mesh,
             transform,
-            material: material_asset.add(M::from_time(current_time)),
+            material: material_asset.add(material),
             ..default()
         },
         DespawnMarker(despawn_frame),
@@ -80,18 +78,13 @@ pub fn start_absolute_vfx(
         transform.rotate_z(*angle);
     }
 
-    if *mirror {
-        transform.scale.x *= -1.0;
-        transform.rotate_y(f32::consts::PI);
-    }
-
     match effect {
         VisualEffect::Blank => spawn_vfx(
             &mut commands,
             mesh,
             transform,
             &mut blank_materials,
-            time.elapsed_seconds(),
+            BlankMaterial::default(),
             clock.frame + 15,
         ),
         VisualEffect::Hit => {
@@ -100,7 +93,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 &mut hit_spark_materials,
-                time.elapsed_seconds(),
+                HitSparkMaterial::new(time.elapsed_seconds()),
                 clock.frame + 10,
             );
         }
@@ -110,7 +103,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 &mut clash_materials,
-                time.elapsed_seconds(),
+                ClashSparkMaterial::new(time.elapsed_seconds()),
                 clock.frame + 10,
             );
         }
@@ -120,7 +113,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 &mut block_materials,
-                time.elapsed_seconds(),
+                BlockEffectMaterial::new(time.elapsed_seconds()),
                 clock.frame + 10,
             );
         }
@@ -130,7 +123,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 &mut throw_tech_materials,
-                time.elapsed_seconds(),
+                RingRippleMaterial::new(time.elapsed_seconds()),
                 clock.frame + 60,
             );
         }
@@ -140,7 +133,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 &mut speed_lines_materials,
-                time.elapsed_seconds(),
+                LineFieldMaterial::new(time.elapsed_seconds()),
                 clock.frame + 20,
             );
         }
@@ -150,7 +143,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 &mut throw_target_materials,
-                time.elapsed_seconds(),
+                FocalPointLinesMaterial::new(time.elapsed_seconds()),
                 clock.frame + 60,
             );
         }
@@ -160,7 +153,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 &mut lightning_materials,
-                time.elapsed_seconds(),
+                LightningBoltMaterial::new(time.elapsed_seconds(), *mirror),
                 clock.frame + 60,
             );
         }

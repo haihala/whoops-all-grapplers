@@ -31,6 +31,7 @@ fn spawn_vfx<M>(
         },
         DespawnMarker(despawn_frame),
         StateScoped(MatchState::Combat),
+        Name::new("VFX"),
     ));
 }
 
@@ -133,7 +134,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 &mut speed_lines_materials,
-                LineFieldMaterial::new(time.elapsed_seconds()),
+                LineFieldMaterial::new(time.elapsed_seconds(), *mirror),
                 clock.frame + 20,
             );
         }

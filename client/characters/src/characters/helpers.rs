@@ -1,6 +1,12 @@
 use std::f32::consts::PI;
 
 use bevy::prelude::*;
+use wag_core::{
+    ActionCategory, ActionId, Animation, ItemId, StatusCondition, StatusFlag, VfxRequest,
+    VisualEffect,
+};
+
+use crate::{Action, ActionEvent, ActionRequirement, Movement, Situation};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum JumpType {
@@ -58,14 +64,87 @@ impl JumpDirection {
     }
 }
 
-#[macro_export]
-macro_rules! jump {
-    ($height:expr, $duration:expr, $animation:expr, $dir:expr, $type:expr) => {{
-        use wag_core::{StatusCondition, StatusFlag, VfxRequest, VisualEffect};
-        use $crate::characters::helpers::{JumpDirection, JumpType};
+fn jump(
+    gravity_force: f32,
+    duration: f32,
+    animation: Animation,
+    jump_dir: JumpDirection,
+    jump_type: JumpType,
+) -> Action {
+    Action {
+        input: Some(jump_dir.input(jump_type)),
+        category: ActionCategory::Jump,
+        script: Box::new(move |situation: &Situation| {
+            dbg!(situation.frame, situation.elapsed());
+            /*
+            Math for initial jump velocity
+            x = x0 + v0*t + 1/2*a*t^2
+            From start to end
 
-        let input = $dir.input($type);
-        let requirements = match $type {
+            x0 = 0
+            x = 0
+            t and a = known, solve v0
+
+            0 = v0*t + 1/2*a*t^2
+            v0 = -1/2*a*t
+            */
+            let base_impulse = 0.5 * gravity_force * duration;
+            let impulse = jump_dir.base_vec()
+                * base_impulse
+                * situation.stats.jump_force_multiplier
+                * match jump_type {
+                    JumpType::Basic => 1.0,
+                    JumpType::Air => 0.7,
+                    JumpType::Super => 1.2,
+                };
+
+            let mut initial_events = vec![animation.into()];
+
+            if jump_type == JumpType::Air {
+                initial_events.extend(vec![
+                    ActionEvent::ClearMovement,
+                    ActionEvent::Condition(StatusCondition {
+                        flag: StatusFlag::DoubleJumped,
+                        ..default()
+                    }),
+                ]);
+            } else {
+                // This prevents accidental immediate double jump (odd low jump)
+                initial_events.push(ActionEvent::Condition(StatusCondition {
+                    flag: StatusFlag::DoubleJumped,
+                    expiration: Some(10),
+                    ..default()
+                }))
+            }
+
+            if situation.elapsed() == 0 {
+                return initial_events;
+            }
+
+            let delay = if jump_type == JumpType::Air { 1 } else { 3 };
+            if situation.elapsed() == delay {
+                return vec![
+                    Movement::impulse(impulse).into(),
+                    VfxRequest {
+                        effect: VisualEffect::SpeedLines,
+                        position: Vec3::new(0.0, 1.3, 0.0),
+                        rotation: Some(if impulse.x == 0.0 {
+                            std::f32::consts::PI
+                        } else {
+                            -situation.facing.to_signum()
+                                * jump_dir.base_vec().x.signum()
+                                * std::f32::consts::PI
+                                / 4.0
+                        }),
+                        ..default()
+                    }
+                    .into(),
+                ];
+            }
+
+            situation.end_at(delay + 5)
+        }),
+        requirements: match jump_type {
             JumpType::Basic => vec![ActionRequirement::Grounded],
             JumpType::Air => vec![
                 ActionRequirement::Airborne,
@@ -76,277 +155,146 @@ macro_rules! jump {
                 ActionRequirement::Grounded,
                 ActionRequirement::ItemsOwned(vec![ItemId::FeatheredBoots]),
             ],
-        };
-
-        Action {
-            input: Some(input),
-            category: ActionCategory::Jump,
-            script: Box::new(|situation: &Situation| {
-                /*
-                // Math for gravity
-                x = x0 + v0*t + 1/2*a*t^2
-
-                From the apex down
-                x0 = jump height,
-                x = 0
-                v0 = 0
-
-                0 = -h + 1/2*a*t^2
-                1/2*a*t^2 = h
-                a = 2*h/t^2
-                */
-                let gravity_force: f32 = 2.0 * $height / (($duration / 2.0) as f32).powf(2.0);
-
-                /*
-                Math for initial jump velocity
-                x = x0 + v0*t + 1/2*a*t^2
-                From start to end
-
-                x0 = 0
-                x = 0
-                t and a = known, solve v0
-
-                0 = v0*t + 1/2*a*t^2
-                v0 = -1/2*a*t
-                */
-                let base_impulse = 0.5 * gravity_force * $duration;
-                let impulse = $dir.base_vec()
-                    * base_impulse
-                    * situation.stats.jump_force_multiplier
-                    * match $type {
-                        JumpType::Basic => 1.0,
-                        JumpType::Air => 0.7,
-                        JumpType::Super => 1.2,
-                    };
-
-                let mut initial_events = vec![Into::<Animation>::into($animation).into()];
-
-                if $type == JumpType::Air {
-                    initial_events.extend(vec![
-                        ActionEvent::ClearMovement,
-                        ActionEvent::Condition(StatusCondition {
-                            flag: StatusFlag::DoubleJumped,
-                            ..default()
-                        }),
-                    ]);
-                } else {
-                    // This prevents accidental immediate double jump (odd low jump)
-                    initial_events.push(ActionEvent::Condition(StatusCondition {
-                        flag: StatusFlag::DoubleJumped,
-                        expiration: Some(10),
-                        ..default()
-                    }))
-                }
-
-                if situation.elapsed() == 0 {
-                    return initial_events;
-                }
-
-                let delay = if $type == JumpType::Air { 1 } else { 3 };
-                if situation.elapsed() == delay {
-                    return vec![
-                        Movement::impulse(impulse).into(),
-                        VfxRequest {
-                            effect: VisualEffect::SpeedLines,
-                            position: Vec3::new(-0.5, 1.3, 0.0),
-                            // TODO: Proper mirroring
-                            rotation: if impulse.x == 0.0 {
-                                Some(std::f32::consts::PI)
-                            } else {
-                                Some(-impulse.x)
-                            },
-                            ..default()
-                        }
-                        .into(),
-                    ];
-                }
-
-                situation.end_at(delay + 5)
-            }),
-            requirements,
-        }
-    }};
+        },
+    }
 }
 
-#[macro_export]
-macro_rules! jumps {
-    ($height:expr, $duration:expr, $animation:expr) => {{
-        use $crate::jump;
+pub fn jumps(
+    height: f32,
+    duration: f32,
+    anim: impl Into<Animation>,
+) -> (impl Iterator<Item = (ActionId, Action)>, f32) {
+    /*
+    // Math for gravity
+    x = x0 + v0*t + 1/2*a*t^2
 
-        /*
-        // Math for gravity
-        x = x0 + v0*t + 1/2*a*t^2
+    From the apex down
+    x0 = jump height,
+    x = 0
+    v0 = 0
 
-        From the apex down
-        x0 = jump height,
-        x = 0
-        v0 = 0
+    0 = -h + 1/2*a*t^2
+    1/2*a*t^2 = h
+    a = 2*h/t^2
+    */
+    let gravity_force = 2.0 * height / (duration / 2.0).powf(2.0);
+    let gravity_per_frame = gravity_force / wag_core::FPS;
 
-        0 = -h + 1/2*a*t^2
-        1/2*a*t^2 = h
-        a = 2*h/t^2
-        */
-        let gravity_force: f32 = 2.0 * $height / (($duration / 2.0) as f32).powf(2.0);
-        let gravity_per_frame: f32 = gravity_force / wag_core::FPS;
+    let animation = Into::<Animation>::into(anim);
 
-        let jumps = vec![
-            (
-                ActionId::BackJump,
-                jump!(
-                    $height,
-                    $duration,
-                    $animation,
-                    JumpDirection::Back,
-                    JumpType::Basic
-                ),
+    let jumps = vec![
+        (
+            ActionId::BackJump,
+            jump(
+                gravity_force,
+                duration,
+                animation,
+                JumpDirection::Back,
+                JumpType::Basic,
             ),
-            (
-                ActionId::NeutralJump,
-                jump!(
-                    $height,
-                    $duration,
-                    $animation,
-                    JumpDirection::Neutral,
-                    JumpType::Basic
-                ),
+        ),
+        (
+            ActionId::NeutralJump,
+            jump(
+                gravity_force,
+                duration,
+                animation,
+                JumpDirection::Neutral,
+                JumpType::Basic,
             ),
-            (
-                ActionId::ForwardJump,
-                jump!(
-                    $height,
-                    $duration,
-                    $animation,
-                    JumpDirection::Forward,
-                    JumpType::Basic
-                ),
+        ),
+        (
+            ActionId::ForwardJump,
+            jump(
+                gravity_force,
+                duration,
+                animation,
+                JumpDirection::Forward,
+                JumpType::Basic,
             ),
-            (
-                ActionId::BackSuperJump,
-                jump!(
-                    $height,
-                    $duration,
-                    $animation,
-                    JumpDirection::Back,
-                    JumpType::Super
-                ),
+        ),
+        (
+            ActionId::BackSuperJump,
+            jump(
+                gravity_force,
+                duration,
+                animation,
+                JumpDirection::Back,
+                JumpType::Super,
             ),
-            (
-                ActionId::NeutralSuperJump,
-                jump!(
-                    $height,
-                    $duration,
-                    $animation,
-                    JumpDirection::Neutral,
-                    JumpType::Super
-                ),
+        ),
+        (
+            ActionId::NeutralSuperJump,
+            jump(
+                gravity_force,
+                duration,
+                animation,
+                JumpDirection::Neutral,
+                JumpType::Super,
             ),
-            (
-                ActionId::ForwardSuperJump,
-                jump!(
-                    $height,
-                    $duration,
-                    $animation,
-                    JumpDirection::Forward,
-                    JumpType::Super
-                ),
+        ),
+        (
+            ActionId::ForwardSuperJump,
+            jump(
+                gravity_force,
+                duration,
+                animation,
+                JumpDirection::Forward,
+                JumpType::Super,
             ),
-            (
-                ActionId::BackAirJump,
-                jump!(
-                    $height,
-                    $duration,
-                    $animation,
-                    JumpDirection::Back,
-                    JumpType::Air
-                ),
+        ),
+        (
+            ActionId::BackAirJump,
+            jump(
+                gravity_force,
+                duration,
+                animation,
+                JumpDirection::Back,
+                JumpType::Air,
             ),
-            (
-                ActionId::NeutralAirJump,
-                jump!(
-                    $height,
-                    $duration,
-                    $animation,
-                    JumpDirection::Neutral,
-                    JumpType::Air
-                ),
+        ),
+        (
+            ActionId::NeutralAirJump,
+            jump(
+                gravity_force,
+                duration,
+                animation,
+                JumpDirection::Neutral,
+                JumpType::Air,
             ),
-            (
-                ActionId::ForwardAirJump,
-                jump!(
-                    $height,
-                    $duration,
-                    $animation,
-                    JumpDirection::Forward,
-                    JumpType::Air
-                ),
+        ),
+        (
+            ActionId::ForwardAirJump,
+            jump(
+                gravity_force,
+                duration,
+                animation,
+                JumpDirection::Forward,
+                JumpType::Air,
             ),
-        ]
-        .into_iter();
+        ),
+    ]
+    .into_iter();
 
-        (jumps, gravity_per_frame)
-    }};
+    (jumps, gravity_per_frame)
 }
 
 #[macro_export]
 macro_rules! dash_script {
-    ($input:expr, $startup_duration:expr, $total_duration:expr, $first_impulse:expr, $second_impulse:expr, $animation:expr, $backdash:expr, $track_spikes:expr) => {{
-        use wag_core::{
-            Animation, StatusCondition, StatusFlag, VfxRequest, VisualEffect,
-            TRACK_SPIKES_FLASH_COLOR,
-        };
-        use $crate::{ActionEvent::*, FlashRequest, Movement, ResourceType, Situation};
-
-        Box::new(|situation: &Situation| {
-            if situation.elapsed() == 0 {
-                let mut initial_events = vec![
-                    Into::<Animation>::into($animation).into(),
-                    VfxRequest {
-                        effect: VisualEffect::SpeedLines,
-                        position: Vec3::new(-0.5, 1.3, 0.0),
-                        rotation: Some(-situation.facing.to_signum() * std::f32::consts::PI / 2.0),
-                        ..default()
-                    }
-                    .into(),
-                ];
-
-                initial_events.push(Movement::impulse($first_impulse).into());
-
-                if $track_spikes {
-                    initial_events.extend(vec![
-                        ModifyResource(ResourceType::Meter, -40),
-                        Flash(FlashRequest {
-                            color: TRACK_SPIKES_FLASH_COLOR,
-                            ..default()
-                        }),
-                    ]);
-                }
-
-                if $backdash && situation.stats.backdash_invuln > 0 {
-                    initial_events.push(ActionEvent::Condition(StatusCondition {
-                        flag: StatusFlag::Intangible,
-                        effect: None,
-                        expiration: Some(situation.stats.backdash_invuln as usize),
-                    }));
-                }
-
-                return initial_events;
-            }
-
-            if situation.elapsed() == $startup_duration && $second_impulse != Vec2::ZERO {
-                return vec![Movement::impulse($second_impulse).into()];
-            }
-
-            situation.end_at($total_duration)
-        })
-    }};
+    ($input:expr, $startup_duration:expr, $total_duration:expr, $first_impulse:expr, $second_impulse:expr, $animation:expr, $backdash:expr, $track_spikes:expr) => {{}};
 }
 
 #[macro_export]
 macro_rules! dash {
     ($input:expr, $startup_duration:expr, $total_duration:expr, $first_impulse:expr, $second_impulse:expr, $animation:expr, $backdash:expr, $track_spikes:expr) => {{
-        use wag_core::ActionId;
-        use $crate::dash_script;
-        use $crate::{Action, ActionRequirement, ResourceType};
+        use wag_core::{
+            ActionId, Animation, StatusCondition, StatusFlag, VfxRequest, VisualEffect,
+            TRACK_SPIKES_FLASH_COLOR,
+        };
+        use $crate::{
+            Action, ActionEvent::*, ActionRequirement, FlashRequest, Movement, ResourceType,
+            Situation,
+        };
 
         let mut requirements = vec![ActionRequirement::Grounded];
 
@@ -371,16 +319,51 @@ macro_rules! dash {
             } else {
                 ActionCategory::Dash
             },
-            script: dash_script!(
-                $input,
-                $startup_duration,
-                $total_duration,
-                $first_impulse,
-                $second_impulse,
-                $animation,
-                $backdash,
-                $track_spikes
-            ),
+            script: Box::new(|situation: &Situation| {
+                if situation.elapsed() == 0 {
+                    dbg!(situation.frame, situation.elapsed());
+                    let mut initial_events = vec![
+                        Into::<Animation>::into($animation).into(),
+                        VfxRequest {
+                            effect: VisualEffect::SpeedLines,
+                            position: Vec3::new(0.0, 1.3, 0.0),
+                            rotation: Some(
+                                ($backdash as i32 as f32 * -2.0 + 1.0) * std::f32::consts::PI / 2.0,
+                            ),
+                            ..default()
+                        }
+                        .into(),
+                    ];
+
+                    initial_events.push(Movement::impulse($first_impulse).into());
+
+                    if $track_spikes {
+                        initial_events.extend(vec![
+                            ModifyResource(ResourceType::Meter, -40),
+                            Flash(FlashRequest {
+                                color: TRACK_SPIKES_FLASH_COLOR,
+                                ..default()
+                            }),
+                        ]);
+                    }
+
+                    if $backdash && situation.stats.backdash_invuln > 0 {
+                        initial_events.push(ActionEvent::Condition(StatusCondition {
+                            flag: StatusFlag::Intangible,
+                            effect: None,
+                            expiration: Some(situation.stats.backdash_invuln as usize),
+                        }));
+                    }
+
+                    return initial_events;
+                }
+
+                if situation.elapsed() == $startup_duration && $second_impulse != Vec2::ZERO {
+                    return vec![Movement::impulse($second_impulse).into()];
+                }
+
+                situation.end_at($total_duration)
+            }),
             requirements,
         }
     }};

@@ -10,7 +10,7 @@ use wag_core::{
 
 use crate::{
     actions::ActionRequirement,
-    dashes, jumps,
+    dashes,
     resources::{RenderInstructions, ResourceType},
     universal_item_actions, Action,
     ActionEvent::{self, *},
@@ -20,13 +20,13 @@ use crate::{
     Lifetime, Movement, ResourceBarVisual, Situation, SpecialProperty, ToHit, WAGResource,
 };
 
-use super::{equipment::universal_items, Character};
+use super::{equipment::universal_items, helpers::jumps, Character};
 
 // Honestly, this character shouldn't really see use, but keep it around for testing
 // So it's meant to just be able to compile.
 // Could go back on that if that proves to be too much of a hassle
 pub fn dummy() -> Character {
-    let (jumps, gravity) = jumps!(2.0, 1.0, Animation::Dummy(DummyAnimation::Jump));
+    let (jumps, gravity) = jumps(2.0, 1.0, Animation::Dummy(DummyAnimation::Jump));
 
     Character::new(
         Model::Dummy,

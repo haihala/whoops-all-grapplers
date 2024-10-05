@@ -98,6 +98,8 @@ pub struct LineFieldMaterial {
     start_time: f32,
     #[uniform(6)]
     duration: f32,
+    #[uniform(7)]
+    mirror: f32,
 }
 
 impl Default for LineFieldMaterial {
@@ -110,14 +112,16 @@ impl Default for LineFieldMaterial {
             layer_count: 5,
             start_time: 0.0,
             duration: 0.2,
+            mirror: 0.0,
         }
     }
 }
 
 impl LineFieldMaterial {
-    pub fn new(start_time: f32) -> Self {
+    pub fn new(start_time: f32, mirror: bool) -> Self {
         Self {
             start_time,
+            mirror: mirror as i32 as f32 * -2.0 + 1.0,
             ..default()
         }
     }

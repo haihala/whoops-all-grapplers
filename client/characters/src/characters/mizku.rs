@@ -8,7 +8,7 @@ use wag_core::{
 
 use crate::{
     actions::ActionRequirement,
-    dashes, jumps,
+    dashes,
     resources::{RenderInstructions, ResourceType},
     throw_hit, throw_target, universal_item_actions, Action, ActionEvent, Attack, AttackBuilder,
     AttackHeight::*,
@@ -17,10 +17,10 @@ use crate::{
     Item, ItemCategory, Lifetime, Movement, Situation, ToHit, WAGResource,
 };
 
-use super::{equipment::universal_items, Character};
+use super::{equipment::universal_items, helpers::jumps, Character};
 
 pub fn mizku() -> Character {
-    let (jumps, gravity) = jumps!(2.1, 1.1, Animation::Mizku(MizkuAnimation::Jump));
+    let (jumps, gravity) = jumps(2.1, 1.1, Animation::Mizku(MizkuAnimation::Jump));
 
     Character::new(
         Model::Mizku,

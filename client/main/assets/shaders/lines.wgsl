@@ -8,6 +8,7 @@
 @group(2) @binding(4) var<uniform> layer_count: i32;
 @group(2) @binding(5) var<uniform> start_time: f32;
 @group(2) @binding(6) var<uniform> duration: f32;
+@group(2) @binding(7) var<uniform> mirror: f32;
 
 const PI = 3.14159265359;
 const offset = PI * 2 / 3;
@@ -22,7 +23,7 @@ fn fragment(
     let wt = time / duration;
     // Ease-in-quint
     let wave = 1 - pow(wt, 5.0);
-    let centered = 2 * (mesh.uv - 0.5);
+    let centered = 2 * (mesh.uv - 0.5) * mirror;
 
     var layers = 0.0;
     for (var i = 1; i < layer_count; i++) {

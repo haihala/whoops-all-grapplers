@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 
 use characters::{
-    Action, ActionEvent, ActionTracker, Character, CharacterStateBoxes, Inventory, Situation,
-    WAGResources,
+    ActionEvent, ActionTracker, Character, CharacterStateBoxes, Inventory, Situation, WAGResources,
 };
 use input_parsing::InputParser;
 use wag_core::{ActionId, AnimationType, Facing, Stats, StatusCondition, StatusFlag};
@@ -71,28 +70,7 @@ impl PlayerState {
 
     // Moves
     #[allow(clippy::too_many_arguments)]
-    pub fn start_move(
-        &mut self,
-        action_id: ActionId,
-        action: &Action,
-        start_frame: usize,
-        inventory: Inventory,
-        resources: WAGResources,
-        parser: InputParser,
-        stats: Stats,
-        player_position: Vec3,
-        player_facing: Facing,
-    ) -> Vec<ActionEvent> {
-        let events = (action.script)(&self.build_situation(
-            inventory,
-            resources,
-            parser,
-            stats,
-            start_frame,
-            player_position,
-            player_facing,
-        ));
-
+    pub fn start_move(&mut self, action_id: ActionId, start_frame: usize) {
         let tracker = ActionTracker::new(start_frame, action_id);
 
         self.main = match &self.main {
@@ -103,7 +81,6 @@ impl PlayerState {
             other => panic!("Starting a move while {:?}", other),
         };
         self.free_since = None;
-        events
     }
 
     #[allow(clippy::too_many_arguments)]

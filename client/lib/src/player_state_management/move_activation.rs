@@ -227,39 +227,12 @@ pub(super) fn cancel_start(
     }
 }
 
-#[allow(clippy::type_complexity)]
 pub(super) fn move_activator(
-    mut commands: Commands,
     clock: Res<Clock>,
-    mut query: Query<(
-        &mut MoveBuffer,
-        &mut PlayerState,
-        &mut Hurtboxes,
-        &Transform,
-        &WAGResources,
-        &Character,
-        &Stats,
-        &Inventory,
-        &InputParser,
-        &Facing,
-        Entity,
-    )>,
+    mut query: Query<(&mut MoveBuffer, &mut PlayerState, &mut Hurtboxes)>,
 ) {
     // Activate and clear activating move
-    for (
-        mut buffer,
-        mut state,
-        mut hurtboxes,
-        tf,
-        properties,
-        character,
-        stats,
-        inventory,
-        parser,
-        facing,
-        entity,
-    ) in &mut query
-    {
+    for (mut buffer, mut state, mut hurtboxes) in &mut query {
         let Some(activation) = buffer.activation.take() else {
             continue;
         };
@@ -271,20 +244,7 @@ pub(super) fn move_activator(
         // Remove old extra expanded hurtboxes (if a move is cancelled)
         hurtboxes.extra.clear();
 
-        for event in state.start_move(
-            activation.id,
-            character.get_move(activation.id).unwrap(),
-            clock.frame,
-            inventory.to_owned(),
-            properties.to_owned(),
-            parser.to_owned(),
-            stats.to_owned(),
-            tf.translation,
-            *facing,
-        ) {
-            commands.trigger_targets(event, entity);
-        }
-
+        state.start_move(activation.id, clock.frame);
         buffer.clear_all()
     }
 }

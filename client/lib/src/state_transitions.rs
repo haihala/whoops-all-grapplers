@@ -172,26 +172,23 @@ fn transition_after_timer<T: FreelyMutableState>(
 }
 
 fn end_loading(
-    ready_players: Query<&Player, Without<PlayerModelHook>>,
+    ready_players: Query<&Player>,
+    hooked_children: Query<&PlayerModelHook>,
     loading_assets: Res<AssetsLoading>,
     server: Res<AssetServer>,
     mut next_match_state: ResMut<NextState<MatchState>>,
-    mut latch: Local<bool>,
 ) {
     let two_players = ready_players.iter().count() == 2;
-    let some_assets_loading = !loading_assets.0.is_empty();
+    let hooks_ran = hooked_children.iter().count() == 0;
+    let asset_loads_started = !loading_assets.0.is_empty();
     let all_assets_loaded = loading_assets
         .0
         .iter()
         .all(|h| server.get_load_state(h.id()) == Some(LoadState::Loaded));
 
-    if two_players && some_assets_loading && all_assets_loaded {
-        if *latch {
-            println!("Done loading assets");
-            next_match_state.set(MatchState::PostLoad);
-        } else {
-            *latch = true;
-        }
+    if two_players && hooks_ran && asset_loads_started && all_assets_loaded {
+        println!("Done loading assets");
+        next_match_state.set(MatchState::PostLoad);
     }
 }
 

@@ -12,7 +12,7 @@ use crate::{
     actions::ActionRequirement,
     dashes,
     resources::{RenderInstructions, ResourceType},
-    universal_item_actions, Action,
+    Action,
     ActionEvent::{self, *},
     Attack, AttackBuilder, CharacterBoxes, CharacterStateBoxes, ChargeProperty, Hitbox,
     IntermediateStrike, Item,
@@ -20,7 +20,11 @@ use crate::{
     Lifetime, Movement, ResourceBarVisual, Situation, SpecialProperty, ToHit, WAGResource,
 };
 
-use super::{equipment::universal_items, helpers::jumps, Character};
+use super::{
+    equipment::{universal_item_actions, universal_items},
+    helpers::jumps,
+    Character,
+};
 
 // Honestly, this character shouldn't really see use, but keep it around for testing
 // So it's meant to just be able to compile.
@@ -302,7 +306,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
 }
 
 fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
-    empty().chain(universal_item_actions!(Animation::Dummy(
+    empty().chain(universal_item_actions(Animation::Dummy(
         DummyAnimation::TPose,
     )))
 }

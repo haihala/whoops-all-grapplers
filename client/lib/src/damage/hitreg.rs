@@ -6,8 +6,8 @@ use characters::{
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{
-    ActionId, Area, Clock, Facing, Owner, Player, Players, SoundEffect, Stats, StatusFlag,
-    StickPosition, VfxRequest, VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
+    Area, Clock, Facing, Owner, Player, Players, SoundEffect, Stats, StatusFlag, StickPosition,
+    VfxRequest, VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
 };
 
 use crate::{
@@ -328,18 +328,17 @@ pub fn apply_connections(
             }
             ConnectionType::Parry => {
                 commands.trigger(PlaySound(SoundEffect::Clash));
-                for event in vec![
+                commands.trigger_targets(
                     ActionEvent::ModifyResource(ResourceType::Meter, GI_PARRY_METER_GAIN),
-                    ActionEvent::StartAction(ActionId::ParryFlash),
-                ] {
-                    commands.trigger_targets(event, hit.defender)
-                }
-
+                    hit.defender,
+                );
                 commands.trigger(SpawnVfx(VfxRequest {
                     effect: VisualEffect::Clash,
                     position: hit.overlap.center().extend(0.0),
                     ..default()
                 }));
+
+                defender.state.register_hit();
 
                 return;
             }

@@ -1,7 +1,6 @@
 # Next steps
 
 - [Mizku stance 2.0](/docs/tasks/before_locals_test/mizku_stance_2.0.md)
-- [Update Gi](/docs/tasks/before_locals_test/update_gi.md)
 - [Popups 2.0](/docs/tasks/before_locals_test/popups_2.0.md)
 - [VFX 2.0](/docs/tasks/before_locals_test/vfx_2.0.md)
 - [SFX 2.0](/docs/tasks/before_locals_test/sfx_2.0.md)

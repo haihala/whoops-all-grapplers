@@ -1,6 +1,6 @@
-- [ ] New parry properties
-	- [ ] Input to 6+f+g
-	- [ ] 30-ish frame animation
-	- [ ] Can parry for 5-ish frames
-	- [ ] Cancellable into most things after making contact 
-- [ ] Update item description
+- [x] New parry properties
+  - [x] Input to 6+f+g
+  - [x] 30-ish frame animation
+  - [x] Can parry for 5-ish frames
+  - [x] Cancellable into most things after making contact
+- [x] Update item description

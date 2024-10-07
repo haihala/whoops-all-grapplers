@@ -1,62 +1,45 @@
 use bevy::prelude::*;
-use wag_core::{ActionCategory, Icon, ItemId, Stats, StatusCondition, StatusFlag};
+use wag_core::{
+    ActionCategory, ActionId, Animation, CancelType, CancelWindow, Icon, ItemId, Stats,
+    StatusCondition, StatusFlag, GI_PARRY_FLASH_COLOR,
+};
 
 use crate::{
     actions::ActionRequirement, Action, ActionEvent, ConsumableType::*, Item, ItemCategory::*,
     Movement, Situation,
 };
 
-pub fn get_high_gi_parry() -> Action {
+pub fn gi_parry(animation: Animation) -> Action {
     Action {
-        input: Some("56"),
+        input: Some("6+f+s"),
         category: ActionCategory::Other,
-        script: Box::new(|_| {
-            vec![
-                ActionEvent::ForceStand,
-                ActionEvent::Condition(StatusCondition {
-                    flag: StatusFlag::Parry,
-                    effect: None,
-                    expiration: Some(15),
-                }),
-                ActionEvent::End,
-            ]
+        script: Box::new(move |situation: &Situation| {
+            if situation.elapsed() == 0 {
+                return vec![
+                    animation.into(),
+                    ActionEvent::ForceStand,
+                    ActionEvent::Condition(StatusCondition {
+                        flag: StatusFlag::Parry,
+                        effect: None,
+                        expiration: Some(10),
+                    }),
+                    ActionEvent::Flash(GI_PARRY_FLASH_COLOR.into()),
+                    ActionEvent::AllowCancel(CancelWindow {
+                        cancel_type: CancelType::Anything,
+                        require_hit: true,
+                        duration: 25,
+                        ..default()
+                    }),
+                ];
+            }
+
+            situation.end_at(30)
         }),
         requirements: vec![
             ActionRequirement::Grounded,
             ActionRequirement::ItemsOwned(vec![ItemId::Gi]),
         ],
     }
-}
-
-#[macro_export]
-macro_rules! parry_flash {
-    ($parry_animation:expr) => {{
-        use wag_core::GI_PARRY_FLASH_COLOR;
-        use $crate::ActionEvent;
-
-        Action {
-            input: None,
-            category: ActionCategory::Forced,
-            script: Box::new(|situation: &Situation| {
-                if situation.elapsed() == 0 {
-                    return vec![
-                        $parry_animation.into(),
-                        ActionEvent::Flash(GI_PARRY_FLASH_COLOR.into()),
-                    ];
-                }
-
-                if situation.elapsed() >= 10 {
-                    return vec![ActionEvent::End];
-                }
-
-                vec![]
-            }),
-            requirements: vec![
-                ActionRequirement::Grounded,
-                ActionRequirement::ItemsOwned(vec![ItemId::Gi]),
-            ],
-        }
-    }};
 }
 
 pub fn fast_fall() -> Action {
@@ -81,19 +64,14 @@ pub fn fast_fall() -> Action {
     }
 }
 
-#[macro_export]
-macro_rules! universal_item_actions {
-    ($parry_animation:expr) => {{
-        use $crate::characters::equipment::{fast_fall, get_high_gi_parry};
-        use $crate::parry_flash;
-
-        vec![
-            (ActionId::HighGiParry, get_high_gi_parry()),
-            (ActionId::ParryFlash, parry_flash!($parry_animation)),
-            (ActionId::FastFall, fast_fall()),
-        ]
-        .into_iter()
-    }};
+pub fn universal_item_actions(
+    parry_animation: Animation,
+) -> impl Iterator<Item = (ActionId, Action)> {
+    vec![
+        (ActionId::GiParry, gi_parry(parry_animation)),
+        (ActionId::FastFall, fast_fall()),
+    ]
+    .into_iter()
 }
 
 pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
@@ -117,7 +95,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             ItemId::Gi,
             Item {
                 cost: 300,
-                explanation: "Tap forward to parry\n\nLesgo justin".into(),
+                explanation: "Forward+f+s to parry, cancels to anything on success.\n\nLesgo justin".into(),
                 icon: Icon::Gi,
                 ..default()
             },

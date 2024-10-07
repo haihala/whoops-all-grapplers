@@ -22,6 +22,7 @@ pub enum CancelType {
     Special,
     Super,
     Specific(Vec<ActionId>),
+    Anything,
 }
 
 #[derive(Debug, PartialEq, Clone, Default)]
@@ -60,6 +61,7 @@ impl AvailableCancels {
                 }
                 CancelType::Super => category == ActionCategory::Super,
                 CancelType::Specific(ref options) => options.contains(&id),
+                CancelType::Anything => true,
             };
 
             if matching_cancel && (has_hit || !win.require_hit) {

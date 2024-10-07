@@ -10,14 +10,18 @@ use crate::{
     actions::ActionRequirement,
     dashes,
     resources::{RenderInstructions, ResourceType},
-    throw_hit, throw_target, universal_item_actions, Action, ActionEvent, Attack, AttackBuilder,
+    throw_hit, throw_target, Action, ActionEvent, Attack, AttackBuilder,
     AttackHeight::*,
     BlockType::*,
     CharacterBoxes, CharacterStateBoxes, ConsumableType, CounterVisual, Hitbox, IntermediateStrike,
     Item, ItemCategory, Lifetime, Movement, Situation, ToHit, WAGResource,
 };
 
-use super::{equipment::universal_items, helpers::jumps, Character};
+use super::{
+    equipment::{universal_item_actions, universal_items},
+    helpers::jumps,
+    Character,
+};
 
 pub fn mizku() -> Character {
     let (jumps, gravity) = jumps(2.1, 1.1, Animation::Mizku(MizkuAnimation::Jump));
@@ -527,7 +531,7 @@ fn kunai_throw() -> impl Iterator<Item = (MizkuActionId, Action)> {
 }
 
 fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
-    universal_item_actions!(Animation::Mizku(MizkuAnimation::GiParry))
+    universal_item_actions(Animation::Mizku(MizkuAnimation::GiParry))
 }
 
 fn mizku_items() -> HashMap<ItemId, Item> {

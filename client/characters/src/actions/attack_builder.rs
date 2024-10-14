@@ -580,7 +580,7 @@ impl IntermediateThrow {
                 ActionEvent::Sound(SoundEffect::PastaPat),
                 ActionEvent::VisualEffect(VfxRequest {
                     effect: VisualEffect::ThrowTarget,
-                    position: hitbox_pos,
+                    tf: Transform::from_translation(hitbox_pos),
                     ..default()
                 }),
             ],
@@ -589,7 +589,7 @@ impl IntermediateThrow {
                 Movement::impulse(Vec2::X * -2.0).into(),
                 ActionEvent::VisualEffect(VfxRequest {
                     effect: VisualEffect::ThrowTech,
-                    position: hitbox_pos,
+                    tf: Transform::from_translation(hitbox_pos),
                     ..default()
                 }),
             ],
@@ -641,7 +641,7 @@ impl IntermediateStrike {
                 ActionEvent::Sound(SoundEffect::PastaPat),
                 ActionEvent::VisualEffect(VfxRequest {
                     effect: VisualEffect::Hit,
-                    position: hitbox_pos,
+                    tf: Transform::from_translation(hitbox_pos),
                     ..default()
                 }),
             ],
@@ -652,7 +652,7 @@ impl IntermediateStrike {
                 ActionEvent::Sound(SoundEffect::PlasticCupTap),
                 ActionEvent::VisualEffect(VfxRequest {
                     effect: VisualEffect::Block,
-                    position: hitbox_pos,
+                    tf: Transform::from_translation(hitbox_pos),
                     ..default()
                 }),
             ],

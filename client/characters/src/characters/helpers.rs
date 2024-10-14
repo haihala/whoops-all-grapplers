@@ -127,15 +127,18 @@ fn jump(
                     Movement::impulse(impulse).into(),
                     VfxRequest {
                         effect: VisualEffect::SpeedLines,
-                        position: Vec3::new(0.0, 1.3, 0.0),
-                        rotation: Some(if impulse.x == 0.0 {
-                            std::f32::consts::PI
-                        } else {
-                            -situation.facing.to_signum()
-                                * jump_dir.base_vec().x.signum()
-                                * std::f32::consts::PI
-                                / 4.0
-                        }),
+                        tf: Transform {
+                            translation: Vec3::new(0.0, 1.3, 0.0),
+                            rotation: Quat::from_rotation_z(if impulse.x == 0.0 {
+                                std::f32::consts::PI
+                            } else {
+                                -situation.facing.to_signum()
+                                    * jump_dir.base_vec().x.signum()
+                                    * std::f32::consts::PI
+                                    / 4.0
+                            }),
+                            ..default()
+                        },
                         ..default()
                     }
                     .into(),
@@ -326,10 +329,14 @@ macro_rules! dash {
                         Into::<Animation>::into($animation).into(),
                         VfxRequest {
                             effect: VisualEffect::SpeedLines,
-                            position: Vec3::new(0.0, 1.3, 0.0),
-                            rotation: Some(
-                                ($backdash as i32 as f32 * -2.0 + 1.0) * std::f32::consts::PI / 2.0,
-                            ),
+                            tf: Transform {
+                                translation: Vec3::new(0.0, 1.3, 0.0),
+                                rotation: Quat::from_rotation_z(
+                                    ($backdash as i32 as f32 * -2.0 + 1.0) * std::f32::consts::PI
+                                        / 2.0,
+                                ),
+                                ..default()
+                            },
                             ..default()
                         }
                         .into(),

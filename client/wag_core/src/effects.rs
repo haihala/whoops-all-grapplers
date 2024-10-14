@@ -86,8 +86,7 @@ impl VisualEffect {
 #[derive(Debug, PartialEq, Clone, Copy, Default)]
 pub struct VfxRequest {
     pub effect: VisualEffect,
-    pub position: Vec3,
-    pub rotation: Option<f32>,
+    pub tf: Transform,
     pub mirror: bool,
 }
 

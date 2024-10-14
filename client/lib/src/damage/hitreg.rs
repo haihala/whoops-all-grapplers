@@ -99,7 +99,7 @@ pub(super) fn clash_parry(
             commands.trigger(PlaySound(SoundEffect::GlassClink));
             commands.trigger(SpawnVfx(VfxRequest {
                 effect: VisualEffect::Clash,
-                position: overlap.center().extend(0.0),
+                tf: Transform::from_translation(overlap.center().extend(0.0)),
                 ..default()
             }));
 
@@ -267,13 +267,14 @@ pub fn apply_connections(
 
             commands.trigger(SpawnVfx(VfxRequest {
                 effect: VisualEffect::Clash,
-                position: hits
-                    .iter()
-                    .map(|hit| hit.overlap.center())
-                    .reduce(|a, b| a + b)
-                    .unwrap()
-                    .extend(0.0)
-                    * 0.5,
+                tf: Transform::from_translation(
+                    hits.iter()
+                        .map(|hit| hit.overlap.center())
+                        .reduce(|a, b| a + b)
+                        .unwrap()
+                        .extend(0.0)
+                        * 0.5,
+                ),
                 ..default()
             }));
 
@@ -334,7 +335,7 @@ pub fn apply_connections(
                 );
                 commands.trigger(SpawnVfx(VfxRequest {
                     effect: VisualEffect::Clash,
-                    position: hit.overlap.center().extend(0.0),
+                    tf: Transform::from_translation(hit.overlap.center().extend(0.0)),
                     ..default()
                 }));
 

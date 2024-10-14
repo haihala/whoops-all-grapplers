@@ -28,7 +28,6 @@ pub fn gi_parry(animation: Animation) -> Action {
                         cancel_type: CancelType::Anything,
                         require_hit: true,
                         duration: 25,
-                        ..default()
                     }),
                 ];
             }

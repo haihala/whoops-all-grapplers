@@ -44,7 +44,7 @@ pub fn start_relative_vfx(
     // from previous trigger
     let (tf, facing) = query.get(trigger.entity()).unwrap();
     let mut request = trigger.event().0;
-    request.position += tf.translation;
+    request.tf.translation += tf.translation;
     request.mirror ^= facing.to_flipped();
     commands.trigger(SpawnVfx(request));
 }
@@ -65,19 +65,13 @@ pub fn start_absolute_vfx(
     mut throw_target_materials: ResMut<Assets<FocalPointLinesMaterial>>,
     mut lightning_materials: ResMut<Assets<LightningBoltMaterial>>,
 ) {
-    let SpawnVfx(VfxRequest {
-        effect,
-        position,
-        rotation,
-        mirror,
-    }) = trigger.event();
+    let SpawnVfx(VfxRequest { effect, tf, mirror }) = trigger.event();
 
     let mesh = meshes.add(effect.mesh_size());
-    let mut transform = Transform::from_translation(*position + 0.1 * Vec3::Z);
-
-    if let Some(angle) = rotation {
-        transform.rotate_z(*angle);
-    }
+    let transform = Transform {
+        translation: tf.translation + 0.1 * Vec3::Z,
+        ..*tf
+    };
 
     match effect {
         VisualEffect::Blank => spawn_vfx(

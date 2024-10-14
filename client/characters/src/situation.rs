@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::utils::HashSet;
-use wag_core::{Facing, GameButton, Stats, StatusFlag};
+use wag_core::{Combo, Facing, GameButton, Stats, StatusFlag};
 
 use crate::{ActionEvent, ActionTracker, Inventory, ResourceType, WAGResource};
 
@@ -16,7 +16,7 @@ pub struct Situation {
     pub stats: Stats,
     pub held_buttons: HashSet<GameButton>,
     pub position: Vec3,
-    // Kept minimal so far, but will grow as needed
+    pub combo: Option<Combo>,
 }
 impl Situation {
     pub fn get_resource(&self, resource_type: ResourceType) -> Option<&WAGResource> {

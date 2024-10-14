@@ -13,15 +13,15 @@ use input_parsing::{InputParser, PadStream, ParrotStream};
 use player_state::PlayerState;
 use strum::IntoEnumIterator;
 use wag_core::{
-    AvailableCancels, Characters, Clock, Controllers, Facing, GameState, Hitstop, LocalCharacter,
-    LocalController, MatchState, OnlineState, Owner, Player, RollbackSchedule, Stats, WagArgs,
-    WagInputButton, WagInputEvent,
+    AvailableCancels, Characters, Clock, Combo, Controllers, Facing, GameState, Hitstop,
+    LocalCharacter, LocalController, MatchState, OnlineState, Owner, Player, RollbackSchedule,
+    Stats, WagArgs, WagInputButton, WagInputEvent,
 };
 
 use crate::{
     assets::AnimationHelper,
     camera::ChildCameraEffects,
-    damage::{Combo, HitTracker, HitboxSpawner, LifetimeFlags},
+    damage::{HitTracker, HitboxSpawner, LifetimeFlags},
     entity_management::DespawnMarker,
     movement::{ConstantVelocity, Follow, PlayerVelocity, Pushbox, Walls},
     player_state_management::MoveBuffer,

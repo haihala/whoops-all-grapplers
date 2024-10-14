@@ -70,6 +70,10 @@ pub enum VisualEffect {
     SpeedLines,
     ThrowTarget,
     Lightning,
+    Pebbles,
+    MidFlash,
+    WaveDiagonal,
+    WaveFlat,
 }
 impl VisualEffect {
     pub fn mesh_size(&self) -> Rectangle {
@@ -78,6 +82,7 @@ impl VisualEffect {
             VisualEffect::Block => Rectangle::new(1.1, 2.0),
             VisualEffect::Hit => Rectangle::new(1.1, 1.1),
             VisualEffect::ThrowTech | VisualEffect::ThrowTarget => Rectangle::new(2.0, 2.0),
+            VisualEffect::Pebbles => Rectangle::new(1.8, 1.8),
             _ => Rectangle::default(),
         }
     }

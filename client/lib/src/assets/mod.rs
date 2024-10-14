@@ -42,6 +42,10 @@ impl Plugin for AssetsPlugin {
                 MaterialPlugin::<materials::LineFieldMaterial>::default(),
                 MaterialPlugin::<materials::FocalPointLinesMaterial>::default(),
                 MaterialPlugin::<materials::LightningBoltMaterial>::default(),
+                MaterialPlugin::<materials::FlatWaveMaterial>::default(),
+                MaterialPlugin::<materials::DiagonalWaveMaterial>::default(),
+                MaterialPlugin::<materials::PebbleMaterial>::default(),
+                MaterialPlugin::<materials::MidFlashMaterial>::default(),
                 MaterialPlugin::<ExtendedFlashMaterial>::default(),
             ))
             .add_systems(

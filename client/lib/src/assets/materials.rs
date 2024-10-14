@@ -7,8 +7,9 @@ use characters::FlashRequest;
 use wag_core::{
     BLOCK_EFFECT_BASE_COLOR, BLOCK_EFFECT_EDGE_COLOR, CLASH_SPARK_BASE_COLOR,
     CLASH_SPARK_EDGE_COLOR, HIT_SPARK_BASE_COLOR, HIT_SPARK_EDGE_COLOR, HIT_SPARK_MID_COLOR,
-    LIGHTNING_BOLT_INNER_COLOR, LIGHTNING_BOLT_OUTER_COLOR, RING_RIPPLE_BASE_COLOR,
-    RING_RIPPLE_EDGE_COLOR, SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR,
+    LIGHTNING_BOLT_INNER_COLOR, LIGHTNING_BOLT_OUTER_COLOR, MID_FLASH_INNER_COLOR,
+    MID_FLASH_OUTER_COLOR, PEBBLE_BORDER_COLOR, PEBBLE_INNER_COLOR, RING_RIPPLE_BASE_COLOR,
+    RING_RIPPLE_EDGE_COLOR, SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR, VFX_WAVE_COLOR,
 };
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -23,23 +24,13 @@ pub struct LightningBoltMaterial {
     mirror: i32, // Bools not supported
 }
 
-impl Default for LightningBoltMaterial {
-    fn default() -> Self {
-        Self {
-            inner_color: LIGHTNING_BOLT_INNER_COLOR.into(),
-            outer_color: LIGHTNING_BOLT_OUTER_COLOR.into(),
-            start_time: 0.0,
-            mirror: 0,
-        }
-    }
-}
-
 impl LightningBoltMaterial {
     pub fn new(start_time: f32, mirror: bool) -> Self {
         Self {
+            inner_color: LIGHTNING_BOLT_INNER_COLOR.into(),
+            outer_color: LIGHTNING_BOLT_OUTER_COLOR.into(),
             start_time,
             mirror: mirror as i32,
-            ..default()
         }
     }
 }
@@ -58,12 +49,6 @@ impl Material for LightningBoltMaterial {
 pub struct FocalPointLinesMaterial {
     #[uniform(0)]
     start_time: f32,
-}
-
-impl Default for FocalPointLinesMaterial {
-    fn default() -> Self {
-        Self { start_time: 0.0 }
-    }
 }
 
 impl FocalPointLinesMaterial {
@@ -102,27 +87,17 @@ pub struct LineFieldMaterial {
     mirror: f32,
 }
 
-impl Default for LineFieldMaterial {
-    fn default() -> Self {
-        Self {
-            base_color: SPEED_LINES_BASE_COLOR.into(),
-            edge_color: SPEED_LINES_EDGE_COLOR.into(),
-            speed: 1.0,
-            line_thickness: 0.2,
-            layer_count: 5,
-            start_time: 0.0,
-            duration: 0.2,
-            mirror: 0.0,
-        }
-    }
-}
-
 impl LineFieldMaterial {
     pub fn new(start_time: f32, mirror: bool) -> Self {
         Self {
             start_time,
             mirror: mirror as i32 as f32 * -2.0 + 1.0,
-            ..default()
+            base_color: SPEED_LINES_BASE_COLOR.into(),
+            edge_color: SPEED_LINES_EDGE_COLOR.into(),
+            speed: 1.0,
+            line_thickness: 0.2,
+            layer_count: 5,
+            duration: 0.2,
         }
     }
 }
@@ -152,18 +127,9 @@ impl HitSparkMaterial {
     pub fn new(start_time: f32) -> Self {
         Self {
             start_time,
-            ..default()
-        }
-    }
-}
-
-impl Default for HitSparkMaterial {
-    fn default() -> Self {
-        Self {
             edge_color: HIT_SPARK_EDGE_COLOR.into(),
             mid_color: HIT_SPARK_MID_COLOR.into(),
             base_color: HIT_SPARK_BASE_COLOR.into(),
-            start_time: 0.0,
         }
     }
 }
@@ -193,17 +159,9 @@ impl BlockEffectMaterial {
     pub fn new(start_time: f32) -> Self {
         Self {
             start_time,
-            ..default()
-        }
-    }
-}
-impl Default for BlockEffectMaterial {
-    fn default() -> Self {
-        Self {
             edge_color: BLOCK_EFFECT_EDGE_COLOR.into(),
             base_color: BLOCK_EFFECT_BASE_COLOR.into(),
             speed: 1.5,
-            start_time: 0.0,
         }
     }
 }
@@ -233,18 +191,9 @@ impl ClashSparkMaterial {
     pub fn new(start_time: f32) -> Self {
         Self {
             start_time,
-            ..default()
-        }
-    }
-}
-
-impl Default for ClashSparkMaterial {
-    fn default() -> Self {
-        Self {
             edge_color: CLASH_SPARK_EDGE_COLOR.into(),
             base_color: CLASH_SPARK_BASE_COLOR.into(),
             speed: 1.2,
-            start_time: 0.0,
         }
     }
 }
@@ -259,8 +208,8 @@ impl Material for ClashSparkMaterial {
     }
 }
 
-#[derive(Asset, AsBindGroup, TypePath, Debug, Clone, Default)]
-pub struct BlankMaterial {}
+#[derive(Asset, AsBindGroup, TypePath, Debug, Clone)]
+pub struct BlankMaterial {} // needs to be this type of struct for material
 
 impl Material for BlankMaterial {
     fn fragment_shader() -> ShaderRef {
@@ -289,18 +238,10 @@ impl RingRippleMaterial {
     pub fn new(start_time: f32) -> Self {
         Self {
             start_time,
-            ..default()
-        }
-    }
-}
-impl Default for RingRippleMaterial {
-    fn default() -> Self {
-        Self {
             edge_color: RING_RIPPLE_EDGE_COLOR.into(),
             base_color: RING_RIPPLE_BASE_COLOR.into(),
             duration: 0.7,
             ring_thickness: 0.05,
-            start_time: 0.0,
         }
     }
 }
@@ -308,6 +249,119 @@ impl Default for RingRippleMaterial {
 impl Material for RingRippleMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/ring_ripple.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
+}
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct PebbleMaterial {
+    #[uniform(0)]
+    start_time: f32,
+    #[uniform(1)]
+    inner_color: LinearRgba,
+    #[uniform(2)]
+    border_color: LinearRgba,
+    #[uniform(3)]
+    mirror: f32,
+}
+impl PebbleMaterial {
+    pub fn new(start_time: f32, mirror: bool) -> Self {
+        Self {
+            start_time,
+            inner_color: PEBBLE_INNER_COLOR.into(),
+            border_color: PEBBLE_BORDER_COLOR.into(),
+            mirror: mirror as i32 as f32,
+        }
+    }
+}
+
+impl Material for PebbleMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/pebbles.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
+}
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct MidFlashMaterial {
+    #[uniform(0)]
+    start_time: f32,
+    #[uniform(1)]
+    inner_color: LinearRgba,
+    #[uniform(2)]
+    outer_color: LinearRgba,
+}
+impl MidFlashMaterial {
+    pub fn new(start_time: f32) -> Self {
+        Self {
+            start_time,
+            inner_color: MID_FLASH_INNER_COLOR.into(),
+            outer_color: MID_FLASH_OUTER_COLOR.into(),
+        }
+    }
+}
+
+impl Material for MidFlashMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/mid_flash.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
+}
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct DiagonalWaveMaterial {
+    #[uniform(0)]
+    start_time: f32,
+    #[uniform(1)]
+    color: LinearRgba,
+}
+impl DiagonalWaveMaterial {
+    pub fn new(start_time: f32) -> Self {
+        Self {
+            start_time,
+            color: VFX_WAVE_COLOR.into(),
+        }
+    }
+}
+
+impl Material for DiagonalWaveMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/diagonal_wave.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
+}
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct FlatWaveMaterial {
+    #[uniform(0)]
+    start_time: f32,
+    #[uniform(1)]
+    color: LinearRgba,
+}
+impl FlatWaveMaterial {
+    pub fn new(start_time: f32) -> Self {
+        Self {
+            start_time,
+            color: VFX_WAVE_COLOR.into(),
+        }
+    }
+}
+
+impl Material for FlatWaveMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/flat_wave.wgsl".into()
     }
 
     fn alpha_mode(&self) -> AlphaMode {

@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use bevy::prelude::*;
 use wag_core::{
     ActionCategory, ActionId, Animation, Area, CancelType, CancelWindow, Model, SoundEffect,
@@ -516,6 +518,7 @@ impl AttackBuilder {
                 },
                 block_stun: (self.recovery as i32 + sb.advantage_on_block) as usize,
                 hitbox_position: self.hitbox.center(),
+                block_height: sb.block_height,
             }),
         };
 
@@ -619,6 +622,7 @@ pub struct IntermediateStrike {
     pub block_stun: usize,
     pub sharpness_scaling: i32,
     pub hitbox_position: Vec2,
+    pub block_height: AttackHeight,
 }
 impl IntermediateStrike {
     pub fn build_attack(&self, situation: &Situation) -> Attack {
@@ -632,6 +636,28 @@ impl IntermediateStrike {
             .mirror_vec2(self.hitbox_position)
             .extend(0.0);
 
+        let (effect, offset, rotation) = if situation.combo.is_some() {
+            (VisualEffect::Hit, Vec3::ZERO, Quat::default())
+        } else {
+            // First hit gets a fancier effect
+            match self.block_height {
+                AttackHeight::Low => (
+                    VisualEffect::Pebbles,
+                    situation.facing.mirror_vec3(Vec3::new(0.9, 0.9, 0.0)),
+                    Quat::default(),
+                ),
+                AttackHeight::Mid => (
+                    VisualEffect::MidFlash,
+                    situation.facing.mirror_vec3(Vec3::X * 0.5),
+                    Quat::from_rotation_z(match situation.facing {
+                        wag_core::Facing::Right => PI / 6.0,
+                        wag_core::Facing::Left => PI * (8.0 / 6.0),
+                    }),
+                ),
+                AttackHeight::High => (VisualEffect::Lightning, Vec3::ZERO, Quat::default()),
+            }
+        };
+
         Attack {
             self_on_hit: vec![
                 Movement::impulse(-Vec2::X * self.attacker_push_on_hit).into(),
@@ -640,8 +666,12 @@ impl IntermediateStrike {
                 ActionEvent::Hitstop,
                 ActionEvent::Sound(SoundEffect::PastaPat),
                 ActionEvent::VisualEffect(VfxRequest {
-                    effect: VisualEffect::Hit,
-                    tf: Transform::from_translation(hitbox_pos),
+                    effect,
+                    tf: Transform {
+                        translation: (hitbox_pos + offset),
+                        rotation,
+                        ..default()
+                    },
                     ..default()
                 }),
             ],

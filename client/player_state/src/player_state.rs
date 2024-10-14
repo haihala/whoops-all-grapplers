@@ -4,7 +4,7 @@ use characters::{
     ActionEvent, ActionTracker, Character, CharacterStateBoxes, Inventory, Situation, WAGResources,
 };
 use input_parsing::InputParser;
-use wag_core::{ActionId, AnimationType, Facing, Stats, StatusCondition, StatusFlag};
+use wag_core::{ActionId, AnimationType, Combo, Facing, Stats, StatusCondition, StatusFlag};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 
@@ -94,6 +94,7 @@ impl PlayerState {
         frame: usize,
         player_position: Vec3,
         player_facing: Facing,
+        combo: Option<Combo>,
     ) -> Vec<ActionEvent> {
         let situation = self.build_situation(
             inventory,
@@ -103,6 +104,7 @@ impl PlayerState {
             frame,
             player_position,
             player_facing,
+            combo,
         );
 
         let action_id = self.get_action_tracker_mut().unwrap().action_id;
@@ -119,6 +121,7 @@ impl PlayerState {
         frame: usize,
         player_position: Vec3,
         player_facing: Facing,
+        combo: Option<Combo>,
     ) -> Situation {
         Situation {
             inventory,
@@ -131,6 +134,7 @@ impl PlayerState {
             status_flags: self.conditions.iter().map(|c| c.flag).collect(),
             position: player_position,
             facing: player_facing,
+            combo,
         }
     }
     pub fn get_action_tracker(&self) -> Option<&ActionTracker> {

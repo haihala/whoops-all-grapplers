@@ -1,5 +1,4 @@
 - [Popups 2.0](/docs/tasks/before_locals_test/popups_2.0.md)
-- [VFX 2.0](/docs/tasks/before_locals_test/vfx_2.0.md)
 - [SFX 2.0](/docs/tasks/before_locals_test/sfx_2.0.md)
 - Minor
   - Jump

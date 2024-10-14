@@ -6,8 +6,8 @@ use characters::{
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{
-    Area, Clock, Facing, Owner, Player, Players, SoundEffect, Stats, StatusFlag, StickPosition,
-    VfxRequest, VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
+    Area, Clock, Combo, Facing, Owner, Player, Players, SoundEffect, Stats, StatusFlag,
+    StickPosition, VfxRequest, VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
 };
 
 use crate::{
@@ -18,7 +18,7 @@ use crate::{
     ui::Notifications,
 };
 
-use super::{hitboxes::ProjectileMarker, Combo, HitTracker, HitboxSpawner};
+use super::{hitboxes::ProjectileMarker, HitTracker, HitboxSpawner};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub(super) enum ConnectionType {
@@ -139,14 +139,8 @@ pub(super) fn detect_hits(
         &mut HitTracker,
     )>,
     players: Res<Players>,
-    defenders: Query<(
-        &Transform,
-        &Facing,
-        &Hurtboxes,
-        &PlayerState,
-        &InputParser,
-        Option<&Combo>,
-    )>,
+    defenders: Query<(&Transform, &Facing, &Hurtboxes, &PlayerState, &InputParser)>,
+    attackers: Query<Option<&Combo>>,
 ) -> Vec<AttackConnection> {
     hitboxes
         .iter_mut()
@@ -161,8 +155,9 @@ pub(super) fn detect_hits(
 
                 let defender = players.get(defending_player);
                 let attacker = players.get(**hit_owner);
-                let (defender_tf, facing, hurtboxes, state, parser, combo) =
+                let (defender_tf, facing, hurtboxes, state, parser) =
                     defenders.get(defender).unwrap();
+                let combo = attackers.get(attacker).unwrap();
 
                 let offset_hitbox = hitbox.with_offset(hitbox_tf.translation().truncate());
 
@@ -346,11 +341,11 @@ pub fn apply_connections(
         };
 
         if !avoided {
-            if let Some(mut combo) = defender.combo {
+            if let Some(mut combo) = attacker.combo {
                 combo.hits += 1;
             } else {
                 // First hit of a combo
-                commands.entity(hit.defender).insert(Combo { hits: 1 });
+                commands.entity(hit.attacker).insert(Combo { hits: 1 });
 
                 commands.trigger(PlaySound(SoundEffect::PotLidGong));
                 notifications.add(*attacker.player, "Opener!".to_owned());

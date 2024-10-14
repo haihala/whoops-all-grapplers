@@ -5,7 +5,7 @@ use characters::{
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{ActionId, AvailableCancels, Clock, Facing, Stats};
+use wag_core::{ActionId, AvailableCancels, Clock, Combo, Facing, Stats};
 
 use crate::event_spreading::{AllowCancel, StartAction};
 
@@ -116,10 +116,11 @@ pub(super) fn plain_start(
         &Stats,
         &InputParser,
         &Facing,
+        Option<&Combo>,
     )>,
 ) {
     // Set activating move if one in the buffer can start raw or be linked into
-    for (mut buffer, tf, character, state, inventory, resources, stats, parser, facing) in
+    for (mut buffer, tf, character, state, inventory, resources, stats, parser, facing, combo) in
         &mut query
     {
         if state.free_since.is_none() {
@@ -138,6 +139,7 @@ pub(super) fn plain_start(
                     clock.frame,
                     tf.translation,
                     *facing,
+                    combo.copied(),
                 ),
             )
             .into_iter()
@@ -167,6 +169,7 @@ pub(super) fn cancel_start(
         &Stats,
         &InputParser,
         &Facing,
+        Option<&Combo>,
     )>,
 ) {
     // Set activating move if one in the buffer can be cancelled into
@@ -181,6 +184,7 @@ pub(super) fn cancel_start(
         stats,
         parser,
         facing,
+        combo,
     ) in &mut query
     {
         if state.free_since.is_some() {
@@ -204,6 +208,7 @@ pub(super) fn cancel_start(
                     clock.frame,
                     tf.translation,
                     *facing,
+                    combo.copied(),
                 ),
             )
             .into_iter()

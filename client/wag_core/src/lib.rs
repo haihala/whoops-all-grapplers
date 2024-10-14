@@ -16,6 +16,9 @@ pub use character_id::{CharacterId, Characters, LocalCharacter};
 mod color_palette;
 pub use color_palette::*;
 
+mod combo;
+pub use combo::Combo;
+
 mod economy;
 pub use economy::*;
 

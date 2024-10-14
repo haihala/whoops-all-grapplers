@@ -10,10 +10,10 @@ pub use player_velocity::PlayerVelocity;
 use bevy::prelude::*;
 
 use player_state::PlayerState;
-use wag_core::{Area, Clock, Facing, Player, Players, RollbackSchedule, Stats, WAGStage};
+use wag_core::{Area, Clock, Combo, Facing, Player, Players, RollbackSchedule, Stats, WAGStage};
 
 use crate::{
-    damage::{Combo, HitTracker, HitboxSpawner},
+    damage::{HitTracker, HitboxSpawner},
     event_spreading::{AddMovement, ClearMovement},
 };
 

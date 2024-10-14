@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use characters::{Character, Hurtboxes, Inventory, WAGResources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{AvailableCancels, Clock, Facing, Stats};
+use wag_core::{AvailableCancels, Clock, Combo, Facing, Stats};
 
 use crate::event_spreading::EndAction;
 
@@ -20,9 +20,10 @@ pub(super) fn move_advancement(
         &Stats,
         &Facing,
         Entity,
+        Option<&Combo>,
     )>,
 ) {
-    for (mut state, tf, inventory, character, resources, parser, stats, facing, entity) in
+    for (mut state, tf, inventory, character, resources, parser, stats, facing, entity, combo) in
         &mut query
     {
         if state.action_in_progress() {
@@ -35,6 +36,7 @@ pub(super) fn move_advancement(
                 clock.frame,
                 tf.translation,
                 *facing,
+                combo.copied(),
             ) {
                 commands.trigger_targets(event, entity)
             }

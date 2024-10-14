@@ -8,8 +8,9 @@ use crate::{
 };
 
 use super::materials::{
-    BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, FocalPointLinesMaterial,
-    HitSparkMaterial, LightningBoltMaterial, LineFieldMaterial, RingRippleMaterial,
+    BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, DiagonalWaveMaterial, FlatWaveMaterial,
+    FocalPointLinesMaterial, HitSparkMaterial, LightningBoltMaterial, LineFieldMaterial,
+    MidFlashMaterial, PebbleMaterial, RingRippleMaterial,
 };
 
 fn spawn_vfx<M>(
@@ -44,8 +45,10 @@ pub fn start_relative_vfx(
     // from previous trigger
     let (tf, facing) = query.get(trigger.entity()).unwrap();
     let mut request = trigger.event().0;
+    if facing.to_flipped() {
+        request.mirror = !request.mirror;
+    }
     request.tf.translation += tf.translation;
-    request.mirror ^= facing.to_flipped();
     commands.trigger(SpawnVfx(request));
 }
 
@@ -64,6 +67,10 @@ pub fn start_absolute_vfx(
     mut speed_lines_materials: ResMut<Assets<LineFieldMaterial>>,
     mut throw_target_materials: ResMut<Assets<FocalPointLinesMaterial>>,
     mut lightning_materials: ResMut<Assets<LightningBoltMaterial>>,
+    mut diagonal_wave_materials: ResMut<Assets<DiagonalWaveMaterial>>,
+    mut flat_wave_materials: ResMut<Assets<FlatWaveMaterial>>,
+    mut pebble_material: ResMut<Assets<PebbleMaterial>>,
+    mut mid_flash_materials: ResMut<Assets<MidFlashMaterial>>,
 ) {
     let SpawnVfx(VfxRequest { effect, tf, mirror }) = trigger.event();
 
@@ -79,7 +86,7 @@ pub fn start_absolute_vfx(
             mesh,
             transform,
             &mut blank_materials,
-            BlankMaterial::default(),
+            BlankMaterial {},
             clock.frame + 15,
         ),
         VisualEffect::Hit => {
@@ -149,6 +156,46 @@ pub fn start_absolute_vfx(
                 transform,
                 &mut lightning_materials,
                 LightningBoltMaterial::new(time.elapsed_seconds(), *mirror),
+                clock.frame + 60,
+            );
+        }
+        VisualEffect::WaveDiagonal => {
+            spawn_vfx(
+                &mut commands,
+                mesh,
+                transform,
+                &mut diagonal_wave_materials,
+                DiagonalWaveMaterial::new(time.elapsed_seconds()),
+                clock.frame + 60,
+            );
+        }
+        VisualEffect::WaveFlat => {
+            spawn_vfx(
+                &mut commands,
+                mesh,
+                transform,
+                &mut flat_wave_materials,
+                FlatWaveMaterial::new(time.elapsed_seconds()),
+                clock.frame + 60,
+            );
+        }
+        VisualEffect::Pebbles => {
+            spawn_vfx(
+                &mut commands,
+                mesh,
+                transform,
+                &mut pebble_material,
+                PebbleMaterial::new(time.elapsed_seconds(), *mirror),
+                clock.frame + 60,
+            );
+        }
+        VisualEffect::MidFlash => {
+            spawn_vfx(
+                &mut commands,
+                mesh,
+                transform,
+                &mut mid_flash_materials,
+                MidFlashMaterial::new(time.elapsed_seconds()),
                 clock.frame + 60,
             );
         }

@@ -1,1 +1,0 @@
-- Update [Mizku](/docs/gameplay_spec/characters/mizku.md)

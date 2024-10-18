@@ -165,6 +165,7 @@ She is a young but competent second generation Korean American immigrant. She's 
   - `g` - [Sharpen](#Sharpen)
   - `f` - [Viper strike](#Viper strike)
   - `s` - [Rising sun](#Rising sun)
+  - `22` - Cancel (quirky input overlap with quarter circle)
 - If no follow up is input relatively quickly, it recovers naturally.
   - This makes some moves like [Sky stab](#Sky stab) safer
 - Upgrades

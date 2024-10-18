@@ -8,7 +8,7 @@ const speed = 2.0;
 const edge_sharpness = 2.0;
 
 @group(2) @binding(0) var<uniform> start_time: f32;
-@group(2) @binding(1) var<uniform> color: vec4;
+@group(2) @binding(1) var<uniform> color: vec4f;
 
 @fragment
 fn fragment(

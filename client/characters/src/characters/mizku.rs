@@ -1,9 +1,12 @@
+use std::f32::consts::PI;
+
 use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
-    ActionCategory, ActionId, Animation, AnimationType, Area, CancelType, CancelWindow, GameButton,
-    Icon, ItemId, MizkuActionId, MizkuAnimation, Model, Stats, StatusCondition, StatusFlag,
-    MIZUKI_ALT_HELMET_COLOR, MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
+    ActionCategory, ActionId, Animation, AnimationType, Area, CancelType, CancelWindow, Facing,
+    GameButton, Icon, ItemId, MizkuActionId, MizkuAnimation, Model, Stats, StatusCondition,
+    StatusFlag, VfxRequest, VisualEffect, MIZUKI_ALT_HELMET_COLOR, MIZUKI_ALT_JEANS_COLOR,
+    MIZUKI_ALT_SHIRT_COLOR,
 };
 
 use crate::{
@@ -497,12 +500,27 @@ fn viper_strike() -> Action {
             duration: 7,
         }
         .into()])
-        .with_hitbox(Area::new(1.2, 0.225, 1.6, 0.45))
+        .with_hitbox(Area::new(1.0, 0.225, 1.3, 0.45))
         .hits_low()
         .with_damage(20)
         .sword()
         .with_advantage_on_hit(-10)
         .with_advantage_on_block(-40)
+        .with_dynamic_activation_events(|situation: &Situation| {
+            vec![ActionEvent::VisualEffect(VfxRequest {
+                effect: VisualEffect::WaveFlat,
+                tf: Transform {
+                    translation: situation.facing.to_vec3() * 1.0 + Vec3::Y * 0.4,
+                    rotation: match situation.facing {
+                        Facing::Left => Quat::from_euler(EulerRot::ZYX, PI, 0.0, -PI / 3.0),
+                        Facing::Right => Quat::from_euler(EulerRot::ZYX, 0.0, 0.0, PI / 3.0),
+                    },
+                    scale: Vec3::splat(4.0),
+                    ..default()
+                },
+                ..default()
+            })]
+        })
         .build()
 }
 
@@ -518,7 +536,22 @@ fn rising_sun() -> Action {
         .with_damage(20)
         .launches(Vec2::new(1.0, 3.0))
         .with_advantage_on_block(-30)
-        .with_hitbox(Area::new(0.5, 1.5, 2.5, 1.5))
+        .with_hitbox(Area::new(0.25, 1.5, 1.5, 1.5))
+        .with_dynamic_activation_events(|situation: &Situation| {
+            vec![ActionEvent::VisualEffect(VfxRequest {
+                effect: VisualEffect::WaveDiagonal,
+                tf: Transform {
+                    translation: situation.facing.to_vec3() + Vec3::Y * 1.7,
+                    rotation: match situation.facing {
+                        Facing::Left => Quat::from_rotation_z(PI * 7.0 / 6.0),
+                        Facing::Right => Quat::from_rotation_z(PI / 3.0),
+                    },
+                    scale: Vec3::splat(2.0),
+                    ..default()
+                },
+                ..default()
+            })]
+        })
         .build()
 }
 

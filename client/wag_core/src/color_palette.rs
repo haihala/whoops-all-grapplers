@@ -2,7 +2,6 @@ use bevy::color::palettes::css::*;
 use bevy::prelude::*;
 
 const WWE_RAW_RED: Color = Color::srgb(195.0 / 255.0, 24.0 / 255.0, 24.0 / 255.0);
-const DEBUG_COLOR: Color = Color::srgb(1.0, 0.0, 1.0);
 
 // Resource bars
 pub const HEALTH_BAR_COLOR: Color = Color::srgb(0.9, 0.0, 0.0);
@@ -74,8 +73,7 @@ pub const MID_FLASH_OUTER_COLOR: Color = Color::srgb(1.0, 0.8, 0.1);
 pub const PEBBLE_BORDER_COLOR: Color = Color::srgb(0.13, 0.13, 0.13);
 pub const PEBBLE_INNER_COLOR: Color = Color::srgb(0.33, 0.33, 0.33);
 
-// TODO: Use this
-pub const VFX_WAVE_COLOR: Color = DEBUG_COLOR;
+pub const VFX_WAVE_COLOR: Color = Color::srgb(0.8, 0.8, 0.8);
 
 // Player colors
 pub const MIZUKI_ALT_SHIRT_COLOR: Color = Color::WHITE;

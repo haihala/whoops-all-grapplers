@@ -84,7 +84,9 @@ pub struct AttackBuilder {
     animation: Animation,
     audio: SoundEffect,
     extra_initial_events: Vec<ActionEvent>,
+    dynamic_initial_events: Option<fn(&Situation) -> Vec<ActionEvent>>,
     extra_activation_events: Vec<ActionEvent>,
+    dynamic_activation_events: Option<fn(&Situation) -> Vec<ActionEvent>>,
     extra_requirements: Vec<ActionRequirement>,
     sub_builder: SubBuilder,
     hit_count: usize,
@@ -418,9 +420,29 @@ impl AttackBuilder {
         }
     }
 
+    pub fn with_dynamic_initial_events(
+        self,
+        generator: fn(&Situation) -> Vec<ActionEvent>,
+    ) -> Self {
+        Self {
+            dynamic_initial_events: Some(generator),
+            ..self
+        }
+    }
+
     pub fn with_extra_activation_events(self, extra_activation_events: Vec<ActionEvent>) -> Self {
         Self {
             extra_activation_events,
+            ..self
+        }
+    }
+
+    pub fn with_dynamic_activation_events(
+        self,
+        generator: fn(&Situation) -> Vec<ActionEvent>,
+    ) -> Self {
+        Self {
+            dynamic_activation_events: Some(generator),
             ..self
         }
     }
@@ -522,9 +544,14 @@ impl AttackBuilder {
             }),
         };
 
+        let init_fun = self.dynamic_initial_events.unwrap_or(|_| vec![]);
+        let activation_fun = self.dynamic_activation_events.unwrap_or(|_| vec![]);
+
         move |situation: &Situation| {
             if situation.elapsed() == 0 {
-                return initial_events.clone();
+                let mut events = initial_events.clone();
+                events.extend(init_fun(situation));
+                return events;
             }
 
             if situation.elapsed() == startup {
@@ -539,6 +566,7 @@ impl AttackBuilder {
                 return vec![atk]
                     .into_iter()
                     .chain(activation_events.clone())
+                    .chain(activation_fun(situation))
                     .collect();
             }
 

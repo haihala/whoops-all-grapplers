@@ -45,6 +45,7 @@ impl Plugin for AssetsPlugin {
                 MaterialPlugin::<materials::FlatWaveMaterial>::default(),
                 MaterialPlugin::<materials::DiagonalWaveMaterial>::default(),
                 MaterialPlugin::<materials::PebbleMaterial>::default(),
+                MaterialPlugin::<materials::SparkBurstMaterial>::default(),
                 MaterialPlugin::<materials::MidFlashMaterial>::default(),
                 MaterialPlugin::<ExtendedFlashMaterial>::default(),
             ))
@@ -78,6 +79,20 @@ impl Plugin for AssetsPlugin {
                     .in_set(WAGStage::Presentation),
             )
             .observe(asset_updater::play_audio)
-            .observe(vfx::start_absolute_vfx);
+            .observe(vfx::start_absolute_vfx)
+            .observe(vfx::spawn_vfx::<materials::BlankMaterial>)
+            .observe(vfx::spawn_vfx::<materials::HitSparkMaterial>)
+            .observe(vfx::spawn_vfx::<materials::BlankMaterial>)
+            .observe(vfx::spawn_vfx::<materials::BlockEffectMaterial>)
+            .observe(vfx::spawn_vfx::<materials::ClashSparkMaterial>)
+            .observe(vfx::spawn_vfx::<materials::RingRippleMaterial>)
+            .observe(vfx::spawn_vfx::<materials::LineFieldMaterial>)
+            .observe(vfx::spawn_vfx::<materials::FocalPointLinesMaterial>)
+            .observe(vfx::spawn_vfx::<materials::LightningBoltMaterial>)
+            .observe(vfx::spawn_vfx::<materials::FlatWaveMaterial>)
+            .observe(vfx::spawn_vfx::<materials::DiagonalWaveMaterial>)
+            .observe(vfx::spawn_vfx::<materials::PebbleMaterial>)
+            .observe(vfx::spawn_vfx::<materials::SparkBurstMaterial>)
+            .observe(vfx::spawn_vfx::<materials::MidFlashMaterial>);
     }
 }

@@ -670,7 +670,7 @@ impl IntermediateStrike {
             // First hit gets a fancier effect
             match self.block_height {
                 AttackHeight::Low => (
-                    VisualEffect::Pebbles,
+                    VisualEffect::Sparks,
                     situation.facing.mirror_vec3(Vec3::new(0.9, 0.9, 0.0)),
                     Quat::default(),
                 ),

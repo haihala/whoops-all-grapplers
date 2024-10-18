@@ -71,6 +71,7 @@ pub enum VisualEffect {
     ThrowTarget,
     Lightning,
     Pebbles,
+    Sparks,
     MidFlash,
     WaveDiagonal,
     WaveFlat,
@@ -82,7 +83,7 @@ impl VisualEffect {
             VisualEffect::Block => Rectangle::new(1.1, 2.0),
             VisualEffect::Hit => Rectangle::new(1.1, 1.1),
             VisualEffect::ThrowTech | VisualEffect::ThrowTarget => Rectangle::new(2.0, 2.0),
-            VisualEffect::Pebbles => Rectangle::new(1.8, 1.8),
+            VisualEffect::Pebbles | VisualEffect::Sparks => Rectangle::new(1.8, 1.8),
             _ => Rectangle::default(),
         }
     }

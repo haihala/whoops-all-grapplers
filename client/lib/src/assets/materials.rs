@@ -9,7 +9,8 @@ use wag_core::{
     CLASH_SPARK_EDGE_COLOR, HIT_SPARK_BASE_COLOR, HIT_SPARK_EDGE_COLOR, HIT_SPARK_MID_COLOR,
     LIGHTNING_BOLT_INNER_COLOR, LIGHTNING_BOLT_OUTER_COLOR, MID_FLASH_INNER_COLOR,
     MID_FLASH_OUTER_COLOR, PEBBLE_BORDER_COLOR, PEBBLE_INNER_COLOR, RING_RIPPLE_BASE_COLOR,
-    RING_RIPPLE_EDGE_COLOR, SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR, VFX_WAVE_COLOR,
+    RING_RIPPLE_EDGE_COLOR, SPARK_BURST_BORDER_COLOR, SPARK_BURST_INNER_COLOR,
+    SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR, VFX_WAVE_COLOR,
 };
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -208,7 +209,7 @@ impl Material for ClashSparkMaterial {
     }
 }
 
-#[derive(Asset, AsBindGroup, TypePath, Debug, Clone)]
+#[derive(Asset, AsBindGroup, TypePath, Debug, Clone, Default)]
 pub struct BlankMaterial {} // needs to be this type of struct for material
 
 impl Material for BlankMaterial {
@@ -249,6 +250,38 @@ impl RingRippleMaterial {
 impl Material for RingRippleMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/ring_ripple.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
+}
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct SparkBurstMaterial {
+    #[uniform(0)]
+    start_time: f32,
+    #[uniform(1)]
+    inner_color: LinearRgba,
+    #[uniform(2)]
+    border_color: LinearRgba,
+    #[uniform(3)]
+    mirror: f32,
+}
+impl SparkBurstMaterial {
+    pub fn new(start_time: f32, mirror: bool) -> Self {
+        Self {
+            start_time,
+            inner_color: SPARK_BURST_INNER_COLOR.into(),
+            border_color: SPARK_BURST_BORDER_COLOR.into(),
+            mirror: mirror as i32 as f32,
+        }
+    }
+}
+
+impl Material for SparkBurstMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/spark_burst.wgsl".into()
     }
 
     fn alpha_mode(&self) -> AlphaMode {

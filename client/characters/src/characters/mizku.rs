@@ -1,9 +1,9 @@
 use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
-    ActionCategory, ActionId, Animation, AnimationType, Area, GameButton, Icon, ItemId,
-    MizkuActionId, MizkuAnimation, Model, Stats, MIZUKI_ALT_HELMET_COLOR, MIZUKI_ALT_JEANS_COLOR,
-    MIZUKI_ALT_SHIRT_COLOR,
+    ActionCategory, ActionId, Animation, AnimationType, Area, CancelType, CancelWindow, GameButton,
+    Icon, ItemId, MizkuActionId, MizkuAnimation, Model, Stats, StatusCondition, StatusFlag,
+    MIZUKI_ALT_HELMET_COLOR, MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
 };
 
 use crate::{
@@ -13,8 +13,8 @@ use crate::{
     throw_hit, throw_target, Action, ActionEvent, Attack, AttackBuilder,
     AttackHeight::*,
     BlockType::*,
-    CharacterBoxes, CharacterStateBoxes, ConsumableType, CounterVisual, Hitbox, IntermediateStrike,
-    Item, ItemCategory, Lifetime, Movement, Situation, ToHit, WAGResource,
+    CharacterBoxes, CharacterStateBoxes, ConsumableType, CounterVisual, FlashRequest, Hitbox,
+    IntermediateStrike, Item, ItemCategory, Lifetime, Movement, Situation, ToHit, WAGResource,
 };
 
 use super::{
@@ -370,68 +370,63 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
     sword_stance().chain(kunai_throw())
 }
 
-macro_rules! sword_stance {
-    ($strong:expr) => {{
-        use wag_core::{ActionId, CancelType, CancelWindow, StatusCondition, StatusFlag};
-        use $crate::FlashRequest;
+fn enter_sword_stance(strong: bool) -> Action {
+    Action {
+        input: Some(if strong { "214s" } else { "214f" }),
+        category: ActionCategory::Special,
+        script: Box::new(move |situation: &Situation| {
+            let mut events = vec![MizkuAnimation::SwordStanceEnter.into()];
 
-        Action {
-            input: Some(if $strong { "214s" } else { "214f" }),
-            category: ActionCategory::Special,
-            script: Box::new(|situation: &Situation| {
-                let mut events = vec![MizkuAnimation::SwordStanceEnter.into()];
+            if strong {
+                events.extend(vec![
+                    ActionEvent::ModifyResource(ResourceType::Meter, -20),
+                    ActionEvent::Condition(StatusCondition {
+                        flag: StatusFlag::Intangible,
+                        // 10f of sword stance + 11f of rising sun
+                        expiration: Some(22),
+                        ..default()
+                    }),
+                    ActionEvent::Flash(FlashRequest::default()),
+                ]);
+            }
 
-                if $strong {
-                    events.extend(vec![
-                        ActionEvent::ModifyResource(ResourceType::Meter, -20),
-                        ActionEvent::Condition(StatusCondition {
-                            flag: StatusFlag::Intangible,
-                            // 10f of sword stance + 11f of rising sun
-                            expiration: Some(22),
-                            ..default()
-                        }),
-                        ActionEvent::Flash(FlashRequest::default()),
-                    ]);
-                }
+            if situation.elapsed() == 0 {
+                return events;
+            }
 
-                if situation.elapsed() == 0 {
-                    return events;
-                }
+            if situation.elapsed() == 3 {
+                return vec![ActionEvent::AllowCancel(CancelWindow {
+                    cancel_type: CancelType::Specific(
+                        vec![
+                            MizkuActionId::Sharpen,
+                            MizkuActionId::ViperStrike,
+                            MizkuActionId::RisingSun,
+                        ]
+                        .into_iter()
+                        .map(|ma| ActionId::Mizku(ma))
+                        .collect(),
+                    ),
+                    duration: 30,
+                    require_hit: false,
+                })];
+            }
 
-                if situation.elapsed() == 3 {
-                    return vec![ActionEvent::AllowCancel(CancelWindow {
-                        cancel_type: CancelType::Specific(
-                            vec![
-                                MizkuActionId::Sharpen,
-                                MizkuActionId::ViperStrike,
-                                MizkuActionId::RisingSun,
-                            ]
-                            .into_iter()
-                            .map(|ma| ActionId::Mizku(ma))
-                            .collect(),
-                        ),
-                        duration: 30,
-                        require_hit: false,
-                    })];
-                }
-
-                situation.end_at(38)
-            }),
-            requirements: {
-                let mut r = vec![ActionRequirement::Grounded];
-                if $strong {
-                    r.push(ActionRequirement::ResourceValue(ResourceType::Meter, 20));
-                }
-                r
-            },
-        }
-    }};
+            situation.end_at(38)
+        }),
+        requirements: {
+            let mut r = vec![ActionRequirement::Grounded];
+            if strong {
+                r.push(ActionRequirement::ResourceValue(ResourceType::Meter, 20));
+            }
+            r
+        },
+    }
 }
 
 fn sword_stance() -> impl Iterator<Item = (MizkuActionId, Action)> {
     vec![
-        (MizkuActionId::FSwordStance, sword_stance!(false)),
-        (MizkuActionId::SSwordStance, sword_stance!(true)),
+        (MizkuActionId::FSwordStance, enter_sword_stance(false)),
+        (MizkuActionId::SSwordStance, enter_sword_stance(true)),
         (MizkuActionId::Sharpen, sharpen()),
         (MizkuActionId::ViperStrike, viper_strike()),
         (MizkuActionId::RisingSun, rising_sun()),

@@ -88,11 +88,13 @@ pub enum MizkuAnimation {
     StandThrowHit,
     StandThrowStartup,
     StandThrowTarget,
+    SwordStanceEnter,
+    SwordStanceExit,
+    SwordStanceHighSlash,
+    SwordStanceLowSlash,
     #[default]
     TPose,
     Uppercut,
-    SwordStance,
-    GrisingSun,
     ViperStrike,
     Sharpen,
     WalkBack,
@@ -100,7 +102,7 @@ pub enum MizkuAnimation {
 
     // Legacy, unused, here to ensure animation loading works as they are still in the gltf
     Sweep,
-    ArisingSun,
+    //ArisingSun,
     SwayCancel,
     SwayDash,
     SwayLow,

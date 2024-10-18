@@ -21,3 +21,4 @@
 - 689 input shoryuken that has a 623 downwards smash follow up
 - `[3]6`, A super fast dash straight and `[47]3` dash low on the same character.
 	- Upgrade item to combine the charges.
+- Alpha blade for [Mizku](/docs/gameplay_spec/characters/mizku.md)

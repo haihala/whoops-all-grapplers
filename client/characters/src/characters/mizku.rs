@@ -379,7 +379,7 @@ macro_rules! sword_stance {
             input: Some(if $strong { "214s" } else { "214f" }),
             category: ActionCategory::Special,
             script: Box::new(|situation: &Situation| {
-                let mut events = vec![MizkuAnimation::SwordStance.into()];
+                let mut events = vec![MizkuAnimation::SwordStanceEnter.into()];
 
                 if $strong {
                     events.extend(vec![
@@ -473,7 +473,7 @@ fn viper_strike() -> Action {
             ActionId::Mizku(MizkuActionId::SSwordStance),
         ])
         .with_frame_data(8, 6, 64)
-        .with_animation(MizkuAnimation::ViperStrike)
+        .with_animation(MizkuAnimation::SwordStanceLowSlash)
         .with_extra_initial_events(vec![Movement {
             amount: Vec2::X * 8.0,
             duration: 7,
@@ -495,7 +495,7 @@ fn rising_sun() -> Action {
             ActionId::Mizku(MizkuActionId::SSwordStance),
         ])
         .with_frame_data(3, 8, 74)
-        .with_animation(MizkuAnimation::GrisingSun)
+        .with_animation(MizkuAnimation::SwordStanceHighSlash)
         .sword()
         .with_damage(20)
         .launches(Vec2::new(1.0, 3.0))

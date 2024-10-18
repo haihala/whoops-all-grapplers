@@ -67,6 +67,7 @@ pub enum DummyActionId {
 pub enum MizkuActionId {
     FSwordStance,
     SSwordStance,
+    ExitSwordStance,
     ViperStrike,
     RisingSun,
     Sharpen,

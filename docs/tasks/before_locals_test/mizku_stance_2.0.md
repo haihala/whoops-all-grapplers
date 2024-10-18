@@ -1,3 +1,2 @@
 - Update [Mizku](/docs/gameplay_spec/characters/mizku.md)
 - Smears for slashes
-- 22 to exit immediately

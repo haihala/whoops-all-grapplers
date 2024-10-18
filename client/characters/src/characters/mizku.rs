@@ -401,6 +401,7 @@ fn enter_sword_stance(strong: bool) -> Action {
                             MizkuActionId::Sharpen,
                             MizkuActionId::ViperStrike,
                             MizkuActionId::RisingSun,
+                            MizkuActionId::ExitSwordStance,
                         ]
                         .into_iter()
                         .map(|ma| ActionId::Mizku(ma))
@@ -411,7 +412,7 @@ fn enter_sword_stance(strong: bool) -> Action {
                 })];
             }
 
-            situation.end_at(38)
+            situation.end_at(40)
         }),
         requirements: {
             let mut r = vec![ActionRequirement::Grounded];
@@ -423,10 +424,32 @@ fn enter_sword_stance(strong: bool) -> Action {
     }
 }
 
+fn exit_sword_stance() -> Action {
+    Action {
+        input: Some("252"),
+        category: ActionCategory::Special,
+        script: Box::new(|situation: &Situation| {
+            if situation.elapsed() == 0 {
+                return vec![MizkuAnimation::SwordStanceExit.into()];
+            }
+
+            situation.end_at(9)
+        }),
+        requirements: vec![
+            ActionRequirement::Grounded,
+            ActionRequirement::ActionOngoing(vec![
+                ActionId::Mizku(MizkuActionId::FSwordStance),
+                ActionId::Mizku(MizkuActionId::SSwordStance),
+            ]),
+        ],
+    }
+}
+
 fn sword_stance() -> impl Iterator<Item = (MizkuActionId, Action)> {
     vec![
         (MizkuActionId::FSwordStance, enter_sword_stance(false)),
         (MizkuActionId::SSwordStance, enter_sword_stance(true)),
+        (MizkuActionId::ExitSwordStance, exit_sword_stance()),
         (MizkuActionId::Sharpen, sharpen()),
         (MizkuActionId::ViperStrike, viper_strike()),
         (MizkuActionId::RisingSun, rising_sun()),
@@ -467,7 +490,7 @@ fn viper_strike() -> Action {
             ActionId::Mizku(MizkuActionId::FSwordStance),
             ActionId::Mizku(MizkuActionId::SSwordStance),
         ])
-        .with_frame_data(8, 6, 64)
+        .with_frame_data(10, 2, 50)
         .with_animation(MizkuAnimation::SwordStanceLowSlash)
         .with_extra_initial_events(vec![Movement {
             amount: Vec2::X * 8.0,
@@ -489,7 +512,7 @@ fn rising_sun() -> Action {
             ActionId::Mizku(MizkuActionId::FSwordStance),
             ActionId::Mizku(MizkuActionId::SSwordStance),
         ])
-        .with_frame_data(3, 8, 74)
+        .with_frame_data(10, 3, 50)
         .with_animation(MizkuAnimation::SwordStanceHighSlash)
         .sword()
         .with_damage(20)

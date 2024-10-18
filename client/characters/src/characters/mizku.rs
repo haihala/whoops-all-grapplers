@@ -407,7 +407,7 @@ fn enter_sword_stance(strong: bool) -> Action {
                             MizkuActionId::ExitSwordStance,
                         ]
                         .into_iter()
-                        .map(|ma| ActionId::Mizku(ma))
+                        .map(ActionId::Mizku)
                         .collect(),
                     ),
                     duration: 30,
@@ -516,7 +516,6 @@ fn viper_strike() -> Action {
                         Facing::Right => Quat::from_euler(EulerRot::ZYX, 0.0, 0.0, PI / 3.0),
                     },
                     scale: Vec3::splat(4.0),
-                    ..default()
                 },
                 ..default()
             })]
@@ -547,7 +546,6 @@ fn rising_sun() -> Action {
                         Facing::Right => Quat::from_rotation_z(PI / 3.0),
                     },
                     scale: Vec3::splat(2.0),
-                    ..default()
                 },
                 ..default()
             })]

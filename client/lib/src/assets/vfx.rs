@@ -29,7 +29,7 @@ pub fn spawn_vfx<M: Material>(
     commands.spawn((
         MaterialMeshBundle {
             mesh: mesh.clone(),
-            transform: transform.clone(),
+            transform: *transform,
             material: material_asset.add(material.clone()),
             ..default()
         },

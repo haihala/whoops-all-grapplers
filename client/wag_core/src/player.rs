@@ -49,3 +49,12 @@ impl Player {
         }
     }
 }
+
+impl From<Player> for usize {
+    fn from(val: Player) -> Self {
+        match val {
+            Player::One => 1,
+            Player::Two => 2,
+        }
+    }
+}

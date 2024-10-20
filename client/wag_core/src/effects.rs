@@ -18,14 +18,29 @@ pub enum SoundEffect {
     FemaleExhale,
     BottleBonk,
     PastaPat,
+    Number(usize),
+    AnnouncerFight,
+    AnnouncerRound,
+    AnnouncerWins,
+    AnnouncerDraw,
+    AnnouncerPlayer,
 }
 
 impl SoundEffect {
     pub fn paths() -> HashMap<SoundEffect, Vec<String>> {
-        Self::iter().map(|sfx| (sfx, sfx.asset_paths())).collect()
+        Self::iter()
+            .flat_map(|sfx| {
+                if matches!(sfx, SoundEffect::Number(_)) {
+                    (1..=20).map(SoundEffect::Number).collect()
+                } else {
+                    vec![sfx]
+                }
+            })
+            .map(|sfx| (sfx, sfx.asset_path()))
+            .collect()
     }
 
-    fn asset_paths(&self) -> Vec<String> {
+    fn asset_path(&self) -> Vec<String> {
         match self {
             SoundEffect::Whoosh => vec!["sound_effects/whoosh.ogg".to_string()],
             SoundEffect::Clash => Self::clips("clink", 2),
@@ -40,6 +55,12 @@ impl SoundEffect {
             SoundEffect::FemaleExhale => Self::clips("female-exhale", 9),
             SoundEffect::BottleBonk => Self::clips("bottle-bonk", 12),
             SoundEffect::PastaPat => Self::clips("pasta-pat", 11),
+            SoundEffect::Number(n) => vec![format!("sound_effects/number-{:0>2}.ogg", n)],
+            SoundEffect::AnnouncerRound => Self::clips("announcer-round", 3),
+            SoundEffect::AnnouncerFight => Self::clips("announcer-fight", 3),
+            SoundEffect::AnnouncerWins => Self::clips("announcer-wins", 5),
+            SoundEffect::AnnouncerPlayer => Self::clips("announcer-player", 5),
+            SoundEffect::AnnouncerDraw => Self::clips("announcer-draw", 2),
         }
     }
 
@@ -54,8 +75,20 @@ impl SoundEffect {
             SoundEffect::FemaleExhale => 0.4,
             SoundEffect::PlasticCupFlick => 0.1,
             SoundEffect::PotLidGong => 0.8,
+            SoundEffect::Number(_) => 0.7,
             _ => 1.0,
         }
+    }
+
+    pub fn is_announcer(&self) -> bool {
+        matches!(
+            self,
+            SoundEffect::AnnouncerDraw
+                | SoundEffect::AnnouncerWins
+                | SoundEffect::AnnouncerPlayer
+                | SoundEffect::AnnouncerRound
+                | SoundEffect::AnnouncerFight
+        )
     }
 }
 

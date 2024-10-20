@@ -131,6 +131,10 @@ impl RoundLog {
             .filter(|round| round.winner == Some(player))
             .count()
     }
+
+    pub fn round_played(&self) -> usize {
+        self.log.len()
+    }
 }
 
 #[derive(Debug, Clone, Copy, Resource)]

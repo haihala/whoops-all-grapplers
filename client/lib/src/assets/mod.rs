@@ -1,6 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 
 mod animations;
+mod announcer;
 mod asset_updater;
 mod loaders;
 mod materials;
@@ -9,6 +10,7 @@ mod sounds;
 mod vfx;
 
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
+pub use announcer::Announcer;
 pub use asset_updater::start_animation;
 pub use materials::{ExtendedFlashMaterial, FlashMaterial};
 pub use models::{Models, PlayerModelHook};
@@ -33,6 +35,7 @@ pub struct AssetsPlugin;
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<AssetsLoading>()
+            .init_resource::<Announcer>()
             .add_plugins((
                 MaterialPlugin::<materials::HitSparkMaterial>::default(),
                 MaterialPlugin::<materials::BlankMaterial>::default(),
@@ -74,10 +77,13 @@ impl Plugin for AssetsPlugin {
                     asset_updater::clear_empty_audio_players,
                     asset_updater::update_generic_animation,
                     animations::update_animation,
+                    announcer::update_announcer,
                 )
                     .chain()
                     .in_set(WAGStage::Presentation),
             )
+            .add_systems(OnEnter(MatchState::PreRound), announcer::preround)
+            .add_systems(OnEnter(MatchState::Combat), announcer::combat)
             .observe(asset_updater::play_audio)
             .observe(vfx::start_absolute_vfx)
             .observe(vfx::spawn_vfx::<materials::BlankMaterial>)

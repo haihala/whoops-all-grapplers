@@ -186,6 +186,13 @@ impl AttackBuilder {
         }
     }
 
+    pub fn with_sound(self, sound: SoundEffect) -> Self {
+        Self {
+            audio: sound,
+            ..self
+        }
+    }
+
     pub fn with_timings(self, startup: usize, recovery: usize) -> Self {
         Self {
             startup,

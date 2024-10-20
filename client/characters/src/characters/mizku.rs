@@ -4,9 +4,9 @@ use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
     ActionCategory, ActionId, Animation, AnimationType, Area, CancelType, CancelWindow, Facing,
-    GameButton, Icon, ItemId, MizkuActionId, MizkuAnimation, Model, Stats, StatusCondition,
-    StatusFlag, VfxRequest, VisualEffect, MIZUKI_ALT_HELMET_COLOR, MIZUKI_ALT_JEANS_COLOR,
-    MIZUKI_ALT_SHIRT_COLOR,
+    GameButton, Icon, ItemId, MizkuActionId, MizkuAnimation, Model, SoundEffect, Stats,
+    StatusCondition, StatusFlag, VfxRequest, VisualEffect, MIZUKI_ALT_HELMET_COLOR,
+    MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
 };
 
 use crate::{
@@ -117,6 +117,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 .with_damage(5)
                 .with_advantage_on_block(-1)
                 .with_advantage_on_hit(4)
+                .with_sound(SoundEffect::Number(4))
                 .build(),
         ),
         (

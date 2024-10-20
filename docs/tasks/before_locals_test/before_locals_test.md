@@ -4,4 +4,5 @@
   - Jump
     - Reduce pre-jump frames
     - Allow direction corrections after pre-jump
+- Check that throws work (target is set to the correct spot after animation)
 - Do a quick round over the items

@@ -6,7 +6,7 @@ use wag_core::{Facing, Players};
 
 use crate::event_spreading::{PlaySound, StartAnimation};
 
-use super::{AnimationHelper, Sounds};
+use super::{announcer::AnnouncerMarker, AnimationHelper, Sounds};
 
 pub fn start_animation(
     trigger: Trigger<StartAnimation>,
@@ -65,7 +65,7 @@ pub fn play_audio(trigger: Trigger<PlaySound>, mut commands: Commands, sounds: R
     let clips = sounds.handles.get(&effect).unwrap();
 
     let source = clips[rand::thread_rng().gen_range(0..clips.len())].clone();
-    commands.spawn(AudioBundle {
+    let mut entity = commands.spawn(AudioBundle {
         source,
         settings: PlaybackSettings {
             // Shift speed (pitch) by up to about 10% either way
@@ -74,6 +74,10 @@ pub fn play_audio(trigger: Trigger<PlaySound>, mut commands: Commands, sounds: R
             ..default()
         },
     });
+
+    if effect.is_announcer() {
+        entity.insert(AnnouncerMarker);
+    }
 }
 
 pub fn clear_empty_audio_players(mut commands: Commands, spawned: Query<(Entity, &AudioSink)>) {

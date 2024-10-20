@@ -11,7 +11,7 @@ use wag_core::{
 };
 
 use crate::{
-    assets::{AssetsLoading, PlayerModelHook},
+    assets::{Announcer, AssetsLoading, PlayerModelHook},
     ui::Notifications,
 };
 
@@ -48,6 +48,7 @@ pub fn end_combat(
     mut commands: Commands,
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
+    mut announcer: ResMut<Announcer>,
     mut round_log: ResMut<RoundLog>,
     mut players: Query<(&WAGResources, &Player, &mut Inventory, &Character)>,
     mut next_match_state: ResMut<NextState<MatchState>>,
@@ -119,6 +120,7 @@ pub fn end_combat(
             .get_percentage()
     {
         // Tie
+        announcer.tie();
         RoundResult { winner: None }
     } else {
         notifications.add(**winner, format!("Victory bonus: ${}", VICTORY_BONUS));
@@ -130,6 +132,7 @@ pub fn end_combat(
             loser_inventory.money += loss_bonus;
         }
 
+        announcer.round_win(**winner);
         RoundResult {
             winner: Some(**winner),
         }

@@ -4,5 +4,6 @@
   - Jump
     - Reduce pre-jump frames
     - Allow direction corrections after pre-jump
-- Check that throws work (target is set to the correct spot after animation)
+- Go through [chore list](/docs/tasks/chore_tracker.md)
+  - Check that throws work (target is set to the correct spot after animation)
 - Do a quick round over the items

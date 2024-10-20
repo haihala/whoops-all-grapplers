@@ -1,13 +1,9 @@
 # Next steps
 
-- [Popups 2.0](/docs/tasks/before_locals_test/popups_2.0.md)
-- [SFX 2.0](/docs/tasks/before_locals_test/sfx_2.0.md)
-
-Make a new dev update video after those
-
-# Next big milestone
-
 - [Before locals test](/docs/tasks/before_locals_test/before_locals_test.md)
+  - [Popups 2.0](/docs/tasks/before_locals_test/popups_2.0.md)
+  - [SFX 2.0](/docs/tasks/before_locals_test/sfx_2.0.md)
+- Make a new dev update video
 - [Local feedback round](/docs/tasks/before_locals_test/local_feedback_round.md)
 
 # Backlog

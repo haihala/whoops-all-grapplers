@@ -563,6 +563,7 @@ fn kunai_throw() -> impl Iterator<Item = (MizkuActionId, Action)> {
         MizkuActionId::KunaiThrow,
         AttackBuilder::special("236f")
             .with_animation(MizkuAnimation::KunaiThrow)
+            .with_sound(SoundEffect::FemaleKyatchi)
             .with_extra_initial_events(vec![
                 ActionEvent::ForceStand,
                 ActionEvent::ModifyResource(ResourceType::KunaiCounter, -1),

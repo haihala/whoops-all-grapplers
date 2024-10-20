@@ -1,7 +1,5 @@
 - [ ] VA work for [Mizku](/docs/gameplay_spec/characters/mizku.md)
   - [x] Sharp exhales for most normals
-  - [ ] Special move voicelines
-    - [ ] Kunai "Kat-chu"
   - [ ] Pain grunts
     - [ ] On defeat
     - [ ] On big hit

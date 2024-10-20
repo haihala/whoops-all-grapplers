@@ -38,12 +38,11 @@ fn fragment(
     // alpha discard
     pbr_input.material.base_color = alpha_discard(pbr_input.material, pbr_input.material.base_color);
 
-    var flash_age = (globals.time - flash_start);
-    var age_damp = step(flash_age, flash_duration);
-    var norm = dot(in.world_normal, normalize(view.world_position.xyz - in.world_position.xyz));
-    var norm_damp = pow(1 - norm, 4.0);
+    let flash_age = (globals.time - flash_start);
+    let age_damp = step(flash_age, flash_duration);
+    let norm = dot(in.world_normal, normalize(view.world_position.xyz - in.world_position.xyz));
 
-    var ratio = flash_depth * pow(cos(globals.time * flash_speed), 2.0);
+    let depth = step(norm, abs(cos(flash_age * flash_speed)));
 #ifdef PREPASS_PIPELINE
     // in deferred mode we can't modify anything after that, as lighting is run in a separate fullscreen shader.
     let out = deferred_output(in, pbr_input);
@@ -62,9 +61,8 @@ fn fragment(
     out.color = mix(
         out.color,
         flash_color,
-        norm_damp * age_damp * ratio
+        depth * age_damp,
     );
-
 
     return out;
 }

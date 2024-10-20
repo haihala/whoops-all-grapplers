@@ -125,7 +125,7 @@ fn shader_test_system(
             commands.trigger_targets(
                 ActionEvent::Flash(FlashRequest {
                     color: GI_PARRY_FLASH_COLOR,
-                    speed: 0.0,
+                    speed: 10.0,
                     ..default()
                 }),
                 players.get(player),

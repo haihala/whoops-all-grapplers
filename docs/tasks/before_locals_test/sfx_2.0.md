@@ -1,8 +1,6 @@
 - [ ] VA work for [Mizku](/docs/gameplay_spec/characters/mizku.md)
   - [x] Sharp exhales for most normals
   - [ ] Special move voicelines
-    - [ ] High slash "Hi-yah"
-    - [ ] Low slash "Lo-yah"
     - [ ] Kunai "Kat-chu"
   - [ ] Pain grunts
     - [ ] On defeat

@@ -117,7 +117,6 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 .with_damage(5)
                 .with_advantage_on_block(-1)
                 .with_advantage_on_hit(4)
-                .with_sound(SoundEffect::Number(4))
                 .build(),
         ),
         (
@@ -497,6 +496,7 @@ fn viper_strike() -> Action {
             ActionId::Mizku(MizkuActionId::FSwordStance),
             ActionId::Mizku(MizkuActionId::SSwordStance),
         ])
+        .with_sound(SoundEffect::FemaleLoYah)
         .with_frame_data(10, 2, 50)
         .with_animation(MizkuAnimation::SwordStanceLowSlash)
         .with_extra_initial_events(vec![Movement {
@@ -533,6 +533,7 @@ fn rising_sun() -> Action {
             ActionId::Mizku(MizkuActionId::FSwordStance),
             ActionId::Mizku(MizkuActionId::SSwordStance),
         ])
+        .with_sound(SoundEffect::FemaleHiYah)
         .with_frame_data(10, 3, 50)
         .with_animation(MizkuAnimation::SwordStanceHighSlash)
         .sword()

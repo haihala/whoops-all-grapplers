@@ -217,13 +217,6 @@ impl AttackBuilder {
         }
     }
 
-    pub fn with_audio(self, animation: impl Into<Animation>) -> Self {
-        Self {
-            animation: animation.into(),
-            ..self
-        }
-    }
-
     pub fn with_disjoint(self) -> Self {
         Self {
             expand_hurtbox: None,

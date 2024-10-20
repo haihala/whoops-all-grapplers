@@ -37,7 +37,7 @@ impl SoundEffect {
             SoundEffect::PlasticCupFlick => Self::clips("plastic-cup-flick", 23),
             SoundEffect::PlasticCupTap => Self::clips("plastic-cup-tap", 20),
             SoundEffect::CheekSlap => Self::clips("cheek-slap", 20),
-            SoundEffect::FemaleExhale => Self::clips("female-exhale", 16),
+            SoundEffect::FemaleExhale => Self::clips("female-exhale", 9),
             SoundEffect::BottleBonk => Self::clips("bottle-bonk", 12),
             SoundEffect::PastaPat => Self::clips("pasta-pat", 11),
         }
@@ -51,7 +51,7 @@ impl SoundEffect {
 
     pub fn volume(self) -> f32 {
         match self {
-            SoundEffect::FemaleExhale => 0.1,
+            SoundEffect::FemaleExhale => 0.4,
             SoundEffect::PlasticCupFlick => 0.1,
             SoundEffect::PotLidGong => 0.8,
             _ => 1.0,

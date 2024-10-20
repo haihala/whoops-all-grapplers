@@ -466,17 +466,20 @@ fn sharpen() -> Action {
         category: ActionCategory::FollowUp,
         script: Box::new(|situation: &Situation| {
             if situation.elapsed() == 0 {
-                return vec![MizkuAnimation::Sharpen.into()];
-            }
-
-            if situation.elapsed() >= 43 {
                 return vec![
-                    ActionEvent::ModifyResource(ResourceType::Sharpness, 1),
-                    ActionEvent::End,
+                    MizkuAnimation::Sharpen.into(),
+                    ActionEvent::Sound(SoundEffect::KnifeChopstickDrag),
                 ];
             }
 
-            vec![]
+            if situation.elapsed() == 50 {
+                return vec![
+                    ActionEvent::ModifyResource(ResourceType::Sharpness, 1),
+                    ActionEvent::Sound(SoundEffect::HangingKnifeFlick),
+                ];
+            }
+
+            situation.end_at(55)
         }),
         requirements: vec![
             ActionRequirement::Grounded,

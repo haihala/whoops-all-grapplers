@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 use characters::{ActionEvent, AnimationRequest, Attack, FlashRequest, Movement, ResourceType};
 use wag_core::{ActionId, Area, CancelWindow, SoundEffect, StatusCondition, VfxRequest};
@@ -53,7 +55,7 @@ pub struct UpdateBlockstun(pub usize);
 pub struct LaunchImpulse(pub Vec2);
 
 #[derive(Debug, Event)]
-pub struct StartHitstop;
+pub struct StartHitstop(pub Duration);
 
 #[derive(Debug, Event)]
 pub struct TiltCamera(pub Vec2);
@@ -142,7 +144,8 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
             commands.trigger_targets(LaunchImpulse(*impulse), trigger.entity());
         }
         ActionEvent::Hitstop => {
-            commands.trigger(StartHitstop);
+            // TODO: Enable event to set the duration
+            commands.trigger(StartHitstop(Duration::from_millis(100)));
         }
         ActionEvent::CameraTilt(tilt) => {
             commands.trigger_targets(TiltCamera(*tilt), trigger.entity());

@@ -133,6 +133,7 @@ pub fn end_combat(
         }
 
         announcer.round_win(**winner);
+        commands.trigger(StartHitstop(Duration::from_secs_f32(POST_ROUND_DURATION)));
         RoundResult {
             winner: Some(**winner),
         }

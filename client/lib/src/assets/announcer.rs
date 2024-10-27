@@ -11,12 +11,10 @@ pub struct Announcer {
 
 impl Announcer {
     pub fn fight(&mut self) {
-        dbg!("fight");
         self.stack = vec![SoundEffect::AnnouncerFight];
     }
 
     pub fn round_start(&mut self, round_number: usize) {
-        dbg!("start");
         self.stack = vec![
             SoundEffect::Number(round_number),
             SoundEffect::AnnouncerRound,
@@ -24,7 +22,6 @@ impl Announcer {
     }
 
     pub fn round_win(&mut self, winner: Player) {
-        dbg!("win");
         self.stack = vec![
             SoundEffect::AnnouncerWins,
             SoundEffect::Number(winner.into()),
@@ -33,7 +30,6 @@ impl Announcer {
     }
 
     pub fn tie(&mut self) {
-        dbg!("tie");
         self.stack = vec![SoundEffect::AnnouncerDraw];
     }
 }

@@ -43,7 +43,7 @@ mod player;
 pub use player::{Owner, Player, Players};
 
 mod sound;
-pub use sound::{SoundEffect, VoiceLine};
+pub use sound::{SoundEffect, VoiceLine, BIG_HIT_THRESHOLD, SMALL_HIT_THRESHOLD};
 
 mod status;
 pub use status::{Stats, StatusCondition, StatusFlag};

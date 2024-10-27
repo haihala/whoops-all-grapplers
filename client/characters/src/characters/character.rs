@@ -8,12 +8,12 @@ use crate::{resources::ResourceType, Action, CharacterBoxes, Item, WAGResource};
 #[derive(Debug, Component)]
 pub struct Character {
     pub(crate) moves: HashMap<ActionId, Action>,
+    pub(crate) voicelines: HashMap<VoiceLine, SoundEffect>,
     pub colors: HashMap<Player, HashMap<&'static str, Color>>,
     pub items: HashMap<ItemId, Item>,
     pub model: Model,
     pub boxes: CharacterBoxes,
     pub generic_animations: HashMap<AnimationType, Animation>,
-    pub voicelines: HashMap<VoiceLine, SoundEffect>,
     pub base_stats: Stats,
     pub special_properties: Vec<(ResourceType, WAGResource)>,
 }
@@ -55,6 +55,10 @@ impl Character {
             .iter()
             .filter_map(|(key, move_data)| move_data.input.map(|input| (*key, input)))
             .collect()
+    }
+
+    pub fn get_voiceline(&self, line: VoiceLine) -> SoundEffect {
+        *self.voicelines.get(&line).unwrap_or(&SoundEffect::Silence)
     }
 }
 

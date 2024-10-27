@@ -20,6 +20,8 @@ pub enum SoundEffect {
     FemaleLoYah,
     FemaleKyatchi,
     FemaleNoooo,
+    FemaleOw,
+    FemaleGutPunch,
     BottleBonk,
     PastaPat,
     Number(usize),
@@ -63,6 +65,8 @@ impl SoundEffect {
             SoundEffect::FemaleLoYah => Self::clips("female-lo-yah", 5),
             SoundEffect::FemaleKyatchi => Self::clips("female-kyatchi", 6),
             SoundEffect::FemaleNoooo => Self::clips("female-noooo", 3),
+            SoundEffect::FemaleOw => Self::clips("female-ow", 8),
+            SoundEffect::FemaleGutPunch => Self::clips("female-gut-punch", 8),
             SoundEffect::BottleBonk => Self::clips("bottle-bonk", 12),
             SoundEffect::PastaPat => Self::clips("pasta-pat", 11),
             SoundEffect::Number(n) => vec![format!("sound_effects/number-{:0>2}.ogg", n)],
@@ -86,8 +90,9 @@ impl SoundEffect {
         match self {
             SoundEffect::FemaleExhale => 0.4,
             SoundEffect::PlasticCupFlick => 0.1,
-            SoundEffect::PotLidGong => 0.8,
+            SoundEffect::PotLidGong => 0.6,
             SoundEffect::Number(_) => 0.7,
+            SoundEffect::FemaleOw => 2.0,
             _ => 1.0,
         }
     }
@@ -103,6 +108,9 @@ impl SoundEffect {
         )
     }
 }
+
+pub const BIG_HIT_THRESHOLD: i32 = 30;
+pub const SMALL_HIT_THRESHOLD: i32 = 10;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum VoiceLine {

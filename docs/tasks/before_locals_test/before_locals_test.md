@@ -1,4 +1,3 @@
-- [SFX 2.0](/docs/tasks/before_locals_test/sfx_2.0.md)
 - Go through [chore list](/docs/tasks/chore_tracker.md)
 - Quick round over the items
   - Costs make sense

@@ -6,8 +6,8 @@ use characters::{Character, Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
     Clock, GameResult, GameState, InCharacterSelect, InMatch, MatchState, Player, RollbackSchedule,
-    RoundLog, RoundResult, SoundEffect, VoiceLine, WAGStage, POST_ROUND_DURATION, ROUNDS_TO_WIN,
-    ROUND_MONEY, VICTORY_BONUS,
+    RoundLog, RoundResult, VoiceLine, WAGStage, POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY,
+    VICTORY_BONUS,
 };
 
 use crate::{
@@ -133,12 +133,7 @@ pub fn end_combat(
             loser_inventory.money += loss_bonus;
         }
 
-        commands.trigger(PlaySound(
-            *loser_character
-                .voicelines
-                .get(&VoiceLine::Defeat)
-                .unwrap_or(&SoundEffect::Silence),
-        ));
+        commands.trigger(PlaySound(loser_character.get_voiceline(VoiceLine::Defeat)));
 
         announcer.round_win(**winner);
         commands.trigger(StartHitstop(Duration::from_secs_f32(POST_ROUND_DURATION)));

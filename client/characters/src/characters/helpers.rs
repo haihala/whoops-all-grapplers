@@ -75,7 +75,6 @@ fn jump(
         input: Some(jump_dir.input(jump_type)),
         category: ActionCategory::Jump,
         script: Box::new(move |situation: &Situation| {
-            dbg!(situation.frame, situation.elapsed());
             /*
             Math for initial jump velocity
             x = x0 + v0*t + 1/2*a*t^2
@@ -324,7 +323,6 @@ macro_rules! dash {
             },
             script: Box::new(|situation: &Situation| {
                 if situation.elapsed() == 0 {
-                    dbg!(situation.frame, situation.elapsed());
                     let mut initial_events = vec![
                         Into::<Animation>::into($animation).into(),
                         VfxRequest {

@@ -1,13 +1,15 @@
 use bevy::{ecs::query::QueryData, prelude::*};
 
 use characters::{
-    ActionEvent, Attack, AttackHeight, BlockType, Hitbox, Hurtboxes, ResourceType, WAGResources,
+    ActionEvent, Attack, AttackHeight, BlockType, Character, Hitbox, Hurtboxes, ResourceType,
+    WAGResources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{
     Area, Clock, Combo, Facing, Owner, Player, Players, SoundEffect, Stats, StatusFlag,
-    StickPosition, VfxRequest, VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
+    StickPosition, VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD, CLASH_PARRY_METER_GAIN,
+    GI_PARRY_METER_GAIN, SMALL_HIT_THRESHOLD,
 };
 
 use crate::{
@@ -54,6 +56,7 @@ pub struct HitPlayerQuery<'a> {
     spawner: &'a mut HitboxSpawner,
     stats: &'a Stats,
     combo: Option<&'a mut Combo>,
+    character: &'a Character,
 }
 
 #[allow(clippy::type_complexity)]
@@ -289,9 +292,31 @@ pub fn apply_connections(
 
         let (mut attacker_actions, mut defender_actions, avoided) = match hit.contact_type {
             ConnectionType::Strike | ConnectionType::Throw => {
-                // Handle blocking and state transitions here
                 attacker.state.register_hit();
-                (hit.attack.self_on_hit, hit.attack.target_on_hit, false)
+                let mut target_evs = hit.attack.target_on_hit.clone();
+
+                let damage = target_evs
+                    .iter()
+                    .find_map(|ev| {
+                        if let ActionEvent::ModifyResource(ResourceType::Health, dmg) = ev {
+                            Some(-dmg)
+                        } else {
+                            None
+                        }
+                    })
+                    .unwrap_or_default();
+
+                if damage >= BIG_HIT_THRESHOLD {
+                    target_evs.push(ActionEvent::Sound(
+                        defender.character.get_voiceline(VoiceLine::BigHit),
+                    ));
+                } else if damage >= SMALL_HIT_THRESHOLD {
+                    target_evs.push(ActionEvent::Sound(
+                        defender.character.get_voiceline(VoiceLine::SmallHit),
+                    ));
+                }
+
+                (hit.attack.self_on_hit, target_evs, false)
             }
             ConnectionType::Block => {
                 attacker.state.register_hit();

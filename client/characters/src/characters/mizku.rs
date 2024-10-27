@@ -70,8 +70,8 @@ pub fn mizku() -> Character {
         ],
         vec![
             (VoiceLine::Defeat, SoundEffect::FemaleNoooo),
-            (VoiceLine::BigHit, SoundEffect::Silence),
-            (VoiceLine::SmallHit, SoundEffect::Silence),
+            (VoiceLine::BigHit, SoundEffect::FemaleGutPunch),
+            (VoiceLine::SmallHit, SoundEffect::FemaleOw),
         ]
         .into_iter()
         .collect(),
@@ -513,7 +513,7 @@ fn viper_strike() -> Action {
         .into()])
         .with_hitbox(Area::new(1.0, 0.225, 1.3, 0.45))
         .hits_low()
-        .with_damage(20)
+        .with_damage(30)
         .sword()
         .with_advantage_on_hit(-10)
         .with_advantage_on_block(-40)

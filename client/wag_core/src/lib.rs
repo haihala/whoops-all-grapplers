@@ -22,9 +22,6 @@ pub use combo::Combo;
 mod economy;
 pub use economy::*;
 
-mod effects;
-pub use effects::{SoundEffect, VfxRequest, VisualEffect};
-
 mod facing;
 pub use facing::Facing;
 
@@ -45,11 +42,17 @@ pub use item_id::ItemId;
 mod player;
 pub use player::{Owner, Player, Players};
 
+mod sound;
+pub use sound::{SoundEffect, VoiceLine};
+
 mod status;
 pub use status::{Stats, StatusCondition, StatusFlag};
 
 mod time;
 pub use time::*;
+
+mod visual_effects;
+pub use visual_effects::{VfxRequest, VisualEffect};
 
 // This crate will be as small as possible so that types are where they are used
 // It's meant for common universal types to circumvent circular dependencies.

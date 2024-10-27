@@ -5,7 +5,7 @@ use bevy::{prelude::*, utils::HashMap};
 use wag_core::{
     ActionCategory, ActionId, Animation, AnimationType, Area, CancelType, CancelWindow, Facing,
     GameButton, Icon, ItemId, MizkuActionId, MizkuAnimation, Model, SoundEffect, Stats,
-    StatusCondition, StatusFlag, VfxRequest, VisualEffect, MIZUKI_ALT_HELMET_COLOR,
+    StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, MIZUKI_ALT_HELMET_COLOR,
     MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
 };
 
@@ -68,6 +68,13 @@ pub fn mizku() -> Character {
                 },
             ),
         ],
+        vec![
+            (VoiceLine::Defeat, SoundEffect::FemaleNoooo),
+            (VoiceLine::BigHit, SoundEffect::Silence),
+            (VoiceLine::SmallHit, SoundEffect::Silence),
+        ]
+        .into_iter()
+        .collect(),
     )
 }
 

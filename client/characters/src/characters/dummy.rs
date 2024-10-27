@@ -56,6 +56,7 @@ pub fn dummy() -> Character {
                 ..default()
             },
         )],
+        HashMap::new(),
     )
 }
 

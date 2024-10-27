@@ -6,12 +6,13 @@ use characters::{Character, Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
     Clock, GameResult, GameState, InCharacterSelect, InMatch, MatchState, Player, RollbackSchedule,
-    RoundLog, RoundResult, WAGStage, POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY,
-    VICTORY_BONUS,
+    RoundLog, RoundResult, SoundEffect, VoiceLine, WAGStage, POST_ROUND_DURATION, ROUNDS_TO_WIN,
+    ROUND_MONEY, VICTORY_BONUS,
 };
 
 use crate::{
     assets::{Announcer, AssetsLoading, PlayerModelHook},
+    event_spreading::{PlaySound, StartHitstop},
     ui::Notifications,
 };
 
@@ -131,6 +132,13 @@ pub fn end_combat(
             notifications.add(**loser, format!("Jobber bonus: ${}", loss_bonus));
             loser_inventory.money += loss_bonus;
         }
+
+        commands.trigger(PlaySound(
+            *loser_character
+                .voicelines
+                .get(&VoiceLine::Defeat)
+                .unwrap_or(&SoundEffect::Silence),
+        ));
 
         announcer.round_win(**winner);
         commands.trigger(StartHitstop(Duration::from_secs_f32(POST_ROUND_DURATION)));

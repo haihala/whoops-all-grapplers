@@ -1,5 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
-use wag_core::{ActionId, Animation, AnimationType, ItemId, Model, Player, Stats};
+use wag_core::{
+    ActionId, Animation, AnimationType, ItemId, Model, Player, SoundEffect, Stats, VoiceLine,
+};
 
 use crate::{resources::ResourceType, Action, CharacterBoxes, Item, WAGResource};
 
@@ -11,6 +13,7 @@ pub struct Character {
     pub model: Model,
     pub boxes: CharacterBoxes,
     pub generic_animations: HashMap<AnimationType, Animation>,
+    pub voicelines: HashMap<VoiceLine, SoundEffect>,
     pub base_stats: Stats,
     pub special_properties: Vec<(ResourceType, WAGResource)>,
 }
@@ -26,6 +29,7 @@ impl Character {
         boxes: CharacterBoxes,
         base_stats: Stats,
         special_properties: Vec<(ResourceType, WAGResource)>,
+        voicelines: HashMap<VoiceLine, SoundEffect>,
     ) -> Character {
         Self {
             model,
@@ -38,6 +42,7 @@ impl Character {
             special_properties,
             boxes,
             base_stats,
+            voicelines,
         }
     }
 

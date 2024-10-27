@@ -19,6 +19,7 @@ pub enum SoundEffect {
     FemaleHiYah,
     FemaleLoYah,
     FemaleKyatchi,
+    FemaleNoooo,
     BottleBonk,
     PastaPat,
     Number(usize),
@@ -61,6 +62,7 @@ impl SoundEffect {
             SoundEffect::FemaleHiYah => Self::clips("female-hi-yah", 10),
             SoundEffect::FemaleLoYah => Self::clips("female-lo-yah", 5),
             SoundEffect::FemaleKyatchi => Self::clips("female-kyatchi", 6),
+            SoundEffect::FemaleNoooo => Self::clips("female-noooo", 3),
             SoundEffect::BottleBonk => Self::clips("bottle-bonk", 12),
             SoundEffect::PastaPat => Self::clips("pasta-pat", 11),
             SoundEffect::Number(n) => vec![format!("sound_effects/number-{:0>2}.ogg", n)],
@@ -102,48 +104,9 @@ impl SoundEffect {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default)]
-pub enum VisualEffect {
-    #[default]
-    Blank,
-    Clash,
-    Block,
-    Hit,
-    ThrowTech,
-    SpeedLines,
-    ThrowTarget,
-    Lightning,
-    Pebbles,
-    Sparks,
-    MidFlash,
-    WaveDiagonal,
-    WaveFlat,
-}
-impl VisualEffect {
-    pub fn mesh_size(&self) -> Rectangle {
-        match self {
-            VisualEffect::Clash => Rectangle::new(1.5, 1.5),
-            VisualEffect::Block => Rectangle::new(1.1, 2.0),
-            VisualEffect::Hit => Rectangle::new(1.1, 1.1),
-            VisualEffect::ThrowTech | VisualEffect::ThrowTarget => Rectangle::new(2.0, 2.0),
-            VisualEffect::Pebbles | VisualEffect::Sparks => Rectangle::new(1.8, 1.8),
-            _ => Rectangle::default(),
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Clone, Copy, Default)]
-pub struct VfxRequest {
-    pub effect: VisualEffect,
-    pub tf: Transform,
-    pub mirror: bool,
-}
-
-impl From<VisualEffect> for VfxRequest {
-    fn from(effect: VisualEffect) -> Self {
-        Self {
-            effect,
-            ..default()
-        }
-    }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum VoiceLine {
+    Defeat,
+    SmallHit,
+    BigHit,
 }

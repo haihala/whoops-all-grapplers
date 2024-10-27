@@ -1,7 +1,6 @@
 # Next steps
 
 - [Before locals test](/docs/tasks/before_locals_test/before_locals_test.md)
-  - [SFX 2.0](/docs/tasks/before_locals_test/sfx_2.0.md)
 - Make a new dev update video
 - [Local feedback round](/docs/tasks/before_locals_test/local_feedback_round.md)
 
@@ -16,7 +15,7 @@ Low priority do later tasks
 - [Optional inputs](/docs/tasks/backlog/input_parser_refinement/optional_inputs.md)
 - Delay wakeup on knockdown
 - Pretty loading screen
-- Orthogonal states instead of nested ones?
+- [Popups 3.0](/docs/tasks/backlog/popups_3.0.md)
 
 # Overarching plan
 

@@ -1,9 +1,12 @@
 - [SFX 2.0](/docs/tasks/before_locals_test/sfx_2.0.md)
-- Minor
-  - Jump
-    - Reduce pre-jump frames
-    - Allow direction corrections after pre-jump
 - Go through [chore list](/docs/tasks/chore_tracker.md)
-  - Check that throws work (target is set to the correct spot after animation)
-- Ensure hitboxes line up (after move to char relative)
-- Do a quick round over the items
+- Quick round over the items
+  - Costs make sense
+  - Effects make sense
+  - Descriptions still accurate and informative
+- Quick round over the moves
+  - Hitboxes are in the right positions
+  - Frame data makes sense (currently hard to combo)
+  - Jump
+    - Check pre-jump frames
+    - Allow direction corrections after pre-jump

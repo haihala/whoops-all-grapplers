@@ -6,6 +6,7 @@ enough to be put on a more important list.
 ## Bugs
 
 - Hit spark spawns in the wrong position for projectiles (relative to player)
+- Extra kunais may not work (besides the UI)
 
 ### Watchlist
 
@@ -22,3 +23,6 @@ enough to be put on a more important list.
   - Boxes may be harder to draw?
 - Disable parrots in prod
 - Is there a more elegant way to encode concepts such as "charge move" and "meter cost"
+- Maybe you could make requirements dynamic as well?
+  - Encode special cancels in there
+    - To make mechanics like burst and guard cancels easier

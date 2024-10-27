@@ -6,4 +6,5 @@
     - Allow direction corrections after pre-jump
 - Go through [chore list](/docs/tasks/chore_tracker.md)
   - Check that throws work (target is set to the correct spot after animation)
+- Ensure hitboxes line up (after move to char relative)
 - Do a quick round over the items

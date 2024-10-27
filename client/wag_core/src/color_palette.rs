@@ -18,6 +18,7 @@ pub const MAIN_MENU_HIGHLIGHT_TEXT_COLOR: Color = Color::BLACK;
 pub const CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR: Color = WWE_RAW_RED;
 pub const ROUND_TIMER_TEXT_COLOR: Color = Color::WHITE;
 pub const RESOURCE_COUNTER_TEXT_COLOR: Color = Color::WHITE;
+pub const COMBO_COUNTER_TEXT_COLOR: Color = Color::WHITE;
 
 // General utils
 pub const TRANSPARENT: Color = Color::srgba(0.0, 0.0, 0.0, 0.0);

@@ -32,7 +32,11 @@ impl Plugin for UIPlugin {
             .add_systems(OnEnter(MatchState::PostRound), combat::update_score)
             .add_systems(
                 Update,
-                (combat::update_notifications, round_text::update_round_text)
+                (
+                    combat::update_notifications,
+                    combat::update_combo_counters,
+                    round_text::update_round_text,
+                )
                     .run_if(in_state(InMatch)),
             )
             .add_systems(

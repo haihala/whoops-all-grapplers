@@ -4,7 +4,7 @@ mod gauges;
 pub use gauges::{update_bars, update_counters, ResourceCounter, ResourceGauge};
 
 mod notifications;
-pub use notifications::{update_notifications, Notifications};
+pub use notifications::{update_combo_counters, update_notifications, Notifications};
 
 mod round_timer;
 pub use round_timer::update_timer;
@@ -91,6 +91,7 @@ fn setup_player_hud(
 
     setup_top_hud(commands, container, fonts, player);
     notifications::setup_toasts(commands, container, player);
+    notifications::setup_combo_counter(commands, container, player, fonts);
     setup_bottom_hud(commands, fonts, container, player, properties);
 }
 
@@ -163,7 +164,7 @@ fn setup_bottom_hud(
                     Player::Two => AlignItems::FlexEnd,
                 },
                 width: Val::Percent(100.0),
-                height: Val::Percent(50.0),
+                height: Val::Percent(40.0),
                 margin: UiRect {
                     bottom: Val::Percent(gauges::SCREEN_EDGE_PADDING),
                     ..default()

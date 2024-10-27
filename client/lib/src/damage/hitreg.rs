@@ -345,7 +345,14 @@ pub fn apply_connections(
                 combo.hits += 1;
             } else {
                 // First hit of a combo
-                commands.entity(hit.attacker).insert(Combo { hits: 1 });
+                commands.entity(hit.attacker).insert(Combo {
+                    hits: 1,
+                    old_health: defender
+                        .properties
+                        .get(ResourceType::Health)
+                        .unwrap()
+                        .current,
+                });
 
                 commands.trigger(PlaySound(SoundEffect::PotLidGong));
                 notifications.add(*attacker.player, "Opener!".to_owned());

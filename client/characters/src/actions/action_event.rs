@@ -2,12 +2,12 @@ use bevy::prelude::*;
 
 use wag_core::{
     ActionId, Animation, Area, CancelWindow, DummyAnimation, MizkuAnimation, SoundEffect,
-    StatusCondition, VfxRequest,
+    StatusCondition, VfxRequest, VoiceLine,
 };
 
-use crate::{Attack, FlashRequest, Movement, ResourceType};
+use crate::{FlashRequest, Movement, ResourceType};
 
-use super::AnimationRequest;
+use super::{AnimationRequest, ToHit};
 
 #[derive(Debug, Clone, PartialEq, Default, Event)]
 pub enum ActionEvent {
@@ -15,11 +15,12 @@ pub enum ActionEvent {
     Animation(AnimationRequest),
     Sound(SoundEffect),
     StartAction(ActionId),
-    Attack(Attack),
+    SpawnHitbox(ToHit, usize),
     ClearMovement,
     Movement(Movement),
     Condition(StatusCondition),
     ForceStand,
+    SayVoiceLine(VoiceLine),
     ModifyResource(ResourceType, i32),
     ClearResource(ResourceType),
     SnapToOpponent {
@@ -32,7 +33,8 @@ pub enum ActionEvent {
     CameraTilt(Vec2),
     CameraShake, // TODO: Add strength
     Flash(FlashRequest),
-    VisualEffect(VfxRequest),
+    RelativeVisualEffect(VfxRequest),
+    AbsoluteVisualEffect(VfxRequest),
     Lock(usize),                // duration
     ExpandHurtbox(Area, usize), // New area, how long it should hang around
     #[default]
@@ -40,11 +42,6 @@ pub enum ActionEvent {
     End,                        // Ends the move, return to neutral
 }
 
-impl From<Attack> for ActionEvent {
-    fn from(value: Attack) -> Self {
-        ActionEvent::Attack(value)
-    }
-}
 impl From<Animation> for ActionEvent {
     fn from(value: Animation) -> Self {
         ActionEvent::Animation(value.into())
@@ -67,7 +64,7 @@ impl From<SoundEffect> for ActionEvent {
 }
 impl From<VfxRequest> for ActionEvent {
     fn from(value: VfxRequest) -> Self {
-        ActionEvent::VisualEffect(value)
+        ActionEvent::RelativeVisualEffect(value)
     }
 }
 // This isn't a great way to do this, but it's the best I can think of for now

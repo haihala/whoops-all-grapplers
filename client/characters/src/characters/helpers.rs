@@ -158,6 +158,7 @@ fn jump(
                 ActionRequirement::ItemsOwned(vec![ItemId::FeatheredBoots]),
             ],
         },
+        on_hit_effects: vec![],
     }
 }
 
@@ -353,7 +354,7 @@ macro_rules! dash {
                     }
 
                     if $backdash && situation.stats.backdash_invuln > 0 {
-                        initial_events.push(ActionEvent::Condition(StatusCondition {
+                        initial_events.push(Condition(StatusCondition {
                             flag: StatusFlag::Intangible,
                             effect: None,
                             expiration: Some(situation.stats.backdash_invuln as usize),
@@ -370,6 +371,7 @@ macro_rules! dash {
                 situation.end_at($total_duration)
             }),
             requirements,
+            on_hit_effects: vec![],
         }
     }};
 }

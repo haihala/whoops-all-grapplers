@@ -13,7 +13,3 @@
       - Broken glass sfx when hit
       - Add a property to some moves that doesn't consume the hit
         - Maybe with items
-- Make on hit a function callback as well instead of pre-determined lists
-  - It takes a situation
-  - Also gets a struct that describes the hit (where, was it blocked?)
-  - This hopefully fixes particle spawn position for projectiles

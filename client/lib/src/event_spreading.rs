@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use characters::{ActionEvent, AnimationRequest, Attack, FlashRequest, Movement, ResourceType};
-use wag_core::{ActionId, Area, CancelWindow, SoundEffect, StatusCondition, VfxRequest};
+use characters::{ActionEvent, AnimationRequest, FlashRequest, Movement, ResourceType, ToHit};
+use wag_core::{ActionId, Area, CancelWindow, SoundEffect, StatusCondition, VfxRequest, VoiceLine};
 
 #[derive(Debug, Event)]
 pub struct AllowCancel(pub CancelWindow);
@@ -17,7 +17,7 @@ pub struct PlaySound(pub SoundEffect);
 pub struct StartAction(pub ActionId);
 
 #[derive(Debug, Event)]
-pub struct SpawnHitbox(pub Attack);
+pub struct SpawnHitbox(pub ToHit, pub usize);
 
 #[derive(Debug, Event)]
 pub struct ClearMovement;
@@ -84,6 +84,9 @@ pub struct ExpandHurtbox {
     pub duration: usize,
 }
 
+#[derive(Debug, Event)]
+pub struct ActivateVoiceline(pub VoiceLine);
+
 pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
     match trigger.event() {
         ActionEvent::AllowCancel(cw) => {
@@ -98,8 +101,8 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
         ActionEvent::StartAction(act) => {
             commands.trigger_targets(StartAction(act.to_owned()), trigger.entity());
         }
-        ActionEvent::Attack(atk) => {
-            commands.trigger_targets(SpawnHitbox(atk.to_owned()), trigger.entity());
+        ActionEvent::SpawnHitbox(to_hit, hitbox_index) => {
+            commands.trigger_targets(SpawnHitbox(*to_hit, *hitbox_index), trigger.entity());
         }
         ActionEvent::ClearMovement => {
             commands.trigger_targets(ClearMovement, trigger.entity());
@@ -156,7 +159,10 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
         ActionEvent::Flash(fr) => {
             commands.trigger_targets(FlashPlayer(*fr), trigger.entity());
         }
-        ActionEvent::VisualEffect(vfx) => {
+        ActionEvent::AbsoluteVisualEffect(vfx) => {
+            commands.trigger(SpawnVfx(*vfx));
+        }
+        ActionEvent::RelativeVisualEffect(vfx) => {
             commands.trigger_targets(SpawnRelativeVfx(*vfx), trigger.entity());
         }
         ActionEvent::Lock(dur) => {
@@ -173,6 +179,9 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
                 },
                 trigger.entity(),
             );
+        }
+        ActionEvent::SayVoiceLine(line) => {
+            commands.trigger_targets(ActivateVoiceline(*line), trigger.entity());
         }
         ActionEvent::Noop => {}
     }

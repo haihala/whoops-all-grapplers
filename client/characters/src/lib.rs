@@ -3,6 +3,7 @@
 mod action_tracker;
 mod actions;
 mod characters;
+mod hit_data;
 mod items;
 mod resources;
 mod situation;
@@ -15,6 +16,7 @@ pub use actions::{
     CharacterStateBoxes, FlashRequest, Hitbox, Hurtboxes, Lifetime, Movement, ToHit,
 };
 pub use characters::{dummy, mizku, Character};
+pub use hit_data::{HitEffect, HitInfo};
 pub use items::{ConsumableType, Inventory, Item, ItemCategory};
 pub use resources::{
     ChargeProperty, CounterVisual, RenderInstructions, ResourceBarVisual, ResourceType,

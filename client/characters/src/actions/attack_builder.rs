@@ -3,14 +3,14 @@ use std::f32::consts::PI;
 use bevy::prelude::*;
 use wag_core::{
     ActionCategory, ActionId, Animation, Area, CancelType, CancelWindow, Model, SoundEffect,
-    VfxRequest, VisualEffect,
+    VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD, SMALL_HIT_THRESHOLD,
 };
 
-use crate::{ActionRequirement, ResourceType, Situation};
+use crate::{ActionRequirement, HitEffect, HitInfo, ResourceType, Situation};
 
 use super::{
-    Action, ActionEvent, Attack, AttackHeight, BlockType, FlashRequest, Hitbox, Lifetime, Movement,
-    Projectile, ToHit,
+    action::OnHitEffect, Action, ActionEvent, AttackHeight, BlockType, FlashRequest, Hitbox,
+    Lifetime, Movement, Projectile, ToHit,
 };
 
 #[derive(Debug, Clone, Copy)]
@@ -516,34 +516,6 @@ impl AttackBuilder {
             hits: self.hit_count,
         };
 
-        let intermediate = match self.sub_builder {
-            SubBuilder::Throw(tb) => IntermediateAttack::Throw(IntermediateThrow {
-                lock_duration: tb.lock_duration,
-                sideswitch: tb.sideswitch,
-                self_move: tb.on_hit_action,
-                target_move: tb.target_action,
-                hitbox_position: self.hitbox.center(),
-            }),
-            SubBuilder::Strike(sb) => IntermediateAttack::Strike(IntermediateStrike {
-                sharpness_scaling: sb.sharpness_scaling,
-                base_damage: sb.damage,
-                attacker_push_on_block: sb.attacker_push_on_block,
-                attacker_push_on_hit: sb.attacker_push_on_hit,
-                defender_push_on_block: sb.defender_push_on_block,
-                chip_damage: sb.chip_damage,
-                hit_stun_event: match sb.hit_stun {
-                    HitStun::StunAdvantage(frame_advantage) => {
-                        ActionEvent::HitStun((self.recovery as i32 + frame_advantage) as usize)
-                    }
-                    HitStun::Knockdown => ActionEvent::LaunchStun(Vec2::ZERO),
-                    HitStun::Launch(impulse) => ActionEvent::LaunchStun(impulse),
-                },
-                block_stun: (self.recovery as i32 + sb.advantage_on_block) as usize,
-                hitbox_position: self.hitbox.center(),
-                block_height: sb.block_height,
-            }),
-        };
-
         let init_fun = self.dynamic_initial_events.unwrap_or(|_| vec![]);
         let activation_fun = self.dynamic_activation_events.unwrap_or(|_| vec![]);
 
@@ -555,15 +527,7 @@ impl AttackBuilder {
             }
 
             if situation.elapsed() == startup {
-                let atk = Attack {
-                    to_hit,
-                    ..match &intermediate {
-                        IntermediateAttack::Strike(strike) => strike.build_attack(situation),
-                        IntermediateAttack::Throw(throw) => throw.build_attack(situation),
-                    }
-                }
-                .into();
-                return vec![atk]
+                return vec![ActionEvent::SpawnHitbox(to_hit, 0)]
                     .into_iter()
                     .chain(activation_events.clone())
                     .chain(activation_fun(situation))
@@ -572,6 +536,39 @@ impl AttackBuilder {
 
             situation.end_at(duration)
         }
+    }
+
+    fn build_on_hit_effects(&self) -> Vec<OnHitEffect> {
+        vec![match self.sub_builder {
+            SubBuilder::Throw(tb) => build_throw_effect(
+                tb.lock_duration,
+                tb.on_hit_action,
+                tb.sideswitch,
+                tb.target_action,
+            ),
+            SubBuilder::Strike(sb) => {
+                let block_stun = (self.recovery as i32 + sb.advantage_on_block) as usize;
+                let hit_stun_event = match sb.hit_stun {
+                    HitStun::StunAdvantage(frame_advantage) => {
+                        ActionEvent::HitStun((self.recovery as i32 + frame_advantage) as usize)
+                    }
+                    HitStun::Knockdown => ActionEvent::LaunchStun(Vec2::ZERO),
+                    HitStun::Launch(impulse) => ActionEvent::LaunchStun(impulse),
+                };
+
+                build_strike_effect(
+                    block_stun,
+                    sb.block_height,
+                    sb.attacker_push_on_block,
+                    sb.defender_push_on_block,
+                    sb.chip_damage,
+                    hit_stun_event,
+                    sb.attacker_push_on_hit,
+                    sb.damage,
+                    sb.sharpness_scaling,
+                )
+            }
+        }]
     }
 
     pub fn build(self) -> Action {
@@ -585,159 +582,153 @@ impl AttackBuilder {
             requirements: self.build_requirements(),
             category: self.category.clone(),
             script: Box::new(self.build_script()),
+            on_hit_effects: self.build_on_hit_effects(),
         }
     }
 }
 
-pub struct IntermediateThrow {
-    pub sideswitch: bool,
-    pub lock_duration: usize,
-    pub target_move: ActionId,
-    pub self_move: ActionId,
-    pub hitbox_position: Vec2,
-}
-impl IntermediateThrow {
-    fn build_attack(&self, situation: &Situation) -> Attack {
-        let hitbox_pos = situation
-            .facing
-            .mirror_vec2(self.hitbox_position)
-            .extend(0.0);
-
-        Attack {
-            self_on_hit: vec![
-                ActionEvent::StartAction(self.self_move),
-                ActionEvent::Hitstop,
-                ActionEvent::Lock(self.lock_duration),
-                ActionEvent::Sound(SoundEffect::PastaPat),
-                ActionEvent::VisualEffect(VfxRequest {
-                    effect: VisualEffect::ThrowTarget,
-                    tf: Transform::from_translation(hitbox_pos),
-                    ..default()
-                }),
-            ],
-            self_on_avoid: vec![
-                ActionEvent::Sound(SoundEffect::BottleBonk),
-                Movement::impulse(Vec2::X * -2.0).into(),
-                ActionEvent::VisualEffect(VfxRequest {
-                    effect: VisualEffect::ThrowTech,
-                    tf: Transform::from_translation(hitbox_pos),
-                    ..default()
-                }),
-            ],
-
-            target_on_hit: vec![
-                ActionEvent::SnapToOpponent {
-                    sideswitch: self.sideswitch,
-                },
-                ActionEvent::StartAction(self.target_move),
-                ActionEvent::Lock(self.lock_duration),
-            ],
-            target_on_avoid: vec![Movement::impulse(Vec2::X * -2.0).into()],
-
-            ..default()
+pub fn build_throw_effect(
+    lock_duration: usize,
+    on_hit_action: ActionId,
+    sideswitch: bool,
+    target_action: ActionId,
+) -> OnHitEffect {
+    Box::new(move |_situation: &Situation, hit_data: &HitInfo| {
+        let tf = Transform::from_translation(hit_data.hitbox_pos.extend(0.0));
+        if hit_data.avoided {
+            HitEffect {
+                attacker: vec![
+                    ActionEvent::Sound(SoundEffect::BottleBonk),
+                    Movement::impulse(Vec2::X * -2.0).into(),
+                    ActionEvent::AbsoluteVisualEffect(VfxRequest {
+                        effect: VisualEffect::ThrowTech,
+                        tf,
+                        ..default()
+                    }),
+                ],
+                defender: vec![Movement::impulse(Vec2::X * -2.0).into()],
+            }
+        } else {
+            HitEffect {
+                attacker: vec![
+                    ActionEvent::StartAction(on_hit_action),
+                    ActionEvent::Hitstop,
+                    ActionEvent::Lock(lock_duration),
+                    ActionEvent::Sound(SoundEffect::PastaPat),
+                    ActionEvent::AbsoluteVisualEffect(VfxRequest {
+                        effect: VisualEffect::ThrowTarget,
+                        tf,
+                        ..default()
+                    }),
+                ],
+                defender: vec![
+                    ActionEvent::SnapToOpponent { sideswitch },
+                    ActionEvent::StartAction(target_action),
+                    ActionEvent::Lock(lock_duration),
+                ],
+            }
         }
-    }
+    })
 }
 
-#[derive(Debug, Default)]
-pub struct IntermediateStrike {
-    pub attacker_push_on_block: f32,
-    pub attacker_push_on_hit: f32,
-    pub defender_push_on_block: f32,
-    pub base_damage: i32,
-    pub chip_damage: i32,
-    pub hit_stun_event: ActionEvent,
-    pub block_stun: usize,
-    pub sharpness_scaling: i32,
-    pub hitbox_position: Vec2,
-    pub block_height: AttackHeight,
-}
-impl IntermediateStrike {
-    pub fn build_attack(&self, situation: &Situation) -> Attack {
+// TODO: These could probably use some saner defaults
+#[allow(clippy::too_many_arguments)]
+pub fn build_strike_effect(
+    block_stun: usize,
+    block_height: AttackHeight,
+    attacker_push_on_block: f32,
+    defender_push_on_block: f32,
+    chip_damage: i32,
+    hit_stun_event: ActionEvent,
+    attacker_push_on_hit: f32,
+    base_damage: i32,
+    sharpness_scaling: i32,
+) -> OnHitEffect {
+    Box::new(move |situation: &Situation, hit_data: &HitInfo| {
         let sharpness = situation
             .get_resource(ResourceType::Sharpness)
             .unwrap()
             .current;
 
-        let hitbox_pos = situation
-            .facing
-            .mirror_vec2(self.hitbox_position)
-            .extend(0.0);
-
         let (effect, offset, rotation) = if situation.combo.is_some() {
-            (VisualEffect::Hit, Vec3::ZERO, Quat::default())
+            (VisualEffect::Hit, Vec2::ZERO, Quat::default())
         } else {
             // First hit gets a fancier effect
-            match self.block_height {
+            match block_height {
                 AttackHeight::Low => (
                     VisualEffect::Sparks,
-                    situation.facing.mirror_vec3(Vec3::new(0.9, 0.9, 0.0)),
+                    situation.facing.mirror_vec2(Vec2::new(0.9, 0.9)),
                     Quat::default(),
                 ),
                 AttackHeight::Mid => (
                     VisualEffect::MidFlash,
-                    situation.facing.mirror_vec3(Vec3::X * 0.5),
+                    situation.facing.mirror_vec2(Vec2::X * 0.5),
                     Quat::from_rotation_z(match situation.facing {
                         wag_core::Facing::Right => PI / 6.0,
                         wag_core::Facing::Left => PI * (8.0 / 6.0),
                     }),
                 ),
-                AttackHeight::High => (VisualEffect::Lightning, Vec3::ZERO, Quat::default()),
+                AttackHeight::High => (VisualEffect::Lightning, Vec2::ZERO, Quat::default()),
             }
         };
 
-        Attack {
-            self_on_hit: vec![
-                Movement::impulse(-Vec2::X * self.attacker_push_on_hit).into(),
-                ActionEvent::CameraTilt(Vec2::X * 0.02),
-                ActionEvent::CameraShake,
-                ActionEvent::Hitstop,
-                ActionEvent::Sound(SoundEffect::PastaPat),
-                ActionEvent::VisualEffect(VfxRequest {
-                    effect,
-                    tf: Transform {
-                        translation: (hitbox_pos + offset),
-                        rotation,
+        if hit_data.avoided {
+            HitEffect {
+                attacker: vec![
+                    Movement::impulse(-Vec2::X * attacker_push_on_block).into(),
+                    ActionEvent::CameraTilt(-Vec2::X * 0.01),
+                    ActionEvent::Hitstop,
+                    ActionEvent::Sound(SoundEffect::PlasticCupTap),
+                    ActionEvent::AbsoluteVisualEffect(VfxRequest {
+                        effect: VisualEffect::Block,
+                        tf: Transform::from_translation(hit_data.hitbox_pos.extend(0.0)),
                         ..default()
+                    }),
+                ],
+                defender: vec![
+                    if hit_data.defender_stats.chip_damage && chip_damage > 0 {
+                        ActionEvent::ModifyResource(ResourceType::Health, -chip_damage)
+                    } else {
+                        ActionEvent::Noop
                     },
-                    ..default()
-                }),
-            ],
-            self_on_avoid: vec![
-                Movement::impulse(-Vec2::X * self.attacker_push_on_block).into(),
-                ActionEvent::CameraTilt(-Vec2::X * 0.01),
-                ActionEvent::Hitstop,
-                ActionEvent::Sound(SoundEffect::PlasticCupTap),
-                ActionEvent::VisualEffect(VfxRequest {
-                    effect: VisualEffect::Block,
-                    tf: Transform::from_translation(hitbox_pos),
-                    ..default()
-                }),
-            ],
-            target_on_hit: vec![
-                ActionEvent::ModifyResource(
-                    ResourceType::Health,
-                    -(self.base_damage + self.sharpness_scaling * sharpness),
-                ),
-                self.hit_stun_event.clone(),
-                Movement::impulse(-Vec2::X * self.defender_push_on_block).into(),
-                ActionEvent::Flash(FlashRequest::hit_flash()),
-            ],
-            target_on_avoid: vec![
-                if self.chip_damage > 0 {
-                    ActionEvent::ModifyResource(ResourceType::Health, -self.chip_damage)
-                } else {
-                    ActionEvent::Noop
-                },
-                ActionEvent::BlockStun(self.block_stun),
-                Movement::impulse(-Vec2::X * self.defender_push_on_block).into(),
-            ],
-            ..default()
-        }
-    }
-}
+                    ActionEvent::BlockStun(block_stun),
+                    Movement::impulse(-Vec2::X * defender_push_on_block).into(),
+                ],
+            }
+        } else {
+            let damage = base_damage + sharpness_scaling * sharpness;
+            let voice_line_event = if damage >= BIG_HIT_THRESHOLD {
+                ActionEvent::SayVoiceLine(VoiceLine::BigHit)
+            } else if damage >= SMALL_HIT_THRESHOLD {
+                ActionEvent::SayVoiceLine(VoiceLine::SmallHit)
+            } else {
+                ActionEvent::Noop
+            };
 
-enum IntermediateAttack {
-    Strike(IntermediateStrike),
-    Throw(IntermediateThrow),
+            HitEffect {
+                attacker: vec![
+                    Movement::impulse(-Vec2::X * attacker_push_on_hit).into(),
+                    ActionEvent::CameraTilt(Vec2::X * 0.02),
+                    ActionEvent::CameraShake,
+                    ActionEvent::Hitstop,
+                    ActionEvent::Sound(SoundEffect::PastaPat),
+                    ActionEvent::AbsoluteVisualEffect(VfxRequest {
+                        effect,
+                        tf: Transform {
+                            translation: (hit_data.hitbox_pos + offset).extend(0.0),
+                            rotation,
+                            ..default()
+                        },
+                        ..default()
+                    }),
+                ],
+                defender: vec![
+                    ActionEvent::ModifyResource(ResourceType::Health, -damage),
+                    hit_stun_event.clone(),
+                    voice_line_event,
+                    ActionEvent::Flash(FlashRequest::hit_flash()),
+                ],
+            }
+        }
+    })
 }

@@ -4,7 +4,7 @@ use player_state::PlayerState;
 use rand::Rng;
 use wag_core::{Facing, Players};
 
-use crate::event_spreading::{PlaySound, StartAnimation};
+use crate::event_spreading::{ActivateVoiceline, PlaySound, StartAnimation};
 
 use super::{announcer::AnnouncerMarker, AnimationHelper, Sounds};
 
@@ -57,6 +57,22 @@ pub fn update_generic_animation(
             });
         }
     }
+}
+
+pub fn play_voiceline(
+    trigger: Trigger<ActivateVoiceline>,
+    mut commands: Commands,
+    chars: Query<&Character>,
+) {
+    commands.trigger_targets(
+        PlaySound(
+            chars
+                .get(trigger.entity())
+                .unwrap()
+                .get_voiceline(trigger.event().0),
+        ),
+        trigger.entity(),
+    );
 }
 
 pub fn play_audio(trigger: Trigger<PlaySound>, mut commands: Commands, sounds: Res<Sounds>) {

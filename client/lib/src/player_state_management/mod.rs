@@ -159,6 +159,7 @@ fn spawn_player(
         .observe(size_adjustment::expand_hurtboxes)
         .observe(crate::assets::start_animation)
         .observe(crate::assets::start_relative_vfx)
+        .observe(crate::assets::play_voiceline)
         .observe(crate::camera::tilt_camera)
         .observe(crate::damage::snap_and_switch)
         .observe(crate::damage::hitstun_events)

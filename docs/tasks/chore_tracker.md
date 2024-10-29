@@ -5,7 +5,6 @@ enough to be put on a more important list.
 
 ## Bugs
 
-- Hit spark spawns in the wrong position for projectiles (relative to player)
 - Extra kunais may not work (besides the UI)
 
 ### Watchlist

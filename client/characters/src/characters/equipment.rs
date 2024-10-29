@@ -38,6 +38,7 @@ pub fn gi_parry(animation: Animation) -> Action {
             ActionRequirement::Grounded,
             ActionRequirement::ItemsOwned(vec![ItemId::Gi]),
         ],
+        on_hit_effects: vec![],
     }
 }
 
@@ -50,16 +51,13 @@ pub fn fast_fall() -> Action {
                 return vec![Movement::impulse(Vec2::Y * -1.5).into()];
             }
 
-            if situation.elapsed() >= 10 {
-                return vec![ActionEvent::End];
-            }
-
-            vec![]
+            situation.end_at(10)
         }),
         requirements: vec![
             ActionRequirement::Airborne,
             ActionRequirement::ItemsOwned(vec![ItemId::DivingHelmet]),
         ],
+        on_hit_effects: vec![],
     }
 }
 

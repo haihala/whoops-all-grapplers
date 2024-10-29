@@ -1,13 +1,16 @@
 use wag_core::ActionCategory;
 
-use crate::{ActionEvent, ActionRequirement, Situation};
+use crate::{hit_data::HitEffect, ActionEvent, ActionRequirement, HitInfo, Situation};
+
+pub type Script = Box<dyn Fn(&Situation) -> Vec<ActionEvent> + Send + Sync>;
+pub type OnHitEffect = Box<dyn Fn(&Situation, &HitInfo) -> HitEffect + Send + Sync>;
 
 pub struct Action {
     pub input: Option<&'static str>,
     pub category: ActionCategory,
     pub requirements: Vec<ActionRequirement>,
-    #[allow(clippy::type_complexity)]
-    pub script: Box<dyn Fn(&Situation) -> Vec<ActionEvent> + Send + Sync>,
+    pub script: Script,
+    pub on_hit_effects: Vec<OnHitEffect>,
 }
 
 impl std::fmt::Debug for Action {
@@ -37,6 +40,7 @@ macro_rules! throw_hit {
                 situation.end_at($duration)
             }),
             requirements: vec![],
+            on_hit_effects: vec![],
         }
     };
 }
@@ -83,6 +87,7 @@ macro_rules! throw_target {
                 situation.end_at($animation_duration)
             }),
             requirements: vec![],
+            on_hit_effects: vec![],
         }
     }};
 }

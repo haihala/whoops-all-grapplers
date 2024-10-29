@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default)]
+#[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default, Component)]
 pub enum ActionId {
     #[default]
     Default, // To satisfy Inspectable.

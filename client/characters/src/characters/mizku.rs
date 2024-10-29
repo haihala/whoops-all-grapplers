@@ -11,13 +11,13 @@ use wag_core::{
 
 use crate::{
     actions::ActionRequirement,
-    dashes,
+    build_strike_effect, dashes,
     resources::{RenderInstructions, ResourceType},
-    throw_hit, throw_target, Action, ActionEvent, Attack, AttackBuilder,
+    throw_hit, throw_target, Action, ActionEvent, AttackBuilder,
     AttackHeight::*,
     BlockType::*,
-    CharacterBoxes, CharacterStateBoxes, ConsumableType, CounterVisual, FlashRequest, Hitbox,
-    IntermediateStrike, Item, ItemCategory, Lifetime, Movement, Situation, ToHit, WAGResource,
+    CharacterBoxes, CharacterStateBoxes, ConsumableType, CounterVisual, FlashRequest, HitInfo,
+    Hitbox, Item, ItemCategory, Lifetime, Movement, Situation, ToHit, WAGResource,
 };
 
 use super::{
@@ -253,38 +253,38 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             MizkuAnimation::FootDiveRelease.into(),
                             // TODO: There used to be a 3f delay after the animation, but new
                             // system makes that hard, maybe think of a way to reintroduce that.
-                            Attack {
-                                to_hit: ToHit {
+                            ActionEvent::SpawnHitbox(
+                                ToHit {
                                     hitbox: Hitbox(Area::new(0.8, -0.2, 0.7, 0.3)),
                                     lifetime: Lifetime::frames(7),
                                     block_type: Strike(High),
                                     ..default()
                                 },
-                                ..IntermediateStrike {
-                                    base_damage: 18,
-                                    attacker_push_on_block: 0.33,
-                                    defender_push_on_block: 0.66,
-                                    attacker_push_on_hit: 0.2,
-                                    hit_stun_event: if situation
-                                        .inventory
-                                        .contains(&ItemId::SpaceSuitBoots)
-                                    {
-                                        ActionEvent::LaunchStun(Vec2::new(-1.0, 15.0))
-                                    } else {
-                                        ActionEvent::HitStun(40)
-                                    },
-                                    block_stun: 25,
-                                    ..default()
-                                }
-                                .build_attack(situation)
-                            }
-                            .into(),
+                                0,
+                            ),
                         ];
                     }
 
                     vec![]
                 }),
                 requirements: vec![ActionRequirement::Airborne],
+                on_hit_effects: vec![Box::new(|situation: &Situation, hit_data: &HitInfo| {
+                    build_strike_effect(
+                        25,
+                        High,
+                        0.33,
+                        0.66,
+                        1,
+                        if situation.inventory.contains(&ItemId::SpaceSuitBoots) {
+                            ActionEvent::LaunchStun(Vec2::new(-1.0, 15.0))
+                        } else {
+                            ActionEvent::HitStun(40)
+                        },
+                        0.2,
+                        18,
+                        0,
+                    )(situation, hit_data)
+                })],
             },
         ),
         (
@@ -431,12 +431,13 @@ fn enter_sword_stance(strong: bool) -> Action {
             }
             r
         },
+        on_hit_effects: vec![],
     }
 }
 
 fn exit_sword_stance() -> Action {
     Action {
-        input: Some("252"),
+        input: Some("5252"),
         category: ActionCategory::Special,
         script: Box::new(|situation: &Situation| {
             if situation.elapsed() == 0 {
@@ -452,6 +453,7 @@ fn exit_sword_stance() -> Action {
                 ActionId::Mizku(MizkuActionId::SSwordStance),
             ]),
         ],
+        on_hit_effects: vec![],
     }
 }
 
@@ -494,6 +496,7 @@ fn sharpen() -> Action {
                 ActionId::Mizku(MizkuActionId::SSwordStance),
             ]),
         ],
+        on_hit_effects: vec![],
     }
 }
 
@@ -518,7 +521,7 @@ fn viper_strike() -> Action {
         .with_advantage_on_hit(-10)
         .with_advantage_on_block(-40)
         .with_dynamic_activation_events(|situation: &Situation| {
-            vec![ActionEvent::VisualEffect(VfxRequest {
+            vec![ActionEvent::RelativeVisualEffect(VfxRequest {
                 effect: VisualEffect::WaveFlat,
                 tf: Transform {
                     translation: situation.facing.to_vec3() * 1.0 + Vec3::Y * 0.4,
@@ -549,7 +552,7 @@ fn rising_sun() -> Action {
         .with_advantage_on_block(-30)
         .with_hitbox(Area::new(0.25, 1.5, 1.5, 1.5))
         .with_dynamic_activation_events(|situation: &Situation| {
-            vec![ActionEvent::VisualEffect(VfxRequest {
+            vec![ActionEvent::RelativeVisualEffect(VfxRequest {
                 effect: VisualEffect::WaveDiagonal,
                 tf: Transform {
                     translation: situation.facing.to_vec3() + Vec3::Y * 1.7,

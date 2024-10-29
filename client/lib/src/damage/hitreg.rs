@@ -1,15 +1,14 @@
 use bevy::{ecs::query::QueryData, prelude::*};
 
 use characters::{
-    ActionEvent, Attack, AttackHeight, BlockType, Character, Hitbox, Hurtboxes, ResourceType,
-    WAGResources,
+    ActionEvent, Attack, AttackHeight, BlockType, Character, HitEffect, HitInfo, Hitbox, Hurtboxes,
+    Inventory, ResourceType, WAGResources,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{
     Area, Clock, Combo, Facing, Owner, Player, Players, SoundEffect, Stats, StatusFlag,
-    StickPosition, VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD, CLASH_PARRY_METER_GAIN,
-    GI_PARRY_METER_GAIN, SMALL_HIT_THRESHOLD,
+    StickPosition, VfxRequest, VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
 };
 
 use crate::{
@@ -57,6 +56,7 @@ pub struct HitPlayerQuery<'a> {
     stats: &'a Stats,
     combo: Option<&'a mut Combo>,
     character: &'a Character,
+    inventory: &'a Inventory,
 }
 
 #[allow(clippy::type_complexity)]
@@ -249,6 +249,7 @@ pub fn apply_connections(
     mut commands: Commands,
     mut notifications: ResMut<Notifications>,
     mut players: Query<HitPlayerQuery>,
+    clock: Res<Clock>,
 ) {
     if hits.len() >= 2 {
         if hits
@@ -290,33 +291,10 @@ pub fn apply_connections(
         let [mut attacker, mut defender] =
             players.get_many_mut([hit.attacker, hit.defender]).unwrap();
 
-        let (mut attacker_actions, mut defender_actions, avoided) = match hit.contact_type {
+        let avoided = match hit.contact_type {
             ConnectionType::Strike | ConnectionType::Throw => {
                 attacker.state.register_hit();
-                let mut target_evs = hit.attack.target_on_hit.clone();
-
-                let damage = target_evs
-                    .iter()
-                    .find_map(|ev| {
-                        if let ActionEvent::ModifyResource(ResourceType::Health, dmg) = ev {
-                            Some(-dmg)
-                        } else {
-                            None
-                        }
-                    })
-                    .unwrap_or_default();
-
-                if damage >= BIG_HIT_THRESHOLD {
-                    target_evs.push(ActionEvent::Sound(
-                        defender.character.get_voiceline(VoiceLine::BigHit),
-                    ));
-                } else if damage >= SMALL_HIT_THRESHOLD {
-                    target_evs.push(ActionEvent::Sound(
-                        defender.character.get_voiceline(VoiceLine::SmallHit),
-                    ));
-                }
-
-                (hit.attack.self_on_hit, target_evs, false)
+                false
             }
             ConnectionType::Block => {
                 attacker.state.register_hit();
@@ -328,25 +306,9 @@ pub fn apply_connections(
                         .gain(defender.stats.defense_meter);
                 }
 
-                (
-                    hit.attack.self_on_avoid,
-                    if !defender.stats.chip_damage {
-                        hit.attack
-                            .target_on_avoid
-                            .into_iter()
-                            .filter(|ev| {
-                                !matches!(ev, ActionEvent::ModifyResource(ResourceType::Health, _))
-                            })
-                            .collect()
-                    } else {
-                        hit.attack.target_on_avoid
-                    },
-                    true,
-                )
+                true
             }
-            ConnectionType::Tech | ConnectionType::Stunlock => {
-                (hit.attack.self_on_avoid, hit.attack.target_on_avoid, true)
-            }
+            ConnectionType::Tech | ConnectionType::Stunlock => true,
             ConnectionType::Parry => {
                 commands.trigger(PlaySound(SoundEffect::Clash));
                 commands.trigger_targets(
@@ -364,6 +326,32 @@ pub fn apply_connections(
                 return;
             }
         };
+
+        let situation = attacker.state.build_situation(
+            attacker.inventory.to_owned(),
+            attacker.properties.to_owned(),
+            attacker.parser.to_owned(),
+            attacker.stats.to_owned(),
+            clock.frame,
+            attacker.tf.translation,
+            attacker.facing.to_owned(),
+            attacker.combo.as_ref().map(|c| **c),
+        );
+        let HitEffect {
+            attacker: mut attacker_actions,
+            defender: mut defender_actions,
+        } = attacker
+            .character
+            .get_move(hit.attack.action_id)
+            .unwrap()
+            .on_hit_effects[hit.attack.on_hit](
+            &situation,
+            &HitInfo {
+                avoided,
+                hitbox_pos: hit.overlap.center(),
+                defender_stats: *defender.stats,
+            },
+        );
 
         if !avoided {
             if let Some(mut combo) = attacker.combo {

@@ -13,7 +13,7 @@ pub use action_event::ActionEvent;
 pub use action_requirement::ActionRequirement;
 pub use animation_request::AnimationRequest;
 pub use attack::Attack;
-pub use attack_builder::{AttackBuilder, IntermediateStrike};
+pub use attack_builder::{build_strike_effect, AttackBuilder};
 pub use flash_request::FlashRequest;
 pub use movement::Movement;
 pub use to_hit::{

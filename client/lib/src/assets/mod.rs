@@ -11,7 +11,7 @@ mod vfx;
 
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
 pub use announcer::Announcer;
-pub use asset_updater::start_animation;
+pub use asset_updater::{play_voiceline, start_animation};
 pub use materials::{ExtendedFlashMaterial, FlashMaterial};
 pub use models::{Models, PlayerModelHook};
 pub use sounds::Sounds;

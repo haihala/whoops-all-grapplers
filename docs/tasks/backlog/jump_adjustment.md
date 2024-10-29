@@ -1,0 +1,2 @@
+- Adjust direction after startup
+- Maybe make prejump to an action

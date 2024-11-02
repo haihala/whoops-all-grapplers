@@ -34,10 +34,10 @@ pub fn gi_parry(animation: Animation) -> Action {
 
             situation.end_at(30)
         }),
-        requirements: vec![
+        requirement: ActionRequirement::And(vec![
             ActionRequirement::Grounded,
-            ActionRequirement::ItemsOwned(vec![ItemId::Gi]),
-        ],
+            ActionRequirement::ItemOwned(ItemId::Gi),
+        ]),
     }
 }
 
@@ -52,10 +52,10 @@ pub fn fast_fall() -> Action {
 
             situation.end_at(10)
         }),
-        requirements: vec![
+        requirement: ActionRequirement::And(vec![
             ActionRequirement::Airborne,
-            ActionRequirement::ItemsOwned(vec![ItemId::DivingHelmet]),
-        ],
+            ActionRequirement::ItemOwned(ItemId::DivingHelmet),
+        ]),
     }
 }
 

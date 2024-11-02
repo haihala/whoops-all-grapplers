@@ -1,97 +1,109 @@
-use wag_core::{ActionId, GameButton, ItemId, StatusFlag};
+use wag_core::{
+    ActionCategory, ActionId, CancelType, GameButton, ItemId, OpenCancelWindow, StatusFlag,
+};
 
 use crate::{ResourceType, Situation};
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub enum ActionRequirement {
+    #[default]
+    None,
     Grounded,
     Airborne,
     AnyActionOngoing,
     ActionOngoing(Vec<ActionId>),
     ActionNotOngoing(Vec<ActionId>),
-    ItemsOwned(Vec<ItemId>),
+    ItemOwned(ItemId),
     ResourceFull(ResourceType),
     ResourceValue(ResourceType, i32),
     ButtonPressed(GameButton),
     ButtonNotPressed(GameButton),
     StatusNotActive(StatusFlag),
+    Starter(ActionCategory),
+    And(Vec<ActionRequirement>),
+    Or(Vec<ActionRequirement>),
 }
 impl ActionRequirement {
-    // If one condition fails, the whole thing fails.
-    pub fn check(requirements: &Vec<ActionRequirement>, situation: &Situation) -> bool {
-        for requirement in requirements {
-            match requirement {
-                ActionRequirement::Grounded => {
-                    if !situation.grounded {
+    pub fn check(
+        &self,
+        self_id: ActionId,
+        windows: &Vec<OpenCancelWindow>,
+        situation: &Situation,
+    ) -> bool {
+        match self {
+            ActionRequirement::None => true,
+            ActionRequirement::Grounded => situation.grounded,
+            ActionRequirement::Airborne => !situation.grounded,
+            ActionRequirement::ActionOngoing(ids) => {
+                let Some(tracker) = &situation.tracker else {
+                    return false;
+                };
+
+                ids.contains(&tracker.action_id)
+            }
+            ActionRequirement::ActionNotOngoing(ids) => {
+                let Some(tracker) = &situation.tracker else {
+                    return true;
+                };
+
+                !ids.contains(&tracker.action_id)
+            }
+            ActionRequirement::AnyActionOngoing => situation.tracker.is_some(),
+            ActionRequirement::ItemOwned(item_id) => situation.inventory.contains(item_id),
+            ActionRequirement::ResourceFull(resource) => situation
+                .get_resource(*resource)
+                .expect("Character to have resource")
+                .is_full(),
+            ActionRequirement::ResourceValue(resource, value) => {
+                situation
+                    .get_resource(*resource)
+                    .expect("Character to have resource")
+                    .current
+                    >= *value
+            }
+            ActionRequirement::ButtonPressed(button) => situation.held_buttons.contains(button),
+            ActionRequirement::ButtonNotPressed(button) => !situation.held_buttons.contains(button),
+            ActionRequirement::StatusNotActive(status) => !situation.status_flags.contains(status),
+            ActionRequirement::And(list) => {
+                for inner in list {
+                    if !inner.check(self_id, windows, situation) {
                         return false;
                     }
                 }
-                ActionRequirement::Airborne => {
-                    if situation.grounded {
-                        return false;
+                true
+            }
+            ActionRequirement::Or(list) => {
+                for inner in list {
+                    if inner.check(self_id, windows, situation) {
+                        return true;
                     }
                 }
-                ActionRequirement::ActionOngoing(ids) => {
-                    let Some(tracker) = &situation.tracker else {
-                        return false;
+                false
+            }
+            ActionRequirement::Starter(category) => {
+                if situation.tracker.is_none() {
+                    // Raw activation (easy to make it different for bursts)
+                    return true;
+                }
+
+                let has_hit = situation.tracker.unwrap().has_hit;
+
+                for win in windows {
+                    let matching_cancel = match win.cancel_type {
+                        CancelType::Special => {
+                            matches!(category, ActionCategory::Special | ActionCategory::Super)
+                        }
+                        CancelType::Super => *category == ActionCategory::Super,
+                        CancelType::Specific(ref options) => options.contains(&self_id),
+                        CancelType::Anything => true,
                     };
 
-                    if !ids.contains(&tracker.action_id) {
-                        return false;
+                    if matching_cancel && (has_hit || !win.require_hit) {
+                        return true;
                     }
                 }
-                ActionRequirement::ActionNotOngoing(ids) => {
-                    if let Some(tracker) = &situation.tracker {
-                        if ids.contains(&tracker.action_id) {
-                            return false;
-                        }
-                    };
-                }
-                ActionRequirement::AnyActionOngoing => {
-                    if situation.tracker.is_none() {
-                        return false;
-                    }
-                }
-                ActionRequirement::ItemsOwned(ids) => {
-                    if !ids.iter().any(|item| situation.inventory.contains(item)) {
-                        return false;
-                    }
-                }
-                ActionRequirement::ResourceFull(resource) => {
-                    if !situation
-                        .get_resource(*resource)
-                        .unwrap_or_else(|| panic!("Character to have resource {:#?}", resource))
-                        .is_full()
-                    {
-                        return false;
-                    }
-                }
-                ActionRequirement::ResourceValue(resource, value) => {
-                    if situation
-                        .get_resource(*resource)
-                        .map(|r| r.current < *value)
-                        .unwrap_or_else(|| panic!("Character to have resource {:#?}", resource))
-                    {
-                        return false;
-                    }
-                }
-                ActionRequirement::ButtonPressed(button) => {
-                    if !situation.held_buttons.contains(button) {
-                        return false;
-                    }
-                }
-                ActionRequirement::ButtonNotPressed(button) => {
-                    if situation.held_buttons.contains(button) {
-                        return false;
-                    }
-                }
-                ActionRequirement::StatusNotActive(status) => {
-                    if situation.status_flags.contains(status) {
-                        return false;
-                    }
-                }
+                false
             }
         }
-        true
     }
 }

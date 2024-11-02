@@ -283,7 +283,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
 
                     vec![]
                 }),
-                requirements: vec![ActionRequirement::Airborne],
+                requirement: ActionRequirement::Airborne,
             },
         ),
         (
@@ -423,13 +423,15 @@ fn enter_sword_stance(strong: bool) -> Action {
 
             situation.end_at(40)
         }),
-        requirements: {
-            let mut r = vec![ActionRequirement::Grounded];
+        requirement: ActionRequirement::And(vec![
+            ActionRequirement::Grounded,
+            ActionRequirement::Starter(ActionCategory::Special),
             if strong {
-                r.push(ActionRequirement::ResourceValue(ResourceType::Meter, 20));
-            }
-            r
-        },
+                ActionRequirement::ResourceValue(ResourceType::Meter, 20)
+            } else {
+                ActionRequirement::default()
+            },
+        ]),
     }
 }
 
@@ -444,13 +446,13 @@ fn exit_sword_stance() -> Action {
 
             situation.end_at(9)
         }),
-        requirements: vec![
+        requirement: ActionRequirement::And(vec![
             ActionRequirement::Grounded,
             ActionRequirement::ActionOngoing(vec![
                 ActionId::Mizku(MizkuActionId::FSwordStance),
                 ActionId::Mizku(MizkuActionId::SSwordStance),
             ]),
-        ],
+        ]),
     }
 }
 
@@ -468,7 +470,7 @@ fn sword_stance() -> impl Iterator<Item = (MizkuActionId, Action)> {
 fn sharpen() -> Action {
     Action {
         input: Some("g"),
-        category: ActionCategory::FollowUp,
+        category: ActionCategory::Special,
         script: Box::new(|situation: &Situation| {
             if situation.elapsed() == 0 {
                 return vec![
@@ -486,13 +488,13 @@ fn sharpen() -> Action {
 
             situation.end_at(55)
         }),
-        requirements: vec![
+        requirement: ActionRequirement::And(vec![
             ActionRequirement::Grounded,
             ActionRequirement::ActionOngoing(vec![
                 ActionId::Mizku(MizkuActionId::FSwordStance),
                 ActionId::Mizku(MizkuActionId::SSwordStance),
             ]),
-        ],
+        ]),
     }
 }
 

@@ -1,16 +1,13 @@
-use std::sync::Arc;
-
 use wag_core::ActionCategory;
 
-use crate::{hit_data::HitEffect, ActionEvent, ActionRequirement, HitInfo, Situation};
+use crate::{ActionEvent, ActionRequirement, Situation};
 
 pub type Script = Box<dyn Fn(&Situation) -> Vec<ActionEvent> + Send + Sync>;
-pub type OnHitEffect = Arc<dyn Fn(&Situation, &HitInfo) -> HitEffect + Send + Sync>;
 
 pub struct Action {
     pub input: Option<&'static str>,
     pub category: ActionCategory,
-    pub requirements: Vec<ActionRequirement>,
+    pub requirement: ActionRequirement,
     pub script: Script,
 }
 
@@ -40,7 +37,7 @@ macro_rules! throw_hit {
 
                 situation.end_at($duration)
             }),
-            requirements: vec![],
+            requirement: ActionRequirement::default(),
         }
     };
 }
@@ -86,7 +83,7 @@ macro_rules! throw_target {
 
                 situation.end_at($animation_duration)
             }),
-            requirements: vec![],
+            requirement: ActionRequirement::default(),
         }
     }};
 }

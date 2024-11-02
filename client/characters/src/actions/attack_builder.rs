@@ -9,7 +9,7 @@ use wag_core::{
 use crate::{ActionRequirement, HitEffect, HitInfo, ResourceType, Situation};
 
 use super::{
-    action::OnHitEffect, Action, ActionEvent, Attack, AttackHeight, BlockType, FlashRequest,
+    attack::OnHitEffect, Action, ActionEvent, Attack, AttackHeight, BlockType, FlashRequest,
     Hitbox, Lifetime, Movement, Projectile, ToHit,
 };
 
@@ -139,7 +139,6 @@ impl AttackBuilder {
 
     pub fn follow_up_from(self, actions: Vec<ActionId>) -> Self {
         Self {
-            category: ActionCategory::FollowUp,
             follow_up_from: Some(actions),
             ..self
         }
@@ -454,7 +453,7 @@ impl AttackBuilder {
         }
     }
 
-    fn build_requirements(&self) -> Vec<ActionRequirement> {
+    fn build_requirements(&self) -> ActionRequirement {
         let mut temp = self.extra_requirements.clone();
 
         temp.push(if self.air_move {
@@ -473,9 +472,11 @@ impl AttackBuilder {
 
         if let Some(ongoing) = self.follow_up_from.clone() {
             temp.push(ActionRequirement::ActionOngoing(ongoing));
+        } else {
+            temp.push(ActionRequirement::Starter(self.category));
         }
 
-        temp
+        ActionRequirement::And(temp)
     }
 
     fn build_script(&self) -> impl Fn(&Situation) -> Vec<ActionEvent> {
@@ -578,8 +579,8 @@ impl AttackBuilder {
 
         Action {
             input: Some(self.input),
-            requirements: self.build_requirements(),
-            category: self.category.clone(),
+            requirement: self.build_requirements(),
+            category: self.category,
             script: Box::new(self.build_script()),
         }
     }

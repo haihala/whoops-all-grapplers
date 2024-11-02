@@ -50,8 +50,6 @@ impl Plugin for PlayerStateManagementPlugin {
                 RollbackSchedule,
                 (
                     move_activation::manage_buffer,
-                    move_activation::plain_start,
-                    move_activation::cancel_start,
                     move_activation::move_activator,
                     move_advancement::move_advancement,
                 )

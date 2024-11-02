@@ -146,17 +146,17 @@ fn jump(
 
             situation.end_at(delay + 5)
         }),
-        requirements: match jump_type {
-            JumpType::Basic => vec![ActionRequirement::Grounded],
-            JumpType::Air => vec![
+        requirement: match jump_type {
+            JumpType::Basic => ActionRequirement::Grounded,
+            JumpType::Air => ActionRequirement::And(vec![
                 ActionRequirement::Airborne,
-                ActionRequirement::ItemsOwned(vec![ItemId::PigeonWing]),
+                ActionRequirement::ItemOwned(ItemId::PigeonWing),
                 ActionRequirement::StatusNotActive(StatusFlag::DoubleJumped),
-            ],
-            JumpType::Super => vec![
+            ]),
+            JumpType::Super => ActionRequirement::And(vec![
                 ActionRequirement::Grounded,
-                ActionRequirement::ItemsOwned(vec![ItemId::FeatheredBoots]),
-            ],
+                ActionRequirement::ItemOwned(ItemId::FeatheredBoots),
+            ]),
         },
     }
 }
@@ -303,7 +303,7 @@ macro_rules! dash {
         if $track_spikes {
             requirements.extend(vec![
                 ActionRequirement::ResourceValue(ResourceType::Meter, 40),
-                ActionRequirement::ItemsOwned(vec![ItemId::TrackSpikes]),
+                ActionRequirement::ItemOwned(ItemId::TrackSpikes),
                 ActionRequirement::AnyActionOngoing,
                 ActionRequirement::ActionNotOngoing(vec![
                     ActionId::DashForward,
@@ -369,7 +369,7 @@ macro_rules! dash {
 
                 situation.end_at($total_duration)
             }),
-            requirements,
+            requirement: ActionRequirement::And(requirements),
         }
     }};
 }

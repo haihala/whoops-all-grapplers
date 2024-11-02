@@ -159,7 +159,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
 
                     situation.end_at(20)
                 }),
-                requirements: vec![],
+                requirement: ActionRequirement::Grounded,
             },
         ),
         (
@@ -186,7 +186,7 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                 .with_animation(DummyAnimation::Divekick)
                 .with_frame_data(5, 10, 15)
                 .with_hitbox(Area::new(0.6, -0.2, 0.35, 0.25))
-                .with_extra_requirements(vec![ActionRequirement::ItemsOwned(vec![ItemId::Boots])])
+                .with_extra_requirements(vec![ActionRequirement::ItemOwned(ItemId::Boots)])
                 .build(),
         ),
         (
@@ -224,7 +224,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
 
                     situation.end_at(45)
                 }),
-                requirements: vec![],
+                requirement: ActionRequirement::Grounded,
             },
         ),
         (

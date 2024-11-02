@@ -2,8 +2,9 @@ use bevy::prelude::*;
 
 use crate::ActionId;
 
-#[derive(Clone, PartialEq, Eq, Debug, PartialOrd, Ord, Reflect, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, PartialOrd, Ord, Reflect, Default, Hash)]
 pub enum ActionCategory {
+    // TODO: Look at these
     Dash,
     Jump,
     Throw,
@@ -12,7 +13,6 @@ pub enum ActionCategory {
     Normal,
     Special,
     Super,
-    FollowUp,
     Forced, // For throw recipients
 }
 
@@ -53,24 +53,6 @@ pub struct OpenCancelWindow {
 #[derive(Debug, Default, Component, Clone)]
 pub struct AvailableCancels(pub Vec<OpenCancelWindow>);
 impl AvailableCancels {
-    pub fn can_cancel_to(&self, category: ActionCategory, id: ActionId, has_hit: bool) -> bool {
-        for win in self.0.iter() {
-            let matching_cancel = match win.cancel_type {
-                CancelType::Special => {
-                    matches!(category, ActionCategory::Special | ActionCategory::Super)
-                }
-                CancelType::Super => category == ActionCategory::Super,
-                CancelType::Specific(ref options) => options.contains(&id),
-                CancelType::Anything => true,
-            };
-
-            if matching_cancel && (has_hit || !win.require_hit) {
-                return true;
-            }
-        }
-        false
-    }
-
     pub fn clear(&mut self) {
         self.0.clear();
     }

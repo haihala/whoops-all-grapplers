@@ -73,9 +73,6 @@ pub struct SpawnRelativeVfx(pub VfxRequest);
 pub struct SpawnVfx(pub VfxRequest);
 
 #[derive(Debug, Event)]
-pub struct LockPlayer(pub usize);
-
-#[derive(Debug, Event)]
 pub struct EndAction;
 
 #[derive(Debug, Event)]
@@ -164,9 +161,6 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
         }
         ActionEvent::RelativeVisualEffect(vfx) => {
             commands.trigger_targets(SpawnRelativeVfx(*vfx), trigger.entity());
-        }
-        ActionEvent::Lock(dur) => {
-            commands.trigger_targets(LockPlayer(*dur), trigger.entity());
         }
         ActionEvent::End => {
             commands.trigger_targets(EndAction, trigger.entity());

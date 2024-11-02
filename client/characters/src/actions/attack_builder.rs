@@ -3,7 +3,8 @@ use std::{f32::consts::PI, sync::Arc};
 use bevy::prelude::*;
 use wag_core::{
     ActionCategory, ActionId, Animation, Area, CancelType, CancelWindow, Model, SoundEffect,
-    VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD, SMALL_HIT_THRESHOLD,
+    StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD,
+    SMALL_HIT_THRESHOLD,
 };
 
 use crate::{ActionRequirement, HitEffect, HitInfo, ResourceType, Situation};
@@ -612,7 +613,11 @@ pub fn build_throw_effect(
                 attacker: vec![
                     ActionEvent::StartAction(on_hit_action),
                     ActionEvent::Hitstop,
-                    ActionEvent::Lock(lock_duration),
+                    ActionEvent::Condition(StatusCondition {
+                        flag: StatusFlag::MovementLock,
+                        expiration: Some(lock_duration),
+                        ..default()
+                    }),
                     ActionEvent::Sound(SoundEffect::PastaPat),
                     ActionEvent::AbsoluteVisualEffect(VfxRequest {
                         effect: VisualEffect::ThrowTarget,
@@ -623,7 +628,11 @@ pub fn build_throw_effect(
                 defender: vec![
                     ActionEvent::SnapToOpponent { sideswitch },
                     ActionEvent::StartAction(target_action),
-                    ActionEvent::Lock(lock_duration),
+                    ActionEvent::Condition(StatusCondition {
+                        flag: StatusFlag::MovementLock,
+                        expiration: Some(lock_duration),
+                        ..default()
+                    }),
                 ],
             }
         }

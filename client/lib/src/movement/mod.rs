@@ -10,7 +10,9 @@ pub use player_velocity::PlayerVelocity;
 use bevy::prelude::*;
 
 use player_state::PlayerState;
-use wag_core::{Area, Clock, Combo, Facing, Player, Players, RollbackSchedule, Stats, WAGStage};
+use wag_core::{
+    Area, Clock, Combo, Facing, Player, Players, RollbackSchedule, Stats, StatusFlag, WAGStage,
+};
 
 use crate::{
     damage::{HitTracker, HitboxSpawner},
@@ -99,7 +101,7 @@ fn player_gravity(
     )>,
 ) {
     for (mut velocity, mut state, mut spawner, mut tf, stats, combo) in &mut players {
-        if state.active_cinematic().is_some() {
+        if state.has_flag(StatusFlag::MovementLock) {
             continue;
         }
 
@@ -146,7 +148,7 @@ fn player_input(
     mut query: Query<(&PlayerState, &mut PlayerVelocity, &Stats, &Facing)>,
 ) {
     for (state, mut velocity, status_effects, facing) in &mut query {
-        if state.active_cinematic().is_some() {
+        if state.has_flag(StatusFlag::MovementLock) {
             continue;
         }
 
@@ -164,7 +166,7 @@ fn player_input(
 fn set_target_position(mut query: Query<(&Transform, &PlayerState, &mut PlayerVelocity)>) {
     for (tf, state, mut velocity) in &mut query {
         velocity.next_pos = tf.translation.truncate();
-        if state.active_cinematic().is_some() {
+        if state.has_flag(StatusFlag::MovementLock) {
             continue;
         }
 

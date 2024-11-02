@@ -2,11 +2,11 @@ use bevy::prelude::*;
 
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{Facing, StickPosition};
+use wag_core::{Facing, StatusFlag, StickPosition};
 
 pub fn movement_input(mut query: Query<(&InputParser, &mut PlayerState, &Facing)>) {
     for (reader, mut state, facing) in &mut query {
-        if state.active_cinematic().is_some() {
+        if state.has_flag(StatusFlag::MovementLock) {
             continue;
         }
 

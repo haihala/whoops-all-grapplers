@@ -5,13 +5,12 @@ use wag_core::{Clock, Stats, StatusCondition};
 
 use crate::event_spreading::AddCondition;
 
-pub fn manage_conditions(
+pub fn activate_conditions(
     trigger: Trigger<AddCondition>,
     mut query: Query<&mut PlayerState>,
     clock: Res<Clock>,
 ) {
     let mut state = query.get_mut(trigger.entity()).unwrap();
-    state.expire_conditions(clock.frame);
 
     let new_condition = trigger.event().0;
     state.add_condition(StatusCondition {
@@ -20,6 +19,12 @@ pub fn manage_conditions(
             .map(|duration| clock.frame + duration),
         ..new_condition
     });
+}
+
+pub fn expire_conditions(mut query: Query<&mut PlayerState>, clock: Res<Clock>) {
+    for mut state in &mut query {
+        state.expire_conditions(clock.frame);
+    }
 }
 
 pub fn update_combined_status_effect(

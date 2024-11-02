@@ -16,15 +16,9 @@ enum MainState {
     Ground(usize),
 }
 
-#[derive(Reflect, Debug, Clone, Hash)]
-pub struct CinematicState {
-    return_frame: usize,
-}
-
 #[derive(Component, Debug, Clone, Hash)]
 pub struct PlayerState {
     main: MainState,
-    cinematic_state: Option<CinematicState>,
     pub free_since: Option<usize>,
     conditions: Vec<StatusCondition>,
 }
@@ -33,7 +27,6 @@ impl Default for PlayerState {
     fn default() -> Self {
         Self {
             main: MainState::Stand(StandState::default()),
-            cinematic_state: None,
             free_since: Some(0),
             conditions: vec![],
         }
@@ -261,18 +254,6 @@ impl PlayerState {
         } else {
             None
         }
-    }
-    pub fn active_cinematic(&self) -> Option<usize> {
-        self.cinematic_state.clone().map(|cs| cs.return_frame)
-    }
-
-    pub fn start_cinematic(&mut self, frame: usize) {
-        self.cinematic_state = Some(CinematicState {
-            return_frame: frame,
-        });
-    }
-    pub fn end_cinematic(&mut self) {
-        self.cinematic_state = None;
     }
 
     // Walking

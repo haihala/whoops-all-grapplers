@@ -35,7 +35,6 @@ pub enum ActionEvent {
     Flash(FlashRequest),
     RelativeVisualEffect(VfxRequest),
     AbsoluteVisualEffect(VfxRequest),
-    Lock(usize),                // duration
     ExpandHurtbox(Area, usize), // New area, how long it should hang around
     #[default]
     Noop,        // makes writing macros easier

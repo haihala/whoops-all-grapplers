@@ -31,7 +31,11 @@ macro_rules! throw_hit {
                 if situation.elapsed() == 0 {
                     return vec![
                         Into::<Animation>::into($animation).into(),
-                        ActionEvent::Lock($duration),
+                        ActionEvent::Condition(StatusCondition {
+                            flag: StatusFlag::MovementLock,
+                            expiration: Some($duration),
+                            ..default()
+                        }),
                     ];
                 }
 
@@ -77,7 +81,11 @@ macro_rules! throw_target {
                         },
                         ActionEvent::Flash(FlashRequest::hit_flash()),
                         ActionEvent::Hitstop,
-                        ActionEvent::Lock($lock_duration),
+                        ActionEvent::Condition(StatusCondition {
+                            flag: StatusFlag::MovementLock,
+                            expiration: Some($lock_duration),
+                            ..default()
+                        }),
                     ];
                 }
 

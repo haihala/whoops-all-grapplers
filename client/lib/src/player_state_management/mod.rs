@@ -1,4 +1,3 @@
-mod cinematic_locks;
 mod condition_management;
 mod force_stand;
 mod move_activation;
@@ -42,7 +41,11 @@ impl Plugin for PlayerStateManagementPlugin {
             )
             .add_systems(
                 RollbackSchedule,
-                condition_management::update_combined_status_effect
+                (
+                    condition_management::expire_conditions,
+                    condition_management::update_combined_status_effect,
+                )
+                    .chain()
                     .after(WAGStage::MovePipeline)
                     .before(WAGStage::PlayerUpdates),
             )
@@ -59,7 +62,6 @@ impl Plugin for PlayerStateManagementPlugin {
             .add_systems(
                 RollbackSchedule,
                 (
-                    cinematic_locks::handle_cinematics, // This being the first system after hit move advancement is important
                     recovery::stun_recovery,
                     recovery::ground_recovery,
                     size_adjustment::update_box_sizes_from_state,
@@ -147,8 +149,7 @@ fn spawn_player(
         })
         .add_rollback()
         .observe(event_spreading::spread_events)
-        .observe(cinematic_locks::start_lock)
-        .observe(condition_management::manage_conditions)
+        .observe(condition_management::activate_conditions)
         .observe(force_stand::force_stand)
         .observe(move_activation::automatic_activation)
         .observe(move_activation::manage_cancel_windows)

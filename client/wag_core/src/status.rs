@@ -148,6 +148,7 @@ pub enum StatusFlag {
     Intangible,
     Parry,
     DoubleJumped,
+    MovementLock,
 }
 
 #[derive(Reflect, Debug, Clone, Copy, Default, PartialEq, Hash)]

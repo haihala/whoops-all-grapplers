@@ -3,7 +3,9 @@ use bevy::prelude::*;
 use characters::{Character, Hurtboxes, Inventory, Situation, WAGResources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{ActionId, AvailableCancels, Clock, Combo, Facing, OpenCancelWindow, Stats};
+use wag_core::{
+    ActionId, AvailableCancels, Clock, Combo, Facing, OpenCancelWindow, Stats, StatusFlag,
+};
 
 use crate::event_spreading::{AllowCancel, StartAction};
 
@@ -151,7 +153,7 @@ pub(super) fn move_activator(
                 .1
         };
 
-        if state.active_cinematic().is_some() {
+        if state.has_flag(StatusFlag::MovementLock) {
             continue;
         }
 

@@ -81,13 +81,12 @@ mod test {
                     ..default()
                 };
                 let end_events = (mov.script)(&sit);
-                assert!(
-                    end_events.contains(&ActionEvent::End),
-                    "{:?} - {:?} not in {:?}",
-                    id,
-                    &mov,
-                    end_events,
-                );
+                end_events
+                    .iter()
+                    .find(|ev| matches!(ev, ActionEvent::End))
+                    .expect("All moves to end");
+
+                println!("{:?} did not send end event at t=9999", id,);
             }
         }
     }

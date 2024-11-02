@@ -31,11 +31,10 @@ pub(super) enum ConnectionType {
     Stunlock,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Clone)]
 pub(super) struct AttackConnection {
     attacker: Entity,
     defender: Entity,
-    hitbox: Entity,
     overlap: Area,
     attack: Attack,
     contact_type: ConnectionType,
@@ -133,114 +132,102 @@ pub(super) fn clash_parry(
 pub(super) fn detect_hits(
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
-    mut hitboxes: Query<(
-        Entity,
-        &Owner,
-        &Attack,
-        &GlobalTransform,
-        &Hitbox,
-        &mut HitTracker,
-    )>,
+    mut hitboxes: Query<(&Owner, &Attack, &GlobalTransform, &Hitbox, &mut HitTracker)>,
     players: Res<Players>,
     defenders: Query<(&Transform, &Facing, &Hurtboxes, &PlayerState, &InputParser)>,
     attackers: Query<Option<&Combo>>,
 ) -> Vec<AttackConnection> {
     hitboxes
         .iter_mut()
-        .filter_map(
-            |(hitbox_entity, hit_owner, attack, hitbox_tf, hitbox, mut hit_tracker)| {
-                if !hit_tracker.active(clock.frame) {
-                    return None;
+        .filter_map(|(hit_owner, attack, hitbox_tf, hitbox, mut hit_tracker)| {
+            if !hit_tracker.active(clock.frame) {
+                return None;
+            }
+
+            let attacking_player = **hit_owner;
+            let defending_player = hit_owner.other();
+
+            let defender = players.get(defending_player);
+            let attacker = players.get(**hit_owner);
+            let (defender_tf, facing, hurtboxes, state, parser) = defenders.get(defender).unwrap();
+            let combo = attackers.get(attacker).unwrap();
+
+            let offset_hitbox = hitbox.with_offset(hitbox_tf.translation().truncate());
+
+            // This technically doesn't get the actual overlap, as it just gets some overlap with one of the hitboxes
+            let overlap = hurtboxes.as_vec().iter().find_map(|hurtbox| {
+                // Different owners, hit can register
+                hurtbox
+                    .with_center(
+                        facing.mirror_vec2(hurtbox.center()) + defender_tf.translation.truncate(),
+                    )
+                    .intersection(&offset_hitbox)
+            })?;
+
+            if state.is_intangible() {
+                if !hit_tracker.hit_intangible {
+                    // Only send the notification once
+                    hit_tracker.hit_intangible = true;
+                    notifications.add(defending_player, "Intangible".to_owned());
                 }
+                return None;
+            }
 
-                let attacking_player = **hit_owner;
-                let defending_player = hit_owner.other();
+            if hit_tracker.hits >= 1 {
+                hit_tracker.register_hit(clock.frame)
+            } else {
+                return None;
+            }
 
-                let defender = players.get(defending_player);
-                let attacker = players.get(**hit_owner);
-                let (defender_tf, facing, hurtboxes, state, parser) =
-                    defenders.get(defender).unwrap();
-                let combo = attackers.get(attacker).unwrap();
+            // Connection confirmed
 
-                let offset_hitbox = hitbox.with_offset(hitbox_tf.translation().truncate());
+            let (avoid_notification, contact_type) = match attack.to_hit.block_type {
+                BlockType::Strike(height) => {
+                    let parrying = state.has_flag(StatusFlag::Parry) && state.is_grounded();
+                    let (blocked, reason) =
+                        handle_blocking(height, parser.get_relative_stick_position());
 
-                // This technically doesn't get the actual overlap, as it just gets some overlap with one of the hitboxes
-                let overlap = hurtboxes.as_vec().iter().find_map(|hurtbox| {
-                    // Different owners, hit can register
-                    hurtbox
-                        .with_center(
-                            facing.mirror_vec2(hurtbox.center())
-                                + defender_tf.translation.truncate(),
+                    if parrying {
+                        (Some("Parry!".into()), ConnectionType::Parry)
+                    } else if blocked && state.can_block() {
+                        (Some(reason), ConnectionType::Block)
+                    } else {
+                        (None, ConnectionType::Strike)
+                    }
+                }
+                BlockType::Grab => {
+                    if combo.is_some() {
+                        (
+                            Some("Can't grab from stun".into()),
+                            ConnectionType::Stunlock,
                         )
-                        .intersection(&offset_hitbox)
-                })?;
-
-                if state.is_intangible() {
-                    if !hit_tracker.hit_intangible {
-                        // Only send the notification once
-                        hit_tracker.hit_intangible = true;
-                        notifications.add(defending_player, "Intangible".to_owned());
+                    } else if yomi_teched(parser)
+                        && (state.can_block() && !state.action_in_progress())
+                    {
+                        (Some("Teched".into()), ConnectionType::Tech)
+                    } else {
+                        (None, ConnectionType::Throw)
                     }
-                    return None;
                 }
+            };
 
-                if hit_tracker.hits >= 1 {
-                    hit_tracker.register_hit(clock.frame)
-                } else {
-                    return None;
-                }
+            if let Some(reason) = avoid_notification {
+                notifications.add(defending_player, format!("Avoid - {}", reason,));
+            }
 
-                // Connection confirmed
+            if hit_tracker.hit_intangible {
+                // Just a nice notification for now.
+                notifications.add(attacking_player, "Meaty!".to_owned());
+            }
 
-                let (avoid_notification, contact_type) = match attack.to_hit.block_type {
-                    BlockType::Strike(height) => {
-                        let parrying = state.has_flag(StatusFlag::Parry) && state.is_grounded();
-                        let (blocked, reason) =
-                            handle_blocking(height, parser.get_relative_stick_position());
-
-                        if parrying {
-                            (Some("Parry!".into()), ConnectionType::Parry)
-                        } else if blocked && state.can_block() {
-                            (Some(reason), ConnectionType::Block)
-                        } else {
-                            (None, ConnectionType::Strike)
-                        }
-                    }
-                    BlockType::Grab => {
-                        if combo.is_some() {
-                            (
-                                Some("Can't grab from stun".into()),
-                                ConnectionType::Stunlock,
-                            )
-                        } else if yomi_teched(parser)
-                            && (state.can_block() && !state.action_in_progress())
-                        {
-                            (Some("Teched".into()), ConnectionType::Tech)
-                        } else {
-                            (None, ConnectionType::Throw)
-                        }
-                    }
-                };
-
-                if let Some(reason) = avoid_notification {
-                    notifications.add(defending_player, format!("Avoid - {}", reason,));
-                }
-
-                if hit_tracker.hit_intangible {
-                    // Just a nice notification for now.
-                    notifications.add(attacking_player, "Meaty!".to_owned());
-                }
-
-                Some(AttackConnection {
-                    defender,
-                    attacker,
-                    hitbox: hitbox_entity,
-                    overlap,
-                    attack: attack.to_owned(),
-                    contact_type,
-                })
-            },
-        )
+            Some(AttackConnection {
+                defender,
+                attacker,
+                overlap,
+                attack: attack.to_owned(),
+                contact_type,
+            })
+        })
         .collect()
 }
 
@@ -340,11 +327,7 @@ pub fn apply_connections(
         let HitEffect {
             attacker: mut attacker_actions,
             defender: mut defender_actions,
-        } = attacker
-            .character
-            .get_move(hit.attack.action_id)
-            .unwrap()
-            .on_hit_effects[hit.attack.on_hit](
+        } = (hit.attack.on_hit)(
             &situation,
             &HitInfo {
                 avoided,

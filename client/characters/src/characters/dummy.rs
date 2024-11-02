@@ -1,4 +1,4 @@
-use std::iter::empty;
+use std::{iter::empty, sync::Arc};
 
 use bevy::{prelude::*, utils::HashMap};
 
@@ -14,8 +14,8 @@ use crate::{
     resources::{RenderInstructions, ResourceType},
     Action,
     ActionEvent::*,
-    AttackBuilder, AttackHeight, CharacterBoxes, CharacterStateBoxes, ChargeProperty, HitInfo,
-    Hitbox, Item,
+    Attack, AttackBuilder, AttackHeight, CharacterBoxes, CharacterStateBoxes, ChargeProperty,
+    HitInfo, Hitbox, Item,
     ItemCategory::*,
     Lifetime, Movement, ResourceBarVisual, Situation, SpecialProperty, ToHit, WAGResource,
 };
@@ -128,14 +128,27 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
 
                     if situation.elapsed() == 10 {
                         return vec![
-                            SpawnHitbox(
-                                ToHit {
+                            SpawnHitbox(Attack {
+                                to_hit: ToHit {
                                     hitbox: Hitbox(Area::new(0.6, 1.1, 1.0, 0.2)),
                                     lifetime: Lifetime::frames(8),
                                     ..default()
                                 },
-                                0,
-                            ),
+                                on_hit: Arc::new(|situation: &Situation, hit_data: &HitInfo| {
+                                    let has_roids = situation.inventory.contains(&ItemId::Roids);
+                                    build_strike_effect(
+                                        25,
+                                        AttackHeight::High,
+                                        if has_roids { 1.0 } else { 2.0 },
+                                        0.66,
+                                        1,
+                                        HitStun(20),
+                                        if has_roids { 0.0 } else { 3.0 },
+                                        20,
+                                        0,
+                                    )(situation, hit_data)
+                                }),
+                            }),
                             Movement {
                                 amount: Vec2::X * 2.0,
                                 duration: 1,
@@ -147,21 +160,6 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
                     situation.end_at(20)
                 }),
                 requirements: vec![],
-
-                on_hit_effects: vec![Box::new(|situation: &Situation, hit_data: &HitInfo| {
-                    let has_roids = situation.inventory.contains(&ItemId::Roids);
-                    build_strike_effect(
-                        25,
-                        AttackHeight::High,
-                        if has_roids { 1.0 } else { 2.0 },
-                        0.66,
-                        1,
-                        HitStun(20),
-                        if has_roids { 0.0 } else { 3.0 },
-                        20,
-                        0,
-                    )(situation, hit_data)
-                })],
             },
         ),
         (
@@ -227,7 +225,6 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
                     situation.end_at(45)
                 }),
                 requirements: vec![],
-                on_hit_effects: vec![],
             },
         ),
         (

@@ -1,4 +1,4 @@
-use std::f32::consts::PI;
+use std::{f32::consts::PI, sync::Arc};
 
 use bevy::{prelude::*, utils::HashMap};
 
@@ -13,7 +13,7 @@ use crate::{
     actions::ActionRequirement,
     build_strike_effect, dashes,
     resources::{RenderInstructions, ResourceType},
-    throw_hit, throw_target, Action, ActionEvent, AttackBuilder,
+    throw_hit, throw_target, Action, ActionEvent, Attack, AttackBuilder,
     AttackHeight::*,
     BlockType::*,
     CharacterBoxes, CharacterStateBoxes, ConsumableType, CounterVisual, FlashRequest, HitInfo,
@@ -253,38 +253,37 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                             MizkuAnimation::FootDiveRelease.into(),
                             // TODO: There used to be a 3f delay after the animation, but new
                             // system makes that hard, maybe think of a way to reintroduce that.
-                            ActionEvent::SpawnHitbox(
-                                ToHit {
+                            ActionEvent::SpawnHitbox(Attack {
+                                to_hit: ToHit {
                                     hitbox: Hitbox(Area::new(0.8, -0.2, 0.7, 0.3)),
                                     lifetime: Lifetime::frames(7),
                                     block_type: Strike(High),
                                     ..default()
                                 },
-                                0,
-                            ),
+                                on_hit: Arc::new(|situation: &Situation, hit_data: &HitInfo| {
+                                    build_strike_effect(
+                                        25,
+                                        High,
+                                        0.33,
+                                        0.66,
+                                        1,
+                                        if situation.inventory.contains(&ItemId::SpaceSuitBoots) {
+                                            ActionEvent::LaunchStun(Vec2::new(-1.0, 15.0))
+                                        } else {
+                                            ActionEvent::HitStun(40)
+                                        },
+                                        0.2,
+                                        18,
+                                        0,
+                                    )(situation, hit_data)
+                                }),
+                            }),
                         ];
                     }
 
                     vec![]
                 }),
                 requirements: vec![ActionRequirement::Airborne],
-                on_hit_effects: vec![Box::new(|situation: &Situation, hit_data: &HitInfo| {
-                    build_strike_effect(
-                        25,
-                        High,
-                        0.33,
-                        0.66,
-                        1,
-                        if situation.inventory.contains(&ItemId::SpaceSuitBoots) {
-                            ActionEvent::LaunchStun(Vec2::new(-1.0, 15.0))
-                        } else {
-                            ActionEvent::HitStun(40)
-                        },
-                        0.2,
-                        18,
-                        0,
-                    )(situation, hit_data)
-                })],
             },
         ),
         (
@@ -431,7 +430,6 @@ fn enter_sword_stance(strong: bool) -> Action {
             }
             r
         },
-        on_hit_effects: vec![],
     }
 }
 
@@ -453,7 +451,6 @@ fn exit_sword_stance() -> Action {
                 ActionId::Mizku(MizkuActionId::SSwordStance),
             ]),
         ],
-        on_hit_effects: vec![],
     }
 }
 
@@ -496,7 +493,6 @@ fn sharpen() -> Action {
                 ActionId::Mizku(MizkuActionId::SSwordStance),
             ]),
         ],
-        on_hit_effects: vec![],
     }
 }
 

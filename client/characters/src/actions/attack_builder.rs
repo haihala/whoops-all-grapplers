@@ -1,4 +1,4 @@
-use std::f32::consts::PI;
+use std::{f32::consts::PI, sync::Arc};
 
 use bevy::prelude::*;
 use wag_core::{
@@ -9,8 +9,8 @@ use wag_core::{
 use crate::{ActionRequirement, HitEffect, HitInfo, ResourceType, Situation};
 
 use super::{
-    action::OnHitEffect, Action, ActionEvent, AttackHeight, BlockType, FlashRequest, Hitbox,
-    Lifetime, Movement, Projectile, ToHit,
+    action::OnHitEffect, Action, ActionEvent, Attack, AttackHeight, BlockType, FlashRequest,
+    Hitbox, Lifetime, Movement, Projectile, ToHit,
 };
 
 #[derive(Debug, Clone, Copy)]
@@ -67,7 +67,7 @@ impl Default for SubBuilder {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Clone, Default)]
 pub struct AttackBuilder {
     input: &'static str,
     hitbox: Hitbox,
@@ -518,28 +518,7 @@ impl AttackBuilder {
 
         let init_fun = self.dynamic_initial_events.unwrap_or(|_| vec![]);
         let activation_fun = self.dynamic_activation_events.unwrap_or(|_| vec![]);
-
-        move |situation: &Situation| {
-            if situation.elapsed() == 0 {
-                let mut events = initial_events.clone();
-                events.extend(init_fun(situation));
-                return events;
-            }
-
-            if situation.elapsed() == startup {
-                return vec![ActionEvent::SpawnHitbox(to_hit, 0)]
-                    .into_iter()
-                    .chain(activation_events.clone())
-                    .chain(activation_fun(situation))
-                    .collect();
-            }
-
-            situation.end_at(duration)
-        }
-    }
-
-    fn build_on_hit_effects(&self) -> Vec<OnHitEffect> {
-        vec![match self.sub_builder {
+        let on_hit = match self.sub_builder {
             SubBuilder::Throw(tb) => build_throw_effect(
                 tb.lock_duration,
                 tb.on_hit_action,
@@ -568,7 +547,27 @@ impl AttackBuilder {
                     sb.sharpness_scaling,
                 )
             }
-        }]
+        };
+
+        let atk = Attack { on_hit, to_hit };
+
+        move |situation: &Situation| {
+            if situation.elapsed() == 0 {
+                let mut events = initial_events.clone();
+                events.extend(init_fun(situation));
+                return events;
+            }
+
+            if situation.elapsed() == startup {
+                return vec![ActionEvent::SpawnHitbox(atk.clone())]
+                    .into_iter()
+                    .chain(activation_events.clone())
+                    .chain(activation_fun(situation))
+                    .collect();
+            }
+
+            situation.end_at(duration)
+        }
     }
 
     pub fn build(self) -> Action {
@@ -582,7 +581,6 @@ impl AttackBuilder {
             requirements: self.build_requirements(),
             category: self.category.clone(),
             script: Box::new(self.build_script()),
-            on_hit_effects: self.build_on_hit_effects(),
         }
     }
 }
@@ -593,7 +591,7 @@ pub fn build_throw_effect(
     sideswitch: bool,
     target_action: ActionId,
 ) -> OnHitEffect {
-    Box::new(move |_situation: &Situation, hit_data: &HitInfo| {
+    Arc::new(move |_situation: &Situation, hit_data: &HitInfo| {
         let tf = Transform::from_translation(hit_data.hitbox_pos.extend(0.0));
         if hit_data.avoided {
             HitEffect {
@@ -644,7 +642,7 @@ pub fn build_strike_effect(
     base_damage: i32,
     sharpness_scaling: i32,
 ) -> OnHitEffect {
-    Box::new(move |situation: &Situation, hit_data: &HitInfo| {
+    Arc::new(move |situation: &Situation, hit_data: &HitInfo| {
         let sharpness = situation
             .get_resource(ResourceType::Sharpness)
             .unwrap()
@@ -682,7 +680,7 @@ pub fn build_strike_effect(
                     ActionEvent::AbsoluteVisualEffect(VfxRequest {
                         effect: VisualEffect::Block,
                         tf: Transform::from_translation(hit_data.hitbox_pos.extend(0.0)),
-                        ..default()
+                        mirror: situation.facing.to_flipped(),
                     }),
                 ],
                 defender: vec![
@@ -719,7 +717,7 @@ pub fn build_strike_effect(
                             rotation,
                             ..default()
                         },
-                        ..default()
+                        mirror: situation.facing.to_flipped(),
                     }),
                 ],
                 defender: vec![

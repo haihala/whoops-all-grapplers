@@ -38,7 +38,6 @@ pub fn gi_parry(animation: Animation) -> Action {
             ActionRequirement::Grounded,
             ActionRequirement::ItemsOwned(vec![ItemId::Gi]),
         ],
-        on_hit_effects: vec![],
     }
 }
 
@@ -57,7 +56,6 @@ pub fn fast_fall() -> Action {
             ActionRequirement::Airborne,
             ActionRequirement::ItemsOwned(vec![ItemId::DivingHelmet]),
         ],
-        on_hit_effects: vec![],
     }
 }
 

@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use characters::{ActionEvent, AnimationRequest, FlashRequest, Movement, ResourceType, ToHit};
+use characters::{ActionEvent, AnimationRequest, Attack, FlashRequest, Movement, ResourceType};
 use wag_core::{ActionId, Area, CancelWindow, SoundEffect, StatusCondition, VfxRequest, VoiceLine};
 
 #[derive(Debug, Event)]
@@ -16,8 +16,8 @@ pub struct PlaySound(pub SoundEffect);
 #[derive(Debug, Event)]
 pub struct StartAction(pub ActionId);
 
-#[derive(Debug, Event)]
-pub struct SpawnHitbox(pub ToHit, pub usize);
+#[derive(Event)]
+pub struct SpawnHitbox(pub Attack);
 
 #[derive(Debug, Event)]
 pub struct ClearMovement;
@@ -101,8 +101,8 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
         ActionEvent::StartAction(act) => {
             commands.trigger_targets(StartAction(act.to_owned()), trigger.entity());
         }
-        ActionEvent::SpawnHitbox(to_hit, hitbox_index) => {
-            commands.trigger_targets(SpawnHitbox(*to_hit, *hitbox_index), trigger.entity());
+        ActionEvent::SpawnHitbox(atk) => {
+            commands.trigger_targets(SpawnHitbox(atk.clone()), trigger.entity());
         }
         ActionEvent::ClearMovement => {
             commands.trigger_targets(ClearMovement, trigger.entity());

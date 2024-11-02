@@ -10,7 +10,7 @@ pub struct HitInfo {
     pub defender_stats: Stats,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct HitEffect {
     pub attacker: Vec<ActionEvent>,
     pub defender: Vec<ActionEvent>,

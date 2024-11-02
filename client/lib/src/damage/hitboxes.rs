@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use bevy_ggrs::AddRollbackCommandExtension;
 use characters::{Attack, Hitbox, Lifetime};
-use player_state::PlayerState;
 use wag_core::{Area, Clock, Facing, MatchState, Owner, Player};
 
 use crate::{
@@ -118,27 +117,15 @@ pub fn spawn_hitbox(
     mut commands: Commands,
     clock: Res<Clock>,
     models: Res<Models>,
-    mut query: Query<(
-        &mut HitboxSpawner,
-        &Transform,
-        Entity,
-        &Facing,
-        &Player,
-        &PlayerState,
-    )>,
+    mut query: Query<(&mut HitboxSpawner, &Transform, Entity, &Facing, &Player)>,
 ) {
-    let (mut spawner, tf, parent, facing, player, state) = query.get_mut(trigger.entity()).unwrap();
-    let SpawnHitbox(to_hit, on_hit) = trigger.event();
-    let attack = Attack {
-        to_hit: *to_hit,
-        on_hit: *on_hit,
-        action_id: state.get_action_tracker().unwrap().action_id,
-    };
+    let (mut spawner, tf, parent, facing, player) = query.get_mut(trigger.entity()).unwrap();
+    let SpawnHitbox(attack) = trigger.event();
 
     spawner.spawn_attack(
         &mut commands,
         &models,
-        attack,
+        attack.clone(),
         clock.frame,
         parent,
         facing,

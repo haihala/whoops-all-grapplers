@@ -7,15 +7,15 @@ use wag_core::{
 
 use crate::{FlashRequest, Movement, ResourceType};
 
-use super::{AnimationRequest, ToHit};
+use super::{AnimationRequest, Attack};
 
-#[derive(Debug, Clone, PartialEq, Default, Event)]
+#[derive(Clone, Default, Event)]
 pub enum ActionEvent {
     AllowCancel(CancelWindow),
     Animation(AnimationRequest),
     Sound(SoundEffect),
     StartAction(ActionId),
-    SpawnHitbox(ToHit, usize),
+    SpawnHitbox(Attack),
     ClearMovement,
     Movement(Movement),
     Condition(StatusCondition),

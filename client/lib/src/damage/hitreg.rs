@@ -350,7 +350,7 @@ pub fn apply_connections(
                         .current,
                 });
 
-                commands.trigger(PlaySound(SoundEffect::PotLidGong));
+                commands.trigger(PlaySound(SoundEffect::Matches));
                 notifications.add(*attacker.player, "Opener!".to_owned());
                 if attacker.stats.opener_damage_multiplier > 1.0 {
                     attacker_actions = handle_opener(attacker_actions, attacker.stats);

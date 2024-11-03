@@ -32,6 +32,7 @@ pub enum SoundEffect {
     AnnouncerPlayer,
     KnifeChopstickDrag,
     HangingKnifeFlick,
+    Matches,
 }
 
 impl SoundEffect {
@@ -77,6 +78,7 @@ impl SoundEffect {
             SoundEffect::AnnouncerDraw => Self::clips("announcer-draw", 2),
             SoundEffect::KnifeChopstickDrag => Self::clips("knife-dragging-on-chopstick", 7),
             SoundEffect::HangingKnifeFlick => Self::clips("hanging-knife-flick", 4),
+            SoundEffect::Matches => Self::clips("matches", 5),
         }
     }
 

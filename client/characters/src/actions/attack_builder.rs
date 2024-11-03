@@ -292,7 +292,9 @@ impl AttackBuilder {
     pub fn launches(self, impulse: Vec2) -> Self {
         Self {
             sub_builder: SubBuilder::Strike(StrikeBuilder {
-                hit_stun: HitStun::Launch(impulse),
+                // It is natural to think of a positive X launch as going away, but to the
+                // recipient the movement needs to be negative X
+                hit_stun: HitStun::Launch(Vec2::new(-impulse.x, impulse.y)),
                 ..self.strike_builder()
             }),
             ..self

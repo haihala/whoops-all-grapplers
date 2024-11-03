@@ -554,7 +554,7 @@ fn rising_sun(strong: bool) -> Action {
         .with_damage(20)
         .launches(Vec2::new(1.0, 3.0))
         .with_advantage_on_block(-30)
-        .with_hitbox(Area::new(0.25, 1.5, 1.5, 1.5))
+        .with_hitbox(Area::new(0.25, 1.5, 2.0, 1.5))
         .with_dynamic_activation_events(|situation: &Situation| {
             vec![ActionEvent::RelativeVisualEffect(VfxRequest {
                 effect: VisualEffect::WaveDiagonal,

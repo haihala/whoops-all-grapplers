@@ -379,9 +379,23 @@ fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
     sword_stance().chain(kunai_throw())
 }
 
+fn sword_stance() -> impl Iterator<Item = (MizkuActionId, Action)> {
+    vec![
+        (MizkuActionId::FSwordStance, enter_sword_stance(false)),
+        (MizkuActionId::SSwordStance, enter_sword_stance(true)),
+        (MizkuActionId::FExitSwordStance, exit_sword_stance(false)),
+        (MizkuActionId::SExitSwordStance, exit_sword_stance(true)),
+        (MizkuActionId::Sharpen, sharpen()),
+        (MizkuActionId::FViperStrike, viper_strike(false)),
+        (MizkuActionId::SViperStrike, viper_strike(true)),
+        (MizkuActionId::FRisingSun, rising_sun(false)),
+        (MizkuActionId::SRisingSun, rising_sun(true)),
+    ]
+    .into_iter()
+}
 fn enter_sword_stance(strong: bool) -> Action {
     Action {
-        input: Some(if strong { "214s" } else { "214f" }),
+        input: Some(if strong { "214+s" } else { "214+f" }),
         category: ActionCategory::Special,
         script: Box::new(move |situation: &Situation| {
             let mut events = vec![MizkuAnimation::SwordStanceEnter.into()];
@@ -408,9 +422,9 @@ fn enter_sword_stance(strong: bool) -> Action {
                     cancel_type: CancelType::Specific(
                         vec![
                             MizkuActionId::Sharpen,
-                            MizkuActionId::ViperStrike,
-                            MizkuActionId::RisingSun,
-                            MizkuActionId::ExitSwordStance,
+                            MizkuActionId::FViperStrike,
+                            MizkuActionId::FRisingSun,
+                            MizkuActionId::SExitSwordStance,
                         ]
                         .into_iter()
                         .map(ActionId::Mizku)
@@ -435,9 +449,9 @@ fn enter_sword_stance(strong: bool) -> Action {
     }
 }
 
-fn exit_sword_stance() -> Action {
+fn exit_sword_stance(strong: bool) -> Action {
     Action {
-        input: Some("5252"),
+        input: Some(if strong { "5+S" } else { "5+F" }),
         category: ActionCategory::Special,
         script: Box::new(|situation: &Situation| {
             if situation.elapsed() == 0 {
@@ -448,25 +462,15 @@ fn exit_sword_stance() -> Action {
         }),
         requirement: ActionRequirement::And(vec![
             ActionRequirement::Grounded,
-            ActionRequirement::ActionOngoing(vec![
-                ActionId::Mizku(MizkuActionId::FSwordStance),
-                ActionId::Mizku(MizkuActionId::SSwordStance),
-            ]),
+            ActionRequirement::ActionOngoing(vec![ActionId::Mizku(if strong {
+                MizkuActionId::SSwordStance
+            } else {
+                MizkuActionId::FSwordStance
+            })]),
         ]),
     }
 }
 
-fn sword_stance() -> impl Iterator<Item = (MizkuActionId, Action)> {
-    vec![
-        (MizkuActionId::FSwordStance, enter_sword_stance(false)),
-        (MizkuActionId::SSwordStance, enter_sword_stance(true)),
-        (MizkuActionId::ExitSwordStance, exit_sword_stance()),
-        (MizkuActionId::Sharpen, sharpen()),
-        (MizkuActionId::ViperStrike, viper_strike()),
-        (MizkuActionId::RisingSun, rising_sun()),
-    ]
-    .into_iter()
-}
 fn sharpen() -> Action {
     Action {
         input: Some("g"),
@@ -498,12 +502,13 @@ fn sharpen() -> Action {
     }
 }
 
-fn viper_strike() -> Action {
-    AttackBuilder::special("s")
-        .follow_up_from(vec![
-            ActionId::Mizku(MizkuActionId::FSwordStance),
-            ActionId::Mizku(MizkuActionId::SSwordStance),
-        ])
+fn viper_strike(strong: bool) -> Action {
+    AttackBuilder::special(if strong { "[123]+S" } else { "[123]+F" })
+        .follow_up_from(vec![ActionId::Mizku(if strong {
+            MizkuActionId::SSwordStance
+        } else {
+            MizkuActionId::FSwordStance
+        })])
         .with_sound(SoundEffect::FemaleLoYah)
         .with_frame_data(10, 2, 50)
         .with_animation(MizkuAnimation::SwordStanceLowSlash)
@@ -535,12 +540,13 @@ fn viper_strike() -> Action {
         .build()
 }
 
-fn rising_sun() -> Action {
-    AttackBuilder::special("f")
-        .follow_up_from(vec![
-            ActionId::Mizku(MizkuActionId::FSwordStance),
-            ActionId::Mizku(MizkuActionId::SSwordStance),
-        ])
+fn rising_sun(strong: bool) -> Action {
+    AttackBuilder::special(if strong { "S" } else { "F" })
+        .follow_up_from(vec![ActionId::Mizku(if strong {
+            MizkuActionId::SSwordStance
+        } else {
+            MizkuActionId::FSwordStance
+        })])
         .with_sound(SoundEffect::FemaleHiYah)
         .with_frame_data(10, 3, 50)
         .with_animation(MizkuAnimation::SwordStanceHighSlash)
@@ -569,7 +575,7 @@ fn rising_sun() -> Action {
 fn kunai_throw() -> impl Iterator<Item = (MizkuActionId, Action)> {
     vec![(
         MizkuActionId::KunaiThrow,
-        AttackBuilder::special("236f")
+        AttackBuilder::special("236+f")
             .with_animation(MizkuAnimation::KunaiThrow)
             .with_sound(SoundEffect::FemaleKyatchi)
             .with_extra_initial_events(vec![

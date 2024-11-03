@@ -6,6 +6,7 @@ enough to be put on a more important list.
 ## Bugs
 
 - Extra kunais may not work (besides the UI)
+- New move system breaks red paint (can drop inputs)
 
 ### Watchlist
 

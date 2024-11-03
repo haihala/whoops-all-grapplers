@@ -12,7 +12,7 @@ Low priority do later tasks
 - [Rewards 2.0](/docs/tasks/backlog/rewards_2.0.md)
 - [Yoink assets](/docs/tasks/backlog/yoink_assets.md)
 - [Netplay 2.0](/docs/tasks/backlog/netplay_2.0.md)
-- [Optional inputs](/docs/tasks/backlog/input_parser_refinement/optional_inputs.md)
+- [Input parser rework](/docs/tasks/backlog/input_parser_rework.md)
 - Delay wakeup on knockdown
 - Pretty loading screen
 - [Popups 3.0](/docs/tasks/backlog/popups_3.0.md)

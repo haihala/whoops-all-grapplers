@@ -703,6 +703,7 @@ pub fn build_strike_effect(
                     },
                     ActionEvent::BlockStun(block_stun),
                     Movement::impulse(-Vec2::X * defender_push_on_block).into(),
+                    ActionEvent::CharacterShake(0.25),
                 ],
             }
         } else {
@@ -737,6 +738,7 @@ pub fn build_strike_effect(
                     hit_stun_event.clone(),
                     voice_line_event,
                     ActionEvent::Flash(FlashRequest::hit_flash()),
+                    ActionEvent::CharacterShake(0.5),
                 ],
             }
         }

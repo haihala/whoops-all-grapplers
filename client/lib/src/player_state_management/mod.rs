@@ -16,7 +16,7 @@ use wag_core::{
 };
 
 use crate::{
-    assets::{AnimationHelper, AnimationHelperSetup, Models, PlayerModelHook},
+    assets::{AnimationHelper, AnimationHelperSetup, CharacterShake, Models, PlayerModelHook},
     damage::HitboxSpawner,
     event_spreading,
     movement::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
@@ -103,6 +103,7 @@ struct PlayerDefaults {
     status_effects: Stats,
     available_cancels: AvailableCancels,
     state: PlayerState,
+    character_shake: CharacterShake,
 }
 
 fn spawn_player(
@@ -159,6 +160,7 @@ fn spawn_player(
         .observe(crate::assets::start_animation)
         .observe(crate::assets::start_relative_vfx)
         .observe(crate::assets::play_voiceline)
+        .observe(crate::assets::shake_character)
         .observe(crate::camera::tilt_camera)
         .observe(crate::damage::snap_and_switch)
         .observe(crate::damage::hitstun_events)

@@ -3,12 +3,19 @@ use bevy::{
     utils::HashMap,
 };
 use characters::FlashRequest;
-use wag_core::Model;
+use wag_core::{Clock, Model};
+
+use crate::event_spreading::ShakeCharacter;
 
 use super::{ExtendedFlashMaterial, FlashMaterial};
 
 #[derive(Debug, Resource, Deref, DerefMut)]
 pub struct Models(pub HashMap<Model, Handle<Scene>>);
+
+#[derive(Debug, Component, Default)]
+pub struct CharacterShake {
+    amount: f32,
+}
 
 pub(super) fn model_paths() -> HashMap<Model, &'static str> {
     // TODO: This could use the bevy 0.14 typed asset handles instead of static strings
@@ -67,5 +74,34 @@ pub fn prep_player_gltf(
                 .insert(material.clone())
                 .remove::<Handle<StandardMaterial>>();
         }
+    }
+}
+
+pub fn shake_character(
+    trigger: Trigger<ShakeCharacter>,
+    mut charshakes: Query<&mut CharacterShake>,
+) {
+    let ShakeCharacter(amount) = trigger.event();
+    charshakes.get_mut(trigger.entity()).unwrap().amount = *amount;
+}
+
+const SHAKE_SPEED: f32 = 2.0;
+const SHAKE_DECAY: f32 = 0.8;
+const SHAKE_CUTOFF: f32 = 0.01;
+
+pub fn do_character_shake(
+    mut players: Query<(&mut CharacterShake, &Children)>,
+    mut tfs: Query<&mut Transform>,
+    clock: Res<Clock>,
+) {
+    for (mut cs, children) in &mut players {
+        let mut tf = tfs.get_mut(children[0]).unwrap();
+        tf.translation.x = cs.amount * (clock.frame as f32 * SHAKE_SPEED).sin();
+
+        cs.amount = if cs.amount < SHAKE_CUTOFF {
+            0.0
+        } else {
+            cs.amount * SHAKE_DECAY
+        };
     }
 }

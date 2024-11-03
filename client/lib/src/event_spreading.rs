@@ -84,6 +84,9 @@ pub struct ExpandHurtbox {
 #[derive(Debug, Event)]
 pub struct ActivateVoiceline(pub VoiceLine);
 
+#[derive(Debug, Event)]
+pub struct ShakeCharacter(pub f32);
+
 pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
     match trigger.event() {
         ActionEvent::AllowCancel(cw) => {
@@ -176,6 +179,9 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
         }
         ActionEvent::SayVoiceLine(line) => {
             commands.trigger_targets(ActivateVoiceline(*line), trigger.entity());
+        }
+        ActionEvent::CharacterShake(amount) => {
+            commands.trigger_targets(ShakeCharacter(*amount), trigger.entity());
         }
         ActionEvent::Noop => {}
     }

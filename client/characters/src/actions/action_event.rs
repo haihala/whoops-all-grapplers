@@ -32,6 +32,7 @@ pub enum ActionEvent {
     Hitstop, // TODO: Add strength
     CameraTilt(Vec2),
     CameraShake, // TODO: Add strength
+    CharacterShake(f32),
     Flash(FlashRequest),
     RelativeVisualEffect(VfxRequest),
     AbsoluteVisualEffect(VfxRequest),

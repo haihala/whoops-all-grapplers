@@ -13,7 +13,7 @@ pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
 pub use announcer::Announcer;
 pub use asset_updater::{play_voiceline, start_animation};
 pub use materials::{ExtendedFlashMaterial, FlashMaterial};
-pub use models::{Models, PlayerModelHook};
+pub use models::{shake_character, CharacterShake, Models, PlayerModelHook};
 pub use sounds::Sounds;
 pub use vfx::start_relative_vfx;
 
@@ -76,6 +76,7 @@ impl Plugin for AssetsPlugin {
                 (
                     asset_updater::clear_empty_audio_players,
                     asset_updater::update_generic_animation,
+                    models::do_character_shake,
                     animations::update_animation,
                     announcer::update_announcer,
                 )

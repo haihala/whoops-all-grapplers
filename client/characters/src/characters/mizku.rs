@@ -4,9 +4,9 @@ use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
     ActionCategory, ActionId, Animation, AnimationType, Area, CancelType, CancelWindow, Facing,
-    GameButton, Icon, ItemId, MizkuActionId, MizkuAnimation, Model, SoundEffect, Stats,
-    StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, MIZUKI_ALT_HELMET_COLOR,
-    MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
+    GameButton, Icon, ItemId, MizkuActionId, MizkuAnimation, Model, SoundEffect, SpecialVersion,
+    Stats, StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine,
+    MIZUKI_ALT_HELMET_COLOR, MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
 };
 
 use crate::{
@@ -376,31 +376,51 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
 }
 
 fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
-    sword_stance().chain(kunai_throw())
+    sword_stance().chain(kunai_throws())
 }
 
 fn sword_stance() -> impl Iterator<Item = (MizkuActionId, Action)> {
     vec![
-        (MizkuActionId::FSwordStance, enter_sword_stance(false)),
-        (MizkuActionId::SSwordStance, enter_sword_stance(true)),
-        (MizkuActionId::FExitSwordStance, exit_sword_stance(false)),
-        (MizkuActionId::SExitSwordStance, exit_sword_stance(true)),
-        (MizkuActionId::Sharpen, sharpen()),
-        (MizkuActionId::FViperStrike, viper_strike(false)),
-        (MizkuActionId::SViperStrike, viper_strike(true)),
-        (MizkuActionId::FRisingSun, rising_sun(false)),
-        (MizkuActionId::SRisingSun, rising_sun(true)),
+        SpecialVersion::Fast,
+        SpecialVersion::Strong,
+        SpecialVersion::Metered,
     ]
     .into_iter()
+    .flat_map(|version| {
+        vec![
+            (
+                MizkuActionId::SwordStance(version),
+                enter_sword_stance(version),
+            ),
+            (
+                MizkuActionId::StanceCancel(SpecialVersion::Fast),
+                exit_sword_stance(SpecialVersion::Fast),
+            ),
+            (
+                MizkuActionId::ViperStrike(SpecialVersion::Fast),
+                viper_strike(SpecialVersion::Fast),
+            ),
+            (
+                MizkuActionId::RisingSun(SpecialVersion::Fast),
+                rising_sun(SpecialVersion::Fast),
+            ),
+        ]
+    })
+    .chain(vec![(MizkuActionId::Sharpen, sharpen())])
 }
-fn enter_sword_stance(strong: bool) -> Action {
+
+fn enter_sword_stance(version: SpecialVersion) -> Action {
     Action {
-        input: Some(if strong { "214+s" } else { "214+f" }),
+        input: Some(match version {
+            SpecialVersion::Strong => "214+s",
+            SpecialVersion::Fast => "214+f",
+            SpecialVersion::Metered => "214+[fs]",
+        }),
         category: ActionCategory::Special,
         script: Box::new(move |situation: &Situation| {
             let mut events = vec![MizkuAnimation::SwordStanceEnter.into()];
 
-            if strong {
+            if version == SpecialVersion::Metered {
                 events.extend(vec![
                     ActionEvent::ModifyResource(ResourceType::Meter, -20),
                     ActionEvent::Condition(StatusCondition {
@@ -422,9 +442,9 @@ fn enter_sword_stance(strong: bool) -> Action {
                     cancel_type: CancelType::Specific(
                         vec![
                             MizkuActionId::Sharpen,
-                            MizkuActionId::FViperStrike,
-                            MizkuActionId::FRisingSun,
-                            MizkuActionId::SExitSwordStance,
+                            MizkuActionId::ViperStrike(version),
+                            MizkuActionId::RisingSun(version),
+                            MizkuActionId::StanceCancel(version),
                         ]
                         .into_iter()
                         .map(ActionId::Mizku)
@@ -440,7 +460,7 @@ fn enter_sword_stance(strong: bool) -> Action {
         requirement: ActionRequirement::And(vec![
             ActionRequirement::Grounded,
             ActionRequirement::Starter(ActionCategory::Special),
-            if strong {
+            if version == SpecialVersion::Metered {
                 ActionRequirement::ResourceValue(ResourceType::Meter, 20)
             } else {
                 ActionRequirement::default()
@@ -449,9 +469,13 @@ fn enter_sword_stance(strong: bool) -> Action {
     }
 }
 
-fn exit_sword_stance(strong: bool) -> Action {
+fn exit_sword_stance(version: SpecialVersion) -> Action {
     Action {
-        input: Some(if strong { "5+S" } else { "5+F" }),
+        input: Some(match version {
+            SpecialVersion::Strong => "5+S",
+            SpecialVersion::Fast => "5+F",
+            SpecialVersion::Metered => "5+(FS)",
+        }),
         category: ActionCategory::Special,
         script: Box::new(|situation: &Situation| {
             if situation.elapsed() == 0 {
@@ -462,11 +486,9 @@ fn exit_sword_stance(strong: bool) -> Action {
         }),
         requirement: ActionRequirement::And(vec![
             ActionRequirement::Grounded,
-            ActionRequirement::ActionOngoing(vec![ActionId::Mizku(if strong {
-                MizkuActionId::SSwordStance
-            } else {
-                MizkuActionId::FSwordStance
-            })]),
+            ActionRequirement::ActionOngoing(vec![ActionId::Mizku(MizkuActionId::SwordStance(
+                version,
+            ))]),
         ]),
     }
 }
@@ -495,84 +517,85 @@ fn sharpen() -> Action {
         requirement: ActionRequirement::And(vec![
             ActionRequirement::Grounded,
             ActionRequirement::ActionOngoing(vec![
-                ActionId::Mizku(MizkuActionId::FSwordStance),
-                ActionId::Mizku(MizkuActionId::SSwordStance),
+                ActionId::Mizku(MizkuActionId::SwordStance(SpecialVersion::Fast)),
+                ActionId::Mizku(MizkuActionId::SwordStance(SpecialVersion::Strong)),
+                ActionId::Mizku(MizkuActionId::SwordStance(SpecialVersion::Metered)),
             ]),
         ]),
     }
 }
 
-fn viper_strike(strong: bool) -> Action {
-    AttackBuilder::special(if strong { "[123]+S" } else { "[123]+F" })
-        .follow_up_from(vec![ActionId::Mizku(if strong {
-            MizkuActionId::SSwordStance
-        } else {
-            MizkuActionId::FSwordStance
-        })])
-        .with_sound(SoundEffect::FemaleLoYah)
-        .with_frame_data(10, 2, 50)
-        .with_animation(MizkuAnimation::SwordStanceLowSlash)
-        .with_extra_initial_events(vec![Movement {
-            amount: Vec2::X * 8.0,
-            duration: 7,
-        }
-        .into()])
-        .with_hitbox(Area::new(1.0, 0.225, 1.3, 0.45))
-        .hits_low()
-        .with_damage(30)
-        .sword()
-        .with_advantage_on_hit(-10)
-        .with_advantage_on_block(-40)
-        .with_dynamic_activation_events(|situation: &Situation| {
-            vec![ActionEvent::RelativeVisualEffect(VfxRequest {
-                effect: VisualEffect::WaveFlat,
-                tf: Transform {
-                    translation: situation.facing.to_vec3() * 1.0 + Vec3::Y * 0.4,
-                    rotation: match situation.facing {
-                        Facing::Left => Quat::from_euler(EulerRot::ZYX, PI, 0.0, -PI / 3.0),
-                        Facing::Right => Quat::from_euler(EulerRot::ZYX, 0.0, 0.0, PI / 3.0),
-                    },
-                    scale: Vec3::splat(4.0),
+fn viper_strike(version: SpecialVersion) -> Action {
+    AttackBuilder::special(match version {
+        SpecialVersion::Strong => "[123]+S",
+        SpecialVersion::Fast => "[123]+F",
+        SpecialVersion::Metered => "[123]+(FS)",
+    })
+    .follow_up_from(vec![ActionId::Mizku(MizkuActionId::SwordStance(version))])
+    .with_sound(SoundEffect::FemaleLoYah)
+    .with_frame_data(10, 2, 50)
+    .with_animation(MizkuAnimation::SwordStanceLowSlash)
+    .with_extra_initial_events(vec![Movement {
+        amount: Vec2::X * 8.0,
+        duration: 7,
+    }
+    .into()])
+    .with_hitbox(Area::new(1.0, 0.225, 1.3, 0.45))
+    .hits_low()
+    .with_damage(30)
+    .sword()
+    .with_advantage_on_hit(-10)
+    .with_advantage_on_block(-40)
+    .with_dynamic_activation_events(|situation: &Situation| {
+        vec![ActionEvent::RelativeVisualEffect(VfxRequest {
+            effect: VisualEffect::WaveFlat,
+            tf: Transform {
+                translation: situation.facing.to_vec3() * 1.0 + Vec3::Y * 0.4,
+                rotation: match situation.facing {
+                    Facing::Left => Quat::from_euler(EulerRot::ZYX, PI, 0.0, -PI / 3.0),
+                    Facing::Right => Quat::from_euler(EulerRot::ZYX, 0.0, 0.0, PI / 3.0),
                 },
-                ..default()
-            })]
-        })
-        .build()
+                scale: Vec3::splat(4.0),
+            },
+            ..default()
+        })]
+    })
+    .build()
 }
 
-fn rising_sun(strong: bool) -> Action {
-    AttackBuilder::special(if strong { "S" } else { "F" })
-        .follow_up_from(vec![ActionId::Mizku(if strong {
-            MizkuActionId::SSwordStance
-        } else {
-            MizkuActionId::FSwordStance
-        })])
-        .with_sound(SoundEffect::FemaleHiYah)
-        .with_frame_data(10, 3, 50)
-        .with_animation(MizkuAnimation::SwordStanceHighSlash)
-        .sword()
-        .with_damage(20)
-        .launches(Vec2::new(1.0, 3.0))
-        .with_advantage_on_block(-30)
-        .with_hitbox(Area::new(0.25, 1.5, 2.0, 1.5))
-        .with_dynamic_activation_events(|situation: &Situation| {
-            vec![ActionEvent::RelativeVisualEffect(VfxRequest {
-                effect: VisualEffect::WaveDiagonal,
-                tf: Transform {
-                    translation: situation.facing.to_vec3() + Vec3::Y * 1.7,
-                    rotation: match situation.facing {
-                        Facing::Left => Quat::from_rotation_z(PI * 7.0 / 6.0),
-                        Facing::Right => Quat::from_rotation_z(PI / 3.0),
-                    },
-                    scale: Vec3::splat(2.0),
+fn rising_sun(version: SpecialVersion) -> Action {
+    AttackBuilder::special(match version {
+        SpecialVersion::Strong => "S",
+        SpecialVersion::Fast => "F",
+        SpecialVersion::Metered => "(FS)",
+    })
+    .follow_up_from(vec![ActionId::Mizku(MizkuActionId::SwordStance(version))])
+    .with_sound(SoundEffect::FemaleHiYah)
+    .with_frame_data(10, 3, 50)
+    .with_animation(MizkuAnimation::SwordStanceHighSlash)
+    .sword()
+    .with_damage(20)
+    .launches(Vec2::new(1.0, 3.0))
+    .with_advantage_on_block(-30)
+    .with_hitbox(Area::new(0.25, 1.5, 2.0, 1.5))
+    .with_dynamic_activation_events(|situation: &Situation| {
+        vec![ActionEvent::RelativeVisualEffect(VfxRequest {
+            effect: VisualEffect::WaveDiagonal,
+            tf: Transform {
+                translation: situation.facing.to_vec3() + Vec3::Y * 1.7,
+                rotation: match situation.facing {
+                    Facing::Left => Quat::from_rotation_z(PI * 7.0 / 6.0),
+                    Facing::Right => Quat::from_rotation_z(PI / 3.0),
                 },
-                ..default()
-            })]
-        })
-        .build()
+                scale: Vec3::splat(2.0),
+            },
+            ..default()
+        })]
+    })
+    .build()
 }
 
-fn kunai_throw() -> impl Iterator<Item = (MizkuActionId, Action)> {
+fn kunai_throws() -> impl Iterator<Item = (MizkuActionId, Action)> {
     vec![(
         MizkuActionId::KunaiThrow,
         AttackBuilder::special("236+f")

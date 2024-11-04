@@ -1,5 +1,12 @@
 use bevy::prelude::*;
 
+#[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub enum SpecialVersion {
+    Fast,
+    Strong,
+    Metered,
+}
+
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default, Component)]
 pub enum ActionId {
     #[default]
@@ -65,14 +72,10 @@ pub enum DummyActionId {
 
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum MizkuActionId {
-    FSwordStance,
-    SSwordStance,
-    FExitSwordStance,
-    SExitSwordStance,
-    FViperStrike,
-    SViperStrike,
-    FRisingSun,
-    SRisingSun,
+    SwordStance(SpecialVersion),
+    StanceCancel(SpecialVersion),
+    ViperStrike(SpecialVersion),
+    RisingSun(SpecialVersion),
     Sharpen,
 
     KunaiThrow,

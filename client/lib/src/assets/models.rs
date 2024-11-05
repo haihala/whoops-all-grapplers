@@ -96,7 +96,7 @@ pub fn do_character_shake(
 ) {
     for (mut cs, children) in &mut players {
         let mut tf = tfs.get_mut(children[0]).unwrap();
-        tf.translation.x = cs.amount * (clock.frame as f32 * SHAKE_SPEED).sin();
+        tf.translation.x = cs.amount * (clock.frame as f32 * SHAKE_SPEED).sin().signum();
 
         cs.amount = if cs.amount < SHAKE_CUTOFF {
             0.0

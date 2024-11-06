@@ -20,6 +20,7 @@
       - Timings are the classic example
 - Blacklist/whitelist inputs that invalidate the input
   - 236236 shouldn't trigger 66
+  - Blacklist syntax uses ! prefix
 
 ### Notes from testing multipresses
 

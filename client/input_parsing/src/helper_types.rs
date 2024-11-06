@@ -111,15 +111,17 @@ impl From<char> for InputEvent {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Reflect)]
+#[derive(Debug, Clone, Eq, PartialEq, Reflect, Default)]
 pub struct InputRequirement {
     pub sticky: bool,
+    pub all: bool,
     pub events: Vec<InputEvent>,
 }
 impl From<InputEvent> for InputRequirement {
     fn from(event: InputEvent) -> InputRequirement {
         InputRequirement {
             sticky: false,
+            all: false,
             events: vec![event],
         }
     }

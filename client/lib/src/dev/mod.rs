@@ -12,7 +12,7 @@ use wag_core::{
 
 use crate::{
     event_spreading::PlaySound,
-    movement::{ConstantVelocity, PlayerVelocity, Pushbox},
+    movement::{ObjectVelocity, PlayerVelocity, Pushbox},
     player_state_management::MoveBuffer,
 };
 
@@ -28,7 +28,7 @@ impl Plugin for DevPlugin {
             // .register_type::<PlayerState>()
             .register_type::<Clock>()
             .register_type::<PlayerVelocity>()
-            .register_type::<ConstantVelocity>()
+            .register_type::<ObjectVelocity>()
             .register_type::<Pushbox>()
             .register_type::<Area>()
             .register_type::<Hurtboxes>()

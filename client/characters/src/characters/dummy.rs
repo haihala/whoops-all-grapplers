@@ -259,7 +259,8 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
         (
             DummyActionId::BudgetBoom,
             AttackBuilder::special("[41]6f")
-                .with_projectile(Model::Fireball, 5.0 * Vec2::X)
+                .with_spawn(Model::Fireball)
+                .with_hitbox_speed(5.0)
                 .with_frame_data(10, 15, 4)
                 .with_hitbox(Area::new(0.5, 1.2, 0.3, 0.2))
                 .with_damage(20)
@@ -274,7 +275,8 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::SonicBoom,
             AttackBuilder::special("[41]6f")
                 .if_charged()
-                .with_projectile(Model::Fireball, 6.0 * Vec2::X)
+                .with_spawn(Model::Fireball)
+                .with_hitbox_speed(6.0)
                 .with_timings(10, 5)
                 .with_hitbox(Area::new(0.5, 1.2, 0.4, 0.3))
                 .with_damage(10)
@@ -290,7 +292,8 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::Hadouken,
             AttackBuilder::special("236f")
                 .with_frame_data(30, 3600, 30)
-                .with_projectile(Model::Fireball, 4.0 * Vec2::X)
+                .with_spawn(Model::Fireball)
+                .with_hitbox_speed(4.0)
                 .with_hitbox(Area::new(0.5, 1.0, 0.3, 0.3))
                 .with_multiple_hits(3)
                 .build(),
@@ -300,7 +303,8 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             AttackBuilder::special("236s")
                 .with_meter_cost(30)
                 .with_timings(30, 30)
-                .with_projectile(Model::Fireball, 5.0 * Vec2::X)
+                .with_spawn(Model::Fireball)
+                .with_hitbox_speed(5.0)
                 .with_hitbox(Area::new(0.5, 1.0, 0.4, 0.5))
                 .with_multiple_hits(2)
                 .build(),

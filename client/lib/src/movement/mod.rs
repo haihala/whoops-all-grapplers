@@ -11,7 +11,7 @@ use bevy::prelude::*;
 
 use player_state::PlayerState;
 use wag_core::{
-    Area, Clock, Combo, Facing, Player, Players, RollbackSchedule, Stats, StatusFlag, WAGStage,
+    Area, Clock, Combo, Facing, Player, Players, RollbackSchedule, Stats, StatusFlag, WAGStage, FPS,
 };
 
 use crate::{
@@ -24,15 +24,15 @@ pub const ARENA_WIDTH: f32 = 8.5;
 pub const MAX_PLAYER_DISTANCE: f32 = 8.0;
 
 #[derive(Debug, Default, Reflect, Component, Clone, Copy)]
-pub struct ConstantVelocity {
-    pub shift: Vec3,
+pub struct ObjectVelocity {
     pub speed: Vec3,
+    pub acceleration: Vec3,
 }
-impl ConstantVelocity {
-    pub fn new(speed: Vec3) -> ConstantVelocity {
-        ConstantVelocity {
+impl ObjectVelocity {
+    pub fn new(speed: Vec3, gravity: f32) -> ObjectVelocity {
+        ObjectVelocity {
             speed,
-            shift: speed / wag_core::FPS,
+            acceleration: -Vec3::Y * gravity,
         }
     }
 }
@@ -67,7 +67,7 @@ impl Plugin for PhysicsPlugin {
                 set_target_position,
                 resolve_constraints,
                 stick_movement::movement_input,
-                move_constants,
+                move_objects,
                 followers::update_followers,
             )
                 .chain()
@@ -257,17 +257,17 @@ fn resolve_constraints(
     tf_right.translation = velocity_right.next_pos.extend(0.0);
 }
 
-fn move_constants(
+fn move_objects(
     mut commands: Commands,
     clock: Res<Clock>,
     mut query: Query<(
         Entity,
-        &ConstantVelocity,
+        &mut ObjectVelocity,
         Option<&HitTracker>,
         &mut Transform,
     )>,
 ) {
-    for (entity, velocity, hit_tracker, mut transform) in &mut query {
+    for (entity, mut velocity, hit_tracker, mut transform) in &mut query {
         if hit_tracker
             .map(|tracker| !tracker.active(clock.frame))
             .unwrap_or(false)
@@ -275,10 +275,14 @@ fn move_constants(
             continue;
         }
 
-        transform.translation += velocity.shift;
+        let acceleration = velocity.acceleration / FPS;
+        velocity.speed += acceleration;
+        transform.translation += velocity.speed / FPS;
 
-        // Despawn the thing if it's outside of the arena
-        if transform.translation.length() > ARENA_WIDTH + 10.0 {
+        // Despawn the thing if it's outside of the arena or under the floor
+        if transform.translation.x.abs() > ARENA_WIDTH
+            || transform.translation.y < GROUND_PLANE_HEIGHT
+        {
             commands.entity(entity).despawn_recursive();
         }
     }

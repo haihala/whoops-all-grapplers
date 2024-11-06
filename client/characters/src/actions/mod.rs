@@ -18,5 +18,5 @@ pub use flash_request::FlashRequest;
 pub use movement::Movement;
 pub use to_hit::{
     AttackHeight, BlockType, CharacterBoxes, CharacterStateBoxes, Hitbox, Hurtboxes, Lifetime,
-    Projectile, ToHit,
+    ToHit,
 };

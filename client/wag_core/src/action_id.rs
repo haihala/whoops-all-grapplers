@@ -78,7 +78,7 @@ pub enum MizkuActionId {
     RisingSun(SpecialVersion),
     Sharpen,
 
-    KunaiThrow,
+    KunaiThrow(SpecialVersion),
 
     // Throws
     AirThrow,

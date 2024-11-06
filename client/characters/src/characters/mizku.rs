@@ -596,9 +596,20 @@ fn rising_sun(version: SpecialVersion) -> Action {
 }
 
 fn kunai_throws() -> impl Iterator<Item = (MizkuActionId, Action)> {
-    vec![(
-        MizkuActionId::KunaiThrow,
-        AttackBuilder::special("236+f")
+    vec![
+        SpecialVersion::Fast,
+        SpecialVersion::Strong,
+        SpecialVersion::Metered,
+    ]
+    .into_iter()
+    .flat_map(|version| {
+        vec![(
+            MizkuActionId::KunaiThrow(version),
+            AttackBuilder::special(match version {
+                SpecialVersion::Fast => "236+f",
+                SpecialVersion::Strong => "236+s",
+                SpecialVersion::Metered => "236+(fs)",
+            })
             .with_animation(MizkuAnimation::KunaiThrow)
             .with_sound(SoundEffect::FemaleKyatchi)
             .with_extra_initial_events(vec![
@@ -609,17 +620,20 @@ fn kunai_throws() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 ResourceType::KunaiCounter,
                 1,
             )])
-            // TODO: This is a clunky way to do active frames for projectiles
             .with_timings(13, 10)
             .with_hitbox(Area::new(1.0, 1.2, 0.3, 0.3))
-            .with_projectile(Model::Kunai, Vec2::new(6.0, -0.4))
-            // TODO: Misleading for projectiles,
-            // this only applies if it hits on first frame
-            .with_advantage_on_block(1)
-            .with_advantage_on_hit(0)
+            .with_spawn(Model::Kunai)
+            .with_hitbox_velocity(match version {
+                SpecialVersion::Fast => Vec2::new(4.0, 1.0),
+                SpecialVersion::Strong => Vec2::new(2.0, 8.0),
+                SpecialVersion::Metered => Vec2::new(10.0, 1.0),
+            })
+            .with_hitbox_gravity(2.0)
+            .with_blockstun(15)
+            .with_hitstun(20)
             .build(),
-    )]
-    .into_iter()
+        )]
+    })
 }
 
 fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {

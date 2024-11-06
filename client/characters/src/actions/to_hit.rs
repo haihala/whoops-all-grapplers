@@ -8,7 +8,8 @@ pub struct ToHit {
     pub hitbox: Hitbox,
     pub lifetime: Lifetime,
     pub velocity: Vec2,
-    pub projectile: Option<Projectile>,
+    pub gravity: f32,
+    pub model: Option<Model>,
     pub hits: usize,
 }
 
@@ -19,7 +20,8 @@ impl Default for ToHit {
             hitbox: Hitbox(Area::new(1.0, 1.2, 0.2, 0.2)),
             lifetime: Lifetime::default(),
             velocity: Default::default(),
-            projectile: Default::default(),
+            gravity: 0.0,
+            model: Default::default(),
             hits: 1,
         }
     }
@@ -43,11 +45,6 @@ impl Default for BlockType {
     fn default() -> Self {
         BlockType::Strike(AttackHeight::Mid)
     }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Reflect)]
-pub struct Projectile {
-    pub model: Model,
 }
 
 #[derive(Debug, Clone, Copy, Reflect)]

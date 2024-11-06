@@ -11,19 +11,31 @@ use crate::{ActionRequirement, HitEffect, HitInfo, ResourceType, Situation};
 
 use super::{
     attack::OnHitEffect, Action, ActionEvent, Attack, AttackHeight, BlockType, FlashRequest,
-    Hitbox, Lifetime, Movement, Projectile, ToHit,
+    Hitbox, Lifetime, Movement, ToHit,
 };
 
 #[derive(Debug, Clone, Copy)]
 enum HitStun {
-    StunAdvantage(i32),
+    Stun(Stun),
     Knockdown,
     Launch(Vec2),
 }
 
 impl Default for HitStun {
     fn default() -> Self {
-        Self::StunAdvantage(5)
+        Self::Stun(Stun::Relative(5))
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Stun {
+    Relative(i32),
+    Absolute(i32),
+}
+
+impl Default for Stun {
+    fn default() -> Self {
+        Stun::Relative(0)
     }
 }
 
@@ -34,7 +46,7 @@ struct StrikeBuilder {
     damage: i32,
     chip_damage: i32,
     sharpness_scaling: i32,
-    advantage_on_block: i32,
+    block_stun: Stun,
     attacker_push_on_block: f32,
     defender_push_on_block: f32,
     block_height: AttackHeight,
@@ -75,8 +87,9 @@ pub struct AttackBuilder {
     startup: usize,
     recovery: usize,
     expand_hurtbox: Option<usize>,
-    projectile: Option<Projectile>,
+    spawn: Option<Model>,
     velocity: Vec2,
+    gravity: f32,
     meter_cost: Option<i32>,
     needs_charge: bool,
     open_cancel: Option<CancelWindow>,
@@ -177,10 +190,30 @@ impl AttackBuilder {
         Self { hit_count, ..self }
     }
 
-    pub fn with_projectile(self, projectile: Model, velocity: Vec2) -> Self {
+    pub fn with_hitbox_gravity(self, gravity: f32) -> Self {
+        assert!(self.hitbox_lifetime == Lifetime::until_owner_hit());
+
+        Self { gravity, ..self }
+    }
+
+    pub fn with_hitbox_velocity(self, velocity: Vec2) -> Self {
+        assert!(self.hitbox_lifetime == Lifetime::until_owner_hit());
+
+        Self { velocity, ..self }
+    }
+
+    pub fn with_hitbox_speed(self, speed: f32) -> Self {
+        assert!(self.hitbox_lifetime == Lifetime::until_owner_hit());
+
         Self {
-            velocity,
-            projectile: Some(Projectile { model: projectile }),
+            velocity: Vec2::X * speed,
+            ..self
+        }
+    }
+
+    pub fn with_spawn(self, projectile: Model) -> Self {
+        Self {
+            spawn: Some(projectile),
             hitbox_lifetime: Lifetime::until_owner_hit(),
             ..self
         }
@@ -259,10 +292,30 @@ impl AttackBuilder {
         }
     }
 
+    pub fn with_blockstun(self, frames: i32) -> Self {
+        Self {
+            sub_builder: SubBuilder::Strike(StrikeBuilder {
+                block_stun: Stun::Absolute(frames),
+                ..self.strike_builder()
+            }),
+            ..self
+        }
+    }
+
     pub fn with_advantage_on_block(self, frame_advantage: i32) -> Self {
         Self {
             sub_builder: SubBuilder::Strike(StrikeBuilder {
-                advantage_on_block: frame_advantage,
+                block_stun: Stun::Relative(frame_advantage),
+                ..self.strike_builder()
+            }),
+            ..self
+        }
+    }
+
+    pub fn with_hitstun(self, frames: i32) -> Self {
+        Self {
+            sub_builder: SubBuilder::Strike(StrikeBuilder {
+                hit_stun: HitStun::Stun(Stun::Absolute(frames)),
                 ..self.strike_builder()
             }),
             ..self
@@ -272,7 +325,7 @@ impl AttackBuilder {
     pub fn with_advantage_on_hit(self, frame_advantage: i32) -> Self {
         Self {
             sub_builder: SubBuilder::Strike(StrikeBuilder {
-                hit_stun: HitStun::StunAdvantage(frame_advantage),
+                hit_stun: HitStun::Stun(Stun::Relative(frame_advantage)),
                 ..self.strike_builder()
             }),
             ..self
@@ -516,7 +569,8 @@ impl AttackBuilder {
             hitbox: self.hitbox,
             block_type: self.sub_builder.block_type(),
             velocity: self.velocity,
-            projectile: self.projectile,
+            gravity: self.gravity,
+            model: self.spawn,
             hits: self.hit_count,
         };
 
@@ -530,11 +584,15 @@ impl AttackBuilder {
                 tb.target_action,
             ),
             SubBuilder::Strike(sb) => {
-                let block_stun = (self.recovery as i32 + sb.advantage_on_block) as usize;
+                let block_stun = match sb.block_stun {
+                    Stun::Relative(frames) => (self.recovery as i32 + frames) as usize,
+                    Stun::Absolute(frames) => frames as usize,
+                };
                 let hit_stun_event = match sb.hit_stun {
-                    HitStun::StunAdvantage(frame_advantage) => {
-                        ActionEvent::HitStun((self.recovery as i32 + frame_advantage) as usize)
-                    }
+                    HitStun::Stun(stun) => ActionEvent::HitStun(match stun {
+                        Stun::Relative(frames) => (self.recovery as i32 + frames) as usize,
+                        Stun::Absolute(frames) => frames as usize,
+                    }),
                     HitStun::Knockdown => ActionEvent::LaunchStun(Vec2::ZERO),
                     HitStun::Launch(impulse) => ActionEvent::LaunchStun(impulse),
                 };

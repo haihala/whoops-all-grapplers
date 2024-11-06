@@ -13,6 +13,7 @@ struct ParserHead {
     /// None if complete
     requirement: Option<InputRequirement>,
     prev_requirement: Option<InputRequirement>,
+    accumulator: Vec<InputEvent>,
 }
 
 impl Default for ParserHead {
@@ -22,6 +23,7 @@ impl Default for ParserHead {
             last_update: Instant::now(),
             requirement: default(),
             prev_requirement: default(),
+            accumulator: vec![],
         }
     }
 }
@@ -163,12 +165,17 @@ impl From<&str> for MotionInput {
         for ch in input.chars() {
             match ch {
                 '[' => {
-                    assert!(multichar.is_none(), "Nested '['");
-                    multichar = Some(String::default());
+                    assert!(multichar.is_none(), "Nested multichar");
+                    multichar = Some((String::default(), false));
                 }
-                ']' => {
-                    assert!(multichar.is_some(), "Closing ']' before opener");
-                    tokens.push((multichar.unwrap(), sticky));
+                '(' => {
+                    assert!(multichar.is_none(), "Nested multichar");
+                    multichar = Some((String::default(), true));
+                }
+                ']' | ')' => {
+                    assert!(multichar.is_some(), "Closing multichar before opener");
+                    let (chars, any) = multichar.unwrap();
+                    tokens.push((chars, sticky, any));
                     sticky = false;
                     multichar = None;
                 }
@@ -177,10 +184,10 @@ impl From<&str> for MotionInput {
                 }
                 _ => {
                     if let Some(mut temp) = multichar {
-                        temp.push(ch);
+                        temp.0.push(ch);
                         multichar = Some(temp);
                     } else {
-                        tokens.push((ch.to_string(), sticky));
+                        tokens.push((ch.to_string(), sticky, false));
                         sticky = false;
                     }
                 }
@@ -191,10 +198,14 @@ impl From<&str> for MotionInput {
 
         let requirements: Vec<InputRequirement> = tokens
             .into_iter()
-            .map(|(symbols, sticky)| {
+            .map(|(symbols, sticky, all)| {
                 let events: Vec<InputEvent> = symbols.chars().map(|char| char.into()).collect();
 
-                InputRequirement { sticky, events }
+                InputRequirement {
+                    sticky,
+                    events,
+                    all,
+                }
             })
             .collect();
 
@@ -236,11 +247,13 @@ mod test {
             vec![
                 InputRequirement {
                     sticky: false,
-                    events: vec![InputEvent::Point(StickPosition::E)]
+                    events: vec![InputEvent::Point(StickPosition::E)],
+                    ..default()
                 },
                 InputRequirement {
                     sticky: true,
-                    events: vec![InputEvent::Press(GameButton::Fast)]
+                    events: vec![InputEvent::Press(GameButton::Fast)],
+                    ..default()
                 },
             ]
         )
@@ -335,6 +348,41 @@ mod test {
         };
 
         input.advance(&down, Frame::default());
+        assert!(input.is_done());
+    }
+
+    #[test]
+    fn unordered_group() {
+        let mut input: MotionInput = "(fs)".into();
+        assert_eq!(input.requirements.len(), 1);
+        assert_eq!(
+            input.requirements[0],
+            InputRequirement {
+                sticky: false,
+                all: true,
+                events: vec![
+                    InputEvent::Press(GameButton::Fast),
+                    InputEvent::Press(GameButton::Strong)
+                ],
+            }
+        );
+
+        input.advance(
+            &Diff {
+                pressed: Some(vec![GameButton::Fast].into_iter().collect()),
+                ..default()
+            },
+            Frame::default(),
+        );
+        assert!(!input.is_done());
+
+        input.advance(
+            &Diff {
+                pressed: Some(vec![GameButton::Strong].into_iter().collect()),
+                ..default()
+            },
+            Frame::default(),
+        );
         assert!(input.is_done());
     }
 }

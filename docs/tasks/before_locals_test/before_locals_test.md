@@ -1,4 +1,5 @@
 - Go through [chore list](/docs/tasks/chore_tracker.md)
+- Do some of the input parser rewords (so multipresses can happen)
 - Rebalance for a best of five rounds
   - Make sure the players can buy a bunch of stuff round 1
   - Adjust loss penalty built-up
@@ -38,9 +39,9 @@
       - Sharpen gives a second sharpness stack
   - Kunai
     - Allow speed control with forward/back input (item)
-    - Add gravity instead of constant downwards speed
-    - Add a mechanic to recover lost Kunais
+    - Add a mechanic to recover lost Kunais (item)
     - Fix problem where they miss up close
     - Add s and EX versions
       - S version goes upwards with slightly less horizontal speed
       - EX version throws two kunais (both F and S versions)
+        - Maybe later, for now just make it a super fast one

@@ -8,7 +8,7 @@ use crate::{
     assets::Models,
     entity_management::DespawnMarker,
     event_spreading::SpawnHitbox,
-    movement::{ConstantVelocity, Follow},
+    movement::{Follow, ObjectVelocity},
 };
 
 use super::HitTracker;
@@ -71,16 +71,17 @@ impl HitboxSpawner {
             StateScoped(MatchState::Combat),
         ));
 
-        if attack.to_hit.velocity != Vec2::ZERO {
-            builder.insert(ConstantVelocity::new(
+        if attack.to_hit.velocity != Vec2::ZERO || attack.to_hit.gravity != 0.0 {
+            builder.insert(ObjectVelocity::new(
                 facing.mirror_vec3(attack.to_hit.velocity.extend(0.0)),
+                attack.to_hit.gravity,
             ));
         }
 
-        if let Some(projectile) = attack.to_hit.projectile {
+        if let Some(model) = attack.to_hit.model {
             builder.with_children(|parent| {
                 parent.spawn(SceneBundle {
-                    scene: models[&projectile.model].clone(),
+                    scene: models[&model].clone(),
                     transform: Transform {
                         scale: Vec3::new(facing.to_signum(), 1.0, 1.0),
                         ..default()

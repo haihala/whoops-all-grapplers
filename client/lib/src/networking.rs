@@ -23,7 +23,7 @@ use crate::{
     camera::ChildCameraEffects,
     damage::{HitTracker, HitboxSpawner, LifetimeFlags},
     entity_management::DespawnMarker,
-    movement::{ConstantVelocity, Follow, PlayerVelocity, Pushbox, Walls},
+    movement::{Follow, ObjectVelocity, PlayerVelocity, Pushbox, Walls},
     player_state_management::MoveBuffer,
 };
 
@@ -97,7 +97,7 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_copy::<Stats>()
             // Hitboxes
             .rollback_component_with_clone::<Attack>()
-            .rollback_component_with_copy::<ConstantVelocity>()
+            .rollback_component_with_copy::<ObjectVelocity>()
             .rollback_component_with_copy::<DespawnMarker>()
             .rollback_component_with_copy::<Follow>()
             .rollback_component_with_copy::<HitTracker>()

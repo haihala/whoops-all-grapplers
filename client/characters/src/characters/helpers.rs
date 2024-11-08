@@ -49,9 +49,9 @@ impl JumpDirection {
 
     fn base_input(self) -> &'static str {
         match self {
-            JumpDirection::Neutral => "[123456]8",
-            JumpDirection::Forward => "[123456]9",
-            JumpDirection::Back => "[123456]7",
+            JumpDirection::Neutral => "8",
+            JumpDirection::Forward => "9",
+            JumpDirection::Back => "7",
         }
     }
 
@@ -382,7 +382,7 @@ macro_rules! dashes {
             (
                 ActionId::DashForward,
                 dash!(
-                    "5656",
+                    "656",
                     6,
                     20,
                     Vec2::X * 5.0,
@@ -395,7 +395,7 @@ macro_rules! dashes {
             (
                 ActionId::DashBack,
                 dash!(
-                    "5454",
+                    "454",
                     0,
                     20,
                     Vec2::X * -7.0,
@@ -408,7 +408,7 @@ macro_rules! dashes {
             (
                 ActionId::TrackSpikesDashForward,
                 dash!(
-                    "5656",
+                    "656",
                     6,
                     20,
                     Vec2::X * 5.0,
@@ -421,7 +421,7 @@ macro_rules! dashes {
             (
                 ActionId::TrackSpikesDashBack,
                 dash!(
-                    "5454",
+                    "454",
                     0,
                     20,
                     Vec2::ZERO,

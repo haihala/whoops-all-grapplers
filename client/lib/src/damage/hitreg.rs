@@ -185,7 +185,7 @@ pub(super) fn detect_hits(
                 BlockType::Strike(height) => {
                     let parrying = state.has_flag(StatusFlag::Parry) && state.is_grounded();
                     let (blocked, reason) =
-                        handle_blocking(height, parser.get_relative_stick_position());
+                        handle_blocking(height, facing.mirror_stick_pos(parser.get_stick_pos()));
 
                     if parrying {
                         (Some("Parry!".into()), ConnectionType::Parry)
@@ -364,10 +364,9 @@ pub fn apply_connections(
 
             // This may break throws
             if defender.stats.direct_influence > 0.0 {
-                defender.velocity.add_impulse(defender.facing.mirror_vec2(
-                    defender.parser.get_relative_stick_position().as_vec2()
-                        * defender.stats.direct_influence,
-                ));
+                defender.velocity.add_impulse(
+                    defender.parser.get_stick_pos().as_vec2() * defender.stats.direct_influence,
+                );
             }
         }
 

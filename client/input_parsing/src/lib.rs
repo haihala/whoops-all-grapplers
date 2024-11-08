@@ -12,8 +12,6 @@ pub use input_stream::{PadStream, ParrotStream};
 
 use input_stream::{update_pads, update_parrots};
 
-const MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS: f32 = 0.2; // In seconds
-
 pub struct InputParsingPlugin;
 
 impl Plugin for InputParsingPlugin {
@@ -27,7 +25,6 @@ impl Plugin for InputParsingPlugin {
                 // If an entity has a parrot stream, it will drain the basic pad stream
                 input_parser::parse_input::<PadStream>,
                 input_parser::parse_input::<ParrotStream>,
-                input_parser::flip_parsers,
             )
                 .chain()
                 .in_set(WAGStage::Inputs)

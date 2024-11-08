@@ -128,7 +128,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::LowKick,
-            AttackBuilder::normal("[123]+f")
+            AttackBuilder::normal("f|123")
                 .hits_low()
                 .with_animation(MizkuAnimation::LowKick)
                 .with_frame_data(3, 3, 12)
@@ -161,7 +161,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::Uppercut,
-            AttackBuilder::normal("[123]+s")
+            AttackBuilder::normal("s|123")
                 .with_animation(MizkuAnimation::Uppercut)
                 .with_frame_data(8, 8, 40)
                 .with_hitbox(Area::new(0.3, 0.7, 0.3, 0.5))
@@ -185,7 +185,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::SkySlash,
-            AttackBuilder::normal("[123]+g")
+            AttackBuilder::normal("g|123")
                 .with_animation(MizkuAnimation::SkyStab)
                 .with_frame_data(8, 5, 32)
                 .with_hitbox(Area::new(1.8, 0.9, 1.0, 1.0))
@@ -323,7 +323,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
         ),
         (
             MizkuActionId::CrouchThrow,
-            AttackBuilder::normal("[123]+w")
+            AttackBuilder::normal("w|123")
                 .forward_throw()
                 .throw_hit_action(MizkuActionId::CrouchThrowHit)
                 .throw_target_action(MizkuActionId::CrouchThrowTarget)
@@ -414,7 +414,7 @@ fn enter_sword_stance(version: SpecialVersion) -> Action {
         input: Some(match version {
             SpecialVersion::Strong => "214+s",
             SpecialVersion::Fast => "214+f",
-            SpecialVersion::Metered => "214+[fs]",
+            SpecialVersion::Metered => "214+(fs)",
         }),
         category: ActionCategory::Special,
         script: Box::new(move |situation: &Situation| {
@@ -527,9 +527,9 @@ fn sharpen() -> Action {
 
 fn viper_strike(version: SpecialVersion) -> Action {
     AttackBuilder::special(match version {
-        SpecialVersion::Strong => "[123]+S",
-        SpecialVersion::Fast => "[123]+F",
-        SpecialVersion::Metered => "[123]+(FS)",
+        SpecialVersion::Strong => "S|123",
+        SpecialVersion::Fast => "F|123",
+        SpecialVersion::Metered => "(FS)|123",
     })
     .follow_up_from(vec![ActionId::Mizku(MizkuActionId::SwordStance(version))])
     .with_sound(SoundEffect::FemaleLoYah)
@@ -620,15 +620,15 @@ fn kunai_throws() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 ResourceType::KunaiCounter,
                 1,
             )])
-            .with_timings(13, 10)
-            .with_hitbox(Area::new(1.0, 1.2, 0.3, 0.3))
+            .with_timings(11, 10)
+            .with_hitbox(Area::new(0.2, 1.2, 0.3, 0.3))
             .with_spawn(Model::Kunai)
             .with_hitbox_velocity(match version {
                 SpecialVersion::Fast => Vec2::new(4.0, 1.0),
-                SpecialVersion::Strong => Vec2::new(2.0, 8.0),
+                SpecialVersion::Strong => Vec2::new(0.2, 4.0),
                 SpecialVersion::Metered => Vec2::new(10.0, 1.0),
             })
-            .with_hitbox_gravity(2.0)
+            .with_hitbox_gravity(4.0)
             .with_blockstun(15)
             .with_hitstun(20)
             .build(),

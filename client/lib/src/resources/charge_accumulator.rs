@@ -1,10 +1,13 @@
 use bevy::prelude::*;
 use characters::{SpecialProperty, WAGResources};
 use input_parsing::InputParser;
-use wag_core::Clock;
+use wag_core::{Clock, Facing};
 
-pub fn manage_charge(mut query: Query<(&mut WAGResources, &InputParser)>, clock: Res<Clock>) {
-    for (mut properties, parser) in &mut query {
+pub fn manage_charge(
+    mut query: Query<(&mut WAGResources, &InputParser, &Facing)>,
+    clock: Res<Clock>,
+) {
+    for (mut properties, parser, facing) in &mut query {
         for (_, prop) in &mut properties.iter_mut() {
             let mut clear = false;
             let mut gain = 0;
@@ -13,7 +16,7 @@ pub fn manage_charge(mut query: Query<(&mut WAGResources, &InputParser)>, clock:
                 let direction_held = !charge_props.directions.is_empty()
                     && charge_props
                         .directions
-                        .contains(&parser.get_relative_stick_position());
+                        .contains(&facing.mirror_stick_pos(parser.get_stick_pos()));
 
                 let buttons_pressed = !charge_props.buttons.is_empty()
                     && charge_props

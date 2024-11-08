@@ -4,11 +4,11 @@ use wag_core::{GameButton, StickPosition};
 
 #[derive(Clone, Eq, PartialEq, Debug, Default, Reflect)]
 /// Frame is a situation, diff is a change
-pub struct Frame {
+pub struct InputState {
     pub stick_position: StickPosition,
     pub pressed: HashSet<GameButton>,
 }
-impl Frame {
+impl InputState {
     pub fn apply(&mut self, diff: Diff) {
         if let Some(stick) = diff.stick_move {
             self.stick_position = stick;
@@ -83,11 +83,23 @@ fn add_or_init(base: Option<HashSet<GameButton>>, button: GameButton) -> HashSet
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Reflect)]
+#[derive(Debug, Clone, Eq, PartialEq, Reflect, Copy)]
 pub enum InputEvent {
     Point(StickPosition),
     Press(GameButton),
     Release(GameButton),
+}
+impl InputEvent {
+    pub(crate) fn fulfilled_by(&self, diff: &Diff) -> bool {
+        match self {
+            InputEvent::Point(stick_position) => diff
+                .stick_move
+                .map(|sp| *stick_position == sp)
+                .unwrap_or_default(),
+            InputEvent::Press(game_button) => diff.pressed_contains(game_button),
+            InputEvent::Release(game_button) => diff.released_contains(game_button),
+        }
+    }
 }
 impl From<char> for InputEvent {
     fn from(ch: char) -> InputEvent {
@@ -112,17 +124,74 @@ impl From<char> for InputEvent {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Reflect, Default)]
-pub struct InputRequirement {
-    pub sticky: bool,
-    pub all: bool,
-    pub events: Vec<InputEvent>,
+pub enum RequirementMode {
+    All(Vec<InputEvent>),
+    Any(Vec<InputEvent>),
+    #[default]
+    None,
 }
-impl From<InputEvent> for InputRequirement {
-    fn from(event: InputEvent) -> InputRequirement {
-        InputRequirement {
-            sticky: false,
-            all: false,
-            events: vec![event],
+impl RequirementMode {
+    pub(crate) fn is_negated_by(&self, diff: Diff) -> bool {
+        match self {
+            RequirementMode::All(vec) | RequirementMode::Any(vec) => {
+                let sticks: Vec<StickPosition> = vec
+                    .iter()
+                    .filter_map(|ev| {
+                        if let InputEvent::Point(dir) = ev {
+                            Some(*dir)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                let presses: Vec<GameButton> = vec
+                    .iter()
+                    .filter_map(|ev| {
+                        if let InputEvent::Press(btn) = ev {
+                            Some(*btn)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                let releases: Vec<GameButton> = vec
+                    .iter()
+                    .filter_map(|ev| {
+                        if let InputEvent::Release(btn) = ev {
+                            Some(*btn)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+
+                if let Some(stick) = diff.stick_move {
+                    if !sticks.contains(&stick) {
+                        return false;
+                    }
+                }
+
+                if let Some(released) = diff.released {
+                    if released.iter().any(|btn| presses.contains(btn)) {
+                        return false;
+                    }
+                }
+
+                if let Some(pressed) = diff.pressed {
+                    if pressed.iter().any(|btn| releases.contains(btn)) {
+                        return false;
+                    }
+                }
+
+                true
+            }
+            RequirementMode::None => panic!("How did we get here?"),
         }
     }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Reflect, Default)]
+pub struct InputRequirement {
+    pub mode: RequirementMode,
+    pub sticky: bool,
 }

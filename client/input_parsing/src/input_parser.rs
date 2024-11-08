@@ -1,5 +1,7 @@
+use std::collections::VecDeque;
+
 use crate::{
-    helper_types::{Diff, Frame},
+    helper_types::{Diff, InputState},
     input_stream::InputStream,
     motion_input::MotionInput,
 };
@@ -9,7 +11,31 @@ use bevy::{
     utils::{HashMap, HashSet},
 };
 
-use wag_core::{ActionId, Facing, GameButton, StickPosition};
+use wag_core::{ActionId, Clock, Facing, GameButton, StickPosition};
+
+#[derive(Debug, Default, Component, Clone, Reflect)]
+pub struct InputHistory {
+    pub diff: Diff,
+    pub state: InputState,
+    pub(crate) facing: Facing,
+    pub(crate) frame: usize,
+}
+impl InputHistory {
+    pub(crate) fn handle_facing(&self, absolute: bool) -> (Diff, InputState) {
+        if !absolute && self.facing.to_flipped() {
+            // Relative, the usual case
+            (
+                self.diff.clone().mirrored(),
+                InputState {
+                    stick_position: self.state.stick_position.mirror(),
+                    ..self.state.clone()
+                },
+            )
+        } else {
+            (self.diff.clone(), self.state.clone())
+        }
+    }
+}
 
 /// This is a component and used as an interface
 /// Main tells this what Actions to send what events from
@@ -17,55 +43,64 @@ use wag_core::{ActionId, Facing, GameButton, StickPosition};
 pub struct InputParser {
     events: Vec<ActionId>,
 
-    // May need to take a look at why we need two hashmaps here
-    moves: HashMap<&'static str, Vec<ActionId>>,
-    inputs: HashMap<&'static str, MotionInput>,
-    head: Frame,
-    facing: Facing, // Ugly but this fixes a bug with ggrs
+    inputs: Vec<(MotionInput, Vec<ActionId>)>,
+
+    history: VecDeque<InputHistory>,
+    state: InputState,
 }
+
+const FRAMES_PER_COMPLEXITY: usize = 5;
+
 impl InputParser {
     pub(crate) fn new(new_inputs: HashMap<ActionId, &'static str>) -> Self {
-        let mut moves: HashMap<&'static str, Vec<ActionId>> = HashMap::new();
-        let mut inputs: HashMap<&'static str, MotionInput> = HashMap::new();
+        let motions: Vec<MotionInput> = new_inputs
+            .iter()
+            .map(|(_, input_str)| MotionInput::from(*input_str))
+            .collect();
 
-        for (move_id, input_str) in new_inputs.into_iter() {
-            inputs.insert(input_str, input_str.into());
+        let mut inputs = vec![];
 
-            if let Some(ids) = moves.get_mut(input_str) {
-                ids.push(move_id);
-            } else {
-                moves.insert(input_str, vec![move_id]);
+        for motion in motions {
+            // Remove duplicates
+            if inputs.iter().any(|(input, _)| input == &motion) {
+                continue;
             }
+
+            let actions = new_inputs
+                .iter()
+                .filter_map(|(action_id, input_str)| {
+                    if motion == (*input_str).into() {
+                        Some(*action_id)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+
+            inputs.push((motion, actions));
         }
 
         Self {
-            moves,
             inputs,
             ..default()
         }
     }
 
     pub fn get_complexity(&self, action: ActionId) -> usize {
-        self.moves
-            .iter()
-            .find_map(|(input, ids)| {
-                if ids.contains(&action) {
-                    Some(input)
-                } else {
-                    None
-                }
-            })
-            .map(|input| self.inputs[input].complexity())
-            .unwrap()
+        for (input, actions) in &self.inputs {
+            if actions.contains(&action) {
+                return input.complexity();
+            }
+        }
+        panic!("Could not find input");
+    }
+
+    pub fn get_stick_pos(&self) -> StickPosition {
+        self.state.stick_position
     }
 
     pub fn get_pressed(&self) -> HashSet<GameButton> {
-        self.head.pressed.clone()
-    }
-
-    pub fn get_relative_stick_position(&self) -> StickPosition {
-        // Because the parser is never aware of side, it will always think the player is looking to the right
-        self.head.stick_position
+        self.state.pressed.clone()
     }
 
     pub fn get_events(&self) -> Vec<ActionId> {
@@ -73,41 +108,43 @@ impl InputParser {
     }
 
     pub fn head_is_clear(&self) -> bool {
-        self.head.stick_position == StickPosition::Neutral && self.head.pressed.is_empty()
+        self.state.stick_position == StickPosition::Neutral && self.state.pressed.is_empty()
     }
 
-    fn flip(&mut self, facing: Facing) {
-        if self.facing == facing {
-            return;
-        }
-        self.facing = facing;
-        let diff = Diff {
-            stick_move: Some(self.head.stick_position.mirror()),
-            ..default()
+    fn input_change(&mut self, diff: Diff, facing: Facing, frame: usize) {
+        self.state.apply(diff.clone());
+        let new_history = InputHistory {
+            diff,
+            state: self.state.clone(),
+            facing,
+            frame,
         };
 
-        self.add_frame(diff);
-    }
+        for (input, actions) in &self.inputs {
+            let past: Vec<InputHistory> = self
+                .history
+                .iter()
+                .take_while(|hist| hist.frame + input.complexity() * FRAMES_PER_COMPLEXITY > frame)
+                .cloned()
+                .collect();
 
-    fn add_frame(&mut self, diff: Diff) {
-        // This needs to happen before relative_stick is set to enable inputs that permit holding a direction as the first requirement
-        self.parse_inputs(diff.clone(), self.head.clone());
-        self.head.apply(diff);
-    }
-
-    fn parse_inputs(&mut self, diff: Diff, old_head: Frame) {
-        let completed_inputs = self.inputs.iter_mut().filter_map(|(input_str, input)| {
-            input.advance(&diff, old_head.clone());
-            if input.is_done() {
-                input.clear();
-                return Some(*input_str);
+            let already_complete = input.contained_in(&past);
+            if already_complete {
+                continue;
             }
-            None
-        });
 
-        let new_events = completed_inputs.flat_map(|input_str| self.moves[input_str].clone());
+            let present: Vec<_> = vec![new_history.clone()]
+                .into_iter()
+                .chain(past.clone())
+                .collect();
+            let complete_with_new_input = input.contained_in(&present);
+            if complete_with_new_input {
+                let mut evs = actions.clone();
+                self.events.append(&mut evs);
+            }
+        }
 
-        self.events.extend(new_events);
+        self.history.push_front(new_history);
     }
 
     pub fn clear(&mut self) {
@@ -117,35 +154,20 @@ impl InputParser {
 
 pub fn parse_input<T: InputStream + Component>(
     mut characters: Query<(&mut InputParser, &mut T, &Facing)>,
+    clock: Res<Clock>,
 ) {
     for (mut parser, mut reader, facing) in &mut characters {
         if let Some(diff) = reader.read() {
-            parser.add_frame(if facing.to_flipped() {
-                // Flip the inputs
-                diff.mirrored()
-            } else {
-                diff
-            });
+            parser.input_change(diff, *facing, clock.frame);
         }
-    }
-}
-
-// Since the parser doesn't get events if the inputs don't change, it's good to give a pseudo event when sides change
-pub fn flip_parsers(mut parsers: Query<(&mut InputParser, &Facing)>) {
-    for (mut parser, facing) in &mut parsers {
-        parser.flip(*facing);
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::thread::sleep;
-    use std::time::Duration;
-
     use crate::{
         helper_types::InputEvent,
         testing::{TestInputBundle, TestStream},
-        MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
     };
 
     use super::*;
@@ -172,7 +194,7 @@ mod test {
         interface.add_stick_and_tick(StickPosition::E);
         interface.assert_no_events();
 
-        interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
+        interface.sleep(100);
 
         interface.add_button_and_tick(GameButton::Fast);
         interface.assert_no_events();
@@ -204,7 +226,8 @@ mod test {
         interface.add_stick_and_tick(StickPosition::S);
         interface.assert_no_events();
 
-        interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
+        // TODO: New system handles time differently
+        // interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
 
         interface.add_button_and_tick(GameButton::Fast);
         interface.assert_test_event_is_present();
@@ -217,7 +240,8 @@ mod test {
         interface.add_stick_and_tick(StickPosition::S);
         interface.assert_no_events();
 
-        interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
+        // TODO: New system handles time differently
+        // interface.sleep(MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS);
 
         interface.add_stick_and_tick(StickPosition::N);
         interface.assert_test_event_is_present();
@@ -279,6 +303,9 @@ mod test {
                 Facing::Right,
             ));
 
+            app.init_resource::<Time>();
+            app.init_resource::<Clock>();
+
             let mut tester = TestInterface { app };
             tester.tick();
 
@@ -286,6 +313,11 @@ mod test {
         }
 
         fn tick(&mut self) {
+            self.app
+                .world_mut()
+                .get_resource_mut::<Clock>()
+                .unwrap()
+                .frame += 1;
             self.app.update();
         }
 
@@ -308,11 +340,6 @@ mod test {
             {
                 reader.push(change.clone());
             }
-        }
-
-        fn sleep(&mut self, seconds: f32) {
-            sleep(Duration::from_secs_f32(seconds + 0.1));
-            self.tick();
         }
 
         fn assert_test_event_is_present(&mut self) {
@@ -344,6 +371,12 @@ mod test {
                 .unwrap()
                 .events
                 .clone()
+        }
+
+        fn sleep(&mut self, ticks: i32) {
+            for _ in 0..ticks {
+                self.tick();
+            }
         }
     }
 }

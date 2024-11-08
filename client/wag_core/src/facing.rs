@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::StickPosition;
+
 #[derive(Reflect, PartialEq, Eq, Clone, Copy, Debug, Component, Default, Hash)]
 pub enum Facing {
     #[default]
@@ -67,6 +69,13 @@ impl Facing {
         match self {
             Facing::Right => vector,
             Facing::Left => Vec2::new(-vector.x, vector.y),
+        }
+    }
+
+    pub fn mirror_stick_pos(&self, stick_pos: StickPosition) -> StickPosition {
+        match self {
+            Facing::Right => stick_pos,
+            Facing::Left => stick_pos.mirror(),
         }
     }
 }

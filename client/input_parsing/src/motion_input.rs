@@ -1,224 +1,176 @@
 use bevy::prelude::*;
-use bevy::utils::Instant;
+use wag_core::StickPosition;
 
 use crate::{
-    helper_types::{Diff, Frame, InputEvent, InputRequirement},
-    MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS,
+    helper_types::{InputRequirement, RequirementMode},
+    input_parser::InputHistory,
 };
 
-#[derive(Debug, Clone, Eq, PartialEq, Reflect)]
-struct ParserHead {
-    index: usize,
-    last_update: Instant,
-    /// None if complete
-    requirement: Option<InputRequirement>,
-    prev_requirement: Option<InputRequirement>,
-    accumulator: Vec<InputEvent>,
-}
-
-impl Default for ParserHead {
-    fn default() -> Self {
-        Self {
-            index: default(),
-            last_update: Instant::now(),
-            requirement: default(),
-            prev_requirement: default(),
-            accumulator: vec![],
-        }
-    }
-}
-impl ParserHead {
-    fn from_frame(requirements: &[InputRequirement], prev_state: Frame) -> ParserHead {
-        let mut new = ParserHead {
-            requirement: requirements.first().cloned(),
-            ..default()
-        };
-
-        new.advance(
-            requirements,
-            &Frame::default(),
-            &prev_state.clone().diff_from_neutral(),
-        );
-        new
-    }
-
-    fn is_done(&self) -> bool {
-        self.requirement.is_none()
-    }
-
-    fn expired(&self) -> bool {
-        let time_from_previous_event = Instant::now()
-            .duration_since(self.last_update)
-            .as_secs_f32();
-
-        time_from_previous_event > MAX_SECONDS_BETWEEN_SUBSEQUENT_MOTIONS
-    }
-
-    fn bump(&mut self, requirements: &[InputRequirement]) {
-        *self = ParserHead {
-            requirement: requirements.get(self.index + 1).cloned(),
-            index: self.index + 1,
-            prev_requirement: self.requirement.clone(),
-            ..default()
-        };
-    }
-
-    fn advance(&mut self, requirements: &[InputRequirement], base: &Frame, diff: &Diff) {
-        while !self.is_done() && self.requirements_met(base, diff) {
-            self.bump(requirements);
-        }
-    }
-
-    fn requirements_met(&mut self, base: &Frame, diff: &Diff) -> bool {
-        let Some(requirement) = self.requirement.clone() else {
-            return false;
-        };
-
-        if requirement.sticky
-            && !self.requirement_passes(
-                self.prev_requirement.clone().unwrap(),
-                &base.clone().diff_from_neutral(),
-            )
-        {
-            return false;
-        }
-
-        self.requirement_passes(requirement, diff)
-    }
-
-    fn requirement_passes(&mut self, requirement: InputRequirement, diff: &Diff) -> bool {
-        requirement.events.iter().any(|event| match event {
-            InputEvent::Point(required_stick) => {
-                diff.stick_move.is_some() && diff.stick_move.unwrap() == *required_stick
-            }
-            InputEvent::Press(required_button) => diff.pressed_contains(required_button),
-            InputEvent::Release(required_button) => diff.released_contains(required_button),
-        })
-    }
-}
-
-#[derive(Default, Debug, Clone, Reflect)]
+#[derive(Default, Debug, Clone, Reflect, PartialEq)]
 pub struct MotionInput {
-    heads: Vec<ParserHead>,
     requirements: Vec<InputRequirement>,
+    absolute: bool, // Does not care about which way the player is facing
+    allowed_stick_positions: Vec<StickPosition>, // Circumvents buffer length
 }
 impl MotionInput {
-    pub fn clear(&mut self) {
-        self.heads.clear();
-    }
-
-    pub fn is_done(&self) -> bool {
-        self.heads.iter().any(|head| head.requirement.is_none())
-    }
-
     pub fn complexity(&self) -> usize {
-        self.requirements.len()
+        self.requirements.len() + (!self.allowed_stick_positions.is_empty() as usize)
     }
 
-    pub fn advance(&mut self, diff: &Diff, prev_state: Frame) {
-        if self.is_done() {
-            return;
-        }
+    pub(crate) fn contained_in(&self, history: &[InputHistory]) -> bool {
+        let mut past = history.iter().map(|ev| ev.handle_facing(self.absolute));
 
-        let new_head = ParserHead::from_frame(&self.requirements, prev_state.clone());
+        let mut sticky = false;
 
-        if !new_head.is_done() {
-            // The previous input state has triggered this event.
-            // It ought to have been reacted to already, so don't bother adding it into the pool.
+        for requirement in self.requirements.clone() {
+            let requirement_met = match requirement.mode.clone() {
+                RequirementMode::All(mut to_fulfill) => loop {
+                    let Some((diff, state)) = past.next() else {
+                        break false;
+                    };
 
-            if let Some(ref mut existing_head) = self
-                .heads
-                .iter_mut()
-                .find(|head| head.index == new_head.index)
-            {
-                // There is an existing head with the same index
-                existing_head.last_update = Instant::now();
-            } else {
-                // No existing head
-                self.heads.push(new_head);
+                    if !self.allowed_stick_positions.is_empty()
+                        && !self.allowed_stick_positions.contains(&state.stick_position)
+                    {
+                        break false;
+                    }
+
+                    to_fulfill.retain(|ev| !ev.fulfilled_by(&diff));
+
+                    if to_fulfill.is_empty() {
+                        break true;
+                    }
+
+                    if sticky && requirement.mode.is_negated_by(diff) {
+                        break false;
+                    }
+                },
+                RequirementMode::Any(options) => loop {
+                    let Some((diff, state)) = past.next() else {
+                        break false;
+                    };
+
+                    if !self.allowed_stick_positions.is_empty()
+                        && !self.allowed_stick_positions.contains(&state.stick_position)
+                    {
+                        break false;
+                    }
+
+                    if options
+                        .iter()
+                        .any(|input_event| input_event.fulfilled_by(&diff))
+                    {
+                        break true;
+                    }
+
+                    if sticky && requirement.mode.is_negated_by(diff) {
+                        break false;
+                    }
+                },
+                RequirementMode::None => panic!("How did we get here?"),
+            };
+
+            if !requirement_met {
+                return false;
             }
+
+            sticky = requirement.sticky;
         }
 
-        self.heads = self
-            .heads
-            .clone()
-            .into_iter()
-            .filter_map(|mut head| {
-                if head.expired() {
-                    None
-                } else {
-                    head.advance(&self.requirements, &prev_state, diff);
-                    Some(head)
-                }
-            })
-            .collect();
+        true
     }
 }
 
 impl From<&str> for MotionInput {
     fn from(input: &str) -> Self {
-        // Vec of tuples, first part is the input to be parsed, second is if it's sticky
-        let mut tokens = vec![];
-        let mut multichar = None;
-        let mut sticky = false;
+        let mut split = input.split('|');
+        let sequence = split.next().unwrap();
+        let metadata = split.next().unwrap_or("");
 
-        for ch in input.chars() {
+        let mut incomplete = InputRequirement::default();
+        let mut complete = vec![];
+
+        for ch in sequence.chars() {
             match ch {
                 '[' => {
-                    assert!(multichar.is_none(), "Nested multichar");
-                    multichar = Some((String::default(), false));
+                    incomplete.mode = RequirementMode::Any(vec![]);
                 }
                 '(' => {
-                    assert!(multichar.is_none(), "Nested multichar");
-                    multichar = Some((String::default(), true));
+                    incomplete.mode = RequirementMode::All(vec![]);
                 }
-                ']' | ')' => {
-                    assert!(multichar.is_some(), "Closing multichar before opener");
-                    let (chars, any) = multichar.unwrap();
-                    tokens.push((chars, sticky, any));
-                    sticky = false;
-                    multichar = None;
+                ']' => {
+                    assert!(
+                        matches!(incomplete.mode, RequirementMode::Any(_)),
+                        "Using ] to close a ("
+                    );
+                    complete.push(incomplete);
+                    incomplete = InputRequirement::default();
+                }
+                ')' => {
+                    assert!(
+                        matches!(incomplete.mode, RequirementMode::All(_)),
+                        "Using ) to close a ["
+                    );
+                    complete.push(incomplete);
+                    incomplete = InputRequirement::default();
                 }
                 '+' => {
-                    sticky = true;
+                    assert!(
+                        !complete.is_empty(),
+                        "Sticky modifier can't be first symbol"
+                    );
+
+                    incomplete.sticky = true;
                 }
                 _ => {
-                    if let Some(mut temp) = multichar {
-                        temp.0.push(ch);
-                        multichar = Some(temp);
-                    } else {
-                        tokens.push((ch.to_string(), sticky, false));
-                        sticky = false;
+                    let new_ev = ch.into();
+
+                    match incomplete.mode {
+                        RequirementMode::All(ref mut evs) | RequirementMode::Any(ref mut evs) => {
+                            evs.push(new_ev);
+                        }
+                        RequirementMode::None => {
+                            incomplete.mode = RequirementMode::Any(vec![new_ev]);
+                            complete.push(incomplete);
+                            incomplete = InputRequirement::default();
+                        }
                     }
                 }
             }
         }
 
-        assert!(!tokens.is_empty(), "No tokens");
+        assert!(!complete.is_empty(), "No requirements");
 
-        let requirements: Vec<InputRequirement> = tokens
-            .into_iter()
-            .map(|(symbols, sticky, all)| {
-                let events: Vec<InputEvent> = symbols.chars().map(|char| char.into()).collect();
-
-                InputRequirement {
-                    sticky,
-                    events,
-                    all,
-                }
-            })
-            .collect();
-
-        Self {
-            requirements,
+        let mut out = Self {
+            requirements: complete.into_iter().rev().collect(),
             ..default()
+        };
+
+        for ch in metadata.chars() {
+            match ch {
+                'A' => {
+                    out.absolute = true;
+                }
+                '1'..'9' => {
+                    out.allowed_stick_positions
+                        .push((ch.to_digit(10).unwrap() as i32).into());
+                }
+                unknown => panic!("Unknown char ̈́'{}'", unknown),
+            }
         }
+
+        out
     }
 }
 
 #[cfg(test)]
 mod test {
     use wag_core::{GameButton, StickPosition};
+
+    use crate::{
+        helper_types::{Diff, InputState},
+        InputEvent,
+    };
 
     use super::*;
 
@@ -228,161 +180,144 @@ mod test {
         assert_eq!(
             parsed.requirements,
             vec![
-                InputEvent::Point(StickPosition::S),
-                InputEvent::Point(StickPosition::SE),
-                InputEvent::Point(StickPosition::E),
                 InputEvent::Press(GameButton::Fast),
+                InputEvent::Point(StickPosition::E),
+                InputEvent::Point(StickPosition::SE),
+                InputEvent::Point(StickPosition::S),
             ]
             .into_iter()
-            .map(InputRequirement::from)
+            .map(|ev| InputRequirement {
+                mode: RequirementMode::Any(vec![ev]),
+                ..default()
+            })
             .collect::<Vec<_>>()
         )
     }
 
     #[test]
-    fn sticky() {
-        let parsed: MotionInput = "6+f".into();
+    fn any_group_parsed() {
+        let parsed: MotionInput = "[6f]".into();
         assert_eq!(
             parsed.requirements,
-            vec![
-                InputRequirement {
-                    sticky: false,
-                    events: vec![InputEvent::Point(StickPosition::E)],
-                    ..default()
-                },
-                InputRequirement {
-                    sticky: true,
-                    events: vec![InputEvent::Press(GameButton::Fast)],
-                    ..default()
-                },
-            ]
+            vec![InputRequirement {
+                mode: RequirementMode::Any(vec![
+                    InputEvent::Point(StickPosition::E),
+                    InputEvent::Press(GameButton::Fast)
+                ]),
+                ..default()
+            },]
         )
     }
 
     #[test]
-    fn head_advancement() {
-        let motion: MotionInput = "6f".into();
+    fn all_group_parsed() {
+        let parsed: MotionInput = "(6f)".into();
+        assert_eq!(
+            parsed.requirements,
+            vec![InputRequirement {
+                mode: RequirementMode::All(vec![
+                    InputEvent::Point(StickPosition::E),
+                    InputEvent::Press(GameButton::Fast)
+                ]),
+                ..default()
+            },]
+        )
+    }
 
-        let state = Frame {
-            stick_position: StickPosition::E,
+    #[test]
+    fn any_group_contained() {
+        let input: MotionInput = "[123]".into();
+
+        assert!(input.contained_in(&[InputHistory {
+            diff: Diff {
+                stick_move: Some(StickPosition::SE),
+                ..default()
+            },
             ..default()
-        };
+        }]));
+
+        assert!(input.contained_in(&[InputHistory {
+            diff: Diff {
+                stick_move: Some(StickPosition::S),
+                ..default()
+            },
+            ..default()
+        }]));
+    }
+
+    #[test]
+    fn all_group_contained() {
+        let input: MotionInput = "(6f)".into();
+
+        assert!(input.contained_in(&[
+            InputHistory {
+                diff: Diff {
+                    pressed: Some(vec![GameButton::Fast].into_iter().collect()),
+                    ..default()
+                },
+                ..default()
+            },
+            InputHistory {
+                diff: Diff {
+                    stick_move: Some(StickPosition::E),
+                    ..default()
+                },
+                ..default()
+            },
+        ]));
+
+        assert!(!input.contained_in(&[InputHistory {
+            diff: Diff {
+                stick_move: Some(StickPosition::E),
+                ..default()
+            },
+            ..default()
+        },]));
+
+        assert!(!input.contained_in(&[InputHistory {
+            diff: Diff {
+                pressed: Some(vec![GameButton::Fast].into_iter().collect()),
+                ..default()
+            },
+            ..default()
+        },]));
+    }
+
+    #[test]
+    fn metadata_parses() {
+        let input: MotionInput = "f|A123".into();
+
+        assert!(input.absolute);
+
+        assert_eq!(
+            input.allowed_stick_positions,
+            vec![StickPosition::SW, StickPosition::S, StickPosition::SE]
+        );
+    }
+
+    #[test]
+    fn metadata_validates() {
+        let input: MotionInput = "f|A123".into();
+
         let diff = Diff {
             pressed: Some(vec![GameButton::Fast].into_iter().collect()),
             ..default()
         };
 
-        let mut ph = ParserHead::from_frame(&motion.requirements, state.clone());
-        assert!(ph.index == 1);
-
-        ph.advance(&motion.requirements, &state, &diff);
-        assert!(ph.is_done());
-    }
-
-    #[test]
-    fn sticky_head_advancement() {
-        let mut sticky: MotionInput = "6+f".into();
-
-        let mut base = Frame::default();
-        let forward = Diff {
-            stick_move: Some(StickPosition::E),
+        // Does not pass without correct state
+        assert!(!input.contained_in(&[InputHistory {
+            diff: diff.clone(),
             ..default()
-        };
+        },]));
 
-        sticky.advance(&forward, base.clone());
-        base.apply(forward);
-
-        sticky.advance(
-            &Diff {
-                pressed: Some(vec![GameButton::Fast].into_iter().collect()),
+        // Passes with correct state
+        assert!(input.contained_in(&[InputHistory {
+            diff,
+            state: InputState {
+                stick_position: StickPosition::S,
                 ..default()
             },
-            base.clone(),
-        );
-        assert!(sticky.is_done());
-    }
-
-    #[test]
-    fn sticky_head_advancement_limits_correctly() {
-        let mut non_sticky: MotionInput = "6f".into();
-        let mut sticky: MotionInput = "6+f".into();
-
-        let mut base = Frame::default();
-        let forward = Diff {
-            stick_move: Some(StickPosition::E),
             ..default()
-        };
-
-        non_sticky.advance(&forward, base.clone());
-        sticky.advance(&forward, base.clone());
-        base.apply(forward.clone());
-
-        let neutral = Diff {
-            stick_move: Some(StickPosition::Neutral),
-            ..default()
-        };
-
-        non_sticky.advance(&neutral, base.clone());
-        sticky.advance(&neutral, base.clone());
-        base.apply(neutral);
-
-        let button = Diff {
-            pressed: Some(vec![GameButton::Fast].into_iter().collect()),
-            ..default()
-        };
-
-        non_sticky.advance(&button, base.clone());
-        sticky.advance(&button, base.clone());
-
-        assert!(non_sticky.is_done());
-        assert!(!sticky.is_done());
-    }
-
-    #[test]
-    fn range() {
-        let mut input: MotionInput = "[123]".into();
-
-        let down = Diff {
-            stick_move: Some(StickPosition::S),
-            ..default()
-        };
-
-        input.advance(&down, Frame::default());
-        assert!(input.is_done());
-    }
-
-    #[test]
-    fn unordered_group() {
-        let mut input: MotionInput = "(fs)".into();
-        assert_eq!(input.requirements.len(), 1);
-        assert_eq!(
-            input.requirements[0],
-            InputRequirement {
-                sticky: false,
-                all: true,
-                events: vec![
-                    InputEvent::Press(GameButton::Fast),
-                    InputEvent::Press(GameButton::Strong)
-                ],
-            }
-        );
-
-        input.advance(
-            &Diff {
-                pressed: Some(vec![GameButton::Fast].into_iter().collect()),
-                ..default()
-            },
-            Frame::default(),
-        );
-        assert!(!input.is_done());
-
-        input.advance(
-            &Diff {
-                pressed: Some(vec![GameButton::Strong].into_iter().collect()),
-                ..default()
-            },
-            Frame::default(),
-        );
-        assert!(input.is_done());
+        },]));
     }
 }

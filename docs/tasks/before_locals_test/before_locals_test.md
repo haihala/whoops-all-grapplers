@@ -1,5 +1,4 @@
 - Go through [chore list](/docs/tasks/chore_tracker.md)
-- Do some of the input parser rewords (so multipresses can happen)
 - Rebalance for a best of five rounds
   - Make sure the players can buy a bunch of stuff round 1
   - Adjust loss penalty built-up
@@ -45,3 +44,4 @@
       - S version goes upwards with slightly less horizontal speed
       - EX version throws two kunais (both F and S versions)
         - Maybe later, for now just make it a super fast one
+    - Make it turn forward

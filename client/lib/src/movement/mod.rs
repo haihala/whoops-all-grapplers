@@ -3,6 +3,7 @@ mod player_velocity;
 mod stick_movement;
 
 use core::f32;
+use std::f32::consts::PI;
 
 pub use followers::Follow;
 pub use player_velocity::PlayerVelocity;
@@ -27,12 +28,14 @@ pub const MAX_PLAYER_DISTANCE: f32 = 8.0;
 pub struct ObjectVelocity {
     pub speed: Vec3,
     pub acceleration: Vec3,
+    pub face_forward: bool,
 }
 impl ObjectVelocity {
     pub fn new(speed: Vec3, gravity: f32) -> ObjectVelocity {
         ObjectVelocity {
             speed,
             acceleration: -Vec3::Y * gravity,
+            face_forward: true,
         }
     }
 }
@@ -278,6 +281,11 @@ fn move_objects(
         let acceleration = velocity.acceleration / FPS;
         velocity.speed += acceleration;
         transform.translation += velocity.speed / FPS;
+
+        if velocity.face_forward {
+            transform.look_to(velocity.speed.normalize(), Vec3::Z);
+            transform.rotate_z(PI / 2.0);
+        }
 
         // Despawn the thing if it's outside of the arena or under the floor
         if transform.translation.x.abs() > ARENA_WIDTH

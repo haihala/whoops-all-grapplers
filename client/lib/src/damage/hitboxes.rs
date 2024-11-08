@@ -82,10 +82,6 @@ impl HitboxSpawner {
             builder.with_children(|parent| {
                 parent.spawn(SceneBundle {
                     scene: models[&model].clone(),
-                    transform: Transform {
-                        scale: Vec3::new(facing.to_signum(), 1.0, 1.0),
-                        ..default()
-                    },
                     ..default()
                 });
             });

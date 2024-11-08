@@ -39,9 +39,3 @@
   - Kunai
     - Allow speed control with forward/back input (item)
     - Add a mechanic to recover lost Kunais (item)
-    - Fix problem where they miss up close
-    - Add s and EX versions
-      - S version goes upwards with slightly less horizontal speed
-      - EX version throws two kunais (both F and S versions)
-        - Maybe later, for now just make it a super fast one
-    - Make it turn forward

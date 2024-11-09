@@ -138,7 +138,6 @@ pub(super) fn move_activator(
 
             let situation_moves =
                 buffer.get_situation_moves(character, &available_cancels.0, situation);
-            // Sort by most complex input
 
             if situation_moves.is_empty() {
                 continue;
@@ -147,6 +146,7 @@ pub(super) fn move_activator(
             situation_moves
                 .into_iter()
                 .max_by_key(|(buffer_entry_frame, id)| {
+                    // Sort by most complex input
                     (parser.get_complexity(*id), *buffer_entry_frame, *id)
                 })
                 .unwrap()

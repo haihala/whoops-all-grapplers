@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use wag_core::{
     ActionId, Animation, Area, CancelWindow, DummyAnimation, SamuraiAnimation, SoundEffect,
-    StatusCondition, VfxRequest, VoiceLine,
+    StatusCondition, StatusFlag, VfxRequest, VoiceLine,
 };
 
 use crate::{FlashRequest, Movement, ResourceType};
@@ -18,7 +18,9 @@ pub enum ActionEvent {
     SpawnHitbox(Attack),
     ClearMovement,
     Movement(Movement),
+    Teleport(Vec2),
     Condition(StatusCondition),
+    ClearCondition(StatusFlag),
     ForceStand,
     SayVoiceLine(VoiceLine),
     ModifyResource(ResourceType, i32),
@@ -34,6 +36,7 @@ pub enum ActionEvent {
     CameraShake, // TODO: Add strength
     CharacterShake(f32),
     Flash(FlashRequest),
+    ColorShift(Color, usize),
     RelativeVisualEffect(VfxRequest),
     AbsoluteVisualEffect(VfxRequest),
     ExpandHurtbox(Area, usize), // New area, how long it should hang around

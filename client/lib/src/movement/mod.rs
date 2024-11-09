@@ -17,7 +17,7 @@ use wag_core::{
 
 use crate::{
     damage::{HitTracker, HitboxSpawner},
-    event_spreading::{AddMovement, ClearMovement},
+    event_spreading::{AddMovement, ClearMovement, TeleportEvent},
 };
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
@@ -146,6 +146,14 @@ pub fn add_movement(
     vel.handle_movement(clock.frame, *facing, trigger.event().0);
 }
 
+pub fn handle_teleports(
+    trigger: Trigger<TeleportEvent>,
+    mut query: Query<(&mut PlayerVelocity, &Facing)>,
+) {
+    let (mut vel, facing) = query.get_mut(trigger.entity()).unwrap();
+    vel.teleport = Some(facing.mirror_vec2(trigger.event().0));
+}
+
 fn player_input(
     clock: Res<Clock>,
     mut query: Query<(&PlayerState, &mut PlayerVelocity, &Stats, &Facing)>,
@@ -173,7 +181,7 @@ fn set_target_position(mut query: Query<(&Transform, &PlayerState, &mut PlayerVe
             continue;
         }
 
-        let np = tf.translation.truncate() + velocity.get_shift();
+        let np = tf.translation.truncate() + velocity.get_shift() + velocity.get_teleport();
         velocity.next_pos = np;
     }
 }

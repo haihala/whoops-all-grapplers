@@ -81,10 +81,11 @@ mod test {
                     ..default()
                 };
                 let end_events = (mov.script)(&sit);
+                dbg!(id);
                 end_events
                     .iter()
-                    .find(|ev| matches!(ev, ActionEvent::End))
-                    .expect("All moves to end");
+                    .find(|ev| matches!(ev, ActionEvent::End | ActionEvent::StartAction(_)))
+                    .expect("All moves to end (or start a move)");
 
                 println!("{:?} did not send end event at t=9999", id,);
             }

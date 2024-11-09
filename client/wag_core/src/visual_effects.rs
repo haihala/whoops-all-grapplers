@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default)]
+#[derive(Debug, PartialEq, Clone, Copy, Default)]
 pub enum VisualEffect {
     #[default]
     Blank,
@@ -14,8 +14,9 @@ pub enum VisualEffect {
     Pebbles,
     Sparks,
     MidFlash,
-    WaveDiagonal,
-    WaveFlat,
+    WaveDiagonal(Color),
+    WaveFlat(Color),
+    SmokeBomb,
 }
 impl VisualEffect {
     pub fn mesh_size(&self) -> Rectangle {
@@ -25,6 +26,7 @@ impl VisualEffect {
             VisualEffect::Hit => Rectangle::new(1.1, 1.1),
             VisualEffect::ThrowTech | VisualEffect::ThrowTarget => Rectangle::new(2.0, 2.0),
             VisualEffect::Pebbles | VisualEffect::Sparks => Rectangle::new(1.8, 1.8),
+            VisualEffect::SmokeBomb => Rectangle::new(3.0, 3.0),
             _ => Rectangle::default(),
         }
     }

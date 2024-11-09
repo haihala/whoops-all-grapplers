@@ -38,6 +38,8 @@ pub enum ItemId {
     SpaceSuitBoots,
     BladeOil,
     SmithyCoupon,
+    Fireaxe,
+    SmokeBomb,
 
     #[default]
     Default,

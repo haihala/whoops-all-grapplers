@@ -80,7 +80,9 @@ impl Default for SubBuilder {
     }
 }
 
-#[derive(Clone, Default)]
+type OptionalDynamic = Option<Arc<dyn Fn(&Situation) -> Vec<ActionEvent> + Send + Sync>>;
+
+#[derive(Default)]
 pub struct AttackBuilder {
     input: &'static str,
     hitbox: Hitbox,
@@ -98,9 +100,9 @@ pub struct AttackBuilder {
     animation: Animation,
     audio: SoundEffect,
     extra_initial_events: Vec<ActionEvent>,
-    dynamic_initial_events: Option<fn(&Situation) -> Vec<ActionEvent>>,
+    dynamic_initial_events: OptionalDynamic,
     extra_activation_events: Vec<ActionEvent>,
-    dynamic_activation_events: Option<fn(&Situation) -> Vec<ActionEvent>>,
+    dynamic_activation_events: OptionalDynamic,
     extra_requirements: Vec<ActionRequirement>,
     sub_builder: SubBuilder,
     hit_count: usize,
@@ -477,10 +479,10 @@ impl AttackBuilder {
 
     pub fn with_dynamic_initial_events(
         self,
-        generator: fn(&Situation) -> Vec<ActionEvent>,
+        generator: impl Fn(&Situation) -> Vec<ActionEvent> + Send + Sync + 'static,
     ) -> Self {
         Self {
-            dynamic_initial_events: Some(generator),
+            dynamic_initial_events: Some(Arc::new(generator)),
             ..self
         }
     }
@@ -494,10 +496,10 @@ impl AttackBuilder {
 
     pub fn with_dynamic_activation_events(
         self,
-        generator: fn(&Situation) -> Vec<ActionEvent>,
+        generator: impl Fn(&Situation) -> Vec<ActionEvent> + Send + Sync + 'static,
     ) -> Self {
         Self {
-            dynamic_activation_events: Some(generator),
+            dynamic_activation_events: Some(Arc::new(generator)),
             ..self
         }
     }
@@ -574,8 +576,14 @@ impl AttackBuilder {
             hits: self.hit_count,
         };
 
-        let init_fun = self.dynamic_initial_events.unwrap_or(|_| vec![]);
-        let activation_fun = self.dynamic_activation_events.unwrap_or(|_| vec![]);
+        let init_fun = self
+            .dynamic_initial_events
+            .clone()
+            .unwrap_or(Arc::new(|_| vec![]));
+        let activation_fun = self
+            .dynamic_activation_events
+            .clone()
+            .unwrap_or(Arc::new(|_| vec![]));
         let on_hit = match self.sub_builder {
             SubBuilder::Throw(tb) => build_throw_effect(
                 tb.lock_duration,

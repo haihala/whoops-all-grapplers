@@ -14,7 +14,13 @@ pub struct MotionInput {
 }
 impl MotionInput {
     pub fn complexity(&self) -> usize {
-        self.requirements.len() + (!self.allowed_stick_positions.is_empty() as usize)
+        self.requirements.iter().fold(0, |acc, req| {
+            acc + if let RequirementMode::All(parts) = &req.mode {
+                parts.len()
+            } else {
+                1
+            }
+        }) + (!self.allowed_stick_positions.is_empty() as usize)
     }
 
     pub(crate) fn contained_in(&self, history: &[InputHistory]) -> bool {
@@ -151,7 +157,7 @@ impl From<&str> for MotionInput {
                 'A' => {
                     out.absolute = true;
                 }
-                '1'..'9' => {
+                '1'..='9' => {
                     out.allowed_stick_positions
                         .push((ch.to_digit(10).unwrap() as i32).into());
                 }
@@ -249,6 +255,15 @@ mod test {
     fn all_group_contained() {
         let input: MotionInput = "(6f)".into();
 
+        assert!(input.contained_in(&[InputHistory {
+            diff: Diff {
+                pressed: Some(vec![GameButton::Fast].into_iter().collect()),
+                stick_move: Some(StickPosition::E),
+                ..default()
+            },
+            ..default()
+        },]));
+
         assert!(input.contained_in(&[
             InputHistory {
                 diff: Diff {
@@ -319,5 +334,18 @@ mod test {
             },
             ..default()
         },]));
+    }
+
+    #[test]
+    fn complexity() {
+        for (input, complexity) in [
+            ("f", 1),
+            ("(f)", 1),
+            ("(fs)", 2),
+            ("236(fs)", 5),
+            ("f|123", 2),
+        ] {
+            assert_eq!(Into::<MotionInput>::into(input).complexity(), complexity);
+        }
     }
 }

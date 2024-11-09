@@ -18,6 +18,8 @@ pub enum SoundEffect {
     FemaleExhale,
     FemaleHiYah,
     FemaleLoYah,
+    FemaleShagamu,
+    FemaleKiritsu,
     FemaleKyatchi,
     FemaleNoooo,
     FemaleOw,
@@ -33,6 +35,7 @@ pub enum SoundEffect {
     KnifeChopstickDrag,
     HangingKnifeFlick,
     Matches,
+    PaperCrumple,
 }
 
 impl SoundEffect {
@@ -64,6 +67,8 @@ impl SoundEffect {
             SoundEffect::FemaleExhale => Self::clips("female-exhale", 9),
             SoundEffect::FemaleHiYah => Self::clips("female-hi-yah", 10),
             SoundEffect::FemaleLoYah => Self::clips("female-lo-yah", 5),
+            SoundEffect::FemaleShagamu => Self::clips("female-shagamu", 4),
+            SoundEffect::FemaleKiritsu => Self::clips("female-kiritsu", 4),
             SoundEffect::FemaleKyatchi => Self::clips("female-kyatchi", 6),
             SoundEffect::FemaleNoooo => Self::clips("female-noooo", 3),
             SoundEffect::FemaleOw => Self::clips("female-ow", 8),
@@ -79,6 +84,7 @@ impl SoundEffect {
             SoundEffect::KnifeChopstickDrag => Self::clips("knife-dragging-on-chopstick", 7),
             SoundEffect::HangingKnifeFlick => Self::clips("hanging-knife-flick", 4),
             SoundEffect::Matches => Self::clips("matches", 5),
+            SoundEffect::PaperCrumple => Self::clips("crumpled-paper", 3),
         }
     }
 
@@ -95,6 +101,7 @@ impl SoundEffect {
             SoundEffect::PotLidGong => 0.6,
             SoundEffect::Number(_) => 0.7,
             SoundEffect::FemaleOw => 2.0,
+            SoundEffect::PaperCrumple => 0.5,
             _ => 1.0,
         }
     }

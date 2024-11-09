@@ -15,6 +15,7 @@ pub struct PlayerVelocity {
     /// Keep track of if pushing is currently happening for wall clamp reasons
     pub(super) pushing: bool,
     pub next_pos: Vec2,
+    pub teleport: Option<Vec2>,
 }
 
 const PROPORTIONAL_DRAG: f32 = 0.03;
@@ -33,6 +34,11 @@ impl PlayerVelocity {
     pub(super) fn get_shift(&self) -> Vec2 {
         self.velocity / wag_core::FPS
     }
+
+    pub(super) fn get_teleport(&mut self) -> Vec2 {
+        self.teleport.take().unwrap_or_default()
+    }
+
     pub fn add_impulse(&mut self, impulse: Vec2) {
         self.velocity += impulse;
     }

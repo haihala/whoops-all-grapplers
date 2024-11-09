@@ -77,7 +77,12 @@ pub const PEBBLE_INNER_COLOR: Color = Color::srgb(0.33, 0.33, 0.33);
 pub const SPARK_BURST_BORDER_COLOR: Color = Color::srgb(1.0, 0.7, 0.3);
 pub const SPARK_BURST_INNER_COLOR: Color = Color::srgb(1.0, 0.8, 0.6);
 
-pub const VFX_WAVE_COLOR: Color = Color::srgb(0.8, 0.8, 0.8);
+pub const WEAKEN_STATUS_COLOR: Color = Color::srgb(0.0, 0.0, 0.0);
+
+// Samurai sword slashes
+pub const FAST_SWORD_VFX: Color = Color::srgb(0.8, 0.8, 0.8);
+pub const STRONG_SWORD_VFX: Color = Color::srgb(0.9, 0.6, 0.5);
+pub const METERED_SWORD_VFX: Color = Color::srgb(0.5, 0.6, 0.9);
 
 // Player colors
 pub const SAMURAI_ALT_SHIRT_COLOR: Color = Color::WHITE;

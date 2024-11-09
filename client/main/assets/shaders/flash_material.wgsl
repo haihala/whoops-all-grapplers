@@ -20,6 +20,10 @@ var<uniform> flash_depth: f32;
 var<uniform> flash_duration: f32;
 @group(2) @binding(104)
 var<uniform> flash_start: f32;
+@group(2) @binding(105)
+var<uniform> weaken_end: f32;
+@group(2) @binding(106)
+var<uniform> weaken_color: vec4f;
 
 #import bevy_pbr::{
     pbr_fragment::pbr_input_from_standard_material,
@@ -57,6 +61,10 @@ fn fragment(
 
     // we can optionally modify the final result here
 #endif
+
+    if globals.time < weaken_end {
+        out.color = mix(out.color, weaken_color, 0.98);
+    }
 
     out.color = mix(
         out.color,

@@ -2,9 +2,9 @@ use bevy::prelude::*;
 
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum SpecialVersion {
-    Fast,
-    Strong,
     Metered,
+    Strong,
+    Fast,
 }
 
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default, Component)]
@@ -74,9 +74,13 @@ pub enum DummyActionId {
 pub enum SamuraiAction {
     SwordStance(SpecialVersion),
     StanceCancel(SpecialVersion),
+    StanceForwardDash(SpecialVersion),
+    StanceBackDash(SpecialVersion),
     ViperStrike(SpecialVersion),
     RisingSun(SpecialVersion),
-    Sharpen,
+    Sharpen(SpecialVersion),
+    SwordSlam(SpecialVersion),
+    Stanceport(SpecialVersion),
 
     KunaiThrow(SpecialVersion),
 

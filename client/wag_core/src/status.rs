@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::WEAKEN_STATUS_COLOR;
+
 #[derive(Reflect, Debug, Clone, Copy, PartialEq, Component)]
 pub struct Stats {
     // Resources
@@ -149,6 +151,16 @@ pub enum StatusFlag {
     Parry,
     DoubleJumped,
     MovementLock,
+    Weaken,
+}
+
+impl StatusFlag {
+    pub fn display_color(&self) -> Option<Color> {
+        match self {
+            StatusFlag::Weaken => Some(WEAKEN_STATUS_COLOR),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Reflect, Debug, Clone, Copy, Default, PartialEq, Hash)]

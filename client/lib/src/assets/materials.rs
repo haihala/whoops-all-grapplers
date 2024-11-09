@@ -3,14 +3,13 @@ use bevy::{
     prelude::*,
     render::render_resource::{AsBindGroup, ShaderRef},
 };
-use characters::FlashRequest;
 use wag_core::{
     BLOCK_EFFECT_BASE_COLOR, BLOCK_EFFECT_EDGE_COLOR, CLASH_SPARK_BASE_COLOR,
     CLASH_SPARK_EDGE_COLOR, HIT_SPARK_BASE_COLOR, HIT_SPARK_EDGE_COLOR, HIT_SPARK_MID_COLOR,
     LIGHTNING_BOLT_INNER_COLOR, LIGHTNING_BOLT_OUTER_COLOR, MID_FLASH_INNER_COLOR,
     MID_FLASH_OUTER_COLOR, PEBBLE_BORDER_COLOR, PEBBLE_INNER_COLOR, RING_RIPPLE_BASE_COLOR,
     RING_RIPPLE_EDGE_COLOR, SPARK_BURST_BORDER_COLOR, SPARK_BURST_INNER_COLOR,
-    SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR, VFX_WAVE_COLOR,
+    SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR,
 };
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -258,6 +257,27 @@ impl Material for RingRippleMaterial {
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct SmokeBombMaterial {
+    #[uniform(0)]
+    start_time: f32,
+}
+impl SmokeBombMaterial {
+    pub fn new(start_time: f32) -> Self {
+        Self { start_time }
+    }
+}
+
+impl Material for SmokeBombMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/smoke_bomb.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
+}
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct SparkBurstMaterial {
     #[uniform(0)]
     start_time: f32,
@@ -358,10 +378,10 @@ pub struct DiagonalWaveMaterial {
     color: LinearRgba,
 }
 impl DiagonalWaveMaterial {
-    pub fn new(start_time: f32) -> Self {
+    pub fn new(start_time: f32, color: Color) -> Self {
         Self {
             start_time,
-            color: VFX_WAVE_COLOR.into(),
+            color: color.into(),
         }
     }
 }
@@ -384,10 +404,10 @@ pub struct FlatWaveMaterial {
     color: LinearRgba,
 }
 impl FlatWaveMaterial {
-    pub fn new(start_time: f32) -> Self {
+    pub fn new(start_time: f32, color: Color) -> Self {
         Self {
             start_time,
-            color: VFX_WAVE_COLOR.into(),
+            color: color.into(),
         }
     }
 }
@@ -405,7 +425,7 @@ impl Material for FlatWaveMaterial {
 // Extended Flash Material
 pub type ExtendedFlashMaterial = ExtendedMaterial<StandardMaterial, FlashMaterial>;
 
-#[derive(Asset, AsBindGroup, TypePath, Debug, Clone)]
+#[derive(Asset, AsBindGroup, TypePath, Debug, Clone, Default)]
 pub struct FlashMaterial {
     // Start at a high binding number to ensure bindings don't conflict
     // with the base material
@@ -418,7 +438,11 @@ pub struct FlashMaterial {
     #[uniform(103)]
     pub duration: f32,
     #[uniform(104)]
-    pub start_time: f32,
+    pub flash_start: f32,
+    #[uniform(105)]
+    pub color_shift_end: f32,
+    #[uniform(106)]
+    pub color_shift: LinearRgba,
 }
 impl MaterialExtension for FlashMaterial {
     fn fragment_shader() -> ShaderRef {
@@ -427,16 +451,5 @@ impl MaterialExtension for FlashMaterial {
 
     fn deferred_fragment_shader() -> ShaderRef {
         "shaders/flash_material.wgsl".into()
-    }
-}
-impl FlashMaterial {
-    pub fn from_request(request: FlashRequest, time: f32) -> Self {
-        Self {
-            color: request.color.into(),
-            speed: request.speed,
-            depth: request.depth,
-            duration: request.duration,
-            start_time: time,
-        }
     }
 }

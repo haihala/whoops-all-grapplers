@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use characters::{Character, Hurtboxes, Inventory, WAGResources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{AvailableCancels, Clock, Combo, Facing, Stats};
+use wag_core::{AvailableCancels, Clock, Combo, Facing, Stats, StatusFlag};
 
-use crate::event_spreading::EndAction;
+use crate::event_spreading::{ColorShift, EndAction};
 
 #[allow(clippy::type_complexity)]
 pub(super) fn move_advancement(
@@ -46,6 +46,7 @@ pub(super) fn move_advancement(
 
 pub fn end_moves(
     trigger: Trigger<EndAction>,
+    mut commands: Commands,
     clock: Res<Clock>,
     mut query: Query<(&mut PlayerState, &mut Hurtboxes, &mut AvailableCancels)>,
 ) {
@@ -53,4 +54,9 @@ pub fn end_moves(
     state.recover(clock.frame);
     windows.clear();
     hurtboxes.extra.clear();
+    if state.has_flag(StatusFlag::Weaken) {
+        state.clear_conditions(StatusFlag::Weaken);
+        // This clears the current color
+        commands.trigger_targets(ColorShift(Color::default(), 0), trigger.entity());
+    }
 }

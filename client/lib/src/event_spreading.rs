@@ -2,7 +2,9 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 use characters::{ActionEvent, AnimationRequest, Attack, FlashRequest, Movement, ResourceType};
-use wag_core::{ActionId, Area, CancelWindow, SoundEffect, StatusCondition, VfxRequest, VoiceLine};
+use wag_core::{
+    ActionId, Area, CancelWindow, SoundEffect, StatusCondition, StatusFlag, VfxRequest, VoiceLine,
+};
 
 #[derive(Debug, Event)]
 pub struct AllowCancel(pub CancelWindow);
@@ -31,7 +33,7 @@ pub struct AddCondition(pub StatusCondition);
 #[derive(Debug, Event)]
 pub struct ForceStand;
 
-#[derive(Debug, Event)]
+#[derive(Debug, Event, Clone, Copy)]
 pub struct ModifyResource {
     pub resource: ResourceType,
     pub amount: i32,
@@ -86,6 +88,15 @@ pub struct ActivateVoiceline(pub VoiceLine);
 
 #[derive(Debug, Event)]
 pub struct ShakeCharacter(pub f32);
+
+#[derive(Debug, Event)]
+pub struct TeleportEvent(pub Vec2);
+
+#[derive(Debug, Event)]
+pub struct ColorShift(pub Color, pub usize);
+
+#[derive(Debug, Event)]
+pub struct ClearStatus(pub StatusFlag);
 
 pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
     match trigger.event() {
@@ -182,6 +193,15 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
         }
         ActionEvent::CharacterShake(amount) => {
             commands.trigger_targets(ShakeCharacter(*amount), trigger.entity());
+        }
+        ActionEvent::Teleport(amount) => {
+            commands.trigger_targets(TeleportEvent(*amount), trigger.entity());
+        }
+        ActionEvent::ColorShift(color, frames) => {
+            commands.trigger_targets(ColorShift(*color, *frames), trigger.entity());
+        }
+        ActionEvent::ClearCondition(flag) => {
+            commands.trigger_targets(ClearStatus(*flag), trigger.entity());
         }
         ActionEvent::Noop => {}
     }

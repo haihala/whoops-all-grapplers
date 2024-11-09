@@ -10,7 +10,7 @@ use crate::{
 use super::materials::{
     BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, DiagonalWaveMaterial, FlatWaveMaterial,
     FocalPointLinesMaterial, HitSparkMaterial, LightningBoltMaterial, LineFieldMaterial,
-    MidFlashMaterial, PebbleMaterial, RingRippleMaterial, SparkBurstMaterial,
+    MidFlashMaterial, PebbleMaterial, RingRippleMaterial, SmokeBombMaterial, SparkBurstMaterial,
 };
 
 pub fn spawn_vfx<M: Material>(
@@ -140,19 +140,19 @@ pub fn start_absolute_vfx(
                 frames_to_live: 60,
             });
         }
-        VisualEffect::WaveDiagonal => {
+        VisualEffect::WaveDiagonal(color) => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: DiagonalWaveMaterial::new(time.elapsed_seconds()),
+                material: DiagonalWaveMaterial::new(time.elapsed_seconds(), *color),
                 frames_to_live: 60,
             });
         }
-        VisualEffect::WaveFlat => {
+        VisualEffect::WaveFlat(color) => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: FlatWaveMaterial::new(time.elapsed_seconds()),
+                material: FlatWaveMaterial::new(time.elapsed_seconds(), *color),
                 frames_to_live: 60,
             });
         }
@@ -177,6 +177,14 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 material: MidFlashMaterial::new(time.elapsed_seconds()),
+                frames_to_live: 60,
+            });
+        }
+        VisualEffect::SmokeBomb => {
+            commands.trigger(MaxSystemParamCountFix {
+                mesh,
+                transform,
+                material: SmokeBombMaterial::new(time.elapsed_seconds()),
                 frames_to_live: 60,
             });
         }

@@ -2,7 +2,6 @@ use bevy::{
     pbr::ExtendedMaterial, prelude::*, render::view::NoFrustumCulling, scene::SceneInstance,
     utils::HashMap,
 };
-use characters::FlashRequest;
 use wag_core::{Clock, Model};
 
 use crate::event_spreading::ShakeCharacter;
@@ -22,7 +21,7 @@ pub(super) fn model_paths() -> HashMap<Model, &'static str> {
     // So far, I think that is a waste of effort.
     vec![
         (Model::Dummy, "dummy.glb#Scene0"),
-        (Model::Samurai, "mizuki.glb#Scene0"),
+        (Model::Samurai, "samurai.glb#Scene0"),
         (Model::Fireball, "fireball.glb#Scene0"),
         (Model::Kunai, "kunai.glb#Scene0"),
         (Model::TrainingStage, "stage.glb#Scene0"),
@@ -66,7 +65,7 @@ pub fn prep_player_gltf(
 
             let material = materials.add(ExtendedMaterial {
                 base: base_material,
-                extension: FlashMaterial::from_request(FlashRequest::default(), 0.0),
+                extension: FlashMaterial::default(),
             });
 
             commands

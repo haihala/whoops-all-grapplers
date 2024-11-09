@@ -7,22 +7,20 @@ enough to be put on a more important list.
 
 - Extra kunais may not work (besides the UI)
 - New move system breaks red paint (can drop inputs)
+- Can cancel sword stance to normal
+- Can cancel backdash to backdash
+- Could cancel to sword slam without an open cancel window
+- Buy menu inputs work weird with new parser
 
 ### Watchlist
 
 - There is an input recording strangeness, parrots don't always work, probably an ordering question.
 - Throws may not work after no longer relying on animation data
-- Input to cancel stance looks funky
 
 ## Misc improvement ideas
 
 - Pushback should not apply to projectiles
 - Newtype wrapper for frames.
   - Currently using usize, which means frames 99% of the time, but not always.
-- Could you mirror player animation/model with shaders?
-  - Boxes may be harder to draw?
 - Disable parrots in prod
-- Is there a more elegant way to encode concepts such as "charge move" and "meter cost"
 - Maybe you could make requirements dynamic as well?
-  - Encode special cancels in there
-    - To make mechanics like burst and guard cancels easier

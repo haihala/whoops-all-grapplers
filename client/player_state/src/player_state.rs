@@ -306,6 +306,9 @@ impl PlayerState {
     pub fn add_condition(&mut self, condition: StatusCondition) {
         self.conditions.push(condition);
     }
+    pub fn clear_conditions(&mut self, flag: StatusFlag) {
+        self.conditions.retain(|cond| cond.flag != flag);
+    }
     pub fn get_conditions(&self) -> &[StatusCondition] {
         &self.conditions
     }

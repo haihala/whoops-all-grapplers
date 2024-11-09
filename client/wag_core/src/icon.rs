@@ -30,6 +30,8 @@ pub enum Icon {
     KunaiBelt,
     BladeOil,
     SmithyCoupon,
+    Fireaxe,
+    SmokeBomb,
 
     // UI
     OkLink,
@@ -63,6 +65,8 @@ impl Icon {
             (Icon::SpaceSuitBoots, "icons/space-boots.png".into()),
             (Icon::BladeOil, "icons/blade-oil.png".into()),
             (Icon::SmithyCoupon, "icons/coupon.png".into()),
+            (Icon::Fireaxe, "icons/fireaxe.png".into()),
+            (Icon::SmokeBomb, "icons/smoke-bomb.png".into()),
             (Icon::OkLink, "icons/link-bonus-ok.png".into()),
             (Icon::GoodLink, "icons/link-bonus-good.png".into()),
             (Icon::PerfectLink, "icons/link-bonus-perfect.png".into()),

@@ -6,8 +6,8 @@ use input_parsing::{InputParser, PadStream, ParrotStream};
 use strum::IntoEnumIterator;
 use wag_core::{
     Area, Characters, Clock, Controllers, Dev, Facing, GameState, LocalCharacter, LocalController,
-    LocalState, MatchState, OnlineState, Player, Players, SoundEffect, Stats, WagArgs,
-    GI_PARRY_FLASH_COLOR,
+    LocalState, MatchState, OnlineState, Player, Players, SoundEffect, Stats, StatusCondition,
+    StatusFlag, WagArgs, GI_PARRY_FLASH_COLOR,
 };
 
 use crate::{
@@ -126,6 +126,20 @@ fn shader_test_system(
                 ActionEvent::Flash(FlashRequest {
                     color: GI_PARRY_FLASH_COLOR,
                     speed: 10.0,
+                    ..default()
+                }),
+                players.get(player),
+            );
+        }
+    }
+
+    if keys.just_pressed(KeyCode::Digit5) {
+        println!("Playing weaken shader");
+        for player in Player::iter() {
+            commands.trigger_targets(
+                ActionEvent::Condition(StatusCondition {
+                    flag: StatusFlag::Weaken,
+                    expiration: Some(60),
                     ..default()
                 }),
                 players.get(player),

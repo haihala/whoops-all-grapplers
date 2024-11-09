@@ -49,6 +49,7 @@ impl Plugin for AssetsPlugin {
                 MaterialPlugin::<materials::DiagonalWaveMaterial>::default(),
                 MaterialPlugin::<materials::PebbleMaterial>::default(),
                 MaterialPlugin::<materials::SparkBurstMaterial>::default(),
+                MaterialPlugin::<materials::SmokeBombMaterial>::default(),
                 MaterialPlugin::<materials::MidFlashMaterial>::default(),
                 MaterialPlugin::<ExtendedFlashMaterial>::default(),
             ))
@@ -100,6 +101,7 @@ impl Plugin for AssetsPlugin {
             .observe(vfx::spawn_vfx::<materials::DiagonalWaveMaterial>)
             .observe(vfx::spawn_vfx::<materials::PebbleMaterial>)
             .observe(vfx::spawn_vfx::<materials::SparkBurstMaterial>)
+            .observe(vfx::spawn_vfx::<materials::SmokeBombMaterial>)
             .observe(vfx::spawn_vfx::<materials::MidFlashMaterial>);
     }
 }

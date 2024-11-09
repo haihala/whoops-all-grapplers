@@ -78,7 +78,7 @@ pub fn mirror_after_load(
     }
 
     // TODO: This is horrendous. There is got to be a better way.
-    let base_hierarchy = vec!["Mizuki"]; // It's character specific (blender root object name)
+    let base_hierarchy = vec!["Samurai"]; // It's character specific (blender root object name)
 
     let hand_base = vec![
         "DEF-upper_arm.{}",
@@ -308,7 +308,7 @@ pub fn animation_paths() -> HashMap<Animation, AssetPath<'static>> {
     )
     .into_iter()
     .chain(load_glb_animations(
-        "mizuki.glb".to_owned(),
+        "samurai.glb".to_owned(),
         vec![
             SamuraiAnimation::Air,
             SamuraiAnimation::AirStab,
@@ -337,28 +337,24 @@ pub fn animation_paths() -> HashMap<Animation, AssetPath<'static>> {
             SamuraiAnimation::KneeThrust,
             SamuraiAnimation::KunaiThrow,
             SamuraiAnimation::LowKick,
-            SamuraiAnimation::Overhead,
-            SamuraiAnimation::Pilebunker,
-            SamuraiAnimation::Sharpen,
             SamuraiAnimation::SkyStab,
             SamuraiAnimation::Stagger,
             SamuraiAnimation::StandThrowHit,
             SamuraiAnimation::StandThrowStartup,
             SamuraiAnimation::StandThrowTarget,
             SamuraiAnimation::StandPose,
-            SamuraiAnimation::Sway,
-            SamuraiAnimation::SwayCancel,
-            SamuraiAnimation::SwayDash,
-            SamuraiAnimation::SwayLow,
-            SamuraiAnimation::SwayOverhead,
-            SamuraiAnimation::Sweep,
-            SamuraiAnimation::SwordStanceEnter,
-            SamuraiAnimation::SwordStanceExit,
-            SamuraiAnimation::SwordStanceLowSlash,
-            SamuraiAnimation::SwordStanceHighSlash,
+            SamuraiAnimation::SwordStance,
+            SamuraiAnimation::StanceCancel,
+            SamuraiAnimation::FastViperStrike,
+            SamuraiAnimation::SlowViperStrike,
+            SamuraiAnimation::FastSwordSlam,
+            SamuraiAnimation::SlowSwordSlam,
+            SamuraiAnimation::FastSharpen,
+            SamuraiAnimation::SlowSharpen,
+            SamuraiAnimation::FastRisingSun,
+            SamuraiAnimation::SlowRisingSun,
             SamuraiAnimation::TPose,
             SamuraiAnimation::Uppercut,
-            SamuraiAnimation::ViperStrike,
             SamuraiAnimation::WalkBack,
             SamuraiAnimation::WalkForward,
         ],

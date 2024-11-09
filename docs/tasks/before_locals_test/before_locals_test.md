@@ -1,10 +1,9 @@
 - Go through [chore list](/docs/tasks/chore_tracker.md)
 - Rebalance for a best of five rounds
+  - Remove loss bonus build-up
+  - Add a mechanic where each round gives slightly more
+  - Make sure game ends after 3 wins
   - Make sure the players can buy a bunch of stuff round 1
-  - Adjust loss penalty built-up
-    - First loss is notably less
-    - Second loss is basically equal
-    - Third loss is slightly more
 - Quick round over the items
   - Costs make sense
   - Effects make sense
@@ -13,5 +12,9 @@
   - Hitboxes are in the right positions
   - Frame data makes sense (currently hard to combo)
   - Kunai
-    - Allow speed control with forward/back input (item)
-    - Add a mechanic to recover lost Kunais (item)
+    - Allow speed control with forward/back input (item, rocket fins)
+    - Add a mechanic to recover lost Kunais (item, boomerang)
+      - On hit?
+      - Upgrade that does it on block
+      - Later on make them drop to the ground instead of auto-recovering
+        - Or at least add an item to do that

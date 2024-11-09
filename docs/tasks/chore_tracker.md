@@ -11,6 +11,7 @@ enough to be put on a more important list.
 - Can cancel backdash to backdash
 - Could cancel to sword slam without an open cancel window
 - Buy menu inputs work weird with new parser
+- Camera doesn't show players near the corner
 
 ### Watchlist
 

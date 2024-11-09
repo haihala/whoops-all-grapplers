@@ -31,7 +31,7 @@ impl MotionInput {
         for requirement in self.requirements.clone() {
             let requirement_met = match requirement.mode.clone() {
                 RequirementMode::All(mut to_fulfill) => loop {
-                    let Some((diff, state)) = past.next() else {
+                    let Some((event, state)) = past.next() else {
                         break false;
                     };
 
@@ -41,18 +41,18 @@ impl MotionInput {
                         break false;
                     }
 
-                    to_fulfill.retain(|ev| !ev.fulfilled_by(&diff));
+                    to_fulfill.retain(|ev| *ev != event);
 
                     if to_fulfill.is_empty() {
                         break true;
                     }
 
-                    if sticky && requirement.mode.is_negated_by(diff) {
+                    if sticky && requirement.mode.is_negated_by(event) {
                         break false;
                     }
                 },
                 RequirementMode::Any(options) => loop {
-                    let Some((diff, state)) = past.next() else {
+                    let Some((event, state)) = past.next() else {
                         break false;
                     };
 
@@ -62,14 +62,11 @@ impl MotionInput {
                         break false;
                     }
 
-                    if options
-                        .iter()
-                        .any(|input_event| input_event.fulfilled_by(&diff))
-                    {
+                    if options.iter().any(|ev| *ev == event) {
                         break true;
                     }
 
-                    if sticky && requirement.mode.is_negated_by(diff) {
+                    if sticky && requirement.mode.is_negated_by(event) {
                         break false;
                     }
                 },
@@ -173,10 +170,7 @@ impl From<&str> for MotionInput {
 mod test {
     use wag_core::{GameButton, StickPosition};
 
-    use crate::{
-        helper_types::{Diff, InputState},
-        InputEvent,
-    };
+    use crate::{helper_types::InputState, InputEvent};
 
     use super::*;
 
@@ -235,18 +229,12 @@ mod test {
         let input: MotionInput = "[123]".into();
 
         assert!(input.contained_in(&[InputHistory {
-            diff: Diff {
-                stick_move: Some(StickPosition::SE),
-                ..default()
-            },
+            event: InputEvent::Point(StickPosition::SE),
             ..default()
         }]));
 
         assert!(input.contained_in(&[InputHistory {
-            diff: Diff {
-                stick_move: Some(StickPosition::S),
-                ..default()
-            },
+            event: InputEvent::Point(StickPosition::S),
             ..default()
         }]));
     }
@@ -255,45 +243,24 @@ mod test {
     fn all_group_contained() {
         let input: MotionInput = "(6f)".into();
 
-        assert!(input.contained_in(&[InputHistory {
-            diff: Diff {
-                pressed: Some(vec![GameButton::Fast].into_iter().collect()),
-                stick_move: Some(StickPosition::E),
-                ..default()
-            },
-            ..default()
-        },]));
-
         assert!(input.contained_in(&[
             InputHistory {
-                diff: Diff {
-                    pressed: Some(vec![GameButton::Fast].into_iter().collect()),
-                    ..default()
-                },
+                event: InputEvent::Press(GameButton::Fast),
                 ..default()
             },
             InputHistory {
-                diff: Diff {
-                    stick_move: Some(StickPosition::E),
-                    ..default()
-                },
+                event: InputEvent::Point(StickPosition::E),
                 ..default()
             },
         ]));
 
         assert!(!input.contained_in(&[InputHistory {
-            diff: Diff {
-                stick_move: Some(StickPosition::E),
-                ..default()
-            },
+            event: InputEvent::Point(StickPosition::E),
             ..default()
         },]));
 
         assert!(!input.contained_in(&[InputHistory {
-            diff: Diff {
-                pressed: Some(vec![GameButton::Fast].into_iter().collect()),
-                ..default()
-            },
+            event: InputEvent::Press(GameButton::Fast),
             ..default()
         },]));
     }
@@ -314,20 +281,14 @@ mod test {
     fn metadata_validates() {
         let input: MotionInput = "f|A123".into();
 
-        let diff = Diff {
-            pressed: Some(vec![GameButton::Fast].into_iter().collect()),
-            ..default()
-        };
+        let event = InputEvent::Press(GameButton::Fast);
 
         // Does not pass without correct state
-        assert!(!input.contained_in(&[InputHistory {
-            diff: diff.clone(),
-            ..default()
-        },]));
+        assert!(!input.contained_in(&[InputHistory { event, ..default() },]));
 
         // Passes with correct state
         assert!(input.contained_in(&[InputHistory {
-            diff,
+            event,
             state: InputState {
                 stick_position: StickPosition::S,
                 ..default()

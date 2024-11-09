@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use wag_core::{Controllers, GameButton, Player, StickPosition, WagInputButton, WagInputEvent};
 
-use crate::helper_types::{Diff, InputEvent};
+use crate::helper_types::InputEvent;
 
 use super::{InputStream, ParrotStream};
 
@@ -55,24 +55,10 @@ impl PadStream {
 }
 
 impl InputStream for PadStream {
-    fn read(&mut self) -> Option<Diff> {
-        if self.next_read.is_empty() {
-            return None;
-        }
-
+    fn read(&mut self) -> Vec<InputEvent> {
         let temp = self.next_read.clone();
         self.next_read.clear();
-        let mut diff = temp
-            .into_iter()
-            .fold(Diff::default(), |acc, new| acc.apply(new));
-
-        if let Some(new_stick) = diff.stick_move {
-            if new_stick == self.stick_position_last_read {
-                diff.stick_move = None
-            }
-            self.stick_position_last_read = new_stick;
-        }
-        Some(diff)
+        temp
     }
 }
 

@@ -76,10 +76,7 @@ pub mod testing {
         parrot: ParrotStream,
     }
     impl PreWrittenInputBundle {
-        pub fn new(
-            events: Vec<Option<InputEvent>>,
-            inputs: HashMap<ActionId, &'static str>,
-        ) -> Self {
+        pub fn new(events: Vec<Vec<InputEvent>>, inputs: HashMap<ActionId, &'static str>) -> Self {
             Self {
                 reader: PreWrittenStream::new(events),
                 parser: InputParser::new(inputs),

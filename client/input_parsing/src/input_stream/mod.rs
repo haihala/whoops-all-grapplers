@@ -8,8 +8,8 @@ pub use parrot_stream::{update_parrots, ParrotStream};
 pub use prewritten_stream::PreWrittenStream;
 pub use test_stream::TestStream;
 
-use crate::helper_types::Diff;
+use crate::InputEvent;
 
 pub trait InputStream {
-    fn read(&mut self) -> Option<Diff>;
+    fn read(&mut self) -> Vec<InputEvent>;
 }

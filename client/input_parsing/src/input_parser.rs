@@ -1,9 +1,5 @@
-use std::collections::VecDeque;
-
 use crate::{
-    helper_types::{Diff, InputState},
-    input_stream::InputStream,
-    motion_input::MotionInput,
+    helper_types::InputState, input_stream::InputStream, motion_input::MotionInput, InputEvent,
 };
 
 use bevy::{
@@ -13,26 +9,41 @@ use bevy::{
 
 use wag_core::{ActionId, Clock, Facing, GameButton, StickPosition};
 
-#[derive(Debug, Default, Component, Clone, Reflect)]
+#[derive(Debug, Component, Clone, Reflect)]
 pub struct InputHistory {
-    pub diff: Diff,
+    pub event: InputEvent,
     pub state: InputState,
     pub(crate) facing: Facing,
     pub(crate) frame: usize,
 }
+
+// This is only for shortening tests
+impl Default for InputHistory {
+    fn default() -> Self {
+        Self {
+            event: InputEvent::Point(StickPosition::Neutral),
+            state: InputState::default(),
+            facing: Facing::default(),
+            frame: 0,
+        }
+    }
+}
 impl InputHistory {
-    pub(crate) fn handle_facing(&self, absolute: bool) -> (Diff, InputState) {
+    pub(crate) fn handle_facing(&self, absolute: bool) -> (InputEvent, InputState) {
         if !absolute && self.facing.to_flipped() {
             // Relative, the usual case
             (
-                self.diff.clone().mirrored(),
+                match self.event {
+                    InputEvent::Point(sp) => InputEvent::Point(sp.mirror()),
+                    other => other,
+                },
                 InputState {
                     stick_position: self.state.stick_position.mirror(),
                     ..self.state.clone()
                 },
             )
         } else {
-            (self.diff.clone(), self.state.clone())
+            (self.event, self.state.clone())
         }
     }
 }
@@ -45,7 +56,7 @@ pub struct InputParser {
 
     inputs: Vec<(MotionInput, Vec<ActionId>)>,
 
-    history: VecDeque<InputHistory>,
+    history: Vec<InputHistory>,
     state: InputState,
 }
 
@@ -111,14 +122,17 @@ impl InputParser {
         self.state.stick_position == StickPosition::Neutral && self.state.pressed.is_empty()
     }
 
-    fn input_change(&mut self, diff: Diff, facing: Facing, frame: usize) {
-        self.state.apply(diff.clone());
-        let new_history = InputHistory {
-            diff,
-            state: self.state.clone(),
-            facing,
-            frame,
-        };
+    fn input_change(&mut self, events: Vec<InputEvent>, facing: Facing, frame: usize) {
+        let mut new_history = vec![];
+        for event in events.into_iter().rev() {
+            new_history.push(InputHistory {
+                event,
+                state: self.state.clone(),
+                facing,
+                frame,
+            });
+            self.state.apply(event);
+        }
 
         for (input, actions) in &self.inputs {
             let past: Vec<InputHistory> = self
@@ -128,15 +142,18 @@ impl InputParser {
                 .cloned()
                 .collect();
 
+            dbg!(&past);
             let already_complete = input.contained_in(&past);
             if already_complete {
                 continue;
             }
 
-            let present: Vec<_> = vec![new_history.clone()]
+            let present: Vec<_> = new_history
+                .clone()
                 .into_iter()
                 .chain(past.clone())
                 .collect();
+            dbg!(&present);
             let complete_with_new_input = input.contained_in(&present);
             if complete_with_new_input {
                 let mut evs = actions.clone();
@@ -144,7 +161,10 @@ impl InputParser {
             }
         }
 
-        self.history.push_front(new_history);
+        self.history = new_history
+            .into_iter()
+            .chain(self.history.clone())
+            .collect();
     }
 
     pub fn clear(&mut self) {
@@ -157,8 +177,9 @@ pub fn parse_input<T: InputStream + Component>(
     clock: Res<Clock>,
 ) {
     for (mut parser, mut reader, facing) in &mut characters {
-        if let Some(diff) = reader.read() {
-            parser.input_change(diff, *facing, clock.frame);
+        let evs = reader.read();
+        if !evs.is_empty() {
+            parser.input_change(evs, *facing, clock.frame);
         }
     }
 }

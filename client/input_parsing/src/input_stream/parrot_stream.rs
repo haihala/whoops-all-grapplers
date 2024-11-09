@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::helper_types::Diff;
+use crate::InputEvent;
 
 use super::InputStream;
 
@@ -15,12 +15,12 @@ enum ParrotMode {
 #[derive(Component, Default, Clone, Reflect)]
 pub struct ParrotStream {
     mode: ParrotMode,
-    buffer: Vec<Option<Diff>>,
+    buffer: Vec<Vec<InputEvent>>,
     buffer_index: usize,
 }
 
 impl ParrotStream {
-    fn listen(&mut self, input: Option<Diff>) {
+    fn listen(&mut self, input: Vec<InputEvent>) {
         self.buffer.push(input);
     }
 
@@ -45,14 +45,17 @@ impl ParrotStream {
 }
 
 impl InputStream for ParrotStream {
-    fn read(&mut self) -> Option<Diff> {
+    fn read(&mut self) -> Vec<InputEvent> {
         if self.mode == ParrotMode::Repeating {
             self.buffer_index = (self.buffer_index + 1) % self.buffer.len();
             self.buffer[self.buffer_index].to_owned()
         } else if self.mode == ParrotMode::Listening {
-            self.buffer.last().and_then(|inner| inner.to_owned())
+            self.buffer
+                .last()
+                .map(|inner| inner.to_owned())
+                .unwrap_or_default()
         } else {
-            None
+            vec![]
         }
     }
 }

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use wag_core::{
-    ActionId, Animation, Area, CancelWindow, DummyAnimation, MizkuAnimation, SoundEffect,
+    ActionId, Animation, Area, CancelWindow, DummyAnimation, SamuraiAnimation, SoundEffect,
     StatusCondition, VfxRequest, VoiceLine,
 };
 
@@ -73,8 +73,8 @@ impl From<DummyAnimation> for ActionEvent {
         ActionEvent::Animation(Animation::from(value).into())
     }
 }
-impl From<MizkuAnimation> for ActionEvent {
-    fn from(value: MizkuAnimation) -> Self {
+impl From<SamuraiAnimation> for ActionEvent {
+    fn from(value: SamuraiAnimation) -> Self {
         ActionEvent::Animation(Animation::from(value).into())
     }
 }

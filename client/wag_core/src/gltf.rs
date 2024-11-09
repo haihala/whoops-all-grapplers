@@ -3,7 +3,7 @@ use bevy::prelude::*;
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect)]
 pub enum Model {
     Dummy,
-    Mizku,
+    Samurai,
     Fireball,
     Kunai,
     TrainingStage,
@@ -52,7 +52,7 @@ pub enum DummyAnimation {
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect)]
-pub enum MizkuAnimation {
+pub enum SamuraiAnimation {
     Air,
     AirStab,
     AirStagger,
@@ -113,7 +113,7 @@ pub enum MizkuAnimation {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect)]
 pub enum Animation {
     Dummy(DummyAnimation),
-    Mizku(MizkuAnimation),
+    Samurai(SamuraiAnimation),
 }
 
 impl Default for Animation {
@@ -126,9 +126,9 @@ impl From<DummyAnimation> for Animation {
         Animation::Dummy(value)
     }
 }
-impl From<MizkuAnimation> for Animation {
-    fn from(value: MizkuAnimation) -> Self {
-        Animation::Mizku(value)
+impl From<SamuraiAnimation> for Animation {
+    fn from(value: SamuraiAnimation) -> Self {
+        Animation::Samurai(value)
     }
 }
 

@@ -1,12 +1,11 @@
-# Mizku
-
-**Mizuki**. In Japanese the word _mizu_ means “felicitous omen, auspicious” and the word ki means “hope,” forming this very cool and beautiful girls’ name.
-
-Nicknamed Mizku because it sounds like Masku which is funny Tekken meme.
+# Samurai
 
 ## Lore
 
-She is a young but competent second generation Korean American immigrant. She's a rookie in [W.A.G.](/docs/gameplay_spec/lore/w.a.g..md) and thus often agrees to do stuff that she really shouldn't including her Japanese samurai gimmick.
+She is a young but competent second generation Korean American immigrant. She's
+a rookie in [W.A.G.](/docs/gameplay_spec/lore/w.a.g..md) and the point of view
+character for storytelling. Her Japanese samurai gimmick is forced on her and
+the corporation does not see how this may be culturally insensitive.
 
 ## Motifs
 
@@ -58,23 +57,23 @@ She is a young but competent second generation Korean American immigrant. She's 
   - [Kunai pouch](/docs/gameplay_spec/items/kunai_pouch.md)
   - [Kunai bandolier](/docs/gameplay_spec/items/kunai_bandolier.md)
 
-## Moves (built-in)
+## Moves
 
-#### Normals
+### Normals
 
-##### Knee thrust
+#### Knee thrust
 
 - Input: `f` while standing
 - Visual: Lily st.lk, but goes a bit higher
 - Function: Abare, Clash parry trigger
 
-##### Low poke
+#### Low poke
 
 - Input: `f` while crouching
 - Visual: Urien cr.lk
 - Function: Low check, combo filler
 
-##### Falcon knee
+#### Falcon knee
 
 - Input: `f` while in the air
 - Visual: Nago j.k
@@ -87,13 +86,13 @@ She is a young but competent second generation Korean American immigrant. She's 
     - Can hit cross up similar to Kum j.d
 - Somewhat awkward to hit up close, as there is a notable gap between the hitboxes
 
-##### Donkey kick
+#### Donkey kick
 
 - Input: `s` while standing
 - Visual: Ryu donkey kick from 3s (has the step)
 - Function: Long range high commitment whiff punish / Neutral skip
 
-##### Uppercut
+#### Uppercut
 
 - Input: `s` while Crouching
 - Visual: Step back leg forward into back arm uppercut
@@ -101,7 +100,7 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Doesn't go that far vertically
 - - on block
 
-##### Foot dive
+#### Foot dive
 
 - Input: `s` while in the air
 - Visual: Dr Doom foot dive
@@ -110,24 +109,24 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Upgrades
   - [Space suit boots](/docs/gameplay_spec/items/space_suit_boots.md)
 
-##### Ground throw
+#### Ground throw
 
 - Input: `w` while standing
 - Visual: Grab the collar, drag it down and sweep the leg
 - Keeps you close for oki
 
-##### Crouch throw
+#### Crouch throw
 
 - Input: `w` while crouching
 - Low hitbox
 - Switches sides by swinging the opponent by their feet
 
-##### Air throw
+#### Air throw
 
 - Input: `w` while in the air
 - Visual: Ky flippy air throw
 
-##### Thrust
+#### Thrust
 
 - Input: `g` while standing
 - Visual: Nago f.s
@@ -136,7 +135,7 @@ She is a young but competent second generation Korean American immigrant. She's 
   - Slow to recover
 - Is a sword move, so it deals good damage, especially with [Sharpness](#Sharpness)
 
-##### Sky stab
+#### Sky stab
 
 - Input: `g` while crouching
 - Visual: Single diagonal upwards slash with a bit of a swing
@@ -147,7 +146,7 @@ She is a young but competent second generation Korean American immigrant. She's 
   - Hard to convert off of?
 - Is a sword move, so it deals good damage, especially with [Sharpness](#Sharpness)
 
-##### Air stab
+#### Air stab
 
 - Input: `g` while airborne
 - Downwards stab sort of similar to Baiken j.h, but the sword doesn't go as far down
@@ -155,9 +154,9 @@ She is a young but competent second generation Korean American immigrant. She's 
 - Most damaging jump-in before [Space suit boots](/docs/gameplay_spec/items/space_suit_boots.md)
 - Is a sword move, so it deals good damage, especially with [Sharpness](#Sharpness)
 
-#### Specials
+### Specials
 
-##### Sword stance
+#### Sword stance
 
 - Input: `214` + `f` (or `s`)
 - Enters a stance similar to [Azami from Xrd Baiken](https://www.dustloop.com/w/GGXRD-R2/Baiken#Azami)
@@ -184,13 +183,13 @@ She is a young but competent second generation Korean American immigrant. She's 
         - Push back on block to make them safer
   - Air version?
 
-##### Sharpen
+#### Sharpen
 
 - Input: `g` while in [Sword stance](#Sword stance)
 - Visual: Run a whetstone by the sword before putting it back
 - Gain a point of [Sharpness](#Sharpness) and some [Meter](/docs/gameplay_spec/genre_mechanics/meter.md)
 
-##### Viper strike
+#### Viper strike
 
 - Input: `f` while in [Sword stance](#Sword stance)
 - Visual: Lunging low sword thrust
@@ -200,7 +199,7 @@ She is a young but competent second generation Korean American immigrant. She's 
   - Ground combo ender
 - Is a sword move, so it deals good damage, especially with [Sharpness](#Sharpness)
 
-##### Rising sun
+#### Rising sun
 
 - Input: `s` while in [Sword stance](#Sword stance)
 - Visual: Arching sword swing
@@ -209,7 +208,7 @@ She is a young but competent second generation Korean American immigrant. She's 
   - Decent range, not trivial to whiff punish
 - Is a sword move, so it deals good damage, especially with [Sharpness](#Sharpness)
 
-### Kunai throw
+#### Kunai throw
 
 - Input: `236` + `f` or `s`
 - Visual: Ibuki kunai throw in SFV
@@ -225,6 +224,13 @@ She is a young but competent second generation Korean American immigrant. She's 
   - A second hitbox after making contact (bomb?)
   - Ability to pick them back up / restock
   - Air version?
+
+### Move ideas
+
+- Follow-ups to [#Sword stance](#sword-stance)
+  - Alpha blade
+  - Dashes
+  - Overhead slam
 
 ## Item ideas
 

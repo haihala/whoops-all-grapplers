@@ -1,3 +1,1 @@
-- [Mizku](/docs/gameplay_spec/characters/mizku.md)
-	- Idle barks
-	- Special move name yelling
+- [Samurai](/docs/gameplay_spec/characters/samurai.md) idle barks

@@ -39,15 +39,15 @@ run_task = { name = ["check", "format", "clippy", "test", "udeps"] }
 
 [tasks.dev-local]
 command = "cargo"
-args = ["run", "--", "local", "0", "69", "mizku", "mizku"]
+args = ["run", "--", "local", "0", "69", "samurai", "samurai"]
 
 [tasks.dev-online]
 command = "cargo"
-args = ["run", "--", "online", "69", "mizku"]
+args = ["run", "--", "online", "69", "samurai"]
 
 [tasks.dev-synctest]
 command = "cargo"
-args = ["run", "--", "synctest", "69", "mizku"]
+args = ["run", "--", "synctest", "69", "samurai"]
 
 [tasks.prod]
 command = "cargo"

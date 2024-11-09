@@ -64,13 +64,13 @@ impl Character {
 
 #[cfg(test)]
 mod test {
-    use crate::{characters::mizku, dummy, ActionEvent, ActionTracker, Situation};
+    use crate::{characters::samurai, dummy, ActionEvent, ActionTracker, Situation};
 
     use super::*;
 
     #[test]
     fn all_moves_end() {
-        for char in [mizku(), dummy()] {
+        for char in [samurai(), dummy()] {
             for (id, mov) in char.moves.iter() {
                 let sit = Situation {
                     tracker: Some(ActionTracker {

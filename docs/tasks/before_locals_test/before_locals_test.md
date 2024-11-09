@@ -9,7 +9,6 @@
   - Costs make sense
   - Effects make sense
   - Descriptions still accurate and informative
-- Rename "mizku" to "Samurai" etc
 - Quick round over the moves
   - Hitboxes are in the right positions
   - Frame data makes sense (currently hard to combo)

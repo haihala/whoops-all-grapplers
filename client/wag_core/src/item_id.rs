@@ -31,7 +31,7 @@ pub enum ItemId {
     // Dummy
     Roids,
 
-    // Mizku
+    // Samurai
     SpareKunai,
     KunaiPouch,
     KunaiBelt,

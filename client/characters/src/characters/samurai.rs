@@ -4,9 +4,9 @@ use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
     ActionCategory, ActionId, Animation, AnimationType, Area, CancelType, CancelWindow, Facing,
-    GameButton, Icon, ItemId, MizkuActionId, MizkuAnimation, Model, SoundEffect, SpecialVersion,
+    GameButton, Icon, ItemId, Model, SamuraiAction, SamuraiAnimation, SoundEffect, SpecialVersion,
     Stats, StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine,
-    MIZUKI_ALT_HELMET_COLOR, MIZUKI_ALT_JEANS_COLOR, MIZUKI_ALT_SHIRT_COLOR,
+    SAMURAI_ALT_HELMET_COLOR, SAMURAI_ALT_JEANS_COLOR, SAMURAI_ALT_SHIRT_COLOR,
 };
 
 use crate::{
@@ -26,22 +26,22 @@ use super::{
     Character,
 };
 
-pub fn mizku() -> Character {
-    let (jumps, gravity) = jumps(2.1, 1.1, Animation::Mizku(MizkuAnimation::Jump));
+pub fn samurai() -> Character {
+    let (jumps, gravity) = jumps(2.1, 1.1, Animation::Samurai(SamuraiAnimation::Jump));
 
     Character::new(
-        Model::Mizku,
+        Model::Samurai,
         vec![
-            ("T-shirt", MIZUKI_ALT_SHIRT_COLOR),
-            ("Jeans", MIZUKI_ALT_JEANS_COLOR),
-            ("Samurai Helmet.1", MIZUKI_ALT_HELMET_COLOR),
+            ("T-shirt", SAMURAI_ALT_SHIRT_COLOR),
+            ("Jeans", SAMURAI_ALT_JEANS_COLOR),
+            ("Samurai Helmet.1", SAMURAI_ALT_HELMET_COLOR),
         ]
         .into_iter()
         .collect(),
-        mizku_animations(),
-        mizku_moves(jumps),
-        mizku_items(),
-        mizku_boxes(),
+        samurai_anims(),
+        samurai_moves(jumps),
+        samurai_items(),
+        samurai_boxes(),
         Stats {
             walk_speed: 1.5,
             gravity,
@@ -78,47 +78,47 @@ pub fn mizku() -> Character {
     )
 }
 
-fn mizku_animations() -> HashMap<AnimationType, Animation> {
+fn samurai_anims() -> HashMap<AnimationType, Animation> {
     vec![
-        (AnimationType::AirIdle, MizkuAnimation::Air),
-        (AnimationType::AirStun, MizkuAnimation::AirStagger),
-        (AnimationType::StandIdle, MizkuAnimation::Idle),
-        (AnimationType::StandBlock, MizkuAnimation::Block),
-        (AnimationType::StandStun, MizkuAnimation::Stagger),
-        (AnimationType::WalkBack, MizkuAnimation::WalkBack),
-        (AnimationType::WalkForward, MizkuAnimation::WalkForward),
-        (AnimationType::CrouchIdle, MizkuAnimation::Crouch),
-        (AnimationType::CrouchBlock, MizkuAnimation::CrouchBlock),
-        (AnimationType::CrouchStun, MizkuAnimation::CrouchStagger),
-        (AnimationType::Getup, MizkuAnimation::Getup),
-        (AnimationType::Default, MizkuAnimation::StandPose),
+        (AnimationType::AirIdle, SamuraiAnimation::Air),
+        (AnimationType::AirStun, SamuraiAnimation::AirStagger),
+        (AnimationType::StandIdle, SamuraiAnimation::Idle),
+        (AnimationType::StandBlock, SamuraiAnimation::Block),
+        (AnimationType::StandStun, SamuraiAnimation::Stagger),
+        (AnimationType::WalkBack, SamuraiAnimation::WalkBack),
+        (AnimationType::WalkForward, SamuraiAnimation::WalkForward),
+        (AnimationType::CrouchIdle, SamuraiAnimation::Crouch),
+        (AnimationType::CrouchBlock, SamuraiAnimation::CrouchBlock),
+        (AnimationType::CrouchStun, SamuraiAnimation::CrouchStagger),
+        (AnimationType::Getup, SamuraiAnimation::Getup),
+        (AnimationType::Default, SamuraiAnimation::StandPose),
     ]
     .into_iter()
     .map(|(k, v)| (k, Animation::from(v)))
     .collect()
 }
 
-fn mizku_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<ActionId, Action> {
+fn samurai_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<ActionId, Action> {
     jumps
         .chain(dashes!(
-            MizkuAnimation::DashForward,
-            MizkuAnimation::DashBack
+            SamuraiAnimation::DashForward,
+            SamuraiAnimation::DashBack
         ))
         .chain(item_actions())
         .chain(
             normals()
                 .chain(specials())
-                .map(|(k, v)| (ActionId::Mizku(k), v)),
+                .map(|(k, v)| (ActionId::Samurai(k), v)),
         )
         .collect()
 }
 
-fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
+fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
     vec![
         (
-            MizkuActionId::KneeThrust,
+            SamuraiAction::KneeThrust,
             AttackBuilder::normal("f")
-                .with_animation(MizkuAnimation::KneeThrust)
+                .with_animation(SamuraiAnimation::KneeThrust)
                 .with_frame_data(5, 2, 16)
                 .with_hitbox(Area::new(0.5, 1.0, 0.35, 0.35))
                 .with_damage(5)
@@ -127,10 +127,10 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 .build(),
         ),
         (
-            MizkuActionId::LowKick,
+            SamuraiAction::LowKick,
             AttackBuilder::normal("f|123")
                 .hits_low()
-                .with_animation(MizkuAnimation::LowKick)
+                .with_animation(SamuraiAnimation::LowKick)
                 .with_frame_data(3, 3, 12)
                 .with_hitbox(Area::new(0.4, 0.1, 0.9, 0.2))
                 .with_damage(8)
@@ -139,9 +139,9 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 .build(),
         ),
         (
-            MizkuActionId::HeelKick,
+            SamuraiAction::HeelKick,
             AttackBuilder::normal("s")
-                .with_animation(MizkuAnimation::HeelKick)
+                .with_animation(SamuraiAnimation::HeelKick)
                 .with_frame_data(9, 6, 28)
                 .with_hitbox(Area::new(1.2, 1.0, 1.2, 0.2))
                 .with_damage(15)
@@ -160,9 +160,9 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 .build(),
         ),
         (
-            MizkuActionId::Uppercut,
+            SamuraiAction::Uppercut,
             AttackBuilder::normal("s|123")
-                .with_animation(MizkuAnimation::Uppercut)
+                .with_animation(SamuraiAnimation::Uppercut)
                 .with_frame_data(8, 8, 40)
                 .with_hitbox(Area::new(0.3, 0.7, 0.3, 0.5))
                 .with_damage(16)
@@ -172,9 +172,9 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 .build(),
         ),
         (
-            MizkuActionId::HighStab,
+            SamuraiAction::HighStab,
             AttackBuilder::normal("g")
-                .with_animation(MizkuAnimation::HighStab)
+                .with_animation(SamuraiAnimation::HighStab)
                 .with_frame_data(7, 6, 46)
                 .with_hitbox(Area::new(1.5, 1.3, 1.8, 0.2))
                 .with_damage(10)
@@ -184,9 +184,9 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 .build(),
         ),
         (
-            MizkuActionId::SkySlash,
+            SamuraiAction::SkySlash,
             AttackBuilder::normal("g|123")
-                .with_animation(MizkuAnimation::SkyStab)
+                .with_animation(SamuraiAnimation::SkyStab)
                 .with_frame_data(8, 5, 32)
                 .with_hitbox(Area::new(1.8, 0.9, 1.0, 1.0))
                 .with_damage(8)
@@ -196,10 +196,10 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 .build(),
         ),
         (
-            MizkuActionId::AirSlice,
+            SamuraiAction::AirSlice,
             AttackBuilder::normal("g")
                 .air_only()
-                .with_animation(MizkuAnimation::AirStab)
+                .with_animation(SamuraiAnimation::AirStab)
                 .with_frame_data(7, 12, 63)
                 .with_hitbox(Area::new(0.0, -0.5, 1.0, 0.4))
                 .with_damage(10)
@@ -210,10 +210,10 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 .build(),
         ),
         (
-            MizkuActionId::FalconKnee,
+            SamuraiAction::FalconKnee,
             AttackBuilder::normal("f")
                 .air_only()
-                .with_animation(MizkuAnimation::FalconKnee)
+                .with_animation(SamuraiAnimation::FalconKnee)
                 .with_frame_data(2, 5, 23)
                 .with_hitbox(Area::new(0.3, 0.2, 0.35, 0.25))
                 .with_damage(5)
@@ -223,14 +223,14 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                 .build(),
         ),
         (
-            MizkuActionId::FootDive,
+            SamuraiAction::FootDive,
             Action {
                 input: Some("s"),
                 category: ActionCategory::Normal,
                 script: Box::new(|situation: &Situation| {
                     if situation.elapsed() == 0 {
                         return vec![
-                            MizkuAnimation::FootDiveHold.into(),
+                            SamuraiAnimation::FootDiveHold.into(),
                             Movement {
                                 amount: Vec2::Y * -1.0,
                                 duration: 7,
@@ -250,7 +250,7 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
                         && !situation.held_buttons.contains(&GameButton::Strong)
                     {
                         return vec![
-                            MizkuAnimation::FootDiveRelease.into(),
+                            SamuraiAnimation::FootDiveRelease.into(),
                             // TODO: There used to be a 3f delay after the animation, but new
                             // system makes that hard, maybe think of a way to reintroduce that.
                             ActionEvent::SpawnHitbox(Attack {
@@ -287,84 +287,84 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
             },
         ),
         (
-            MizkuActionId::ForwardThrow,
+            SamuraiAction::ForwardThrow,
             AttackBuilder::normal("w")
                 .forward_throw()
-                .throw_hit_action(MizkuActionId::StandThrowHit)
-                .throw_target_action(MizkuActionId::StandThrowTarget)
+                .throw_hit_action(SamuraiAction::StandThrowHit)
+                .throw_target_action(SamuraiAction::StandThrowTarget)
                 .with_frame_data(3, 3, 34)
-                .with_animation(MizkuAnimation::StandThrowStartup)
+                .with_animation(SamuraiAnimation::StandThrowStartup)
                 .with_hitbox(Area::new(0.5, 1.0, 0.5, 0.5))
                 .build(),
         ),
         (
-            MizkuActionId::BackThrow,
+            SamuraiAction::BackThrow,
             AttackBuilder::normal("4+w")
                 .back_throw()
-                .throw_hit_action(MizkuActionId::StandThrowHit)
-                .throw_target_action(MizkuActionId::StandThrowTarget)
+                .throw_hit_action(SamuraiAction::StandThrowHit)
+                .throw_target_action(SamuraiAction::StandThrowTarget)
                 .with_frame_data(3, 3, 34)
-                .with_animation(MizkuAnimation::StandThrowStartup)
+                .with_animation(SamuraiAnimation::StandThrowStartup)
                 .with_hitbox(Area::new(0.5, 1.0, 0.5, 0.5))
                 .build(),
         ),
         (
-            MizkuActionId::StandThrowHit,
-            throw_hit!(MizkuAnimation::StandThrowHit, 80),
+            SamuraiAction::StandThrowHit,
+            throw_hit!(SamuraiAnimation::StandThrowHit, 80),
         ),
         (
-            MizkuActionId::StandThrowTarget,
+            SamuraiAction::StandThrowTarget,
             throw_target!(
-                MizkuAnimation::StandThrowTarget,
+                SamuraiAnimation::StandThrowTarget,
                 30,
                 10,
                 Vec2::new(-2.0, 6.0)
             ),
         ),
         (
-            MizkuActionId::CrouchThrow,
+            SamuraiAction::CrouchThrow,
             AttackBuilder::normal("w|123")
                 .forward_throw()
-                .throw_hit_action(MizkuActionId::CrouchThrowHit)
-                .throw_target_action(MizkuActionId::CrouchThrowTarget)
+                .throw_hit_action(SamuraiAction::CrouchThrowHit)
+                .throw_target_action(SamuraiAction::CrouchThrowTarget)
                 .with_frame_data(5, 3, 55)
-                .with_animation(MizkuAnimation::CrouchThrowStartup)
+                .with_animation(SamuraiAnimation::CrouchThrowStartup)
                 .with_hitbox(Area::new(0.7, 0.1, 0.5, 0.2))
                 .build(),
         ),
         (
-            MizkuActionId::CrouchThrowHit,
-            throw_hit!(MizkuAnimation::CrouchThrowHit, 80),
+            SamuraiAction::CrouchThrowHit,
+            throw_hit!(SamuraiAnimation::CrouchThrowHit, 80),
         ),
         (
-            MizkuActionId::CrouchThrowTarget,
+            SamuraiAction::CrouchThrowTarget,
             throw_target!(
-                MizkuAnimation::CrouchThrowTarget,
+                SamuraiAnimation::CrouchThrowTarget,
                 34,
                 10,
                 Vec2::new(-5.0, 2.0)
             ),
         ),
         (
-            MizkuActionId::AirThrow,
+            SamuraiAction::AirThrow,
             AttackBuilder::normal("w")
                 .forward_throw()
                 .air_only()
-                .throw_hit_action(MizkuActionId::AirThrowHit)
-                .throw_target_action(MizkuActionId::AirThrowTarget)
+                .throw_hit_action(SamuraiAction::AirThrowHit)
+                .throw_target_action(SamuraiAction::AirThrowTarget)
                 .with_frame_data(4, 2, 36)
-                .with_animation(MizkuAnimation::AirThrowStartup)
+                .with_animation(SamuraiAnimation::AirThrowStartup)
                 .with_hitbox(Area::new(0.4, 0.5, 0.8, 0.8))
                 .build(),
         ),
         (
-            MizkuActionId::AirThrowHit,
-            throw_hit!(MizkuAnimation::AirThrowHit, 50),
+            SamuraiAction::AirThrowHit,
+            throw_hit!(SamuraiAnimation::AirThrowHit, 50),
         ),
         (
-            MizkuActionId::AirThrowTarget,
+            SamuraiAction::AirThrowTarget,
             throw_target!(
-                MizkuAnimation::AirThrowTarget,
+                SamuraiAnimation::AirThrowTarget,
                 30,
                 50,
                 10,
@@ -375,11 +375,11 @@ fn normals() -> impl Iterator<Item = (MizkuActionId, Action)> {
     .into_iter()
 }
 
-fn specials() -> impl Iterator<Item = (MizkuActionId, Action)> {
+fn specials() -> impl Iterator<Item = (SamuraiAction, Action)> {
     sword_stance().chain(kunai_throws())
 }
 
-fn sword_stance() -> impl Iterator<Item = (MizkuActionId, Action)> {
+fn sword_stance() -> impl Iterator<Item = (SamuraiAction, Action)> {
     vec![
         SpecialVersion::Fast,
         SpecialVersion::Strong,
@@ -389,24 +389,24 @@ fn sword_stance() -> impl Iterator<Item = (MizkuActionId, Action)> {
     .flat_map(|version| {
         vec![
             (
-                MizkuActionId::SwordStance(version),
+                SamuraiAction::SwordStance(version),
                 enter_sword_stance(version),
             ),
             (
-                MizkuActionId::StanceCancel(SpecialVersion::Fast),
+                SamuraiAction::StanceCancel(SpecialVersion::Fast),
                 exit_sword_stance(SpecialVersion::Fast),
             ),
             (
-                MizkuActionId::ViperStrike(SpecialVersion::Fast),
+                SamuraiAction::ViperStrike(SpecialVersion::Fast),
                 viper_strike(SpecialVersion::Fast),
             ),
             (
-                MizkuActionId::RisingSun(SpecialVersion::Fast),
+                SamuraiAction::RisingSun(SpecialVersion::Fast),
                 rising_sun(SpecialVersion::Fast),
             ),
         ]
     })
-    .chain(vec![(MizkuActionId::Sharpen, sharpen())])
+    .chain(vec![(SamuraiAction::Sharpen, sharpen())])
 }
 
 fn enter_sword_stance(version: SpecialVersion) -> Action {
@@ -418,7 +418,7 @@ fn enter_sword_stance(version: SpecialVersion) -> Action {
         }),
         category: ActionCategory::Special,
         script: Box::new(move |situation: &Situation| {
-            let mut events = vec![MizkuAnimation::SwordStanceEnter.into()];
+            let mut events = vec![SamuraiAnimation::SwordStanceEnter.into()];
 
             if version == SpecialVersion::Metered {
                 events.extend(vec![
@@ -441,13 +441,13 @@ fn enter_sword_stance(version: SpecialVersion) -> Action {
                 return vec![ActionEvent::AllowCancel(CancelWindow {
                     cancel_type: CancelType::Specific(
                         vec![
-                            MizkuActionId::Sharpen,
-                            MizkuActionId::ViperStrike(version),
-                            MizkuActionId::RisingSun(version),
-                            MizkuActionId::StanceCancel(version),
+                            SamuraiAction::Sharpen,
+                            SamuraiAction::ViperStrike(version),
+                            SamuraiAction::RisingSun(version),
+                            SamuraiAction::StanceCancel(version),
                         ]
                         .into_iter()
-                        .map(ActionId::Mizku)
+                        .map(ActionId::Samurai)
                         .collect(),
                     ),
                     duration: 30,
@@ -479,14 +479,14 @@ fn exit_sword_stance(version: SpecialVersion) -> Action {
         category: ActionCategory::Special,
         script: Box::new(|situation: &Situation| {
             if situation.elapsed() == 0 {
-                return vec![MizkuAnimation::SwordStanceExit.into()];
+                return vec![SamuraiAnimation::SwordStanceExit.into()];
             }
 
             situation.end_at(9)
         }),
         requirement: ActionRequirement::And(vec![
             ActionRequirement::Grounded,
-            ActionRequirement::ActionOngoing(vec![ActionId::Mizku(MizkuActionId::SwordStance(
+            ActionRequirement::ActionOngoing(vec![ActionId::Samurai(SamuraiAction::SwordStance(
                 version,
             ))]),
         ]),
@@ -500,7 +500,7 @@ fn sharpen() -> Action {
         script: Box::new(|situation: &Situation| {
             if situation.elapsed() == 0 {
                 return vec![
-                    MizkuAnimation::Sharpen.into(),
+                    SamuraiAnimation::Sharpen.into(),
                     ActionEvent::Sound(SoundEffect::KnifeChopstickDrag),
                 ];
             }
@@ -517,9 +517,9 @@ fn sharpen() -> Action {
         requirement: ActionRequirement::And(vec![
             ActionRequirement::Grounded,
             ActionRequirement::ActionOngoing(vec![
-                ActionId::Mizku(MizkuActionId::SwordStance(SpecialVersion::Fast)),
-                ActionId::Mizku(MizkuActionId::SwordStance(SpecialVersion::Strong)),
-                ActionId::Mizku(MizkuActionId::SwordStance(SpecialVersion::Metered)),
+                ActionId::Samurai(SamuraiAction::SwordStance(SpecialVersion::Fast)),
+                ActionId::Samurai(SamuraiAction::SwordStance(SpecialVersion::Strong)),
+                ActionId::Samurai(SamuraiAction::SwordStance(SpecialVersion::Metered)),
             ]),
         ]),
     }
@@ -531,10 +531,10 @@ fn viper_strike(version: SpecialVersion) -> Action {
         SpecialVersion::Fast => "F|123",
         SpecialVersion::Metered => "(FS)|123",
     })
-    .follow_up_from(vec![ActionId::Mizku(MizkuActionId::SwordStance(version))])
+    .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
     .with_sound(SoundEffect::FemaleLoYah)
     .with_frame_data(10, 2, 50)
-    .with_animation(MizkuAnimation::SwordStanceLowSlash)
+    .with_animation(SamuraiAnimation::SwordStanceLowSlash)
     .with_extra_initial_events(vec![Movement {
         amount: Vec2::X * 8.0,
         duration: 7,
@@ -569,10 +569,10 @@ fn rising_sun(version: SpecialVersion) -> Action {
         SpecialVersion::Fast => "F",
         SpecialVersion::Metered => "(FS)",
     })
-    .follow_up_from(vec![ActionId::Mizku(MizkuActionId::SwordStance(version))])
+    .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
     .with_sound(SoundEffect::FemaleHiYah)
     .with_frame_data(10, 3, 50)
-    .with_animation(MizkuAnimation::SwordStanceHighSlash)
+    .with_animation(SamuraiAnimation::SwordStanceHighSlash)
     .sword()
     .with_damage(20)
     .launches(Vec2::new(1.0, 3.0))
@@ -595,7 +595,7 @@ fn rising_sun(version: SpecialVersion) -> Action {
     .build()
 }
 
-fn kunai_throws() -> impl Iterator<Item = (MizkuActionId, Action)> {
+fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
     vec![
         SpecialVersion::Fast,
         SpecialVersion::Strong,
@@ -604,13 +604,13 @@ fn kunai_throws() -> impl Iterator<Item = (MizkuActionId, Action)> {
     .into_iter()
     .flat_map(|version| {
         vec![(
-            MizkuActionId::KunaiThrow(version),
+            SamuraiAction::KunaiThrow(version),
             AttackBuilder::special(match version {
                 SpecialVersion::Fast => "236+f",
                 SpecialVersion::Strong => "236+s",
                 SpecialVersion::Metered => "236+(fs)",
             })
-            .with_animation(MizkuAnimation::KunaiThrow)
+            .with_animation(SamuraiAnimation::KunaiThrow)
             .with_sound(SoundEffect::FemaleKyatchi)
             .with_extra_initial_events(vec![
                 ActionEvent::ForceStand,
@@ -637,10 +637,10 @@ fn kunai_throws() -> impl Iterator<Item = (MizkuActionId, Action)> {
 }
 
 fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
-    universal_item_actions(Animation::Mizku(MizkuAnimation::GiParry))
+    universal_item_actions(Animation::Samurai(SamuraiAnimation::GiParry))
 }
 
-fn mizku_items() -> HashMap<ItemId, Item> {
+fn samurai_items() -> HashMap<ItemId, Item> {
     vec![
         (
             ItemId::SpareKunai,
@@ -723,7 +723,7 @@ fn mizku_items() -> HashMap<ItemId, Item> {
     .collect()
 }
 
-fn mizku_boxes() -> CharacterBoxes {
+fn samurai_boxes() -> CharacterBoxes {
     CharacterBoxes {
         standing: CharacterStateBoxes {
             head: Area::new(-0.05, 1.8, 0.4, 0.3),

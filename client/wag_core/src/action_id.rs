@@ -44,7 +44,7 @@ pub enum ActionId {
     SecondTestMove,
 
     Dummy(DummyActionId),
-    Mizku(MizkuActionId),
+    Samurai(SamuraiAction),
 }
 
 // Earlier = Higher priority = Will happen if both inputs present
@@ -71,7 +71,7 @@ pub enum DummyActionId {
 }
 
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub enum MizkuActionId {
+pub enum SamuraiAction {
     SwordStance(SpecialVersion),
     StanceCancel(SpecialVersion),
     ViperStrike(SpecialVersion),
@@ -105,8 +105,8 @@ pub enum MizkuActionId {
     KneeThrust,
 }
 
-impl From<MizkuActionId> for ActionId {
-    fn from(value: MizkuActionId) -> Self {
-        Self::Mizku(value)
+impl From<SamuraiAction> for ActionId {
+    fn from(value: SamuraiAction) -> Self {
+        Self::Samurai(value)
     }
 }

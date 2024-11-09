@@ -7,7 +7,7 @@ mod recovery;
 mod side_switcher;
 mod size_adjustment;
 
-use characters::{dummy, mizku, Hurtboxes, Inventory, WAGResources};
+use characters::{dummy, samurai, Hurtboxes, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
@@ -115,7 +115,7 @@ fn spawn_player(
 ) -> Entity {
     let character = match character_id {
         CharacterId::Dummy => dummy(),
-        CharacterId::Mizku => mizku(),
+        CharacterId::Samurai => samurai(),
     };
 
     let colors = character.colors[&player].clone();

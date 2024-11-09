@@ -1,1 +1,3 @@
-- [Mizku](/docs/gameplay_spec/characters/mizku.md) item that makes her start the round with 2 [Mizku#Kunai](/docs/gameplay_spec/characters/mizku.md#Kunai) instead of 1
+- [Samurai](/docs/gameplay_spec/characters/samurai.md) item that makes her start
+  the round with 2 [Kunai](/docs/gameplay_spec/characters/samurai.md#Kunai)
+  instead of 1

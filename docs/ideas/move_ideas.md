@@ -1,24 +1,23 @@
 - Soul assumption like move that deals damage based on damage taken recently
-	- Counts damage taken by both players
-	- Pair it with a move that works like oracle heal
+  - Counts damage taken by both players
+  - Pair it with a move that works like oracle heal
 - Burst that is faster / larger the longer the combo
 - Move where you repeatedly do qcb+button to gain stocks. Use stocks for a big punch (can cancel into punch from wind-ups, better if you do)
 - 5653 motion for a sliding dash
 - Axe kick that hits mid going up. If it does the attack ends. Hard hitting overhead when coming down. Works as an anti-air when it hits at the apex
 - Dash move with a wind-up. You can hold the wind-up for more distance. Has two variants. One is a shorter dash followed by a forward slash, the other is basically alpha blade.
-	- Think chainsaw man katana man
+  - Think chainsaw man katana man
 - A dash punch that has a charged and an uncharged version, but the uncharged version is better.
-	- You can't do the uncharged one out of block unless you get tricky
+  - You can't do the uncharged one out of block unless you get tricky
 - A move called "con", which puts the player in a rekka-like state they can continue with extentions like "-centrate", "-test", "-vince"
 - qcf+f small hop forwards
-	- -> f for fast anti-air
-	- -> 46+button for a donkey kick (with lightning bolt effect)
-	- -> g for a grab face, connect with knees, fall on your back
+  - -> f for fast anti-air
+  - -> 46+button for a donkey kick (with lightning bolt effect)
+  - -> g for a grab face, connect with knees, fall on your back
 - Forward charge, back+button = counter
 - Whip attacks with slightly adjustable sweet spots
-	- Like doing qcf+f will put the origin at a point and then the stick position slightly moves where the hit is
+  - Like doing qcf+f will put the origin at a point and then the stick position slightly moves where the hit is
 - 693 as an overhead input (heavy smash)
 - 689 input shoryuken that has a 623 downwards smash follow up
 - `[3]6`, A super fast dash straight and `[47]3` dash low on the same character.
-	- Upgrade item to combine the charges.
-- Alpha blade for [Mizku](/docs/gameplay_spec/characters/mizku.md)
+  - Upgrade item to combine the charges.

@@ -22,7 +22,7 @@ pub(super) fn model_paths() -> HashMap<Model, &'static str> {
     // So far, I think that is a waste of effort.
     vec![
         (Model::Dummy, "dummy.glb#Scene0"),
-        (Model::Mizku, "mizuki.glb#Scene0"),
+        (Model::Samurai, "mizuki.glb#Scene0"),
         (Model::Fireball, "fireball.glb#Scene0"),
         (Model::Kunai, "kunai.glb#Scene0"),
         (Model::TrainingStage, "stage.glb#Scene0"),

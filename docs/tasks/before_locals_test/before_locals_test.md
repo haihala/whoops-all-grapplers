@@ -1,9 +1,4 @@
 - Go through [chore list](/docs/tasks/chore_tracker.md)
-- Rebalance for a best of five rounds
-  - Remove loss bonus build-up
-  - Add a mechanic where each round gives slightly more
-  - Make sure game ends after 3 wins
-  - Make sure the players can buy a bunch of stuff round 1
 - Quick round over the items
   - Costs make sense
   - Effects make sense

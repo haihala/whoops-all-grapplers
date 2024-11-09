@@ -6,8 +6,8 @@ use characters::{Character, Inventory, ResourceType, WAGResources};
 use input_parsing::InputParser;
 use wag_core::{
     Clock, GameResult, GameState, InCharacterSelect, InMatch, MatchState, Player, RollbackSchedule,
-    RoundLog, RoundResult, VoiceLine, WAGStage, POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY,
-    VICTORY_BONUS,
+    RoundLog, RoundResult, VoiceLine, WAGStage, BASE_ROUND_MONEY, POST_ROUND_DURATION,
+    ROUNDS_TO_WIN, ROUND_MONEY_BUILDUP, VICTORY_BONUS,
 };
 
 use crate::{
@@ -83,14 +83,16 @@ pub fn end_combat(
     });
 
     assert!(ordered_healths.len() == 2);
-    let [(winner_props, winner, winner_inventory, winner_character), (loser_props, loser, loser_inventory, loser_character)] =
+    let [(winner_props, winner, winner_inventory, winner_character), (loser_props, _, loser_inventory, loser_character)] =
         &mut ordered_healths[..]
     else {
         panic!("Couldn't unpack players");
     };
 
+    let round_money = BASE_ROUND_MONEY + ROUND_MONEY_BUILDUP * round_log.rounds_played();
+
     for player in [Player::One, Player::Two] {
-        notifications.add(player, format!("Round payout: ${}", ROUND_MONEY));
+        notifications.add(player, format!("Round payout: ${}", round_money));
 
         let meter_money = if player == **winner {
             let meter_money = winner_props.get(ResourceType::Meter).unwrap().current;
@@ -108,8 +110,8 @@ pub fn end_combat(
     winner_inventory.remove_one_round_consumables(winner_character);
     loser_inventory.remove_one_round_consumables(loser_character);
 
-    winner_inventory.money += ROUND_MONEY;
-    loser_inventory.money += ROUND_MONEY;
+    winner_inventory.money += round_money;
+    loser_inventory.money += round_money;
 
     let result = if winner_props
         .get(ResourceType::Health)
@@ -126,12 +128,6 @@ pub fn end_combat(
     } else {
         notifications.add(**winner, format!("Victory bonus: ${}", VICTORY_BONUS));
         winner_inventory.money += VICTORY_BONUS;
-
-        let loss_bonus = round_log.loss_bonus(**loser);
-        if loss_bonus > 0 {
-            notifications.add(**loser, format!("Jobber bonus: ${}", loss_bonus));
-            loser_inventory.money += loss_bonus;
-        }
 
         commands.trigger(PlaySound(loser_character.get_voiceline(VoiceLine::Defeat)));
 

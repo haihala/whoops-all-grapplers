@@ -54,7 +54,7 @@ pub fn update_announcer(
 }
 
 pub fn preround(mut announcer: ResMut<Announcer>, round_log: Res<RoundLog>) {
-    announcer.round_start(round_log.round_played() + 1);
+    announcer.round_start(round_log.rounds_played() + 1);
 }
 
 pub fn combat(mut announcer: ResMut<Announcer>) {

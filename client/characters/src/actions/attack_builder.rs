@@ -90,6 +90,7 @@ pub struct AttackBuilder {
     recovery: usize,
     expand_hurtbox: Option<usize>,
     spawn: Option<Model>,
+    projectile: bool,
     velocity: Vec2,
     gravity: f32,
     meter_cost: Option<i32>,
@@ -209,6 +210,13 @@ impl AttackBuilder {
 
         Self {
             velocity: Vec2::X * speed,
+            ..self
+        }
+    }
+
+    pub fn projectile(self) -> Self {
+        Self {
+            projectile: true,
             ..self
         }
     }
@@ -567,6 +575,7 @@ impl AttackBuilder {
         }
 
         let to_hit = ToHit {
+            projectile: self.projectile,
             lifetime: self.hitbox_lifetime,
             hitbox: self.hitbox,
             block_type: self.sub_builder.block_type(),

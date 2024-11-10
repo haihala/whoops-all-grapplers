@@ -85,6 +85,9 @@ impl HitboxSpawner {
                     ..default()
                 });
             });
+        }
+
+        if attack.to_hit.projectile {
             builder.insert(ProjectileMarker);
         } else {
             builder.insert(Follow {

@@ -721,6 +721,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 SpecialVersion::Strong => "236+s",
                 SpecialVersion::Metered => "236+(fs)",
             })
+            .projectile()
             .with_animation(SamuraiAnimation::KunaiThrow)
             .with_sound(SoundEffect::FemaleKyatchi)
             .with_extra_initial_events(vec![

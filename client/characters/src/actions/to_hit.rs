@@ -11,6 +11,7 @@ pub struct ToHit {
     pub gravity: f32,
     pub model: Option<Model>,
     pub hits: usize,
+    pub projectile: bool,
 }
 
 impl Default for ToHit {
@@ -23,6 +24,7 @@ impl Default for ToHit {
             gravity: 0.0,
             model: Default::default(),
             hits: 1,
+            projectile: false,
         }
     }
 }

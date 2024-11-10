@@ -120,7 +120,6 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::BurnStraight,
             Action {
                 input: Some("s"),
-                category: ActionCategory::Normal,
                 script: Box::new(|situation: &Situation| {
                     if situation.elapsed() == 0 {
                         return vec![DummyAnimation::BurnStraight.into()];
@@ -159,7 +158,10 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
 
                     situation.end_at(20)
                 }),
-                requirement: ActionRequirement::Grounded,
+                requirement: ActionRequirement::And(vec![
+                    ActionRequirement::Grounded,
+                    ActionRequirement::Starter(ActionCategory::Normal),
+                ]),
             },
         ),
         (
@@ -208,7 +210,6 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             DummyActionId::Dodge,
             Action {
                 input: Some("252"),
-                category: ActionCategory::Special,
                 script: Box::new(|situation: &Situation| {
                     if situation.elapsed() == 0 {
                         return vec![
@@ -224,7 +225,10 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
 
                     situation.end_at(45)
                 }),
-                requirement: ActionRequirement::Grounded,
+                requirement: ActionRequirement::And(vec![
+                    ActionRequirement::Grounded,
+                    ActionRequirement::Starter(ActionCategory::Special),
+                ]),
             },
         ),
         (

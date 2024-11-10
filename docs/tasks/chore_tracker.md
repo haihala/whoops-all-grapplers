@@ -7,12 +7,11 @@ enough to be put on a more important list.
 
 - Extra kunais may not work (besides the UI)
 - New move system breaks red paint (can drop inputs)
-- Can cancel sword stance to normal
-- Can cancel backdash to backdash
-- Could cancel to sword slam without an open cancel window
 - Buy menu inputs work weird with new parser
-- Walking animation gets stuck sometimes (when walking against the enemy towards
-  the corner)
+- Walking animation gets stuck sometimes
+  - When walking against the enemy towards the corner
+  - Sometimes when button is held for a while, walking state gets stuck
+  - May be a keyboard thing
 
 ### Watchlist
 

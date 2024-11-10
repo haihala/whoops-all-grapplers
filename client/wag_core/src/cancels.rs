@@ -7,7 +7,6 @@ pub enum ActionCategory {
     // TODO: Look at these
     Dash,
     Jump,
-    Throw,
     Other,
     #[default]
     Normal,

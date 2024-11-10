@@ -227,7 +227,6 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
             SamuraiAction::FootDive,
             Action {
                 input: Some("s"),
-                category: ActionCategory::Normal,
                 script: Box::new(|situation: &Situation| {
                     if situation.elapsed() == 0 {
                         return vec![
@@ -284,7 +283,10 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
 
                     vec![]
                 }),
-                requirement: ActionRequirement::Airborne,
+                requirement: ActionRequirement::And(vec![
+                    ActionRequirement::Airborne,
+                    ActionRequirement::Starter(ActionCategory::Normal),
+                ]),
             },
         ),
         (
@@ -416,7 +418,6 @@ fn sword_stance(version: SpecialVersion) -> Action {
             SpecialVersion::Fast => "214+f",
             SpecialVersion::Metered => "214+(fs)",
         }),
-        category: ActionCategory::Special,
         script: Box::new(move |situation: &Situation| {
             let mut events = vec![SamuraiAnimation::SwordStance.into()];
 
@@ -479,7 +480,6 @@ fn stance_cancel(version: SpecialVersion) -> Action {
             SpecialVersion::Fast => "F|5",
             SpecialVersion::Metered => "(FS)|5",
         }),
-        category: ActionCategory::Special,
         script: Box::new(|situation: &Situation| {
             if situation.elapsed() == 0 {
                 return vec![
@@ -495,6 +495,7 @@ fn stance_cancel(version: SpecialVersion) -> Action {
             ActionRequirement::ActionOngoing(vec![ActionId::Samurai(SamuraiAction::SwordStance(
                 version,
             ))]),
+            ActionRequirement::Starter(ActionCategory::Jump),
         ]),
     }
 }
@@ -502,7 +503,6 @@ fn stance_cancel(version: SpecialVersion) -> Action {
 fn stance_dash(version: SpecialVersion, back: bool) -> Action {
     Action {
         input: Some(if back { "454" } else { "656" }),
-        category: ActionCategory::Special,
         script: Box::new(move |situation: &Situation| {
             if situation.elapsed() == 0 {
                 return vec![
@@ -529,6 +529,7 @@ fn stance_dash(version: SpecialVersion, back: bool) -> Action {
                 version,
             ))]),
             ActionRequirement::ItemOwned(ItemId::SmokeBomb),
+            ActionRequirement::Starter(ActionCategory::Special),
         ]),
     }
 }
@@ -541,7 +542,6 @@ fn sharpen(version: SpecialVersion) -> Action {
 
     Action {
         input: Some("g"),
-        category: ActionCategory::Special,
         script: Box::new(move |situation: &Situation| {
             if situation.elapsed() == 0 {
                 return vec![
@@ -570,6 +570,7 @@ fn sharpen(version: SpecialVersion) -> Action {
             ActionRequirement::ActionOngoing(vec![ActionId::Samurai(SamuraiAction::SwordStance(
                 version,
             ))]),
+            ActionRequirement::Starter(ActionCategory::Special),
         ]),
     }
 }

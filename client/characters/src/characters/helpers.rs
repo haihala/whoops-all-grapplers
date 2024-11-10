@@ -73,7 +73,6 @@ fn jump(
 ) -> Action {
     Action {
         input: Some(jump_dir.input(jump_type)),
-        category: ActionCategory::Jump,
         script: Box::new(move |situation: &Situation| {
             /*
             Math for initial jump velocity
@@ -146,18 +145,23 @@ fn jump(
 
             situation.end_at(delay + 5)
         }),
-        requirement: match jump_type {
-            JumpType::Basic => ActionRequirement::Grounded,
-            JumpType::Air => ActionRequirement::And(vec![
+        requirement: ActionRequirement::And(match jump_type {
+            JumpType::Basic => vec![
+                ActionRequirement::Grounded,
+                ActionRequirement::Starter(ActionCategory::Jump),
+            ],
+            JumpType::Air => vec![
                 ActionRequirement::Airborne,
                 ActionRequirement::ItemOwned(ItemId::PigeonWing),
                 ActionRequirement::StatusNotActive(StatusFlag::DoubleJumped),
-            ]),
-            JumpType::Super => ActionRequirement::And(vec![
+                ActionRequirement::Starter(ActionCategory::Jump),
+            ],
+            JumpType::Super => vec![
                 ActionRequirement::Grounded,
                 ActionRequirement::ItemOwned(ItemId::FeatheredBoots),
-            ]),
-        },
+                ActionRequirement::Starter(ActionCategory::Jump),
+            ],
+        }),
     }
 }
 
@@ -311,16 +315,14 @@ macro_rules! dash {
                     ActionId::TrackSpikesDashForward,
                     ActionId::TrackSpikesDashBack,
                 ]),
+                ActionRequirement::Starter(ActionCategory::Super),
             ]);
+        } else {
+            requirements.push(ActionRequirement::Starter(ActionCategory::Dash));
         }
 
         Action {
             input: Some($input),
-            category: if $track_spikes {
-                ActionCategory::Super
-            } else {
-                ActionCategory::Dash
-            },
             script: Box::new(|situation: &Situation| {
                 if situation.elapsed() == 0 {
                     let mut initial_events = vec![

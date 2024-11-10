@@ -142,7 +142,6 @@ impl InputParser {
                 .cloned()
                 .collect();
 
-            dbg!(&past);
             let already_complete = input.contained_in(&past);
             if already_complete {
                 continue;
@@ -153,7 +152,6 @@ impl InputParser {
                 .into_iter()
                 .chain(past.clone())
                 .collect();
-            dbg!(&present);
             let complete_with_new_input = input.contained_in(&present);
             if complete_with_new_input {
                 let mut evs = actions.clone();

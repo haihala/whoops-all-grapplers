@@ -64,7 +64,9 @@ impl Character {
 
 #[cfg(test)]
 mod test {
-    use crate::{characters::samurai, dummy, ActionEvent, ActionTracker, Situation};
+    use crate::{
+        characters::samurai, dummy, ActionEvent, ActionRequirement, ActionTracker, Situation,
+    };
 
     use super::*;
 
@@ -89,6 +91,28 @@ mod test {
 
                 println!("{:?} did not send end event at t=9999", id,);
             }
+        }
+    }
+
+    #[test]
+    fn moves_with_inputs_have_starter_requirement() {
+        for char in [samurai(), dummy()] {
+            for (id, mov) in char.moves.iter() {
+                dbg!(id);
+
+                if mov.input.is_some() {
+                    assert!(contains_starter(&mov.requirement));
+                }
+            }
+        }
+    }
+
+    fn contains_starter(req: &ActionRequirement) -> bool {
+        match req {
+            ActionRequirement::Starter(_) => true,
+            ActionRequirement::And(opts) => opts.iter().any(contains_starter),
+            ActionRequirement::Or(opts) => opts.iter().all(contains_starter),
+            _ => false,
         }
     }
 }

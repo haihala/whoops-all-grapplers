@@ -1,12 +1,9 @@
-use wag_core::ActionCategory;
-
 use crate::{ActionEvent, ActionRequirement, Situation};
 
 pub type Script = Box<dyn Fn(&Situation) -> Vec<ActionEvent> + Send + Sync>;
 
 pub struct Action {
     pub input: Option<&'static str>,
-    pub category: ActionCategory,
     pub requirement: ActionRequirement,
     pub script: Script,
 }
@@ -14,10 +11,7 @@ pub struct Action {
 impl std::fmt::Debug for Action {
     // Function pointers are not really debug friendly, trait is required higher up
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Move")
-            .field("input", &self.input)
-            .field("cancel category", &self.category)
-            .finish()
+        f.debug_struct("Move").field("input", &self.input).finish()
     }
 }
 
@@ -26,7 +20,6 @@ macro_rules! throw_hit {
     ($animation:expr, $duration:expr) => {
         Action {
             input: None,
-            category: ActionCategory::Forced,
             script: Box::new(|situation: &Situation| {
                 if situation.elapsed() == 0 {
                     return vec![
@@ -63,7 +56,6 @@ macro_rules! throw_target {
 
         Action {
             input: None,
-            category: ActionCategory::Forced,
             script: Box::new(|situation: &Situation| {
                 if situation.elapsed() == 0 {
                     vec![

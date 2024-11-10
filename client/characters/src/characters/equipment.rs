@@ -12,7 +12,6 @@ use crate::{
 pub fn gi_parry(animation: Animation) -> Action {
     Action {
         input: Some("6+f+s"),
-        category: ActionCategory::Other,
         script: Box::new(move |situation: &Situation| {
             if situation.elapsed() == 0 {
                 return vec![
@@ -37,6 +36,7 @@ pub fn gi_parry(animation: Animation) -> Action {
         requirement: ActionRequirement::And(vec![
             ActionRequirement::Grounded,
             ActionRequirement::ItemOwned(ItemId::Gi),
+            ActionRequirement::Starter(ActionCategory::Other),
         ]),
     }
 }
@@ -44,7 +44,6 @@ pub fn gi_parry(animation: Animation) -> Action {
 pub fn fast_fall() -> Action {
     Action {
         input: Some("[456789][123]"),
-        category: ActionCategory::Other,
         script: Box::new(|situation: &Situation| {
             if situation.elapsed() == 0 {
                 return vec![Movement::impulse(Vec2::Y * -1.5).into()];
@@ -55,6 +54,7 @@ pub fn fast_fall() -> Action {
         requirement: ActionRequirement::And(vec![
             ActionRequirement::Airborne,
             ActionRequirement::ItemOwned(ItemId::DivingHelmet),
+            ActionRequirement::Starter(ActionCategory::Other),
         ]),
     }
 }

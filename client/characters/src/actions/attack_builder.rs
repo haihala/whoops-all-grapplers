@@ -538,9 +538,8 @@ impl AttackBuilder {
 
         if let Some(ongoing) = self.follow_up_from.clone() {
             temp.push(ActionRequirement::ActionOngoing(ongoing));
-        } else {
-            temp.push(ActionRequirement::Starter(self.category));
         }
+        temp.push(ActionRequirement::Starter(self.category));
 
         ActionRequirement::And(temp)
     }
@@ -658,7 +657,6 @@ impl AttackBuilder {
         Action {
             input: Some(self.input),
             requirement: self.build_requirements(),
-            category: self.category,
             script: Box::new(self.build_script()),
         }
     }

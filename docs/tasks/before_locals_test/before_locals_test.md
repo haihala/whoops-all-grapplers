@@ -8,8 +8,10 @@
   - Frame data makes sense (currently hard to combo)
   - Kunai
     - Allow speed control with forward/back input (item, rocket fins)
-    - Add a mechanic to recover lost Kunais (item, boomerang)
-      - On hit?
-      - Upgrade that does it on block
-      - Later on make them drop to the ground instead of auto-recovering
-        - Or at least add an item to do that
+    - Add a mechanic to recover lost Kunais
+      - (item, boomerang?)
+        - On hit?
+        - Upgrade that does it on block
+        - Later on make them drop to the ground instead of auto-recovering
+          - Or at least add an item to do that
+      - EX move recovers all Kunais for a bar

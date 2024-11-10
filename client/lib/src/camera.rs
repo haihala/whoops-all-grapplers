@@ -14,7 +14,6 @@ use crate::{
 pub struct CameraWrapper;
 
 pub const VIEWPORT_HALFWIDTH: f32 = MAX_PLAYER_DISTANCE / 2.0; // This is used to control stage border relative to the camera
-const CAMERA_CLAMP: f32 = ARENA_WIDTH - VIEWPORT_HALFWIDTH;
 
 // It never quite gets to either extreme because the math is fucked
 const MAX_CAMERA_DISTANCE: f32 = 6.0;
@@ -22,6 +21,9 @@ const MIN_CAMERA_DISTANCE: f32 = 4.0;
 
 const MAX_CAMERA_HEIGHT: f32 = 2.3;
 const MIN_CAMERA_HEIGHT: f32 = 1.6;
+
+const CAMERA_CLAMP: f32 =
+    ARENA_WIDTH - VIEWPORT_HALFWIDTH * (MIN_CAMERA_DISTANCE / MAX_CAMERA_DISTANCE);
 
 pub struct CustomCameraPlugin;
 

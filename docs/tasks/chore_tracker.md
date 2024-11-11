@@ -5,7 +5,6 @@ enough to be put on a more important list.
 
 ## Bugs
 
-- Buy menu inputs work weird with new parser
 - Walking animation gets stuck sometimes
   - When walking against the enemy towards the corner
   - Sometimes when button is held for a while, walking state gets stuck

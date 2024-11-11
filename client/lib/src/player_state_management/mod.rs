@@ -189,6 +189,7 @@ fn setup_combat(
         &mut InputParser,
         &mut PlayerVelocity,
         &mut AnimationHelper,
+        &mut Hurtboxes,
     )>,
     mut clock: ResMut<Clock>,
     bevy_time: Res<Time>,
@@ -206,6 +207,7 @@ fn setup_combat(
         mut parser,
         mut velocity,
         mut animation_helper,
+        mut hurtboxes,
     ) in &mut query
     {
         resources.reset(stats);
@@ -214,6 +216,7 @@ fn setup_combat(
         parser.clear();
         velocity.reset();
         animation_helper.reset();
+        hurtboxes.reset();
 
         tf.translation = Vec3::new(
             match *player {

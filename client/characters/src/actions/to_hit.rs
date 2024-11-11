@@ -93,6 +93,10 @@ impl Hurtboxes {
     pub fn expire(&mut self, frame: usize) {
         self.extra.retain(|(_, end)| frame <= *end);
     }
+
+    pub fn reset(&mut self) {
+        self.extra.clear();
+    }
 }
 
 #[derive(Default, Clone, Copy, Deref, DerefMut, Debug, Component, Reflect, PartialEq)]

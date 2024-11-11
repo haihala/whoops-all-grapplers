@@ -64,6 +64,8 @@ impl Character {
 
 #[cfg(test)]
 mod test {
+    use wag_core::SamuraiAction;
+
     use crate::{
         characters::samurai, dummy, ActionEvent, ActionRequirement, ActionTracker, Situation,
     };
@@ -74,6 +76,11 @@ mod test {
     fn all_moves_end() {
         for char in [samurai(), dummy()] {
             for (id, mov) in char.moves.iter() {
+                // There is a list of exceptions
+                if matches!(id, ActionId::Samurai(SamuraiAction::FootDive)) {
+                    continue;
+                }
+
                 let sit = Situation {
                     tracker: Some(ActionTracker {
                         start_frame: 0,

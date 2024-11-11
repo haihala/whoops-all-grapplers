@@ -228,7 +228,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
             Action {
                 input: Some("s"),
                 script: Box::new(|situation: &Situation| {
-                    if situation.elapsed() == 0 {
+                    if situation.on_frame(0) {
                         return vec![
                             SamuraiAnimation::FootDiveHold.into(),
                             Movement {
@@ -240,13 +240,13 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                     }
 
                     // Fallback (also for tests) of ending after a minute
-                    if situation.elapsed() > 60 * 60 {
+                    if situation.on_frame(60 * 60) {
                         return vec![ActionEvent::End];
                     }
 
                     // TODO: Add an item to speed this up for instant overheads
-                    // FIXME: This will likely spawn a hitbox every frame
-                    if situation.elapsed() >= 20
+                    // This is now not dynamic. Either it happens on frame 20 or never
+                    if situation.on_frame(20)
                         && !situation.held_buttons.contains(&GameButton::Strong)
                     {
                         return vec![
@@ -430,11 +430,11 @@ fn sword_stance(version: SpecialVersion) -> Action {
                 ]);
             }
 
-            if situation.elapsed() == 0 {
+            if situation.on_frame(0) {
                 return events;
             }
 
-            if situation.elapsed() == 3 {
+            if situation.on_frame(3) {
                 return vec![ActionEvent::AllowCancel(CancelWindow {
                     cancel_type: CancelType::Specific(
                         vec![
@@ -477,7 +477,7 @@ fn stance_cancel(version: SpecialVersion) -> Action {
             SpecialVersion::Metered => "(FS)|5",
         }),
         script: Box::new(|situation: &Situation| {
-            if situation.elapsed() == 0 {
+            if situation.on_frame(0) {
                 return vec![
                     SamuraiAnimation::StanceCancel.into(),
                     ActionEvent::ClearCondition(StatusFlag::Intangible),
@@ -500,7 +500,7 @@ fn stance_dash(version: SpecialVersion, back: bool) -> Action {
     Action {
         input: Some(if back { "454" } else { "656" }),
         script: Box::new(move |situation: &Situation| {
-            if situation.elapsed() == 0 {
+            if situation.on_frame(0) {
                 return vec![
                     ActionEvent::Teleport(Vec2::X * if back { -2.0 } else { 2.0 }),
                     ActionEvent::RelativeVisualEffect(VfxRequest {
@@ -511,7 +511,7 @@ fn stance_dash(version: SpecialVersion, back: bool) -> Action {
                 ];
             }
 
-            if situation.elapsed() > 10 {
+            if situation.after_frame(10) {
                 return vec![ActionEvent::StartAction(ActionId::Samurai(
                     SamuraiAction::SwordStance(version),
                 ))];
@@ -539,7 +539,7 @@ fn sharpen(version: SpecialVersion) -> Action {
     Action {
         input: Some("g"),
         script: Box::new(move |situation: &Situation| {
-            if situation.elapsed() == 0 {
+            if situation.on_frame(0) {
                 return vec![
                     if slow {
                         SamuraiAnimation::SlowSharpen
@@ -551,7 +551,7 @@ fn sharpen(version: SpecialVersion) -> Action {
                 ];
             }
 
-            if situation.elapsed() == if slow { 50 } else { 35 } {
+            if situation.on_frame(if slow { 50 } else { 35 }) {
                 return vec![
                     ActionEvent::ModifyResource(ResourceType::Sharpness, sharpness_gain),
                     ActionEvent::ModifyResource(ResourceType::Meter, meter_gain),

@@ -115,12 +115,12 @@ fn jump(
                 }))
             }
 
-            if situation.elapsed() == 0 {
+            if situation.on_frame(0) {
                 return initial_events;
             }
 
             let delay = if jump_type == JumpType::Air { 1 } else { 3 };
-            if situation.elapsed() == delay {
+            if situation.on_frame(delay) {
                 return vec![
                     Movement::impulse(impulse).into(),
                     VfxRequest {
@@ -324,7 +324,7 @@ macro_rules! dash {
         Action {
             input: Some($input),
             script: Box::new(|situation: &Situation| {
-                if situation.elapsed() == 0 {
+                if situation.on_frame(0) {
                     let mut initial_events = vec![
                         Into::<Animation>::into($animation).into(),
                         VfxRequest {
@@ -365,7 +365,7 @@ macro_rules! dash {
                     return initial_events;
                 }
 
-                if situation.elapsed() == $startup_duration && $second_impulse != Vec2::ZERO {
+                if situation.on_frame($startup_duration) && $second_impulse != Vec2::ZERO {
                     return vec![Movement::impulse($second_impulse).into()];
                 }
 

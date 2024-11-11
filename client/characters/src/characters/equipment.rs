@@ -13,7 +13,7 @@ pub fn gi_parry(animation: Animation) -> Action {
     Action {
         input: Some("6+f+s"),
         script: Box::new(move |situation: &Situation| {
-            if situation.elapsed() == 0 {
+            if situation.on_frame(0) {
                 return vec![
                     animation.into(),
                     ActionEvent::ForceStand,
@@ -45,7 +45,7 @@ pub fn fast_fall() -> Action {
     Action {
         input: Some("[123]|5"),
         script: Box::new(|situation: &Situation| {
-            if situation.elapsed() == 0 {
+            if situation.on_frame(0) {
                 return vec![Movement::impulse(Vec2::Y * -1.5).into()];
             }
 

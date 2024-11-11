@@ -630,13 +630,13 @@ impl AttackBuilder {
         let atk = Attack { on_hit, to_hit };
 
         move |situation: &Situation| {
-            if situation.elapsed() == 0 {
+            if situation.on_frame(0) {
                 let mut events = initial_events.clone();
                 events.extend(init_fun(situation));
                 return events;
             }
 
-            if situation.elapsed() == startup {
+            if situation.on_frame(startup) {
                 return vec![ActionEvent::SpawnHitbox(atk.clone())]
                     .into_iter()
                     .chain(activation_events.clone())

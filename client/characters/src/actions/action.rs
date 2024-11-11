@@ -21,7 +21,7 @@ macro_rules! throw_hit {
         Action {
             input: None,
             script: Box::new(|situation: &Situation| {
-                if situation.elapsed() == 0 {
+                if situation.on_frame(0) {
                     return vec![
                         Into::<Animation>::into($animation).into(),
                         ActionEvent::Condition(StatusCondition {
@@ -57,7 +57,7 @@ macro_rules! throw_target {
         Action {
             input: None,
             script: Box::new(|situation: &Situation| {
-                if situation.elapsed() == 0 {
+                if situation.on_frame(0) {
                     vec![
                         AnimationRequest {
                             animation: $animation.into(),

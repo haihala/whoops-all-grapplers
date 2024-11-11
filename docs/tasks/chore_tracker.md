@@ -5,8 +5,6 @@ enough to be put on a more important list.
 
 ## Bugs
 
-- Extra kunais may not work (besides the UI)
-- New move system breaks red paint (can drop inputs)
 - Buy menu inputs work weird with new parser
 - Walking animation gets stuck sometimes
   - When walking against the enemy towards the corner
@@ -15,6 +13,7 @@ enough to be put on a more important list.
 
 ### Watchlist
 
+- Extra kunais may not work (besides the UI)
 - There is an input recording strangeness, parrots don't always work, probably an ordering question.
 - Throws may not work after no longer relying on animation data
 

@@ -121,11 +121,11 @@ fn normals() -> impl Iterator<Item = (DummyActionId, Action)> {
             Action {
                 input: Some("s"),
                 script: Box::new(|situation: &Situation| {
-                    if situation.elapsed() == 0 {
+                    if situation.on_frame(0) {
                         return vec![DummyAnimation::BurnStraight.into()];
                     }
 
-                    if situation.elapsed() == 10 {
+                    if situation.on_frame(10) {
                         return vec![
                             SpawnHitbox(Attack {
                                 to_hit: ToHit {
@@ -211,7 +211,7 @@ fn specials() -> impl Iterator<Item = (DummyActionId, Action)> {
             Action {
                 input: Some("252"),
                 script: Box::new(|situation: &Situation| {
-                    if situation.elapsed() == 0 {
+                    if situation.on_frame(0) {
                         return vec![
                             ForceStand,
                             DummyAnimation::Dodge.into(),

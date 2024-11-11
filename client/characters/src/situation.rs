@@ -40,4 +40,19 @@ impl Situation {
     pub fn elapsed(&self) -> usize {
         self.tracker.map_or(0, |t| self.frame - t.start_frame)
     }
+
+    pub fn on_frame(&self, frame: usize) -> bool {
+        if frame == 0 {
+            return self.elapsed() == 0;
+        }
+
+        let prev_frame = (self.elapsed() - 1) as f32 * self.stats.action_speed_multiplier;
+        let next_frame = (self.elapsed() + 1) as f32 * self.stats.action_speed_multiplier;
+
+        (prev_frame as usize) < frame && (next_frame as usize) > frame
+    }
+
+    pub fn after_frame(&self, frame: usize) -> bool {
+        ((self.elapsed() as f32 * self.stats.action_speed_multiplier) as usize) > frame
+    }
 }

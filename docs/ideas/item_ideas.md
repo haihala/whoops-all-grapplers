@@ -18,6 +18,7 @@ This document is a way to store ideas of items
   - Items that give you something cool if you complete a quest
   - Like Hearthstone
 - -1 hitstun frame per hit of combo
+- Dash self cancel
 
 ## Specific
 

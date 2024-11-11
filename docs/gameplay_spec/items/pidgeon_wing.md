@@ -1,2 +1,2 @@
-- Universal upgrade from two [Feather](/docs/gameplay_spec/items/feather.md)s
-- Allows you to double jump
+- Unused, will use for double jump (maybe change name)
+- Has icon

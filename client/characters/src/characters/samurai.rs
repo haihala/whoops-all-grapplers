@@ -267,11 +267,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                         0.33,
                                         0.66,
                                         1,
-                                        if situation.inventory.contains(&ItemId::SpaceSuitBoots) {
-                                            ActionEvent::LaunchStun(Vec2::new(-1.0, 15.0))
-                                        } else {
-                                            ActionEvent::HitStun(40)
-                                        },
+                                        ActionEvent::HitStun(40),
                                         0.2,
                                         18,
                                         0,
@@ -758,7 +754,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
         (
             ItemId::SpareKunai,
             Item {
-                cost: 75,
+                cost: 250,
                 explanation: "Two is better than one".into(),
                 category: ItemCategory::Basic,
                 icon: Icon::Kunai,
@@ -771,7 +767,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
         (
             ItemId::KunaiPouch,
             Item {
-                cost: 200,
+                cost: 400,
                 explanation: "5 uses for Kunai.\n\nThe more the merrier".into(),
                 category: ItemCategory::Upgrade(vec![ItemId::SpareKunai]),
                 icon: Icon::KunaiPouch,
@@ -784,7 +780,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
         (
             ItemId::KunaiBelt,
             Item {
-                cost: 500,
+                cost: 1000,
                 explanation: "8 uses for Kunai.\n\n8 is perfection.".into(),
                 category: ItemCategory::Upgrade(vec![ItemId::KunaiPouch]),
                 icon: Icon::KunaiBelt,
@@ -792,16 +788,6 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                     extra_kunais: 3,
                     ..Stats::identity()
                 },
-            },
-        ),
-        (
-            ItemId::SpaceSuitBoots,
-            Item {
-                category: ItemCategory::Upgrade(vec![ItemId::Boots, ItemId::Dumbbell]),
-                explanation: "Makes jumping stomp launch on hit\n\nAnd we have liftoff".into(),
-                cost: 800,
-                icon: Icon::SpaceSuitBoots,
-                ..default()
             },
         ),
         (
@@ -835,7 +821,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
             Item {
                 category: ItemCategory::Basic,
                 explanation: "6X to do an overhead in sword stance".into(),
-                cost: 100,
+                cost: 400,
                 icon: Icon::Fireaxe,
                 ..default()
             },

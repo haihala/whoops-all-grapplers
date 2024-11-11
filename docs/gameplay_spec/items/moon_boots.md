@@ -1,0 +1,2 @@
+- Universal upgrade from [Boots](/docs/gameplay_spec/items/boots.md)
+- Lets the user super jump

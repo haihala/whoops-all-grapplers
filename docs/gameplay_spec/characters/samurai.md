@@ -106,8 +106,6 @@ the corporation does not see how this may be culturally insensitive.
 - Visual: Dr Doom foot dive
 - Function: Alters jump arc, combo and pressure starter
 - Can be held to alter timing or empty jump
-- Upgrades
-  - [Space suit boots](/docs/gameplay_spec/items/space_suit_boots.md)
 
 #### Ground throw
 
@@ -151,7 +149,6 @@ the corporation does not see how this may be culturally insensitive.
 - Input: `g` while airborne
 - Downwards stab sort of similar to Baiken j.h, but the sword doesn't go as far down
 - Easy cross-ups
-- Most damaging jump-in before [Space suit boots](/docs/gameplay_spec/items/space_suit_boots.md)
 - Is a sword move, so it deals good damage, especially with [Sharpness](#Sharpness)
 
 ### Specials

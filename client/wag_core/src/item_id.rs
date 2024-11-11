@@ -20,12 +20,11 @@ pub enum ItemId {
     ThumbTacks(usize),
 
     // Universal upgrades
-    SafetyBoots,
     GoalieGear,
     TrackSpikes,
     FeatheredBoots,
-    PigeonWing,
     DivingHelmet, // TODO: Directional fast fall -> air dash
+    MoonBoots,
 
     // Character specific
     // Dummy
@@ -35,7 +34,6 @@ pub enum ItemId {
     SpareKunai,
     KunaiPouch,
     KunaiBelt,
-    SpaceSuitBoots,
     BladeOil,
     SmithyCoupon,
     Fireaxe,
@@ -43,6 +41,10 @@ pub enum ItemId {
 
     #[default]
     Default,
+
+    // TODO: Unused
+    SafetyBoots,
+    PigeonWing,
 }
 
 impl ItemId {
@@ -53,7 +55,7 @@ impl ItemId {
             Self::PigeonWing => "Pigeon wing".into(),
             Self::FeatheredBoots => "Feathered boots".into(),
             Self::TrackSpikes => "Track spikes".into(),
-            Self::SpaceSuitBoots => "Space suit boots".into(),
+            Self::MoonBoots => "Moon boots".into(),
             Self::Cigarettes => "Pack of cigs".into(),
             Self::PreWorkout => "Pre-workout".into(),
             Self::RedPaint => "Can of red paint".into(),

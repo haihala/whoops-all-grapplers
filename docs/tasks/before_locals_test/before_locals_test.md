@@ -1,8 +1,4 @@
 - Go through [chore list](/docs/tasks/chore_tracker.md)
-- Quick round over the items
-  - Costs make sense
-  - Effects make sense
-  - Descriptions still accurate and informative
 - Quick round over the moves
   - Hitboxes are in the right positions
   - Frame data makes sense (currently hard to combo)

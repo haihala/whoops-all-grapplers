@@ -152,13 +152,13 @@ fn jump(
             ],
             JumpType::Air => vec![
                 ActionRequirement::Airborne,
-                ActionRequirement::ItemOwned(ItemId::PigeonWing),
+                ActionRequirement::ItemOwned(ItemId::FeatheredBoots),
                 ActionRequirement::StatusNotActive(StatusFlag::DoubleJumped),
                 ActionRequirement::Starter(ActionCategory::Jump),
             ],
             JumpType::Super => vec![
                 ActionRequirement::Grounded,
-                ActionRequirement::ItemOwned(ItemId::FeatheredBoots),
+                ActionRequirement::ItemOwned(ItemId::MoonBoots),
                 ActionRequirement::Starter(ActionCategory::Jump),
             ],
         }),

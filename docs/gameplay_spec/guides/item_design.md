@@ -56,3 +56,45 @@ See [Tool design](/docs/gameplay_spec/guides/tool_design.md)
   - Rarely does an item solve just one problem
     - Which solution has the most beneficial side effects is an interesting choice
   - Opportunity cost
+
+## Pricing
+
+Assertions:
+
+- Save the whole game -> you should be able to afford the most expensive basic item
+  - Limit to basic, since you shouldn't be able to afford the final
+    [Thumbtack](/docs/gameplay_spec/items/thumbtacks.md) level by just losing
+- You should be able to buy at least two things on the first round
+- On a round 5 (4th shop), you should be able to afford any mid level item
+  without saving
+- Consumables should be on the cheaper side
+
+Current economical situation:
+
+- Shop 1 (1-0)
+  - Winner: 700
+  - Loser: 500
+- Shop 2 (1-1 or 2-0)
+  - Winner: 1000
+  - Loser: 800
+  - Accumulated:
+    - 1-1: Both have 1500
+    - 2-0: winner has 1700, loser has 1300
+- Shop 3 (2-1)
+  - Winner: 1300
+  - Loser: 1100
+  - Accumulated:
+    - 2-1: winner has 2800, loser has 2600
+- Shop 4 (2-2)
+  - Winner: 1600
+  - Loser: 1400
+  - Accumulated:
+    - 2-2: Both have 4200
+
+Pricing guidelines:
+
+- Small consumable: 100
+- Small persistent: 250
+- Medium consumable: 400 (not sure we have these)
+- Medium persistent: 600
+- Big persistent: 1000

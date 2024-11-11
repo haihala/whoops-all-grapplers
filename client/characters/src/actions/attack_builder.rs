@@ -714,7 +714,7 @@ pub fn build_throw_effect(
     })
 }
 
-// TODO: These could probably use some saner defaults
+// TODO: These could probably use some defaults
 #[allow(clippy::too_many_arguments)]
 pub fn build_strike_effect(
     block_stun: usize,

@@ -1,4 +1,4 @@
-use std::{f32::consts::PI, sync::Arc};
+use std::f32::consts::PI;
 
 use bevy::{prelude::*, utils::HashMap};
 
@@ -17,8 +17,8 @@ use crate::{
     throw_hit, throw_target, Action, ActionEvent, Attack, AttackBuilder,
     AttackHeight::*,
     BlockType::*,
-    CharacterBoxes, CharacterStateBoxes, ConsumableType, CounterVisual, FlashRequest, HitInfo,
-    Hitbox, Item, ItemCategory, Lifetime, Movement, Situation, ToHit, WAGResource,
+    CharacterBoxes, CharacterStateBoxes, ConsumableType, CounterVisual, FlashRequest, Hitbox, Item,
+    ItemCategory, Lifetime, Movement, Situation, ToHit, WAGResource,
 };
 
 use super::{
@@ -121,7 +121,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
             AttackBuilder::normal("f")
                 .with_animation(SamuraiAnimation::KneeThrust)
                 .with_frame_data(5, 2, 16)
-                .with_hitbox(Area::new(0.5, 1.0, 0.35, 0.35))
+                .with_hitbox(Area::new(0.5, 1.2, 0.35, 0.35))
                 .with_damage(5)
                 .with_advantage_on_block(-1)
                 .with_advantage_on_hit(4)
@@ -133,7 +133,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .hits_low()
                 .with_animation(SamuraiAnimation::LowKick)
                 .with_frame_data(3, 3, 12)
-                .with_hitbox(Area::new(0.4, 0.1, 0.9, 0.2))
+                .with_hitbox(Area::new(0.7, 0.1, 0.9, 0.2))
                 .with_damage(8)
                 .with_advantage_on_block(-1)
                 .with_advantage_on_hit(6)
@@ -144,7 +144,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
             AttackBuilder::normal("s")
                 .with_animation(SamuraiAnimation::HeelKick)
                 .with_frame_data(9, 6, 28)
-                .with_hitbox(Area::new(1.2, 1.0, 1.2, 0.2))
+                .with_hitbox(Area::new(0.7, 1.0, 1.0, 0.2))
                 .with_damage(15)
                 .with_advantage_on_block(-8)
                 .with_advantage_on_hit(3)
@@ -162,22 +162,69 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
         ),
         (
             SamuraiAction::Uppercut,
-            AttackBuilder::normal("s|123")
-                .with_animation(SamuraiAnimation::Uppercut)
-                .with_frame_data(8, 8, 40)
-                .with_hitbox(Area::new(0.3, 0.7, 0.3, 0.5))
-                .with_damage(16)
-                .with_distance_on_block(0.5)
-                .launches(Vec2::new(1.0, 6.0))
-                .with_advantage_on_block(-30)
-                .build(),
+            Action {
+                input: Some("s|123"),
+                script: Box::new(|situation: &Situation| {
+                    if situation.on_frame(0) {
+                        return vec![SamuraiAnimation::Uppercut.into()];
+                    }
+
+                    let on_hit = build_strike_effect(
+                        10,
+                        Mid,
+                        0.17,
+                        0.33,
+                        1,
+                        ActionEvent::LaunchStun(Vec2::new(-1.0, 6.0)),
+                        0.1,
+                        16,
+                        0,
+                    );
+
+                    if situation.on_frame(8) {
+                        let hitbox = Area::new(0.3, 0.7, 0.3, 0.5);
+                        return vec![
+                            ActionEvent::ExpandHurtbox(hitbox.grow(0.1), 8),
+                            ActionEvent::SpawnHitbox(Attack {
+                                to_hit: ToHit {
+                                    hitbox: Hitbox(hitbox),
+                                    lifetime: Lifetime::frames(4),
+                                    ..default()
+                                },
+                                on_hit,
+                            }),
+                        ];
+                    }
+
+                    if situation.on_frame(12) {
+                        let hitbox = Area::new(0.35, 1.45, 0.3, 1.2);
+                        return vec![
+                            ActionEvent::ExpandHurtbox(hitbox.grow(0.1), 8),
+                            ActionEvent::SpawnHitbox(Attack {
+                                to_hit: ToHit {
+                                    hitbox: Hitbox(hitbox),
+                                    lifetime: Lifetime::frames(4),
+                                    ..default()
+                                },
+                                on_hit,
+                            }),
+                        ];
+                    }
+
+                    situation.end_at(48)
+                }),
+                requirement: ActionRequirement::And(vec![
+                    ActionRequirement::Grounded,
+                    ActionRequirement::Starter(ActionCategory::Normal),
+                ]),
+            },
         ),
         (
             SamuraiAction::HighStab,
             AttackBuilder::normal("g")
                 .with_animation(SamuraiAnimation::HighStab)
                 .with_frame_data(7, 6, 46)
-                .with_hitbox(Area::new(1.5, 1.3, 1.8, 0.2))
+                .with_hitbox(Area::new(1.0, 1.2, 1.8, 0.2))
                 .with_damage(10)
                 .sword()
                 .with_advantage_on_block(-16)
@@ -189,7 +236,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
             AttackBuilder::normal("g|123")
                 .with_animation(SamuraiAnimation::SkyStab)
                 .with_frame_data(8, 5, 32)
-                .with_hitbox(Area::new(1.8, 0.9, 1.0, 1.0))
+                .with_hitbox(Area::new(1.0, 2.0, 1.0, 1.0))
                 .with_damage(8)
                 .sword()
                 .with_advantage_on_block(-7)
@@ -202,12 +249,11 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .air_only()
                 .with_animation(SamuraiAnimation::AirStab)
                 .with_frame_data(7, 12, 63)
-                .with_hitbox(Area::new(0.0, -0.5, 1.0, 0.4))
+                .with_hitbox(Area::new(0.0, 0.0, 1.0, 0.4))
                 .with_damage(10)
                 .sword()
-                // TODO: These are misleading due to landing cancels
-                .with_advantage_on_block(-30)
-                .with_advantage_on_hit(-20)
+                .with_blockstun(20)
+                .with_hitstun(30)
                 .build(),
         ),
         (
@@ -216,15 +262,14 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .air_only()
                 .with_animation(SamuraiAnimation::FalconKnee)
                 .with_frame_data(2, 5, 23)
-                .with_hitbox(Area::new(0.3, 0.2, 0.35, 0.25))
+                .with_hitbox(Area::new(0.3, 0.4, 0.35, 0.25))
                 .with_damage(5)
-                // TODO: These are misleading due to landing cancels
-                .with_advantage_on_block(-20)
-                .with_advantage_on_hit(-10)
+                .with_blockstun(10)
+                .with_hitstun(15)
                 .build(),
         ),
         (
-            SamuraiAction::FootDive,
+            SamuraiAction::FootDiveHold,
             Action {
                 input: Some("s"),
                 script: Box::new(|situation: &Situation| {
@@ -244,37 +289,12 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         return vec![ActionEvent::End];
                     }
 
-                    // TODO: Add an item to speed this up for instant overheads
-                    // This is now not dynamic. Either it happens on frame 20 or never
-                    if situation.on_frame(20)
+                    if situation.after_frame(30)
                         && !situation.held_buttons.contains(&GameButton::Strong)
                     {
-                        return vec![
-                            SamuraiAnimation::FootDiveRelease.into(),
-                            // TODO: There used to be a 3f delay after the animation, but new
-                            // system makes that hard, maybe think of a way to reintroduce that.
-                            ActionEvent::SpawnHitbox(Attack {
-                                to_hit: ToHit {
-                                    hitbox: Hitbox(Area::new(0.8, -0.2, 0.7, 0.3)),
-                                    lifetime: Lifetime::frames(7),
-                                    block_type: Strike(High),
-                                    ..default()
-                                },
-                                on_hit: Arc::new(|situation: &Situation, hit_data: &HitInfo| {
-                                    build_strike_effect(
-                                        25,
-                                        High,
-                                        0.33,
-                                        0.66,
-                                        1,
-                                        ActionEvent::HitStun(40),
-                                        0.2,
-                                        18,
-                                        0,
-                                    )(situation, hit_data)
-                                }),
-                            }),
-                        ];
+                        return vec![ActionEvent::StartAction(
+                            SamuraiAction::FootDiveRelease.into(),
+                        )];
                     }
 
                     vec![]
@@ -283,6 +303,42 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                     ActionRequirement::Airborne,
                     ActionRequirement::Starter(ActionCategory::Normal),
                 ]),
+            },
+        ),
+        (
+            SamuraiAction::FootDiveRelease,
+            Action {
+                input: None,
+                requirement: ActionRequirement::default(),
+                script: Box::new(|situation: &Situation| {
+                    if situation.on_frame(0) {
+                        return vec![SamuraiAnimation::FootDiveRelease.into()];
+                    }
+
+                    if situation.on_frame(3) {
+                        return vec![ActionEvent::SpawnHitbox(Attack {
+                            to_hit: ToHit {
+                                hitbox: Hitbox(Area::new(0.8, -0.2, 0.7, 0.3)),
+                                lifetime: Lifetime::frames(7),
+                                block_type: Strike(High),
+                                ..default()
+                            },
+                            on_hit: build_strike_effect(
+                                25,
+                                High,
+                                0.33,
+                                0.66,
+                                1,
+                                ActionEvent::HitStun(40),
+                                0.2,
+                                18,
+                                0,
+                            ),
+                        })];
+                    }
+
+                    situation.end_at(20)
+                }),
             },
         ),
         (

@@ -1,6 +1,5 @@
 - Go through [chore list](/docs/tasks/chore_tracker.md)
 - Quick round over the moves
-  - Hitboxes are in the right positions
   - Frame data makes sense (currently hard to combo)
   - Kunai
     - Allow speed control with forward/back input (item, rocket fins)

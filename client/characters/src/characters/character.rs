@@ -77,7 +77,7 @@ mod test {
         for char in [samurai(), dummy()] {
             for (id, mov) in char.moves.iter() {
                 // There is a list of exceptions
-                if matches!(id, ActionId::Samurai(SamuraiAction::FootDive)) {
+                if matches!(id, ActionId::Samurai(SamuraiAction::FootDiveHold)) {
                     continue;
                 }
 

@@ -60,9 +60,8 @@ macro_rules! throw_target {
                 if situation.on_frame(0) {
                     vec![
                         AnimationRequest {
-                            animation: $animation.into(),
                             invert: true,
-                            ..default()
+                            ..AnimationRequest::from(Animation::from($animation))
                         }
                         .into(),
                         ActionEvent::ModifyResource(ResourceType::Health, -$damage),

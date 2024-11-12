@@ -7,7 +7,7 @@ mod recovery;
 mod side_switcher;
 mod size_adjustment;
 
-use characters::{dummy, samurai, Hurtboxes, Inventory, WAGResources};
+use characters::{samurai, Hurtboxes, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
@@ -37,7 +37,9 @@ impl Plugin for PlayerStateManagementPlugin {
             .add_systems(OnEnter(MatchState::PreRound), setup_combat)
             .add_systems(
                 RollbackSchedule,
-                side_switcher::sideswitcher.in_set(WAGStage::HouseKeeping),
+                side_switcher::sideswitcher
+                    .in_set(WAGStage::HouseKeeping)
+                    .run_if(in_state(MatchState::Combat)),
             )
             .add_systems(
                 RollbackSchedule,
@@ -114,7 +116,6 @@ fn spawn_player(
     character_id: CharacterId,
 ) -> Entity {
     let character = match character_id {
-        CharacterId::Dummy => dummy(),
         CharacterId::Samurai => samurai(),
     };
 

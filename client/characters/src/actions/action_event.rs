@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 use wag_core::{
-    ActionId, Animation, Area, CancelWindow, DummyAnimation, SamuraiAnimation, SoundEffect,
-    StatusCondition, StatusFlag, VfxRequest, VoiceLine,
+    ActionId, Animation, Area, CancelWindow, SamuraiAnimation, SoundEffect, StatusCondition,
+    StatusFlag, VfxRequest, VoiceLine,
 };
 
 use crate::{FlashRequest, Movement, ResourceType};
@@ -70,12 +70,7 @@ impl From<VfxRequest> for ActionEvent {
         ActionEvent::RelativeVisualEffect(value)
     }
 }
-// This isn't a great way to do this, but it's the best I can think of for now
-impl From<DummyAnimation> for ActionEvent {
-    fn from(value: DummyAnimation) -> Self {
-        ActionEvent::Animation(Animation::from(value).into())
-    }
-}
+
 impl From<SamuraiAnimation> for ActionEvent {
     fn from(value: SamuraiAnimation) -> Self {
         ActionEvent::Animation(Animation::from(value).into())

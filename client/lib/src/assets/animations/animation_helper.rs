@@ -14,7 +14,7 @@ pub struct AnimationHelper {
     default_animation: Animation,
     facing: Facing,
     request: Option<AnimationRequest>,
-    playing: AnimationRequest,
+    playing: Option<AnimationRequest>,
 }
 impl AnimationHelper {
     fn new(
@@ -28,7 +28,7 @@ impl AnimationHelper {
             default_animation,
             facing: Facing::default(),
             request: None,
-            playing: AnimationRequest::default(),
+            playing: None,
         }
     }
 
@@ -41,7 +41,7 @@ impl AnimationHelper {
     }
 
     pub fn play_if_new(&mut self, new: AnimationRequest) {
-        if self.playing != new {
+        if self.playing != Some(new) {
             self.play(new);
         }
     }
@@ -138,14 +138,14 @@ pub fn update_animation(
                 animation.repeat();
             }
 
-            helper.playing = request;
+            helper.playing = Some(request);
             helper.facing = *facing;
             scene_root.translation = request.position_offset.extend(0.0);
 
             // Looping animations like idle ought to turn when the sides switch. Non looping like moves should not
-        } else if *facing != helper.facing && helper.playing.looping {
+        } else if *facing != helper.facing && helper.playing.unwrap().looping {
             // Sideswitch
-            let (graph, index) = animations.get(helper.playing.animation, facing, &graphs);
+            let (graph, index) = animations.get(helper.playing.unwrap().animation, facing, &graphs);
             commands.entity(helper.player_entity).insert(graph);
             let elapsed = player.playing_animations().next().unwrap().1.elapsed();
             player.start(index).seek_to(elapsed).repeat();

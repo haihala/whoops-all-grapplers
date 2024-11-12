@@ -98,7 +98,7 @@ pub struct AttackBuilder {
     open_cancel: Option<CancelWindow>,
     air_move: bool,
     category: ActionCategory,
-    animation: Animation,
+    animation: Option<Animation>,
     audio: SoundEffect,
     extra_initial_events: Vec<ActionEvent>,
     dynamic_initial_events: OptionalDynamic,
@@ -255,7 +255,7 @@ impl AttackBuilder {
 
     pub fn with_animation(self, animation: impl Into<Animation>) -> Self {
         Self {
-            animation: animation.into(),
+            animation: Some(animation.into()),
             ..self
         }
     }
@@ -548,7 +548,8 @@ impl AttackBuilder {
         let startup = self.startup;
         let duration = self.startup + self.recovery;
 
-        let mut initial_events: Vec<ActionEvent> = vec![self.animation.into(), self.audio.into()];
+        let mut initial_events: Vec<ActionEvent> =
+            vec![self.animation.unwrap().into(), self.audio.into()];
         if !self.extra_initial_events.is_empty() {
             initial_events.extend(self.extra_initial_events.clone());
         }

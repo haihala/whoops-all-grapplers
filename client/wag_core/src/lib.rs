@@ -1,5 +1,5 @@
 mod action_id;
-pub use action_id::{ActionId, DummyActionId, SamuraiAction, SpecialVersion};
+pub use action_id::{ActionId, SamuraiAction, SpecialVersion};
 
 mod area;
 pub use area::Area;

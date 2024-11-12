@@ -1,6 +1,6 @@
 use bevy::{animation::AnimationTargetId, asset::AssetPath, prelude::*, utils::HashMap};
 
-use wag_core::{Animation, DummyAnimation, Facing, SamuraiAnimation};
+use wag_core::{Animation, Facing, SamuraiAnimation};
 
 #[derive(Debug, Default, Resource)]
 pub struct Animations {
@@ -47,18 +47,12 @@ impl Animations {
         flipped: &Facing,
         graphs: &Assets<AnimationGraph>,
     ) -> (Handle<AnimationGraph>, AnimationNodeIndex) {
-        let graph_handle = if animation == Animation::default() {
-            // Default is not mirrored and mirrored animations may not be ready by the time it is requested
-            // This should be irrelevant after a real loading screen.
-            self.normal[&Animation::default()].clone()
-        } else {
-            match flipped {
-                Facing::Right => self.normal.get(&animation),
-                Facing::Left => self.mirrored.get(&animation),
-            }
-            .unwrap()
-            .clone()
-        };
+        let graph_handle = match flipped {
+            Facing::Right => self.normal.get(&animation),
+            Facing::Left => self.mirrored.get(&animation),
+        }
+        .unwrap()
+        .clone();
 
         let graph = graphs.get(&graph_handle).unwrap();
         let node_index = graph.nodes().last().unwrap();
@@ -273,41 +267,6 @@ pub fn animation_paths() -> HashMap<Animation, AssetPath<'static>> {
     // They are alphabetically ordered
 
     load_glb_animations(
-        "dummy.glb".to_owned(),
-        vec![
-            DummyAnimation::AirIdle,
-            DummyAnimation::AirSlam,
-            DummyAnimation::AirSlap,
-            DummyAnimation::AirStun,
-            DummyAnimation::AirThrow,
-            DummyAnimation::AirThrowRecipient,
-            DummyAnimation::AntiAir,
-            DummyAnimation::DashBack,
-            DummyAnimation::BurnStraight,
-            DummyAnimation::Crouch,
-            DummyAnimation::CrouchBlock,
-            DummyAnimation::CrouchChop,
-            DummyAnimation::CrouchStun,
-            DummyAnimation::Divekick,
-            DummyAnimation::Dodge,
-            DummyAnimation::DashForward,
-            DummyAnimation::GroundSlam,
-            DummyAnimation::Idle,
-            DummyAnimation::Jump,
-            DummyAnimation::NormalThrow,
-            DummyAnimation::NormalThrowRecipient,
-            DummyAnimation::Getup,
-            DummyAnimation::Slap,
-            DummyAnimation::StandBlock,
-            DummyAnimation::StandStun,
-            DummyAnimation::Sweep,
-            DummyAnimation::TPose,
-            DummyAnimation::WalkBack,
-            DummyAnimation::WalkForward,
-        ],
-    )
-    .into_iter()
-    .chain(load_glb_animations(
         "samurai.glb".to_owned(),
         vec![
             SamuraiAnimation::Air,
@@ -358,8 +317,7 @@ pub fn animation_paths() -> HashMap<Animation, AssetPath<'static>> {
             SamuraiAnimation::WalkBack,
             SamuraiAnimation::WalkForward,
         ],
-    ))
-    .collect()
+    )
 }
 
 fn load_glb_animations(

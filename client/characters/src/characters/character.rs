@@ -66,15 +66,13 @@ impl Character {
 mod test {
     use wag_core::SamuraiAction;
 
-    use crate::{
-        characters::samurai, dummy, ActionEvent, ActionRequirement, ActionTracker, Situation,
-    };
+    use crate::{characters::samurai, ActionEvent, ActionRequirement, ActionTracker, Situation};
 
     use super::*;
 
     #[test]
     fn all_moves_end() {
-        for char in [samurai(), dummy()] {
+        for char in [samurai()] {
             for (id, mov) in char.moves.iter() {
                 // There is a list of exceptions
                 if matches!(id, ActionId::Samurai(SamuraiAction::FootDiveHold)) {
@@ -103,7 +101,7 @@ mod test {
 
     #[test]
     fn moves_with_inputs_have_starter_requirement() {
-        for char in [samurai(), dummy()] {
+        for char in [samurai()] {
             for (id, mov) in char.moves.iter() {
                 dbg!(id);
 

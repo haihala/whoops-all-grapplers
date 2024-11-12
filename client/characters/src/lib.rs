@@ -15,7 +15,7 @@ pub use actions::{
     Action, ActionEvent, ActionRequirement, AnimationRequest, Attack, AttackHeight, BlockType,
     CharacterStateBoxes, FlashRequest, Hitbox, Hurtboxes, Lifetime, Movement, ToHit,
 };
-pub use characters::{dummy, samurai, Character};
+pub use characters::{samurai, Character};
 pub use hit_data::{HitEffect, HitInfo};
 pub use items::{ConsumableType, Inventory, Item, ItemCategory};
 pub use resources::{

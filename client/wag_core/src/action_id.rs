@@ -43,31 +43,7 @@ pub enum ActionId {
     TestMove,
     SecondTestMove,
 
-    Dummy(DummyActionId),
     Samurai(SamuraiAction),
-}
-
-// Earlier = Higher priority = Will happen if both inputs present
-// This will get better once specificity based priorisation happens
-#[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub enum DummyActionId {
-    SonicBoom,
-    BudgetBoom,
-    HeavyHadouken,
-    Hadouken,
-    GroundSlam,
-    AirSlam,
-    BackThrow,
-    ForwardThrow,
-    AirThrow,
-    Divekick,
-    AirSlap,
-    AntiAir,
-    LowChop,
-    BurnStraight,
-    Slap,
-    Sweep,
-    Dodge,
 }
 
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]

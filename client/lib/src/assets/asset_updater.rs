@@ -24,10 +24,9 @@ pub fn start_animation(
             .unwrap();
         let position_offset = (opponent.translation - active.translation).truncate();
         AnimationRequest {
-            animation: animation_request.animation,
             position_offset,
             invert: true,
-            ..default()
+            ..AnimationRequest::from(animation_request.animation)
         }
     } else {
         animation_request.to_owned()
@@ -50,10 +49,9 @@ pub fn update_generic_animation(
                 .to_owned();
 
             helper.play_if_new(AnimationRequest {
-                animation,
                 looping: true,
                 ignore_action_speed: true,
-                ..default()
+                ..AnimationRequest::from(animation)
             });
         }
     }

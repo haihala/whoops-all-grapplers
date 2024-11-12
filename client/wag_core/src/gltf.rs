@@ -2,53 +2,10 @@ use bevy::prelude::*;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect)]
 pub enum Model {
-    Dummy,
     Samurai,
     Fireball,
     Kunai,
     TrainingStage,
-}
-
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect)]
-pub enum DummyAnimation {
-    // Basics
-    #[default]
-    TPose,
-
-    Idle,
-    Crouch,
-    CrouchStun,
-    CrouchBlock,
-    WalkForward,
-    WalkBack,
-    StandStun,
-    StandBlock,
-    AirIdle,
-    AirStun,
-    Getup,
-
-    // Movement
-    Jump,
-    DashForward,
-    DashBack,
-    Dodge,
-
-    // Strikes
-    Slap,
-    CrouchChop,
-    BurnStraight,
-    AntiAir,
-    AirSlap,
-    Divekick,
-    AirSlam,
-    GroundSlam,
-    Sweep,
-
-    // Throws
-    NormalThrow,
-    NormalThrowRecipient,
-    AirThrow,
-    AirThrowRecipient,
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect)]
@@ -103,22 +60,11 @@ pub enum SamuraiAnimation {
     WalkForward,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 pub enum Animation {
-    Dummy(DummyAnimation),
     Samurai(SamuraiAnimation),
 }
 
-impl Default for Animation {
-    fn default() -> Self {
-        Animation::Dummy(DummyAnimation::TPose)
-    }
-}
-impl From<DummyAnimation> for Animation {
-    fn from(value: DummyAnimation) -> Self {
-        Animation::Dummy(value)
-    }
-}
 impl From<SamuraiAnimation> for Animation {
     fn from(value: SamuraiAnimation) -> Self {
         Animation::Samurai(value)

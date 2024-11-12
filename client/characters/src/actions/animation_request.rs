@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use wag_core::Animation;
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Reflect)]
+#[derive(Debug, Clone, Copy, PartialEq, Reflect)]
 pub struct AnimationRequest {
     pub animation: Animation,
     pub position_offset: Vec2,
@@ -13,7 +13,10 @@ impl From<Animation> for AnimationRequest {
     fn from(animation: Animation) -> Self {
         Self {
             animation,
-            ..default()
+            position_offset: Vec2::ZERO,
+            invert: false,
+            looping: false,
+            ignore_action_speed: false,
         }
     }
 }

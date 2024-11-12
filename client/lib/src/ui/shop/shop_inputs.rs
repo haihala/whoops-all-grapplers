@@ -1,22 +1,16 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory};
 use input_parsing::InputParser;
-use wag_core::{ActionId, Facing, Owner, Player};
+use wag_core::{ActionId, Owner, Player};
 
 use super::{setup_shop::ShopItem, shops_resource::Shop, Shops, SHOP_COLUMNS};
 
 pub fn navigate_shop(
-    mut parsers: Query<(
-        &mut InputParser,
-        &Player,
-        &mut Inventory,
-        &Character,
-        &Facing,
-    )>,
+    mut parsers: Query<(&mut InputParser, &Player, &mut Inventory, &Character)>,
     slots: Query<(Entity, &Owner, Option<&ShopItem>)>,
     mut shops: ResMut<Shops>,
 ) {
-    for (mut parser, player, mut inventory, character, facing) in &mut parsers {
+    for (mut parser, player, mut inventory, character) in &mut parsers {
         let events = parser.get_events();
         let shop = shops.get_mut_shop(player);
 
@@ -28,8 +22,8 @@ pub fn navigate_shop(
             match event {
                 ActionId::Up => move_selection(shop, Up),
                 ActionId::Down => move_selection(shop, Down),
-                ActionId::Back => move_selection(shop, Left.mirror_if(facing.to_flipped())),
-                ActionId::Forward => move_selection(shop, Right.mirror_if(facing.to_flipped())),
+                ActionId::Left => move_selection(shop, Left),
+                ActionId::Right => move_selection(shop, Right),
                 ActionId::Primary => buy(shop, &mut inventory, character, &slots),
                 ActionId::Cancel => sell(shop, &mut inventory, character, &slots),
                 ActionId::Start => shop.closed = true,
@@ -47,19 +41,7 @@ enum CardinalDiretion {
     Left,
     Right,
 }
-impl CardinalDiretion {
-    fn mirror_if(self, condition: bool) -> Self {
-        if !condition {
-            self
-        } else {
-            match self {
-                Left => Right,
-                Right => Left,
-                other => other,
-            }
-        }
-    }
-}
+
 use CardinalDiretion::*;
 
 fn move_selection(shop: &mut Shop, direction: CardinalDiretion) {

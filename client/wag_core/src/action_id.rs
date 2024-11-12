@@ -13,6 +13,8 @@ pub enum ActionId {
     Default, // To satisfy Inspectable.
     Up,
     Down,
+    Left,
+    Right,
     Back,
     Forward,
     Primary,

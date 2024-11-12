@@ -54,6 +54,8 @@ fn generic_inputs() -> impl Iterator<Item = (ActionId, &'static str)> {
     vec![
         (ActionId::Up, "8|5"),
         (ActionId::Down, "2|5"),
+        (ActionId::Left, "4|A5"),
+        (ActionId::Right, "6|A5"),
         (ActionId::Back, "4|5"),
         (ActionId::Forward, "6|5"),
         (ActionId::Primary, "f"),

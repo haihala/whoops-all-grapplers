@@ -33,7 +33,8 @@ pub struct NetworkPlugin;
 
 impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<WagInputEvent>()
+        app.init_resource::<KeyboardInputState>()
+            .add_event::<WagInputEvent>()
             .add_systems(OnEnter(GameState::Online(OnlineState::Lobby)), setup_socket)
             .add_systems(
                 FixedUpdate,
@@ -312,10 +313,27 @@ fn read_local_inputs(
     commands.insert_resource(LocalInputs::<Config>(inputs));
 }
 
+#[derive(Debug, Resource, Default)]
+struct KeyboardInputState(HashMap<WagInputButton, bool>);
+impl KeyboardInputState {
+    fn should_send(&mut self, event: &WagInputEvent) -> bool {
+        let current_value = self.0.get(&event.button).cloned().unwrap_or_default();
+
+        if event.pressed == current_value {
+            return false;
+        }
+
+        self.0.insert(event.button, event.pressed);
+
+        true
+    }
+}
+
 fn generate_offline_input_streams(
     mut writer: EventWriter<WagInputEvent>,
     mut gamepad_events: EventReader<GamepadEvent>,
     mut keyboard_events: EventReader<KeyboardInput>,
+    mut kb_state: ResMut<KeyboardInputState>,
 ) {
     // TODO: Analog input
     for event in gamepad_events.read() {
@@ -333,17 +351,20 @@ fn generate_offline_input_streams(
         }
     }
 
-    for event in keyboard_events.read() {
-        let Some(button) = WagInputButton::from_key(event.key_code) else {
-            dbg!("Pressed non-mapped key", event.key_code);
+    for bevy_event in keyboard_events.read() {
+        let Some(button) = WagInputButton::from_key(bevy_event.key_code) else {
             continue;
         };
 
-        writer.send(WagInputEvent {
-            pressed: event.state.is_pressed(),
+        let wag_event = WagInputEvent {
+            pressed: bevy_event.state.is_pressed(),
             player_handle: 69, // Hehe special id for keyboard
             button,
-        });
+        };
+
+        if kb_state.should_send(&wag_event) {
+            writer.send(wag_event);
+        }
     }
 }
 

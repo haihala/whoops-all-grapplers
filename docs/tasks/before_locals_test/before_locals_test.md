@@ -1,4 +1,3 @@
-- Go through [chore list](/docs/tasks/chore_tracker.md)
 - Quick round over the moves
   - Frame data makes sense (currently hard to combo)
   - Kunai

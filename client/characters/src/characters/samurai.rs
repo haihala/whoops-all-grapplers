@@ -64,7 +64,7 @@ pub fn samurai() -> Character {
                     render_instructions: RenderInstructions::Counter(CounterVisual {
                         label: "Kunais",
                     }),
-                    max: Some(1),
+                    max: Some(2),
                     ..default()
                 },
             ),
@@ -785,10 +785,10 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
     .into_iter()
     .map(|version| {
         (SamuraiAction::KunaiThrow(version), {
-            let (input, base_velocity) = match version {
-                SpecialVersion::Fast => ("236+f", Vec2::new(4.0, 1.0)),
-                SpecialVersion::Strong => ("236+s", Vec2::new(0.9, 4.0)),
-                SpecialVersion::Metered => ("236+(fs)", Vec2::new(10.0, 1.0)),
+            let (input, base_velocity, hits) = match version {
+                SpecialVersion::Fast => ("236+f", Vec2::new(4.0, 2.0), 1),
+                SpecialVersion::Strong => ("236+s", Vec2::new(0.9, 4.0), 2),
+                SpecialVersion::Metered => ("236+(fs)", Vec2::new(10.0, 1.0), 2),
             };
 
             Action {
@@ -840,7 +840,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                 velocity: base_velocity + stick_influence,
                                 gravity: 4.0,
                                 model: Some(Model::Kunai),
-                                hits: 1,
+                                hits,
                                 projectile: true,
                             },
                             on_hit,
@@ -864,7 +864,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
             ItemId::SpareKunai,
             Item {
                 cost: 250,
-                explanation: "Two is better than one".into(),
+                explanation: "Three is better than two".into(),
                 category: ItemCategory::Basic,
                 icon: Icon::Kunai,
                 effect: Stats {
@@ -881,7 +881,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                 category: ItemCategory::Upgrade(vec![ItemId::SpareKunai]),
                 icon: Icon::KunaiPouch,
                 effect: Stats {
-                    extra_kunais: 3,
+                    extra_kunais: 2,
                     ..Stats::identity()
                 },
             },
@@ -912,7 +912,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
         (
             ItemId::Protractor,
             Item {
-                cost: 400,
+                cost: 250,
                 explanation: "Stick position influences Kunai velocity\n\n. It's about angles."
                     .into(),
                 category: ItemCategory::Basic,

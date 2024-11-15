@@ -2,14 +2,6 @@ Gotta do:
 
 - Quick round over the moves
   - Frame data makes sense (currently hard to combo)
-  - Kunai
-    - Add a mechanic to recover lost Kunais
-      - (item, boomerang?)
-        - On hit?
-        - Upgrade that does it on block
-        - Later on make them drop to the ground instead of auto-recovering
-          - Or at least add an item to do that
-      - EX move recovers all Kunais for a bar
 - Update steam deck
 
 If there is time:

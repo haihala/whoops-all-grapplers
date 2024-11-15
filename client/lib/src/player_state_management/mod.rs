@@ -11,8 +11,8 @@ use characters::{samurai, Hurtboxes, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
-    AnimationType, AvailableCancels, CharacterId, Characters, Clock, Facing, InMatch, MatchState,
-    Player, Players, RollbackSchedule, Stats, WAGStage,
+    AnimationType, AvailableCancels, CharacterId, Characters, Clock, Combo, Facing, InMatch,
+    MatchState, Player, Players, RollbackSchedule, Stats, WAGStage,
 };
 
 use crate::{
@@ -197,7 +197,9 @@ fn setup_combat(
         &mut PlayerVelocity,
         &mut AnimationHelper,
         &mut Hurtboxes,
+        Entity,
     )>,
+    mut commands: Commands,
     mut clock: ResMut<Clock>,
     bevy_time: Res<Time>,
 ) {
@@ -215,6 +217,7 @@ fn setup_combat(
         mut velocity,
         mut animation_helper,
         mut hurtboxes,
+        entity,
     ) in &mut query
     {
         resources.reset(stats);
@@ -224,6 +227,7 @@ fn setup_combat(
         velocity.reset();
         animation_helper.reset();
         hurtboxes.reset();
+        commands.entity(entity).remove::<Combo>();
 
         tf.translation = Vec3::new(
             match *player {

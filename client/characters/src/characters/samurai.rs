@@ -174,6 +174,11 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         let hitbox = Area::new(0.3, 0.7, 0.3, 0.5);
                         return vec![
                             ActionEvent::ExpandHurtbox(hitbox.grow(0.1), 8),
+                            ActionEvent::AllowCancel(CancelWindow {
+                                require_hit: true,
+                                duration: 15,
+                                cancel_type: CancelType::Special,
+                            }),
                             ActionEvent::SpawnHitbox(Attack {
                                 to_hit: ToHit {
                                     hitbox: Hitbox(hitbox),

@@ -2,6 +2,7 @@
 
 mod action_tracker;
 mod actions;
+mod builders;
 mod characters;
 mod hit_data;
 mod items;
@@ -9,6 +10,7 @@ mod resources;
 mod situation;
 
 pub(crate) use actions::*;
+pub(crate) use builders::*;
 
 pub use action_tracker::ActionTracker;
 pub use actions::{

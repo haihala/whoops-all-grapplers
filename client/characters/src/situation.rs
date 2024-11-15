@@ -17,6 +17,7 @@ pub struct Situation {
     pub held_buttons: HashSet<GameButton>,
     pub position: Vec3,
     pub combo: Option<Combo>,
+    pub stunned: bool,
 }
 impl Situation {
     pub fn get_resource(&self, resource_type: ResourceType) -> Option<&WAGResource> {
@@ -41,6 +42,7 @@ impl Situation {
         self.tracker.map_or(0, |t| self.frame - t.start_frame)
     }
 
+    // TODO: Add a system where this also is only once true in the lifespan of the move
     pub fn on_frame(&self, frame: usize) -> bool {
         if frame == 0 {
             return self.elapsed() == 0;

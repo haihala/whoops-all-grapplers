@@ -1,6 +1,5 @@
 Gotta do:
 
-- Check (fix) throws
 - Quick round over the moves
   - Frame data makes sense (currently hard to combo)
   - 2h only first hit should launch

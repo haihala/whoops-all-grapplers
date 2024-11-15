@@ -141,13 +141,19 @@ fn spawn_player(
             StateScoped(InMatch),
         ))
         .with_children(move |parent| {
-            parent.spawn((
-                PlayerModelHook(colors.clone()),
-                SceneBundle {
-                    scene: models[&model].clone(),
-                    ..default()
-                },
-            ));
+            // Root bone of the model moves with the animation (resets position)
+            // Have this as an intermediate layer for when we want to offset the animation
+            parent
+                .spawn(SpatialBundle::default())
+                .with_children(|model_pivot| {
+                    model_pivot.spawn((
+                        PlayerModelHook(colors.clone()),
+                        SceneBundle {
+                            scene: models[&model].clone(),
+                            ..default()
+                        },
+                    ));
+                });
         })
         .add_rollback()
         .observe(event_spreading::spread_events)

@@ -3,15 +3,12 @@ use std::{f32::consts::PI, sync::Arc};
 use bevy::prelude::*;
 use wag_core::{
     ActionCategory, ActionId, Animation, Area, CancelType, CancelWindow, Model, SoundEffect,
-    StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD,
-    SMALL_HIT_THRESHOLD,
+    VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD, SMALL_HIT_THRESHOLD,
 };
 
-use crate::{ActionRequirement, HitEffect, HitInfo, ResourceType, Situation};
-
-use super::{
-    attack::OnHitEffect, Action, ActionEvent, Attack, AttackHeight, BlockType, FlashRequest,
-    Hitbox, Lifetime, Movement, ToHit,
+use crate::{
+    Action, ActionEvent, ActionRequirement, Attack, AttackHeight, BlockType, FlashRequest,
+    HitEffect, HitInfo, Hitbox, Lifetime, Movement, OnHitEffect, ResourceType, Situation, ToHit,
 };
 
 #[derive(Debug, Clone, Copy)]
@@ -53,8 +50,7 @@ struct StrikeBuilder {
 }
 
 #[derive(Debug, Clone, Copy, Default)]
-struct ThrowBuilder {
-    lock_duration: usize,
+struct ThrowStartupBuilder {
     on_hit_action: ActionId,
     target_action: ActionId,
     sideswitch: bool,
@@ -62,7 +58,7 @@ struct ThrowBuilder {
 
 #[derive(Debug, Clone, Copy)]
 enum SubBuilder {
-    Throw(ThrowBuilder),
+    Throw(ThrowStartupBuilder),
     Strike(StrikeBuilder),
 }
 impl SubBuilder {
@@ -168,7 +164,7 @@ impl AttackBuilder {
         sb
     }
 
-    fn throw_builder(&self) -> ThrowBuilder {
+    fn throw_builder(&self) -> ThrowStartupBuilder {
         let SubBuilder::Throw(tb) = self.sub_builder else {
             panic!("Not a throw")
         };
@@ -433,14 +429,14 @@ impl AttackBuilder {
 
     pub fn forward_throw(self) -> Self {
         Self {
-            sub_builder: SubBuilder::Throw(ThrowBuilder::default()),
+            sub_builder: SubBuilder::Throw(ThrowStartupBuilder::default()),
             ..self
         }
     }
 
     pub fn back_throw(self) -> Self {
         Self {
-            sub_builder: SubBuilder::Throw(ThrowBuilder {
+            sub_builder: SubBuilder::Throw(ThrowStartupBuilder {
                 sideswitch: true,
                 ..default()
             }),
@@ -450,7 +446,7 @@ impl AttackBuilder {
 
     pub fn throw_target_action(self, target_action: impl Into<ActionId>) -> Self {
         Self {
-            sub_builder: SubBuilder::Throw(ThrowBuilder {
+            sub_builder: SubBuilder::Throw(ThrowStartupBuilder {
                 target_action: target_action.into(),
                 ..self.throw_builder()
             }),
@@ -460,18 +456,8 @@ impl AttackBuilder {
 
     pub fn throw_hit_action(self, on_hit_action: impl Into<ActionId>) -> Self {
         Self {
-            sub_builder: SubBuilder::Throw(ThrowBuilder {
+            sub_builder: SubBuilder::Throw(ThrowStartupBuilder {
                 on_hit_action: on_hit_action.into(),
-                ..self.throw_builder()
-            }),
-            ..self
-        }
-    }
-
-    pub fn throw_lock_duration(self, duration: usize) -> Self {
-        Self {
-            sub_builder: SubBuilder::Throw(ThrowBuilder {
-                lock_duration: duration,
                 ..self.throw_builder()
             }),
             ..self
@@ -594,12 +580,9 @@ impl AttackBuilder {
             .clone()
             .unwrap_or(Arc::new(|_| vec![]));
         let on_hit = match self.sub_builder {
-            SubBuilder::Throw(tb) => build_throw_effect(
-                tb.lock_duration,
-                tb.on_hit_action,
-                tb.sideswitch,
-                tb.target_action,
-            ),
+            SubBuilder::Throw(tb) => {
+                build_throw_effect(tb.on_hit_action, tb.sideswitch, tb.target_action)
+            }
             SubBuilder::Strike(sb) => {
                 let block_stun = match sb.block_stun {
                     Stun::Relative(frames) => (self.recovery as i32 + frames) as usize,
@@ -664,7 +647,6 @@ impl AttackBuilder {
 }
 
 pub fn build_throw_effect(
-    lock_duration: usize,
     on_hit_action: ActionId,
     sideswitch: bool,
     target_action: ActionId,
@@ -688,12 +670,6 @@ pub fn build_throw_effect(
             HitEffect {
                 attacker: vec![
                     ActionEvent::StartAction(on_hit_action),
-                    ActionEvent::Hitstop,
-                    ActionEvent::Condition(StatusCondition {
-                        flag: StatusFlag::MovementLock,
-                        expiration: Some(lock_duration),
-                        ..default()
-                    }),
                     ActionEvent::Sound(SoundEffect::PastaPat),
                     ActionEvent::AbsoluteVisualEffect(VfxRequest {
                         effect: VisualEffect::ThrowTarget,
@@ -704,11 +680,6 @@ pub fn build_throw_effect(
                 defender: vec![
                     ActionEvent::SnapToOpponent { sideswitch },
                     ActionEvent::StartAction(target_action),
-                    ActionEvent::Condition(StatusCondition {
-                        flag: StatusFlag::MovementLock,
-                        expiration: Some(lock_duration),
-                        ..default()
-                    }),
                 ],
             }
         }

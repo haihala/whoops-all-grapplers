@@ -81,6 +81,11 @@ impl ActionRequirement {
                 false
             }
             ActionRequirement::Starter(category) => {
+                if situation.stunned {
+                    // TODO: Reconsider this one for bursts
+                    return false;
+                }
+
                 if situation.tracker.is_none() {
                     // Raw activation (easy to make it different for bursts)
                     return true;

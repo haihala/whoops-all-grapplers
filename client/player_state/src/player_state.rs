@@ -128,6 +128,7 @@ impl PlayerState {
             position: player_position,
             facing: player_facing,
             combo,
+            stunned: self.stunned(),
         }
     }
     pub fn get_action_tracker(&self) -> Option<&ActionTracker> {

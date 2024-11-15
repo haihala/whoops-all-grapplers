@@ -3,9 +3,7 @@ use bevy::prelude::*;
 use characters::{Character, Hurtboxes, Inventory, Situation, WAGResources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{
-    ActionId, AvailableCancels, Clock, Combo, Facing, OpenCancelWindow, Stats, StatusFlag,
-};
+use wag_core::{ActionId, AvailableCancels, Clock, Combo, Facing, OpenCancelWindow, Stats};
 
 use crate::event_spreading::{AllowCancel, StartAction};
 
@@ -152,10 +150,6 @@ pub(super) fn move_activator(
                 .unwrap()
                 .1
         };
-
-        if state.has_flag(StatusFlag::MovementLock) {
-            continue;
-        }
 
         // Remove old extra expanded hurtboxes (if a move is cancelled)
         hurtboxes.extra.clear();

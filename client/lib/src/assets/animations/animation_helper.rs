@@ -64,7 +64,6 @@ pub fn setup_helpers(
                 .entity(host_entity)
                 .remove::<AnimationHelperSetup>()
                 .insert(AnimationHelper::new(animation_player, scene_root, helper.0));
-            // This is how I find it later and what I query for
         }
     }
 }

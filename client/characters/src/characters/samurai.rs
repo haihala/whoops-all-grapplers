@@ -14,11 +14,11 @@ use crate::{
     actions::ActionRequirement,
     build_strike_effect, dashes,
     resources::{RenderInstructions, ResourceType},
-    throw_hit, throw_target, Action, ActionEvent, Attack, AttackBuilder,
+    Action, ActionEvent, Attack, AttackBuilder,
     AttackHeight::*,
     BlockType::*,
     CharacterBoxes, CharacterStateBoxes, ConsumableType, CounterVisual, FlashRequest, Hitbox, Item,
-    ItemCategory, Lifetime, Movement, Situation, ToHit, WAGResource,
+    ItemCategory, Lifetime, Movement, Situation, ThrowEffectBuilder, ToHit, WAGResource,
 };
 
 use super::{
@@ -108,6 +108,7 @@ fn samurai_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<Act
         .chain(item_actions())
         .chain(
             normals()
+                .chain(throws())
                 .chain(specials())
                 .map(|(k, v)| (ActionId::Samurai(k), v)),
         )
@@ -341,6 +342,43 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 }),
             },
         ),
+    ]
+    .into_iter()
+}
+
+fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
+    let (stand_throw_target, stand_throw_activation) = ThrowEffectBuilder::new(
+        SamuraiAnimation::StandThrowHit,
+        80,
+        SamuraiAnimation::StandThrowTarget,
+        30,
+    )
+    .with_damage(10)
+    .with_launch_impulse(Vec2::new(2.0, 6.0))
+    .build();
+
+    let (crouch_throw_target, crouch_throw_activation) = ThrowEffectBuilder::new(
+        SamuraiAnimation::CrouchThrowHit,
+        80,
+        SamuraiAnimation::CrouchThrowTarget,
+        30,
+    )
+    .with_damage(10)
+    .with_launch_impulse(Vec2::new(-5.0, 2.0))
+    .with_extra_target_events(vec![ActionEvent::Teleport(Vec2::new(2.0, 1.0))])
+    .build();
+
+    let (air_throw_target, air_throw_activation) = ThrowEffectBuilder::new(
+        SamuraiAnimation::AirThrowHit,
+        50,
+        SamuraiAnimation::AirThrowTarget,
+        50,
+    )
+    .with_damage(10)
+    .with_launch_impulse(Vec2::new(2.0, 2.0))
+    .build();
+
+    vec![
         (
             SamuraiAction::ForwardThrow,
             AttackBuilder::normal("w")
@@ -363,19 +401,8 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_hitbox(Area::new(0.5, 1.0, 0.5, 0.5))
                 .build(),
         ),
-        (
-            SamuraiAction::StandThrowHit,
-            throw_hit!(SamuraiAnimation::StandThrowHit, 80),
-        ),
-        (
-            SamuraiAction::StandThrowTarget,
-            throw_target!(
-                SamuraiAnimation::StandThrowTarget,
-                30,
-                10,
-                Vec2::new(-2.0, 6.0)
-            ),
-        ),
+        (SamuraiAction::StandThrowHit, stand_throw_activation),
+        (SamuraiAction::StandThrowTarget, stand_throw_target),
         (
             SamuraiAction::CrouchThrow,
             AttackBuilder::normal("w|123")
@@ -387,19 +414,8 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_hitbox(Area::new(0.7, 0.1, 0.5, 0.2))
                 .build(),
         ),
-        (
-            SamuraiAction::CrouchThrowHit,
-            throw_hit!(SamuraiAnimation::CrouchThrowHit, 80),
-        ),
-        (
-            SamuraiAction::CrouchThrowTarget,
-            throw_target!(
-                SamuraiAnimation::CrouchThrowTarget,
-                34,
-                10,
-                Vec2::new(-5.0, 2.0)
-            ),
-        ),
+        (SamuraiAction::CrouchThrowHit, crouch_throw_activation),
+        (SamuraiAction::CrouchThrowTarget, crouch_throw_target),
         (
             SamuraiAction::AirThrow,
             AttackBuilder::normal("w")
@@ -412,20 +428,8 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_hitbox(Area::new(0.4, 0.5, 0.8, 0.8))
                 .build(),
         ),
-        (
-            SamuraiAction::AirThrowHit,
-            throw_hit!(SamuraiAnimation::AirThrowHit, 50),
-        ),
-        (
-            SamuraiAction::AirThrowTarget,
-            throw_target!(
-                SamuraiAnimation::AirThrowTarget,
-                30,
-                50,
-                10,
-                Vec2::new(-2.0, 2.0)
-            ),
-        ),
+        (SamuraiAction::AirThrowHit, air_throw_activation),
+        (SamuraiAction::AirThrowTarget, air_throw_target),
     ]
     .into_iter()
 }

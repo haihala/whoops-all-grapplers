@@ -68,8 +68,10 @@ pub const CLASH_SPARK_EDGE_COLOR: Color = Color::srgb(0.9, 0.1, 0.9);
 pub const LIGHTNING_BOLT_INNER_COLOR: Color = Color::WHITE;
 pub const LIGHTNING_BOLT_OUTER_COLOR: Color = Color::srgb(0.3, 0.4, 1.0);
 
-pub const MID_FLASH_INNER_COLOR: Color = Color::BLACK;
-pub const MID_FLASH_OUTER_COLOR: Color = Color::srgb(1.0, 0.8, 0.1);
+pub const OPENER_INNER_COLOR: Color = Color::BLACK;
+pub const HIGH_OPENER_COLOR: Color = Color::srgb(1.0, 0.1, 0.1);
+pub const MID_OPENER_COLOR: Color = Color::srgb(1.0, 0.8, 0.1);
+pub const LOW_OPENER_COLOR: Color = Color::srgb(0.0, 0.8, 0.9);
 
 pub const PEBBLE_BORDER_COLOR: Color = Color::srgb(0.13, 0.13, 0.13);
 pub const PEBBLE_INNER_COLOR: Color = Color::srgb(0.33, 0.33, 0.33);

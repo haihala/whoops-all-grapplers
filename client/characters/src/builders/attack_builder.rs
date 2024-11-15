@@ -3,7 +3,8 @@ use std::{f32::consts::PI, sync::Arc};
 use bevy::prelude::*;
 use wag_core::{
     ActionCategory, ActionId, Animation, Area, CancelType, CancelWindow, Model, SoundEffect,
-    VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD, SMALL_HIT_THRESHOLD,
+    VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR, LOW_OPENER_COLOR,
+    MID_OPENER_COLOR, SMALL_HIT_THRESHOLD,
 };
 
 use crate::{
@@ -704,20 +705,30 @@ pub fn build_strike_effect(
         } else {
             // First hit gets a fancier effect
             match block_height {
-                AttackHeight::Low => (
-                    VisualEffect::Sparks,
-                    situation.facing.mirror_vec2(Vec2::new(0.9, 0.9)),
-                    Quat::default(),
+                AttackHeight::High => (
+                    VisualEffect::OpenerSpark(HIGH_OPENER_COLOR),
+                    situation.facing.mirror_vec2(Vec2::new(0.5, -0.5)),
+                    Quat::from_rotation_z(match situation.facing {
+                        wag_core::Facing::Right => 0.0,
+                        wag_core::Facing::Left => -PI / 2.0,
+                    }),
                 ),
                 AttackHeight::Mid => (
-                    VisualEffect::MidFlash,
+                    VisualEffect::OpenerSpark(MID_OPENER_COLOR),
                     situation.facing.mirror_vec2(Vec2::X * 0.5),
                     Quat::from_rotation_z(match situation.facing {
                         wag_core::Facing::Right => PI / 6.0,
                         wag_core::Facing::Left => PI * (8.0 / 6.0),
                     }),
                 ),
-                AttackHeight::High => (VisualEffect::Lightning, Vec2::ZERO, Quat::default()),
+                AttackHeight::Low => (
+                    VisualEffect::OpenerSpark(LOW_OPENER_COLOR),
+                    situation.facing.mirror_vec2(Vec2::new(0.5, 0.5)),
+                    Quat::from_rotation_z(match situation.facing {
+                        wag_core::Facing::Right => PI / 2.0,
+                        wag_core::Facing::Left => PI,
+                    }),
+                ),
             }
         };
 

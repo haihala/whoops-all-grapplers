@@ -13,7 +13,7 @@ pub enum VisualEffect {
     Lightning,
     Pebbles,
     Sparks,
-    MidFlash,
+    OpenerSpark(Color),
     WaveDiagonal(Color),
     WaveFlat(Color),
     SmokeBomb,

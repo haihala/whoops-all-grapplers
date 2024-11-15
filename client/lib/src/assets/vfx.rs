@@ -172,11 +172,11 @@ pub fn start_absolute_vfx(
                 frames_to_live: 60,
             });
         }
-        VisualEffect::MidFlash => {
+        VisualEffect::OpenerSpark(color) => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: MidFlashMaterial::new(time.elapsed_seconds()),
+                material: MidFlashMaterial::new(time.elapsed_seconds(), *color),
                 frames_to_live: 60,
             });
         }

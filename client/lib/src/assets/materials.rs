@@ -6,10 +6,10 @@ use bevy::{
 use wag_core::{
     BLOCK_EFFECT_BASE_COLOR, BLOCK_EFFECT_EDGE_COLOR, CLASH_SPARK_BASE_COLOR,
     CLASH_SPARK_EDGE_COLOR, HIT_SPARK_BASE_COLOR, HIT_SPARK_EDGE_COLOR, HIT_SPARK_MID_COLOR,
-    LIGHTNING_BOLT_INNER_COLOR, LIGHTNING_BOLT_OUTER_COLOR, MID_FLASH_INNER_COLOR,
-    MID_FLASH_OUTER_COLOR, PEBBLE_BORDER_COLOR, PEBBLE_INNER_COLOR, RING_RIPPLE_BASE_COLOR,
-    RING_RIPPLE_EDGE_COLOR, SPARK_BURST_BORDER_COLOR, SPARK_BURST_INNER_COLOR,
-    SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR,
+    LIGHTNING_BOLT_INNER_COLOR, LIGHTNING_BOLT_OUTER_COLOR, OPENER_INNER_COLOR,
+    PEBBLE_BORDER_COLOR, PEBBLE_INNER_COLOR, RING_RIPPLE_BASE_COLOR, RING_RIPPLE_EDGE_COLOR,
+    SPARK_BURST_BORDER_COLOR, SPARK_BURST_INNER_COLOR, SPEED_LINES_BASE_COLOR,
+    SPEED_LINES_EDGE_COLOR,
 };
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -351,11 +351,11 @@ pub struct MidFlashMaterial {
     outer_color: LinearRgba,
 }
 impl MidFlashMaterial {
-    pub fn new(start_time: f32) -> Self {
+    pub fn new(start_time: f32, color: Color) -> Self {
         Self {
             start_time,
-            inner_color: MID_FLASH_INNER_COLOR.into(),
-            outer_color: MID_FLASH_OUTER_COLOR.into(),
+            inner_color: OPENER_INNER_COLOR.into(),
+            outer_color: color.into(),
         }
     }
 }

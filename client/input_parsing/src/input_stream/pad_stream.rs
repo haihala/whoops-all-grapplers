@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use wag_core::{Controllers, GameButton, Player, StickPosition, WagInputButton, WagInputEvent};
+use wag_core::{
+    Controllers, GameButton, Player, StickPosition, WagArgs, WagInputButton, WagInputEvent,
+};
 
 use crate::helper_types::InputEvent;
 
@@ -66,13 +68,20 @@ pub fn update_pads(
     mut gamepad_events: EventReader<WagInputEvent>,
     mut readers: Query<(&mut PadStream, &mut ParrotStream, &Player)>,
     controllers: Res<Controllers>,
+    args: Res<WagArgs>,
 ) {
     for event in gamepad_events.read() {
         for (mut pad, mut parrot, player) in &mut readers {
             let pad_id = controllers.get_handle(*player);
 
             if pad_id == event.player_handle {
-                button_change(&mut pad, &mut parrot, event.button, event.pressed);
+                button_change(
+                    &mut pad,
+                    &mut parrot,
+                    event.button,
+                    event.pressed,
+                    args.dev.is_some(),
+                );
             }
         }
     }
@@ -83,6 +92,7 @@ fn button_change(
     parrot: &mut Mut<ParrotStream>,
     button: WagInputButton,
     press: bool,
+    dev_mode: bool,
 ) {
     let handle_gamebutton = if press {
         move |reader: &mut Mut<PadStream>, button: GameButton| reader.press_button(button)
@@ -104,7 +114,7 @@ fn button_change(
         WagInputButton::Right => reader.update_dpad(press, Some(1), None),
 
         WagInputButton::Select => {
-            if press {
+            if press && dev_mode {
                 parrot.cycle()
             }
         }

@@ -775,6 +775,11 @@ pub fn build_strike_effect(
                 defender: vec![
                     ActionEvent::ModifyResource(ResourceType::Health, -damage),
                     hit_stun_event.clone(),
+                    if hit_data.airborne && !matches!(hit_stun_event, ActionEvent::LaunchStun(_)) {
+                        ActionEvent::LaunchStun(Vec2::new(-1.0, 5.0))
+                    } else {
+                        ActionEvent::Noop
+                    },
                     voice_line_event,
                     ActionEvent::Flash(FlashRequest::hit_flash()),
                     ActionEvent::CharacterShake(0.5),

@@ -331,6 +331,7 @@ pub fn apply_connections(
             &situation,
             &HitInfo {
                 avoided,
+                airborne: !defender.state.is_grounded(),
                 hitbox_pos: hit.overlap.center(),
                 defender_stats: *defender.stats,
             },

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::utils::HashSet;
-use wag_core::{Combo, Facing, GameButton, Stats, StatusFlag};
+use wag_core::{Combo, Facing, GameButton, Stats, StatusFlag, StickPosition};
 
 use crate::{ActionEvent, ActionTracker, Inventory, ResourceType, WAGResource};
 
@@ -14,6 +14,7 @@ pub struct Situation {
     pub status_flags: HashSet<StatusFlag>,
     pub frame: usize,
     pub stats: Stats,
+    pub stick_position: StickPosition,
     pub held_buttons: HashSet<GameButton>,
     pub position: Vec3,
     pub combo: Option<Combo>,

@@ -770,38 +770,74 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
         SpecialVersion::Metered,
     ]
     .into_iter()
-    .flat_map(|version| {
-        vec![(
-            SamuraiAction::KunaiThrow(version),
-            AttackBuilder::special(match version {
-                SpecialVersion::Fast => "236+f",
-                SpecialVersion::Strong => "236+s",
-                SpecialVersion::Metered => "236+(fs)",
-            })
-            .projectile()
-            .with_animation(SamuraiAnimation::KunaiThrow)
-            .with_sound(SoundEffect::FemaleKyatchi)
-            .with_extra_initial_events(vec![
-                ActionEvent::ForceStand,
-                ActionEvent::ModifyResource(ResourceType::KunaiCounter, -1),
-            ])
-            .with_extra_requirements(vec![ActionRequirement::ResourceValue(
-                ResourceType::KunaiCounter,
-                1,
-            )])
-            .with_timings(11, 10)
-            .with_hitbox(Area::new(0.2, 1.2, 0.3, 0.3))
-            .with_spawn(Model::Kunai)
-            .with_hitbox_velocity(match version {
-                SpecialVersion::Fast => Vec2::new(4.0, 1.0),
-                SpecialVersion::Strong => Vec2::new(0.2, 4.0),
-                SpecialVersion::Metered => Vec2::new(10.0, 1.0),
-            })
-            .with_hitbox_gravity(4.0)
-            .with_blockstun(15)
-            .with_hitstun(20)
-            .build(),
-        )]
+    .map(|version| {
+        (SamuraiAction::KunaiThrow(version), {
+            let (input, base_velocity) = match version {
+                SpecialVersion::Fast => ("236+f", Vec2::new(4.0, 1.0)),
+                SpecialVersion::Strong => ("236+s", Vec2::new(0.9, 4.0)),
+                SpecialVersion::Metered => ("236+(fs)", Vec2::new(10.0, 1.0)),
+            };
+
+            Action {
+                input: Some(input),
+                requirement: ActionRequirement::And(vec![
+                    ActionRequirement::Grounded,
+                    ActionRequirement::Starter(ActionCategory::Special),
+                    ActionRequirement::ResourceValue(ResourceType::KunaiCounter, 1),
+                ]),
+                script: Box::new(move |situation: &Situation| {
+                    if situation.on_frame(0) {
+                        return vec![
+                            Animation::Samurai(SamuraiAnimation::KunaiThrow).into(),
+                            ActionEvent::ForceStand,
+                            ActionEvent::ModifyResource(ResourceType::KunaiCounter, -1),
+                            ActionEvent::Sound(SoundEffect::FemaleKyatchi),
+                        ];
+                    }
+
+                    if situation.on_frame(11) {
+                        let extra_stun = situation.inventory.contains(&ItemId::MiniTasers);
+
+                        let on_hit = build_strike_effect(
+                            if extra_stun { 20 } else { 15 },
+                            Mid,
+                            0.0,
+                            0.33,
+                            2,
+                            ActionEvent::HitStun(if extra_stun { 30 } else { 20 }),
+                            0.0,
+                            12,
+                            0,
+                        );
+
+                        let stick_influence = if situation.inventory.contains(&ItemId::Protractor) {
+                            situation
+                                .facing
+                                .mirror_vec2(situation.stick_position.as_vec2())
+                                * 0.8
+                        } else {
+                            Vec2::ZERO
+                        };
+
+                        return vec![ActionEvent::SpawnHitbox(Attack {
+                            to_hit: ToHit {
+                                block_type: Strike(Mid),
+                                hitbox: Hitbox(Area::new(0.2, 1.2, 0.3, 0.3)),
+                                lifetime: Lifetime::until_owner_hit(),
+                                velocity: base_velocity + stick_influence,
+                                gravity: 4.0,
+                                model: Some(Model::Kunai),
+                                hits: 1,
+                                projectile: true,
+                            },
+                            on_hit,
+                        })];
+                    }
+
+                    situation.end_at(21)
+                }),
+            }
+        })
     })
 }
 
@@ -848,6 +884,27 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                     extra_kunais: 3,
                     ..Stats::identity()
                 },
+            },
+        ),
+        (
+            ItemId::MiniTasers,
+            Item {
+                cost: 400,
+                explanation: "Adds a shock effect to kunais (more stun)".into(),
+                category: ItemCategory::Basic,
+                icon: Icon::Taser,
+                ..default()
+            },
+        ),
+        (
+            ItemId::Protractor,
+            Item {
+                cost: 400,
+                explanation: "Stick position influences Kunai velocity\n\n. It's about angles."
+                    .into(),
+                category: ItemCategory::Basic,
+                icon: Icon::Protractor,
+                ..default()
             },
         ),
         (

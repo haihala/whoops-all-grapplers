@@ -34,6 +34,8 @@ pub enum ItemId {
     SpareKunai,
     KunaiPouch,
     KunaiBelt,
+    MiniTasers,
+    Protractor,
     BladeOil,
     SmithyCoupon,
     Fireaxe,
@@ -66,6 +68,7 @@ impl ItemId {
             Self::SpareKunai => "Spare kunai".into(),
             Self::KunaiPouch => "Kunai pouch".into(),
             Self::KunaiBelt => "Kunai belt".into(),
+            Self::MiniTasers => "Mini tasers".into(),
             Self::BladeOil => "Blade oil".into(),
             Self::SmithyCoupon => "Smithy coupon".into(),
             Self::ThumbTacks(n) => match n {

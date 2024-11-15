@@ -4,7 +4,6 @@ Gotta do:
   - Frame data makes sense (currently hard to combo)
   - 2h only first hit should launch
   - Kunai
-    - Allow speed control with forward/back input (item, rocket fins)
     - Add a mechanic to recover lost Kunais
       - (item, boomerang?)
         - On hit?

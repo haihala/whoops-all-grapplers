@@ -124,6 +124,7 @@ impl PlayerState {
             grounded: self.is_grounded(),
             tracker: self.get_action_tracker().cloned(),
             held_buttons: input_parser.get_pressed(),
+            stick_position: input_parser.get_stick_pos(),
             status_flags: self.conditions.iter().map(|c| c.flag).collect(),
             position: player_position,
             facing: player_facing,

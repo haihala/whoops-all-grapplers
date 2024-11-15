@@ -170,18 +170,6 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         return vec![SamuraiAnimation::Uppercut.into()];
                     }
 
-                    let on_hit = build_strike_effect(
-                        10,
-                        Mid,
-                        0.17,
-                        0.33,
-                        1,
-                        ActionEvent::LaunchStun(Vec2::new(-1.0, 6.0)),
-                        0.1,
-                        16,
-                        0,
-                    );
-
                     if situation.on_frame(8) {
                         let hitbox = Area::new(0.3, 0.7, 0.3, 0.5);
                         return vec![
@@ -192,7 +180,17 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                     lifetime: Lifetime::frames(4),
                                     ..default()
                                 },
-                                on_hit,
+                                on_hit: build_strike_effect(
+                                    40,
+                                    Mid,
+                                    0.17,
+                                    0.33,
+                                    1,
+                                    ActionEvent::LaunchStun(Vec2::new(-1.0, 6.0)),
+                                    0.1,
+                                    9,
+                                    0,
+                                ),
                             }),
                         ];
                     }
@@ -207,7 +205,17 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                     lifetime: Lifetime::frames(4),
                                     ..default()
                                 },
-                                on_hit,
+                                on_hit: build_strike_effect(
+                                    30,
+                                    Mid,
+                                    0.17,
+                                    0.33,
+                                    1,
+                                    ActionEvent::HitStun(38),
+                                    0.1,
+                                    6,
+                                    0,
+                                ),
                             }),
                         ];
                     }

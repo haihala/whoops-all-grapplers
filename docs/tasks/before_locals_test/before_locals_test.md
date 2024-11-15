@@ -2,7 +2,6 @@ Gotta do:
 
 - Quick round over the moves
   - Frame data makes sense (currently hard to combo)
-  - 2h only first hit should launch
   - Kunai
     - Add a mechanic to recover lost Kunais
       - (item, boomerang?)

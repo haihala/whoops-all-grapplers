@@ -190,20 +190,14 @@ impl AttackBuilder {
     }
 
     pub fn with_hitbox_gravity(self, gravity: f32) -> Self {
-        assert!(self.hitbox_lifetime == Lifetime::until_owner_hit());
-
         Self { gravity, ..self }
     }
 
     pub fn with_hitbox_velocity(self, velocity: Vec2) -> Self {
-        assert!(self.hitbox_lifetime == Lifetime::until_owner_hit());
-
         Self { velocity, ..self }
     }
 
     pub fn with_hitbox_speed(self, speed: f32) -> Self {
-        assert!(self.hitbox_lifetime == Lifetime::until_owner_hit());
-
         Self {
             velocity: Vec2::X * speed,
             ..self

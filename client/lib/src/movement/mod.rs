@@ -268,6 +268,7 @@ fn resolve_constraints(
     tf_right.translation = velocity_right.next_pos.extend(0.0);
 }
 
+#[allow(clippy::type_complexity)]
 fn move_objects(
     mut commands: Commands,
     clock: Res<Clock>,
@@ -276,9 +277,10 @@ fn move_objects(
         &mut ObjectVelocity,
         Option<&HitTracker>,
         &mut Transform,
+        Option<&mut Follow>,
     )>,
 ) {
-    for (entity, mut velocity, hit_tracker, mut transform) in &mut query {
+    for (entity, mut velocity, hit_tracker, mut transform, mut maybe_follow) in &mut query {
         if hit_tracker
             .map(|tracker| !tracker.active(clock.frame))
             .unwrap_or(false)
@@ -288,7 +290,12 @@ fn move_objects(
 
         let acceleration = velocity.acceleration / FPS;
         velocity.speed += acceleration;
-        transform.translation += velocity.speed / FPS;
+        let shift = velocity.speed / FPS;
+        if let Some(ref mut follow) = maybe_follow {
+            follow.offset += shift;
+        } else {
+            transform.translation += shift;
+        }
 
         if velocity.face_forward {
             transform.look_to(velocity.speed.normalize(), Vec3::Z);

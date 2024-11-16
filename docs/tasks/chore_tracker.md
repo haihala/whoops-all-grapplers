@@ -5,16 +5,15 @@ enough to be put on a more important list.
 
 ## Bugs
 
+- Attacks sometimes hit more than once
+
 ### Watchlist
 
-- Extra kunais may not work (besides the UI)
 - There is an input recording strangeness, parrots don't always work, probably an ordering question.
-- Throws may not work after no longer relying on animation data
 
 ## Misc improvement ideas
 
 - Pushback should not apply to projectiles
 - Newtype wrapper for frames.
   - Currently using usize, which means frames 99% of the time, but not always.
-- Disable parrots in prod
 - Maybe you could make requirements dynamic as well?

@@ -29,7 +29,7 @@ mod gltf;
 pub use gltf::*;
 
 mod icon;
-pub use icon::Icon;
+pub use icon::{Icon, Icons};
 
 mod inputs;
 pub use inputs::{

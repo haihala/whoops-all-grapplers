@@ -12,13 +12,14 @@ use wag_core::{
 
 use crate::{
     actions::ActionRequirement,
-    build_strike_effect, dashes,
+    dashes,
     resources::{RenderInstructions, ResourceType},
     Action, ActionEvent, Attack, AttackBuilder,
     AttackHeight::*,
     BlockType::*,
     CharacterBoxes, CharacterStateBoxes, ConsumableType, CounterVisual, FlashRequest, Hitbox, Item,
-    ItemCategory, Lifetime, Movement, Situation, ThrowEffectBuilder, ToHit, WAGResource,
+    ItemCategory, Lifetime, Movement, Situation, StrikeEffectBuilder, ThrowEffectBuilder, ToHit,
+    WAGResource,
 };
 
 use super::{
@@ -176,7 +177,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                             ActionEvent::ExpandHurtbox(hitbox.grow(0.1), 8),
                             ActionEvent::AllowCancel(CancelWindow {
                                 require_hit: true,
-                                duration: 15,
+                                duration: 30,
                                 cancel_type: CancelType::Special,
                             }),
                             ActionEvent::SpawnHitbox(Attack {
@@ -185,17 +186,29 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                     lifetime: Lifetime::frames(4),
                                     ..default()
                                 },
-                                on_hit: build_strike_effect(
+                                on_hit: StrikeEffectBuilder::new(
                                     40,
                                     Mid,
-                                    0.17,
-                                    0.33,
-                                    1,
                                     ActionEvent::LaunchStun(Vec2::new(-1.0, 6.0)),
-                                    0.1,
                                     9,
-                                    0,
-                                ),
+                                )
+                                .with_distance_on_block(0.5)
+                                .with_pushback_on_hit(0.9) // Inaccurate due to launch
+                                .with_extra_on_hit_events(
+                                    if situation.inventory.contains(&ItemId::IceCube) {
+                                        vec![
+                                            ActionEvent::ClearMovement,
+                                            ActionEvent::RelativeVisualEffect(VfxRequest {
+                                                effect: VisualEffect::Icon(Icon::IceCube),
+                                                tf: Transform::from_translation(Vec3::Y * 1.0),
+                                                ..default()
+                                            }),
+                                        ]
+                                    } else {
+                                        vec![]
+                                    },
+                                )
+                                .build(),
                             }),
                         ];
                     }
@@ -210,17 +223,16 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                     lifetime: Lifetime::frames(4),
                                     ..default()
                                 },
-                                on_hit: build_strike_effect(
+
+                                on_hit: StrikeEffectBuilder::new(
                                     30,
                                     Mid,
-                                    0.17,
-                                    0.33,
-                                    1,
                                     ActionEvent::HitStun(38),
-                                    0.1,
                                     6,
-                                    0,
-                                ),
+                                )
+                                .with_distance_on_block(0.5)
+                                .with_pushback_on_hit(0.1) // Inaccurate due to launch
+                                .build(),
                             }),
                         ];
                     }
@@ -337,17 +349,15 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                 block_type: Strike(High),
                                 ..default()
                             },
-                            on_hit: build_strike_effect(
+                            on_hit: StrikeEffectBuilder::new(
                                 25,
                                 High,
-                                0.33,
-                                0.66,
-                                1,
                                 ActionEvent::HitStun(40),
-                                0.2,
                                 18,
-                                0,
-                            ),
+                            )
+                            .with_distance_on_block(1.0)
+                            .with_pushback_on_hit(0.3)
+                            .build(),
                         })];
                     }
 
@@ -811,18 +821,6 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                     if situation.on_frame(11) {
                         let extra_stun = situation.inventory.contains(&ItemId::MiniTasers);
 
-                        let on_hit = build_strike_effect(
-                            if extra_stun { 20 } else { 15 },
-                            Mid,
-                            0.0,
-                            0.33,
-                            2,
-                            ActionEvent::HitStun(if extra_stun { 30 } else { 20 }),
-                            0.0,
-                            12,
-                            0,
-                        );
-
                         let stick_influence = if situation.inventory.contains(&ItemId::Protractor) {
                             situation
                                 .facing
@@ -843,7 +841,15 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                 hits,
                                 projectile: true,
                             },
-                            on_hit,
+                            on_hit: StrikeEffectBuilder::new(
+                                if extra_stun { 20 } else { 15 },
+                                Mid,
+                                ActionEvent::HitStun(if extra_stun { 30 } else { 20 }),
+                                12,
+                            )
+                            .with_defender_block_pushback(0.4)
+                            .with_chip_damage(2)
+                            .build(),
                         })];
                     }
 
@@ -860,6 +866,16 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
 
 fn samurai_items() -> HashMap<ItemId, Item> {
     vec![
+        (
+            ItemId::IceCube,
+            Item {
+                cost: 400,
+                explanation: "First hit of 2h against airborne opponent freezes their momentum.\n\nLand this for a good day".into(),
+                category: ItemCategory::Basic,
+                icon: Icon::IceCube,
+                ..default()
+            },
+        ),
         (
             ItemId::SpareKunai,
             Item {

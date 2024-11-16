@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::prelude::*;
 
 mod animations;
 mod announcer;
@@ -17,15 +17,12 @@ pub use models::{shake_character, CharacterShake, Models, PlayerModelHook};
 pub use sounds::Sounds;
 pub use vfx::start_relative_vfx;
 
-use wag_core::{Icon, MatchState, RollbackSchedule, WAGStage};
+use wag_core::{MatchState, RollbackSchedule, WAGStage};
 
 #[derive(Debug, Resource)]
 pub struct Fonts {
     pub basic: Handle<Font>,
 }
-
-#[derive(Debug, Resource)]
-pub struct Icons(pub HashMap<Icon, Handle<Image>>);
 
 #[derive(Resource, Debug, Default)]
 pub struct AssetsLoading(pub Vec<UntypedHandle>);
@@ -53,6 +50,8 @@ impl Plugin for AssetsPlugin {
                 MaterialPlugin::<materials::MidFlashMaterial>::default(),
                 MaterialPlugin::<ExtendedFlashMaterial>::default(),
             ))
+            // Limit of plugins per call to add_plugins
+            .add_plugins((MaterialPlugin::<materials::IconFlashMaterial>::default(),))
             .add_systems(
                 Startup,
                 (
@@ -102,6 +101,7 @@ impl Plugin for AssetsPlugin {
             .observe(vfx::spawn_vfx::<materials::PebbleMaterial>)
             .observe(vfx::spawn_vfx::<materials::SparkBurstMaterial>)
             .observe(vfx::spawn_vfx::<materials::SmokeBombMaterial>)
-            .observe(vfx::spawn_vfx::<materials::MidFlashMaterial>);
+            .observe(vfx::spawn_vfx::<materials::MidFlashMaterial>)
+            .observe(vfx::spawn_vfx::<materials::IconFlashMaterial>);
     }
 }

@@ -1,10 +1,10 @@
 use bevy::{prelude::*, utils::HashMap};
 
-use wag_core::{Animation, Icon, Model, SoundEffect};
+use wag_core::{Animation, Icon, Icons, Model, SoundEffect};
 
 use super::{
     animations::animation_paths, models::model_paths, sounds::Sounds, Animations, AssetsLoading,
-    Fonts, Icons, Models,
+    Fonts, Models,
 };
 
 pub fn fonts(

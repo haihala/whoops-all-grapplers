@@ -1,4 +1,7 @@
-use bevy::utils::HashMap;
+use bevy::{prelude::*, utils::HashMap};
+
+#[derive(Debug, Resource)]
+pub struct Icons(pub HashMap<Icon, Handle<Image>>);
 
 #[derive(Default, Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum Icon {
@@ -34,6 +37,7 @@ pub enum Icon {
     SmokeBomb,
     Taser,
     Protractor,
+    IceCube,
 
     // UI
     OkLink,
@@ -71,6 +75,7 @@ impl Icon {
             (Icon::SmokeBomb, "icons/smoke-bomb.png".into()),
             (Icon::Taser, "icons/taser.png".into()),
             (Icon::Protractor, "icons/protractor.png".into()),
+            (Icon::IceCube, "icons/ice-cube.png".into()),
             (Icon::OkLink, "icons/link-bonus-ok.png".into()),
             (Icon::GoodLink, "icons/link-bonus-good.png".into()),
             (Icon::PerfectLink, "icons/link-bonus-perfect.png".into()),

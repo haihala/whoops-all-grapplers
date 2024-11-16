@@ -3,7 +3,7 @@
 ## Points of interest
 
 - Competitive depth
-- Is first to 5 good?
+- Is first to 3 good?
 - Freeform feedback
 
 ## Steps

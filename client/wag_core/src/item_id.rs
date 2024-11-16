@@ -27,9 +27,6 @@ pub enum ItemId {
     MoonBoots,
 
     // Character specific
-    // Dummy
-    Roids,
-
     // Samurai
     SpareKunai,
     KunaiPouch,
@@ -40,6 +37,7 @@ pub enum ItemId {
     SmithyCoupon,
     Fireaxe,
     SmokeBomb,
+    IceCube,
 
     #[default]
     Default,
@@ -71,6 +69,7 @@ impl ItemId {
             Self::MiniTasers => "Mini tasers".into(),
             Self::BladeOil => "Blade oil".into(),
             Self::SmithyCoupon => "Smithy coupon".into(),
+            Self::IceCube => "Ice cube".into(),
             Self::ThumbTacks(n) => match n {
                 1 => "A single thumbtack".into(),
                 5 => "Fistful of thumbtacks".into(),

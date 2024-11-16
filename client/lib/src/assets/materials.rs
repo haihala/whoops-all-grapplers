@@ -257,6 +257,33 @@ impl Material for RingRippleMaterial {
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct IconFlashMaterial {
+    #[uniform(0)]
+    start_time: f32,
+    #[texture(1)]
+    #[sampler(2)]
+    array_texture: Handle<Image>,
+}
+impl IconFlashMaterial {
+    pub fn new(start_time: f32, icon: Handle<Image>) -> Self {
+        Self {
+            start_time,
+            array_texture: icon,
+        }
+    }
+}
+
+impl Material for IconFlashMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/icon_flash.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
+}
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct SmokeBombMaterial {
     #[uniform(0)]
     start_time: f32,

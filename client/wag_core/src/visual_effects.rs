@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::Icon;
+
 #[derive(Debug, PartialEq, Clone, Copy, Default)]
 pub enum VisualEffect {
     #[default]
@@ -17,6 +19,7 @@ pub enum VisualEffect {
     WaveDiagonal(Color),
     WaveFlat(Color),
     SmokeBomb,
+    Icon(Icon),
 }
 impl VisualEffect {
     pub fn mesh_size(&self) -> Rectangle {

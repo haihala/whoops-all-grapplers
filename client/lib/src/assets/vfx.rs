@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use wag_core::{Clock, Facing, MatchState, VfxRequest, VisualEffect};
+use wag_core::{Clock, Facing, Icons, MatchState, VfxRequest, VisualEffect};
 
 use crate::{
     entity_management::DespawnMarker,
@@ -9,8 +9,9 @@ use crate::{
 
 use super::materials::{
     BlankMaterial, BlockEffectMaterial, ClashSparkMaterial, DiagonalWaveMaterial, FlatWaveMaterial,
-    FocalPointLinesMaterial, HitSparkMaterial, LightningBoltMaterial, LineFieldMaterial,
-    MidFlashMaterial, PebbleMaterial, RingRippleMaterial, SmokeBombMaterial, SparkBurstMaterial,
+    FocalPointLinesMaterial, HitSparkMaterial, IconFlashMaterial, LightningBoltMaterial,
+    LineFieldMaterial, MidFlashMaterial, PebbleMaterial, RingRippleMaterial, SmokeBombMaterial,
+    SparkBurstMaterial,
 };
 
 pub fn spawn_vfx<M: Material>(
@@ -68,6 +69,7 @@ pub fn start_absolute_vfx(
     mut commands: Commands,
     time: Res<Time>,
     mut meshes: ResMut<Assets<Mesh>>,
+    icons: Res<Icons>,
 ) {
     let SpawnVfx(VfxRequest { effect, tf, mirror }) = trigger.event();
 
@@ -185,6 +187,17 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 material: SmokeBombMaterial::new(time.elapsed_seconds()),
+                frames_to_live: 60,
+            });
+        }
+        VisualEffect::Icon(icon) => {
+            commands.trigger(MaxSystemParamCountFix {
+                mesh,
+                transform,
+                material: IconFlashMaterial::new(
+                    time.elapsed_seconds(),
+                    icons.0.get(icon).unwrap().clone(),
+                ),
                 frames_to_live: 60,
             });
         }

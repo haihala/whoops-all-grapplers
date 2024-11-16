@@ -32,7 +32,7 @@ impl Situation {
     }
 
     pub fn end_at(&self, frame: usize) -> Vec<ActionEvent> {
-        if self.elapsed() >= frame {
+        if self.elapsed() as f32 * self.stats.action_speed_multiplier >= frame as f32 {
             vec![ActionEvent::End]
         } else {
             vec![]

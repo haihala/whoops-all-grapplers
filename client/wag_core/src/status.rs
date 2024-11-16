@@ -33,7 +33,7 @@ pub struct Stats {
     pub direct_influence: f32,
 
     // Samurai
-    pub extra_kunais: i32,
+    pub kunais: i32,
     pub auto_sharpen: i32,
     pub retain_sharpness: bool,
 }
@@ -62,7 +62,7 @@ impl std::hash::Hash for Stats {
 
         self.direct_influence.to_bits().hash(state);
 
-        self.extra_kunais.hash(state);
+        self.kunais.hash(state);
         self.auto_sharpen.hash(state);
         self.retain_sharpness.hash(state);
     }
@@ -106,7 +106,7 @@ impl Stats {
 
             direct_influence: 0.0,
 
-            extra_kunais: 0,
+            kunais: 0,
             auto_sharpen: 0,
             retain_sharpness: false,
         }
@@ -135,7 +135,7 @@ impl Stats {
 
         self.direct_influence += rhs.direct_influence;
 
-        self.extra_kunais += rhs.extra_kunais;
+        self.kunais += rhs.kunais;
         self.auto_sharpen += rhs.auto_sharpen;
         self.retain_sharpness |= rhs.retain_sharpness;
 

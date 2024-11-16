@@ -5,10 +5,12 @@ enough to be put on a more important list.
 
 ## Bugs
 
-- Online clock is out of sync
 - Sometimes shopping does not work (can't buy items)
-- Kunais reset to 2 after using one at 8
 - You don't need bar for enhanced kunais (doesn't consume either)
+
+### Online
+
+- Online clock is out of sync
 
 ### Watchlist
 

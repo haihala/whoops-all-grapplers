@@ -46,6 +46,7 @@ pub fn samurai() -> Character {
         samurai_boxes(),
         Stats {
             walk_speed: 1.5,
+            kunais: 2,
             gravity,
             ..default()
         },
@@ -65,7 +66,6 @@ pub fn samurai() -> Character {
                     render_instructions: RenderInstructions::Counter(CounterVisual {
                         label: "Kunais",
                     }),
-                    max: Some(2),
                     ..default()
                 },
             ),
@@ -893,7 +893,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                 category: ItemCategory::Basic,
                 icon: Icon::Kunai,
                 effect: Stats {
-                    extra_kunais: 1,
+                    kunais: 1,
                     ..Stats::identity()
                 },
             },
@@ -906,7 +906,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                 category: ItemCategory::Upgrade(vec![ItemId::SpareKunai]),
                 icon: Icon::KunaiPouch,
                 effect: Stats {
-                    extra_kunais: 2,
+                    kunais: 2,
                     ..Stats::identity()
                 },
             },
@@ -919,7 +919,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                 category: ItemCategory::Upgrade(vec![ItemId::KunaiPouch]),
                 icon: Icon::KunaiBelt,
                 effect: Stats {
-                    extra_kunais: 3,
+                    kunais: 3,
                     ..Stats::identity()
                 },
             },

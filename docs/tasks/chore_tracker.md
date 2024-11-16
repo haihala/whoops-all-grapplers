@@ -6,7 +6,6 @@ enough to be put on a more important list.
 ## Bugs
 
 - Sometimes shopping does not work (can't buy items)
-- You don't need bar for enhanced kunais (doesn't consume either)
 
 ### Online
 
@@ -19,6 +18,7 @@ enough to be put on a more important list.
 
 ## Misc improvement ideas
 
+- Karas on enhanced specials
 - Pushback should not apply to projectiles
 - Newtype wrapper for frames.
   - Currently using usize, which means frames 99% of the time, but not always.

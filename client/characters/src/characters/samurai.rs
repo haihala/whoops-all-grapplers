@@ -509,7 +509,7 @@ fn sword_stance(version: SpecialVersion) -> Action {
                         expiration: Some(22),
                         ..default()
                     }),
-                    ActionEvent::Flash(FlashRequest::default()),
+                    ActionEvent::Flash(FlashRequest::meter_use()),
                 ]);
             }
 
@@ -795,19 +795,28 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
     .into_iter()
     .map(|version| {
         (SamuraiAction::KunaiThrow(version), {
-            let (input, base_velocity, hits) = match version {
-                SpecialVersion::Fast => ("236f", Vec2::new(4.0, 2.0), 1),
-                SpecialVersion::Strong => ("236s", Vec2::new(0.9, 4.0), 2),
-                SpecialVersion::Metered => ("236(fs)", Vec2::new(10.0, 1.0), 2),
+            let (input, base_velocity, hits, costs_meter) = match version {
+                SpecialVersion::Fast => ("236f", Vec2::new(4.0, 2.0), 1, false),
+                SpecialVersion::Strong => ("236s", Vec2::new(0.9, 4.0), 2, false),
+                SpecialVersion::Metered => ("236(fs)", Vec2::new(10.0, 1.0), 2, true),
             };
 
             Action {
                 input: Some(input),
-                requirement: ActionRequirement::And(vec![
-                    ActionRequirement::Grounded,
-                    ActionRequirement::Starter(ActionCategory::Special),
-                    ActionRequirement::ResourceValue(ResourceType::KunaiCounter, 1),
-                ]),
+                requirement: ActionRequirement::And(
+                    vec![
+                        ActionRequirement::Grounded,
+                        ActionRequirement::Starter(ActionCategory::Special),
+                        ActionRequirement::ResourceValue(ResourceType::KunaiCounter, 1),
+                    ]
+                    .into_iter()
+                    .chain(if costs_meter {
+                        vec![ActionRequirement::ResourceValue(ResourceType::Meter, 20)]
+                    } else {
+                        vec![]
+                    })
+                    .collect(),
+                ),
                 script: Box::new(move |situation: &Situation| {
                     if situation.on_frame(0) {
                         return vec![
@@ -815,7 +824,17 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                             ActionEvent::ForceStand,
                             ActionEvent::ModifyResource(ResourceType::KunaiCounter, -1),
                             ActionEvent::Sound(SoundEffect::FemaleKyatchi),
-                        ];
+                        ]
+                        .into_iter()
+                        .chain(if costs_meter {
+                            vec![
+                                ActionEvent::ModifyResource(ResourceType::Meter, -20),
+                                ActionEvent::Flash(FlashRequest::meter_use()),
+                            ]
+                        } else {
+                            vec![]
+                        })
+                        .collect();
                     }
 
                     if situation.on_frame(11) {

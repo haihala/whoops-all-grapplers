@@ -1,7 +1,5 @@
 Gotta do:
 
-- Update steam deck
-
 If there is time:
 
 - Items

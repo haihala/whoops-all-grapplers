@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::HashSet};
-use wag_core::{ItemId, Stats, SELL_RETURN};
+use wag_core::{ItemId, Stats, SELL_RETURN, STARTING_MONEY};
 
 use crate::{Character, ConsumableType, Item, ItemCategory};
 
@@ -13,7 +13,7 @@ pub struct Inventory {
 impl Default for Inventory {
     fn default() -> Self {
         Self {
-            money: 250,
+            money: STARTING_MONEY,
             items: HashSet::new(),
         }
     }

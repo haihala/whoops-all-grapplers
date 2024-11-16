@@ -87,6 +87,7 @@ fn skip_menus(
             pad2,
             character1,
             character2,
+            starting_money: _,
         } => {
             next_game_state.set(GameState::Local(LocalState::Match));
             next_match_state.set(MatchState::Loading);

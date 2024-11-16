@@ -16,6 +16,21 @@ impl WagArgs {
     pub fn from_cli() -> Self {
         Self::parse()
     }
+
+    pub fn extra_starting_money(&self) -> usize {
+        if let Some(Dev::Local {
+            pad1: _,
+            pad2: _,
+            character1: _,
+            character2: _,
+            starting_money,
+        }) = self.dev
+        {
+            starting_money
+        } else {
+            0
+        }
+    }
 }
 
 #[derive(Subcommand, Debug, Clone, Copy)]
@@ -33,5 +48,6 @@ pub enum Dev {
         pad2: usize,
         character1: CharacterId,
         character2: CharacterId,
+        starting_money: usize,
     },
 }

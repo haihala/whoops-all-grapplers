@@ -12,7 +12,7 @@ use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
     AnimationType, AvailableCancels, CharacterId, Characters, Clock, Combo, Facing, InMatch,
-    MatchState, Player, Players, RollbackSchedule, Stats, WAGStage,
+    MatchState, Player, Players, RollbackSchedule, Stats, WAGStage, WagArgs,
 };
 
 use crate::{
@@ -75,7 +75,12 @@ impl Plugin for PlayerStateManagementPlugin {
     }
 }
 
-fn setup_players(mut commands: Commands, characters: Res<Characters>, models: Res<Models>) {
+fn setup_players(
+    mut commands: Commands,
+    characters: Res<Characters>,
+    models: Res<Models>,
+    args: Res<WagArgs>,
+) {
     let players = Players {
         one: spawn_player(
             &mut commands,
@@ -83,6 +88,7 @@ fn setup_players(mut commands: Commands, characters: Res<Characters>, models: Re
             -PLAYER_SPAWN_DISTANCE,
             Player::One,
             characters.p1,
+            &args,
         ),
         two: spawn_player(
             &mut commands,
@@ -90,6 +96,7 @@ fn setup_players(mut commands: Commands, characters: Res<Characters>, models: Re
             PLAYER_SPAWN_DISTANCE,
             Player::Two,
             characters.p2,
+            &args,
         ),
     };
 
@@ -98,7 +105,6 @@ fn setup_players(mut commands: Commands, characters: Res<Characters>, models: Re
 
 #[derive(Bundle, Default)]
 struct PlayerDefaults {
-    inventory: Inventory,
     spawner: HitboxSpawner,
     player_velocity: PlayerVelocity,
     move_buffer: MoveBuffer,
@@ -114,6 +120,7 @@ fn spawn_player(
     offset: f32,
     player: Player,
     character_id: CharacterId,
+    args: &WagArgs,
 ) -> Entity {
     let character = match character_id {
         CharacterId::Samurai => samurai(),
@@ -139,6 +146,11 @@ fn spawn_player(
             character,
             player,
             StateScoped(InMatch),
+            {
+                let mut inv = Inventory::default();
+                inv.money += args.extra_starting_money();
+                inv
+            },
         ))
         .with_children(move |parent| {
             // Root bone of the model moves with the animation (resets position)

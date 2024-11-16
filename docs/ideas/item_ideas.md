@@ -19,6 +19,7 @@ This document is a way to store ideas of items
   - Like Hearthstone
 - -1 hitstun frame per hit of combo
 - Dash self cancel
+- Air dash
 
 ## Specific
 

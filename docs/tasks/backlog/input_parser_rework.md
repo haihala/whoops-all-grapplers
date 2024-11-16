@@ -2,8 +2,7 @@
 
 ## Extend
 
-- Handle upgrades when the buttons aren't pressed exactly on the same frame
-  - Automatically kara to overlapping inputs
+- Automatically kara to overlapping inputs
 - Blacklist/whitelist inputs that invalidate the input
   - 236236 shouldn't trigger 66
   - Blacklist syntax uses ! prefix?

@@ -1,10 +1,20 @@
-# Next steps
+# Main todo
 
-- [Before locals test](/docs/tasks/before_locals_test/before_locals_test.md)
-- Make a new dev update video
-- [Local feedback round](/docs/tasks/before_locals_test/local_feedback_round.md)
+## Before next playtest (PP)
 
-# Backlog
+- Address [locals playtest feedback](/docs/feedback/playtests/first_locals_feedback_round.md)
+  - At least the ones I get to
+- Update [Samurai docs](/docs/gameplay_spec/characters/samurai.md)
+
+## After next playtest
+
+- Clear taskboard + tasks
+- Make a new dev update video / blog post after new voices
+- Anti desync
+  - More synctest
+  - Add a system that gets you out of a desync without crashing the game
+
+## Backlog
 
 Low priority do later tasks
 
@@ -15,14 +25,16 @@ Low priority do later tasks
 - [Input parser rework](/docs/tasks/backlog/input_parser_rework.md)
 - Delay wakeup on knockdown
 - Pretty loading screen
+- Pause / Quit while in a match
 - [Popups 3.0](/docs/tasks/backlog/popups_3.0.md)
 
-# Overarching plan
+## Overarching plan
 
 - [x] MVP (Not a rushed one, but one that is maintainable)
 - [x] Feedback round 1
-- [ ] Polish
-- [ ] Test with fgc grinders
+- [x] Polish
+- [x] Test with fgc grinders
 - [x] Backburner until DI is done
-- [ ] Release
+- [ ] Start building the community
+- [ ] Release to early access
 - [ ] Adjust based on stranger feedback until I can't afford bread

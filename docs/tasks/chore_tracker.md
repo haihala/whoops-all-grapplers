@@ -5,6 +5,8 @@ enough to be put on a more important list.
 
 ## Bugs
 
+- 46 and 64 will sometimes give dashes
+
 ### Online
 
 - Online clock is out of sync

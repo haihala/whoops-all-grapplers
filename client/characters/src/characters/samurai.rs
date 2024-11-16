@@ -127,6 +127,9 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_damage(5)
                 .with_advantage_on_block(-1)
                 .with_advantage_on_hit(4)
+                .with_extra_initial_events(vec![ActionEvent::AllowCancel(CancelWindow::kara_to(
+                    ActionId::GiParry,
+                ))])
                 .build(),
         ),
         (
@@ -150,11 +153,14 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_damage(15)
                 .with_advantage_on_block(-8)
                 .with_advantage_on_hit(3)
-                .with_extra_initial_events(vec![Movement {
-                    amount: Vec2::X * 10.0,
-                    duration: 20,
-                }
-                .into()])
+                .with_extra_initial_events(vec![
+                    Movement {
+                        amount: Vec2::X * 10.0,
+                        duration: 20,
+                    }
+                    .into(),
+                    ActionEvent::AllowCancel(CancelWindow::kara_to(ActionId::GiParry)),
+                ])
                 .with_extra_activation_events(vec![Movement {
                     amount: Vec2::X * 3.0,
                     duration: 10,
@@ -491,16 +497,18 @@ fn stance_moves() -> impl Iterator<Item = (SamuraiAction, Action)> {
 }
 
 fn sword_stance(version: SpecialVersion) -> Action {
+    let (input, metered) = match version {
+        SpecialVersion::Strong => ("214s", false),
+        SpecialVersion::Fast => ("214f", false),
+        SpecialVersion::Metered => ("214(fs)", true),
+    };
+
     Action {
-        input: Some(match version {
-            SpecialVersion::Strong => "214s",
-            SpecialVersion::Fast => "214f",
-            SpecialVersion::Metered => "214(fs)",
-        }),
+        input: Some(input),
         script: Box::new(move |situation: &Situation| {
             let mut events = vec![SamuraiAnimation::SwordStance.into()];
 
-            if version == SpecialVersion::Metered {
+            if metered {
                 events.extend(vec![
                     ActionEvent::ModifyResource(ResourceType::Meter, -20),
                     ActionEvent::Condition(StatusCondition {
@@ -511,6 +519,10 @@ fn sword_stance(version: SpecialVersion) -> Action {
                     }),
                     ActionEvent::Flash(FlashRequest::meter_use()),
                 ]);
+            } else {
+                events.push(ActionEvent::AllowCancel(CancelWindow::kara_to(
+                    ActionId::Samurai(SamuraiAction::SwordStance(SpecialVersion::Metered)),
+                )));
             }
 
             if situation.on_frame(0) {
@@ -540,15 +552,18 @@ fn sword_stance(version: SpecialVersion) -> Action {
 
             situation.end_at(40)
         }),
-        requirement: ActionRequirement::And(vec![
-            ActionRequirement::Grounded,
-            ActionRequirement::Starter(ActionCategory::Special),
-            if version == SpecialVersion::Metered {
-                ActionRequirement::ResourceValue(ResourceType::Meter, 20)
-            } else {
-                ActionRequirement::default()
-            },
-        ]),
+        requirement: ActionRequirement::And({
+            let mut reqs = vec![
+                ActionRequirement::Grounded,
+                ActionRequirement::Starter(ActionCategory::Special),
+            ];
+
+            if metered {
+                reqs.push(ActionRequirement::ResourceValue(ResourceType::Meter, 20));
+            }
+
+            reqs
+        }),
     }
 }
 
@@ -795,7 +810,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
     .into_iter()
     .map(|version| {
         (SamuraiAction::KunaiThrow(version), {
-            let (input, base_velocity, hits, costs_meter) = match version {
+            let (input, base_velocity, hits, metered) = match version {
                 SpecialVersion::Fast => ("236f", Vec2::new(4.0, 2.0), 1, false),
                 SpecialVersion::Strong => ("236s", Vec2::new(0.9, 4.0), 2, false),
                 SpecialVersion::Metered => ("236(fs)", Vec2::new(10.0, 1.0), 2, true),
@@ -810,7 +825,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         ActionRequirement::ResourceValue(ResourceType::KunaiCounter, 1),
                     ]
                     .into_iter()
-                    .chain(if costs_meter {
+                    .chain(if metered {
                         vec![ActionRequirement::ResourceValue(ResourceType::Meter, 20)]
                     } else {
                         vec![]
@@ -819,22 +834,29 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 ),
                 script: Box::new(move |situation: &Situation| {
                     if situation.on_frame(0) {
-                        return vec![
+                        let mut events = vec![
                             Animation::Samurai(SamuraiAnimation::KunaiThrow).into(),
                             ActionEvent::ForceStand,
-                            ActionEvent::ModifyResource(ResourceType::KunaiCounter, -1),
                             ActionEvent::Sound(SoundEffect::FemaleKyatchi),
-                        ]
-                        .into_iter()
-                        .chain(if costs_meter {
-                            vec![
+                        ];
+
+                        if metered {
+                            let mut metered = vec![
                                 ActionEvent::ModifyResource(ResourceType::Meter, -20),
                                 ActionEvent::Flash(FlashRequest::meter_use()),
-                            ]
-                        } else {
-                            vec![]
-                        })
-                        .collect();
+                            ];
+
+                            events.append(&mut metered);
+                        }
+
+                        if !metered {
+                            events.push(ActionEvent::AllowCancel(CancelWindow::kara_to(
+                                ActionId::Samurai(SamuraiAction::KunaiThrow(
+                                    SpecialVersion::Metered,
+                                )),
+                            )));
+                        }
+                        return events;
                     }
 
                     if situation.on_frame(11) {
@@ -849,36 +871,39 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                             Vec2::ZERO
                         };
 
-                        return vec![ActionEvent::SpawnHitbox(Attack {
-                            to_hit: ToHit {
-                                block_type: Strike(Mid),
-                                hitbox: Hitbox(Area::new(0.2, 1.2, 0.3, 0.3)),
-                                lifetime: Lifetime::until_owner_hit(),
-                                velocity: base_velocity + stick_influence,
-                                gravity: 4.0,
-                                model: Some(Model::Kunai),
-                                hits,
-                                projectile: true,
-                            },
-                            on_hit: StrikeEffectBuilder::new(
-                                if extra_stun { 20 } else { 15 },
-                                Mid,
-                                ActionEvent::HitStun(if extra_stun { 30 } else { 20 }),
-                                12,
-                            )
-                            .with_defender_block_pushback(0.4)
-                            .with_chip_damage(2)
-                            .with_extra_on_hit_events(if extra_stun {
-                                vec![ActionEvent::RelativeVisualEffect(VfxRequest {
-                                    effect: VisualEffect::Lightning,
-                                    tf: Transform::from_translation(Vec3::Y),
-                                    mirror: true,
-                                })]
-                            } else {
-                                vec![]
-                            })
-                            .build(),
-                        })];
+                        return vec![
+                            ActionEvent::ModifyResource(ResourceType::KunaiCounter, -1),
+                            ActionEvent::SpawnHitbox(Attack {
+                                to_hit: ToHit {
+                                    block_type: Strike(Mid),
+                                    hitbox: Hitbox(Area::new(0.2, 1.2, 0.3, 0.3)),
+                                    lifetime: Lifetime::until_owner_hit(),
+                                    velocity: base_velocity + stick_influence,
+                                    gravity: 4.0,
+                                    model: Some(Model::Kunai),
+                                    hits,
+                                    projectile: true,
+                                },
+                                on_hit: StrikeEffectBuilder::new(
+                                    if extra_stun { 20 } else { 15 },
+                                    Mid,
+                                    ActionEvent::HitStun(if extra_stun { 30 } else { 20 }),
+                                    12,
+                                )
+                                .with_defender_block_pushback(0.4)
+                                .with_chip_damage(2)
+                                .with_extra_on_hit_events(if extra_stun {
+                                    vec![ActionEvent::RelativeVisualEffect(VfxRequest {
+                                        effect: VisualEffect::Lightning,
+                                        tf: Transform::from_translation(Vec3::Y),
+                                        mirror: true,
+                                    })]
+                                } else {
+                                    vec![]
+                                })
+                                .build(),
+                            }),
+                        ];
                     }
 
                     situation.end_at(21)

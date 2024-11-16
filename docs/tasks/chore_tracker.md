@@ -19,7 +19,6 @@ enough to be put on a more important list.
 
 ## Misc improvement ideas
 
-- Karas on enhanced specials
 - Pushback should not apply to projectiles
 - Newtype wrapper for frames.
   - Currently using usize, which means frames 99% of the time, but not always.

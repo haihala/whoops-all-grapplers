@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::ActionId;
+use crate::{ActionId, METERED_KARA_WINDOW};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, PartialOrd, Ord, Reflect, Default, Hash)]
 pub enum ActionCategory {
@@ -31,6 +31,14 @@ pub struct CancelWindow {
     pub cancel_type: CancelType,
 }
 impl CancelWindow {
+    pub fn kara_to(action: impl Into<ActionId>) -> Self {
+        CancelWindow {
+            require_hit: false,
+            cancel_type: CancelType::Specific(vec![action.into()]),
+            duration: METERED_KARA_WINDOW,
+        }
+    }
+
     pub fn open_at(self, frame: usize) -> OpenCancelWindow {
         OpenCancelWindow {
             from: frame,

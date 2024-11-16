@@ -5,7 +5,6 @@ enough to be put on a more important list.
 
 ## Bugs
 
-- Sometimes holding down and pressing f gives you 5f instead of 2f
 - Maybe sword stance follow ups should be a push system (determined in the
   script) to avoid cases where input is sent too early and nothing happens.
 

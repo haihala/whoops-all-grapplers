@@ -234,7 +234,7 @@ fn setup_combat(
     {
         resources.reset(stats);
         player_state.reset();
-        buffer.clear_all();
+        buffer.reset();
         parser.clear();
         velocity.reset();
         animation_helper.reset();

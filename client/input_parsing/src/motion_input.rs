@@ -14,14 +14,18 @@ pub struct MotionInput {
     allowed_stick_positions: Vec<StickPosition>, // Circumvents buffer length
 }
 impl MotionInput {
-    pub fn complexity(&self) -> usize {
+    pub fn steps(&self) -> usize {
         self.requirements.iter().fold(0, |acc, req| {
             acc + if let RequirementMode::All(parts) = &req.mode {
                 parts.len()
             } else {
                 1
             }
-        }) + (!self.allowed_stick_positions.is_empty() as usize)
+        })
+    }
+
+    pub fn complexity(&self) -> usize {
+        self.steps() + (!self.allowed_stick_positions.is_empty() as usize)
     }
 
     pub(crate) fn contained_in(&self, history: &[InputHistory]) -> bool {

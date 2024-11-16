@@ -31,7 +31,7 @@ impl MoveBuffer {
         });
     }
 
-    pub fn clear_all(&mut self) {
+    pub fn reset(&mut self) {
         *self = MoveBuffer::default();
     }
 
@@ -154,7 +154,7 @@ pub(super) fn move_activator(
         // Remove old extra expanded hurtboxes (if a move is cancelled)
         hurtboxes.extra.clear();
 
+        buffer.buffer.retain(|(_, id)| *id != to_activate);
         state.start_move(to_activate, clock.frame);
-        buffer.clear_all()
     }
 }

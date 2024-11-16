@@ -60,7 +60,7 @@ pub struct InputParser {
     state: InputState,
 }
 
-const FRAMES_PER_COMPLEXITY: usize = 5;
+const FRAMES_PER_REQUIREMENT: usize = 4;
 
 impl InputParser {
     pub(crate) fn new(new_inputs: HashMap<ActionId, &'static str>) -> Self {
@@ -138,7 +138,7 @@ impl InputParser {
             let past: Vec<InputHistory> = self
                 .history
                 .iter()
-                .take_while(|hist| hist.frame + input.complexity() * FRAMES_PER_COMPLEXITY > frame)
+                .take_while(|hist| hist.frame + input.steps() * FRAMES_PER_REQUIREMENT > frame)
                 .cloned()
                 .collect();
 

@@ -80,7 +80,7 @@ type OptionalDynamic = Option<Arc<dyn Fn(&Situation) -> Vec<ActionEvent> + Send 
 
 #[derive(Default)]
 pub struct AttackBuilder {
-    input: &'static str,
+    input: Option<&'static str>,
     hitbox: Hitbox,
     startup: usize,
     recovery: usize,
@@ -108,9 +108,8 @@ pub struct AttackBuilder {
 }
 
 impl AttackBuilder {
-    pub fn special(input: &'static str) -> Self {
+    pub fn special() -> Self {
         Self {
-            input,
             category: ActionCategory::Special,
             open_cancel: Some(CancelWindow {
                 require_hit: true,
@@ -129,9 +128,8 @@ impl AttackBuilder {
         }
     }
 
-    pub fn normal(input: &'static str) -> Self {
+    pub fn normal() -> Self {
         Self {
-            input,
             category: ActionCategory::Normal,
             open_cancel: Some(CancelWindow {
                 require_hit: true,
@@ -153,6 +151,13 @@ impl AttackBuilder {
     pub fn follow_up_from(self, actions: Vec<ActionId>) -> Self {
         Self {
             follow_up_from: Some(actions),
+            ..self
+        }
+    }
+
+    pub fn with_input(self, input: &'static str) -> Self {
+        Self {
+            input: Some(input),
             ..self
         }
     }
@@ -627,7 +632,7 @@ impl AttackBuilder {
         assert!(self.hitbox != Hitbox(Area::default()));
 
         Action {
-            input: Some(self.input),
+            input: self.input,
             requirement: self.build_requirements(),
             script: Box::new(self.build_script()),
         }

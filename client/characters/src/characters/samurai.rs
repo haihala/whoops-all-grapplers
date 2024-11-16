@@ -120,7 +120,8 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
     vec![
         (
             SamuraiAction::KneeThrust,
-            AttackBuilder::normal("f")
+            AttackBuilder::normal()
+                .with_input("f")
                 .with_animation(SamuraiAnimation::KneeThrust)
                 .with_frame_data(5, 2, 16)
                 .with_hitbox(Area::new(0.5, 1.2, 0.35, 0.35))
@@ -134,7 +135,8 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
         ),
         (
             SamuraiAction::LowKick,
-            AttackBuilder::normal("f|123")
+            AttackBuilder::normal()
+                .with_input("f|123")
                 .hits_low()
                 .with_animation(SamuraiAnimation::LowKick)
                 .with_frame_data(3, 3, 12)
@@ -146,7 +148,8 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
         ),
         (
             SamuraiAction::HeelKick,
-            AttackBuilder::normal("s")
+            AttackBuilder::normal()
+                .with_input("s")
                 .with_animation(SamuraiAnimation::HeelKick)
                 .with_frame_data(9, 6, 28)
                 .with_hitbox(Area::new(0.7, 1.0, 1.0, 0.2))
@@ -253,7 +256,8 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
         ),
         (
             SamuraiAction::HighStab,
-            AttackBuilder::normal("g")
+            AttackBuilder::normal()
+                .with_input("g")
                 .with_animation(SamuraiAnimation::HighStab)
                 .with_frame_data(7, 6, 46)
                 .with_hitbox(Area::new(1.0, 1.2, 1.8, 0.2))
@@ -265,7 +269,8 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
         ),
         (
             SamuraiAction::SkySlash,
-            AttackBuilder::normal("g|123")
+            AttackBuilder::normal()
+                .with_input("g|123")
                 .with_animation(SamuraiAnimation::SkyStab)
                 .with_frame_data(8, 5, 32)
                 .with_hitbox(Area::new(1.0, 2.0, 1.0, 1.0))
@@ -277,7 +282,8 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
         ),
         (
             SamuraiAction::AirSlice,
-            AttackBuilder::normal("g")
+            AttackBuilder::normal()
+                .with_input("g")
                 .air_only()
                 .with_animation(SamuraiAnimation::AirStab)
                 .with_frame_data(7, 12, 63)
@@ -290,7 +296,8 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
         ),
         (
             SamuraiAction::FalconKnee,
-            AttackBuilder::normal("f")
+            AttackBuilder::normal()
+                .with_input("f")
                 .air_only()
                 .with_animation(SamuraiAnimation::FalconKnee)
                 .with_frame_data(2, 5, 23)
@@ -410,7 +417,8 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
     vec![
         (
             SamuraiAction::ForwardThrow,
-            AttackBuilder::normal("w")
+            AttackBuilder::normal()
+                .with_input("w")
                 .forward_throw()
                 .throw_hit_action(SamuraiAction::StandThrowHit)
                 .throw_target_action(SamuraiAction::StandThrowTarget)
@@ -421,7 +429,8 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
         ),
         (
             SamuraiAction::BackThrow,
-            AttackBuilder::normal("4+w")
+            AttackBuilder::normal()
+                .with_input("w|4")
                 .back_throw()
                 .throw_hit_action(SamuraiAction::StandThrowHit)
                 .throw_target_action(SamuraiAction::StandThrowTarget)
@@ -434,7 +443,8 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
         (SamuraiAction::StandThrowTarget, stand_throw_target),
         (
             SamuraiAction::CrouchThrow,
-            AttackBuilder::normal("w|123")
+            AttackBuilder::normal()
+                .with_input("w|123")
                 .forward_throw()
                 .throw_hit_action(SamuraiAction::CrouchThrowHit)
                 .throw_target_action(SamuraiAction::CrouchThrowTarget)
@@ -447,7 +457,8 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
         (SamuraiAction::CrouchThrowTarget, crouch_throw_target),
         (
             SamuraiAction::AirThrow,
-            AttackBuilder::normal("w")
+            AttackBuilder::normal()
+                .with_input("w")
                 .forward_throw()
                 .air_only()
                 .throw_hit_action(SamuraiAction::AirThrowHit)
@@ -497,16 +508,19 @@ fn stance_moves() -> impl Iterator<Item = (SamuraiAction, Action)> {
 }
 
 fn sword_stance(version: SpecialVersion) -> Action {
-    let (input, metered) = match version {
-        SpecialVersion::Strong => ("214s", false),
-        SpecialVersion::Fast => ("214f", false),
-        SpecialVersion::Metered => ("214(fs)", true),
+    let (input, metered, buttons) = match version {
+        SpecialVersion::Fast => ("214f", false, vec![GameButton::Fast]),
+        SpecialVersion::Strong => ("214s", false, vec![GameButton::Strong]),
+        SpecialVersion::Metered => ("214(fs)", true, vec![GameButton::Fast, GameButton::Strong]),
     };
 
     Action {
         input: Some(input),
         script: Box::new(move |situation: &Situation| {
-            let mut events = vec![SamuraiAnimation::SwordStance.into()];
+            let mut events = vec![
+                SamuraiAnimation::SwordStance.into(),
+                ActionEvent::ForceStand,
+            ];
 
             if metered {
                 events.extend(vec![
@@ -533,13 +547,8 @@ fn sword_stance(version: SpecialVersion) -> Action {
                 return vec![ActionEvent::AllowCancel(CancelWindow {
                     cancel_type: CancelType::Specific(
                         vec![
-                            SamuraiAction::SwordSlam(version),
                             SamuraiAction::StanceForwardDash(version),
                             SamuraiAction::StanceBackDash(version),
-                            SamuraiAction::Sharpen(version),
-                            SamuraiAction::ViperStrike(version),
-                            SamuraiAction::RisingSun(version),
-                            SamuraiAction::StanceCancel(version),
                         ]
                         .into_iter()
                         .map(ActionId::Samurai)
@@ -548,6 +557,43 @@ fn sword_stance(version: SpecialVersion) -> Action {
                     duration: 30,
                     require_hit: false,
                 })];
+            }
+
+            if situation.after_frame(4) {
+                if situation.held_buttons.contains(&GameButton::Gimmick) {
+                    return vec![ActionEvent::StartAction(
+                        SamuraiAction::Sharpen(version).into(),
+                    )];
+                }
+
+                if !buttons
+                    .iter()
+                    .all(|btn| situation.held_buttons.contains(btn))
+                {
+                    return vec![ActionEvent::StartAction(
+                        if situation.stick_position.as_vec2().y == -1.0 {
+                            SamuraiAction::ViperStrike(version)
+                        } else if situation
+                            .facing
+                            .mirror_vec2(situation.stick_position.as_vec2())
+                            .x
+                            == -1.0
+                        {
+                            SamuraiAction::RisingSun(version)
+                        } else if situation
+                            .facing
+                            .mirror_vec2(situation.stick_position.as_vec2())
+                            .x
+                            == 1.0
+                            && situation.inventory.contains(&ItemId::Fireaxe)
+                        {
+                            SamuraiAction::SwordSlam(version)
+                        } else {
+                            SamuraiAction::StanceCancel(version)
+                        }
+                        .into(),
+                    )];
+                }
             }
 
             situation.end_at(40)
@@ -635,7 +681,7 @@ fn sharpen(version: SpecialVersion) -> Action {
     };
 
     Action {
-        input: Some("g"),
+        input: None,
         script: Box::new(move |situation: &Situation| {
             if situation.on_frame(0) {
                 return vec![
@@ -659,24 +705,18 @@ fn sharpen(version: SpecialVersion) -> Action {
 
             situation.end_at(if slow { 60 } else { 45 })
         }),
-        requirement: ActionRequirement::And(vec![
-            ActionRequirement::Grounded,
-            ActionRequirement::ActionOngoing(vec![ActionId::Samurai(SamuraiAction::SwordStance(
-                version,
-            ))]),
-            ActionRequirement::Starter(ActionCategory::Special),
-        ]),
+        requirement: ActionRequirement::default(),
     }
 }
 
 fn sword_slam(version: SpecialVersion) -> Action {
-    let (input, slow, high_damage, color) = match version {
-        SpecialVersion::Strong => ("S|69", true, true, STRONG_SWORD_VFX),
-        SpecialVersion::Fast => ("F|69", false, false, FAST_SWORD_VFX),
-        SpecialVersion::Metered => ("(FS)|69", false, true, METERED_SWORD_VFX),
+    let (slow, high_damage, color) = match version {
+        SpecialVersion::Strong => (true, true, STRONG_SWORD_VFX),
+        SpecialVersion::Fast => (false, false, FAST_SWORD_VFX),
+        SpecialVersion::Metered => (false, true, METERED_SWORD_VFX),
     };
 
-    let mut builder = AttackBuilder::special(input)
+    let mut builder = AttackBuilder::special()
         .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
         .with_extra_requirements(vec![ActionRequirement::ItemOwned(ItemId::Fireaxe)])
         .with_sound(SoundEffect::FemaleKiritsu)
@@ -715,14 +755,13 @@ fn sword_slam(version: SpecialVersion) -> Action {
 }
 
 fn viper_strike(version: SpecialVersion) -> Action {
-    let (input, long_lunge, slow, high_damage, color) = match version {
-        SpecialVersion::Strong => ("S|123", true, true, true, STRONG_SWORD_VFX),
-        SpecialVersion::Fast => ("F|123", false, false, false, FAST_SWORD_VFX),
-        SpecialVersion::Metered => ("(FS)|123", false, false, true, METERED_SWORD_VFX),
+    let (long_lunge, slow, high_damage, color) = match version {
+        SpecialVersion::Strong => (true, true, true, STRONG_SWORD_VFX),
+        SpecialVersion::Fast => (false, false, false, FAST_SWORD_VFX),
+        SpecialVersion::Metered => (false, false, true, METERED_SWORD_VFX),
     };
 
-    AttackBuilder::special(input)
-        .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
+    AttackBuilder::special()
         .with_sound(SoundEffect::FemaleShagamu)
         .with_frame_data(if slow { 10 } else { 5 }, 2, if slow { 50 } else { 45 })
         .with_animation(if slow {
@@ -760,14 +799,13 @@ fn viper_strike(version: SpecialVersion) -> Action {
 }
 
 fn rising_sun(version: SpecialVersion) -> Action {
-    let (input, slow, high_bounce, high_damage, color) = match version {
-        SpecialVersion::Strong => ("S", true, true, true, STRONG_SWORD_VFX),
-        SpecialVersion::Fast => ("F", false, false, false, FAST_SWORD_VFX),
-        SpecialVersion::Metered => ("(FS)", false, false, true, METERED_SWORD_VFX),
+    let (slow, high_bounce, high_damage, color) = match version {
+        SpecialVersion::Strong => (true, true, true, STRONG_SWORD_VFX),
+        SpecialVersion::Fast => (false, false, false, FAST_SWORD_VFX),
+        SpecialVersion::Metered => (false, false, true, METERED_SWORD_VFX),
     };
 
-    AttackBuilder::special(input)
-        .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
+    AttackBuilder::special()
         .with_sound(SoundEffect::FemaleHiYah)
         .with_frame_data(if slow { 14 } else { 4 }, 3, if slow { 56 } else { 44 })
         .with_animation(if slow {

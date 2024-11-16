@@ -5,9 +5,6 @@ enough to be put on a more important list.
 
 ## Bugs
 
-- Maybe sword stance follow ups should be a push system (determined in the
-  script) to avoid cases where input is sent too early and nothing happens.
-
 ### Online
 
 - Online clock is out of sync

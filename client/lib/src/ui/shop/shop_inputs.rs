@@ -12,6 +12,7 @@ pub fn navigate_shop(
 ) {
     for (mut parser, player, mut inventory, character) in &mut parsers {
         let events = parser.get_events();
+        parser.clear();
         let shop = shops.get_mut_shop(player);
 
         if events.is_empty() || shop.closed {
@@ -30,8 +31,6 @@ pub fn navigate_shop(
                 _ => {}
             };
         }
-
-        parser.clear();
     }
 }
 

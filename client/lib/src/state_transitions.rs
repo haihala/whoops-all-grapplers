@@ -65,7 +65,7 @@ pub fn end_combat(
         })
         .count()
         != 2
-        || clock.done();
+        || clock.done;
 
     if !round_over {
         return;

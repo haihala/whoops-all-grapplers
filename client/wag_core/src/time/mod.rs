@@ -18,8 +18,8 @@ pub const POST_SHOP_DURATION: f32 = 11.0;
 pub struct Clock {
     pub frame: usize,
     start_time: f32,
-    done: bool,
-    timer_value: usize,
+    pub done: bool,
+    pub timer_value: usize,
 }
 impl FromWorld for Clock {
     fn from_world(world: &mut World) -> Self {
@@ -32,19 +32,6 @@ impl FromWorld for Clock {
     }
 }
 impl Clock {
-    // This is for dev binds
-    pub fn time_out(&mut self) {
-        self.done = true;
-    }
-
-    pub fn done(&self) -> bool {
-        self.done
-    }
-
-    pub fn timer_value(&self) -> usize {
-        self.timer_value
-    }
-
     pub fn reset(&mut self, time: f64) {
         self.frame = 0;
         self.done = false;
@@ -120,11 +107,17 @@ fn update_clock(
     bevy_clock: Res<Time>,
     maybe_hitstop: Option<Res<Hitstop>>,
 ) {
-    if clock.done || maybe_hitstop.is_some() {
+    if maybe_hitstop.is_some() {
         return;
     }
 
     clock.frame += 1;
+
+    if clock.done {
+        return;
+    }
+
+    // This updates timer
     let elapsed = bevy_clock.elapsed_seconds() - clock.start_time;
     clock.timer_value = (COMBAT_DURATION + PRE_ROUND_DURATION - elapsed)
         .clamp(0.0, COMBAT_DURATION)

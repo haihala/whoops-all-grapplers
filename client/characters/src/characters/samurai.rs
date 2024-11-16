@@ -849,6 +849,15 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                             )
                             .with_defender_block_pushback(0.4)
                             .with_chip_damage(2)
+                            .with_extra_on_hit_events(if extra_stun {
+                                vec![ActionEvent::RelativeVisualEffect(VfxRequest {
+                                    effect: VisualEffect::Lightning,
+                                    tf: Transform::from_translation(Vec3::Y),
+                                    mirror: true,
+                                })]
+                            } else {
+                                vec![]
+                            })
                             .build(),
                         })];
                     }

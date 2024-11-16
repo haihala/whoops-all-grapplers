@@ -4,6 +4,7 @@ use wag_core::StickPosition;
 use crate::{
     helper_types::{InputRequirement, RequirementMode},
     input_parser::InputHistory,
+    InputEvent,
 };
 
 #[derive(Default, Debug, Clone, Reflect, PartialEq)]
@@ -24,7 +25,18 @@ impl MotionInput {
     }
 
     pub(crate) fn contained_in(&self, history: &[InputHistory]) -> bool {
-        let mut past = history.iter().map(|ev| ev.handle_facing(self.absolute));
+        let mut past = history
+            .iter()
+            .map(|ev| ev.handle_facing(self.absolute))
+            .chain(history.last().map(|last_hist| {
+                (
+                    // This is a cludge
+                    // It fixes a case where user does something like 2h (2)36h,
+                    // and the 2 is out of the history window
+                    InputEvent::Point(last_hist.state.stick_position),
+                    last_hist.state.clone(),
+                )
+            }));
 
         let mut sticky = false;
 

@@ -1,7 +1,6 @@
 Gotta do:
 
 - Update steam deck
-- Holding down 2, 36x should trigger 236x
 
 If there is time:
 

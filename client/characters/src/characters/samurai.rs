@@ -493,9 +493,9 @@ fn stance_moves() -> impl Iterator<Item = (SamuraiAction, Action)> {
 fn sword_stance(version: SpecialVersion) -> Action {
     Action {
         input: Some(match version {
-            SpecialVersion::Strong => "214+s",
-            SpecialVersion::Fast => "214+f",
-            SpecialVersion::Metered => "214+(fs)",
+            SpecialVersion::Strong => "214s",
+            SpecialVersion::Fast => "214f",
+            SpecialVersion::Metered => "214(fs)",
         }),
         script: Box::new(move |situation: &Situation| {
             let mut events = vec![SamuraiAnimation::SwordStance.into()];
@@ -796,9 +796,9 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
     .map(|version| {
         (SamuraiAction::KunaiThrow(version), {
             let (input, base_velocity, hits) = match version {
-                SpecialVersion::Fast => ("236+f", Vec2::new(4.0, 2.0), 1),
-                SpecialVersion::Strong => ("236+s", Vec2::new(0.9, 4.0), 2),
-                SpecialVersion::Metered => ("236+(fs)", Vec2::new(10.0, 1.0), 2),
+                SpecialVersion::Fast => ("236f", Vec2::new(4.0, 2.0), 1),
+                SpecialVersion::Strong => ("236s", Vec2::new(0.9, 4.0), 2),
+                SpecialVersion::Metered => ("236(fs)", Vec2::new(10.0, 1.0), 2),
             };
 
             Action {

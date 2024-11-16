@@ -10,6 +10,7 @@ use crate::event_spreading::{ColorShift, EndAction};
 pub(super) fn move_advancement(
     mut commands: Commands,
     clock: Res<Clock>,
+    mut last_processed_frame: Local<usize>,
     mut query: Query<(
         &mut PlayerState,
         &Transform,
@@ -23,6 +24,10 @@ pub(super) fn move_advancement(
         Option<&Combo>,
     )>,
 ) {
+    if *last_processed_frame == clock.frame {
+        return;
+    }
+
     for (mut state, tf, inventory, character, resources, parser, stats, facing, entity, combo) in
         &mut query
     {
@@ -42,6 +47,8 @@ pub(super) fn move_advancement(
             }
         }
     }
+
+    *last_processed_frame = clock.frame;
 }
 
 pub fn end_moves(

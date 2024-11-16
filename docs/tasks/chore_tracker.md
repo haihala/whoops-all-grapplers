@@ -5,10 +5,14 @@ enough to be put on a more important list.
 
 ## Bugs
 
-- Attacks sometimes hit more than once
+- Online clock is out of sync
+- Sometimes shopping does not work (can't buy items)
+- Kunais reset to 2 after using one at 8
+- You don't need bar for enhanced kunais (doesn't consume either)
 
 ### Watchlist
 
+- Attacks sometimes hit more than once
 - There is an input recording strangeness, parrots don't always work, probably an ordering question.
 
 ## Misc improvement ideas

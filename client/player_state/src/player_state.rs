@@ -293,6 +293,23 @@ impl PlayerState {
             other => panic!("Forcing to stand from {:?}", other),
         };
     }
+    pub fn force_crouch(&mut self) {
+        match &self.main {
+            MainState::Crouch(_) => {
+                // Already crouching, everything is great
+            }
+            MainState::Stand(ref cs) => {
+                self.main = match cs {
+                    StandState::Stun(stun) => MainState::Crouch(CrouchState::Stun(stun.clone())),
+                    StandState::Move(move_history) => {
+                        MainState::Crouch(CrouchState::Move(*move_history))
+                    }
+                    StandState::Walk(_) | StandState::Idle => MainState::Crouch(CrouchState::Idle),
+                }
+            }
+            other => panic!("Forcing to crouch from {:?}", other),
+        };
+    }
     pub fn is_crouching(&self) -> bool {
         matches!(self.main, MainState::Crouch(_))
     }

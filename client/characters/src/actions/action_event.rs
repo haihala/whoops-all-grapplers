@@ -22,6 +22,7 @@ pub enum ActionEvent {
     Condition(StatusCondition),
     ClearCondition(StatusFlag),
     ForceStand,
+    ForceCrouch,
     SayVoiceLine(VoiceLine),
     ModifyResource(ResourceType, i32),
     ClearResource(ResourceType),

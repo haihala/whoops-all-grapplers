@@ -101,7 +101,13 @@ impl MotionInput {
 }
 
 impl From<&str> for MotionInput {
-    fn from(input: &str) -> Self {
+    fn from(value: &str) -> Self {
+        value.to_string().into()
+    }
+}
+
+impl From<String> for MotionInput {
+    fn from(input: String) -> Self {
         let mut split = input.split('|');
         let sequence = split.next().unwrap();
         let metadata = split.next().unwrap_or("");

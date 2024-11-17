@@ -63,10 +63,10 @@ pub struct InputParser {
 const FRAMES_PER_REQUIREMENT: usize = 4;
 
 impl InputParser {
-    pub(crate) fn new(new_inputs: HashMap<ActionId, &'static str>) -> Self {
+    pub(crate) fn new(new_inputs: HashMap<ActionId, String>) -> Self {
         let motions: Vec<MotionInput> = new_inputs
             .iter()
-            .map(|(_, input_str)| MotionInput::from(*input_str))
+            .map(|(_, input_str)| MotionInput::from(input_str.clone()))
             .collect();
 
         let mut inputs = vec![];
@@ -80,7 +80,7 @@ impl InputParser {
             let actions = new_inputs
                 .iter()
                 .filter_map(|(action_id, input_str)| {
-                    if motion == (*input_str).into() {
+                    if motion == input_str.clone().into() {
                         Some(*action_id)
                     } else {
                         None
@@ -318,7 +318,12 @@ mod test {
             app.add_systems(Update, parse_input::<TestStream>);
 
             app.world_mut().spawn((
-                TestInputBundle::new(moves.into_iter().collect()),
+                TestInputBundle::new(
+                    moves
+                        .into_iter()
+                        .map(|(id, dsl)| (id, dsl.to_string()))
+                        .collect(),
+                ),
                 Facing::Right,
             ));
 

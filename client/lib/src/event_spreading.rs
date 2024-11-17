@@ -31,7 +31,7 @@ pub struct AddMovement(pub Movement);
 pub struct AddCondition(pub StatusCondition);
 
 #[derive(Debug, Event)]
-pub struct ForceStand;
+pub struct ForceStand(pub bool);
 
 #[derive(Debug, Event, Clone, Copy)]
 pub struct ModifyResource {
@@ -125,7 +125,10 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
             commands.trigger_targets(AddCondition(cond.to_owned()), trigger.entity());
         }
         ActionEvent::ForceStand => {
-            commands.trigger_targets(ForceStand, trigger.entity());
+            commands.trigger_targets(ForceStand(true), trigger.entity());
+        }
+        ActionEvent::ForceCrouch => {
+            commands.trigger_targets(ForceStand(false), trigger.entity());
         }
         ActionEvent::ModifyResource(rt, amount) => {
             commands.trigger_targets(

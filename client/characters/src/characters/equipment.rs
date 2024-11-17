@@ -1,62 +1,45 @@
 use bevy::prelude::*;
 use wag_core::{
-    ActionCategory, ActionId, Animation, CancelType, CancelWindow, Icon, ItemId, Stats,
-    StatusCondition, StatusFlag, GI_PARRY_FLASH_COLOR,
+    ActionId, Animation, CancelType, CancelWindow, Icon, ItemId, Stats, StatusCondition,
+    StatusFlag, GI_PARRY_FLASH_COLOR,
 };
 
 use crate::{
-    actions::ActionRequirement, Action, ActionEvent, ConsumableType::*, Item, ItemCategory::*,
-    Movement, Situation,
+    actions::ActionRequirement, Action, ActionBuilder, ActionEvent, ConsumableType::*, Item,
+    ItemCategory::*, Movement,
 };
 
 pub fn gi_parry(animation: Animation) -> Action {
-    Action {
-        input: Some("6+f+s"),
-        script: Box::new(move |situation: &Situation| {
-            if situation.on_frame(0) {
-                return vec![
-                    animation.into(),
-                    ActionEvent::ForceStand,
-                    ActionEvent::Condition(StatusCondition {
-                        flag: StatusFlag::Parry,
-                        effect: None,
-                        expiration: Some(10),
-                    }),
-                    ActionEvent::Flash(GI_PARRY_FLASH_COLOR.into()),
-                    ActionEvent::AllowCancel(CancelWindow {
-                        cancel_type: CancelType::Anything,
-                        require_hit: true,
-                        duration: 25,
-                    }),
-                ];
-            }
-
-            situation.end_at(30)
-        }),
-        requirement: ActionRequirement::And(vec![
-            ActionRequirement::Grounded,
-            ActionRequirement::ItemOwned(ItemId::Gi),
-            ActionRequirement::Starter(ActionCategory::Other),
-        ]),
-    }
+    ActionBuilder::other()
+        .with_input("6+(fs)")
+        .immediate_events(vec![
+            animation.into(),
+            ActionEvent::ForceStand,
+            ActionEvent::Condition(StatusCondition {
+                flag: StatusFlag::Parry,
+                effect: None,
+                expiration: Some(10),
+            }),
+            ActionEvent::Flash(GI_PARRY_FLASH_COLOR.into()),
+            ActionEvent::AllowCancel(CancelWindow {
+                cancel_type: CancelType::Anything,
+                require_hit: true,
+                duration: 25,
+            }),
+        ])
+        .end_at(30)
+        .with_requirement(ActionRequirement::ItemOwned(ItemId::Gi))
+        .build()
 }
 
 pub fn fast_fall() -> Action {
-    Action {
-        input: Some("[123]|5"),
-        script: Box::new(|situation: &Situation| {
-            if situation.on_frame(0) {
-                return vec![Movement::impulse(Vec2::Y * -1.5).into()];
-            }
-
-            situation.end_at(10)
-        }),
-        requirement: ActionRequirement::And(vec![
-            ActionRequirement::Airborne,
-            ActionRequirement::ItemOwned(ItemId::DivingHelmet),
-            ActionRequirement::Starter(ActionCategory::Other),
-        ]),
-    }
+    ActionBuilder::other()
+        .with_input("[123]|5")
+        .air_only()
+        .immediate_events(vec![Movement::impulse(Vec2::Y * -1.5).into()])
+        .end_at(10)
+        .with_requirement(ActionRequirement::ItemOwned(ItemId::DivingHelmet))
+        .build()
 }
 
 pub fn universal_item_actions(

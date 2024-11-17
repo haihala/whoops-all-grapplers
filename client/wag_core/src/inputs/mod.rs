@@ -22,6 +22,20 @@ pub enum GameButton {
     Gimmick,
 }
 
+impl GameButton {
+    pub fn to_dsl(self) -> String {
+        match self {
+            GameButton::Default => panic!("Default can't be converted to dsl"),
+            GameButton::Start => ".",
+            GameButton::Fast => "f",
+            GameButton::Strong => "s",
+            GameButton::Wrestling => "w",
+            GameButton::Gimmick => "g",
+        }
+        .into()
+    }
+}
+
 // Game runs with strictly digital input, this is an abstraction
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, EnumIter)]
 pub enum WagInputButton {

@@ -39,12 +39,13 @@ impl JumpDirection {
         )
     }
 
-    pub fn input(&self, jump_type: JumpType) -> &'static str {
+    pub fn input(&self, jump_type: JumpType) -> String {
         if jump_type == JumpType::Super {
             self.super_input()
         } else {
             self.base_input()
         }
+        .into()
     }
 
     fn base_input(self) -> &'static str {
@@ -322,7 +323,7 @@ macro_rules! dash {
         }
 
         Action {
-            input: Some($input),
+            input: Some($input.into()),
             script: Box::new(|situation: &Situation| {
                 if situation.on_frame(0) {
                     let mut initial_events = vec![

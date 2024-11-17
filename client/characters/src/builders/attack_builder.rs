@@ -2,7 +2,7 @@ use std::{f32::consts::PI, sync::Arc};
 
 use bevy::prelude::*;
 use wag_core::{
-    ActionCategory, ActionId, Animation, Area, CancelType, CancelWindow, Model, SoundEffect,
+    ActionId, Animation, Area, CancelType, CancelWindow, GameButton, Model, SoundEffect,
     VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR, LOW_OPENER_COLOR,
     MID_OPENER_COLOR, SMALL_HIT_THRESHOLD,
 };
@@ -11,6 +11,8 @@ use crate::{
     Action, ActionEvent, ActionRequirement, Attack, AttackHeight, BlockType, FlashRequest,
     HitEffect, HitInfo, Hitbox, Lifetime, Movement, OnHitEffect, ResourceType, Situation, ToHit,
 };
+
+use super::{ActionBuilder, CharacterUniversals};
 
 #[derive(Debug, Clone, Copy)]
 enum HitStun {
@@ -76,11 +78,9 @@ impl Default for SubBuilder {
     }
 }
 
-type OptionalDynamic = Option<Arc<dyn Fn(&Situation) -> Vec<ActionEvent> + Send + Sync>>;
-
 #[derive(Default)]
 pub struct AttackBuilder {
-    input: Option<&'static str>,
+    action_builder: ActionBuilder,
     hitbox: Hitbox,
     startup: usize,
     recovery: usize,
@@ -89,28 +89,16 @@ pub struct AttackBuilder {
     projectile: bool,
     velocity: Vec2,
     gravity: f32,
-    meter_cost: Option<i32>,
-    needs_charge: bool,
     open_cancel: Option<CancelWindow>,
-    air_move: bool,
-    category: ActionCategory,
-    animation: Option<Animation>,
-    audio: SoundEffect,
-    extra_initial_events: Vec<ActionEvent>,
-    dynamic_initial_events: OptionalDynamic,
-    extra_activation_events: Vec<ActionEvent>,
-    dynamic_activation_events: OptionalDynamic,
-    extra_requirements: Vec<ActionRequirement>,
     sub_builder: SubBuilder,
     hit_count: usize,
-    follow_up_from: Option<Vec<ActionId>>,
     hitbox_lifetime: Lifetime,
 }
 
 impl AttackBuilder {
     pub fn special() -> Self {
         Self {
-            category: ActionCategory::Special,
+            action_builder: ActionBuilder::special(),
             open_cancel: Some(CancelWindow {
                 require_hit: true,
                 cancel_type: CancelType::Super,
@@ -118,7 +106,6 @@ impl AttackBuilder {
             }),
             expand_hurtbox: Some(5),
             hit_count: 1,
-            audio: SoundEffect::FemaleExhale,
             sub_builder: SubBuilder::Strike(StrikeBuilder {
                 chip_damage: 2,
                 damage: 10,
@@ -130,7 +117,7 @@ impl AttackBuilder {
 
     pub fn normal() -> Self {
         Self {
-            category: ActionCategory::Normal,
+            action_builder: ActionBuilder::normal(),
             open_cancel: Some(CancelWindow {
                 require_hit: true,
                 cancel_type: CancelType::Special,
@@ -138,7 +125,6 @@ impl AttackBuilder {
             }),
             expand_hurtbox: Some(5),
             hit_count: 1,
-            audio: SoundEffect::FemaleExhale,
             sub_builder: SubBuilder::Strike(StrikeBuilder {
                 chip_damage: 1,
                 damage: 5,
@@ -148,17 +134,10 @@ impl AttackBuilder {
         }
     }
 
-    pub fn follow_up_from(self, actions: Vec<ActionId>) -> Self {
+    pub fn button(btn: GameButton) -> Self {
         Self {
-            follow_up_from: Some(actions),
-            ..self
-        }
-    }
-
-    pub fn with_input(self, input: &'static str) -> Self {
-        Self {
-            input: Some(input),
-            ..self
+            action_builder: ActionBuilder::button(btn),
+            ..Self::normal()
         }
     }
 
@@ -176,9 +155,37 @@ impl AttackBuilder {
         tb
     }
 
-    pub fn if_charged(self) -> Self {
+    pub fn with_character_universals(self, universals: CharacterUniversals) -> Self {
         Self {
-            needs_charge: true,
+            action_builder: self.action_builder.with_character_universals(universals),
+            ..self
+        }
+    }
+
+    pub fn follow_up_from(self, actions: Vec<ActionId>) -> Self {
+        Self {
+            action_builder: self.action_builder.follow_up_from(actions),
+            ..self
+        }
+    }
+
+    pub fn with_input(self, input: &'static str) -> Self {
+        Self {
+            action_builder: self.action_builder.with_input(input),
+            ..self
+        }
+    }
+
+    pub fn with_meter_cost(self) -> Self {
+        Self {
+            action_builder: self.action_builder.with_meter_cost(),
+            ..self
+        }
+    }
+
+    pub fn with_charge(self) -> Self {
+        Self {
+            action_builder: self.action_builder.with_charge(),
             ..self
         }
     }
@@ -226,7 +233,7 @@ impl AttackBuilder {
 
     pub fn with_sound(self, sound: SoundEffect) -> Self {
         Self {
-            audio: sound,
+            action_builder: self.action_builder.with_sound(sound),
             ..self
         }
     }
@@ -250,7 +257,7 @@ impl AttackBuilder {
 
     pub fn with_animation(self, animation: impl Into<Animation>) -> Self {
         Self {
-            animation: Some(animation.into()),
+            action_builder: self.action_builder.with_animation(animation),
             ..self
         }
     }
@@ -276,13 +283,6 @@ impl AttackBuilder {
     pub fn with_no_cancels(self) -> Self {
         Self {
             open_cancel: None,
-            ..self
-        }
-    }
-
-    pub fn with_meter_cost(self, amount: i32) -> Self {
-        Self {
-            meter_cost: Some(amount),
             ..self
         }
     }
@@ -390,9 +390,15 @@ impl AttackBuilder {
         }
     }
 
+    pub fn crouching(self) -> Self {
+        Self {
+            action_builder: self.action_builder.crouching(),
+            ..self
+        }
+    }
     pub fn air_only(self) -> Self {
         Self {
-            air_move: true,
+            action_builder: self.action_builder.air_only(),
             // Automatically make air strikes overheads
             sub_builder: match self.sub_builder {
                 SubBuilder::Strike(sb) => SubBuilder::Strike(StrikeBuilder {
@@ -430,6 +436,7 @@ impl AttackBuilder {
             sub_builder: SubBuilder::Throw(ThrowStartupBuilder::default()),
             ..self
         }
+        .with_no_cancels()
     }
 
     pub fn back_throw(self) -> Self {
@@ -440,9 +447,12 @@ impl AttackBuilder {
             }),
             ..self
         }
+        .with_no_cancels()
     }
 
     pub fn throw_target_action(self, target_action: impl Into<ActionId>) -> Self {
+        assert!(matches!(self.sub_builder, SubBuilder::Throw(_)));
+
         Self {
             sub_builder: SubBuilder::Throw(ThrowStartupBuilder {
                 target_action: target_action.into(),
@@ -462,9 +472,9 @@ impl AttackBuilder {
         }
     }
 
-    pub fn with_extra_initial_events(self, extra_initial_events: Vec<ActionEvent>) -> Self {
+    pub fn with_extra_initial_events(self, events: Vec<ActionEvent>) -> Self {
         Self {
-            extra_initial_events,
+            action_builder: self.action_builder.immediate_events(events),
             ..self
         }
     }
@@ -474,14 +484,17 @@ impl AttackBuilder {
         generator: impl Fn(&Situation) -> Vec<ActionEvent> + Send + Sync + 'static,
     ) -> Self {
         Self {
-            dynamic_initial_events: Some(Arc::new(generator)),
+            action_builder: self
+                .action_builder
+                .dyn_immediate_events(Arc::new(generator)),
             ..self
         }
     }
 
-    pub fn with_extra_activation_events(self, extra_activation_events: Vec<ActionEvent>) -> Self {
+    pub fn with_extra_activation_events(self, events: Vec<ActionEvent>) -> Self {
+        assert_ne!(self.startup, 0, "Set startup before activation events");
         Self {
-            extra_activation_events,
+            action_builder: self.action_builder.events_on_frame(self.startup, events),
             ..self
         }
     }
@@ -490,67 +503,29 @@ impl AttackBuilder {
         self,
         generator: impl Fn(&Situation) -> Vec<ActionEvent> + Send + Sync + 'static,
     ) -> Self {
+        assert_ne!(self.startup, 0, "Set startup before activation events");
         Self {
-            dynamic_activation_events: Some(Arc::new(generator)),
+            action_builder: self
+                .action_builder
+                .dyn_events_on_frame(self.startup, Arc::new(generator)),
             ..self
         }
     }
 
-    pub fn with_extra_requirements(self, extra_requirements: Vec<ActionRequirement>) -> Self {
+    pub fn with_extra_requirement(self, extra_requirement: ActionRequirement) -> Self {
         Self {
-            extra_requirements,
+            action_builder: self.action_builder.with_requirement(extra_requirement),
             ..self
         }
     }
 
-    fn build_requirements(&self) -> ActionRequirement {
-        let mut temp = self.extra_requirements.clone();
+    fn build_script(self) -> impl Fn(&Situation) -> Vec<ActionEvent> {
+        let mut activation_events = vec![];
 
-        temp.push(if self.air_move {
-            ActionRequirement::Airborne
-        } else {
-            ActionRequirement::Grounded
-        });
-
-        if let Some(cost) = self.meter_cost {
-            temp.push(ActionRequirement::ResourceValue(ResourceType::Meter, cost));
-        }
-
-        if self.needs_charge {
-            temp.push(ActionRequirement::ResourceFull(ResourceType::Charge));
-        }
-
-        if let Some(ongoing) = self.follow_up_from.clone() {
-            temp.push(ActionRequirement::ActionOngoing(ongoing));
-        }
-        temp.push(ActionRequirement::Starter(self.category));
-
-        ActionRequirement::And(temp)
-    }
-
-    fn build_script(&self) -> impl Fn(&Situation) -> Vec<ActionEvent> {
-        let startup = self.startup;
-        let duration = self.startup + self.recovery;
-
-        let mut initial_events: Vec<ActionEvent> =
-            vec![self.animation.unwrap().into(), self.audio.into()];
-        if !self.extra_initial_events.is_empty() {
-            initial_events.extend(self.extra_initial_events.clone());
-        }
-        if let Some(cost) = self.meter_cost {
-            initial_events.extend(vec![
-                ActionEvent::ModifyResource(ResourceType::Meter, cost),
-                ActionEvent::Flash(FlashRequest::meter_use()),
-            ]);
-        }
-        if self.needs_charge {
-            initial_events.push(ActionEvent::ClearResource(ResourceType::Charge));
-        }
-
-        let mut activation_events: Vec<ActionEvent> = self.extra_activation_events.clone();
         if let Some(can) = &self.open_cancel {
             activation_events.push(ActionEvent::AllowCancel(can.to_owned()));
         }
+
         if let Some(duration) = self.expand_hurtbox {
             activation_events.push(ActionEvent::ExpandHurtbox(
                 self.hitbox.grow(0.1),
@@ -569,14 +544,6 @@ impl AttackBuilder {
             hits: self.hit_count,
         };
 
-        let init_fun = self
-            .dynamic_initial_events
-            .clone()
-            .unwrap_or(Arc::new(|_| vec![]));
-        let activation_fun = self
-            .dynamic_activation_events
-            .clone()
-            .unwrap_or(Arc::new(|_| vec![]));
         let on_hit = match self.sub_builder {
             SubBuilder::Throw(tb) => {
                 build_throw_effect(tb.on_hit_action, tb.sideswitch, tb.target_action)
@@ -603,26 +570,12 @@ impl AttackBuilder {
                     .build()
             }
         };
+        activation_events.push(ActionEvent::SpawnHitbox(Attack { on_hit, to_hit }));
 
-        let atk = Attack { on_hit, to_hit };
-
-        move |situation: &Situation| {
-            if situation.on_frame(0) {
-                let mut events = initial_events.clone();
-                events.extend(init_fun(situation));
-                return events;
-            }
-
-            if situation.on_frame(startup) {
-                return vec![ActionEvent::SpawnHitbox(atk.clone())]
-                    .into_iter()
-                    .chain(activation_events.clone())
-                    .chain(activation_fun(situation))
-                    .collect();
-            }
-
-            situation.end_at(duration)
-        }
+        self.action_builder
+            .events_on_frame(self.startup, activation_events)
+            .end_at(self.startup + self.recovery)
+            .build_script()
     }
 
     pub fn build(self) -> Action {
@@ -632,8 +585,8 @@ impl AttackBuilder {
         assert!(self.hitbox != Hitbox(Area::default()));
 
         Action {
-            input: self.input,
-            requirement: self.build_requirements(),
+            input: self.action_builder.build_input(),
+            requirement: self.action_builder.build_requirements(),
             script: Box::new(self.build_script()),
         }
     }

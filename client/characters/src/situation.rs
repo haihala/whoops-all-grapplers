@@ -32,7 +32,7 @@ impl Situation {
     }
 
     pub fn end_at(&self, frame: usize) -> Vec<ActionEvent> {
-        if self.elapsed() as f32 * self.stats.action_speed_multiplier >= frame as f32 {
+        if self.after_frame(frame) {
             vec![ActionEvent::End]
         } else {
             vec![]
@@ -45,8 +45,8 @@ impl Situation {
 
     // TODO: Add a system where this also is only once true in the lifespan of the move
     pub fn on_frame(&self, frame: usize) -> bool {
-        if frame == 0 {
-            return self.elapsed() == 0;
+        if self.elapsed() == 0 {
+            return frame == 0;
         }
 
         let prev_frame = (self.elapsed() - 1) as f32 * self.stats.action_speed_multiplier;

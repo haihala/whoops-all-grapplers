@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use wag_core::{
     GameButton, Stats, StickPosition, HEALTH_BAR_COLOR, METER_BAR_FULL_SEGMENT_COLOR,
-    METER_BAR_PARTIAL_SEGMENT_COLOR,
+    METER_BAR_PARTIAL_SEGMENT_COLOR, METER_BAR_SEGMENT,
 };
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Reflect)]
@@ -183,8 +183,8 @@ impl ResourceBarVisual {
     pub fn default_meter() -> Self {
         Self {
             default_color: METER_BAR_PARTIAL_SEGMENT_COLOR,
-            full_color: Some(METER_BAR_FULL_SEGMENT_COLOR), // TODO: Move colors to a theme, they don't need to be a resource
-            segments: 5,
+            full_color: Some(METER_BAR_FULL_SEGMENT_COLOR),
+            segments: (100 / METER_BAR_SEGMENT) as usize,
             ..default()
         }
     }

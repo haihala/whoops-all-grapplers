@@ -50,10 +50,10 @@ impl Character {
         self.moves.get(&id)
     }
 
-    pub fn get_inputs(&self) -> HashMap<ActionId, &'static str> {
+    pub fn get_inputs(&self) -> HashMap<ActionId, String> {
         self.moves
             .iter()
-            .filter_map(|(key, move_data)| move_data.input.map(|input| (*key, input)))
+            .filter_map(|(key, move_data)| move_data.input.clone().map(|input| (*key, input)))
             .collect()
     }
 
@@ -64,8 +64,6 @@ impl Character {
 
 #[cfg(test)]
 mod test {
-    use wag_core::SamuraiAction;
-
     use crate::{characters::samurai, ActionEvent, ActionRequirement, ActionTracker, Situation};
 
     use super::*;
@@ -74,11 +72,6 @@ mod test {
     fn all_moves_end() {
         for char in [samurai()] {
             for (id, mov) in char.moves.iter() {
-                // There is a list of exceptions
-                if matches!(id, ActionId::Samurai(SamuraiAction::FootDiveHold)) {
-                    continue;
-                }
-
                 let sit = Situation {
                     tracker: Some(ActionTracker {
                         start_frame: 0,
@@ -93,8 +86,6 @@ mod test {
                     .iter()
                     .find(|ev| matches!(ev, ActionEvent::End | ActionEvent::StartAction(_)))
                     .expect("All moves to end (or start a move)");
-
-                println!("{:?} did not send end event at t=9999", id,);
             }
         }
     }

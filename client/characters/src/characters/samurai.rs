@@ -427,7 +427,7 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .throw_target_action(SamuraiAction::AirThrowTarget)
                 .with_frame_data(4, 2, 36)
                 .with_animation(SamuraiAnimation::AirThrowStartup)
-                .with_hitbox(Area::new(0.4, 0.5, 0.8, 0.8))
+                .with_hitbox(Area::new(0.4, 0.8, 0.4, 0.4))
                 .build(),
         ),
         (SamuraiAction::AirThrowHit, air_throw_activation),

@@ -5,7 +5,6 @@
   - Compress jumps into a single action?
   - This may fix jumps going the wrong way
 - Make dash shorter
-- Make air throw hitbox smaller
 - Move list in loading screen
 - Pushback to 2f
 - Check why defender can't block 2f spam and there are opener sparks

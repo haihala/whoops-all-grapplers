@@ -11,7 +11,7 @@ pub struct Stats {
     // Damage
     pub damage_multiplier: f32,
     pub chip_damage: bool,
-    pub backdash_invuln: i32,
+    pub backdash_invuln: usize,
     pub defense_meter: i32,
 
     // Movement

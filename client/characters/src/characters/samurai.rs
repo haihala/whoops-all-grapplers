@@ -3,23 +3,22 @@ use std::{f32::consts::PI, sync::Arc};
 use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
-    ActionCategory, ActionId, Animation, AnimationType, Area, CancelType, CancelWindow, Facing,
-    GameButton, Icon, ItemId, Model, SamuraiAction, SamuraiAnimation, SoundEffect, SpecialVersion,
-    Stats, StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, FAST_SWORD_VFX,
+    ActionId, Animation, AnimationType, Area, CancelType, CancelWindow, Facing, GameButton, Icon,
+    ItemId, Model, SamuraiAction, SamuraiAnimation, SoundEffect, SpecialVersion, Stats,
+    StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, FAST_SWORD_VFX,
     METERED_SWORD_VFX, METER_BAR_SEGMENT, SAMURAI_ALT_HELMET_COLOR, SAMURAI_ALT_JEANS_COLOR,
     SAMURAI_ALT_SHIRT_COLOR, STRONG_SWORD_VFX,
 };
 
 use crate::{
     actions::ActionRequirement,
-    dashes,
     resources::{RenderInstructions, ResourceType},
     Action, ActionBuilder, ActionEvent, Attack, AttackBuilder,
     AttackHeight::*,
     BlockType::*,
     CharacterBoxes, CharacterStateBoxes, CharacterUniversals, ConsumableType, CounterVisual,
-    FlashRequest, Hitbox, Item, ItemCategory, Lifetime, Movement, Situation, StrikeEffectBuilder,
-    ThrowEffectBuilder, ToHit, WAGResource,
+    DashBuilder, FlashRequest, Hitbox, Item, ItemCategory, Lifetime, Movement, Situation,
+    StrikeEffectBuilder, ThrowEffectBuilder, ToHit, WAGResource,
 };
 
 use super::{
@@ -106,10 +105,7 @@ fn samurai_anims() -> HashMap<AnimationType, Animation> {
 
 fn samurai_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<ActionId, Action> {
     jumps
-        .chain(dashes!(
-            SamuraiAnimation::DashForward,
-            SamuraiAnimation::DashBack
-        ))
+        .chain(dashes())
         .chain(item_actions())
         .chain(
             normals()
@@ -118,6 +114,31 @@ fn samurai_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<Act
                 .map(|(k, v)| (ActionId::Samurai(k), v)),
         )
         .collect()
+}
+
+fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
+    let forward = DashBuilder::forward()
+        .with_animation(SamuraiAnimation::DashForward)
+        .with_character_universals(CHARACTER_UNIVERSALS)
+        .on_frame(
+            0,
+            Movement {
+                amount: Vec2::X * 2.0,
+                duration: 4,
+            },
+        )
+        .on_frame(5, Movement::impulse(Vec2::new(2.0, 5.0)))
+        .end_at(17)
+        .build();
+
+    let back = DashBuilder::back()
+        .with_animation(SamuraiAnimation::DashBack)
+        .with_character_universals(CHARACTER_UNIVERSALS)
+        .on_frame(0, Movement::impulse(Vec2::X * 6.9))
+        .end_at(20)
+        .build();
+
+    forward.chain(back)
 }
 
 fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {

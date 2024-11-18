@@ -9,7 +9,7 @@ use crate::{
 
 use super::DynamicEvents;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct CharacterUniversals {
     pub normal_grunt: SoundEffect,
 }
@@ -88,9 +88,9 @@ pub struct ActionBuilder {
 }
 
 impl ActionBuilder {
-    pub fn other() -> Self {
+    pub fn for_category(category: ActionCategory) -> Self {
         Self {
-            category: ActionCategory::Other,
+            category,
             ..default()
         }
     }

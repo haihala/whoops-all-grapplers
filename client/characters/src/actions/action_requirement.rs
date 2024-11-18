@@ -91,6 +91,10 @@ impl ActionRequirement {
                     return true;
                 }
 
+                if *category == ActionCategory::MegaInterrupt && !situation.stunned {
+                    return true;
+                }
+
                 let has_hit = situation.tracker.unwrap().has_hit;
 
                 for win in windows {

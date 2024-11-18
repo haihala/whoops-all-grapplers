@@ -1,9 +1,11 @@
 mod action_builder;
 mod attack_builder;
+mod dash_builder;
 mod throw_builders;
 
 pub use action_builder::*;
 pub use attack_builder::*;
+pub use dash_builder::*;
 pub use throw_builders::*;
 
 use crate::{ActionEvent, Situation};

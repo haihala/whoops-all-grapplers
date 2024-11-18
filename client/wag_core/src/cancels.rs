@@ -4,14 +4,14 @@ use crate::{ActionId, METERED_KARA_WINDOW};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, PartialOrd, Ord, Reflect, Default, Hash)]
 pub enum ActionCategory {
-    // TODO: Look at these
     Dash,
     Jump,
-    Other,
+    Other, // For gi parry and fast fall
     #[default]
     Normal,
     Special,
     Super,
+    MegaInterrupt,
     Forced, // For throw recipients
 }
 

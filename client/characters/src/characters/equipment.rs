@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use wag_core::{
-    ActionId, Animation, CancelType, CancelWindow, Icon, ItemId, Stats, StatusCondition,
-    StatusFlag, GI_PARRY_FLASH_COLOR,
+    ActionCategory, ActionId, Animation, CancelType, CancelWindow, Icon, ItemId, Stats,
+    StatusCondition, StatusFlag, GI_PARRY_FLASH_COLOR,
 };
 
 use crate::{
@@ -10,8 +10,8 @@ use crate::{
 };
 
 pub fn gi_parry(animation: Animation) -> Action {
-    ActionBuilder::other()
-        .with_input("6+(fs)")
+    ActionBuilder::for_category(ActionCategory::Other)
+        .with_input("{6}(fs)")
         .immediate_events(vec![
             animation.into(),
             ActionEvent::ForceStand,
@@ -33,7 +33,7 @@ pub fn gi_parry(animation: Animation) -> Action {
 }
 
 pub fn fast_fall() -> Action {
-    ActionBuilder::other()
+    ActionBuilder::for_category(ActionCategory::Other)
         .with_input("{5}[123]")
         .air_only()
         .immediate_events(vec![Movement::impulse(Vec2::Y * -1.5).into()])

@@ -12,6 +12,8 @@ use wag_core::{
 
 use crate::{
     actions::ActionRequirement,
+    items::{universal_item_actions, universal_items},
+    jumps,
     resources::{RenderInstructions, ResourceType},
     Action, ActionBuilder, ActionEvent, Attack, AttackBuilder,
     AttackHeight::*,
@@ -21,11 +23,7 @@ use crate::{
     StrikeEffectBuilder, ThrowEffectBuilder, ToHit, WAGResource,
 };
 
-use super::{
-    equipment::{universal_item_actions, universal_items},
-    helpers::jumps,
-    Character,
-};
+use super::Character;
 
 const CHARACTER_UNIVERSALS: CharacterUniversals = CharacterUniversals {
     normal_grunt: SoundEffect::FemaleExhale,

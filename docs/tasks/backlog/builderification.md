@@ -1,2 +1,1 @@
-- Jumps builder
 - Draw a clearer boarder between old strike builder and strike effect builder

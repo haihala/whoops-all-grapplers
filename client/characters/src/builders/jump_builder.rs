@@ -9,14 +9,14 @@ use wag_core::{
 use crate::{Action, ActionEvent, ActionRequirement, Movement, Situation};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum JumpType {
+enum JumpType {
     Basic,
     Air,
     Super,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum JumpDirection {
+enum JumpDirection {
     Neutral,
     Forward,
     Back,
@@ -25,7 +25,7 @@ pub enum JumpDirection {
 const DIAGONAL_JUMP_ANGLE: f32 = 70.0;
 
 impl JumpDirection {
-    pub fn base_vec(self) -> Vec2 {
+    fn base_vec(self) -> Vec2 {
         let diagonal_jump_angle = DIAGONAL_JUMP_ANGLE * PI / 180.0;
         let cos = diagonal_jump_angle.cos();
 
@@ -39,7 +39,7 @@ impl JumpDirection {
         )
     }
 
-    pub fn input(&self, jump_type: JumpType) -> String {
+    fn input(&self, jump_type: JumpType) -> String {
         if jump_type == JumpType::Super {
             self.super_input()
         } else {

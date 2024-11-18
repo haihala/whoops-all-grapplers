@@ -1,5 +1,9 @@
 mod inventory;
+mod universal_items;
+
 pub use inventory::Inventory;
+pub use universal_items::{universal_item_actions, universal_items};
+
 use wag_core::{Icon, ItemId, Stats};
 
 #[derive(Debug, Clone, Eq, PartialEq)]

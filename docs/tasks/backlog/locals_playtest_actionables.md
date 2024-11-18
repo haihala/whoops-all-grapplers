@@ -6,7 +6,6 @@
   - This may fix jumps going the wrong way
 - Make dash shorter
 - Move list in loading screen
-- Pushback to 2f
 - Check why defender can't block 2f spam and there are opener sparks
 - Change info ribbons in shop to show start button (Split to two ribbons)
 - Fix end screen reset / main menu buttons

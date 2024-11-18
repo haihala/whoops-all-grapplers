@@ -201,11 +201,10 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                 on_hit: StrikeEffectBuilder::new(
                                     40,
                                     Mid,
-                                    ActionEvent::LaunchStun(Vec2::new(-1.0, 6.0)),
+                                    ActionEvent::LaunchStun(Vec2::Y * 6.0),
                                     9,
                                 )
-                                .with_distance_on_block(0.5)
-                                .with_pushback_on_hit(0.9) // Inaccurate due to launch
+                                .with_distance_on_hit(0.9)
                                 .with_extra_on_hit_events(
                                     if situation.inventory.contains(&ItemId::IceCube) {
                                         vec![
@@ -237,8 +236,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                             },
 
                             on_hit: StrikeEffectBuilder::new(30, Mid, ActionEvent::HitStun(38), 6)
-                                .with_distance_on_block(0.5)
-                                .with_pushback_on_hit(0.1) // Inaccurate due to launch
+                                .with_distance_on_hit(0.1)
                                 .build(),
                         }),
                     ]
@@ -257,6 +255,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .sword()
                 .with_advantage_on_block(-16)
                 .with_advantage_on_hit(-6)
+                .with_distance_on_block(0.3)
                 .build(),
         ),
         (
@@ -271,6 +270,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .sword()
                 .with_advantage_on_block(-7)
                 .with_advantage_on_hit(10)
+                .with_distance_on_block(0.3)
                 .build(),
         ),
         (
@@ -285,6 +285,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .sword()
                 .with_blockstun(20)
                 .with_hitstun(30)
+                .with_distance_on_block(0.3)
                 .build(),
         ),
         (
@@ -298,6 +299,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_damage(5)
                 .with_blockstun(10)
                 .with_hitstun(15)
+                .with_distance_on_block(0.3)
                 .build(),
         ),
         (
@@ -654,6 +656,7 @@ fn sword_slam(version: SpecialVersion) -> Action {
         .hits_overhead()
         .with_damage(if high_damage { 30 } else { 15 })
         .sword()
+        .with_distance_on_block(0.1)
         .with_advantage_on_block(if slow { -40 } else { -30 })
         .with_dynamic_activation_events(move |situation: &Situation| {
             vec![ActionEvent::RelativeVisualEffect(VfxRequest {
@@ -689,6 +692,7 @@ fn viper_strike(version: SpecialVersion) -> Action {
         .with_character_universals(CHARACTER_UNIVERSALS)
         .with_sound(SoundEffect::FemaleShagamu)
         .with_frame_data(if slow { 10 } else { 5 }, 2, if slow { 50 } else { 45 })
+        .with_distance_on_block(0.1)
         .with_animation(if slow {
             SamuraiAnimation::SlowViperStrike
         } else {
@@ -747,6 +751,7 @@ fn rising_sun(version: SpecialVersion) -> Action {
             Vec2::new(1.0, 3.0)
         })
         .with_advantage_on_block(-30)
+        .with_distance_on_block(0.1)
         .with_hitbox(Area::new(0.25, 1.5, 2.0, 1.5))
         .with_dynamic_activation_events(move |situation: &Situation| {
             vec![ActionEvent::RelativeVisualEffect(VfxRequest {

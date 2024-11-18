@@ -14,11 +14,11 @@ use crate::{
 
 use super::{ActionBuilder, CharacterUniversals};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum HitStun {
     Stun(Stun),
     Knockdown,
-    Launch(Vec2),
+    Launch(f32),
 }
 
 impl Default for HitStun {
@@ -27,7 +27,7 @@ impl Default for HitStun {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Stun {
     Relative(i32),
     Absolute(i32),
@@ -39,16 +39,36 @@ impl Default for Stun {
     }
 }
 
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy)]
 struct StrikeBuilder {
     hit_stun: HitStun,
     attacker_push_on_hit: f32,
+    defender_push_on_hit: f32,
     damage: i32,
     chip_damage: i32,
     sharpness_scaling: i32,
     block_stun: Stun,
     block_pushback_distance: f32,
     block_height: AttackHeight,
+}
+
+impl Default for StrikeBuilder {
+    fn default() -> Self {
+        StrikeBuilder {
+            // These gotta get set by hand
+            hit_stun: HitStun::default(),
+            block_stun: Stun::default(),
+            damage: 0,
+
+            // These can be set by hand
+            attacker_push_on_hit: 0.3,
+            defender_push_on_hit: 0.4,
+            block_pushback_distance: 1.0,
+            block_height: AttackHeight::Mid,
+            sharpness_scaling: 0,
+            chip_damage: 1,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -69,6 +89,20 @@ impl SubBuilder {
             SubBuilder::Throw(_) => BlockType::Grab,
             SubBuilder::Strike(strike_builder) => BlockType::Strike(strike_builder.block_height),
         }
+    }
+
+    fn assert_valid(&self) {
+        match self {
+            SubBuilder::Throw(tb) => {
+                assert_ne!(tb.on_hit_action, ActionId::default());
+                assert_ne!(tb.target_action, ActionId::default());
+            }
+            SubBuilder::Strike(sb) => {
+                assert_ne!(sb.damage, 0);
+                assert_ne!(sb.hit_stun, HitStun::default());
+                assert_ne!(sb.block_stun, Stun::default());
+            }
+        };
     }
 }
 
@@ -108,7 +142,6 @@ impl AttackBuilder {
             hit_count: 1,
             sub_builder: SubBuilder::Strike(StrikeBuilder {
                 chip_damage: 2,
-                damage: 10,
                 ..default()
             }),
             ..default()
@@ -125,11 +158,7 @@ impl AttackBuilder {
             }),
             expand_hurtbox: Some(5),
             hit_count: 1,
-            sub_builder: SubBuilder::Strike(StrikeBuilder {
-                chip_damage: 1,
-                damage: 5,
-                ..default()
-            }),
+            sub_builder: SubBuilder::Strike(StrikeBuilder::default()),
             ..default()
         }
     }
@@ -352,7 +381,8 @@ impl AttackBuilder {
             sub_builder: SubBuilder::Strike(StrikeBuilder {
                 // It is natural to think of a positive X launch as going away, but to the
                 // recipient the movement needs to be negative X
-                hit_stun: HitStun::Launch(Vec2::new(-impulse.x, impulse.y)),
+                hit_stun: HitStun::Launch(impulse.y),
+                defender_push_on_hit: impulse.x,
                 ..self.strike_builder()
             }),
             ..self
@@ -559,11 +589,11 @@ impl AttackBuilder {
                         Stun::Absolute(frames) => frames as usize,
                     }),
                     HitStun::Knockdown => ActionEvent::LaunchStun(Vec2::ZERO),
-                    HitStun::Launch(impulse) => ActionEvent::LaunchStun(impulse),
+                    HitStun::Launch(height) => ActionEvent::LaunchStun(Vec2::Y * height),
                 };
 
                 StrikeEffectBuilder::new(block_stun, sb.block_height, hit_stun_event, sb.damage)
-                    .with_pushback_on_hit(sb.attacker_push_on_hit)
+                    .with_pushback_on_hit(sb.attacker_push_on_hit, sb.defender_push_on_hit)
                     .with_distance_on_block(sb.block_pushback_distance)
                     .with_chip_damage(sb.chip_damage)
                     .with_sharpness_scaling(sb.sharpness_scaling)
@@ -579,10 +609,11 @@ impl AttackBuilder {
     }
 
     pub fn build(self) -> Action {
-        assert!(self.startup != 0);
-        assert!(self.hitbox_lifetime != Lifetime::default());
-        assert!(self.recovery != 0);
-        assert!(self.hitbox != Hitbox(Area::default()));
+        assert_ne!(self.startup, 0);
+        assert_ne!(self.hitbox_lifetime, Lifetime::default());
+        assert_ne!(self.recovery, 0);
+        assert_ne!(self.hitbox, Hitbox(Area::default()));
+        self.sub_builder.assert_valid();
 
         Action {
             input: self.action_builder.build_input(),
@@ -640,6 +671,7 @@ pub struct StrikeEffectBuilder {
     chip_damage: i32,
     hit_stun_event: ActionEvent,
     attacker_push_on_hit: f32,
+    defender_push_on_hit: f32,
     base_damage: i32,
     sharpness_scaling: i32,
     extra_on_hit_effects: Vec<ActionEvent>,
@@ -659,6 +691,7 @@ impl StrikeEffectBuilder {
             attacker_push_on_block: 0.0,
             defender_push_on_block: 0.0,
             attacker_push_on_hit: 0.0,
+            defender_push_on_hit: 0.0,
             chip_damage: 1,
             sharpness_scaling: 0,
             extra_on_hit_effects: vec![],
@@ -672,9 +705,18 @@ impl StrikeEffectBuilder {
         }
     }
 
-    pub fn with_pushback_on_hit(self, distance: f32) -> Self {
+    pub fn with_distance_on_hit(self, distance: f32) -> Self {
+        self.with_pushback_on_hit(distance * 0.3, distance * 0.7)
+    }
+
+    pub fn with_pushback_on_hit(
+        self,
+        attacker_push_on_hit: f32,
+        defender_push_on_hit: f32,
+    ) -> Self {
         Self {
-            attacker_push_on_hit: distance,
+            attacker_push_on_hit,
+            defender_push_on_hit,
             ..self
         }
     }
@@ -803,6 +845,7 @@ impl StrikeEffectBuilder {
                         .clone()
                         .into_iter()
                         .chain(vec![
+                            Movement::impulse(-Vec2::X * self.defender_push_on_hit).into(),
                             ActionEvent::ModifyResource(ResourceType::Health, -damage),
                             self.hit_stun_event.clone(),
                             if hit_data.airborne

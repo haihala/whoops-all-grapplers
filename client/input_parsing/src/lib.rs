@@ -52,12 +52,12 @@ impl PadBundle {
 
 fn generic_inputs() -> impl Iterator<Item = (ActionId, String)> {
     vec![
-        (ActionId::Up, "8|5"),
-        (ActionId::Down, "2|5"),
-        (ActionId::Left, "4|A5"),
-        (ActionId::Right, "6|A5"),
-        (ActionId::Back, "4|5"),
-        (ActionId::Forward, "6|5"),
+        (ActionId::Up, "{5}8"),
+        (ActionId::Down, "{5}2"),
+        (ActionId::Left, "{5}4|A"),
+        (ActionId::Right, "{5}6|A"),
+        (ActionId::Back, "{5}4"),
+        (ActionId::Forward, "{5}6"),
         (ActionId::Primary, "f"),
         (ActionId::Secondary, "g"),
         (ActionId::Cancel, "s"),

@@ -57,7 +57,7 @@ impl Input {
         match self {
             Input::Button(game_button) => {
                 if crouching {
-                    format!("{}|123", game_button.to_dsl())
+                    format!("{{123}}{}", game_button.to_dsl())
                 } else {
                     game_button.to_dsl()
                 }

@@ -391,7 +391,7 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
             SamuraiAction::BackThrow,
             AttackBuilder::normal()
                 .with_character_universals(CHARACTER_UNIVERSALS)
-                .with_input("w|4")
+                .with_input("{4}w")
                 .back_throw()
                 .throw_hit_action(SamuraiAction::StandThrowHit)
                 .throw_target_action(SamuraiAction::StandThrowTarget)
@@ -471,9 +471,13 @@ fn stance_moves() -> impl Iterator<Item = (SamuraiAction, Action)> {
 
 fn sword_stance(version: SpecialVersion) -> Action {
     let (input, metered, buttons) = match version {
-        SpecialVersion::Fast => ("214f", false, vec![GameButton::Fast]),
-        SpecialVersion::Strong => ("214s", false, vec![GameButton::Strong]),
-        SpecialVersion::Metered => ("214(fs)", true, vec![GameButton::Fast, GameButton::Strong]),
+        SpecialVersion::Fast => ("{2}14f", false, vec![GameButton::Fast]),
+        SpecialVersion::Strong => ("{2}14s", false, vec![GameButton::Strong]),
+        SpecialVersion::Metered => (
+            "{2}14(fs)",
+            true,
+            vec![GameButton::Fast, GameButton::Strong],
+        ),
     };
 
     let mut builder = ActionBuilder::special()
@@ -771,9 +775,9 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
     .map(|version| {
         (SamuraiAction::KunaiThrow(version), {
             let (input, base_velocity, hits, metered) = match version {
-                SpecialVersion::Fast => ("236f", Vec2::new(4.0, 2.0), 1, false),
-                SpecialVersion::Strong => ("236s", Vec2::new(0.9, 4.0), 2, false),
-                SpecialVersion::Metered => ("236(fs)", Vec2::new(10.0, 1.0), 2, true),
+                SpecialVersion::Fast => ("{2}36f", Vec2::new(4.0, 2.0), 1, false),
+                SpecialVersion::Strong => ("{2}36s", Vec2::new(0.9, 4.0), 2, false),
+                SpecialVersion::Metered => ("{2}36(fs)", Vec2::new(10.0, 1.0), 2, true),
             };
 
             let mut builder = ActionBuilder::special()
@@ -954,7 +958,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
             ItemId::Fireaxe,
             Item {
                 category: ItemCategory::Basic,
-                explanation: "6X to do an overhead in sword stance".into(),
+                explanation: "Release stance while holding forward to do an overhead".into(),
                 cost: 400,
                 icon: Icon::Fireaxe,
                 ..default()

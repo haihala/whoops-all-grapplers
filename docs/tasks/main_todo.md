@@ -2,8 +2,9 @@
 
 ## Before next playtest (PP)
 
-- Address [locals playtest feedback](/docs/feedback/playtests/first_locals_feedback_round.md)
-  - At least the ones I get to
+Maybe won't get to all of them
+
+- [Local feedback actionables](/docs/tasks/backlog/locals_playtest_actionables.md)
 - Update [Samurai docs](/docs/gameplay_spec/characters/samurai.md)
 
 ## After next playtest

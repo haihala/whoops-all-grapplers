@@ -106,7 +106,30 @@ impl RequirementMode {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Reflect, Default)]
+pub struct StateRequirement {
+    pub stick: Vec<StickPosition>,
+    pub buttons: Vec<(GameButton, bool)>,
+}
+impl StateRequirement {
+    pub(crate) fn met_by(&self, state: InputState) -> bool {
+        if !self.stick.is_empty() && !self.stick.contains(&state.stick_position) {
+            return false;
+        }
+
+        for (btn, require_pressed) in &self.buttons {
+            let is_pressed = state.pressed.contains(btn);
+            if *require_pressed != is_pressed {
+                return false;
+            }
+        }
+
+        true
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Reflect, Default)]
 pub struct InputRequirement {
     pub mode: RequirementMode,
+    pub state_requirement: StateRequirement,
     pub sticky: bool,
 }

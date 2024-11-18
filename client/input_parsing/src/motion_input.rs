@@ -1,8 +1,7 @@
 use bevy::prelude::*;
-use wag_core::StickPosition;
 
 use crate::{
-    helper_types::{InputRequirement, RequirementMode},
+    helper_types::{InputRequirement, RequirementMode, StateRequirement},
     input_parser::InputHistory,
     InputEvent,
 };
@@ -11,36 +10,33 @@ use crate::{
 pub struct MotionInput {
     requirements: Vec<InputRequirement>,
     absolute: bool, // Does not care about which way the player is facing
-    allowed_stick_positions: Vec<StickPosition>, // Circumvents buffer length
 }
 impl MotionInput {
     pub fn steps(&self) -> usize {
-        self.requirements.iter().fold(0, |acc, req| {
-            acc + if let RequirementMode::All(parts) = &req.mode {
-                parts.len()
-            } else {
-                1
-            }
+        self.requirements.iter().fold(0, |total, req| {
+            total
+                + if let RequirementMode::All(parts) = &req.mode {
+                    parts.len()
+                } else {
+                    1
+                }
         })
     }
 
     pub fn complexity(&self) -> usize {
-        self.steps() + (!self.allowed_stick_positions.is_empty() as usize)
+        self.steps()
+            + self.requirements.iter().fold(0, |mut total, req| {
+                if !req.state_requirement.stick.is_empty() {
+                    total += 1;
+                }
+
+                total += req.state_requirement.buttons.len();
+                total
+            })
     }
 
     pub(crate) fn contained_in(&self, history: &[InputHistory]) -> bool {
-        let mut past = history
-            .iter()
-            .map(|ev| ev.handle_facing(self.absolute))
-            .chain(history.last().map(|last_hist| {
-                (
-                    // This is a cludge
-                    // It fixes a case where user does something like 2h (2)36h,
-                    // and the 2 is out of the history window
-                    InputEvent::Point(last_hist.state.stick_position),
-                    last_hist.state.clone(),
-                )
-            }));
+        let mut past = history.iter().map(|ev| ev.handle_facing(self.absolute));
 
         let mut sticky = false;
 
@@ -51,9 +47,7 @@ impl MotionInput {
                         break false;
                     };
 
-                    if !self.allowed_stick_positions.is_empty()
-                        && !self.allowed_stick_positions.contains(&state.stick_position)
-                    {
+                    if !requirement.state_requirement.met_by(state) {
                         break false;
                     }
 
@@ -72,9 +66,7 @@ impl MotionInput {
                         break false;
                     };
 
-                    if !self.allowed_stick_positions.is_empty()
-                        && !self.allowed_stick_positions.contains(&state.stick_position)
-                    {
+                    if !requirement.state_requirement.met_by(state) {
                         break false;
                     }
 
@@ -115,30 +107,11 @@ impl From<String> for MotionInput {
         let mut incomplete = InputRequirement::default();
         let mut complete = vec![];
 
-        for ch in sequence.chars() {
+        let mut chars = sequence.chars();
+
+        while let Some(ch) = chars.next() {
             match ch {
-                '[' => {
-                    incomplete.mode = RequirementMode::Any(vec![]);
-                }
-                '(' => {
-                    incomplete.mode = RequirementMode::All(vec![]);
-                }
-                ']' => {
-                    assert!(
-                        matches!(incomplete.mode, RequirementMode::Any(_)),
-                        "Using ] to close a ("
-                    );
-                    complete.push(incomplete);
-                    incomplete = InputRequirement::default();
-                }
-                ')' => {
-                    assert!(
-                        matches!(incomplete.mode, RequirementMode::All(_)),
-                        "Using ) to close a ["
-                    );
-                    complete.push(incomplete);
-                    incomplete = InputRequirement::default();
-                }
+                // Modifiers
                 '+' => {
                     assert!(
                         !complete.is_empty(),
@@ -147,19 +120,53 @@ impl From<String> for MotionInput {
 
                     incomplete.sticky = true;
                 }
-                _ => {
-                    let new_ev = ch.into();
+                '{' => {
+                    incomplete.state_requirement = chars
+                        .by_ref()
+                        .take_while(|nxt| *nxt != '}')
+                        .fold(StateRequirement::default(), |mut acc, nxt| {
+                            let ev: InputEvent = nxt.into();
 
-                    match incomplete.mode {
-                        RequirementMode::All(ref mut evs) | RequirementMode::Any(ref mut evs) => {
-                            evs.push(new_ev);
-                        }
-                        RequirementMode::None => {
-                            incomplete.mode = RequirementMode::Any(vec![new_ev]);
-                            complete.push(incomplete);
-                            incomplete = InputRequirement::default();
-                        }
-                    }
+                            match ev {
+                                InputEvent::Point(stick_position) => acc.stick.push(stick_position),
+                                InputEvent::Press(game_button) => {
+                                    acc.buttons.push((game_button, true))
+                                }
+                                InputEvent::Release(game_button) => {
+                                    acc.buttons.push((game_button, false))
+                                }
+                            };
+
+                            acc
+                        });
+                }
+                // Steps
+                '[' => {
+                    incomplete.mode = RequirementMode::Any(
+                        chars
+                            .by_ref()
+                            .take_while(|nxt| *nxt != ']')
+                            .map(|nxt| nxt.into())
+                            .collect(),
+                    );
+                    complete.push(incomplete);
+                    incomplete = InputRequirement::default();
+                }
+                '(' => {
+                    incomplete.mode = RequirementMode::All(
+                        chars
+                            .by_ref()
+                            .take_while(|nxt| *nxt != ')')
+                            .map(|nxt| nxt.into())
+                            .collect(),
+                    );
+                    complete.push(incomplete);
+                    incomplete = InputRequirement::default();
+                }
+                _ => {
+                    incomplete.mode = RequirementMode::Any(vec![ch.into()]);
+                    complete.push(incomplete);
+                    incomplete = InputRequirement::default();
                 }
             }
         }
@@ -175,10 +182,6 @@ impl From<String> for MotionInput {
             match ch {
                 'A' => {
                     out.absolute = true;
-                }
-                '1'..='9' => {
-                    out.allowed_stick_positions
-                        .push((ch.to_digit(10).unwrap() as i32).into());
                 }
                 unknown => panic!("Unknown char ̈́'{}'", unknown),
             }
@@ -288,20 +291,23 @@ mod test {
     }
 
     #[test]
-    fn metadata_parses() {
-        let input: MotionInput = "f|A123".into();
+    fn input_state_check_parses() {
+        let input: MotionInput = "{123sG}f".into();
 
-        assert!(input.absolute);
-
+        assert_eq!(input.complexity(), 4);
+        assert_eq!(input.steps(), 1);
         assert_eq!(
-            input.allowed_stick_positions,
-            vec![StickPosition::SW, StickPosition::S, StickPosition::SE]
+            input.requirements[0].state_requirement,
+            StateRequirement {
+                stick: vec![StickPosition::SW, StickPosition::S, StickPosition::SE],
+                buttons: vec![(GameButton::Strong, true), (GameButton::Gimmick, false)]
+            }
         );
     }
 
     #[test]
-    fn metadata_validates() {
-        let input: MotionInput = "f|A123".into();
+    fn input_state_check_validates() {
+        let input: MotionInput = "{123}f|A".into();
 
         let event = InputEvent::Press(GameButton::Fast);
 
@@ -316,7 +322,14 @@ mod test {
                 ..default()
             },
             ..default()
-        },]));
+        }]));
+    }
+
+    #[test]
+    fn metadata_parses() {
+        let input: MotionInput = "f|A".into();
+
+        assert!(input.absolute);
     }
 
     #[test]
@@ -326,7 +339,7 @@ mod test {
             ("(f)", 1),
             ("(fs)", 2),
             ("236(fs)", 5),
-            ("f|123", 2),
+            ("{123}f", 2),
         ] {
             assert_eq!(Into::<MotionInput>::into(input).complexity(), complexity);
         }

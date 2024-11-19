@@ -1,7 +1,9 @@
 use bevy::{prelude::*, window::WindowMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-use characters::{ActionEvent, FlashRequest, Hitbox, Hurtboxes, Inventory};
+use characters::{
+    ActionEvent, FlashRequest, Hitbox, Hurtboxes, Inventory, ResourceType, WAGResources,
+};
 use input_parsing::{InputParser, PadStream, ParrotStream};
 use strum::IntoEnumIterator;
 use wag_core::{
@@ -49,6 +51,7 @@ impl Plugin for DevPlugin {
                     shader_test_system,
                     fullscreen_toggle,
                     pause_toggle,
+                    kill_system,
                     box_visualization::visualize_hitboxes,
                     box_visualization::visualize_hurtboxes,
                     box_visualization::visualize_pushboxes,
@@ -194,6 +197,19 @@ fn pause_toggle(
         if clock.frame > frame {
             time.set_relative_speed(0.0);
             *local_frame = None;
+        }
+    }
+}
+
+fn kill_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<(&Player, &mut WAGResources)>) {
+    let kill_p1 = keys.just_released(KeyCode::Digit6);
+    let kill_p2 = keys.just_released(KeyCode::Digit7);
+
+    if kill_p1 || kill_p2 {
+        for (player, mut res) in &mut players {
+            if (kill_p1 && *player == Player::One) || (kill_p2 && *player == Player::Two) {
+                res.get_mut(ResourceType::Health).unwrap().drain(99999);
+            }
         }
     }
 }

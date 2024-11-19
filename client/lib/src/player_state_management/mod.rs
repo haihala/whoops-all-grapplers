@@ -37,9 +37,7 @@ impl Plugin for PlayerStateManagementPlugin {
             .add_systems(OnEnter(MatchState::PreRound), setup_combat)
             .add_systems(
                 RollbackSchedule,
-                side_switcher::sideswitcher
-                    .in_set(WAGStage::HouseKeeping)
-                    .run_if(in_state(MatchState::Combat)),
+                side_switcher::sideswitcher.in_set(WAGStage::HouseKeeping),
             )
             .add_systems(
                 RollbackSchedule,

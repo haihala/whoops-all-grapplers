@@ -53,4 +53,20 @@ args = ["run", "--", "synctest", "69", "samurai"]
 command = "cargo"
 args = ["run"]
 
+[tasks.release-build]
+command = "cargo"
+args = ["build", "--release"]
 
+[tasks.assemble-package]
+script_runner = "@shell"
+script = '''
+rm -fr package
+mkdir package
+cp target/release/whoops-all-grapplers package
+cp -r main/assets package
+'''
+
+# "package" is already taken by cargo-make for some reason
+# This is useful for testing on the steam deck
+[tasks.update-package]
+run_task = { name = ["release-build", "assemble-package"] }

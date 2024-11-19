@@ -4,6 +4,9 @@
 # Added by cargo
 target
 
+# Release builds
+client/package
+
 # VSCode
 .vscode
 

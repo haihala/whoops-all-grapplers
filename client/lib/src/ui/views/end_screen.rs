@@ -1,5 +1,6 @@
 use crate::{
     assets::Fonts,
+    state_transitions::TransitionTimer,
     ui::{SharedVerticalNav, VerticalMenuNavigation},
 };
 use bevy::prelude::*;
@@ -155,7 +156,9 @@ fn setup_end_screen_option(
     .id()
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn navigate_end_screen(
+    mut commands: Commands,
     mut nav: ResMut<EndScreenNav>,
     mut events: ResMut<MenuInputs>,
     controllers: Res<Controllers>,
@@ -180,7 +183,7 @@ pub fn navigate_end_screen(
             WagInputButton::East => {
                 nav.unlock(player);
             }
-            WagInputButton::West => {
+            WagInputButton::South => {
                 let selected = nav.selected(player);
                 let option_type = options.get(selected).unwrap();
 
@@ -188,12 +191,16 @@ pub fn navigate_end_screen(
                     EndScreenOption::Rematch => {
                         nav.lock_in(player);
                         if nav.both_locked() {
-                            // TODO: May need additional cleanup
-                            next_match_state.set(MatchState::Loading);
+                            next_match_state.set(MatchState::None); // This will despawn shit
+                            commands.insert_resource(TransitionTimer {
+                                timer: Timer::from_seconds(0.0, TimerMode::Once),
+                                state: MatchState::Loading,
+                            });
                         }
                     }
                     EndScreenOption::QuitToMainMenu => {
                         next_game_state.set(GameState::MainMenu);
+                        next_match_state.set(MatchState::None);
                     }
                     EndScreenOption::QuitToDesktop => {
                         quitter.send_default();

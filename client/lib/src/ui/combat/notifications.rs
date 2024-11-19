@@ -149,7 +149,10 @@ pub fn update_notifications(
         notification.created_at + TIME_TO_LIVE < clock.frame
             || notification.created_at > clock.frame // Previous round
     }) {
-        commands.entity(expired_toast.entity).despawn_recursive();
+        // This structure needs to be here, as the entity gets despawned sometimes
+        if let Some(ent) = commands.get_entity(expired_toast.entity) {
+            ent.despawn_recursive();
+        }
     }
 
     for (player, content) in toasts.requests.drain(..).collect::<Vec<_>>().into_iter() {

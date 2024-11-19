@@ -6,6 +6,5 @@
   - This may fix jumps going the wrong way
 - Move list in loading screen
 - Check why defender can't block 2f spam and there are opener sparks
-- Fix end screen reset / main menu buttons
 - Stop animations after game ends
 - Fix character facing on round reset

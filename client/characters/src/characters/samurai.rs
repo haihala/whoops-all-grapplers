@@ -140,6 +140,8 @@ fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
 }
 
 fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
+    dbg!("Samurai normals");
+
     vec![
         (
             SamuraiAction::KneeThrust,
@@ -197,7 +199,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
         ),
         (
             SamuraiAction::Uppercut,
-            ActionBuilder::button(GameButton::Start)
+            ActionBuilder::button(GameButton::Strong)
                 .crouching()
                 .with_animation(SamuraiAnimation::Uppercut)
                 .dyn_events_on_frame(
@@ -217,28 +219,28 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                     lifetime: Lifetime::frames(4),
                                     ..default()
                                 },
-                                on_hit: StrikeEffectBuilder::new(
-                                    40,
-                                    Mid,
-                                    ActionEvent::LaunchStun(Vec2::Y * 6.0),
-                                    9,
-                                )
-                                .with_distance_on_hit(0.9)
-                                .with_extra_on_hit_events(
-                                    if situation.inventory.contains(&ItemId::IceCube) {
-                                        vec![
-                                            ActionEvent::ClearMovement,
-                                            ActionEvent::RelativeVisualEffect(VfxRequest {
-                                                effect: VisualEffect::Icon(Icon::IceCube),
-                                                tf: Transform::from_translation(Vec3::Y * 1.0),
-                                                ..default()
-                                            }),
-                                        ]
-                                    } else {
-                                        vec![]
-                                    },
-                                )
-                                .build(),
+                                on_hit: StrikeEffectBuilder::default()
+                                    .with_height(Mid)
+                                    .with_blockstun(40)
+                                    .with_damage(9)
+                                    .with_distance_on_hit(0.9)
+                                    .with_on_hit_events({
+                                        let mut evs = vec![ActionEvent::LaunchStun(Vec2::Y * 6.0)];
+
+                                        if situation.inventory.contains(&ItemId::IceCube) {
+                                            evs.extend(vec![
+                                                ActionEvent::ClearMovement,
+                                                ActionEvent::RelativeVisualEffect(VfxRequest {
+                                                    effect: VisualEffect::Icon(Icon::IceCube),
+                                                    tf: Transform::from_translation(Vec3::Y * 1.0),
+                                                    ..default()
+                                                }),
+                                            ]);
+                                        }
+
+                                        evs
+                                    })
+                                    .build(),
                             }),
                         ]
                     }),
@@ -254,7 +256,11 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                 ..default()
                             },
 
-                            on_hit: StrikeEffectBuilder::new(30, Mid, ActionEvent::HitStun(38), 6)
+                            on_hit: StrikeEffectBuilder::default()
+                                .with_height(Mid)
+                                .with_on_hit_events(vec![ActionEvent::HitStun(38)])
+                                .with_blockstun(30)
+                                .with_damage(6)
                                 .with_distance_on_hit(0.1)
                                 .build(),
                         }),
@@ -274,7 +280,6 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .sword()
                 .with_advantage_on_block(-16)
                 .with_advantage_on_hit(-6)
-                .with_distance_on_block(0.3)
                 .build(),
         ),
         (
@@ -289,7 +294,6 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .sword()
                 .with_advantage_on_block(-7)
                 .with_advantage_on_hit(10)
-                .with_distance_on_block(0.3)
                 .build(),
         ),
         (
@@ -304,7 +308,6 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .sword()
                 .with_blockstun(20)
                 .with_hitstun(30)
-                .with_distance_on_block(0.3)
                 .build(),
         ),
         (
@@ -314,11 +317,10 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .air_only()
                 .with_animation(SamuraiAnimation::FalconKnee)
                 .with_frame_data(2, 5, 23)
-                .with_hitbox(Area::new(0.3, 0.4, 0.35, 0.25))
+                .with_hitbox(Area::new(0.4, 0.5, 0.35, 0.25))
                 .with_damage(5)
                 .with_blockstun(10)
                 .with_hitstun(15)
-                .with_distance_on_block(0.3)
                 .build(),
         ),
         (
@@ -355,7 +357,6 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_blockstun(25)
                 .with_hitstun(40)
                 .with_damage(18)
-                .with_distance_on_block(1.0)
                 .with_pushback_on_hit(0.3)
                 .build(),
         ),
@@ -364,6 +365,8 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
 }
 
 fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
+    dbg!("Samurai throws");
+
     let (stand_throw_target, stand_throw_activation) = ThrowEffectBuilder::new(
         SamuraiAnimation::StandThrowHit,
         80,
@@ -458,6 +461,7 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
 }
 
 fn specials() -> impl Iterator<Item = (SamuraiAction, Action)> {
+    dbg!("Samurai specials");
     stance_moves().chain(kunai_throws())
 }
 
@@ -839,24 +843,25 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                     hits,
                                     projectile: true,
                                 },
-                                on_hit: StrikeEffectBuilder::new(
-                                    if extra_stun { 20 } else { 15 },
-                                    Mid,
-                                    ActionEvent::HitStun(if extra_stun { 30 } else { 20 }),
-                                    12,
-                                )
-                                .with_defender_block_pushback(0.4)
-                                .with_chip_damage(2)
-                                .with_extra_on_hit_events(if extra_stun {
-                                    vec![ActionEvent::RelativeVisualEffect(VfxRequest {
-                                        effect: VisualEffect::Lightning,
-                                        tf: Transform::from_translation(Vec3::Y),
-                                        mirror: true,
-                                    })]
-                                } else {
-                                    vec![]
-                                })
-                                .build(),
+                                on_hit: StrikeEffectBuilder::default()
+                                    .with_height(Mid)
+                                    .with_blockstun(if extra_stun { 20 } else { 15 })
+                                    .with_damage(12)
+                                    .with_defender_block_pushback(0.4)
+                                    .with_chip_damage(2)
+                                    .with_on_hit_events(if extra_stun {
+                                        vec![
+                                            ActionEvent::HitStun(if extra_stun { 30 } else { 20 }),
+                                            ActionEvent::RelativeVisualEffect(VfxRequest {
+                                                effect: VisualEffect::Lightning,
+                                                tf: Transform::from_translation(Vec3::Y),
+                                                mirror: true,
+                                            }),
+                                        ]
+                                    } else {
+                                        vec![]
+                                    })
+                                    .build(),
                             }),
                         ]
                     }),

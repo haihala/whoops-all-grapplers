@@ -46,6 +46,99 @@ pub enum ActionEvent {
     End,                        // Ends the move, return to neutral
 }
 
+impl std::fmt::Debug for ActionEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ActionEvent::AllowCancel(cancel_window) => {
+                write!(f, "AllowCancel - {:?}", cancel_window)
+            }
+            ActionEvent::Animation(animation_request) => {
+                write!(f, "Animation - {:?}", animation_request)
+            }
+            ActionEvent::Sound(sound_effect) => {
+                write!(f, "Sound - {:?}", sound_effect)
+            }
+            ActionEvent::StartAction(action_id) => {
+                write!(f, "StartAction - {:?}", action_id)
+            }
+            ActionEvent::SpawnHitbox(attack) => {
+                write!(f, "SpawnHitbox - to hit: {:?}", attack.to_hit)
+            }
+            ActionEvent::ClearMovement => {
+                write!(f, "ClearMovement")
+            }
+            ActionEvent::Movement(movement) => {
+                write!(f, "Movement - {:?}", movement)
+            }
+            ActionEvent::Teleport(vec2) => {
+                write!(f, "Teleport - {:?}", vec2)
+            }
+            ActionEvent::Condition(status_condition) => {
+                write!(f, "Condition - {:?}", status_condition)
+            }
+            ActionEvent::ClearCondition(status_flag) => {
+                write!(f, "ClearCondition - {:?}", status_flag)
+            }
+            ActionEvent::ForceStand => {
+                write!(f, "ForceStand")
+            }
+            ActionEvent::ForceCrouch => {
+                write!(f, "ForceCrouch ")
+            }
+            ActionEvent::SayVoiceLine(voice_line) => {
+                write!(f, "SayVoiceLine - {:?}", voice_line)
+            }
+            ActionEvent::ModifyResource(resource_type, amount) => {
+                write!(f, "ModifyResource - {:?} by {}", resource_type, amount)
+            }
+            ActionEvent::ClearResource(resource_type) => {
+                write!(f, "ClearResource - {:?}", resource_type)
+            }
+            ActionEvent::SnapToOpponent { sideswitch } => {
+                write!(f, "SnapToOpponent - {}", sideswitch)
+            }
+            ActionEvent::HitStun(duration) => {
+                write!(f, "HitStun - {:?}", duration)
+            }
+            ActionEvent::BlockStun(duration) => {
+                write!(f, "BlockStun - {:?}", duration)
+            }
+            ActionEvent::LaunchStun(vec2) => {
+                write!(f, "LaunchStun - {:?}", vec2)
+            }
+            ActionEvent::Hitstop => todo!(),
+            ActionEvent::CameraTilt(vec2) => {
+                write!(f, "CameraTilt - {:?}", vec2)
+            }
+            ActionEvent::CameraShake => todo!(),
+            ActionEvent::CharacterShake(amount) => {
+                write!(f, "CharacterShake - {:?}", amount)
+            }
+            ActionEvent::Flash(flash_request) => {
+                write!(f, "Flash - {:?}", flash_request)
+            }
+            ActionEvent::ColorShift(color, duration) => {
+                write!(f, "ColorShift - {:?} for {}", color, duration)
+            }
+            ActionEvent::RelativeVisualEffect(vfx_request) => {
+                write!(f, "RelativeVisualEffect - {:?}", vfx_request)
+            }
+            ActionEvent::AbsoluteVisualEffect(vfx_request) => {
+                write!(f, "AbsoluteVisualEffect - {:?}", vfx_request)
+            }
+            ActionEvent::ExpandHurtbox(area, duration) => {
+                write!(f, "ExpandHurtbox - {:?} for {}", area, duration)
+            }
+            ActionEvent::Noop => {
+                write!(f, "NO-OP")
+            }
+            ActionEvent::End => {
+                write!(f, "End")
+            }
+        }
+    }
+}
+
 impl From<Animation> for ActionEvent {
     fn from(value: Animation) -> Self {
         ActionEvent::Animation(value.into())

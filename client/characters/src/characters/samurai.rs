@@ -588,7 +588,8 @@ fn sword_stance(version: SpecialVersion) -> Action {
                 vec![]
             }),
         )
-        .end_at(40);
+        // Effectively never end
+        .end_at(99 * 60);
 
     if metered {
         builder = builder.with_meter_cost();

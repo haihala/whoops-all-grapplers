@@ -56,7 +56,7 @@ pub fn animations(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut loading_assets: ResMut<AssetsLoading>,
-    mut animation_graphs: ResMut<Assets<AnimationGraph>>,
+    mut graphs: ResMut<Assets<AnimationGraph>>,
 ) {
     let handles: HashMap<Animation, Handle<AnimationClip>> = animation_paths()
         .into_iter()
@@ -67,7 +67,16 @@ pub fn animations(
         .0
         .extend(handles.values().cloned().map(|h| h.untyped()));
 
-    commands.insert_resource(Animations::new(handles, &mut animation_graphs));
+    let mut monograph = AnimationGraph::new();
+
+    let mut indices: HashMap<Animation, AnimationNodeIndex> = HashMap::new();
+
+    for (anim, handle) in handles.into_iter() {
+        let index = monograph.add_clip(handle, 1.0, monograph.root);
+        indices.insert(anim, index);
+    }
+
+    commands.insert_resource(Animations::new(graphs.add(monograph), indices));
 }
 
 pub fn sounds(

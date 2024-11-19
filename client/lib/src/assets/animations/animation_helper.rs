@@ -1,4 +1,4 @@
-use std::mem::take;
+use std::{mem::take, time::Duration};
 
 use bevy::{prelude::*, scene::SceneInstance};
 
@@ -55,6 +55,7 @@ pub fn setup_helpers(
     children: Query<&Children>,
     players: Query<&AnimationPlayer>,
     scenes: Query<&SceneInstance>,
+    animations: Res<Animations>,
 ) {
     for (host_entity, helper) in &to_setup {
         if let (Some(animation_player), Some(scene_root)) =
@@ -64,6 +65,11 @@ pub fn setup_helpers(
                 .entity(host_entity)
                 .remove::<AnimationHelperSetup>()
                 .insert(AnimationHelper::new(animation_player, scene_root, helper.0));
+
+            commands
+                .entity(animation_player)
+                .insert(AnimationTransitions::new())
+                .insert(animations.monograph.clone());
         }
     }
 }
@@ -94,47 +100,35 @@ fn find_animation_player_entity(
 }
 
 pub fn update_animation(
-    mut commands: Commands,
     animations: Res<Animations>,
     mut main: Query<(&mut AnimationHelper, &Facing, &Stats)>,
-    mut players: Query<&mut AnimationPlayer>,
+    mut players: Query<(&mut AnimationPlayer, &mut AnimationTransitions)>,
     mut scenes: Query<&mut Transform, With<Handle<Scene>>>,
     maybe_hitstop: Option<ResMut<Hitstop>>,
-    graphs: ResMut<Assets<AnimationGraph>>,
 ) {
     for (mut helper, facing, stats) in &mut main {
-        let mut player = players.get_mut(helper.player_entity).unwrap();
+        let (mut player, mut transitions) = players.get_mut(helper.player_entity).unwrap();
         let mut scene_root = scenes.get_mut(helper.scene_root).unwrap();
 
         if let Some(request) = helper.request.take() {
             // New animation set to start
-            let (graph_handle, index) = animations.get(
+            let index = animations.get(
                 request.animation,
                 &if request.invert {
                     facing.opposite()
                 } else {
                     *facing
                 },
-                &graphs,
             );
 
-            commands.entity(helper.player_entity).insert(graph_handle);
+            let active = transitions.play(&mut player, index, Duration::ZERO);
 
-            let animation =
-                player
-                    .start(index)
-                    .seek_to(0.0)
-                    .set_speed(if request.ignore_action_speed {
-                        1.0
-                    } else {
-                        stats.action_speed_multiplier
-                    });
-
-            // FIXME: There is something wrong with this.
-            // First frames of the animation bleed through occasionally
-            // It seems like the animation holds the first frame after it's done?
             if request.looping {
-                animation.repeat();
+                active.repeat();
+            }
+
+            if !request.ignore_action_speed {
+                active.set_speed(stats.action_speed_multiplier);
             }
 
             helper.playing = Some(request);
@@ -144,10 +138,13 @@ pub fn update_animation(
             // Looping animations like idle ought to turn when the sides switch. Non looping like moves should not
         } else if *facing != helper.facing && helper.playing.unwrap().looping {
             // Sideswitch
-            let (graph, index) = animations.get(helper.playing.unwrap().animation, facing, &graphs);
-            commands.entity(helper.player_entity).insert(graph);
+            let index = animations.get(helper.playing.unwrap().animation, facing);
             let elapsed = player.playing_animations().next().unwrap().1.elapsed();
-            player.start(index).seek_to(elapsed).repeat();
+
+            transitions
+                .play(&mut player, index, Duration::ZERO)
+                .seek_to(elapsed)
+                .repeat();
             helper.facing = *facing;
         } else if maybe_hitstop.is_none() && player.all_paused() {
             // Hitstop is over, resume playing

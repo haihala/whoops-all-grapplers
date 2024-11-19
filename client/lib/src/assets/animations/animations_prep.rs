@@ -4,60 +4,46 @@ use wag_core::{Animation, Facing, SamuraiAnimation};
 
 #[derive(Debug, Default, Resource)]
 pub struct Animations {
-    normal: HashMap<Animation, Handle<AnimationGraph>>,
-    mirrored: HashMap<Animation, Handle<AnimationGraph>>,
+    pub monograph: Handle<AnimationGraph>,
+    normal: HashMap<Animation, AnimationNodeIndex>,
+    mirrored: HashMap<Animation, AnimationNodeIndex>,
 }
 
 impl Animations {
     pub fn new(
-        animations: HashMap<Animation, Handle<AnimationClip>>,
-        asset_server: &mut ResMut<Assets<AnimationGraph>>,
+        monograph: Handle<AnimationGraph>,
+        animations: HashMap<Animation, AnimationNodeIndex>,
     ) -> Self {
         Self {
-            normal: animations
-                .into_iter()
-                .map(|(k, v)| (k, asset_server.add(AnimationGraph::from_clip(v).0)))
-                .collect(),
+            monograph,
+            normal: animations,
             mirrored: default(),
         }
     }
 
-    fn all_loaded(
+    fn originals_loaded(
         &self,
         graph_assets: &Assets<AnimationGraph>,
         clip_assets: &Assets<AnimationClip>,
     ) -> bool {
+        let monograph = graph_assets.get(&self.monograph).unwrap();
+
         self.normal.values().all(|handle| {
-            let Some(graph) = graph_assets.get(handle) else {
+            let Some(node) = monograph.get(*handle) else {
                 return false;
             };
 
-            let node_index = graph.nodes().last().unwrap();
-            let Some(node) = graph.get(node_index) else {
-                return false;
-            };
-
-            clip_assets.get(&node.clip.clone().unwrap()).is_some()
+            let clip_handle = node.clip.clone().unwrap();
+            clip_assets.get(&clip_handle).is_some()
         })
     }
 
-    pub(super) fn get(
-        &self,
-        animation: Animation,
-        flipped: &Facing,
-        graphs: &Assets<AnimationGraph>,
-    ) -> (Handle<AnimationGraph>, AnimationNodeIndex) {
-        let graph_handle = match flipped {
+    pub(super) fn get(&self, animation: Animation, flipped: &Facing) -> AnimationNodeIndex {
+        *match flipped {
             Facing::Right => self.normal.get(&animation),
             Facing::Left => self.mirrored.get(&animation),
         }
         .unwrap()
-        .clone();
-
-        let graph = graphs.get(&graph_handle).unwrap();
-        let node_index = graph.nodes().last().unwrap();
-
-        (graph_handle, node_index)
     }
 }
 
@@ -67,7 +53,8 @@ pub fn mirror_after_load(
     mut graph_assets: ResMut<Assets<AnimationGraph>>,
     mut done: Local<bool>,
 ) {
-    if !animations.all_loaded(&graph_assets, &clip_assets) || !animations.mirrored.is_empty() {
+    if !animations.originals_loaded(&graph_assets, &clip_assets) || !animations.mirrored.is_empty()
+    {
         return;
     }
 
@@ -206,13 +193,13 @@ pub fn mirror_after_load(
     })
     .collect::<HashMap<AnimationTargetId, AnimationTargetId>>();
 
+    let graph = graph_assets.get_mut(&animations.monograph).unwrap();
+
     animations.mirrored = animations
         .normal
         .iter()
-        .map(|(animation, handle)| {
-            let graph = graph_assets.get(handle).unwrap();
-            let node_index = graph.nodes().last().unwrap();
-            let node = graph.get(node_index).unwrap();
+        .map(|(animation, normal_index)| {
+            let node = graph.get(*normal_index).unwrap();
             let clip_handle = node.clip.clone().unwrap();
             let clip = clip_assets.get(&clip_handle).unwrap();
             let curves = clip.curves();
@@ -229,10 +216,8 @@ pub fn mirror_after_load(
                 },
             );
 
-            (
-                animation.to_owned(),
-                graph_assets.add(AnimationGraph::from_clip(clip_assets.add(mirrored)).0),
-            )
+            let mirrored_index = graph.add_clip(clip_assets.add(mirrored), 1.0, graph.root);
+            (animation.to_owned(), mirrored_index)
         })
         .collect();
     *done = true;

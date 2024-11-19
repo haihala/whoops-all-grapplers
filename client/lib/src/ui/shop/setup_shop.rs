@@ -79,7 +79,7 @@ pub fn setup_shop(
         &fonts,
     );
 
-    setup_shop_bottom_bar(&mut commands, root);
+    setup_bottom_bars(&mut commands, root);
 
     commands.insert_resource(Shops {
         player_one: Shop {
@@ -161,7 +161,38 @@ fn setup_shop_top_bar(commands: &mut Commands, container: Entity) {
         });
 }
 
-fn setup_shop_bottom_bar(commands: &mut Commands, container: Entity) {
+fn setup_bottom_bars(commands: &mut Commands, container: Entity) {
+    shop_ribbon(
+        commands,
+        container,
+        "Shop reading guide",
+        &[
+            ("Selected", ITEM_SLOT_HIGHLIGHT_COLOR),
+            ("Component", ITEM_SLOT_COMPONENT_COLOR),
+            ("Upgrade", ITEM_SLOT_UPGRADE_COLOR),
+            ("Owned", ITEM_SLOT_OWNED_COLOR),
+            ("Purchasable", ITEM_SLOT_DEFAULT_COLOR),
+            ("Not purchasable", ITEM_SLOT_DISABLED_COLOR),
+        ],
+    );
+    shop_ribbon(
+        commands,
+        container,
+        "Shop button guide",
+        &[
+            ("A/Cross to buy", GENERIC_TEXT_COLOR),
+            ("B/Circle to sell", GENERIC_TEXT_COLOR),
+            ("Option/Start to proceed", GENERIC_TEXT_COLOR),
+        ],
+    );
+}
+
+fn shop_ribbon(
+    commands: &mut Commands,
+    container: Entity,
+    title: &'static str,
+    items: &[(&'static str, Color)],
+) {
     let style = TextStyle {
         font_size: 30.0,
         ..default()
@@ -174,29 +205,21 @@ fn setup_shop_bottom_bar(commands: &mut Commands, container: Entity) {
                 style: Style {
                     justify_content: JustifyContent::Center,
                     column_gap: Val::Percent(2.0),
+                    border: UiRect::all(Val::Px(3.0)),
                     ..default()
                 },
                 ..default()
             },
-            Name::new("Shop bottom bar"),
+            Name::new(title),
         ))
         .set_parent(container)
         .with_children(|cb| {
-            for (text, color) in [
-                ("A/Cross to buy", GENERIC_TEXT_COLOR),
-                ("Selected", ITEM_SLOT_HIGHLIGHT_COLOR),
-                ("Component", ITEM_SLOT_COMPONENT_COLOR),
-                ("Upgrade", ITEM_SLOT_UPGRADE_COLOR),
-                ("Owned", ITEM_SLOT_OWNED_COLOR),
-                ("Purchasable", ITEM_SLOT_DEFAULT_COLOR),
-                ("Not purchasable", ITEM_SLOT_DISABLED_COLOR),
-                ("X/Square to sell", GENERIC_TEXT_COLOR),
-            ] {
+            for (text, color) in items {
                 cb.spawn(TextBundle {
                     text: Text::from_section(
-                        text,
+                        *text,
                         TextStyle {
-                            color,
+                            color: *color,
                             ..style.clone()
                         },
                     ),

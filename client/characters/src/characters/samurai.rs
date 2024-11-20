@@ -140,7 +140,7 @@ fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
 }
 
 fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
-    dbg!("Samurai normals");
+    debug!("Samurai normals");
 
     vec![
         (
@@ -365,7 +365,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
 }
 
 fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
-    dbg!("Samurai throws");
+    debug!("Samurai throws");
 
     let (stand_throw_target, stand_throw_activation) = ThrowEffectBuilder::new(
         SamuraiAnimation::StandThrowHit,
@@ -461,7 +461,7 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
 }
 
 fn specials() -> impl Iterator<Item = (SamuraiAction, Action)> {
-    dbg!("Samurai specials");
+    debug!("Samurai specials");
     stance_moves().chain(kunai_throws())
 }
 

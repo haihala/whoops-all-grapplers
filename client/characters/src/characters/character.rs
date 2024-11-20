@@ -81,7 +81,7 @@ mod test {
                     ..default()
                 };
                 let end_events = (mov.script)(&sit);
-                dbg!(id);
+                debug!("Move ID: {:?}", id);
                 end_events
                     .iter()
                     .find(|ev| matches!(ev, ActionEvent::End | ActionEvent::StartAction(_)))
@@ -94,7 +94,7 @@ mod test {
     fn moves_with_inputs_have_starter_requirement() {
         for char in [samurai()] {
             for (id, mov) in char.moves.iter() {
-                dbg!(id);
+                debug!("Move ID: {:?}", id);
 
                 if mov.input.is_some() {
                     assert!(contains_starter(&mov.requirement));

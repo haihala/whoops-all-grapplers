@@ -1,4 +1,4 @@
-use bevy::prelude::Component;
+use bevy::prelude::*;
 
 use super::InputStream;
 use crate::helper_types::InputEvent;
@@ -9,14 +9,15 @@ pub struct TestStream {
 }
 impl TestStream {
     pub fn push(&mut self, change: InputEvent) {
-        dbg!(&change);
+        debug!("Pushed input: {:?}", &change);
         self.next_read.push(change);
     }
 }
 impl InputStream for TestStream {
     fn read(&mut self) -> Vec<InputEvent> {
         let temp = self.next_read.clone();
+        debug!("Test stream output: {:?}", &temp);
         self.next_read.clear();
-        dbg!(temp)
+        temp
     }
 }

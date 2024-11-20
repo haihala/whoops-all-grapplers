@@ -216,7 +216,10 @@ fn resolve_constraints(
                 }
                 std::cmp::Ordering::Equal => {
                     // This could be due to a NaN
-                    dbg!(v1, v2);
+                    error!(
+                        "Player positions are perfectly equal: {:?} == {:?} ",
+                        v1, v2
+                    );
                     panic!("Perfectly identical next pos");
                 }
             },

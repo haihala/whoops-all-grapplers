@@ -45,7 +45,10 @@ fn update_visibility_on_state_change<T: States>(
     mut query: Query<(&mut Visibility, &VisibleInStates<T>)>,
 ) {
     if state.is_changed() {
-        dbg!(state.get());
+        debug!(
+            "State transitioned to: {:?}, updating visibilities",
+            state.get()
+        );
         for (mut visibility, restriction) in &mut query {
             *visibility = if restriction.contains(state.get()) {
                 Visibility::Visible

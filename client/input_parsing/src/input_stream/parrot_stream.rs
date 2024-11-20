@@ -27,15 +27,15 @@ impl ParrotStream {
     pub fn cycle(&mut self) {
         self.mode = match self.mode {
             ParrotMode::Listening => {
-                println!("Starting playback.");
+                info!("Starting playback.");
                 ParrotMode::Repeating
             }
             ParrotMode::Repeating => {
-                println!("Entered direct control mode.");
+                info!("Entered direct control mode.");
                 ParrotMode::Noop
             }
             ParrotMode::Noop => {
-                println!("Starting recording.");
+                info!("Starting recording.");
                 self.buffer = vec![];
                 self.buffer_index = 0;
                 ParrotMode::Listening

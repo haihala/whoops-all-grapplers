@@ -213,7 +213,7 @@ fn setup_combat(
     mut clock: ResMut<Clock>,
     bevy_time: Res<Time>,
 ) {
-    println!("Reset");
+    info!("Round start reset");
     clock.reset(bevy_time.elapsed_seconds_f64());
 
     for (

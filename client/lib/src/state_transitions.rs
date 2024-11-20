@@ -190,7 +190,7 @@ fn end_loading(
         .all(|h| server.get_load_state(h.id()) == Some(LoadState::Loaded));
 
     if two_players && hooks_ran && asset_loads_started && all_assets_loaded {
-        println!("Done loading assets");
+        info!("Done loading assets");
         next_match_state.set(MatchState::PostLoad);
     }
 }

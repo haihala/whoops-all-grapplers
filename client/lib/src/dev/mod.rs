@@ -124,7 +124,7 @@ fn shader_test_system(
     players: Res<Players>,
 ) {
     if keys.just_pressed(KeyCode::Digit1) {
-        println!("Playing shader flash");
+        info!("Playing shader flash");
         for player in Player::iter() {
             commands.trigger_targets(
                 ActionEvent::Flash(FlashRequest {
@@ -138,7 +138,7 @@ fn shader_test_system(
     }
 
     if keys.just_pressed(KeyCode::Digit5) {
-        println!("Playing weaken shader");
+        info!("Playing weaken shader");
         for player in Player::iter() {
             commands.trigger_targets(
                 ActionEvent::Condition(StatusCondition {
@@ -154,7 +154,7 @@ fn shader_test_system(
 
 fn audio_test_system(mut commands: Commands, keys: Res<ButtonInput<KeyCode>>) {
     if keys.just_pressed(KeyCode::Digit2) {
-        println!("Playing whoosh audio");
+        info!("Playing whoosh audio");
         commands.trigger(PlaySound(SoundEffect::Whoosh));
     }
 }
@@ -162,7 +162,7 @@ fn audio_test_system(mut commands: Commands, keys: Res<ButtonInput<KeyCode>>) {
 fn fullscreen_toggle(keys: Res<ButtonInput<KeyCode>>, mut windows: Query<&mut Window>) {
     if keys.just_pressed(KeyCode::Digit3) {
         let mut win = windows.get_single_mut().unwrap();
-        println!("Fullscreen toggle");
+        info!("Fullscreen toggle");
 
         win.mode = match win.mode {
             WindowMode::Windowed => WindowMode::BorderlessFullscreen,
@@ -181,13 +181,13 @@ fn pause_toggle(
     if keys.just_pressed(KeyCode::Digit4) {
         if keys.pressed(KeyCode::ShiftLeft) || keys.pressed(KeyCode::ShiftRight) {
             if time.relative_speed() == 0.0 {
-                println!("Frame step");
+                info!("Frame step");
 
                 *local_frame = Some(clock.frame);
                 time.set_relative_speed(1.0);
             }
         } else {
-            println!("Pause toggle");
+            info!("Pause toggle");
             let new_speed = 1.0 - time.relative_speed();
             time.set_relative_speed(new_speed);
         }

@@ -197,7 +197,7 @@ fn wait_for_players(
             } else {
                 // I'm assuming only valid indices are 0 and 1
                 // I think this will break if spectating is introduced
-                dbg!(peer_index);
+                debug!(peer_index);
                 panic!("Peer index is not 0 or 1");
             };
 
@@ -339,7 +339,7 @@ fn generate_offline_input_streams(
     for event in gamepad_events.read() {
         if let GamepadEvent::Button(btn_ev) = event {
             let Some(button) = WagInputButton::from_gamepad_button_type(btn_ev.button_type) else {
-                dbg!("Discarded input", btn_ev);
+                debug!("Discarded input: {:?}", btn_ev);
                 continue;
             };
 
@@ -419,7 +419,7 @@ fn handle_ggrs_events(mut sesh: ResMut<Session<Config>>) {
                 remote_checksum: _,
                 addr: _,
             } => {
-                dbg!(event);
+                debug!("Unhandled GGRS event: {:?}", event);
             }
             _ => {}
         }

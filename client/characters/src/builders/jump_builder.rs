@@ -40,28 +40,28 @@ impl JumpDirection {
     }
 
     fn input(&self, jump_type: JumpType) -> String {
-        if jump_type == JumpType::Super {
-            self.super_input()
-        } else {
-            self.base_input()
+        match jump_type {
+            JumpType::Basic | JumpType::Air => self.base_input(),
+            JumpType::Super => self.super_input(),
         }
-        .into()
     }
 
-    fn base_input(self) -> &'static str {
+    fn base_input(self) -> String {
         match self {
             JumpDirection::Neutral => "8",
             JumpDirection::Forward => "9",
             JumpDirection::Back => "7",
         }
+        .to_string()
     }
 
-    fn super_input(self) -> &'static str {
+    fn super_input(self) -> String {
         match self {
             JumpDirection::Neutral => "[123]8",
             JumpDirection::Forward => "[123]9",
             JumpDirection::Back => "[123]7",
         }
+        .to_string()
     }
 }
 
@@ -97,7 +97,14 @@ fn jump(
                     JumpType::Super => 1.2,
                 };
 
-            let mut initial_events = vec![animation.into()];
+            let mut initial_events = vec![
+                animation.into(),
+                ActionEvent::Condition(StatusCondition {
+                    flag: StatusFlag::JumpCooldown,
+                    expiration: Some(20),
+                    ..default()
+                }),
+            ];
 
             if jump_type == JumpType::Air {
                 initial_events.extend(vec![
@@ -146,22 +153,26 @@ fn jump(
 
             situation.end_at(delay + 5)
         }),
-        requirement: ActionRequirement::And(match jump_type {
-            JumpType::Basic => vec![
-                ActionRequirement::Grounded,
+        requirement: ActionRequirement::And({
+            let mut requirements = match jump_type {
+                JumpType::Basic => vec![ActionRequirement::Grounded],
+                JumpType::Air => vec![
+                    ActionRequirement::Airborne,
+                    ActionRequirement::ItemOwned(ItemId::FeatheredBoots),
+                    ActionRequirement::StatusNotActive(StatusFlag::DoubleJumped),
+                ],
+                JumpType::Super => vec![
+                    ActionRequirement::Grounded,
+                    ActionRequirement::ItemOwned(ItemId::MoonBoots),
+                ],
+            };
+
+            requirements.extend([
+                ActionRequirement::StatusNotActive(StatusFlag::JumpCooldown),
                 ActionRequirement::Starter(ActionCategory::Jump),
-            ],
-            JumpType::Air => vec![
-                ActionRequirement::Airborne,
-                ActionRequirement::ItemOwned(ItemId::FeatheredBoots),
-                ActionRequirement::StatusNotActive(StatusFlag::DoubleJumped),
-                ActionRequirement::Starter(ActionCategory::Jump),
-            ],
-            JumpType::Super => vec![
-                ActionRequirement::Grounded,
-                ActionRequirement::ItemOwned(ItemId::MoonBoots),
-                ActionRequirement::Starter(ActionCategory::Jump),
-            ],
+            ]);
+
+            requirements
         }),
     }
 }

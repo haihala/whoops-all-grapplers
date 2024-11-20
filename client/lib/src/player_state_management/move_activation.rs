@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 
 use characters::{Character, Hurtboxes, Inventory, Situation, WAGResources};
 use input_parsing::InputParser;
@@ -7,23 +7,26 @@ use wag_core::{ActionId, AvailableCancels, Clock, Combo, Facing, OpenCancelWindo
 
 use crate::event_spreading::{AllowCancel, StartAction};
 
-const AUTOCORRECT: usize = (0.1 * wag_core::FPS) as usize;
+// In frames
+const INPUT_BUFFER: usize = 6;
 
 #[derive(Debug, Default, Component, Reflect, Clone)]
 pub struct MoveBuffer {
-    buffer: Vec<(usize, ActionId)>,
+    buffer: HashMap<ActionId, usize>,
     activation: Option<ActionId>,
 }
 impl MoveBuffer {
-    fn add_events(&mut self, events: Vec<ActionId>, frame: usize) {
-        self.buffer.extend(events.into_iter().map(|id| (frame, id)));
+    pub fn add_events(&mut self, events: Vec<ActionId>, frame: usize) {
+        for event in events {
+            self.buffer.insert(event, frame);
+        }
     }
 
     fn clear_old(&mut self, current_frame: usize) {
-        self.buffer.retain(|(frame, _)| {
-            if current_frame < *frame {
+        self.buffer.retain(|_, frame| {
+            if current_frame <= *frame {
                 // Default case, retain those who are fresh
-                current_frame - frame < AUTOCORRECT
+                current_frame - *frame < INPUT_BUFFER
             } else {
                 // Round has restarted, clear the buffer
                 false
@@ -43,7 +46,7 @@ impl MoveBuffer {
     ) -> Vec<(usize, ActionId)> {
         self.buffer
             .iter()
-            .filter_map(|(frame, id)| {
+            .filter_map(|(id, frame)| {
                 if let Some(action) = character.get_move(*id) {
                     if action.requirement.check(*id, windows, &situation) {
                         return Some((*frame, *id));
@@ -154,7 +157,7 @@ pub(super) fn move_activator(
         // Remove old extra expanded hurtboxes (if a move is cancelled)
         hurtboxes.extra.clear();
 
-        buffer.buffer.retain(|(_, id)| *id != to_activate);
+        buffer.buffer.retain(|id, _| *id != to_activate);
         state.start_move(to_activate, clock.frame);
     }
 }

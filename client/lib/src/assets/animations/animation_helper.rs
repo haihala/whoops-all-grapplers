@@ -139,7 +139,11 @@ pub fn update_animation(
         } else if *facing != helper.facing && helper.playing.unwrap().looping {
             // Sideswitch
             let index = animations.get(helper.playing.unwrap().animation, facing);
-            let elapsed = player.playing_animations().next().unwrap().1.elapsed();
+            let elapsed = player
+                .playing_animations()
+                .next()
+                .map(|ani| ani.1.elapsed())
+                .unwrap_or_default();
 
             transitions
                 .play(&mut player, index, Duration::ZERO)

@@ -149,9 +149,10 @@ pub enum StatusFlag {
     Default, // Not in use, here to satisfy inspectable
     Intangible,
     Parry,
-    DoubleJumped,
     MovementLock,
     Weaken,
+    DoubleJumped,
+    JumpCooldown,
 }
 
 impl StatusFlag {

@@ -16,7 +16,7 @@ pub fn movement_input(
         }
 
         if state.is_grounded() && !state.action_in_progress() && !state.stunned() {
-            match dbg!(reader.get_stick_pos()) {
+            match reader.get_stick_pos() {
                 StickPosition::W => state.walk(Facing::Left),
                 StickPosition::E => state.walk(Facing::Right),
                 StickPosition::SW | StickPosition::S | StickPosition::SE => state.crouch(),

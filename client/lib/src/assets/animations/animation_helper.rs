@@ -3,7 +3,7 @@ use std::{mem::take, time::Duration};
 use bevy::{prelude::*, scene::SceneInstance};
 
 use characters::AnimationRequest;
-use wag_core::{Animation, Facing, Hitstop, Stats};
+use wag_core::{Animation, Facing, Hitstop, MatchState, Stats};
 
 use super::Animations;
 
@@ -99,13 +99,26 @@ fn find_animation_player_entity(
     (None, None)
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn update_animation(
     animations: Res<Animations>,
     mut main: Query<(&mut AnimationHelper, &Facing, &Stats)>,
     mut players: Query<(&mut AnimationPlayer, &mut AnimationTransitions)>,
     mut scenes: Query<&mut Transform, With<Handle<Scene>>>,
     maybe_hitstop: Option<ResMut<Hitstop>>,
+    mut hitstop_last_frame: Local<bool>,
+    match_state: Res<State<MatchState>>,
 ) {
+    let hitstop_this_frame = maybe_hitstop.is_some();
+    let (hitstop_started, hitstop_ended) = if hitstop_this_frame != *hitstop_last_frame {
+        (hitstop_this_frame, *hitstop_last_frame)
+    } else {
+        (false, false)
+    };
+    let post_round = *match_state.get() == MatchState::PostRound;
+
+    *hitstop_last_frame = hitstop_this_frame;
+
     for (mut helper, facing, stats) in &mut main {
         let (mut player, mut transitions) = players.get_mut(helper.player_entity).unwrap();
         let mut scene_root = scenes.get_mut(helper.scene_root).unwrap();
@@ -150,12 +163,19 @@ pub fn update_animation(
                 .seek_to(elapsed)
                 .repeat();
             helper.facing = *facing;
-        } else if maybe_hitstop.is_none() && player.all_paused() {
-            // Hitstop is over, resume playing
+        } else if hitstop_ended && !post_round {
+            // Don't pause in post round time, as that would make animations play during the
+            // freeze time, invalidating pause_animations. Last hit has hitstop.
             player.resume_all();
-        } else if maybe_hitstop.is_some() && !player.all_paused() {
-            // Hitstop started, pause
+        } else if hitstop_started {
             player.pause_all();
         }
+    }
+}
+
+// This is called when entering postround, so the freeze frame is still
+pub fn pause_animations(mut players: Query<&mut AnimationPlayer>) {
+    for mut player in &mut players {
+        player.pause_all();
     }
 }

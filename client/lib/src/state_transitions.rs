@@ -12,7 +12,7 @@ use wag_core::{
 
 use crate::{
     assets::{Announcer, AssetsLoading, PlayerModelHook},
-    event_spreading::{PlaySound, StartHitstop},
+    event_spreading::PlaySound,
     ui::Notifications,
 };
 
@@ -132,7 +132,6 @@ pub fn end_combat(
         commands.trigger(PlaySound(loser_character.get_voiceline(VoiceLine::Defeat)));
 
         announcer.round_win(**winner);
-        commands.trigger(StartHitstop(Duration::from_secs_f32(POST_ROUND_DURATION)));
         RoundResult {
             winner: Some(**winner),
         }

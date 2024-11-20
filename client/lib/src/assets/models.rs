@@ -2,7 +2,7 @@ use bevy::{
     pbr::ExtendedMaterial, prelude::*, render::view::NoFrustumCulling, scene::SceneInstance,
     utils::HashMap,
 };
-use wag_core::{Clock, Model};
+use wag_core::{Clock, MatchState, Model};
 
 use crate::event_spreading::ShakeCharacter;
 
@@ -91,12 +91,15 @@ pub fn do_character_shake(
     mut players: Query<(&mut CharacterShake, &Children)>,
     mut tfs: Query<&mut Transform>,
     clock: Res<Clock>,
+    match_state: Res<State<MatchState>>,
 ) {
+    let post_round = *match_state.get() == MatchState::PostRound;
+
     for (mut cs, children) in &mut players {
         let mut tf = tfs.get_mut(children[0]).unwrap();
         tf.translation.x = cs.amount * (clock.frame as f32 * SHAKE_SPEED).sin().signum();
 
-        cs.amount = if cs.amount < SHAKE_CUTOFF {
+        cs.amount = if cs.amount < SHAKE_CUTOFF || post_round {
             0.0
         } else {
             cs.amount * SHAKE_DECAY

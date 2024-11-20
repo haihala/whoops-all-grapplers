@@ -83,6 +83,7 @@ impl Plugin for AssetsPlugin {
                     .chain()
                     .in_set(WAGStage::Presentation),
             )
+            .add_systems(OnEnter(MatchState::PostRound), animations::pause_animations)
             .add_systems(OnEnter(MatchState::PreRound), announcer::preround)
             .add_systems(OnEnter(MatchState::Combat), announcer::combat)
             .observe(asset_updater::play_audio)

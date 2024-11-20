@@ -9,6 +9,7 @@ use crate::{
 #[derive(Default, Debug, Clone, Reflect, PartialEq)]
 pub struct MotionInput {
     requirements: Vec<InputRequirement>,
+    slow: bool,     // More time per requirement
     absolute: bool, // Does not care about which way the player is facing
 }
 impl MotionInput {
@@ -78,6 +79,14 @@ impl MotionInput {
                         break false;
                     }
                 },
+                RequirementMode::Anything => {
+                    if let Some((_, state)) = past.next() {
+                        requirement.state_requirement.met_by(state)
+                    } else {
+                        false
+                    }
+                }
+
                 RequirementMode::None => panic!("How did we get here?"),
             };
 
@@ -89,6 +98,10 @@ impl MotionInput {
         }
 
         true
+    }
+
+    pub fn buffer_window_size(&self) -> usize {
+        (self.steps() - 1) * if self.slow { 8 } else { 4 }
     }
 }
 
@@ -163,6 +176,11 @@ impl From<String> for MotionInput {
                     complete.push(incomplete);
                     incomplete = InputRequirement::default();
                 }
+                '*' => {
+                    incomplete.mode = RequirementMode::Anything;
+                    complete.push(incomplete);
+                    incomplete = InputRequirement::default();
+                }
                 _ => {
                     incomplete.mode = RequirementMode::Any(vec![ch.into()]);
                     complete.push(incomplete);
@@ -182,6 +200,9 @@ impl From<String> for MotionInput {
             match ch {
                 'A' => {
                     out.absolute = true;
+                }
+                'S' => {
+                    out.slow = true;
                 }
                 unknown => panic!("Unknown char ̈́'{}'", unknown),
             }

@@ -2,8 +2,8 @@ use std::f32::consts::PI;
 
 use bevy::prelude::*;
 use wag_core::{
-    ActionCategory, ActionId, Animation, ItemId, StatusCondition, StatusFlag, VfxRequest,
-    VisualEffect,
+    ActionCategory, ActionId, Animation, ItemId, StatusCondition, StatusFlag, StickPosition,
+    VfxRequest, VisualEffect,
 };
 
 use crate::{Action, ActionEvent, ActionRequirement, Movement, Situation};
@@ -48,18 +48,18 @@ impl JumpDirection {
 
     fn base_input(self) -> String {
         match self {
-            JumpDirection::Neutral => "8",
-            JumpDirection::Forward => "9",
-            JumpDirection::Back => "7",
+            JumpDirection::Neutral => "{123456}8",
+            JumpDirection::Forward => "{123456}9",
+            JumpDirection::Back => "{123456}7",
         }
         .to_string()
     }
 
     fn super_input(self) -> String {
         match self {
-            JumpDirection::Neutral => "[123]8",
-            JumpDirection::Forward => "[123]9",
-            JumpDirection::Back => "[123]7",
+            JumpDirection::Neutral => "{123}*8|S",
+            JumpDirection::Forward => "{123}*9|S",
+            JumpDirection::Back => "{123}*7|S",
         }
         .to_string()
     }
@@ -88,47 +88,47 @@ fn jump(
             v0 = -1/2*a*t
             */
             let base_impulse = 0.5 * gravity_force * duration;
-            let impulse = jump_dir.base_vec()
-                * base_impulse
-                * situation.stats.jump_force_multiplier
-                * match jump_type {
-                    JumpType::Basic => 1.0,
-                    JumpType::Air => 0.7,
-                    JumpType::Super => 1.2,
-                };
-
-            let mut initial_events = vec![
-                animation.into(),
-                ActionEvent::Condition(StatusCondition {
-                    flag: StatusFlag::JumpCooldown,
-                    expiration: Some(20),
-                    ..default()
-                }),
-            ];
-
-            if jump_type == JumpType::Air {
-                initial_events.extend(vec![
-                    ActionEvent::ClearMovement,
-                    ActionEvent::Condition(StatusCondition {
-                        flag: StatusFlag::DoubleJumped,
-                        ..default()
-                    }),
-                ]);
-            } else {
-                // This prevents accidental immediate double jump (odd low jump)
-                initial_events.push(ActionEvent::Condition(StatusCondition {
-                    flag: StatusFlag::DoubleJumped,
-                    expiration: Some(10),
-                    ..default()
-                }))
-            }
 
             if situation.on_frame(0) {
+                let mut initial_events = vec![
+                    animation.into(),
+                    ActionEvent::Condition(StatusCondition {
+                        flag: StatusFlag::JumpCooldown,
+                        expiration: Some(10),
+                        ..default()
+                    }),
+                ];
+
+                if jump_type == JumpType::Air {
+                    initial_events.extend(vec![
+                        ActionEvent::ClearMovement,
+                        ActionEvent::Condition(StatusCondition {
+                            flag: StatusFlag::DoubleJumped,
+                            ..default()
+                        }),
+                    ]);
+                }
+
                 return initial_events;
             }
 
-            let delay = if jump_type == JumpType::Air { 1 } else { 3 };
-            if situation.on_frame(delay) {
+            if situation.on_frame(4) {
+                let impulse = match situation.facing.mirror_stick_pos(situation.stick_position) {
+                    // This allows redirecting jumps, should feel better
+                    StickPosition::N => JumpDirection::Neutral,
+                    StickPosition::NE => JumpDirection::Forward,
+                    StickPosition::NW => JumpDirection::Back,
+                    _ => jump_dir,
+                }
+                .base_vec()
+                    * base_impulse
+                    * situation.stats.jump_force_multiplier
+                    * match jump_type {
+                        JumpType::Basic => 1.0,
+                        JumpType::Air => 1.0,
+                        JumpType::Super => 1.25,
+                    };
+
                 return vec![
                     Movement::impulse(impulse).into(),
                     VfxRequest {
@@ -151,7 +151,7 @@ fn jump(
                 ];
             }
 
-            situation.end_at(delay + 5)
+            situation.end_at(8)
         }),
         requirement: ActionRequirement::And({
             let mut requirements = match jump_type {

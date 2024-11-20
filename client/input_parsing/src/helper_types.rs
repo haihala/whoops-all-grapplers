@@ -56,6 +56,7 @@ impl From<char> for InputEvent {
 pub enum RequirementMode {
     All(Vec<InputEvent>),
     Any(Vec<InputEvent>),
+    Anything,
     #[default]
     None,
 }
@@ -100,6 +101,7 @@ impl RequirementMode {
                     InputEvent::Release(game_button) => presses.contains(&game_button),
                 }
             }
+            RequirementMode::Anything => false,
             RequirementMode::None => panic!("How did we get here?"),
         }
     }

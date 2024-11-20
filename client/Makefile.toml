@@ -39,7 +39,7 @@ run_task = { name = ["check", "format", "clippy", "test", "udeps"] }
 
 [tasks.dev-local]
 command = "cargo"
-args = ["run", "--", "local", "0", "69", "samurai", "samurai", "0"]
+args = ["run", "--", "local", "0", "69", "samurai", "samurai", "9001"]
 
 [tasks.dev-online]
 command = "cargo"

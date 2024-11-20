@@ -30,7 +30,7 @@ const CHARACTER_UNIVERSALS: CharacterUniversals = CharacterUniversals {
 };
 
 pub fn samurai() -> Character {
-    let (jumps, gravity) = jumps(2.1, 1.1, Animation::Samurai(SamuraiAnimation::Jump));
+    let (jumps, gravity) = jumps(1.7, 1.0, Animation::Samurai(SamuraiAnimation::Jump));
 
     Character::new(
         Model::Samurai,

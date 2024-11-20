@@ -60,8 +60,6 @@ pub struct InputParser {
     state: InputState,
 }
 
-const FRAMES_PER_REQUIREMENT: usize = 4;
-
 impl InputParser {
     pub(crate) fn new(new_inputs: HashMap<ActionId, String>) -> Self {
         let motions: Vec<MotionInput> = new_inputs
@@ -138,7 +136,7 @@ impl InputParser {
             let past: Vec<InputHistory> = self
                 .history
                 .iter()
-                .take_while(|hist| hist.frame + input.steps() * FRAMES_PER_REQUIREMENT > frame)
+                .take_while(|hist| hist.frame + input.buffer_window_size() >= frame)
                 .cloned()
                 .collect();
 

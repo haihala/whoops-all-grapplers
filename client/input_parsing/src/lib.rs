@@ -21,9 +21,6 @@ impl Plugin for InputParsingPlugin {
             (
                 update_pads,
                 update_parrots::<PadStream>,
-                // Very important for this to happen after we've updated parrots
-                // If an entity has a parrot stream, it will drain the basic pad stream
-                input_parser::parse_input::<PadStream>,
                 input_parser::parse_input::<ParrotStream>,
             )
                 .chain()

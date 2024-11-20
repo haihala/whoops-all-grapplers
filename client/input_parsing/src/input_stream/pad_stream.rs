@@ -1,7 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{
-    Controllers, GameButton, Player, StickPosition, WagArgs, WagInputButton, WagInputEvent,
-};
+use wag_core::{Controllers, GameButton, Player, WagArgs, WagInputButton, WagInputEventStream};
 
 use crate::helper_types::InputEvent;
 
@@ -11,15 +9,9 @@ use super::{InputStream, ParrotStream};
 pub struct PadStream {
     next_read: Vec<InputEvent>,
     stick_position: IVec2,
-    stick_position_last_read: StickPosition,
 }
 
 impl PadStream {
-    fn update_next_diff_stick(&mut self) {
-        let discrete_stick = self.stick_position.into();
-        self.next_read.push(InputEvent::Point(discrete_stick));
-    }
-
     fn press_button(&mut self, button: GameButton) {
         self.next_read.push(InputEvent::Press(button));
     }
@@ -28,31 +20,18 @@ impl PadStream {
         self.next_read.push(InputEvent::Release(button));
     }
 
-    fn update_dpad(&mut self, pressed: bool, new_x: Option<i32>, new_y: Option<i32>) {
-        // Plan was for opposite presses to override, to make hitbox gaming easier
-        // So on release we can't just reset to zero, because the other direction may be held
-        // Hopefully this works.
+    fn update_dpad(&mut self, pressed: bool, direction: IVec2) {
         if pressed {
-            if let Some(x) = new_x {
-                self.stick_position.x = x;
-            }
-            if let Some(y) = new_y {
-                self.stick_position.y = y;
-            }
+            self.stick_position += direction;
         } else {
-            if let Some(x) = new_x {
-                if self.stick_position.x == x {
-                    self.stick_position.x = 0;
-                }
-            }
-            if let Some(y) = new_y {
-                if self.stick_position.y == y {
-                    self.stick_position.y = 0;
-                }
-            }
+            self.stick_position -= direction;
         }
 
-        self.update_next_diff_stick();
+        assert!(self.stick_position.x.abs() < 2);
+        assert!(self.stick_position.y.abs() < 2);
+
+        self.next_read
+            .push(InputEvent::Point(self.stick_position.into()));
     }
 }
 
@@ -65,12 +44,12 @@ impl InputStream for PadStream {
 }
 
 pub fn update_pads(
-    mut gamepad_events: EventReader<WagInputEvent>,
+    gamepad_events: Res<WagInputEventStream>,
     mut readers: Query<(&mut PadStream, &mut ParrotStream, &Player)>,
     controllers: Res<Controllers>,
     args: Res<WagArgs>,
 ) {
-    for event in gamepad_events.read() {
+    for event in gamepad_events.events.iter() {
         for (mut pad, mut parrot, player) in &mut readers {
             let pad_id = controllers.get_handle(*player);
 
@@ -108,10 +87,10 @@ fn button_change(
         WagInputButton::North => handle_gamebutton(reader, GameButton::Wrestling),
         WagInputButton::West => handle_gamebutton(reader, GameButton::Gimmick),
 
-        WagInputButton::Up => reader.update_dpad(press, None, Some(1)),
-        WagInputButton::Down => reader.update_dpad(press, None, Some(-1)),
-        WagInputButton::Left => reader.update_dpad(press, Some(-1), None),
-        WagInputButton::Right => reader.update_dpad(press, Some(1), None),
+        WagInputButton::Up => reader.update_dpad(press, IVec2::Y),
+        WagInputButton::Down => reader.update_dpad(press, -1 * IVec2::Y),
+        WagInputButton::Left => reader.update_dpad(press, -1 * IVec2::X),
+        WagInputButton::Right => reader.update_dpad(press, IVec2::X),
 
         WagInputButton::Select => {
             if press && dev_mode {

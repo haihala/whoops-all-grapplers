@@ -145,11 +145,17 @@ impl WagInputButton {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Event)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct WagInputEvent {
     pub button: WagInputButton,
     pub pressed: bool,
     pub player_handle: usize,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Eq, Hash, Resource)]
+pub struct WagInputEventStream {
+    pub frame: usize,
+    pub events: Vec<WagInputEvent>,
 }
 
 #[derive(Debug, Resource, Clone, Copy)]

@@ -15,7 +15,7 @@ use strum::IntoEnumIterator;
 use wag_core::{
     AvailableCancels, Characters, Clock, Combo, Controllers, Facing, GameState, Hitstop,
     LocalCharacter, LocalController, MatchState, OnlineState, Owner, Player, RollbackSchedule,
-    Stats, WagArgs, WagInputButton, WagInputEvent,
+    Stats, WagArgs, WagInputButton, WagInputEvent, WagInputEventStream,
 };
 
 use crate::{
@@ -31,10 +31,17 @@ type Config = bevy_ggrs::GgrsConfig<u16, PeerId>;
 
 pub struct NetworkPlugin;
 
+fn session_exists(session: Option<Res<bevy_ggrs::Session<Config>>>) -> bool {
+    session.is_some()
+}
+fn no_session_exists(session: Option<Res<bevy_ggrs::Session<Config>>>) -> bool {
+    session.is_none()
+}
+
 impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<KeyboardInputState>()
-            .add_event::<WagInputEvent>()
+            .init_resource::<WagInputEventStream>()
             .add_systems(OnEnter(GameState::Online(OnlineState::Lobby)), setup_socket)
             .add_systems(
                 FixedUpdate,
@@ -61,14 +68,13 @@ impl Plugin for NetworkPlugin {
                     handle_ggrs_events,
                 )
                     .chain()
-                    .run_if(|session: Option<Res<bevy_ggrs::Session<Config>>>| session.is_some()),
+                    .run_if(session_exists),
             )
             .add_systems(
-                FixedUpdate,
-                (generate_offline_input_streams, run_rollback_schedule)
-                    .chain()
-                    .run_if(|session: Option<Res<bevy_ggrs::Session<Config>>>| session.is_none()),
+                Update,
+                generate_offline_input_streams.run_if(no_session_exists),
             )
+            .add_systems(FixedUpdate, run_rollback_schedule.run_if(no_session_exists))
             .add_plugins(GgrsPlugin::<Config>::default())
             .init_resource::<InputGenCache>()
             // Probably an incomplete list of things to roll back
@@ -330,11 +336,17 @@ impl KeyboardInputState {
 }
 
 fn generate_offline_input_streams(
-    mut writer: EventWriter<WagInputEvent>,
+    mut writer: ResMut<WagInputEventStream>,
     mut gamepad_events: EventReader<GamepadEvent>,
     mut keyboard_events: EventReader<KeyboardInput>,
     mut kb_state: ResMut<KeyboardInputState>,
+    clock: Res<Clock>,
 ) {
+    if writer.frame != clock.frame {
+        writer.events.clear();
+        writer.frame = clock.frame;
+    }
+
     // TODO: Analog input
     for event in gamepad_events.read() {
         if let GamepadEvent::Button(btn_ev) = event {
@@ -343,7 +355,7 @@ fn generate_offline_input_streams(
                 continue;
             };
 
-            writer.send(WagInputEvent {
+            writer.events.push(WagInputEvent {
                 pressed: btn_ev.value > 0.5,
                 player_handle: btn_ev.gamepad.id,
                 button,
@@ -363,7 +375,7 @@ fn generate_offline_input_streams(
         };
 
         if kb_state.should_send(&wag_event) {
-            writer.send(wag_event);
+            writer.events.push(wag_event);
         }
     }
 }
@@ -372,10 +384,16 @@ fn generate_offline_input_streams(
 struct InputGenCache(HashMap<usize, u16>);
 
 fn generate_online_input_streams(
-    mut writer: EventWriter<WagInputEvent>,
+    mut writer: ResMut<WagInputEventStream>,
     inputs: Res<PlayerInputs<Config>>,
     mut input_states: ResMut<InputGenCache>,
+    clock: Res<Clock>,
 ) {
+    if writer.frame != clock.frame {
+        writer.events.clear();
+        writer.frame = clock.frame;
+    }
+
     for (player_handle, (index, _)) in inputs.iter().enumerate() {
         let Some(old_state) = input_states.get(&player_handle) else {
             input_states.insert(player_handle, 0);
@@ -387,7 +405,7 @@ fn generate_online_input_streams(
             let is_pressed = ((index >> shift) & 1) == 1;
 
             if was_pressed != is_pressed {
-                writer.send(WagInputEvent {
+                writer.events.push(WagInputEvent {
                     player_handle,
                     pressed: is_pressed,
                     button: button_type,

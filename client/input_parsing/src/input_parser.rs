@@ -122,7 +122,7 @@ impl InputParser {
 
     fn input_change(&mut self, events: Vec<InputEvent>, facing: Facing, frame: usize) {
         let mut new_history = vec![];
-        for event in events.into_iter().rev() {
+        for event in events.into_iter() {
             new_history.push(InputHistory {
                 event,
                 state: self.state.clone(),

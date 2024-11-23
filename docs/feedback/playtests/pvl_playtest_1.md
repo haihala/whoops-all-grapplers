@@ -1,0 +1,13 @@
+- They got stuck in character select
+- New controller was some amount of difficult
+- Paper guide did not help with inputs
+- A few tech issues
+- One player got it
+- Few others were pressing buttons
+    - Not that fun of a game to just press buttons in
+- Falling through the floor is a thing
+    - I think the constraint resolution gets blocked for throws
+    - Breaks if there is downwards motion.
+- Thumbtack MS bug makes it more fun, maybe increase speed overall
+- Hand model extends unnaturally, more reason to redo forward walk
+

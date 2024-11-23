@@ -1,6 +1,7 @@
 use bevy::{ecs::system::SystemId, prelude::*};
 use wag_core::{
-    Controllers, GameState, LocalState, Player, WagInputButton, CONTROLLER_ASSIGNMENT_SIDE_COLOR,
+    Controllers, GameButton, GameState, InputEvent, LocalState, Player, StickPosition,
+    CONTROLLER_ASSIGNMENT_SIDE_COLOR,
 };
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
@@ -172,19 +173,15 @@ pub fn navigate_controller_assignment_menu(
     mut state: ResMut<NextState<GameState>>,
 ) {
     while let Some(ev) = events.pop_front() {
-        if !ev.pressed {
-            continue;
-        }
-
-        match ev.button {
-            WagInputButton::Left => ca.left(ev.player_handle),
-            WagInputButton::Right => ca.right(ev.player_handle),
-            WagInputButton::South => {
+        match ev.event {
+            InputEvent::Point(StickPosition::E) => ca.right(ev.player_handle),
+            InputEvent::Point(StickPosition::W) => ca.left(ev.player_handle),
+            InputEvent::Press(GameButton::Fast) => {
                 if ca.is_complete() {
                     commands.run_system(callback.0);
                 }
             }
-            WagInputButton::East => {
+            InputEvent::Press(GameButton::Strong) => {
                 state.set(GameState::MainMenu);
             }
             _ => {}

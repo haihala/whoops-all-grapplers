@@ -2,8 +2,7 @@ use std::collections::VecDeque;
 
 use bevy::prelude::*;
 use wag_core::{
-    GameState, InCharacterSelect, LocalState, MatchState, SoundEffect, WagInputEvent,
-    WagInputEventStream,
+    GameState, InCharacterSelect, InputStream, LocalState, MatchState, OwnedInput, SoundEffect,
 };
 
 use crate::{assets::Fonts, event_spreading::PlaySound};
@@ -79,13 +78,13 @@ impl Plugin for ViewsPlugin {
 }
 
 #[derive(Debug, Resource, Default, Deref, DerefMut)]
-struct MenuInputs(VecDeque<WagInputEvent>);
+struct MenuInputs(VecDeque<OwnedInput>);
 
 // This is a workaround. Inputs would otherwise be duplicated per system, which causes
 // duplication issues during state transitions.
 fn update_menu_inputs(
     mut mi: ResMut<MenuInputs>,
-    stream: Res<WagInputEventStream>,
+    stream: Res<InputStream>,
     match_state: Res<State<MatchState>>,
 ) {
     if !matches!(*match_state.get(), MatchState::EndScreen | MatchState::None) {

@@ -1,16 +1,14 @@
 use bevy::{prelude::*, utils::HashMap};
+use parrot_stream::update_parrots;
 use wag_core::{ActionId, InMatch, RollbackSchedule, WAGStage};
 
 mod helper_types;
 mod input_parser;
-mod input_stream;
 mod motion_input;
+mod parrot_stream;
 
-pub use helper_types::InputEvent;
 pub use input_parser::InputParser;
-pub use input_stream::{PadStream, ParrotStream};
-
-use input_stream::{update_pads, update_parrots};
+pub use parrot_stream::ParrotStream;
 
 pub struct InputParsingPlugin;
 
@@ -18,11 +16,7 @@ impl Plugin for InputParsingPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             RollbackSchedule,
-            (
-                update_pads,
-                update_parrots::<PadStream>,
-                input_parser::parse_input::<ParrotStream>,
-            )
+            (update_parrots, input_parser::parse_input)
                 .chain()
                 .in_set(WAGStage::Inputs)
                 .run_if(in_state(InMatch)),
@@ -32,15 +26,17 @@ impl Plugin for InputParsingPlugin {
 
 #[derive(Bundle)]
 pub struct PadBundle {
-    reader: PadStream,
     parser: InputParser,
     parrot: ParrotStream,
 }
 impl PadBundle {
     pub fn new(mut inputs: HashMap<ActionId, String>) -> Self {
         inputs.extend(generic_inputs());
+        Self::without_generic_inputs(inputs)
+    }
+
+    pub fn without_generic_inputs(inputs: HashMap<ActionId, String>) -> Self {
         Self {
-            reader: PadStream::default(),
             parser: InputParser::new(inputs),
             parrot: ParrotStream::default(),
         }
@@ -62,42 +58,4 @@ fn generic_inputs() -> impl Iterator<Item = (ActionId, String)> {
     ]
     .into_iter()
     .map(|(id, dsl)| (id, dsl.to_string()))
-}
-pub mod testing {
-    use super::*;
-    pub use input_parser::parse_input;
-    pub use input_stream::PreWrittenStream;
-    pub use input_stream::TestStream;
-
-    #[derive(Bundle)]
-    pub struct PreWrittenInputBundle {
-        reader: PreWrittenStream,
-        parser: InputParser,
-        parrot: ParrotStream,
-    }
-    impl PreWrittenInputBundle {
-        pub fn new(events: Vec<Vec<InputEvent>>, inputs: HashMap<ActionId, String>) -> Self {
-            Self {
-                reader: PreWrittenStream::new(events),
-                parser: InputParser::new(inputs),
-                parrot: ParrotStream::default(),
-            }
-        }
-    }
-
-    #[derive(Bundle)]
-    pub struct TestInputBundle {
-        reader: TestStream,
-        parser: InputParser,
-        parrot: ParrotStream,
-    }
-    impl TestInputBundle {
-        pub fn new(inputs: HashMap<ActionId, String>) -> Self {
-            Self {
-                reader: TestStream::default(),
-                parser: InputParser::new(inputs),
-                parrot: ParrotStream::default(),
-            }
-        }
-    }
 }

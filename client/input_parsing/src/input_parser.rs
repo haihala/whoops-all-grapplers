@@ -1,13 +1,11 @@
-use crate::{
-    helper_types::InputState, input_stream::InputStream, motion_input::MotionInput, InputEvent,
-};
+use crate::{helper_types::InputState, motion_input::MotionInput, ParrotStream};
 
 use bevy::{
     prelude::*,
     utils::{HashMap, HashSet},
 };
 
-use wag_core::{ActionId, Clock, Facing, GameButton, StickPosition};
+use wag_core::{ActionId, Clock, Facing, GameButton, InputEvent, StickPosition};
 
 #[derive(Debug, Component, Clone, Reflect)]
 pub struct InputHistory {
@@ -168,12 +166,12 @@ impl InputParser {
     }
 }
 
-pub fn parse_input<T: InputStream + Component>(
-    mut characters: Query<(&mut InputParser, &mut T, &Facing)>,
+pub fn parse_input(
+    mut characters: Query<(&mut InputParser, &ParrotStream, &Facing)>,
     clock: Res<Clock>,
 ) {
-    for (mut parser, mut reader, facing) in &mut characters {
-        let evs = reader.read();
+    for (mut parser, reader, facing) in &mut characters {
+        let evs = reader.next_read.clone();
         if !evs.is_empty() {
             parser.input_change(evs, *facing, clock.frame);
         }
@@ -182,10 +180,7 @@ pub fn parse_input<T: InputStream + Component>(
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        helper_types::InputEvent,
-        testing::{TestInputBundle, TestStream},
-    };
+    use crate::PadBundle;
 
     use super::*;
 
@@ -313,10 +308,10 @@ mod test {
 
         fn new(moves: Vec<(ActionId, &'static str)>) -> TestInterface {
             let mut app = App::new();
-            app.add_systems(Update, parse_input::<TestStream>);
+            app.add_systems(Update, parse_input);
 
             app.world_mut().spawn((
-                TestInputBundle::new(
+                PadBundle::without_generic_inputs(
                     moves
                         .into_iter()
                         .map(|(id, dsl)| (id, dsl.to_string()))
@@ -341,6 +336,14 @@ mod test {
                 .unwrap()
                 .frame += 1;
             self.app.update();
+            for mut reader in self
+                .app
+                .world_mut()
+                .query::<&mut ParrotStream>()
+                .iter_mut(&mut self.app.world_mut())
+            {
+                reader.next_read.clear();
+            }
         }
 
         fn add_button_and_tick(&mut self, button: GameButton) {
@@ -357,10 +360,10 @@ mod test {
             for mut reader in self
                 .app
                 .world_mut()
-                .query::<&mut TestStream>()
+                .query::<&mut ParrotStream>()
                 .iter_mut(&mut self.app.world_mut())
             {
-                reader.push(change.clone());
+                reader.next_read.push(change.clone());
             }
         }
 

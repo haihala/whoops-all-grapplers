@@ -1,6 +1,6 @@
 use bevy::{reflect::Reflect, utils::HashSet};
 
-use wag_core::{GameButton, StickPosition};
+use wag_core::{GameButton, InputEvent, StickPosition};
 
 #[derive(Clone, Eq, PartialEq, Debug, Default, Reflect)]
 pub struct InputState {
@@ -18,35 +18,6 @@ impl InputState {
             }
             InputEvent::Release(game_button) => {
                 self.pressed.remove(&game_button);
-            }
-        }
-    }
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Reflect, Copy)]
-pub enum InputEvent {
-    Point(StickPosition),
-    Press(GameButton),
-    Release(GameButton),
-}
-
-impl From<char> for InputEvent {
-    fn from(ch: char) -> InputEvent {
-        if let Ok(number_token) = ch.to_string().parse::<i32>() {
-            InputEvent::Point(number_token.into())
-        } else {
-            match ch {
-                'f' => InputEvent::Press(GameButton::Fast),
-                'F' => InputEvent::Release(GameButton::Fast),
-                's' => InputEvent::Press(GameButton::Strong),
-                'S' => InputEvent::Release(GameButton::Strong),
-                'w' => InputEvent::Press(GameButton::Wrestling),
-                'W' => InputEvent::Release(GameButton::Wrestling),
-                'g' => InputEvent::Press(GameButton::Gimmick),
-                'G' => InputEvent::Release(GameButton::Gimmick),
-                // There is no need for negative edge on start, this whole thing is mighty sus so let's not get caught up on that shall we
-                '.' => InputEvent::Press(GameButton::Start),
-                _ => panic!("Invalid character {ch}"),
             }
         }
     }

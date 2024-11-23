@@ -4,7 +4,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use characters::{
     ActionEvent, FlashRequest, Hitbox, Hurtboxes, Inventory, ResourceType, WAGResources,
 };
-use input_parsing::{InputParser, PadStream, ParrotStream};
+use input_parsing::{InputParser, ParrotStream};
 use strum::IntoEnumIterator;
 use wag_core::{
     Area, Characters, Clock, Controllers, Dev, Facing, GameState, LocalCharacter, LocalController,
@@ -40,7 +40,6 @@ impl Plugin for DevPlugin {
             .register_type::<Facing>()
             .register_type::<Stats>()
             .register_type::<InputParser>()
-            .register_type::<PadStream>()
             .register_type::<ParrotStream>()
             .add_systems(Startup, setup_gizmos)
             .add_systems(PostStartup, skip_menus)

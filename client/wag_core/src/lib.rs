@@ -33,8 +33,8 @@ pub use icon::{Icon, Icons};
 
 mod inputs;
 pub use inputs::{
-    Controllers, GameButton, LocalController, StickPosition, WagInputButton, WagInputEvent,
-    WagInputEventStream,
+    Controllers, GameButton, InputEvent, InputStream, LocalController, NetworkInputButton,
+    OwnedInput, StickPosition,
 };
 
 mod item_id;

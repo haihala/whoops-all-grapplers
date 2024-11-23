@@ -1,9 +1,9 @@
 use bevy::prelude::*;
+use wag_core::InputEvent;
 
 use crate::{
     helper_types::{InputRequirement, RequirementMode, StateRequirement},
     input_parser::InputHistory,
-    InputEvent,
 };
 
 #[derive(Default, Debug, Clone, Reflect, PartialEq)]
@@ -101,7 +101,7 @@ impl MotionInput {
     }
 
     pub fn buffer_window_size(&self) -> usize {
-        (self.steps() - 1) * if self.slow { 8 } else { 4 }
+        (self.steps() - 1) * if self.slow { 10 } else { 5 }
     }
 }
 
@@ -214,9 +214,9 @@ impl From<String> for MotionInput {
 
 #[cfg(test)]
 mod test {
-    use wag_core::{GameButton, StickPosition};
+    use wag_core::{GameButton, InputEvent, StickPosition};
 
-    use crate::{helper_types::InputState, InputEvent};
+    use crate::helper_types::InputState;
 
     use super::*;
 

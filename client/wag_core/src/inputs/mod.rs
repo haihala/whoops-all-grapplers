@@ -1,5 +1,5 @@
 mod stick_position;
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 pub use stick_position::StickPosition;
 
 use strum_macros::EnumIter;
@@ -15,6 +15,7 @@ pub enum GameButton {
     Default, // To satisfy Inspectable
 
     Start,
+    Select,
 
     Fast,
     Strong,
@@ -27,6 +28,7 @@ impl GameButton {
         match self {
             GameButton::Default => panic!("Default can't be converted to dsl"),
             GameButton::Start => ".",
+            GameButton::Select => ",",
             GameButton::Fast => "f",
             GameButton::Strong => "s",
             GameButton::Wrestling => "w",
@@ -36,9 +38,24 @@ impl GameButton {
     }
 }
 
+impl From<NetworkInputButton> for GameButton {
+    fn from(value: NetworkInputButton) -> Self {
+        match value {
+            // This is where keybindings are sort of defined
+            NetworkInputButton::South => GameButton::Fast,
+            NetworkInputButton::West => GameButton::Gimmick,
+            NetworkInputButton::North => GameButton::Wrestling,
+            NetworkInputButton::East => GameButton::Strong,
+            NetworkInputButton::Start => GameButton::Start,
+            NetworkInputButton::Select => GameButton::Select,
+            _ => panic!(),
+        }
+    }
+}
+
 // Game runs with strictly digital input, this is an abstraction
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, EnumIter)]
-pub enum WagInputButton {
+pub enum NetworkInputButton {
     Up,
     Down,
     Left,
@@ -57,105 +74,205 @@ pub enum WagInputButton {
     L3,
 }
 
-impl WagInputButton {
+impl NetworkInputButton {
     pub fn from_gamepad_button_type(value: GamepadButtonType) -> Option<Self> {
         Some(match value {
-            GamepadButtonType::South => WagInputButton::South,
-            GamepadButtonType::East => WagInputButton::East,
-            GamepadButtonType::North => WagInputButton::North,
-            GamepadButtonType::West => WagInputButton::West,
-            GamepadButtonType::LeftTrigger => WagInputButton::L1,
-            GamepadButtonType::LeftTrigger2 => WagInputButton::L2,
-            GamepadButtonType::RightTrigger => WagInputButton::R1,
-            GamepadButtonType::RightTrigger2 => WagInputButton::R2,
-            GamepadButtonType::Select => WagInputButton::Select,
-            GamepadButtonType::Start => WagInputButton::Start,
-            GamepadButtonType::LeftThumb => WagInputButton::L3,
-            GamepadButtonType::RightThumb => WagInputButton::R3,
-            GamepadButtonType::DPadUp => WagInputButton::Up,
-            GamepadButtonType::DPadDown => WagInputButton::Down,
-            GamepadButtonType::DPadLeft => WagInputButton::Left,
-            GamepadButtonType::DPadRight => WagInputButton::Right,
+            GamepadButtonType::South => NetworkInputButton::South,
+            GamepadButtonType::East => NetworkInputButton::East,
+            GamepadButtonType::North => NetworkInputButton::North,
+            GamepadButtonType::West => NetworkInputButton::West,
+            GamepadButtonType::LeftTrigger => NetworkInputButton::L1,
+            GamepadButtonType::LeftTrigger2 => NetworkInputButton::L2,
+            GamepadButtonType::RightTrigger => NetworkInputButton::R1,
+            GamepadButtonType::RightTrigger2 => NetworkInputButton::R2,
+            GamepadButtonType::Select => NetworkInputButton::Select,
+            GamepadButtonType::Start => NetworkInputButton::Start,
+            GamepadButtonType::LeftThumb => NetworkInputButton::L3,
+            GamepadButtonType::RightThumb => NetworkInputButton::R3,
+            GamepadButtonType::DPadUp => NetworkInputButton::Up,
+            GamepadButtonType::DPadDown => NetworkInputButton::Down,
+            GamepadButtonType::DPadLeft => NetworkInputButton::Left,
+            GamepadButtonType::DPadRight => NetworkInputButton::Right,
             _ => return None,
         })
     }
 
     pub fn from_key(value: KeyCode) -> Option<Self> {
         Some(match value {
-            KeyCode::KeyJ => WagInputButton::South,
-            KeyCode::KeyK => WagInputButton::East,
-            KeyCode::KeyI => WagInputButton::North,
-            KeyCode::KeyU => WagInputButton::West,
-            KeyCode::KeyY => WagInputButton::L1,
-            KeyCode::KeyH => WagInputButton::L2,
-            KeyCode::KeyO => WagInputButton::R1,
-            KeyCode::KeyL => WagInputButton::R2,
-            KeyCode::KeyV => WagInputButton::Select,
-            KeyCode::KeyB => WagInputButton::Start,
-            KeyCode::KeyN => WagInputButton::L3,
-            KeyCode::KeyM => WagInputButton::R3,
-            KeyCode::KeyW => WagInputButton::Up,
-            KeyCode::KeyS => WagInputButton::Down,
-            KeyCode::KeyA => WagInputButton::Left,
-            KeyCode::KeyD => WagInputButton::Right,
+            KeyCode::KeyJ => NetworkInputButton::South,
+            KeyCode::KeyK => NetworkInputButton::East,
+            KeyCode::KeyI => NetworkInputButton::North,
+            KeyCode::KeyU => NetworkInputButton::West,
+            KeyCode::KeyY => NetworkInputButton::L1,
+            KeyCode::KeyH => NetworkInputButton::L2,
+            KeyCode::KeyO => NetworkInputButton::R1,
+            KeyCode::KeyL => NetworkInputButton::R2,
+            KeyCode::KeyV => NetworkInputButton::Select,
+            KeyCode::KeyB => NetworkInputButton::Start,
+            KeyCode::KeyN => NetworkInputButton::L3,
+            KeyCode::KeyM => NetworkInputButton::R3,
+            KeyCode::KeyW => NetworkInputButton::Up,
+            KeyCode::KeyS => NetworkInputButton::Down,
+            KeyCode::KeyA => NetworkInputButton::Left,
+            KeyCode::KeyD => NetworkInputButton::Right,
             _ => return None,
         })
     }
 
     pub fn to_gamepad_button_type(&self) -> GamepadButtonType {
         match self {
-            WagInputButton::South => GamepadButtonType::South,
-            WagInputButton::East => GamepadButtonType::East,
-            WagInputButton::North => GamepadButtonType::North,
-            WagInputButton::West => GamepadButtonType::West,
-            WagInputButton::L1 => GamepadButtonType::LeftTrigger,
-            WagInputButton::L2 => GamepadButtonType::LeftTrigger2,
-            WagInputButton::R1 => GamepadButtonType::RightTrigger,
-            WagInputButton::R2 => GamepadButtonType::RightTrigger2,
-            WagInputButton::Select => GamepadButtonType::Select,
-            WagInputButton::Start => GamepadButtonType::Start,
-            WagInputButton::L3 => GamepadButtonType::LeftThumb,
-            WagInputButton::R3 => GamepadButtonType::RightThumb,
-            WagInputButton::Up => GamepadButtonType::DPadUp,
-            WagInputButton::Down => GamepadButtonType::DPadDown,
-            WagInputButton::Left => GamepadButtonType::DPadLeft,
-            WagInputButton::Right => GamepadButtonType::DPadRight,
+            NetworkInputButton::South => GamepadButtonType::South,
+            NetworkInputButton::East => GamepadButtonType::East,
+            NetworkInputButton::North => GamepadButtonType::North,
+            NetworkInputButton::West => GamepadButtonType::West,
+            NetworkInputButton::L1 => GamepadButtonType::LeftTrigger,
+            NetworkInputButton::L2 => GamepadButtonType::LeftTrigger2,
+            NetworkInputButton::R1 => GamepadButtonType::RightTrigger,
+            NetworkInputButton::R2 => GamepadButtonType::RightTrigger2,
+            NetworkInputButton::Select => GamepadButtonType::Select,
+            NetworkInputButton::Start => GamepadButtonType::Start,
+            NetworkInputButton::L3 => GamepadButtonType::LeftThumb,
+            NetworkInputButton::R3 => GamepadButtonType::RightThumb,
+            NetworkInputButton::Up => GamepadButtonType::DPadUp,
+            NetworkInputButton::Down => GamepadButtonType::DPadDown,
+            NetworkInputButton::Left => GamepadButtonType::DPadLeft,
+            NetworkInputButton::Right => GamepadButtonType::DPadRight,
         }
     }
 
     pub fn to_keycode(&self) -> KeyCode {
         match self {
-            WagInputButton::South => KeyCode::KeyJ,
-            WagInputButton::East => KeyCode::KeyK,
-            WagInputButton::North => KeyCode::KeyI,
-            WagInputButton::West => KeyCode::KeyU,
-            WagInputButton::L1 => KeyCode::KeyY,
-            WagInputButton::L2 => KeyCode::KeyH,
-            WagInputButton::R1 => KeyCode::KeyO,
-            WagInputButton::R2 => KeyCode::KeyL,
-            WagInputButton::Select => KeyCode::KeyV,
-            WagInputButton::Start => KeyCode::KeyB,
-            WagInputButton::L3 => KeyCode::KeyN,
-            WagInputButton::R3 => KeyCode::KeyM,
-            WagInputButton::Up => KeyCode::KeyW,
-            WagInputButton::Down => KeyCode::KeyS,
-            WagInputButton::Left => KeyCode::KeyA,
-            WagInputButton::Right => KeyCode::KeyD,
+            NetworkInputButton::South => KeyCode::KeyJ,
+            NetworkInputButton::East => KeyCode::KeyK,
+            NetworkInputButton::North => KeyCode::KeyI,
+            NetworkInputButton::West => KeyCode::KeyU,
+            NetworkInputButton::L1 => KeyCode::KeyY,
+            NetworkInputButton::L2 => KeyCode::KeyH,
+            NetworkInputButton::R1 => KeyCode::KeyO,
+            NetworkInputButton::R2 => KeyCode::KeyL,
+            NetworkInputButton::Select => KeyCode::KeyV,
+            NetworkInputButton::Start => KeyCode::KeyB,
+            NetworkInputButton::L3 => KeyCode::KeyN,
+            NetworkInputButton::R3 => KeyCode::KeyM,
+            NetworkInputButton::Up => KeyCode::KeyW,
+            NetworkInputButton::Down => KeyCode::KeyS,
+            NetworkInputButton::Left => KeyCode::KeyA,
+            NetworkInputButton::Right => KeyCode::KeyD,
+        }
+    }
+
+    pub fn to_input_event(
+        &self,
+        writer: &mut InputStream,
+        pad_id: usize,
+        pressed: bool,
+    ) -> Option<InputEvent> {
+        match self {
+            NetworkInputButton::Up
+            | NetworkInputButton::Down
+            | NetworkInputButton::Left
+            | NetworkInputButton::Right => Some(InputEvent::Point(
+                writer.update_dpad(pad_id, *self, pressed),
+            )),
+
+            NetworkInputButton::South
+            | NetworkInputButton::West
+            | NetworkInputButton::North
+            | NetworkInputButton::East
+            | NetworkInputButton::Start
+            | NetworkInputButton::Select => {
+                let game_button = GameButton::from(*self);
+                Some(if pressed {
+                    InputEvent::Press(game_button)
+                } else {
+                    InputEvent::Release(game_button)
+                })
+            }
+
+            NetworkInputButton::R1
+            | NetworkInputButton::R2
+            | NetworkInputButton::R3
+            | NetworkInputButton::L1
+            | NetworkInputButton::L2
+            | NetworkInputButton::L3 => None,
         }
     }
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Reflect, Copy, Hash)]
+pub enum InputEvent {
+    Point(StickPosition),
+    Press(GameButton),
+    Release(GameButton),
+}
+
+impl From<char> for InputEvent {
+    fn from(ch: char) -> InputEvent {
+        if let Ok(number_token) = ch.to_string().parse::<i32>() {
+            InputEvent::Point(number_token.into())
+        } else {
+            match ch {
+                'f' => InputEvent::Press(GameButton::Fast),
+                'F' => InputEvent::Release(GameButton::Fast),
+                's' => InputEvent::Press(GameButton::Strong),
+                'S' => InputEvent::Release(GameButton::Strong),
+                'w' => InputEvent::Press(GameButton::Wrestling),
+                'W' => InputEvent::Release(GameButton::Wrestling),
+                'g' => InputEvent::Press(GameButton::Gimmick),
+                'G' => InputEvent::Release(GameButton::Gimmick),
+                // There is no need for negative edge on start, this whole thing is mighty sus so let's not get caught up on that shall we
+                '.' => InputEvent::Press(GameButton::Start),
+                ',' => InputEvent::Press(GameButton::Select),
+                _ => panic!("Invalid character {ch}"),
+            }
+        }
+    }
+}
+
+// TODO: Rename to owned input event etc
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct WagInputEvent {
-    pub button: WagInputButton,
-    pub pressed: bool,
+pub struct OwnedInput {
+    pub event: InputEvent,
     pub player_handle: usize,
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Eq, Hash, Resource)]
-pub struct WagInputEventStream {
+#[derive(Debug, Default, Clone, PartialEq, Eq, Resource)]
+pub struct InputStream {
     pub frame: usize,
-    pub events: Vec<WagInputEvent>,
+    pub events: Vec<OwnedInput>,
+    pub dpads: HashMap<usize, StickPosition>,
+}
+
+impl InputStream {
+    pub fn update_dpad(
+        &mut self,
+        pad_id: usize,
+        button: NetworkInputButton,
+        pressed: bool,
+    ) -> StickPosition {
+        let old_dpad: IVec2 = self
+            .dpads
+            .get(&pad_id)
+            .map(|sp| sp.to_owned())
+            .unwrap_or_default()
+            .into();
+        let flipper = 1 - 2 * (pressed as i32);
+        let mut new_dpad = old_dpad
+            - match button {
+                NetworkInputButton::Up => IVec2::Y * flipper,
+                NetworkInputButton::Down => -IVec2::Y * flipper,
+                NetworkInputButton::Left => -IVec2::X * flipper,
+                NetworkInputButton::Right => IVec2::X * flipper,
+                _ => panic!(),
+            };
+
+        new_dpad.x = new_dpad.x.signum();
+        new_dpad.y = new_dpad.y.signum();
+        let new_stick = new_dpad.into();
+
+        self.dpads.insert(pad_id, new_stick);
+        new_stick
+    }
 }
 
 #[derive(Debug, Resource, Clone, Copy)]

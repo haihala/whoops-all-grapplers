@@ -6,9 +6,9 @@ use crate::{
 use bevy::prelude::*;
 use strum::IntoEnumIterator;
 use wag_core::{
-    CharacterId, Characters, Controllers, GameState, LocalCharacter, LocalController, LocalState,
-    MatchState, OnlineState, Player, WagInputButton, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR,
-    GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
+    CharacterId, Characters, Controllers, GameButton, GameState, InputEvent, LocalCharacter,
+    LocalController, LocalState, MatchState, OnlineState, Player, StickPosition,
+    CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
 use super::{setup_view_title, MenuInputs};
@@ -147,10 +147,6 @@ pub fn navigate_character_select(
     local_controller: Option<Res<LocalController>>,
 ) {
     while let Some(ev) = events.pop_front() {
-        if !ev.pressed {
-            continue;
-        }
-
         let player = if let Some(ref lc) = local_controller {
             if lc.0 != ev.player_handle {
                 continue;
@@ -166,39 +162,45 @@ pub fn navigate_character_select(
                 .unwrap()
         };
 
-        match ev.button {
-            WagInputButton::Up => nav.up(player),
-            WagInputButton::Down => nav.down(player),
-            WagInputButton::East => {
-                if nav.locked(player) {
-                    nav.unlock(player);
-                } else {
-                    game_state.set(GameState::Local(LocalState::ControllerAssignment));
+        match ev.event {
+            InputEvent::Point(point) => {
+                if point == StickPosition::N {
+                    nav.up(player);
+                } else if point == StickPosition::S {
+                    nav.down(player);
                 }
             }
-            WagInputButton::South => {
-                if local_controller.is_some() {
-                    game_state.set(GameState::Online(OnlineState::Lobby));
-                    commands.insert_resource(LocalCharacter(
-                        *options.get(nav.p1_select.selected).unwrap(),
-                    ));
-                    return;
-                }
+            InputEvent::Press(button) => {
+                if button == GameButton::Fast {
+                    if local_controller.is_some() {
+                        game_state.set(GameState::Online(OnlineState::Lobby));
+                        commands.insert_resource(LocalCharacter(
+                            *options.get(nav.p1_select.selected).unwrap(),
+                        ));
+                        return;
+                    }
 
-                nav.lock_in(player);
-                if nav.both_locked() {
-                    let [p1_char, p2_char] = options
-                        .get_many([nav.p1_select.selected, nav.p2_select.selected])
-                        .unwrap();
-                    commands.insert_resource(Characters {
-                        p1: *p1_char,
-                        p2: *p2_char,
-                    });
-                    game_state.set(GameState::Local(LocalState::Match));
-                    match_state.set(MatchState::Loading);
+                    nav.lock_in(player);
+                    if nav.both_locked() {
+                        let [p1_char, p2_char] = options
+                            .get_many([nav.p1_select.selected, nav.p2_select.selected])
+                            .unwrap();
+                        commands.insert_resource(Characters {
+                            p1: *p1_char,
+                            p2: *p2_char,
+                        });
+                        game_state.set(GameState::Local(LocalState::Match));
+                        match_state.set(MatchState::Loading);
+                    }
+                } else if button == GameButton::Strong {
+                    if nav.locked(player) {
+                        nav.unlock(player);
+                    } else {
+                        game_state.set(GameState::Local(LocalState::ControllerAssignment));
+                    }
                 }
             }
-            _ => {}
+            InputEvent::Release(_) => {}
         }
     }
 }

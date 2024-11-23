@@ -5,7 +5,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use wag_core::{
-    Controllers, GameResult, GameState, MatchState, Player, WagInputButton,
+    Controllers, GameButton, GameResult, GameState, InputEvent, MatchState, Player, StickPosition,
     CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
@@ -167,23 +167,15 @@ pub fn navigate_end_screen(
     mut next_match_state: ResMut<NextState<MatchState>>,
     mut quitter: EventWriter<AppExit>,
 ) {
-    // TODO: Analog stick
     while let Some(ev) = events.pop_front() {
         let Some(player) = controllers.get_player(ev.player_handle) else {
             continue;
         };
 
-        if !ev.pressed {
-            continue;
-        }
-
-        match ev.button {
-            WagInputButton::Up => nav.up(player),
-            WagInputButton::Down => nav.down(player),
-            WagInputButton::East => {
-                nav.unlock(player);
-            }
-            WagInputButton::South => {
+        match ev.event {
+            InputEvent::Point(StickPosition::N) => nav.up(player),
+            InputEvent::Point(StickPosition::S) => nav.down(player),
+            InputEvent::Press(GameButton::Fast) => {
                 let selected = nav.selected(player);
                 let option_type = options.get(selected).unwrap();
 
@@ -206,6 +198,9 @@ pub fn navigate_end_screen(
                         quitter.send_default();
                     }
                 }
+            }
+            InputEvent::Press(GameButton::Strong) => {
+                nav.unlock(player);
             }
             _ => {}
         }

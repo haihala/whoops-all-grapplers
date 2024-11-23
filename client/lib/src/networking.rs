@@ -9,13 +9,13 @@ use bevy::{
 use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
 use characters::{Attack, Hitbox, Hurtboxes, Inventory, WAGResources};
-use input_parsing::{InputParser, PadStream, ParrotStream};
+use input_parsing::{InputParser, ParrotStream};
 use player_state::PlayerState;
 use strum::IntoEnumIterator;
 use wag_core::{
     AvailableCancels, Characters, Clock, Combo, Controllers, Facing, GameState, Hitstop,
-    LocalCharacter, LocalController, MatchState, OnlineState, Owner, Player, RollbackSchedule,
-    Stats, WagArgs, WagInputButton, WagInputEvent, WagInputEventStream,
+    InputStream, LocalCharacter, LocalController, MatchState, NetworkInputButton, OnlineState,
+    OwnedInput, Owner, Player, RollbackSchedule, Stats, WagArgs,
 };
 
 use crate::{
@@ -40,8 +40,7 @@ fn no_session_exists(session: Option<Res<bevy_ggrs::Session<Config>>>) -> bool {
 
 impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<KeyboardInputState>()
-            .init_resource::<WagInputEventStream>()
+        app.init_resource::<InputStream>()
             .add_systems(OnEnter(GameState::Online(OnlineState::Lobby)), setup_socket)
             .add_systems(
                 FixedUpdate,
@@ -90,7 +89,6 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_clone::<InputParser>()
             .rollback_component_with_clone::<Inventory>()
             .rollback_component_with_clone::<MoveBuffer>()
-            .rollback_component_with_clone::<PadStream>()
             .rollback_component_with_clone::<ParrotStream>()
             .rollback_component_with_clone::<PlayerState>()
             .rollback_component_with_clone::<PlayerVelocity>()
@@ -294,7 +292,7 @@ fn read_local_inputs(
         let mut input = 0u16;
 
         // TODO: Analog stick
-        for (shift, wag_button) in WagInputButton::iter().enumerate() {
+        for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
             if gamepad_buttons.pressed(GamepadButton {
                 gamepad,
                 button_type: wag_button.to_gamepad_button_type(),
@@ -306,7 +304,7 @@ fn read_local_inputs(
         // Keyboard -> Player 1
         // TODO: This is probably broken online, it's useful for synctesting
         if local_controller.0 == 69 && *handle == 0 {
-            for (shift, wag_button) in WagInputButton::iter().enumerate() {
+            for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
                 if keyboard_keys.pressed(wag_button.to_keycode()) {
                     input |= 1 << shift;
                 }
@@ -319,27 +317,11 @@ fn read_local_inputs(
     commands.insert_resource(LocalInputs::<Config>(inputs));
 }
 
-#[derive(Debug, Resource, Default)]
-struct KeyboardInputState(HashMap<WagInputButton, bool>);
-impl KeyboardInputState {
-    fn should_send(&mut self, event: &WagInputEvent) -> bool {
-        let current_value = self.0.get(&event.button).cloned().unwrap_or_default();
-
-        if event.pressed == current_value {
-            return false;
-        }
-
-        self.0.insert(event.button, event.pressed);
-
-        true
-    }
-}
-
 fn generate_offline_input_streams(
-    mut writer: ResMut<WagInputEventStream>,
+    mut writer: ResMut<InputStream>,
     mut gamepad_events: EventReader<GamepadEvent>,
     mut keyboard_events: EventReader<KeyboardInput>,
-    mut kb_state: ResMut<KeyboardInputState>,
+    keys: Res<ButtonInput<KeyCode>>,
     clock: Res<Clock>,
 ) {
     if writer.frame != clock.frame {
@@ -350,32 +332,44 @@ fn generate_offline_input_streams(
     // TODO: Analog input
     for event in gamepad_events.read() {
         if let GamepadEvent::Button(btn_ev) = event {
-            let Some(button) = WagInputButton::from_gamepad_button_type(btn_ev.button_type) else {
+            let Some(button) = NetworkInputButton::from_gamepad_button_type(btn_ev.button_type)
+            else {
                 debug!("Discarded input: {:?}", btn_ev);
                 continue;
             };
 
-            writer.events.push(WagInputEvent {
-                pressed: btn_ev.value > 0.5,
-                player_handle: btn_ev.gamepad.id,
-                button,
-            });
+            let pressed = btn_ev.value > 0.5;
+
+            let game_event = button.to_input_event(&mut writer, btn_ev.gamepad.id, pressed);
+
+            if let Some(input_event) = game_event {
+                writer.events.push(OwnedInput {
+                    event: input_event,
+                    player_handle: btn_ev.gamepad.id,
+                });
+            }
         }
     }
 
     for bevy_event in keyboard_events.read() {
-        let Some(button) = WagInputButton::from_key(bevy_event.key_code) else {
+        let Some(button) = NetworkInputButton::from_key(bevy_event.key_code) else {
             continue;
         };
 
-        let wag_event = WagInputEvent {
-            pressed: bevy_event.state.is_pressed(),
-            player_handle: 69, // Hehe special id for keyboard
-            button,
-        };
+        if !(keys.just_pressed(bevy_event.key_code) || keys.just_released(bevy_event.key_code)) {
+            // Filter out keyrepeat
+            continue;
+        }
 
-        if kb_state.should_send(&wag_event) {
-            writer.events.push(wag_event);
+        let pressed = bevy_event.state.is_pressed();
+
+        let game_event = button.to_input_event(&mut writer, 69, pressed);
+
+        if let Some(input_event) = game_event {
+            writer.events.push(OwnedInput {
+                event: input_event,
+                player_handle: 69,
+            });
         }
     }
 }
@@ -384,7 +378,7 @@ fn generate_offline_input_streams(
 struct InputGenCache(HashMap<usize, u16>);
 
 fn generate_online_input_streams(
-    mut writer: ResMut<WagInputEventStream>,
+    mut writer: ResMut<InputStream>,
     inputs: Res<PlayerInputs<Config>>,
     mut input_states: ResMut<InputGenCache>,
     clock: Res<Clock>,
@@ -400,16 +394,19 @@ fn generate_online_input_streams(
             continue;
         };
 
-        for (shift, button_type) in WagInputButton::iter().enumerate() {
+        for (shift, button_type) in NetworkInputButton::iter().enumerate() {
             let was_pressed = ((old_state >> shift) & 1) == 1;
             let is_pressed = ((index >> shift) & 1) == 1;
 
             if was_pressed != is_pressed {
-                writer.events.push(WagInputEvent {
-                    player_handle,
-                    pressed: is_pressed,
-                    button: button_type,
-                });
+                let game_event = button_type.to_input_event(&mut writer, 69, is_pressed);
+
+                if let Some(input_event) = game_event {
+                    writer.events.push(OwnedInput {
+                        event: input_event,
+                        player_handle,
+                    });
+                }
             }
         }
 

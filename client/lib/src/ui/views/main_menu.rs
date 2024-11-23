@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use wag_core::{
-    GameState, LocalController, LocalState, OnlineState, WagInputButton, GENERIC_TEXT_COLOR,
-    MAIN_MENU_HIGHLIGHT_TEXT_COLOR,
+    GameButton, GameState, InputEvent, LocalController, LocalState, OnlineState, StickPosition,
+    GENERIC_TEXT_COLOR, MAIN_MENU_HIGHLIGHT_TEXT_COLOR,
 };
 
 use crate::{assets::Fonts, entity_management::VisibleInStates, ui::VerticalMenuNavigation};
@@ -98,16 +98,11 @@ pub fn navigate_main_menu(
     mut state: ResMut<NextState<GameState>>,
     mut exit: EventWriter<AppExit>,
 ) {
-    // TODO: Analog stick
     while let Some(ev) = events.pop_front() {
-        if !ev.pressed {
-            continue;
-        }
-
-        match ev.button {
-            WagInputButton::Up => nav.up(),
-            WagInputButton::Down => nav.down(),
-            WagInputButton::South => match options.get(nav.selected).unwrap() {
+        match ev.event {
+            InputEvent::Point(StickPosition::N) => nav.up(),
+            InputEvent::Point(StickPosition::S) => nav.down(),
+            InputEvent::Press(GameButton::Fast) => match options.get(nav.selected).unwrap() {
                 MainMenuOptions::LocalPlay => {
                     state.set(GameState::Local(LocalState::ControllerAssignment));
                 }

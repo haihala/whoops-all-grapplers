@@ -202,6 +202,10 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
             ActionBuilder::button(GameButton::Strong)
                 .crouching()
                 .with_animation(SamuraiAnimation::Uppercut)
+                .immediate_events(vec![ActionEvent::ExpandHurtbox(
+                    Area::new(0.1, 1.0, 0.6, 0.8),
+                    30,
+                )])
                 .dyn_events_on_frame(
                     8,
                     Arc::new(|situation: &Situation| {
@@ -294,6 +298,10 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .sword()
                 .with_advantage_on_block(-7)
                 .with_advantage_on_hit(10)
+                .with_extra_initial_events(vec![ActionEvent::ExpandHurtbox(
+                    Area::new(0.1, 1.0, 0.6, 0.8),
+                    40,
+                )])
                 .build(),
         ),
         (

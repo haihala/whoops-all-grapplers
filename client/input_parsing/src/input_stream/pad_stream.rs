@@ -27,11 +27,16 @@ impl PadStream {
             self.stick_position -= direction;
         }
 
-        assert!(self.stick_position.x.abs() < 2);
-        assert!(self.stick_position.y.abs() < 2);
+        // TODO: Analog stick + dpad is broken, this is a temp fix
+        // Stick parsing should be moved over to earlier in the parsing pipeline
+        let sp = IVec2::new(
+            self.stick_position.x.signum(),
+            self.stick_position.y.signum(),
+        );
+        //assert!(self.stick_position.x.abs() < 2);
+        //assert!(self.stick_position.y.abs() < 2);
 
-        self.next_read
-            .push(InputEvent::Point(self.stick_position.into()));
+        self.next_read.push(InputEvent::Point(sp.into()));
     }
 }
 

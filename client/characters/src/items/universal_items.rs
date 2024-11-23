@@ -285,7 +285,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 icon: Icon::ThumbTacks(id),
                 effect: Stats {
                     damage_multiplier: 1.0 + (exponential as f32 * 0.01),
-                    ..default()
+                    ..Stats::identity()
                 },
             },
         )

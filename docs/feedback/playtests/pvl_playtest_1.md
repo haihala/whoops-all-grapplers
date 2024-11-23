@@ -10,4 +10,4 @@
     - Breaks if there is downwards motion.
 - Thumbtack MS bug makes it more fun, maybe increase speed overall
 - Hand model extends unnaturally, more reason to redo forward walk
-
+- Analog stick was preferred to some

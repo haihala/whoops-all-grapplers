@@ -285,7 +285,7 @@ impl ActionBuilder {
     pub fn build_script(mut self) -> impl Fn(&Situation) -> Vec<ActionEvent> {
         if self.needs_meter {
             self = self.immediate_events(vec![
-                ActionEvent::ModifyResource(ResourceType::Meter, METER_BAR_SEGMENT),
+                ActionEvent::ModifyResource(ResourceType::Meter, -METER_BAR_SEGMENT),
                 ActionEvent::Flash(FlashRequest::meter_use()),
             ]);
         }

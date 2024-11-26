@@ -504,10 +504,10 @@ fn stance_moves() -> impl Iterator<Item = (SamuraiAction, Action)> {
 
 fn sword_stance(version: SpecialVersion) -> Action {
     let (input, metered, buttons) = match version {
-        SpecialVersion::Fast => ("{2}14f", false, vec![GameButton::Fast]),
-        SpecialVersion::Strong => ("{2}14s", false, vec![GameButton::Strong]),
+        SpecialVersion::Fast => ("{2}*4f", false, vec![GameButton::Fast]),
+        SpecialVersion::Strong => ("{2}*4s", false, vec![GameButton::Strong]),
         SpecialVersion::Metered => (
-            "{2}14(fs)",
+            "{2}*4(fs)",
             true,
             vec![GameButton::Fast, GameButton::Strong],
         ),
@@ -812,9 +812,9 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
     .map(|version| {
         (SamuraiAction::KunaiThrow(version), {
             let (input, base_velocity, hits, metered) = match version {
-                SpecialVersion::Fast => ("{2}36f", Vec2::new(4.0, 2.0), 1, false),
-                SpecialVersion::Strong => ("{2}36s", Vec2::new(0.9, 4.0), 2, false),
-                SpecialVersion::Metered => ("{2}36(fs)", Vec2::new(10.0, 1.0), 2, true),
+                SpecialVersion::Fast => ("{2}*6f", Vec2::new(4.0, 2.0), 1, false),
+                SpecialVersion::Strong => ("{2}*6s", Vec2::new(0.9, 4.0), 2, false),
+                SpecialVersion::Metered => ("{2}*6(fs)", Vec2::new(10.0, 1.0), 2, true),
             };
 
             let mut builder = ActionBuilder::special()

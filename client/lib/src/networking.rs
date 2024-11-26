@@ -2,7 +2,10 @@ use std::hash::{Hash, Hasher};
 
 use bevy::{
     ecs::schedule::{LogLevel, ScheduleBuildSettings},
-    input::{gamepad::GamepadEvent, keyboard::KeyboardInput},
+    input::{
+        gamepad::{GamepadAxisChangedEvent, GamepadEvent},
+        keyboard::KeyboardInput,
+    },
     prelude::*,
     utils::HashMap,
 };
@@ -14,8 +17,8 @@ use player_state::PlayerState;
 use strum::IntoEnumIterator;
 use wag_core::{
     AvailableCancels, Characters, Clock, Combo, Controllers, Facing, GameState, Hitstop,
-    InputStream, LocalCharacter, LocalController, MatchState, NetworkInputButton, OnlineState,
-    OwnedInput, Owner, Player, RollbackSchedule, Stats, WagArgs,
+    InputEvent, InputStream, LocalCharacter, LocalController, MatchState, NetworkInputButton,
+    OnlineState, OwnedInput, Owner, Player, RollbackSchedule, Stats, WagArgs, STICK_DEAD_ZONE,
 };
 
 use crate::{
@@ -278,6 +281,7 @@ fn read_local_inputs(
     maybe_controller: Option<Res<LocalController>>,
     local_players: Res<LocalPlayers>,
     local_controller: Res<LocalController>,
+    axes: Res<Axis<GamepadAxis>>,
 ) {
     let Some(controller) = maybe_controller else {
         return;
@@ -291,14 +295,49 @@ fn read_local_inputs(
     for handle in &local_players.0 {
         let mut input = 0u16;
 
-        // TODO: Analog stick
         for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
             if gamepad_buttons.pressed(GamepadButton {
-                gamepad,
+                gamepad, // Maybe this is supposed to refer to handle?
                 button_type: wag_button.to_gamepad_button_type(),
             }) {
                 input |= 1 << shift;
             }
+        }
+
+        // The joysticks are represented using a separate axis for X and Y
+        // This is from the cheatbook: https://bevy-cheatbook.github.io/input/gamepad.html
+        let axis_lx = GamepadAxis {
+            gamepad,
+            axis_type: GamepadAxisType::LeftStickX,
+        };
+        let axis_ly = GamepadAxis {
+            gamepad,
+            axis_type: GamepadAxisType::LeftStickY,
+        };
+
+        // This analog stick handling is untested
+        if let (Some(float_x), Some(float_y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
+            let (up, down) = if float_y.abs() < STICK_DEAD_ZONE {
+                (0, 0)
+            } else if float_y < 0.0 {
+                (0, 1)
+            } else {
+                (1, 0)
+            };
+
+            let (left, right) = if float_x.abs() < STICK_DEAD_ZONE {
+                (0, 0)
+            } else if float_x < 0.0 {
+                (1, 0)
+            } else {
+                (0, 1)
+            };
+
+            // You may end up with opposing cardinals pressed with stick+dpad
+            input |= up;
+            input |= down << 1;
+            input |= left << 2;
+            input |= right << 3;
         }
 
         // Keyboard -> Player 1
@@ -320,6 +359,7 @@ fn read_local_inputs(
 fn generate_offline_input_streams(
     mut writer: ResMut<InputStream>,
     mut gamepad_events: EventReader<GamepadEvent>,
+    mut analog_events: EventReader<GamepadAxisChangedEvent>,
     mut keyboard_events: EventReader<KeyboardInput>,
     keys: Res<ButtonInput<KeyCode>>,
     clock: Res<Clock>,
@@ -329,7 +369,6 @@ fn generate_offline_input_streams(
         writer.frame = clock.frame;
     }
 
-    // TODO: Analog input
     for event in gamepad_events.read() {
         if let GamepadEvent::Button(btn_ev) = event {
             let Some(button) = NetworkInputButton::from_gamepad_button_type(btn_ev.button_type)
@@ -349,6 +388,19 @@ fn generate_offline_input_streams(
                 });
             }
         }
+    }
+
+    for bevy_event in analog_events.read() {
+        let new_stick = writer.update_analog_stick(
+            bevy_event.gamepad.id,
+            bevy_event.axis_type,
+            bevy_event.value,
+        );
+
+        writer.events.push(OwnedInput {
+            event: InputEvent::Point(new_stick),
+            player_handle: bevy_event.gamepad.id,
+        });
     }
 
     for bevy_event in keyboard_events.read() {
@@ -399,6 +451,7 @@ fn generate_online_input_streams(
             let is_pressed = ((index >> shift) & 1) == 1;
 
             if was_pressed != is_pressed {
+                dbg!("Here?", button_type, is_pressed, was_pressed);
                 let game_event = button_type.to_input_event(&mut writer, 69, is_pressed);
 
                 if let Some(input_event) = game_event {
@@ -444,7 +497,7 @@ fn handle_ggrs_events(mut sesh: ResMut<Session<Config>>) {
 fn tf_hasher(transform: &Transform) -> u64 {
     let mut hasher = checksum_hasher();
 
-    assert!(
+    debug_assert!(
         transform.is_finite(),
         "Hashing is not stable for NaN f32 values."
     );

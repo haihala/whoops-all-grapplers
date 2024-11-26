@@ -137,12 +137,12 @@ impl WAGResource {
     }
 
     pub fn gain(&mut self, amount: i32) {
-        assert!(amount >= 0);
+        debug_assert!(amount >= 0);
         self.change(amount)
     }
 
     pub fn drain(&mut self, amount: i32) {
-        assert!(amount >= 0);
+        debug_assert!(amount >= 0);
         self.change(-amount)
     }
 

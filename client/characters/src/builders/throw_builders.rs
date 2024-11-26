@@ -54,8 +54,8 @@ impl ThrowEffectBuilder {
     }
 
     pub fn build(self) -> (Action, Action) {
-        assert!(self.lock_duration < self.target_duration);
-        assert!(self.lock_duration < self.self_duration);
+        debug_assert!(self.lock_duration < self.target_duration);
+        debug_assert!(self.lock_duration < self.self_duration);
 
         (
             Action {

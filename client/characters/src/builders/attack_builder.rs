@@ -37,8 +37,8 @@ impl SubBuilder {
     fn assert_valid(&self) {
         match self {
             SubBuilder::Throw(tb) => {
-                assert_ne!(tb.on_hit_action, ActionId::default());
-                assert_ne!(tb.target_action, ActionId::default());
+                debug_assert_ne!(tb.on_hit_action, ActionId::default());
+                debug_assert_ne!(tb.target_action, ActionId::default());
             }
             SubBuilder::Strike(sb) => {
                 sb.assert_valid();
@@ -268,7 +268,7 @@ impl AttackBuilder {
     }
 
     pub fn with_advantage_on_block(self, frame_advantage: i32) -> Self {
-        assert_ne!(self.recovery, 0);
+        debug_assert_ne!(self.recovery, 0);
 
         let amount = (self.recovery as i32 + frame_advantage) as usize;
         self.with_blockstun(amount)
@@ -279,7 +279,7 @@ impl AttackBuilder {
     }
 
     pub fn with_advantage_on_hit(self, frame_advantage: i32) -> Self {
-        assert_ne!(self.recovery, 0);
+        debug_assert_ne!(self.recovery, 0);
 
         let amount = (self.recovery as i32 + frame_advantage) as usize;
         self.with_hitstun(amount)
@@ -360,7 +360,7 @@ impl AttackBuilder {
     }
 
     pub fn throw_target_action(self, target_action: impl Into<ActionId>) -> Self {
-        assert!(matches!(self.sub_builder, SubBuilder::Throw(_)));
+        debug_assert!(matches!(self.sub_builder, SubBuilder::Throw(_)));
 
         Self {
             sub_builder: SubBuilder::Throw(ThrowStartupBuilder {
@@ -401,7 +401,7 @@ impl AttackBuilder {
     }
 
     pub fn with_extra_activation_events(self, events: Vec<ActionEvent>) -> Self {
-        assert_ne!(self.startup, 0, "Set startup before activation events");
+        debug_assert_ne!(self.startup, 0, "Set startup before activation events");
         Self {
             action_builder: self.action_builder.events_on_frame(self.startup, events),
             ..self
@@ -412,7 +412,7 @@ impl AttackBuilder {
         self,
         generator: impl Fn(&Situation) -> Vec<ActionEvent> + Send + Sync + 'static,
     ) -> Self {
-        assert_ne!(self.startup, 0, "Set startup before activation events");
+        debug_assert_ne!(self.startup, 0, "Set startup before activation events");
         Self {
             action_builder: self
                 .action_builder
@@ -469,10 +469,10 @@ impl AttackBuilder {
     }
 
     pub fn build(self) -> Action {
-        assert_ne!(self.startup, 0);
-        assert_ne!(self.hitbox_lifetime, Lifetime::default());
-        assert_ne!(self.recovery, 0);
-        assert_ne!(self.hitbox, Hitbox(Area::default()));
+        debug_assert_ne!(self.startup, 0);
+        debug_assert_ne!(self.hitbox_lifetime, Lifetime::default());
+        debug_assert_ne!(self.recovery, 0);
+        debug_assert_ne!(self.hitbox, Hitbox(Area::default()));
         self.sub_builder.assert_valid();
 
         Action {
@@ -749,8 +749,8 @@ impl StrikeEffectBuilder {
     }
 
     fn assert_valid(&self) {
-        assert_ne!(self.base_damage, 0);
-        assert_ne!(self.block_stun, 0);
-        assert!(!self.on_hit_effects.is_empty())
+        debug_assert_ne!(self.base_damage, 0);
+        debug_assert_ne!(self.block_stun, 0);
+        debug_assert!(!self.on_hit_effects.is_empty())
     }
 }

@@ -57,7 +57,7 @@ impl DashBuilder {
             ("656", PI / 2.0)
         };
 
-        assert_ne!(self.total_duration, 0);
+        debug_assert_ne!(self.total_duration, 0);
 
         builder = builder
             .with_input(input)
@@ -88,7 +88,7 @@ impl DashBuilder {
     }
 
     pub fn build(self) -> impl Iterator<Item = (ActionId, Action)> {
-        assert!(!self.phases.is_empty());
+        debug_assert!(!self.phases.is_empty());
 
         let (basic_action, super_action) = if self.backdash {
             (ActionId::DashBack, ActionId::TrackSpikesDashBack)

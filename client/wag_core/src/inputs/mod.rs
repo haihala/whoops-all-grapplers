@@ -6,6 +6,8 @@ use strum_macros::EnumIter;
 
 use crate::Player;
 
+pub const STICK_DEAD_ZONE: f32 = 0.3;
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, EnumIter, Reflect, Default)]
 /// Buttons of the game
 /// The name 'Button' is in prelude
@@ -240,36 +242,72 @@ pub struct OwnedInput {
 pub struct InputStream {
     pub frame: usize,
     pub events: Vec<OwnedInput>,
-    pub dpads: HashMap<usize, StickPosition>,
+    dpads: HashMap<usize, StickPosition>,
+    analog_sticks: HashMap<usize, StickPosition>,
 }
 
 impl InputStream {
+    pub fn update_analog_stick(
+        &mut self,
+        pad_id: usize,
+        axis: GamepadAxisType,
+        value: f32,
+    ) -> StickPosition {
+        let mut old_stick: IVec2 = self
+            .analog_sticks
+            .get(&pad_id)
+            .map(|sp| sp.to_owned())
+            .unwrap_or_default()
+            .into();
+
+        let snap_value = if value.abs() < STICK_DEAD_ZONE {
+            0
+        } else {
+            value.signum() as i32
+        };
+
+        match axis {
+            GamepadAxisType::LeftStickX => old_stick.x = snap_value,
+            GamepadAxisType::LeftStickY => old_stick.y = snap_value,
+            _ => {}
+        };
+
+        let new_stick = old_stick.into();
+        self.analog_sticks.insert(pad_id, new_stick);
+        new_stick
+    }
+
     pub fn update_dpad(
         &mut self,
         pad_id: usize,
         button: NetworkInputButton,
         pressed: bool,
     ) -> StickPosition {
-        let old_dpad: IVec2 = self
+        let mut old_dpad: IVec2 = self
             .dpads
             .get(&pad_id)
             .map(|sp| sp.to_owned())
             .unwrap_or_default()
             .into();
-        let flipper = 1 - 2 * (pressed as i32);
-        let mut new_dpad = old_dpad
-            - match button {
-                NetworkInputButton::Up => IVec2::Y * flipper,
-                NetworkInputButton::Down => -IVec2::Y * flipper,
-                NetworkInputButton::Left => -IVec2::X * flipper,
-                NetworkInputButton::Right => IVec2::X * flipper,
-                _ => panic!(),
-            };
 
-        new_dpad.x = new_dpad.x.signum();
-        new_dpad.y = new_dpad.y.signum();
-        let new_stick = new_dpad.into();
+        // This is cumbersome on devices that don't clean socd
+        // Need to figure out a solution where socd and repeated events work
+        let val = pressed as i32;
+        match button {
+            NetworkInputButton::Up => old_dpad.y = val,
+            NetworkInputButton::Down => old_dpad.y = -val,
+            NetworkInputButton::Left => old_dpad.x = -val,
+            NetworkInputButton::Right => old_dpad.x = val,
+            _ => panic!(),
+        };
 
+        debug_assert!(old_dpad.x.abs() <= 1, "dpad x is greater than 1");
+        debug_assert!(old_dpad.y.abs() <= 1, "dpad y is greater than 1");
+
+        old_dpad.x = old_dpad.x.signum();
+        old_dpad.y = old_dpad.y.signum();
+
+        let new_stick = old_dpad.into();
         self.dpads.insert(pad_id, new_stick);
         new_stick
     }

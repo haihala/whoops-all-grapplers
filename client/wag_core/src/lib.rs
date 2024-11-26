@@ -34,7 +34,7 @@ pub use icon::{Icon, Icons};
 mod inputs;
 pub use inputs::{
     Controllers, GameButton, InputEvent, InputStream, LocalController, NetworkInputButton,
-    OwnedInput, StickPosition,
+    OwnedInput, StickPosition, STICK_DEAD_ZONE,
 };
 
 mod item_id;

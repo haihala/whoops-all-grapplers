@@ -31,7 +31,7 @@ impl Character {
         special_properties: Vec<(ResourceType, WAGResource)>,
         voicelines: HashMap<VoiceLine, SoundEffect>,
     ) -> Character {
-        assert_eq!(boxes.standing.pushbox.bottom(), 0.0);
+        debug_assert_eq!(boxes.standing.pushbox.bottom(), 0.0);
 
         Self {
             model,

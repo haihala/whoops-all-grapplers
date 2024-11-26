@@ -130,6 +130,7 @@ fn jump(
                     };
 
                 return vec![
+                    ActionEvent::ForceAir,
                     Movement::impulse(impulse).into(),
                     VfxRequest {
                         effect: VisualEffect::SpeedLines,

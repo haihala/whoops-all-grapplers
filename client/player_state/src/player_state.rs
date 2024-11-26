@@ -8,6 +8,13 @@ use wag_core::{ActionId, AnimationType, Combo, Facing, Stats, StatusCondition, S
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 
+#[derive(Debug, Clone, Copy)]
+pub enum SimpleState {
+    Air,
+    Stand,
+    Crouch,
+}
+
 #[derive(Reflect, Debug, Component, Clone, Hash)]
 enum MainState {
     Air(AirState),
@@ -213,25 +220,6 @@ impl PlayerState {
         )
     }
 
-    // Jumping
-    pub fn jump(&mut self) {
-        match self.main.clone() {
-            MainState::Stand(StandState::Move(situation))
-            | MainState::Crouch(CrouchState::Move(situation)) => {
-                self.main = MainState::Air(AirState::Move(situation))
-            }
-            MainState::Crouch(_) | MainState::Stand(_) => {
-                self.main = MainState::Air(AirState::Idle)
-            }
-            // Launch
-            MainState::Air(AirState::Freefall) => {
-                panic!("")
-            }
-            _ => {
-                panic!("Jumping while {:?}", self.main)
-            }
-        };
-    }
     pub fn launch(&mut self) {
         self.main = MainState::Air(AirState::Freefall);
         self.free_since = None;
@@ -276,40 +264,46 @@ impl PlayerState {
     pub fn stand(&mut self) {
         self.main = MainState::Stand(StandState::Idle);
     }
-    pub fn force_stand(&mut self) {
-        match &self.main {
-            MainState::Stand(_) => {
-                // Already standing, everything is great
-            }
-            MainState::Crouch(ref cs) => {
-                self.main = match cs {
-                    CrouchState::Stun(stun) => MainState::Stand(StandState::Stun(stun.clone())),
-                    CrouchState::Move(move_history) => {
-                        MainState::Stand(StandState::Move(*move_history))
-                    }
-                    CrouchState::Idle => MainState::Stand(StandState::Idle),
+
+    pub fn force_state(&mut self, simple_state: SimpleState) {
+        match simple_state {
+            SimpleState::Air => match &self.main {
+                MainState::Air(_) => {}
+                // Jumps are moves
+                MainState::Stand(StandState::Move(tracker))
+                | MainState::Crouch(CrouchState::Move(tracker)) => {
+                    self.main = MainState::Air(AirState::Move(*tracker))
                 }
-            }
-            other => panic!("Forcing to stand from {:?}", other),
-        };
-    }
-    pub fn force_crouch(&mut self) {
-        match &self.main {
-            MainState::Crouch(_) => {
-                // Already crouching, everything is great
-            }
-            MainState::Stand(ref cs) => {
-                self.main = match cs {
-                    StandState::Stun(stun) => MainState::Crouch(CrouchState::Stun(stun.clone())),
-                    StandState::Move(move_history) => {
-                        MainState::Crouch(CrouchState::Move(*move_history))
-                    }
-                    StandState::Walk(_) | StandState::Idle => MainState::Crouch(CrouchState::Idle),
+                // All others are launchers I think?
+                _ => self.main = MainState::Air(AirState::Freefall),
+            },
+            SimpleState::Stand => match &self.main {
+                MainState::Stand(_) => {}
+                MainState::Air(AirState::Move(tracker))
+                | MainState::Crouch(CrouchState::Move(tracker)) => {
+                    self.main = MainState::Stand(StandState::Move(*tracker))
                 }
-            }
-            other => panic!("Forcing to crouch from {:?}", other),
-        };
+                MainState::Crouch(CrouchState::Stun(stun)) => {
+                    self.main = MainState::Stand(StandState::Stun(stun.clone()))
+                }
+                // This allows restand mixups
+                _ => self.main = MainState::Stand(StandState::Idle),
+            },
+            SimpleState::Crouch => match &self.main {
+                MainState::Crouch(_) => {}
+                MainState::Air(AirState::Move(tracker))
+                | MainState::Stand(StandState::Move(tracker)) => {
+                    self.main = MainState::Crouch(CrouchState::Move(*tracker))
+                }
+                MainState::Stand(StandState::Stun(stun)) => {
+                    self.main = MainState::Crouch(CrouchState::Stun(stun.clone()))
+                }
+                // This allows restand mixups
+                _ => self.main = MainState::Crouch(CrouchState::Idle),
+            },
+        }
     }
+
     pub fn is_crouching(&self) -> bool {
         matches!(self.main, MainState::Crouch(_))
     }

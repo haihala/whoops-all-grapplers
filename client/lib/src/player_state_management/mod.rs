@@ -1,5 +1,5 @@
 mod condition_management;
-mod force_stand;
+mod force_state;
 mod move_activation;
 mod move_advancement;
 mod player_flash;
@@ -132,7 +132,7 @@ fn spawn_player(
     commands
         .spawn((
             SpatialBundle {
-                transform: Transform::from_translation((offset, GROUND_PLANE_HEIGHT, 0.0).into()),
+                transform: Transform::from_translation(Vec3::new(offset, GROUND_PLANE_HEIGHT, 0.0)),
                 ..default()
             },
             WAGResources::from_stats(&character.base_stats, character.special_properties.clone()),
@@ -171,7 +171,7 @@ fn spawn_player(
         .observe(event_spreading::spread_events)
         .observe(condition_management::activate_conditions)
         .observe(condition_management::clear_conditions)
-        .observe(force_stand::force_stand)
+        .observe(force_state::force_state)
         .observe(move_activation::automatic_activation)
         .observe(move_activation::manage_cancel_windows)
         .observe(move_advancement::end_moves)

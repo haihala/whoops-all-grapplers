@@ -76,7 +76,12 @@ impl DashBuilder {
             .end_at(self.total_duration);
 
         for (frame, movement) in &self.phases {
-            builder = builder.events_on_frame(*frame, vec![(*movement).into()]);
+            let mut evs = vec![(*movement).into()];
+            let goes_up = movement.amount.y > 0.0;
+            if goes_up {
+                evs.push(ActionEvent::ForceAir);
+            }
+            builder = builder.events_on_frame(*frame, evs);
         }
 
         builder.build()

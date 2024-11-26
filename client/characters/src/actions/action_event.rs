@@ -23,6 +23,7 @@ pub enum ActionEvent {
     ClearCondition(StatusFlag),
     ForceStand,
     ForceCrouch,
+    ForceAir,
     SayVoiceLine(VoiceLine),
     ModifyResource(ResourceType, i32),
     ClearResource(ResourceType),
@@ -83,7 +84,10 @@ impl std::fmt::Debug for ActionEvent {
                 write!(f, "ForceStand")
             }
             ActionEvent::ForceCrouch => {
-                write!(f, "ForceCrouch ")
+                write!(f, "ForceCrouch")
+            }
+            ActionEvent::ForceAir => {
+                write!(f, "ForceAir")
             }
             ActionEvent::SayVoiceLine(voice_line) => {
                 write!(f, "SayVoiceLine - {:?}", voice_line)

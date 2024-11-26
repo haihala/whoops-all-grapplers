@@ -18,9 +18,10 @@ pub struct PlayerVelocity {
     pub teleport: Option<Vec2>,
 }
 
+// TODO: Make these character specific
 const PROPORTIONAL_DRAG: f32 = 0.03;
 const LINEAR_DRAG: f32 = 0.3;
-const WALK_BACK_SPEED_MULTIPLIER: f32 = 0.7;
+const WALK_BACK_SPEED_MULTIPLIER: f32 = 0.5;
 
 impl PlayerVelocity {
     pub fn reset(&mut self) {

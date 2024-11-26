@@ -2,7 +2,6 @@ mod followers;
 mod player_velocity;
 mod stick_movement;
 
-use core::f32;
 use std::f32::consts::PI;
 
 pub use followers::Follow;
@@ -68,7 +67,8 @@ impl Plugin for PhysicsPlugin {
                 player_gravity,
                 player_input,
                 set_target_position,
-                resolve_constraints,
+                resolve_floor,
+                resolve_x_constraints,
                 stick_movement::movement_input,
                 move_objects,
                 followers::update_followers,
@@ -92,43 +92,20 @@ fn update_walls(mut walls: ResMut<Walls>, player_query: Query<&Transform, With<P
 }
 
 #[allow(clippy::type_complexity)]
-fn player_gravity(
-    clock: Res<Clock>,
-    mut players: Query<(
-        &mut PlayerVelocity,
-        &mut PlayerState,
-        &mut HitboxSpawner,
-        &mut Transform,
-        &Stats,
-        Option<&Combo>,
-    )>,
-) {
-    for (mut velocity, mut state, mut spawner, mut tf, stats, combo) in &mut players {
+fn player_gravity(mut players: Query<(&mut PlayerVelocity, &PlayerState, &Stats, Option<&Combo>)>) {
+    for (mut velocity, state, stats, combo) in &mut players {
         if state.has_flag(StatusFlag::MovementLock) {
             continue;
         }
 
-        let on_floor = tf.translation.y <= GROUND_PLANE_HEIGHT;
-
-        if on_floor {
-            if !state.is_grounded() && velocity.get_shift().y <= 0.0 {
-                // Velocity check ensures that we don't call land on the frame we're being launched
-                state.land(clock.frame);
-                spawner.despawn_on_landing();
-                velocity.y_collision();
-                tf.translation.y = GROUND_PLANE_HEIGHT;
-            }
-        } else {
-            velocity.add_impulse(
-                -Vec2::Y
-                    * (stats.gravity
-                        + stats.gravity_scaling * combo.map_or(0.0, |c| c.hits as f32)),
-            );
-
-            if state.is_grounded() {
-                state.jump();
-            }
+        if state.is_grounded() {
+            continue;
         }
+
+        velocity.add_impulse(
+            -Vec2::Y
+                * (stats.gravity + stats.gravity_scaling * combo.map_or(0.0, |c| c.hits as f32)),
+        );
     }
 }
 
@@ -186,7 +163,37 @@ fn set_target_position(mut query: Query<(&Transform, &PlayerState, &mut PlayerVe
     }
 }
 
-fn resolve_constraints(
+#[allow(clippy::type_complexity)]
+fn resolve_floor(
+    clock: Res<Clock>,
+    mut players: Query<(
+        &mut PlayerVelocity,
+        &mut PlayerState,
+        &mut HitboxSpawner,
+        &mut Transform,
+        &Pushbox,
+    )>,
+) {
+    for (mut velocity, mut state, mut spawner, tf, pushbox) in &mut players {
+        let on_floor =
+            pushbox.with_center(tf.translation.truncate()).bottom() <= GROUND_PLANE_HEIGHT;
+
+        let just_landed = on_floor && !state.is_grounded() && velocity.get_shift().y <= 0.0;
+        if just_landed {
+            // Velocity check ensures that we don't call land on the frame we're being launched
+            state.land(clock.frame);
+            spawner.despawn_on_landing();
+            velocity.y_collision();
+            velocity.next_pos.y = GROUND_PLANE_HEIGHT;
+        }
+
+        if !on_floor && state.is_grounded() {
+            error!("Not at ground level, state is not airborne");
+        }
+    }
+}
+
+fn resolve_x_constraints(
     players: Res<Players>,
     mut player_query: Query<(&mut PlayerVelocity, &mut Transform, &Pushbox)>,
     walls: Res<Walls>,

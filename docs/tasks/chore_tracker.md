@@ -14,6 +14,7 @@ enough to be put on a more important list.
 ### Watchlist
 
 - Stick input occasionally gets stuck
+- Players falling through the floor
 
 ## Misc improvement ideas
 

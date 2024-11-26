@@ -2,4 +2,4 @@
 mod sub_state;
 
 mod player_state;
-pub use player_state::PlayerState;
+pub use player_state::{PlayerState, SimpleState};

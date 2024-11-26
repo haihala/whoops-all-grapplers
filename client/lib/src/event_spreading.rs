@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 use characters::{ActionEvent, AnimationRequest, Attack, FlashRequest, Movement, ResourceType};
+use player_state::SimpleState;
 use wag_core::{
     ActionId, Area, CancelWindow, SoundEffect, StatusCondition, StatusFlag, VfxRequest, VoiceLine,
 };
@@ -31,7 +32,7 @@ pub struct AddMovement(pub Movement);
 pub struct AddCondition(pub StatusCondition);
 
 #[derive(Debug, Event)]
-pub struct ForceStand(pub bool);
+pub struct ForceState(pub SimpleState);
 
 #[derive(Debug, Event, Clone, Copy)]
 pub struct ModifyResource {
@@ -125,10 +126,13 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
             commands.trigger_targets(AddCondition(cond.to_owned()), trigger.entity());
         }
         ActionEvent::ForceStand => {
-            commands.trigger_targets(ForceStand(true), trigger.entity());
+            commands.trigger_targets(ForceState(SimpleState::Stand), trigger.entity());
         }
         ActionEvent::ForceCrouch => {
-            commands.trigger_targets(ForceStand(false), trigger.entity());
+            commands.trigger_targets(ForceState(SimpleState::Crouch), trigger.entity());
+        }
+        ActionEvent::ForceAir => {
+            commands.trigger_targets(ForceState(SimpleState::Air), trigger.entity());
         }
         ActionEvent::ModifyResource(rt, amount) => {
             commands.trigger_targets(

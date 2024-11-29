@@ -36,6 +36,7 @@ pub enum ActionEvent {
     Hitstop, // TODO: Add strength
     CameraTilt(Vec2),
     CameraShake, // TODO: Add strength
+    Zoom(f32),
     CharacterShake(f32),
     Flash(FlashRequest),
     ColorShift(Color, usize),
@@ -110,11 +111,15 @@ impl std::fmt::Debug for ActionEvent {
             ActionEvent::LaunchStun(vec2) => {
                 write!(f, "LaunchStun - {:?}", vec2)
             }
-            ActionEvent::Hitstop => todo!(),
+            ActionEvent::Hitstop => {
+                write!(f, "HitStop")
+            }
             ActionEvent::CameraTilt(vec2) => {
                 write!(f, "CameraTilt - {:?}", vec2)
             }
-            ActionEvent::CameraShake => todo!(),
+            ActionEvent::CameraShake => {
+                write!(f, "CameraShake")
+            }
             ActionEvent::CharacterShake(amount) => {
                 write!(f, "CharacterShake - {:?}", amount)
             }
@@ -132,6 +137,9 @@ impl std::fmt::Debug for ActionEvent {
             }
             ActionEvent::ExpandHurtbox(area, duration) => {
                 write!(f, "ExpandHurtbox - {:?} for {}", area, duration)
+            }
+            ActionEvent::Zoom(duration) => {
+                write!(f, "Zoom - {:?}", duration)
             }
             ActionEvent::Noop => {
                 write!(f, "NO-OP")

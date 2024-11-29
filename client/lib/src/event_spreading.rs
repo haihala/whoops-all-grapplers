@@ -64,6 +64,9 @@ pub struct StartHitstop(pub Duration);
 pub struct TiltCamera(pub Vec2);
 
 #[derive(Debug, Event)]
+pub struct ZoomCamera(pub f32);
+
+#[derive(Debug, Event)]
 pub struct ShakeCamera;
 
 #[derive(Debug, Event)]
@@ -170,6 +173,9 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
         }
         ActionEvent::CameraTilt(tilt) => {
             commands.trigger_targets(TiltCamera(*tilt), trigger.entity());
+        }
+        ActionEvent::Zoom(duration) => {
+            commands.trigger_targets(ZoomCamera(*duration), trigger.entity());
         }
         ActionEvent::CameraShake => {
             commands.trigger(ShakeCamera);

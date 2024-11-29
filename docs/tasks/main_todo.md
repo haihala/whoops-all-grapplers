@@ -10,7 +10,6 @@
 
 ### Adjustments
 
-- Zoom in effect on throws and successful parry
 - Meter segment to 25, it just looks better
 - Animations
   - Redo the walk animation to look less goofy (knees)

@@ -6,7 +6,7 @@ use wag_core::{
 
 use crate::{
     entity_management::VisibleInStates,
-    event_spreading::{ShakeCamera, TiltCamera},
+    event_spreading::{ShakeCamera, TiltCamera, ZoomCamera},
     movement::{ARENA_WIDTH, MAX_PLAYER_DISTANCE},
 };
 
@@ -39,7 +39,8 @@ impl Plugin for CustomCameraPlugin {
                     .in_set(WAGStage::Camera)
                     .run_if(in_state(InMatch)),
             )
-            .observe(shake_camera);
+            .observe(shake_camera)
+            .observe(zoom_camera);
     }
 }
 
@@ -160,6 +161,7 @@ pub struct ChildCameraEffects {
     last_shake_start: f32,
     player_distance: f32,
     player_midpoint: f32,
+    zoom_until: f32,
     pivot: Option<Vec3>,
 }
 
@@ -177,6 +179,15 @@ fn shake_camera(
     childcam_fx.last_shake_start = time.elapsed_seconds();
 }
 
+fn zoom_camera(
+    trigger: Trigger<ZoomCamera>,
+    mut cams: Query<&mut ChildCameraEffects>,
+    time: Res<Time>,
+) {
+    let mut childcam_fx = cams.single_mut();
+    childcam_fx.zoom_until = time.elapsed_seconds() + trigger.event().0;
+}
+
 fn child_camera_effects(
     mut cams: Query<(&mut Transform, &mut ChildCameraEffects)>,
     time: Res<Time>,
@@ -184,17 +195,21 @@ fn child_camera_effects(
     let (mut tf, mut childcam_fx) = cams.single_mut();
 
     let translation = if childcam_fx.pivot.is_some() {
-        // This does NOT go from 0-1, because various factors
-        let ratio = childcam_fx.player_distance / ARENA_WIDTH;
+        let zoomed = childcam_fx.zoom_until > time.elapsed_seconds();
 
-        // These could live in a different system, but as the code here is quite simple,
-        // I think using one function for all child cam things is easier to reason about (system execution order).
+        // TODO: Smoother transitions
+        if zoomed {
+            Vec3::new(0.0, MIN_CAMERA_HEIGHT, MIN_CAMERA_DISTANCE) * 0.7
+        } else {
+            // This does NOT go from 0-1, because various factors
+            let ratio = childcam_fx.player_distance / ARENA_WIDTH;
 
-        Vec3::new(
-            0.0,
-            MIN_CAMERA_HEIGHT * (1.0 - ratio) + MAX_CAMERA_HEIGHT * ratio,
-            MIN_CAMERA_DISTANCE * (1.0 - ratio) + MAX_CAMERA_DISTANCE * ratio,
-        )
+            Vec3::new(
+                0.0,
+                MIN_CAMERA_HEIGHT * (1.0 - ratio) + MAX_CAMERA_HEIGHT * ratio,
+                MIN_CAMERA_DISTANCE * (1.0 - ratio) + MAX_CAMERA_DISTANCE * ratio,
+            )
+        }
     } else {
         tf.translation
     };

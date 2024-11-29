@@ -14,6 +14,7 @@ use wag_core::{
 use crate::{
     event_spreading::{
         LaunchImpulse, PlaySound, SnapToOpponent, SpawnVfx, UpdateBlockstun, UpdateHitstun,
+        ZoomCamera,
     },
     movement::{PlayerVelocity, Pushbox},
     ui::Notifications,
@@ -297,6 +298,7 @@ pub fn apply_connections(
             }
             ConnectionType::Tech | ConnectionType::Stunlock => true,
             ConnectionType::Parry => {
+                commands.trigger(ZoomCamera(0.3));
                 commands.trigger(PlaySound(SoundEffect::Clash));
                 commands.trigger_targets(
                     ActionEvent::ModifyResource(ResourceType::Meter, GI_PARRY_METER_GAIN),

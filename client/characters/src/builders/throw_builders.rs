@@ -73,6 +73,8 @@ impl ThrowEffectBuilder {
                                 tf: Transform::from_translation(Vec3::Y),
                                 ..default()
                             }),
+                            ActionEvent::CameraShake,
+                            ActionEvent::Zoom(1.0),
                             ActionEvent::Flash(FlashRequest::hit_flash()),
                             ActionEvent::Condition(StatusCondition {
                                 flag: StatusFlag::MovementLock,

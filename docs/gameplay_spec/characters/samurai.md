@@ -2,10 +2,14 @@
 
 ## Lore
 
-She is a young but competent second generation Korean American immigrant. She's
-a rookie in [W.A.G.](/docs/gameplay_spec/lore/w.a.g..md) and the point of view
-character for storytelling. Her Japanese samurai gimmick is forced on her and
-the corporation does not see how this may be culturally insensitive.
+She is:
+
+- A young but competent second generation Korean American immigrant.
+- A rookie in [W.A.G.](/docs/gameplay_spec/lore/w.a.g..md)
+- The point of view character for storytelling.
+
+Her Japanese samurai gimmick is forced on her and the corporation does not see
+how this may be culturally insensitive.
 
 ## Motifs
 
@@ -17,12 +21,9 @@ the corporation does not see how this may be culturally insensitive.
     - Katana
   - Effectiveness through effort and practice
     - [Sharpness](#Sharpness) mechanic
-    - Kurosawa-esque staredowns
-- Born and raised in the states
-  - Laid back, take cues from Baiken in animations.
-  - Occasionally brash, can bite her in the ass
-    - Mechanics encourage you to be a bit cheeky
-- Her samurai gimmick comes in part from [W.A.G.](/docs/gameplay_spec/lore/w.a.g..md), she is clearly rebelling against it
+- Enthusiasm
+  - Dash that hops in
+  - Fast forward walk
 
 ## Place in the roster
 
@@ -30,9 +31,9 @@ the corporation does not see how this may be culturally insensitive.
   - All other characters ought to be balanced around her
 - Strengths
   - Hard reads => hit hard
-  - Snowballs with [Sharpen](#Sharpen)
+  - Can snowball with [Sharpen](#Sharpen)
 - Weaknesses
-  - Effectiveness depends on [Sharpness](#Sharpness) stacks
+  - Mediocre without [Sharpness](#Sharpness) stacks
   - Limited [Kunai](#Kunai) projectiles make longer rounds hard
   - Meh pokes
 
@@ -46,12 +47,14 @@ the corporation does not see how this may be culturally insensitive.
 - [Sharpen](#Sharpen) adds a stack
 - Having stacks makes sword moves do more damage
 - Resets between rounds
+  - Unless you have [sword oil](/docs/gameplay_spec/items/blade_oil.md)
+- Increase at round start with [smithy coupon](/docs/gameplay_spec/items/smithy_coupon.md)
 
 ### Kunai
 
 - Limited resource used for [Kunai throw](#Kunai throw)
 - Resets at the start of the round
-  - By default, 1
+  - By default, 2
 - Upgrades
   - [Backup Kunai](/docs/gameplay_spec/items/backup_kunai.md)
   - [Kunai pouch](/docs/gameplay_spec/items/kunai_pouch.md)
@@ -82,8 +85,6 @@ the corporation does not see how this may be culturally insensitive.
   - Knee
     - Quite active
     - Sweet spot for first active frame
-  - Back leg
-    - Can hit cross up similar to Kum j.d
 - Somewhat awkward to hit up close, as there is a notable gap between the hitboxes
 
 #### Donkey kick
@@ -96,9 +97,9 @@ the corporation does not see how this may be culturally insensitive.
 
 - Input: `s` while Crouching
 - Visual: Step back leg forward into back arm uppercut
-- Function: Anti-air, combo starter
+- Function: Anti-air, big combo starter
 - Doesn't go that far vertically
-- - on block
+- Negative on block
 
 #### Foot dive
 
@@ -136,7 +137,7 @@ the corporation does not see how this may be culturally insensitive.
 #### Sky stab
 
 - Input: `g` while crouching
-- Visual: Single diagonal upwards slash with a bit of a swing
+- Visual: Single diagonal upwards stab
 - Premium anti-air
   - Fast start up, long range
   - Slow to recover
@@ -155,69 +156,80 @@ the corporation does not see how this may be culturally insensitive.
 
 #### Sword stance
 
-- Input: `214` + `f` (or `s`)
-- Enters a stance similar to [Azami from Xrd Baiken](https://www.dustloop.com/w/GGXRD-R2/Baiken#Azami)
-- Follow ups
+- Input: `214` + `f`, `s` or both
+- Enters a stance where she holds the sword like Nago
+- Follow ups, use negative edge to trigger, `]x[` indicates release of buttons
   - `g` - [Sharpen](#Sharpen)
-  - `f` - [Viper strike](#Viper strike)
-  - `s` - [Rising sun](#Rising sun)
-  - `22` - Cancel (quirky input overlap with quarter circle)
-- If no follow up is input relatively quickly, it recovers naturally.
-  - This makes some moves like [Sky stab](#Sky stab) safer
+  - `2]x[` - [Viper strike](#Viper strike)
+  - `6]x[` - [Rising sun](#Rising sun)
+  - `5]x[` - Cancel
+- `f` versions are faster
+- `s` versions are more damaging, but slower
+- `fs` versions have invincibility (ended on cancel)
 - Upgrades
-  - Can back dash out of the stance for an evasive recovery
-  - `s` version invincibility
-    - Costs bar
-    - Has invincibility from frame 1
-    - More invincibility with further upgrades
-  - `s` version follow-up amplification
-    - Costs bar
-    - Improves all follow-ups
-      - [Sharpen](#Sharpen) gives two stacks
-      - [Viper strike](#Viper strike) and [Rising sun](#Rising sun)
-        - Deal more damage
-        - Have better combo properties
-        - Push back on block to make them safer
-  - Air version?
+  - [Smoke bomb](/docs/gameplay_spec/items/smoke_bomb.md) gives a dash
+  - [Fireaxe](/docs/gameplay_spec/items/fireaxe.md) gives `6]x[` [Sword slam](#Sword slam)
 
 #### Sharpen
 
-- Input: `g` while in [Sword stance](#Sword stance)
+- [Sword stance](#Sword stance) follow up
 - Visual: Run a whetstone by the sword before putting it back
 - Gain a point of [Sharpness](#Sharpness) and some [Meter](/docs/gameplay_spec/genre_mechanics/meter.md)
 
 #### Viper strike
 
-- Input: `f` while in [Sword stance](#Sword stance)
+- [Sword stance](#Sword stance) follow up
 - Visual: Lunging low sword thrust
 - Hits low
 - Death on block and whiff
 - Knockdown on hit
-  - Ground combo ender
+  - Ground combo ender?
 - Is a sword move, so it deals good damage, especially with [Sharpness](#Sharpness)
 
 #### Rising sun
 
-- Input: `s` while in [Sword stance](#Sword stance)
+- [Sword stance](#Sword stance) follow up
 - Visual: Arching sword swing
-- Functions: Anti-air, air combo ender, hard read, whiff punish
-- Death on block and whiff
+- Functions: Anti-air, air combo juggler, hard read, whiff punish
+- Death on block
   - Decent range, not trivial to whiff punish
 - Is a sword move, so it deals good damage, especially with [Sharpness](#Sharpness)
 
+#### Sword slam
+
+- [Sword stance](#Sword stance) follow up
+- Hits overhead
+- Slow
+
 #### Kunai throw
 
-- Input: `236` + `f` or `s`
+- Input: `236` + `f`, `s` or `fs`
 - Visual: Ibuki kunai throw in SFV
 - Function: Projectile
-  - Relatively fast projectile with a slight arc to it
+  - Projectile with a slight arc to it
   - Consumes a [Kunai](#Kunai) on use, can't use if you have none
-- `s` version throws two in a fan
+- Versions
+  - `f` is pretty basic
+  - `s` goes high up, useful for oki and space control
+  - `fs` is fast and horizontal
 - Upgrades
   - More [Kunai](#Kunai) per round
-  - Control (joystick position based, maybe several levels)
-    - Ability to control speed (forward = fast, back = slow)
-    - Ability to control the angle (up = up, down = down)
-  - A second hitbox after making contact (bomb?)
+  - [Protractor](/docs/gameplay_spec/items/protractor.md)
+  - [Mini taser](/docs/gameplay_spec/items/mini_taser.md)
+
+## Ideas
+
+- [Kunai](#kunai-throw)
   - Ability to pick them back up / restock
+  - A second hitbox after making contact (bomb?)
   - Air version?
+- [Falcon knee](#falcon-knee) back foot hitbox (needs char to not flip mid-air)
+- [Sharpness](#sharpness) to binary and add more notable effects
+- [Sword stance](#sword-stance)
+  - Item: Hold versions that empower follow ups
+    - Some ideas
+      - [Rising sun](#rising-sun) - Moon launch
+      - [Sword slam](#sword-slam) - Overhead turns to Unblockable
+    - Maybe sharpness gives you the hold versions fast
+- [Sword slam](#sword-slam)
+  - Better name

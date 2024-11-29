@@ -21,3 +21,5 @@
 - 689 input shoryuken that has a 623 downwards smash follow up
 - `[3]6`, A super fast dash straight and `[47]3` dash low on the same character.
   - Upgrade item to combine the charges.
+- 360 inputs where the direction matters (clockwise is different from counter clockwise)
+- Command grab input chopped up (first do half circle to enter a stance, then up+button

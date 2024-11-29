@@ -9,6 +9,7 @@ This document is a way to store ideas of items
   - Item names are scuffed marvel characters like "Magnet man" for magneto
   - They grant a move / trait that is commonly associated with that character in mvc
   - For example: Magnet man would grant an 8-way airdash
+- Romaine (like the lettuce) cancel, which is just a RC from gg
 
 ## Mechanic
 
@@ -20,6 +21,9 @@ This document is a way to store ideas of items
 - -1 hitstun frame per hit of combo
 - Dash self cancel
 - Air dash
+- Helmet that works like raindrop from Dota (this is probably a bad idea)
+- Glue that reduces pushback
+- Wings that reset air actions when a move makes contact
 
 ## Specific
 

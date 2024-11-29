@@ -1,24 +1,51 @@
 # Main todo
 
-## Before next playtest (PP)
+## Next steps
 
-Maybe won't get to all of them
+### Chores
 
-- [Local feedback actionables](/docs/tasks/backlog/locals_playtest_actionables.md)
-- Update [Samurai docs](/docs/gameplay_spec/characters/samurai.md)
+- Dev blog post
+  - Proofread (wait a few days)
+  - Video
 
-## After next playtest
+### Adjustments
 
-- Clear taskboard + tasks
-- Make a new dev update video / blog post after new voices
-- Anti desync
-  - More synctest
-  - Add a system that gets you out of a desync without crashing the game
+- Move back walk speed to character stats
+- Zoom in effect on throws and successful parry
+- Meter segment to 25, it just looks better
+- Animations
+  - Redo the walk animation to look less goofy (knees)
+  - Can 2f animation be made slower (to make cancels easier)
+- New cancel window opening
+  - Remove the "require_hit" from cancel windows and just make it an on-hit effect
+  - Move to status conditions
+  - Clear on move start and end
+  - If cancels still feel off, increase special move buffer time
+
+### Features
+
+- Add a command normal that's like a good cancel cr.mk/p type of thing
+  - This is a backup to the 2f animation update
+- Kunai drop on hit, last a while on the ground, then despawn
+- Air dash item
+
+### Before contacting artists
+
+- Credits to main menu
+- Get some free music up in there
+- Check for free SFX / VA work
+
+### Netcode debugging
+
+- More synctest
+- Add a system that gets you out of a desync without crashing the game
+- Fix clock desyncs
 
 ## Backlog
 
 Low priority do later tasks
 
+- Character 2
 - [Emote button](/docs/tasks/backlog/emote_button.md)
 - [Rewards 2.0](/docs/tasks/backlog/rewards_2.0.md)
 - [Yoink assets](/docs/tasks/backlog/yoink_assets.md)

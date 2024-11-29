@@ -4,3 +4,6 @@ These can be attached to any of the items from [Character Ideas](/docs/ideas/cha
 - Custom combo like mechanic
 - Passive armor that regenerates every 10s or so
 - Headshots
+- Neutral charge
+- Defence interactions
+  - Press the same buttons as the attacker to gain bar

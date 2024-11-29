@@ -5,4 +5,3 @@
   - Explain notation used
   - Quick move lists
   - Press start to proceed
-- Check why defender can't block 2f spam and there are opener sparks

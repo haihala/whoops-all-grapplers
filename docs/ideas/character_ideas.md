@@ -24,6 +24,30 @@ This document contains raw ideas for characters as a vessel for thought
 - CPU, Chief Pounding Unit, a robotic Vince McMahoon
   - Robot character that heavily uses weird quirks of computer naming in their items (like how HandL sounds like handle)
   - Machine head from invincible
+  - Collects cores to amp up?
+  - Lean on AI, move names for example?
+- Timewinder
+  - a riddler / G looking clown with a time / timing gimmick
+    - Clock for a head
+  - Charge move where you if you charge 99% up there, you get a better effect
+    - Dash punch
+  - Black flash mechanic
+    - Pressing 'g' when attack lands adds to the impact
+      - Lenience window
+      - There is a cooldown
+    - On hit:
+      - Reset cooldown
+      - Empower any attack
+      - Installs a few second lasting buff that increases the lenience window
+  - `236g` to toss sugar
+    - On hit or block installs a debuff that vastly increases the lenience for timings
+    - Literally sugarcoating it
+  - Vague ideas
+    - Timer manipulation
+    - Game speed manipulation
+      - Personal?
+      - Speeding up costs a resource that you gain by slowing down
+    - Tracer rewind
 
 ## Traits
 

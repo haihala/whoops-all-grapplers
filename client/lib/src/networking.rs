@@ -451,7 +451,6 @@ fn generate_online_input_streams(
             let is_pressed = ((index >> shift) & 1) == 1;
 
             if was_pressed != is_pressed {
-                dbg!("Here?", button_type, is_pressed, was_pressed);
                 let game_event = button_type.to_input_event(&mut writer, 69, is_pressed);
 
                 if let Some(input_event) = game_event {

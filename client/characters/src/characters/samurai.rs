@@ -19,8 +19,8 @@ use crate::{
     AttackHeight::*,
     BlockType::*,
     CharacterBoxes, CharacterStateBoxes, CharacterUniversals, ConsumableType, CounterVisual,
-    DashBuilder, FlashRequest, Hitbox, Item, ItemCategory, Lifetime, Movement, Situation,
-    StrikeEffectBuilder, ThrowEffectBuilder, ToHit, WAGResource,
+    DashBuilder, Hitbox, Item, ItemCategory, Lifetime, Movement, Situation, StrikeEffectBuilder,
+    ThrowEffectBuilder, ToHit, WAGResource,
 };
 
 use super::Character;
@@ -522,22 +522,18 @@ fn sword_stance(version: SpecialVersion) -> Action {
                 ActionEvent::ForceStand,
             ];
 
-            if metered {
-                events.extend(vec![
-                    ActionEvent::ModifyResource(ResourceType::Meter, -METER_BAR_SEGMENT),
-                    ActionEvent::Condition(StatusCondition {
-                        flag: StatusFlag::Intangible,
-                        // 10f of sword stance + 11f of rising sun
-                        expiration: Some(22),
-                        ..default()
-                    }),
-                    ActionEvent::Flash(FlashRequest::meter_use()),
-                ]);
+            events.push(if metered {
+                ActionEvent::Condition(StatusCondition {
+                    flag: StatusFlag::Intangible,
+                    // 10f of sword stance + 11f of rising sun
+                    expiration: Some(22),
+                    ..default()
+                })
             } else {
-                events.push(ActionEvent::AllowCancel(CancelWindow::kara_to(
-                    ActionId::Samurai(SamuraiAction::SwordStance(SpecialVersion::Metered)),
-                )));
-            }
+                ActionEvent::AllowCancel(CancelWindow::kara_to(ActionId::Samurai(
+                    SamuraiAction::SwordStance(SpecialVersion::Metered),
+                )))
+            });
             events
         })
         .events_on_frame(
@@ -641,8 +637,8 @@ fn stance_dash(version: SpecialVersion, back: bool) -> Action {
 fn sharpen(version: SpecialVersion) -> Action {
     let (slow, sharpness_gain, meter_gain) = match version {
         SpecialVersion::Metered => (false, 2, 0),
-        SpecialVersion::Strong => (true, 1, 30),
-        SpecialVersion::Fast => (false, 1, 20),
+        SpecialVersion::Strong => (true, 2, METER_BAR_SEGMENT),
+        SpecialVersion::Fast => (false, 1, METER_BAR_SEGMENT),
     };
 
     ActionBuilder::special()
@@ -664,6 +660,7 @@ fn sharpen(version: SpecialVersion) -> Action {
             ],
         )
         .end_at(if slow { 60 } else { 45 })
+        .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
         .build()
 }
 
@@ -725,6 +722,7 @@ fn viper_strike(version: SpecialVersion) -> Action {
         .with_character_universals(CHARACTER_UNIVERSALS)
         .with_sound(SoundEffect::FemaleShagamu)
         .with_frame_data(if slow { 10 } else { 5 }, 2, if slow { 50 } else { 45 })
+        .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
         .with_distance_on_block(0.1)
         .with_animation(if slow {
             SamuraiAnimation::SlowViperStrike
@@ -784,6 +782,7 @@ fn rising_sun(version: SpecialVersion) -> Action {
             Vec2::new(1.0, 3.0)
         })
         .with_advantage_on_block(-30)
+        .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
         .with_distance_on_block(0.1)
         .with_hitbox(Area::new(0.25, 1.5, 2.0, 1.5))
         .with_dynamic_activation_events(move |situation: &Situation| {

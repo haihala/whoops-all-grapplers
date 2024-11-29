@@ -10,7 +10,6 @@
 
 ### Adjustments
 
-- Meter segment to 25, it just looks better
 - Animations
   - Redo the walk animation to look less goofy (knees)
   - Can 2f animation be made slower (to make cancels easier)

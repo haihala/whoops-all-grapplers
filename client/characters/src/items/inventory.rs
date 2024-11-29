@@ -86,11 +86,9 @@ impl Inventory {
     }
 
     pub fn get_effects(&self, character: &Character) -> Stats {
-        self.items
-            .iter()
-            .fold(Stats::identity(), |accumulator, id| {
-                accumulator.combine(&character.items[id].effect)
-            })
+        self.items.iter().fold(Stats::default(), |accumulator, id| {
+            accumulator.combine(&character.items[id].effect)
+        })
     }
 
     pub fn count(&self, item: ItemId) -> usize {

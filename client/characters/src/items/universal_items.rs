@@ -62,7 +62,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Start with 50 meter\n\nGotta get that pump".into(),
                 effect: Stats {
                     starting_meter: 50,
-                    ..Stats::identity()
+                    ..default()
                 },
                 category: Consumable(OneRound),
                 icon: Icon::PreWorkout,
@@ -85,7 +85,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Bonus walk speed".into(),
                 effect: Stats {
                     walk_speed: 0.3,
-                    ..Stats::identity()
+                    ..default()
                 },
                 icon: Icon::Boots,
                 ..default()
@@ -98,7 +98,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Bonus max health\n\nI am wearing hockey pads".into(),
                 effect: Stats {
                     max_health: 30,
-                    ..Stats::identity()
+                    ..default()
                 },
                 icon: Icon::HockeyPads,
                 ..default()
@@ -111,7 +111,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Increased animation speed\n\nBecause red makes you go fastah".into(),
                 effect: Stats {
                     action_speed_multiplier: 1.3,
-                    ..Stats::identity()
+                    ..default()
                 },
                 icon: Icon::RedPaint,
                 ..default()
@@ -124,7 +124,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Gain meter over time\n\nTick tock.".into(),
                 effect: Stats {
                     meter_per_second: 2.0,
-                    ..Stats::identity()
+                    ..default()
                 },
                 icon: Icon::Stopwatch,
                 ..default()
@@ -139,7 +139,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     opener_damage_multiplier: 1.5,
                     opener_meter_gain: 10,
                     opener_stun_frames: 5,
-                    ..Stats::identity()
+                    ..default()
                 },
                 icon: Icon::Crowbar,
                 ..default()
@@ -152,7 +152,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Slightly control knockback direction while getting comboed\n\nSlippery".into(),
                 effect: Stats {
                     direct_influence: 1.0,
-                    ..Stats::identity()
+                    ..default()
                 },
                 icon: Icon::OliveOil,
                 ..default()
@@ -166,7 +166,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     .into(),
                 effect: Stats {
                     gravity_scaling: 0.04,
-                    ..Stats::identity()
+                    ..default()
                 },
                 icon: Icon::Dumbbell,
                 ..default()
@@ -179,7 +179,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Makes you jump slightly higher\n\nBoing".into(),
                 effect: Stats {
                     jump_force_multiplier: 1.02,
-                    ..Stats::identity()
+                    ..default()
                 },
                 icon: Icon::Feather,
                 ..default()
@@ -192,7 +192,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Makes you intangible for the first few frames of your backdash\n\nDissapear in a puff".into(),
                 effect: Stats {
                     backdash_invuln: 5,
-                    ..Stats::identity()
+                    ..default()
                 },
                 icon: Icon::Cigarettes,
                 ..default()
@@ -206,7 +206,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 cost: 125,
                 effect: Stats {
                     damage_multiplier: 1.01,
-                    ..Stats::identity()
+                    ..default()
                 },
                 icon: Icon::ThumbTacks(1),
             },
@@ -264,7 +264,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     max_health: 10,
                     chip_damage: false,
                     defense_meter: 1,
-                    ..Stats::identity()
+                    ..default()
                 },
                 icon: Icon::GoalieGear,
             },
@@ -285,7 +285,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 icon: Icon::ThumbTacks(id),
                 effect: Stats {
                     damage_multiplier: 1.0 + (exponential as f32 * 0.01),
-                    ..Stats::identity()
+                    ..default()
                 },
             },
         )

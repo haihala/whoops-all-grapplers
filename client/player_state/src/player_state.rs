@@ -330,7 +330,7 @@ impl PlayerState {
     }
     pub fn combined_status_effects(&self) -> Stats {
         // TODO: Cache for later
-        self.conditions.iter().fold(Stats::identity(), |acc, cond| {
+        self.conditions.iter().fold(Stats::default(), |acc, cond| {
             if let Some(effect) = &cond.effect {
                 acc.combine(effect)
             } else {

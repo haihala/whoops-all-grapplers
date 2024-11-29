@@ -34,7 +34,7 @@ impl Default for Item {
         Self {
             category: Default::default(),
             cost: Default::default(),
-            effect: Stats::identity(),
+            effect: Default::default(),
             explanation: "Description missing".into(),
             icon: Icon::Blank,
         }

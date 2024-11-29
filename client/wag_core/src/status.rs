@@ -71,16 +71,6 @@ impl std::hash::Hash for Stats {
 impl Default for Stats {
     fn default() -> Self {
         Self {
-            walk_speed: 3.0,
-            max_health: 250,
-            ..Self::identity()
-        }
-    }
-}
-
-impl Stats {
-    pub fn identity() -> Self {
-        Self {
             // These are meant to be identity values, you should be able to
             // combine them with another Stats instance and get the other instance out.
             // Useful for folding and stuff.
@@ -109,6 +99,16 @@ impl Stats {
             kunais: 0,
             auto_sharpen: 0,
             retain_sharpness: false,
+        }
+    }
+}
+
+impl Stats {
+    pub fn character_default() -> Self {
+        Self {
+            walk_speed: 3.0,
+            max_health: 250,
+            ..default()
         }
     }
 

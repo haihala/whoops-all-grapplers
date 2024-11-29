@@ -49,7 +49,7 @@ pub fn samurai() -> Character {
             walk_speed: 2.0,
             kunais: 2,
             gravity,
-            ..default()
+            ..Stats::character_default()
         },
         vec![
             (
@@ -915,7 +915,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                 icon: Icon::Kunai,
                 effect: Stats {
                     kunais: 1,
-                    ..Stats::identity()
+                    ..default()
                 },
             },
         ),
@@ -928,7 +928,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                 icon: Icon::KunaiPouch,
                 effect: Stats {
                     kunais: 2,
-                    ..Stats::identity()
+                    ..default()
                 },
             },
         ),
@@ -941,7 +941,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                 icon: Icon::KunaiBelt,
                 effect: Stats {
                     kunais: 3,
-                    ..Stats::identity()
+                    ..default()
                 },
             },
         ),
@@ -975,7 +975,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                 icon: Icon::BladeOil,
                 effect: Stats {
                     retain_sharpness: true,
-                    ..Stats::identity()
+                    ..default()
                 },
             },
         ),
@@ -988,7 +988,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                 icon: Icon::SmithyCoupon,
                 effect: Stats {
                     auto_sharpen: 2,
-                    ..Stats::identity()
+                    ..default()
                 },
             },
         ),

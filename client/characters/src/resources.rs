@@ -82,10 +82,6 @@ impl WAGResources {
         }
     }
 
-    pub fn testing_default() -> Self {
-        Self::from_stats(&Stats::default(), vec![])
-    }
-
     pub fn get(&self, resource_type: ResourceType) -> Option<&WAGResource> {
         self.iter()
             .find_map(|(t, r)| if *t == resource_type { Some(r) } else { None })

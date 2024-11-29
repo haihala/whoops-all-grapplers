@@ -508,11 +508,6 @@ pub fn build_throw_effect(
                 attacker: vec![
                     ActionEvent::StartAction(on_hit_action),
                     ActionEvent::Sound(SoundEffect::PastaPat),
-                    ActionEvent::AbsoluteVisualEffect(VfxRequest {
-                        effect: VisualEffect::ThrowTarget,
-                        tf,
-                        ..default()
-                    }),
                 ],
                 defender: vec![
                     ActionEvent::SnapToOpponent { sideswitch },

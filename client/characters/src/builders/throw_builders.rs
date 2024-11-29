@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{Animation, StatusCondition, StatusFlag};
+use wag_core::{Animation, StatusCondition, StatusFlag, VfxRequest, VisualEffect};
 
 use crate::{
     Action, ActionEvent, ActionRequirement, AnimationRequest, FlashRequest, ResourceType, Situation,
@@ -68,6 +68,11 @@ impl ThrowEffectBuilder {
                                 ..AnimationRequest::from(self.target_animation)
                             }
                             .into(),
+                            ActionEvent::RelativeVisualEffect(VfxRequest {
+                                effect: VisualEffect::ThrowTarget,
+                                tf: Transform::from_translation(Vec3::Y),
+                                ..default()
+                            }),
                             ActionEvent::Flash(FlashRequest::hit_flash()),
                             ActionEvent::Condition(StatusCondition {
                                 flag: StatusFlag::MovementLock,

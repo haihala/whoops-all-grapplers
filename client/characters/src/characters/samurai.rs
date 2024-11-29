@@ -47,6 +47,7 @@ pub fn samurai() -> Character {
         samurai_boxes(),
         Stats {
             walk_speed: 2.0,
+            back_walk_speed_multiplier: 0.5,
             kunais: 2,
             gravity,
             ..Stats::character_default()

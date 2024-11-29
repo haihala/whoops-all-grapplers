@@ -10,7 +10,6 @@
 
 ### Adjustments
 
-- Move back walk speed to character stats
 - Zoom in effect on throws and successful parry
 - Meter segment to 25, it just looks better
 - Animations

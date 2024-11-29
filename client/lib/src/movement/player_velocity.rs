@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use characters::Movement;
-use wag_core::Facing;
+use wag_core::{Facing, Stats};
 
 #[derive(Debug, Reflect, Clone, Default, Copy)]
 pub struct AppliedMovement {
@@ -21,7 +21,6 @@ pub struct PlayerVelocity {
 // TODO: Make these character specific
 const PROPORTIONAL_DRAG: f32 = 0.03;
 const LINEAR_DRAG: f32 = 0.3;
-const WALK_BACK_SPEED_MULTIPLIER: f32 = 0.5;
 
 impl PlayerVelocity {
     pub fn reset(&mut self) {
@@ -60,18 +59,20 @@ impl PlayerVelocity {
             });
         }
     }
+
     pub(super) fn handle_walking_velocity(
         &mut self,
         walk_speed: f32,
         facing: Facing,
         direction: Facing,
+        stats: &Stats,
     ) {
         // Makes the change go the right way
         let direction_multiplier = if direction == Facing::Left { -1.0 } else { 1.0 };
 
         // Makes you walk slower backwards
         let magnitude_multiplier = if direction != facing {
-            WALK_BACK_SPEED_MULTIPLIER
+            stats.back_walk_speed_multiplier
         } else {
             1.0
         };

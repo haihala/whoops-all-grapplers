@@ -133,15 +133,20 @@ pub fn handle_teleports(
 
 fn player_input(
     clock: Res<Clock>,
-    mut query: Query<(&PlayerState, &mut PlayerVelocity, &Stats, &Facing)>,
+    mut query: Query<(&PlayerState, &mut PlayerVelocity, &Stats, &Facing, &Stats)>,
 ) {
-    for (state, mut velocity, status_effects, facing) in &mut query {
+    for (state, mut velocity, status_effects, facing, stats) in &mut query {
         if state.has_flag(StatusFlag::MovementLock) {
             continue;
         }
 
         if let Some(walk_direction) = state.get_walk_direction() {
-            velocity.handle_walking_velocity(status_effects.walk_speed, *facing, walk_direction);
+            velocity.handle_walking_velocity(
+                status_effects.walk_speed,
+                *facing,
+                walk_direction,
+                stats,
+            );
         } else if state.is_grounded() {
             velocity.drag();
         }

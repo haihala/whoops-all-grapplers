@@ -16,6 +16,7 @@ pub struct Stats {
 
     // Movement
     pub walk_speed: f32,
+    pub back_walk_speed_multiplier: f32,
     pub gravity: f32,
     pub gravity_scaling: f32,
     pub jump_force_multiplier: f32,
@@ -49,6 +50,7 @@ impl std::hash::Hash for Stats {
         self.defense_meter.hash(state);
 
         self.walk_speed.to_bits().hash(state);
+        self.back_walk_speed_multiplier.to_bits().hash(state);
         self.gravity.to_bits().hash(state);
         self.gravity_scaling.to_bits().hash(state);
         self.jump_force_multiplier.to_bits().hash(state);
@@ -83,6 +85,7 @@ impl Default for Stats {
             defense_meter: 0,
 
             walk_speed: 0.0,
+            back_walk_speed_multiplier: 1.0,
             gravity: 0.0,
             gravity_scaling: 0.0,
             jump_force_multiplier: 1.0,
@@ -122,6 +125,7 @@ impl Stats {
         self.defense_meter += rhs.defense_meter;
 
         self.walk_speed += rhs.walk_speed;
+        self.back_walk_speed_multiplier *= rhs.back_walk_speed_multiplier;
         self.gravity += rhs.gravity;
         self.gravity_scaling += rhs.gravity_scaling;
         self.jump_force_multiplier *= rhs.jump_force_multiplier;

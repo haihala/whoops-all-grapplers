@@ -230,20 +230,21 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                     .with_damage(9)
                                     .with_distance_on_hit(0.9)
                                     .with_on_hit_events({
-                                        let mut evs = vec![ActionEvent::LaunchStun(Vec2::Y * 6.0)];
-
+                                        let launch_height = 5.0;
                                         if situation.inventory.contains(&ItemId::IceCube) {
-                                            evs.extend(vec![
+                                            vec![
+                                                // Order here matters
                                                 ActionEvent::ClearMovement,
+                                                ActionEvent::LaunchStun(Vec2::Y * launch_height),
                                                 ActionEvent::RelativeVisualEffect(VfxRequest {
                                                     effect: VisualEffect::Icon(Icon::IceCube),
                                                     tf: Transform::from_translation(Vec3::Y * 1.0),
                                                     ..default()
                                                 }),
-                                            ]);
+                                            ]
+                                        } else {
+                                            vec![ActionEvent::LaunchStun(Vec2::Y * launch_height)]
                                         }
-
-                                        evs
                                     })
                                     .build(),
                             }),

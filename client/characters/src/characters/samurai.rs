@@ -213,11 +213,6 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         let hitbox = Area::new(0.3, 0.7, 0.3, 0.5);
                         vec![
                             ActionEvent::ExpandHurtbox(hitbox.grow(0.1), 8),
-                            ActionEvent::Condition(StatusCondition {
-                                flag: StatusFlag::Cancel(CancelType::Special),
-                                expiration: Some(30),
-                                ..default()
-                            }),
                             ActionEvent::SpawnHitbox(Attack {
                                 to_hit: ToHit {
                                     hitbox: Hitbox(hitbox),
@@ -229,6 +224,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                     .with_blockstun(40)
                                     .with_damage(9)
                                     .with_distance_on_hit(0.9)
+                                    .with_cancel(CancelType::Special, 30)
                                     .with_on_hit_events({
                                         let launch_height = 5.0;
                                         if situation.inventory.contains(&ItemId::IceCube) {
@@ -549,7 +545,6 @@ fn sword_stance(version: SpecialVersion) -> Action {
                     .map(ActionId::Samurai)
                     .collect(),
                 )),
-                expiration: Some(30),
                 ..default()
             })],
         )

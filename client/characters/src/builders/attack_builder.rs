@@ -598,11 +598,19 @@ impl StrikeEffectBuilder {
         }
     }
 
-    pub fn with_on_hit_events(self, events: Vec<ActionEvent>) -> Self {
-        Self {
-            on_hit_effects: events,
-            ..self
-        }
+    pub fn with_on_hit_events(mut self, events: Vec<ActionEvent>) -> Self {
+        self.on_hit_effects = events;
+        self
+    }
+
+    pub fn with_cancel(mut self, ct: CancelType, frames: usize) -> Self {
+        self.cancel = Some((ct, frames));
+        self
+    }
+
+    pub fn without_cancel(mut self) -> Self {
+        self.cancel = None;
+        self
     }
 
     pub fn build(self) -> OnHitEffect {
@@ -738,15 +746,5 @@ impl StrikeEffectBuilder {
         debug_assert_ne!(self.base_damage, 0);
         debug_assert_ne!(self.block_stun, 0);
         debug_assert!(!self.on_hit_effects.is_empty())
-    }
-
-    fn with_cancel(mut self, ct: CancelType, frames: usize) -> Self {
-        self.cancel = Some((ct, frames));
-        self
-    }
-
-    fn without_cancel(mut self) -> Self {
-        self.cancel = None;
-        self
     }
 }

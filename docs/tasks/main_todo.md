@@ -18,6 +18,7 @@
   - Move to status conditions
   - Clear on move start and end
   - If cancels still feel off, increase special move buffer time
+    - How do frame counts + hitstop work? Maybe hitstop eats into cancel window?
 
 ### Features
 

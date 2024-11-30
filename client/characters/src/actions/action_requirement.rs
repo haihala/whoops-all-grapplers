@@ -1,10 +1,8 @@
-use wag_core::{
-    ActionCategory, ActionId, CancelType, GameButton, ItemId, OpenCancelWindow, StatusFlag,
-};
+use wag_core::{ActionCategory, ActionId, CancelType, GameButton, ItemId, StatusFlag};
 
 use crate::{ResourceType, Situation};
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
+#[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub enum ActionRequirement {
     #[default]
     None,
@@ -27,7 +25,7 @@ impl ActionRequirement {
     pub fn check(
         &self,
         self_id: ActionId,
-        windows: &Vec<OpenCancelWindow>,
+        windows: &Vec<CancelType>,
         situation: &Situation,
     ) -> bool {
         match self {
@@ -95,10 +93,8 @@ impl ActionRequirement {
                     return true;
                 }
 
-                let has_hit = situation.tracker.unwrap().has_hit;
-
                 for win in windows {
-                    let matching_cancel = match win.cancel_type {
+                    let matching_cancel = match win {
                         CancelType::Special => {
                             matches!(category, ActionCategory::Special | ActionCategory::Super)
                         }
@@ -107,7 +103,7 @@ impl ActionRequirement {
                         CancelType::Anything => true,
                     };
 
-                    if matching_cancel && (has_hit || !win.require_hit) {
+                    if matching_cancel {
                         return true;
                     }
                 }

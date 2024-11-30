@@ -3,11 +3,11 @@ use std::{f32::consts::PI, sync::Arc};
 use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
-    ActionId, Animation, AnimationType, Area, CancelType, CancelWindow, Facing, GameButton, Icon,
-    ItemId, Model, SamuraiAction, SamuraiAnimation, SoundEffect, SpecialVersion, Stats,
-    StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, FAST_SWORD_VFX,
-    METERED_SWORD_VFX, METER_BAR_SEGMENT, SAMURAI_ALT_HELMET_COLOR, SAMURAI_ALT_JEANS_COLOR,
-    SAMURAI_ALT_SHIRT_COLOR, STRONG_SWORD_VFX,
+    ActionId, Animation, AnimationType, Area, CancelType, Facing, GameButton, Icon, ItemId, Model,
+    SamuraiAction, SamuraiAnimation, SoundEffect, SpecialVersion, Stats, StatusCondition,
+    StatusFlag, VfxRequest, VisualEffect, VoiceLine, FAST_SWORD_VFX, METERED_SWORD_VFX,
+    METER_BAR_SEGMENT, SAMURAI_ALT_HELMET_COLOR, SAMURAI_ALT_JEANS_COLOR, SAMURAI_ALT_SHIRT_COLOR,
+    STRONG_SWORD_VFX,
 };
 
 use crate::{
@@ -154,8 +154,8 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_damage(5)
                 .with_advantage_on_block(-1)
                 .with_advantage_on_hit(4)
-                .with_extra_initial_events(vec![ActionEvent::AllowCancel(CancelWindow::kara_to(
-                    ActionId::GiParry,
+                .with_extra_initial_events(vec![ActionEvent::Condition(StatusCondition::kara_to(
+                    vec![ActionId::GiParry],
                 ))])
                 .build(),
         ),
@@ -189,7 +189,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         duration: 20,
                     }
                     .into(),
-                    ActionEvent::AllowCancel(CancelWindow::kara_to(ActionId::GiParry)),
+                    ActionEvent::Condition(StatusCondition::kara_to(vec![ActionId::GiParry])),
                 ])
                 .with_extra_activation_events(vec![Movement {
                     amount: Vec2::X * 3.0,
@@ -213,10 +213,10 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         let hitbox = Area::new(0.3, 0.7, 0.3, 0.5);
                         vec![
                             ActionEvent::ExpandHurtbox(hitbox.grow(0.1), 8),
-                            ActionEvent::AllowCancel(CancelWindow {
-                                require_hit: true,
-                                duration: 30,
-                                cancel_type: CancelType::Special,
+                            ActionEvent::Condition(StatusCondition {
+                                flag: StatusFlag::Cancel(CancelType::Special),
+                                expiration: Some(30),
+                                ..default()
                             }),
                             ActionEvent::SpawnHitbox(Attack {
                                 to_hit: ToHit {
@@ -530,16 +530,16 @@ fn sword_stance(version: SpecialVersion) -> Action {
                     ..default()
                 })
             } else {
-                ActionEvent::AllowCancel(CancelWindow::kara_to(ActionId::Samurai(
+                ActionEvent::Condition(StatusCondition::kara_to(vec![ActionId::Samurai(
                     SamuraiAction::SwordStance(SpecialVersion::Metered),
-                )))
+                )]))
             });
             events
         })
         .events_on_frame(
             3,
-            vec![ActionEvent::AllowCancel(CancelWindow {
-                cancel_type: CancelType::Specific(
+            vec![ActionEvent::Condition(StatusCondition {
+                flag: StatusFlag::Cancel(CancelType::Specific(
                     vec![
                         SamuraiAction::StanceForwardDash(version),
                         SamuraiAction::StanceBackDash(version),
@@ -547,9 +547,9 @@ fn sword_stance(version: SpecialVersion) -> Action {
                     .into_iter()
                     .map(ActionId::Samurai)
                     .collect(),
-                ),
-                duration: 30,
-                require_hit: false,
+                )),
+                expiration: Some(30),
+                ..default()
             })],
         )
         .dyn_events_after_frame(
@@ -880,8 +880,10 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
             builder = if metered {
                 builder.with_meter_cost()
             } else {
-                builder.immediate_events(vec![ActionEvent::AllowCancel(CancelWindow::kara_to(
-                    ActionId::Samurai(SamuraiAction::KunaiThrow(SpecialVersion::Metered)),
+                builder.immediate_events(vec![ActionEvent::Condition(StatusCondition::kara_to(
+                    vec![ActionId::Samurai(SamuraiAction::KunaiThrow(
+                        SpecialVersion::Metered,
+                    ))],
                 ))])
             };
 

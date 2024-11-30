@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use wag_core::{
-    ActionCategory, ActionId, Animation, CancelType, CancelWindow, Icon, ItemId, Stats,
-    StatusCondition, StatusFlag, GI_PARRY_FLASH_COLOR,
+    ActionCategory, ActionId, Animation, CancelType, Icon, ItemId, Stats, StatusCondition,
+    StatusFlag, GI_PARRY_FLASH_COLOR,
 };
 
 use crate::{
@@ -21,10 +21,10 @@ pub fn gi_parry(animation: Animation) -> Action {
                 expiration: Some(10),
             }),
             ActionEvent::Flash(GI_PARRY_FLASH_COLOR.into()),
-            ActionEvent::AllowCancel(CancelWindow {
-                cancel_type: CancelType::Anything,
-                require_hit: true,
-                duration: 25,
+            ActionEvent::Condition(StatusCondition {
+                flag: StatusFlag::Cancel(CancelType::Anything),
+                expiration: Some(25),
+                ..default()
             }),
         ])
         .end_at(30)

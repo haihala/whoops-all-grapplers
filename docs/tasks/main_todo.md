@@ -2,21 +2,12 @@
 
 ## Next steps
 
-### Chores
-
-- Dev blog post
-  - Proofread (wait a few days)
-  - Video
-
 ### Adjustments
 
 - Animations
   - Redo the walk animation to look less goofy (knees)
   - Can 2f animation be made slower (to make cancels easier)
 - New cancel window opening
-  - Remove the "require_hit" from cancel windows and just make it an on-hit effect
-  - Move to status conditions
-  - Clear on move start and end
   - If cancels still feel off, increase special move buffer time
 
 ### Features

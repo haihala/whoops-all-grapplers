@@ -13,7 +13,7 @@ pub fn activate_conditions(
 ) {
     let mut state = query.get_mut(trigger.entity()).unwrap();
 
-    let new_condition = trigger.event().0;
+    let new_condition = trigger.event().0.clone();
 
     if let Some(color) = new_condition.flag.display_color() {
         commands.trigger_targets(
@@ -43,7 +43,7 @@ pub fn activate_conditions(
 
 pub fn clear_conditions(trigger: Trigger<ClearStatus>, mut query: Query<&mut PlayerState>) {
     let mut state = query.get_mut(trigger.entity()).unwrap();
-    state.clear_conditions(trigger.event().0);
+    state.clear_conditions(trigger.event().0.clone());
 }
 
 pub fn expire_conditions(mut query: Query<&mut PlayerState>, clock: Res<Clock>) {

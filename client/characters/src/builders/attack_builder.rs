@@ -2,9 +2,9 @@ use std::{f32::consts::PI, sync::Arc};
 
 use bevy::prelude::*;
 use wag_core::{
-    ActionId, Animation, Area, CancelType, CancelWindow, GameButton, Model, SoundEffect,
-    VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR, LOW_OPENER_COLOR,
-    MID_OPENER_COLOR, SMALL_HIT_THRESHOLD,
+    ActionId, Animation, Area, CancelType, GameButton, Model, SoundEffect, StatusCondition,
+    StatusFlag, VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR,
+    LOW_OPENER_COLOR, MID_OPENER_COLOR, SMALL_HIT_THRESHOLD,
 };
 
 use crate::{
@@ -64,7 +64,6 @@ pub struct AttackBuilder {
     projectile: bool,
     velocity: Vec2,
     gravity: f32,
-    open_cancel: Option<CancelWindow>,
     sub_builder: SubBuilder,
     hit_count: usize,
     hitbox_lifetime: Lifetime,
@@ -74,14 +73,13 @@ impl AttackBuilder {
     pub fn special() -> Self {
         Self {
             action_builder: ActionBuilder::special(),
-            open_cancel: Some(CancelWindow {
-                require_hit: true,
-                cancel_type: CancelType::Super,
-                duration: 10,
-            }),
             expand_hurtbox: Some(5),
             hit_count: 1,
-            sub_builder: SubBuilder::Strike(StrikeEffectBuilder::default().with_chip_damage(2)),
+            sub_builder: SubBuilder::Strike(
+                StrikeEffectBuilder::default()
+                    .with_chip_damage(2)
+                    .with_cancel(CancelType::Super, 10),
+            ),
             ..default()
         }
     }
@@ -89,11 +87,6 @@ impl AttackBuilder {
     pub fn normal() -> Self {
         Self {
             action_builder: ActionBuilder::normal(),
-            open_cancel: Some(CancelWindow {
-                require_hit: true,
-                cancel_type: CancelType::Special,
-                duration: 10,
-            }),
             expand_hurtbox: Some(5),
             hit_count: 1,
             ..default()
@@ -242,21 +235,11 @@ impl AttackBuilder {
     }
 
     pub fn with_cancels_to(self, cancel_type: CancelType, window_size: usize) -> Self {
-        Self {
-            open_cancel: Some(CancelWindow {
-                require_hit: true,
-                cancel_type,
-                duration: window_size,
-            }),
-            ..self
-        }
+        self.with_strike_builder(|sb| sb.with_cancel(cancel_type.clone(), window_size))
     }
 
     pub fn with_no_cancels(self) -> Self {
-        Self {
-            open_cancel: None,
-            ..self
-        }
+        self.with_strike_builder(|sb| sb.without_cancel())
     }
 
     pub fn with_damage(self, damage: i32) -> Self {
@@ -345,7 +328,6 @@ impl AttackBuilder {
             sub_builder: SubBuilder::Throw(ThrowStartupBuilder::default()),
             ..self
         }
-        .with_no_cancels()
     }
 
     pub fn back_throw(self) -> Self {
@@ -356,7 +338,6 @@ impl AttackBuilder {
             }),
             ..self
         }
-        .with_no_cancels()
     }
 
     pub fn throw_target_action(self, target_action: impl Into<ActionId>) -> Self {
@@ -430,10 +411,6 @@ impl AttackBuilder {
 
     fn build_script(self) -> impl Fn(&Situation) -> Vec<ActionEvent> {
         let mut activation_events = vec![];
-
-        if let Some(can) = &self.open_cancel {
-            activation_events.push(ActionEvent::AllowCancel(can.to_owned()));
-        }
 
         if let Some(duration) = self.expand_hurtbox {
             activation_events.push(ActionEvent::ExpandHurtbox(
@@ -530,6 +507,7 @@ pub struct StrikeEffectBuilder {
     base_damage: i32,
     sharpness_scaling: i32,
     on_hit_effects: Vec<ActionEvent>,
+    cancel: Option<(CancelType, usize)>,
 }
 impl Default for StrikeEffectBuilder {
     fn default() -> Self {
@@ -538,6 +516,7 @@ impl Default for StrikeEffectBuilder {
             block_stun: 0,
             base_damage: 0,
             on_hit_effects: vec![],
+            cancel: Some((CancelType::Special, 20)),
 
             block_height: AttackHeight::Mid,
             attacker_push_on_block: 0.0,
@@ -665,9 +644,20 @@ impl StrikeEffectBuilder {
                 }
             };
 
+            let cancel_event = if let Some((ct, duration)) = &self.cancel {
+                ActionEvent::Condition(StatusCondition {
+                    flag: StatusFlag::Cancel(ct.clone()),
+                    expiration: Some(*duration),
+                    ..default()
+                })
+            } else {
+                ActionEvent::Noop
+            };
+
             if hit_data.avoided {
                 HitEffect {
                     attacker: vec![
+                        cancel_event,
                         Movement::impulse(-Vec2::X * self.attacker_push_on_block).into(),
                         ActionEvent::CameraTilt(-Vec2::X * 0.01),
                         ActionEvent::Hitstop,
@@ -706,6 +696,7 @@ impl StrikeEffectBuilder {
 
                 HitEffect {
                     attacker: vec![
+                        cancel_event,
                         Movement::impulse(-Vec2::X * self.attacker_push_on_hit).into(),
                         ActionEvent::CameraTilt(Vec2::X * 0.02),
                         ActionEvent::CameraShake,
@@ -747,5 +738,15 @@ impl StrikeEffectBuilder {
         debug_assert_ne!(self.base_damage, 0);
         debug_assert_ne!(self.block_stun, 0);
         debug_assert!(!self.on_hit_effects.is_empty())
+    }
+
+    fn with_cancel(mut self, ct: CancelType, frames: usize) -> Self {
+        self.cancel = Some((ct, frames));
+        self
+    }
+
+    fn without_cancel(mut self) -> Self {
+        self.cancel = None;
+        self
     }
 }

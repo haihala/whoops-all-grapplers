@@ -3,12 +3,7 @@ use std::time::Duration;
 use bevy::prelude::*;
 use characters::{ActionEvent, AnimationRequest, Attack, FlashRequest, Movement, ResourceType};
 use player_state::SimpleState;
-use wag_core::{
-    ActionId, Area, CancelWindow, SoundEffect, StatusCondition, StatusFlag, VfxRequest, VoiceLine,
-};
-
-#[derive(Debug, Event)]
-pub struct AllowCancel(pub CancelWindow);
+use wag_core::{ActionId, Area, SoundEffect, StatusCondition, StatusFlag, VfxRequest, VoiceLine};
 
 #[derive(Debug, Event)]
 pub struct StartAnimation(pub AnimationRequest);
@@ -104,9 +99,6 @@ pub struct ClearStatus(pub StatusFlag);
 
 pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
     match trigger.event() {
-        ActionEvent::AllowCancel(cw) => {
-            commands.trigger_targets(AllowCancel(cw.to_owned()), trigger.entity());
-        }
         ActionEvent::Animation(ar) => {
             commands.trigger_targets(StartAnimation(ar.to_owned()), trigger.entity());
         }
@@ -214,7 +206,7 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
             commands.trigger_targets(ColorShift(*color, *frames), trigger.entity());
         }
         ActionEvent::ClearCondition(flag) => {
-            commands.trigger_targets(ClearStatus(*flag), trigger.entity());
+            commands.trigger_targets(ClearStatus(flag.clone()), trigger.entity());
         }
         ActionEvent::Noop => {}
     }

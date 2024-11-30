@@ -11,8 +11,8 @@ use characters::{samurai, Hurtboxes, Inventory, WAGResources};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
-    AnimationType, AvailableCancels, CharacterId, Characters, Clock, Combo, Facing, InMatch,
-    MatchState, Player, Players, RollbackSchedule, Stats, WAGStage, WagArgs,
+    AnimationType, CharacterId, Characters, Clock, Combo, Facing, InMatch, MatchState, Player,
+    Players, RollbackSchedule, Stats, WAGStage, WagArgs,
 };
 
 use crate::{
@@ -109,7 +109,6 @@ struct PlayerDefaults {
     player_velocity: PlayerVelocity,
     move_buffer: MoveBuffer,
     status_effects: Stats,
-    available_cancels: AvailableCancels,
     state: PlayerState,
     character_shake: CharacterShake,
 }
@@ -173,7 +172,6 @@ fn spawn_player(
         .observe(condition_management::clear_conditions)
         .observe(force_state::force_state)
         .observe(move_activation::automatic_activation)
-        .observe(move_activation::manage_cancel_windows)
         .observe(move_advancement::end_moves)
         .observe(player_flash::handle_flash_events)
         .observe(player_flash::handle_color_shift)

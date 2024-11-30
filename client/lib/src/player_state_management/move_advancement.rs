@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use characters::{Character, Hurtboxes, Inventory, WAGResources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{AvailableCancels, Clock, Combo, Facing, Stats, StatusFlag};
+use wag_core::{Clock, Combo, Facing, Stats, StatusFlag};
 
 use crate::event_spreading::{ColorShift, EndAction};
 
@@ -55,11 +55,10 @@ pub fn end_moves(
     trigger: Trigger<EndAction>,
     mut commands: Commands,
     clock: Res<Clock>,
-    mut query: Query<(&mut PlayerState, &mut Hurtboxes, &mut AvailableCancels)>,
+    mut query: Query<(&mut PlayerState, &mut Hurtboxes)>,
 ) {
-    let (mut state, mut hurtboxes, mut windows) = query.get_mut(trigger.entity()).unwrap();
+    let (mut state, mut hurtboxes) = query.get_mut(trigger.entity()).unwrap();
     state.recover(clock.frame);
-    windows.clear();
     hurtboxes.extra.clear();
     if state.has_flag(StatusFlag::Weaken) {
         state.clear_conditions(StatusFlag::Weaken);

@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 use wag_core::{
-    ActionId, Animation, Area, CancelWindow, SamuraiAnimation, SoundEffect, StatusCondition,
-    StatusFlag, VfxRequest, VoiceLine,
+    ActionId, Animation, Area, SamuraiAnimation, SoundEffect, StatusCondition, StatusFlag,
+    VfxRequest, VoiceLine,
 };
 
 use crate::{FlashRequest, Movement, ResourceType};
@@ -11,7 +11,6 @@ use super::{AnimationRequest, Attack};
 
 #[derive(Clone, Default, Event)]
 pub enum ActionEvent {
-    AllowCancel(CancelWindow),
     Animation(AnimationRequest),
     Sound(SoundEffect),
     StartAction(ActionId),
@@ -51,9 +50,6 @@ pub enum ActionEvent {
 impl std::fmt::Debug for ActionEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ActionEvent::AllowCancel(cancel_window) => {
-                write!(f, "AllowCancel - {:?}", cancel_window)
-            }
             ActionEvent::Animation(animation_request) => {
                 write!(f, "Animation - {:?}", animation_request)
             }

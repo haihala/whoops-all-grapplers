@@ -3,9 +3,9 @@ use bevy::{prelude::*, utils::HashMap};
 use characters::{Character, Hurtboxes, Inventory, Situation, WAGResources};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{ActionId, AvailableCancels, Clock, Combo, Facing, OpenCancelWindow, Stats};
+use wag_core::{ActionId, CancelType, Clock, Combo, Facing, Stats};
 
-use crate::event_spreading::{AllowCancel, StartAction};
+use crate::event_spreading::StartAction;
 
 // In frames
 const INPUT_BUFFER: usize = 6;
@@ -41,7 +41,7 @@ impl MoveBuffer {
     fn get_situation_moves(
         &self,
         character: &Character,
-        windows: &Vec<OpenCancelWindow>,
+        windows: &Vec<CancelType>,
         situation: Situation,
     ) -> Vec<(usize, ActionId)> {
         self.buffer
@@ -70,15 +70,6 @@ pub(super) fn manage_buffer(
     }
 }
 
-pub fn manage_cancel_windows(
-    trigger: Trigger<AllowCancel>,
-    clock: Res<Clock>,
-    mut query: Query<&mut AvailableCancels>,
-) {
-    let mut cancels = query.get_mut(trigger.entity()).unwrap();
-    cancels.open(trigger.event().0.to_owned(), clock.frame);
-}
-
 pub(super) fn automatic_activation(
     trigger: Trigger<StartAction>,
     mut query: Query<&mut MoveBuffer>,
@@ -94,7 +85,6 @@ pub(super) fn move_activator(
     mut query: Query<(
         &mut Hurtboxes,
         &mut MoveBuffer,
-        &AvailableCancels,
         &Transform,
         &Character,
         &mut PlayerState,
@@ -110,7 +100,6 @@ pub(super) fn move_activator(
     for (
         mut hurtboxes,
         mut buffer,
-        available_cancels,
         tf,
         character,
         mut state,
@@ -138,7 +127,7 @@ pub(super) fn move_activator(
             );
 
             let situation_moves =
-                buffer.get_situation_moves(character, &available_cancels.0, situation);
+                buffer.get_situation_moves(character, &state.cancels(), situation);
 
             if situation_moves.is_empty() {
                 continue;

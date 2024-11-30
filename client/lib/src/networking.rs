@@ -16,9 +16,9 @@ use input_parsing::{InputParser, ParrotStream};
 use player_state::PlayerState;
 use strum::IntoEnumIterator;
 use wag_core::{
-    AvailableCancels, Characters, Clock, Combo, Controllers, Facing, GameState, Hitstop,
-    InputEvent, InputStream, LocalCharacter, LocalController, MatchState, NetworkInputButton,
-    OnlineState, OwnedInput, Owner, Player, RollbackSchedule, Stats, WagArgs, STICK_DEAD_ZONE,
+    Characters, Clock, Combo, Controllers, Facing, GameState, Hitstop, InputEvent, InputStream,
+    LocalCharacter, LocalController, MatchState, NetworkInputButton, OnlineState, OwnedInput,
+    Owner, Player, RollbackSchedule, Stats, WagArgs, STICK_DEAD_ZONE,
 };
 
 use crate::{
@@ -86,7 +86,6 @@ impl Plugin for NetworkPlugin {
             .rollback_resource_with_copy::<Hitstop>()
             .rollback_resource_with_copy::<Walls>()
             // Player components
-            .rollback_component_with_clone::<AvailableCancels>()
             .rollback_component_with_clone::<ChildCameraEffects>()
             .rollback_component_with_clone::<Hurtboxes>()
             .rollback_component_with_clone::<InputParser>()

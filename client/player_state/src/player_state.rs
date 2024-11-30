@@ -4,7 +4,9 @@ use characters::{
     ActionEvent, ActionTracker, Character, CharacterStateBoxes, Inventory, Situation, WAGResources,
 };
 use input_parsing::InputParser;
-use wag_core::{ActionId, AnimationType, Combo, Facing, Stats, StatusCondition, StatusFlag};
+use wag_core::{
+    ActionId, AnimationType, CancelType, Combo, Facing, Stats, StatusCondition, StatusFlag,
+};
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 
@@ -81,6 +83,7 @@ impl PlayerState {
             other => panic!("Starting a move while {:?}", other),
         };
         self.free_since = None;
+        self.clear_cancels();
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -132,7 +135,7 @@ impl PlayerState {
             tracker: self.get_action_tracker().cloned(),
             held_buttons: input_parser.get_pressed(),
             stick_position: input_parser.get_stick_pos(),
-            status_flags: self.conditions.iter().map(|c| c.flag).collect(),
+            status_flags: self.conditions.iter().map(|c| c.flag.clone()).collect(),
             position: player_position,
             facing: player_facing,
             combo,
@@ -194,6 +197,7 @@ impl PlayerState {
             MainState::Ground(_) => MainState::Crouch(CrouchState::Idle),
         };
         self.free_since = Some(frame);
+        self.clear_cancels();
     }
     pub fn unstun_frame(&self) -> Option<usize> {
         match self.main {
@@ -344,6 +348,25 @@ impl PlayerState {
     }
     pub fn is_intangible(&self) -> bool {
         self.otg_since().is_some() || self.has_flag(StatusFlag::Intangible)
+    }
+
+    pub fn cancels(&self) -> Vec<CancelType> {
+        self.conditions
+            .clone()
+            .iter_mut()
+            .filter_map(|cond| {
+                if let StatusFlag::Cancel(ct) = &cond.flag {
+                    Some(ct.clone())
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+
+    pub fn clear_cancels(&mut self) {
+        self.conditions
+            .retain(|cond| matches!(cond.flag, StatusFlag::Cancel(_)));
     }
 }
 

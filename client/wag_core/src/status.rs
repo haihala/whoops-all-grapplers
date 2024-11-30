@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::WEAKEN_STATUS_COLOR;
+use crate::{ActionId, CancelType, METERED_KARA_WINDOW, WEAKEN_STATUS_COLOR};
 
 #[derive(Reflect, Debug, Clone, Copy, PartialEq, Component)]
 pub struct Stats {
@@ -147,7 +147,7 @@ impl Stats {
     }
 }
 
-#[derive(Reflect, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
+#[derive(Reflect, Debug, Clone, PartialEq, Default, Hash, Eq)]
 pub enum StatusFlag {
     #[default]
     Default, // Not in use, here to satisfy inspectable
@@ -157,6 +157,7 @@ pub enum StatusFlag {
     Weaken,
     DoubleJumped,
     JumpCooldown,
+    Cancel(CancelType),
 }
 
 impl StatusFlag {
@@ -168,9 +169,19 @@ impl StatusFlag {
     }
 }
 
-#[derive(Reflect, Debug, Clone, Copy, Default, PartialEq, Hash)]
+#[derive(Reflect, Debug, Clone, Default, PartialEq, Hash)]
 pub struct StatusCondition {
     pub flag: StatusFlag,
     pub effect: Option<Stats>,
     pub expiration: Option<usize>,
+}
+
+impl StatusCondition {
+    pub fn kara_to(options: Vec<ActionId>) -> Self {
+        Self {
+            expiration: Some(METERED_KARA_WINDOW),
+            effect: None,
+            flag: StatusFlag::Cancel(CancelType::Specific(options)),
+        }
+    }
 }

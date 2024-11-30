@@ -46,8 +46,8 @@ pub fn samurai() -> Character {
         samurai_items(),
         samurai_boxes(),
         Stats {
-            walk_speed: 2.0,
-            back_walk_speed_multiplier: 0.5,
+            walk_speed: 1.0,
+            back_walk_speed_multiplier: 1.0,
             kunais: 2,
             gravity,
             ..Stats::character_default()
@@ -166,7 +166,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .crouching()
                 .hits_low()
                 .with_animation(SamuraiAnimation::LowKick)
-                .with_frame_data(3, 3, 12)
+                .with_frame_data(6, 3, 26)
                 .with_hitbox(Area::new(0.7, 0.1, 0.9, 0.2))
                 .with_damage(8)
                 .with_advantage_on_block(-1)

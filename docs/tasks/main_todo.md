@@ -4,9 +4,6 @@
 
 ### Adjustments
 
-- Animations
-  - Redo the walk animation to look less goofy (knees)
-  - Can 2f animation be made slower (to make cancels easier)
 - New cancel window opening
   - If cancels still feel off, increase special move buffer time
     - How do frame counts + hitstop work? Maybe hitstop eats into cancel window?

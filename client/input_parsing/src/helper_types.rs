@@ -83,6 +83,7 @@ pub struct StateRequirement {
     pub stick: Vec<StickPosition>,
     pub buttons: Vec<(GameButton, bool)>,
 }
+
 impl StateRequirement {
     pub(crate) fn met_by(&self, state: InputState) -> bool {
         if !self.stick.is_empty() && !self.stick.contains(&state.stick_position) {
@@ -97,6 +98,10 @@ impl StateRequirement {
         }
 
         true
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.stick.is_empty() && self.buttons.is_empty()
     }
 }
 

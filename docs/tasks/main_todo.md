@@ -2,16 +2,15 @@
 
 ## Next steps
 
-### Adjustments
+### After [Bevy 0.15](/docs/tasks/backlog/bevy_0.15.md)
 
-- New cancel window opening
-  - If cancels still feel off, increase special move buffer time
-    - How do frame counts + hitstop work? Maybe hitstop eats into cancel window?
+- Fix the damn input reading
+  - Read full input state each frame
+  - Diff full input state for events
+  - Send events
 
 ### Features
 
-- Add a command normal that's like a good cancel cr.mk/p type of thing
-  - This is a backup to the 2f animation update
 - Kunai drop on hit, last a while on the ground, then despawn
 - Air dash item
 

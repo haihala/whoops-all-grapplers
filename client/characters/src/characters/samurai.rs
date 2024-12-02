@@ -224,7 +224,6 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                     .with_blockstun(40)
                                     .with_damage(9)
                                     .with_distance_on_hit(0.9)
-                                    .with_cancel(CancelType::Special, 30)
                                     .with_on_hit_events({
                                         let launch_height = 5.0;
                                         if situation.inventory.contains(&ItemId::IceCube) {
@@ -559,7 +558,7 @@ fn sword_stance(version: SpecialVersion) -> Action {
 
                 if !buttons
                     .iter()
-                    .all(|btn| situation.held_buttons.contains(btn))
+                    .any(|btn| situation.held_buttons.contains(btn))
                 {
                     return vec![ActionEvent::StartAction(
                         if situation.stick_position.as_vec2().y == -1.0 {

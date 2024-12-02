@@ -78,7 +78,7 @@ impl AttackBuilder {
             sub_builder: SubBuilder::Strike(
                 StrikeEffectBuilder::default()
                     .with_chip_damage(2)
-                    .with_cancel(CancelType::Super, 10),
+                    .with_cancel(CancelType::Super),
             ),
             ..default()
         }
@@ -235,7 +235,7 @@ impl AttackBuilder {
     }
 
     pub fn with_cancels_to(self, cancel_type: CancelType, window_size: usize) -> Self {
-        self.with_strike_builder(|sb| sb.with_cancel(cancel_type.clone(), window_size))
+        self.with_strike_builder(|sb| sb.with_cancel_window(cancel_type.clone(), window_size))
     }
 
     pub fn with_no_cancels(self) -> Self {
@@ -507,7 +507,7 @@ pub struct StrikeEffectBuilder {
     base_damage: i32,
     sharpness_scaling: i32,
     on_hit_effects: Vec<ActionEvent>,
-    cancel: Option<(CancelType, usize)>,
+    cancel: Option<(CancelType, Option<usize>)>,
 }
 impl Default for StrikeEffectBuilder {
     fn default() -> Self {
@@ -516,8 +516,7 @@ impl Default for StrikeEffectBuilder {
             block_stun: 0,
             base_damage: 0,
             on_hit_effects: vec![],
-            cancel: Some((CancelType::Special, 20)),
-
+            cancel: Some((CancelType::Special, None)),
             block_height: AttackHeight::Mid,
             attacker_push_on_block: 0.0,
             defender_push_on_block: 0.0,
@@ -603,8 +602,13 @@ impl StrikeEffectBuilder {
         self
     }
 
-    pub fn with_cancel(mut self, ct: CancelType, frames: usize) -> Self {
-        self.cancel = Some((ct, frames));
+    pub fn with_cancel_window(mut self, ct: CancelType, window: usize) -> Self {
+        self.cancel = Some((ct, Some(window)));
+        self
+    }
+
+    pub fn with_cancel(mut self, ct: CancelType) -> Self {
+        self.cancel = Some((ct, None));
         self
     }
 
@@ -655,7 +659,7 @@ impl StrikeEffectBuilder {
             let cancel_event = if let Some((ct, duration)) = &self.cancel {
                 ActionEvent::Condition(StatusCondition {
                     flag: StatusFlag::Cancel(ct.clone()),
-                    expiration: Some(*duration),
+                    expiration: *duration,
                     ..default()
                 })
             } else {

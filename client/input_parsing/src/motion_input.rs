@@ -79,13 +79,15 @@ impl MotionInput {
                         break false;
                     }
                 },
-                RequirementMode::Anything => {
-                    if let Some((_, state)) = past.next() {
-                        requirement.state_requirement.met_by(state)
-                    } else {
-                        false
+                RequirementMode::Anything => loop {
+                    let Some((_, state)) = past.next() else {
+                        break false;
+                    };
+
+                    if requirement.state_requirement.met_by(state) {
+                        break true;
                     }
-                }
+                },
 
                 RequirementMode::None => panic!("How did we get here?"),
             };
@@ -178,6 +180,7 @@ impl From<String> for MotionInput {
                 }
                 '*' => {
                     incomplete.mode = RequirementMode::Anything;
+                    assert!(!incomplete.state_requirement.is_empty());
                     complete.push(incomplete);
                     incomplete = InputRequirement::default();
                 }
@@ -214,9 +217,10 @@ impl From<String> for MotionInput {
 
 #[cfg(test)]
 mod test {
-    use wag_core::{GameButton, InputEvent, StickPosition};
+    use wag_core::{Facing::*, GameButton::*, InputEvent::*, StickPosition::*};
 
     use crate::helper_types::InputState;
+    use bevy::utils::HashSet;
 
     use super::*;
 
@@ -225,18 +229,13 @@ mod test {
         let parsed: MotionInput = "236f".into();
         assert_eq!(
             parsed.requirements,
-            vec![
-                InputEvent::Press(GameButton::Fast),
-                InputEvent::Point(StickPosition::E),
-                InputEvent::Point(StickPosition::SE),
-                InputEvent::Point(StickPosition::S),
-            ]
-            .into_iter()
-            .map(|ev| InputRequirement {
-                mode: RequirementMode::Any(vec![ev]),
-                ..default()
-            })
-            .collect::<Vec<_>>()
+            vec![Press(Fast), Point(E), Point(SE), Point(S),]
+                .into_iter()
+                .map(|ev| InputRequirement {
+                    mode: RequirementMode::Any(vec![ev]),
+                    ..default()
+                })
+                .collect::<Vec<_>>()
         )
     }
 
@@ -246,10 +245,7 @@ mod test {
         assert_eq!(
             parsed.requirements,
             vec![InputRequirement {
-                mode: RequirementMode::Any(vec![
-                    InputEvent::Point(StickPosition::E),
-                    InputEvent::Press(GameButton::Fast)
-                ]),
+                mode: RequirementMode::Any(vec![Point(E), Press(Fast)]),
                 ..default()
             },]
         )
@@ -261,10 +257,7 @@ mod test {
         assert_eq!(
             parsed.requirements,
             vec![InputRequirement {
-                mode: RequirementMode::All(vec![
-                    InputEvent::Point(StickPosition::E),
-                    InputEvent::Press(GameButton::Fast)
-                ]),
+                mode: RequirementMode::All(vec![Point(E), Press(Fast)]),
                 ..default()
             },]
         )
@@ -275,12 +268,12 @@ mod test {
         let input: MotionInput = "[123]".into();
 
         assert!(input.contained_in(&[InputHistory {
-            event: InputEvent::Point(StickPosition::SE),
+            event: Point(SE),
             ..default()
         }]));
 
         assert!(input.contained_in(&[InputHistory {
-            event: InputEvent::Point(StickPosition::S),
+            event: Point(S),
             ..default()
         }]));
     }
@@ -291,22 +284,22 @@ mod test {
 
         assert!(input.contained_in(&[
             InputHistory {
-                event: InputEvent::Press(GameButton::Fast),
+                event: Press(Fast),
                 ..default()
             },
             InputHistory {
-                event: InputEvent::Point(StickPosition::E),
+                event: Point(E),
                 ..default()
             },
         ]));
 
         assert!(!input.contained_in(&[InputHistory {
-            event: InputEvent::Point(StickPosition::E),
+            event: Point(E),
             ..default()
         },]));
 
         assert!(!input.contained_in(&[InputHistory {
-            event: InputEvent::Press(GameButton::Fast),
+            event: Press(Fast),
             ..default()
         },]));
     }
@@ -320,8 +313,8 @@ mod test {
         assert_eq!(
             input.requirements[0].state_requirement,
             StateRequirement {
-                stick: vec![StickPosition::SW, StickPosition::S, StickPosition::SE],
-                buttons: vec![(GameButton::Strong, true), (GameButton::Gimmick, false)]
+                stick: vec![SW, S, SE],
+                buttons: vec![(Strong, true), (Gimmick, false)]
             }
         );
     }
@@ -330,7 +323,7 @@ mod test {
     fn input_state_check_validates() {
         let input: MotionInput = "{123}f|A".into();
 
-        let event = InputEvent::Press(GameButton::Fast);
+        let event = Press(Fast);
 
         // Does not pass without correct state
         assert!(!input.contained_in(&[InputHistory { event, ..default() },]));
@@ -339,7 +332,7 @@ mod test {
         assert!(input.contained_in(&[InputHistory {
             event,
             state: InputState {
-                stick_position: StickPosition::S,
+                stick_position: S,
                 ..default()
             },
             ..default()
@@ -364,5 +357,107 @@ mod test {
         ] {
             assert_eq!(Into::<MotionInput>::into(input).complexity(), complexity);
         }
+    }
+
+    #[test]
+    fn buffers_failing() {
+        // This is real input data
+        // IMO it should contain "{2}*4f", but didn't because of a bug
+        let hist = vec![
+            InputHistory {
+                event: Press(Fast),
+                state: InputState {
+                    stick_position: E,
+                    pressed: HashSet::new(),
+                },
+                facing: Left,
+                frame: 783,
+            },
+            InputHistory {
+                event: Point(E),
+                state: InputState {
+                    stick_position: E,
+                    pressed: HashSet::new(),
+                },
+                facing: Left,
+                frame: 782,
+            },
+            InputHistory {
+                event: Point(E),
+                state: InputState {
+                    stick_position: E,
+                    pressed: HashSet::new(),
+                },
+                facing: Left,
+                frame: 781,
+            },
+            InputHistory {
+                event: Point(E),
+                state: InputState {
+                    stick_position: E,
+                    pressed: HashSet::new(),
+                },
+                facing: Left,
+                frame: 781,
+            },
+            InputHistory {
+                event: Point(E),
+                state: InputState {
+                    stick_position: E,
+                    pressed: HashSet::new(),
+                },
+                facing: Left,
+                frame: 781,
+            },
+            InputHistory {
+                event: Point(E),
+                state: InputState {
+                    stick_position: E,
+                    pressed: HashSet::new(),
+                },
+                facing: Left,
+                frame: 781,
+            },
+            InputHistory {
+                event: Point(E),
+                state: InputState {
+                    stick_position: E,
+                    pressed: HashSet::new(),
+                },
+                facing: Left,
+                frame: 781,
+            },
+            InputHistory {
+                event: Point(E),
+                state: InputState {
+                    stick_position: SE,
+                    pressed: HashSet::new(),
+                },
+                facing: Left,
+                frame: 781,
+            },
+            InputHistory {
+                event: Release(Fast),
+                state: InputState {
+                    stick_position: SE,
+                    pressed: vec![Fast].into_iter().collect(),
+                },
+                facing: Left,
+                frame: 781,
+            },
+            InputHistory {
+                event: Point(SE),
+                state: InputState {
+                    stick_position: S,
+                    pressed: vec![Fast].into_iter().collect(),
+                },
+                facing: Left,
+                frame: 779,
+            },
+        ];
+
+        let the_move: MotionInput = "{2}*4f".into();
+
+        assert!(the_move.contained_in(&hist));
     }
 }

@@ -366,7 +366,7 @@ impl PlayerState {
 
     pub fn clear_cancels(&mut self) {
         self.conditions
-            .retain(|cond| matches!(cond.flag, StatusFlag::Cancel(_)));
+            .retain(|cond| !matches!(cond.flag, StatusFlag::Cancel(_)));
     }
 }
 

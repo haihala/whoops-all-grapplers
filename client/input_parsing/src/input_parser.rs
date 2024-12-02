@@ -51,9 +51,7 @@ impl InputHistory {
 #[derive(Debug, Default, Component, Clone, Reflect)]
 pub struct InputParser {
     events: Vec<ActionId>,
-
     inputs: Vec<(MotionInput, Vec<ActionId>)>,
-
     history: Vec<InputHistory>,
     state: InputState,
 }
@@ -127,8 +125,13 @@ impl InputParser {
                 facing,
                 frame,
             });
+
+            // State gotta get updated in order
             self.state.apply(event);
         }
+
+        // First element in history is the latest
+        new_history.reverse();
 
         for (input, actions) in &self.inputs {
             let past: Vec<InputHistory> = self

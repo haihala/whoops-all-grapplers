@@ -7,6 +7,8 @@ enough to be put on a more important list.
 
 - Controllers connected after game has started show up weird in the controller claim menu
 - Red paint + throws
+- Stick input occasionally gets stuck
+  - Replicate with 46464646... on the dpad
 
 ### Online
 
@@ -18,7 +20,6 @@ enough to be put on a more important list.
   - Repeat inputs from the previous round?
 - Cancel windows feel really bad
 - Defender can't block 2f spam and there are opener sparks (had paint)
-- Stick input occasionally gets stuck
 - Players falling through the floor
 
 ## Misc improvement ideas

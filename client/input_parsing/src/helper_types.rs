@@ -1,27 +1,6 @@
-use bevy::{reflect::Reflect, utils::HashSet};
+use bevy::reflect::Reflect;
 
-use wag_core::{GameButton, InputEvent, StickPosition};
-
-#[derive(Clone, Eq, PartialEq, Debug, Default, Reflect)]
-pub struct InputState {
-    pub stick_position: StickPosition,
-    pub pressed: HashSet<GameButton>,
-}
-impl InputState {
-    pub fn apply(&mut self, event: InputEvent) {
-        match event {
-            InputEvent::Point(stick_position) => {
-                self.stick_position = stick_position;
-            }
-            InputEvent::Press(game_button) => {
-                self.pressed.insert(game_button);
-            }
-            InputEvent::Release(game_button) => {
-                self.pressed.remove(&game_button);
-            }
-        }
-    }
-}
+use wag_core::{GameButton, InputEvent, InputState, StickPosition};
 
 #[derive(Debug, Clone, Eq, PartialEq, Reflect, Default)]
 pub enum RequirementMode {

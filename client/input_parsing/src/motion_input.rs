@@ -217,12 +217,9 @@ impl From<String> for MotionInput {
 
 #[cfg(test)]
 mod test {
-    use wag_core::{Facing::*, GameButton::*, InputEvent::*, StickPosition::*};
-
-    use crate::helper_types::InputState;
-    use bevy::utils::HashSet;
-
     use super::*;
+    use bevy::utils::HashSet;
+    use wag_core::{Facing::*, GameButton::*, InputEvent::*, InputState, StickPosition::*};
 
     #[test]
     fn hadouken() {

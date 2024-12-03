@@ -1,11 +1,11 @@
-use crate::{helper_types::InputState, motion_input::MotionInput, ParrotStream};
+use crate::{motion_input::MotionInput, ParrotStream};
 
 use bevy::{
     prelude::*,
     utils::{HashMap, HashSet},
 };
 
-use wag_core::{ActionId, Clock, Facing, GameButton, InputEvent, StickPosition};
+use wag_core::{ActionId, Clock, Facing, GameButton, InputEvent, InputState, StickPosition};
 
 #[derive(Debug, Component, Clone, Reflect)]
 pub struct InputHistory {

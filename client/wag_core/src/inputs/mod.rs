@@ -1,11 +1,16 @@
-mod stick_position;
 use bevy::{prelude::*, utils::HashMap};
-pub use stick_position::StickPosition;
 
 use strum_macros::EnumIter;
 
 use crate::Player;
 
+mod stick_position;
+pub use stick_position::StickPosition;
+
+mod input_state;
+pub use input_state::InputState;
+
+pub const KEYBOARD_PAD_ID: usize = 69;
 pub const STICK_DEAD_ZONE: f32 = 0.3;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, EnumIter, Reflect, Default)]
@@ -40,9 +45,11 @@ impl GameButton {
     }
 }
 
-impl From<NetworkInputButton> for GameButton {
-    fn from(value: NetworkInputButton) -> Self {
-        match value {
+impl TryFrom<NetworkInputButton> for GameButton {
+    type Error = (); // This could be improved
+
+    fn try_from(value: NetworkInputButton) -> Result<Self, ()> {
+        Ok(match value {
             // This is where keybindings are sort of defined
             NetworkInputButton::South => GameButton::Fast,
             NetworkInputButton::West => GameButton::Gimmick,
@@ -50,8 +57,8 @@ impl From<NetworkInputButton> for GameButton {
             NetworkInputButton::East => GameButton::Strong,
             NetworkInputButton::Start => GameButton::Start,
             NetworkInputButton::Select => GameButton::Select,
-            _ => panic!(),
-        }
+            _ => return Err(()),
+        })
     }
 }
 
@@ -183,7 +190,7 @@ impl NetworkInputButton {
             | NetworkInputButton::East
             | NetworkInputButton::Start
             | NetworkInputButton::Select => {
-                let game_button = GameButton::from(*self);
+                let game_button = GameButton::try_from(*self).unwrap();
                 Some(if pressed {
                     InputEvent::Press(game_button)
                 } else {
@@ -240,10 +247,10 @@ pub struct OwnedInput {
 
 #[derive(Debug, Default, Clone, PartialEq, Eq, Resource)]
 pub struct InputStream {
-    pub frame: usize,
     pub events: Vec<OwnedInput>,
     dpads: HashMap<usize, StickPosition>,
     analog_sticks: HashMap<usize, StickPosition>,
+    pub input_states: HashMap<usize, InputState>,
 }
 
 impl InputStream {

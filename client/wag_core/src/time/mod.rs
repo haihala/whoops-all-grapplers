@@ -60,6 +60,7 @@ pub enum WAGStage {
     Presentation,
     HitStop,
     Camera,
+    Final,
 }
 
 pub struct TimePlugin;
@@ -87,7 +88,12 @@ impl Plugin for TimePlugin {
         )
         .configure_sets(
             RollbackSchedule,
-            (WAGStage::Presentation, WAGStage::HitStop, WAGStage::Camera)
+            (
+                WAGStage::Presentation,
+                WAGStage::HitStop,
+                WAGStage::Camera,
+                WAGStage::Final,
+            )
                 .chain()
                 .after(WAGStage::ResourceUpdates),
         )

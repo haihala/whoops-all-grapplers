@@ -2,10 +2,6 @@ use std::hash::{Hash, Hasher};
 
 use bevy::{
     ecs::schedule::{LogLevel, ScheduleBuildSettings},
-    input::{
-        gamepad::{GamepadAxisChangedEvent, GamepadEvent},
-        keyboard::KeyboardInput,
-    },
     prelude::*,
     utils::HashMap,
 };
@@ -16,9 +12,9 @@ use input_parsing::{InputParser, ParrotStream};
 use player_state::PlayerState;
 use strum::IntoEnumIterator;
 use wag_core::{
-    Characters, Clock, Combo, Controllers, Facing, GameState, Hitstop, InputEvent, InputStream,
+    Characters, Clock, Combo, Controllers, Facing, GameState, Hitstop, InputState, InputStream,
     LocalCharacter, LocalController, MatchState, NetworkInputButton, OnlineState, OwnedInput,
-    Owner, Player, RollbackSchedule, Stats, WagArgs, STICK_DEAD_ZONE,
+    Owner, Player, RollbackSchedule, Stats, WagArgs, KEYBOARD_PAD_ID, STICK_DEAD_ZONE,
 };
 
 use crate::{
@@ -73,10 +69,15 @@ impl Plugin for NetworkPlugin {
                     .run_if(session_exists),
             )
             .add_systems(
-                Update,
-                generate_offline_input_streams.run_if(no_session_exists),
+                FixedUpdate,
+                (
+                    generate_offline_input_streams,
+                    run_rollback_schedule,
+                    clear_input_stream,
+                )
+                    .chain()
+                    .run_if(no_session_exists),
             )
-            .add_systems(FixedUpdate, run_rollback_schedule.run_if(no_session_exists))
             .add_plugins(GgrsPlugin::<Config>::default())
             .init_resource::<InputGenCache>()
             // Probably an incomplete list of things to roll back
@@ -356,73 +357,139 @@ fn read_local_inputs(
 }
 
 fn generate_offline_input_streams(
-    mut writer: ResMut<InputStream>,
-    mut gamepad_events: EventReader<GamepadEvent>,
-    mut analog_events: EventReader<GamepadAxisChangedEvent>,
-    mut keyboard_events: EventReader<KeyboardInput>,
+    mut stream: ResMut<InputStream>,
     keys: Res<ButtonInput<KeyCode>>,
-    clock: Res<Clock>,
+    gamepads: Res<Gamepads>,
+    pad_buttons: Res<ButtonInput<GamepadButton>>,
+    pad_axis: Res<Axis<GamepadAxis>>,
 ) {
-    if writer.frame != clock.frame {
-        writer.events.clear();
-        writer.frame = clock.frame;
+    let mut new_states = HashMap::<usize, InputState>::new();
+
+    // Get input states
+    for pad in gamepads.iter() {
+        let mut state = InputState::default();
+        let mut stick: IVec2 = default();
+
+        // Buttons
+        for nb in NetworkInputButton::iter() {
+            if pad_buttons.pressed(GamepadButton {
+                gamepad: pad,
+                button_type: nb.to_gamepad_button_type(),
+            }) {
+                match nb {
+                    // Dpad
+                    NetworkInputButton::Up => {
+                        stick.y += 1;
+                    }
+                    NetworkInputButton::Down => {
+                        stick.y -= 1;
+                    }
+                    NetworkInputButton::Left => {
+                        stick.x -= 1;
+                    }
+                    NetworkInputButton::Right => {
+                        stick.x += 1;
+                    }
+                    // Other buttons
+                    _ => {
+                        // This filters out unused buttons
+                        if let Ok(btn) = nb.try_into() {
+                            state.pressed.insert(btn);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Analog stick (Not sure why they are options)
+        let analog_x = pad_axis
+            .get(GamepadAxis {
+                gamepad: pad,
+                axis_type: GamepadAxisType::LeftStickX,
+            })
+            .unwrap_or_default();
+
+        let analog_y = pad_axis
+            .get(GamepadAxis {
+                gamepad: pad,
+                axis_type: GamepadAxisType::LeftStickY,
+            })
+            .unwrap_or_default();
+
+        if analog_x.abs() > STICK_DEAD_ZONE {
+            stick.x += analog_x.signum() as i32;
+        };
+
+        if analog_y.abs() > STICK_DEAD_ZONE {
+            stick.y += analog_y.signum() as i32;
+        };
+
+        // Clamps values from -1 to 1 (in cases where dpad and analog stick press the same way)
+        stick.x = stick.x.signum();
+        stick.y = stick.y.signum();
+
+        // FIXME: This seems bugged. Every now and then, it seems that the axis value I get out of
+        // this is stuck. Physical input is in neutral, but game thinks a direction is being held.
+        //dbg!(&state, &stick, analog_x, analog_y, pad);
+        state.stick_position = stick.into();
+
+        new_states.insert(pad.id, state);
     }
 
-    for event in gamepad_events.read() {
-        if let GamepadEvent::Button(btn_ev) = event {
-            let Some(button) = NetworkInputButton::from_gamepad_button_type(btn_ev.button_type)
-            else {
-                debug!("Discarded input: {:?}", btn_ev);
-                continue;
-            };
+    // Add keyboard
+    let mut kb_state = InputState::default();
+    let mut kb_stick: IVec2 = default();
 
-            let pressed = btn_ev.value > 0.5;
-
-            let game_event = button.to_input_event(&mut writer, btn_ev.gamepad.id, pressed);
-
-            if let Some(input_event) = game_event {
-                writer.events.push(OwnedInput {
-                    event: input_event,
-                    player_handle: btn_ev.gamepad.id,
-                });
+    // Buttons
+    for nb in NetworkInputButton::iter() {
+        if keys.pressed(nb.to_keycode()) {
+            match nb {
+                // Dpad
+                NetworkInputButton::Up => {
+                    kb_stick.y += 1;
+                }
+                NetworkInputButton::Down => {
+                    kb_stick.y -= 1;
+                }
+                NetworkInputButton::Left => {
+                    kb_stick.x -= 1;
+                }
+                NetworkInputButton::Right => {
+                    kb_stick.x += 1;
+                }
+                // Other buttons
+                _ => {
+                    // This filters out unused buttons
+                    if let Ok(btn) = nb.try_into() {
+                        kb_state.pressed.insert(btn);
+                    }
+                }
             }
         }
     }
 
-    for bevy_event in analog_events.read() {
-        let new_stick = writer.update_analog_stick(
-            bevy_event.gamepad.id,
-            bevy_event.axis_type,
-            bevy_event.value,
-        );
+    kb_state.stick_position = kb_stick.into();
 
-        writer.events.push(OwnedInput {
-            event: InputEvent::Point(new_stick),
-            player_handle: bevy_event.gamepad.id,
-        });
-    }
+    new_states.insert(KEYBOARD_PAD_ID, kb_state);
 
-    for bevy_event in keyboard_events.read() {
-        let Some(button) = NetworkInputButton::from_key(bevy_event.key_code) else {
-            continue;
-        };
-
-        if !(keys.just_pressed(bevy_event.key_code) || keys.just_released(bevy_event.key_code)) {
-            // Filter out keyrepeat
-            continue;
-        }
-
-        let pressed = bevy_event.state.is_pressed();
-
-        let game_event = button.to_input_event(&mut writer, 69, pressed);
-
-        if let Some(input_event) = game_event {
-            writer.events.push(OwnedInput {
-                event: input_event,
-                player_handle: 69,
+    // Compare to previous state
+    for (pad, new_state) in new_states.iter() {
+        let old_state = stream.input_states.entry(*pad).or_default();
+        for event in old_state.changes_to(new_state) {
+            // Send events if differences noted
+            stream.events.push(OwnedInput {
+                event,
+                player_handle: *pad,
             });
         }
+        // Save new state
+        stream.input_states.insert(*pad, new_state.clone());
     }
+}
+
+fn clear_input_stream(mut stream: ResMut<InputStream>) {
+    // This is scheduled to run at the end of each rollback loop
+    stream.events.clear();
 }
 
 #[derive(Debug, Resource, Deref, DerefMut, Default, Clone)]
@@ -432,13 +499,7 @@ fn generate_online_input_streams(
     mut writer: ResMut<InputStream>,
     inputs: Res<PlayerInputs<Config>>,
     mut input_states: ResMut<InputGenCache>,
-    clock: Res<Clock>,
 ) {
-    if writer.frame != clock.frame {
-        writer.events.clear();
-        writer.frame = clock.frame;
-    }
-
     for (player_handle, (index, _)) in inputs.iter().enumerate() {
         let Some(old_state) = input_states.get(&player_handle) else {
             input_states.insert(player_handle, 0);

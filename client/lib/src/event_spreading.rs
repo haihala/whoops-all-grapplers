@@ -1,9 +1,12 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+
 use characters::{ActionEvent, AnimationRequest, Attack, FlashRequest, Movement, ResourceType};
-use player_state::SimpleState;
-use wag_core::{ActionId, Area, SoundEffect, StatusCondition, StatusFlag, VfxRequest, VoiceLine};
+
+use wag_core::{
+    ActionId, Area, SimpleState, SoundEffect, StatusCondition, StatusFlag, VfxRequest, VoiceLine,
+};
 
 #[derive(Debug, Event)]
 pub struct StartAnimation(pub AnimationRequest);

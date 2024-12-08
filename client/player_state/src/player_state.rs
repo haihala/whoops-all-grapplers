@@ -5,17 +5,11 @@ use characters::{
 };
 use input_parsing::InputParser;
 use wag_core::{
-    ActionId, AnimationType, CancelType, Combo, Facing, Stats, StatusCondition, StatusFlag,
+    ActionId, AnimationType, CancelType, Combo, Facing, SimpleState, Stats, StatusCondition,
+    StatusFlag,
 };
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
-
-#[derive(Debug, Clone, Copy)]
-pub enum SimpleState {
-    Air,
-    Stand,
-    Crouch,
-}
 
 #[derive(Reflect, Debug, Component, Clone, Hash)]
 enum MainState {

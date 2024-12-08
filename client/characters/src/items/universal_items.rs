@@ -12,7 +12,7 @@ use crate::{
 pub fn gi_parry(animation: Animation) -> Action {
     ActionBuilder::for_category(ActionCategory::Other)
         .with_input("{6}(fs)")
-        .immediate_events(vec![
+        .static_immediate_events(vec![
             animation.into(),
             ActionEvent::ForceStand,
             ActionEvent::Condition(StatusCondition {
@@ -36,7 +36,7 @@ pub fn fast_fall() -> Action {
     ActionBuilder::for_category(ActionCategory::Other)
         .with_input("{5}[123]")
         .air_only()
-        .immediate_events(vec![Movement::impulse(Vec2::Y * -1.5).into()])
+        .static_immediate_events(vec![Movement::impulse(Vec2::Y * -1.5).into()])
         .end_at(10)
         .with_requirement(ActionRequirement::ItemOwned(ItemId::DivingHelmet))
         .build()

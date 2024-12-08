@@ -17,10 +17,9 @@ use crate::{
     resources::{RenderInstructions, ResourceType},
     Action, ActionBuilder, ActionEvent, Attack, AttackBuilder,
     AttackHeight::*,
-    BlockType::*,
     CharacterBoxes, CharacterStateBoxes, CharacterUniversals, ConsumableType, CounterVisual,
-    DashBuilder, Hitbox, Item, ItemCategory, Lifetime, Movement, Situation, StrikeEffectBuilder,
-    ThrowEffectBuilder, ToHit, WAGResource,
+    DashBuilder, HitBuilder, Hitbox, Item, ItemCategory, Lifetime, Movement, Situation,
+    StrikeEffectBuilder, Stun, ThrowEffectBuilder, ToHit, WAGResource,
 };
 
 use super::Character;
@@ -149,11 +148,16 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
             AttackBuilder::button(GameButton::Fast)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_animation(SamuraiAnimation::KneeThrust)
-                .with_frame_data(5, 2, 16)
-                .with_hitbox(Area::new(0.5, 1.2, 0.35, 0.35))
-                .with_damage(5)
-                .with_advantage_on_block(-1)
-                .with_advantage_on_hit(4)
+                .with_total_duration(21)
+                .with_hit_on_frame(
+                    5,
+                    HitBuilder::normal()
+                        .with_active_frames(2)
+                        .with_damage(5)
+                        .with_advantage_on_block(-1)
+                        .with_advantage_on_hit(4)
+                        .with_hitbox(Area::new(0.5, 1.2, 0.35, 0.35)),
+                )
                 .with_extra_initial_events(vec![ActionEvent::Condition(StatusCondition::kara_to(
                     vec![ActionId::GiParry],
                 ))])
@@ -164,13 +168,18 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
             AttackBuilder::button(GameButton::Fast)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .crouching()
-                .hits_low()
                 .with_animation(SamuraiAnimation::LowKick)
-                .with_frame_data(6, 3, 26)
-                .with_hitbox(Area::new(0.7, 0.1, 0.9, 0.2))
-                .with_damage(8)
-                .with_advantage_on_block(-1)
-                .with_advantage_on_hit(6)
+                .with_total_duration(32)
+                .with_hit_on_frame(
+                    6,
+                    HitBuilder::normal()
+                        .hits_low()
+                        .with_active_frames(3)
+                        .with_hitbox(Area::new(0.7, 0.1, 0.9, 0.2))
+                        .with_damage(8)
+                        .with_advantage_on_block(-1)
+                        .with_advantage_on_hit(6),
+                )
                 .build(),
         ),
         (
@@ -178,11 +187,21 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
             AttackBuilder::button(GameButton::Strong)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_animation(SamuraiAnimation::HeelKick)
-                .with_frame_data(9, 6, 28)
-                .with_hitbox(Area::new(0.7, 1.0, 1.0, 0.2))
-                .with_damage(15)
-                .with_advantage_on_block(-8)
-                .with_advantage_on_hit(3)
+                .with_total_duration(37)
+                .with_hit_on_frame(
+                    9,
+                    HitBuilder::normal()
+                        .with_active_frames(6)
+                        .with_hitbox(Area::new(0.7, 1.0, 1.0, 0.2))
+                        .with_damage(15)
+                        .with_advantage_on_block(-8)
+                        .with_advantage_on_hit(3)
+                        .with_additional_events(vec![Movement {
+                            amount: Vec2::X * 3.0,
+                            duration: 10,
+                        }
+                        .into()]),
+                )
                 .with_extra_initial_events(vec![
                     Movement {
                         amount: Vec2::X * 10.0,
@@ -191,96 +210,83 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                     .into(),
                     ActionEvent::Condition(StatusCondition::kara_to(vec![ActionId::GiParry])),
                 ])
-                .with_extra_activation_events(vec![Movement {
-                    amount: Vec2::X * 3.0,
-                    duration: 10,
-                }
-                .into()])
                 .build(),
         ),
         (
             SamuraiAction::Uppercut,
-            ActionBuilder::button(GameButton::Strong)
+            AttackBuilder::button(GameButton::Strong)
                 .crouching()
                 .with_animation(SamuraiAnimation::Uppercut)
-                .immediate_events(vec![ActionEvent::ExpandHurtbox(
+                .with_extra_initial_events(vec![ActionEvent::ExpandHurtbox(
                     Area::new(0.1, 1.0, 0.6, 0.8),
                     30,
                 )])
-                .dyn_events_on_frame(
+                .with_total_duration(48)
+                .with_hit_on_frame(
                     8,
-                    Arc::new(|situation: &Situation| {
-                        let hitbox = Area::new(0.3, 0.7, 0.3, 0.5);
-                        vec![
-                            ActionEvent::ExpandHurtbox(hitbox.grow(0.1), 8),
-                            ActionEvent::SpawnHitbox(Attack {
-                                to_hit: ToHit {
-                                    hitbox: Hitbox(hitbox),
-                                    lifetime: Lifetime::frames(4),
-                                    ..default()
-                                },
-                                on_hit: StrikeEffectBuilder::default()
-                                    .with_height(Mid)
-                                    .with_blockstun(40)
-                                    .with_damage(9)
-                                    .with_distance_on_hit(0.9)
-                                    .with_on_hit_events({
-                                        let launch_height = 5.0;
-                                        if situation.inventory.contains(&ItemId::IceCube) {
-                                            vec![
-                                                // Order here matters
-                                                ActionEvent::ClearMovement,
-                                                ActionEvent::LaunchStun(Vec2::Y * launch_height),
-                                                ActionEvent::RelativeVisualEffect(VfxRequest {
-                                                    effect: VisualEffect::Icon(Icon::IceCube),
-                                                    tf: Transform::from_translation(Vec3::Y * 1.0),
-                                                    ..default()
-                                                }),
-                                            ]
-                                        } else {
-                                            vec![ActionEvent::LaunchStun(Vec2::Y * launch_height)]
-                                        }
-                                    })
-                                    .build(),
-                            }),
-                        ]
-                    }),
+                    HitBuilder::normal()
+                        .with_hitbox(Area::new(0.3, 0.7, 0.3, 0.5))
+                        .with_active_frames(4)
+                        .with_advantage_on_block(0)
+                        .with_distance_on_hit(0.9)
+                        .with_damage(9)
+                        .with_dynamic_on_hit_events(Arc::new(|situation: &Situation| {
+                            if situation.inventory.contains(&ItemId::IceCube) {
+                                vec![
+                                    ActionEvent::ClearMovement,
+                                    ActionEvent::RelativeVisualEffect(VfxRequest {
+                                        effect: VisualEffect::Icon(Icon::IceCube),
+                                        tf: Transform::from_translation(Vec3::Y * 1.0),
+                                        ..default()
+                                    }),
+                                ]
+                            } else {
+                                vec![]
+                            }
+                        }))
+                        .launches(Vec2::Y * 5.0),
                 )
-                .events_on_frame(12, {
-                    let hitbox = Area::new(0.35, 1.45, 0.3, 1.2);
-                    vec![
-                        ActionEvent::ExpandHurtbox(hitbox.grow(0.1), 8),
-                        ActionEvent::SpawnHitbox(Attack {
-                            to_hit: ToHit {
-                                hitbox: Hitbox(hitbox),
-                                lifetime: Lifetime::frames(4),
-                                ..default()
-                            },
-
-                            on_hit: StrikeEffectBuilder::default()
-                                .with_height(Mid)
-                                .with_on_hit_events(vec![ActionEvent::HitStun(38)])
-                                .with_blockstun(30)
-                                .with_damage(6)
-                                .with_distance_on_hit(0.1)
-                                .build(),
-                        }),
-                    ]
-                })
-                .end_at(48)
+                .with_hit_on_frame(
+                    12,
+                    HitBuilder::normal()
+                        .with_active_frames(4)
+                        .with_hitbox(Area::new(0.35, 1.45, 0.3, 1.2))
+                        .with_advantage_on_block(-5)
+                        .with_advantage_on_hit(2)
+                        .with_damage(6)
+                        .with_distance_on_hit(0.1),
+                )
                 .build(),
         ),
         (
+            // TODO: You made this a two hit move in animation
             SamuraiAction::HighStab,
             AttackBuilder::button(GameButton::Gimmick)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_animation(SamuraiAnimation::HighStab)
-                .with_frame_data(7, 6, 46)
-                .with_hitbox(Area::new(1.0, 1.2, 1.8, 0.2))
-                .with_damage(10)
-                .sword()
-                .with_advantage_on_block(-16)
-                .with_advantage_on_hit(-6)
+                .with_total_duration(71)
+                .with_hit_on_frame(
+                    // Drawing hit
+                    5,
+                    HitBuilder::normal()
+                        .with_active_frames(3)
+                        .with_hitbox(Area::new(0.2, 1.4, 0.5, 1.2))
+                        .with_damage(6)
+                        .sword()
+                        .with_advantage_on_block(-10)
+                        .with_advantage_on_hit(-3),
+                )
+                .with_hit_on_frame(
+                    // Swinging hit
+                    21,
+                    HitBuilder::normal()
+                        .with_active_frames(4)
+                        .with_hitbox(Area::new(1.0, 1.4, 1.8, 0.2))
+                        .with_damage(6)
+                        .sword()
+                        .with_advantage_on_block(-16)
+                        .with_advantage_on_hit(-6),
+                )
                 .build(),
         ),
         (
@@ -289,16 +295,21 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .crouching()
                 .with_animation(SamuraiAnimation::SkyStab)
-                .with_frame_data(8, 5, 32)
-                .with_hitbox(Area::new(1.0, 2.0, 1.0, 1.0))
-                .with_damage(8)
-                .sword()
-                .with_advantage_on_block(-7)
-                .with_advantage_on_hit(10)
+                .with_total_duration(40)
                 .with_extra_initial_events(vec![ActionEvent::ExpandHurtbox(
                     Area::new(0.1, 1.0, 0.6, 0.8),
                     40,
                 )])
+                .with_hit_on_frame(
+                    8,
+                    HitBuilder::normal()
+                        .with_active_frames(5)
+                        .with_hitbox(Area::new(1.0, 2.0, 1.0, 1.0))
+                        .with_damage(8)
+                        .sword()
+                        .with_advantage_on_block(-7)
+                        .with_advantage_on_hit(10),
+                )
                 .build(),
         ),
         (
@@ -307,12 +318,17 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .air_only()
                 .with_animation(SamuraiAnimation::AirStab)
-                .with_frame_data(7, 12, 63)
-                .with_hitbox(Area::new(0.0, 0.0, 1.0, 0.4))
-                .with_damage(10)
-                .sword()
-                .with_blockstun(20)
-                .with_hitstun(30)
+                .with_total_duration(70)
+                .with_hit_on_frame(
+                    7,
+                    HitBuilder::normal()
+                        .with_active_frames(12)
+                        .with_hitbox(Area::new(0.0, 0.0, 1.0, 0.4))
+                        .with_damage(10)
+                        .sword()
+                        .with_blockstun(20)
+                        .with_hitstun(30),
+                )
                 .build(),
         ),
         (
@@ -321,18 +337,23 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .air_only()
                 .with_animation(SamuraiAnimation::FalconKnee)
-                .with_frame_data(2, 5, 23)
-                .with_hitbox(Area::new(0.4, 0.5, 0.35, 0.25))
-                .with_damage(5)
-                .with_blockstun(10)
-                .with_hitstun(15)
+                .with_total_duration(25)
+                .with_hit_on_frame(
+                    2,
+                    HitBuilder::normal()
+                        .with_active_frames(5)
+                        .with_hitbox(Area::new(0.4, 0.5, 0.35, 0.25))
+                        .with_damage(5)
+                        .with_blockstun(10)
+                        .with_hitstun(15),
+                )
                 .build(),
         ),
         (
             SamuraiAction::FootDiveHold,
             ActionBuilder::button(GameButton::Strong)
                 .with_animation(SamuraiAnimation::FootDiveHold)
-                .immediate_events(vec![Movement {
+                .static_immediate_events(vec![Movement {
                     amount: Vec2::Y * -1.0,
                     duration: 7,
                 }
@@ -356,13 +377,18 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
             SamuraiAction::FootDiveRelease,
             AttackBuilder::normal()
                 .with_animation(SamuraiAnimation::FootDiveRelease)
-                .with_frame_data(3, 7, 17)
-                .with_hitbox(Area::new(0.8, -0.2, 0.7, 0.3))
+                .with_total_duration(20)
                 .air_only()
-                .with_blockstun(25)
-                .with_hitstun(40)
-                .with_damage(18)
-                .with_pushback_on_hit(0.3)
+                .with_hit_on_frame(
+                    3,
+                    HitBuilder::normal()
+                        .with_active_frames(7)
+                        .with_hitbox(Area::new(0.8, -0.2, 0.7, 0.3))
+                        .with_blockstun(25)
+                        .with_hitstun(40)
+                        .with_damage(18)
+                        .with_pushback_on_hit(0.3),
+                )
                 .build(),
         ),
     ]
@@ -408,12 +434,17 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
             SamuraiAction::ForwardThrow,
             AttackBuilder::button(GameButton::Wrestling)
                 .with_character_universals(CHARACTER_UNIVERSALS)
-                .forward_throw()
-                .throw_hit_action(SamuraiAction::StandThrowHit)
-                .throw_target_action(SamuraiAction::StandThrowTarget)
-                .with_frame_data(3, 3, 34)
+                .with_total_duration(37)
                 .with_animation(SamuraiAnimation::StandThrowStartup)
-                .with_hitbox(Area::new(0.5, 1.0, 0.5, 0.5))
+                .with_hit_on_frame(
+                    3,
+                    HitBuilder::normal()
+                        .forward_throw()
+                        .with_active_frames(3)
+                        .throw_hit_action(SamuraiAction::StandThrowHit)
+                        .throw_target_action(SamuraiAction::StandThrowTarget)
+                        .with_hitbox(Area::new(0.5, 1.0, 0.5, 0.5)),
+                )
                 .build(),
         ),
         (
@@ -421,12 +452,17 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
             AttackBuilder::normal()
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_input("{4}w")
-                .back_throw()
-                .throw_hit_action(SamuraiAction::StandThrowHit)
-                .throw_target_action(SamuraiAction::StandThrowTarget)
-                .with_frame_data(3, 3, 34)
                 .with_animation(SamuraiAnimation::StandThrowStartup)
-                .with_hitbox(Area::new(0.5, 1.0, 0.5, 0.5))
+                .with_total_duration(37)
+                .with_hit_on_frame(
+                    3,
+                    HitBuilder::normal()
+                        .back_throw()
+                        .with_active_frames(3)
+                        .throw_hit_action(SamuraiAction::StandThrowHit)
+                        .throw_target_action(SamuraiAction::StandThrowTarget)
+                        .with_hitbox(Area::new(0.5, 1.0, 0.5, 0.5)),
+                )
                 .build(),
         ),
         (SamuraiAction::StandThrowHit, stand_throw_activation),
@@ -436,12 +472,17 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
             AttackBuilder::button(GameButton::Wrestling)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .crouching()
-                .forward_throw()
-                .throw_hit_action(SamuraiAction::CrouchThrowHit)
-                .throw_target_action(SamuraiAction::CrouchThrowTarget)
-                .with_frame_data(5, 3, 55)
+                .with_total_duration(60)
                 .with_animation(SamuraiAnimation::CrouchThrowStartup)
-                .with_hitbox(Area::new(0.7, 0.1, 0.5, 0.2))
+                .with_hit_on_frame(
+                    5,
+                    HitBuilder::normal()
+                        .with_active_frames(3)
+                        .forward_throw()
+                        .throw_hit_action(SamuraiAction::CrouchThrowHit)
+                        .throw_target_action(SamuraiAction::CrouchThrowTarget)
+                        .with_hitbox(Area::new(0.7, 0.1, 0.5, 0.2)),
+                )
                 .build(),
         ),
         (SamuraiAction::CrouchThrowHit, crouch_throw_activation),
@@ -450,13 +491,18 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
             SamuraiAction::AirThrow,
             AttackBuilder::button(GameButton::Wrestling)
                 .with_character_universals(CHARACTER_UNIVERSALS)
-                .forward_throw()
                 .air_only()
-                .throw_hit_action(SamuraiAction::AirThrowHit)
-                .throw_target_action(SamuraiAction::AirThrowTarget)
-                .with_frame_data(4, 2, 36)
                 .with_animation(SamuraiAnimation::AirThrowStartup)
-                .with_hitbox(Area::new(0.4, 0.8, 0.4, 0.4))
+                .with_total_duration(40)
+                .with_hit_on_frame(
+                    4,
+                    HitBuilder::normal()
+                        .with_active_frames(2)
+                        .forward_throw()
+                        .throw_hit_action(SamuraiAction::AirThrowHit)
+                        .throw_target_action(SamuraiAction::AirThrowTarget)
+                        .with_hitbox(Area::new(0.4, 0.8, 0.4, 0.4)),
+                )
                 .build(),
         ),
         (SamuraiAction::AirThrowHit, air_throw_activation),
@@ -512,7 +558,7 @@ fn sword_stance(version: SpecialVersion) -> Action {
 
     let mut builder = ActionBuilder::special()
         .with_input(input)
-        .immediate_events({
+        .static_immediate_events({
             let mut events = vec![
                 SamuraiAnimation::SwordStance.into(),
                 ActionEvent::ForceStand,
@@ -532,7 +578,7 @@ fn sword_stance(version: SpecialVersion) -> Action {
             });
             events
         })
-        .events_on_frame(
+        .static_events_on_frame(
             3,
             vec![ActionEvent::Condition(StatusCondition {
                 flag: StatusFlag::Cancel(CancelType::Specific(
@@ -601,7 +647,7 @@ fn sword_stance(version: SpecialVersion) -> Action {
 fn stance_cancel(version: SpecialVersion) -> Action {
     ActionBuilder::special()
         .with_animation(SamuraiAnimation::StanceCancel)
-        .immediate_events(vec![ActionEvent::ClearCondition(StatusFlag::Intangible)])
+        .static_immediate_events(vec![ActionEvent::ClearCondition(StatusFlag::Intangible)])
         .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
         .end_at(8)
         .build()
@@ -611,7 +657,7 @@ fn stance_dash(version: SpecialVersion, back: bool) -> Action {
     ActionBuilder::special()
         .with_input(if back { "454" } else { "656" })
         .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
-        .immediate_events(vec![
+        .static_immediate_events(vec![
             ActionEvent::Teleport(Vec2::X * if back { -2.0 } else { 2.0 }),
             ActionEvent::RelativeVisualEffect(VfxRequest {
                 effect: VisualEffect::SmokeBomb,
@@ -619,7 +665,7 @@ fn stance_dash(version: SpecialVersion, back: bool) -> Action {
                 ..default()
             }),
         ])
-        .events_after_frame(
+        .static_events_after_frame(
             10,
             vec![ActionEvent::StartAction(ActionId::Samurai(
                 SamuraiAction::SwordStance(version),
@@ -637,7 +683,7 @@ fn sharpen(version: SpecialVersion) -> Action {
     };
 
     ActionBuilder::special()
-        .immediate_events(vec![
+        .static_immediate_events(vec![
             if slow {
                 SamuraiAnimation::SlowSharpen
             } else {
@@ -646,7 +692,7 @@ fn sharpen(version: SpecialVersion) -> Action {
             .into(),
             ActionEvent::Sound(SoundEffect::KnifeChopstickDrag),
         ])
-        .events_on_frame(
+        .static_events_on_frame(
             if slow { 50 } else { 35 },
             vec![
                 ActionEvent::ModifyResource(ResourceType::Sharpness, sharpness_gain),
@@ -660,50 +706,55 @@ fn sharpen(version: SpecialVersion) -> Action {
 }
 
 fn sword_slam(version: SpecialVersion) -> Action {
-    let (slow, high_damage, color) = match version {
-        SpecialVersion::Strong => (true, true, STRONG_SWORD_VFX),
-        SpecialVersion::Fast => (false, false, FAST_SWORD_VFX),
-        SpecialVersion::Metered => (false, true, METERED_SWORD_VFX),
+    let (slow, high_damage, color, launch) = match version {
+        SpecialVersion::Strong => (true, true, STRONG_SWORD_VFX, true),
+        SpecialVersion::Fast => (false, false, FAST_SWORD_VFX, false),
+        SpecialVersion::Metered => (false, true, METERED_SWORD_VFX, true),
     };
 
-    let mut builder = AttackBuilder::special()
+    AttackBuilder::special()
         .with_character_universals(CHARACTER_UNIVERSALS)
         .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
         .with_extra_requirement(ActionRequirement::ItemOwned(ItemId::Fireaxe))
         .with_sound(SoundEffect::FemaleKiritsu)
-        .with_frame_data(if slow { 25 } else { 20 }, 2, 60)
         .with_animation(if slow {
             SamuraiAnimation::SlowSwordSlam
         } else {
             SamuraiAnimation::FastSwordSlam
         })
-        .with_hitbox(Area::new(0.5, 1.0, 2.0, 1.0))
-        .hits_overhead()
-        .with_damage(if high_damage { 30 } else { 15 })
-        .sword()
-        .with_distance_on_block(0.1)
-        .with_advantage_on_block(if slow { -40 } else { -30 })
-        .with_dynamic_activation_events(move |situation: &Situation| {
-            vec![ActionEvent::RelativeVisualEffect(VfxRequest {
-                effect: VisualEffect::WaveFlat(color),
-                tf: Transform {
-                    translation: situation.facing.to_vec3() + Vec3::Y * 0.5,
-                    rotation: match situation.facing {
-                        Facing::Right => Quat::IDENTITY,
-                        Facing::Left => Quat::from_rotation_z(PI),
-                    },
-                    scale: Vec3::splat(4.0),
-                },
-                ..default()
-            })]
-        });
+        .with_total_duration(if slow { 80 } else { 60 })
+        .with_hit_on_frame(if slow { 25 } else { 20 }, {
+            let mut hit = HitBuilder::special()
+                .with_active_frames(2)
+                .with_hitbox(Area::new(0.5, 1.0, 2.0, 1.0))
+                .hits_overhead()
+                .with_damage(if high_damage { 30 } else { 15 })
+                .sword()
+                .with_distance_on_block(0.1)
+                .with_advantage_on_block(if slow { -40 } else { -30 })
+                .with_dynamic_events(Arc::new(move |situation: &Situation| {
+                    vec![ActionEvent::RelativeVisualEffect(VfxRequest {
+                        effect: VisualEffect::WaveFlat(color),
+                        tf: Transform {
+                            translation: situation.facing.to_vec3() + Vec3::Y * 0.5,
+                            rotation: match situation.facing {
+                                Facing::Right => Quat::IDENTITY,
+                                Facing::Left => Quat::from_rotation_z(PI),
+                            },
+                            scale: Vec3::splat(4.0),
+                        },
+                        ..default()
+                    })]
+                }));
 
-    builder = match version {
-        SpecialVersion::Metered | SpecialVersion::Strong => builder.launches(Vec2::new(1.0, 6.0)),
-        SpecialVersion::Fast => builder.with_advantage_on_hit(6),
-    };
-
-    builder.build()
+            if launch {
+                hit = hit.launches(Vec2::new(1.0, 6.0));
+            } else {
+                hit = hit.with_advantage_on_hit(6);
+            }
+            hit
+        })
+        .build()
 }
 
 fn viper_strike(version: SpecialVersion) -> Action {
@@ -716,9 +767,7 @@ fn viper_strike(version: SpecialVersion) -> Action {
     AttackBuilder::special()
         .with_character_universals(CHARACTER_UNIVERSALS)
         .with_sound(SoundEffect::FemaleShagamu)
-        .with_frame_data(if slow { 10 } else { 5 }, 2, if slow { 50 } else { 45 })
         .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
-        .with_distance_on_block(0.1)
         .with_animation(if slow {
             SamuraiAnimation::SlowViperStrike
         } else {
@@ -729,27 +778,37 @@ fn viper_strike(version: SpecialVersion) -> Action {
             duration: 7,
         }
         .into()])
-        .with_hitbox(Area::new(1.0, 0.225, 1.3, 0.45))
-        .hits_low()
-        .with_damage(if high_damage { 30 } else { 15 })
-        .sword()
-        .with_advantage_on_hit(if slow { 1 } else { 3 })
-        .with_advantage_on_block(if slow { -40 } else { -30 })
-        .with_dynamic_activation_events(move |situation: &Situation| {
-            vec![ActionEvent::RelativeVisualEffect(VfxRequest {
-                effect: VisualEffect::WaveFlat(color),
-                tf: Transform {
-                    translation: situation.facing.to_vec3() * if long_lunge { 1.5 } else { 1.0 }
-                        + Vec3::Y * 0.4,
-                    rotation: match situation.facing {
-                        Facing::Left => Quat::from_euler(EulerRot::ZYX, PI, 0.0, -PI / 3.0),
-                        Facing::Right => Quat::from_euler(EulerRot::ZYX, 0.0, 0.0, PI / 3.0),
-                    },
-                    scale: Vec3::splat(4.0),
-                },
-                ..default()
-            })]
-        })
+        .with_total_duration(if slow { 50 } else { 45 })
+        .with_hit_on_frame(
+            if slow { 10 } else { 5 },
+            HitBuilder::special()
+                .with_active_frames(2)
+                .with_distance_on_block(0.1)
+                .with_hitbox(Area::new(1.0, 0.225, 1.3, 0.45))
+                .hits_low()
+                .with_damage(if high_damage { 30 } else { 15 })
+                .sword()
+                .with_advantage_on_hit(if slow { 1 } else { 3 })
+                .with_advantage_on_block(if slow { -40 } else { -30 })
+                .with_dynamic_on_hit_events(Arc::new(move |situation: &Situation| {
+                    vec![ActionEvent::RelativeVisualEffect(VfxRequest {
+                        effect: VisualEffect::WaveFlat(color),
+                        tf: Transform {
+                            translation: situation.facing.to_vec3()
+                                * if long_lunge { 1.5 } else { 1.0 }
+                                + Vec3::Y * 0.4,
+                            rotation: match situation.facing {
+                                Facing::Left => Quat::from_euler(EulerRot::ZYX, PI, 0.0, -PI / 3.0),
+                                Facing::Right => {
+                                    Quat::from_euler(EulerRot::ZYX, 0.0, 0.0, PI / 3.0)
+                                }
+                            },
+                            scale: Vec3::splat(4.0),
+                        },
+                        ..default()
+                    })]
+                })),
+        )
         .build()
 }
 
@@ -763,37 +822,42 @@ fn rising_sun(version: SpecialVersion) -> Action {
     AttackBuilder::special()
         .with_character_universals(CHARACTER_UNIVERSALS)
         .with_sound(SoundEffect::FemaleHiYah)
-        .with_frame_data(if slow { 14 } else { 4 }, 3, if slow { 56 } else { 44 })
         .with_animation(if slow {
             SamuraiAnimation::SlowRisingSun
         } else {
             SamuraiAnimation::FastRisingSun
         })
-        .sword()
-        .with_damage(if high_damage { 20 } else { 15 })
-        .launches(if high_bounce {
-            Vec2::new(0.1, 10.0)
-        } else {
-            Vec2::new(1.0, 3.0)
-        })
-        .with_advantage_on_block(-30)
         .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
-        .with_distance_on_block(0.1)
-        .with_hitbox(Area::new(0.25, 1.5, 2.0, 1.5))
-        .with_dynamic_activation_events(move |situation: &Situation| {
-            vec![ActionEvent::RelativeVisualEffect(VfxRequest {
-                effect: VisualEffect::WaveDiagonal(color),
-                tf: Transform {
-                    translation: situation.facing.to_vec3() + Vec3::Y * 1.7,
-                    rotation: match situation.facing {
-                        Facing::Left => Quat::from_rotation_z(PI * 7.0 / 6.0),
-                        Facing::Right => Quat::from_rotation_z(PI / 3.0),
-                    },
-                    scale: Vec3::splat(2.0),
-                },
-                ..default()
-            })]
-        })
+        .with_total_duration(if slow { 56 } else { 44 })
+        .with_hit_on_frame(
+            if slow { 14 } else { 4 },
+            HitBuilder::special()
+                .with_active_frames(3)
+                .sword()
+                .with_damage(if high_damage { 20 } else { 15 })
+                .launches(if high_bounce {
+                    Vec2::new(0.1, 10.0)
+                } else {
+                    Vec2::new(1.0, 3.0)
+                })
+                .with_advantage_on_block(-30)
+                .with_distance_on_block(0.1)
+                .with_hitbox(Area::new(0.25, 1.5, 2.0, 1.5))
+                .with_dynamic_events(Arc::new(move |situation: &Situation| {
+                    vec![ActionEvent::RelativeVisualEffect(VfxRequest {
+                        effect: VisualEffect::WaveDiagonal(color),
+                        tf: Transform {
+                            translation: situation.facing.to_vec3() + Vec3::Y * 1.7,
+                            rotation: match situation.facing {
+                                Facing::Left => Quat::from_rotation_z(PI * 7.0 / 6.0),
+                                Facing::Right => Quat::from_rotation_z(PI / 3.0),
+                            },
+                            scale: Vec3::splat(2.0),
+                        },
+                        ..default()
+                    })]
+                })),
+        )
         .build()
 }
 
@@ -829,6 +893,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                             situation
                                 .facing
                                 .mirror_vec2(situation.stick_position.as_vec2())
+                                .normalize()
                                 * 0.8
                         } else {
                             Vec2::ZERO
@@ -838,7 +903,6 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                             ActionEvent::ModifyResource(ResourceType::KunaiCounter, -1),
                             ActionEvent::SpawnHitbox(Attack {
                                 to_hit: ToHit {
-                                    block_type: Strike(Mid),
                                     hitbox: Hitbox(Area::new(0.2, 1.2, 0.3, 0.3)),
                                     lifetime: Lifetime::until_owner_hit(),
                                     velocity: base_velocity + stick_influence,
@@ -846,10 +910,15 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                     model: Some(Model::Kunai),
                                     hits,
                                     projectile: true,
+                                    ..default()
                                 },
                                 on_hit: StrikeEffectBuilder::default()
                                     .with_height(Mid)
-                                    .with_blockstun(if extra_stun { 20 } else { 15 })
+                                    .with_blockstun(Stun::Absolute(if extra_stun {
+                                        20
+                                    } else {
+                                        15
+                                    }))
                                     .with_damage(12)
                                     .with_defender_block_pushback(0.4)
                                     .with_chip_damage(2)
@@ -865,7 +934,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                     } else {
                                         vec![]
                                     })
-                                    .build(),
+                                    .build(10),
                             }),
                         ]
                     }),
@@ -875,11 +944,11 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
             builder = if metered {
                 builder.with_meter_cost()
             } else {
-                builder.immediate_events(vec![ActionEvent::Condition(StatusCondition::kara_to(
-                    vec![ActionId::Samurai(SamuraiAction::KunaiThrow(
+                builder.static_immediate_events(vec![ActionEvent::Condition(
+                    StatusCondition::kara_to(vec![ActionId::Samurai(SamuraiAction::KunaiThrow(
                         SpecialVersion::Metered,
-                    ))],
-                ))])
+                    ))]),
+                )])
             };
 
             builder.build()

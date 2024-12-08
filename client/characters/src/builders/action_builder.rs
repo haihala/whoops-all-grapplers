@@ -1,7 +1,9 @@
 use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
-use wag_core::{ActionCategory, ActionId, Animation, GameButton, SoundEffect, METER_BAR_SEGMENT};
+use wag_core::{
+    ActionCategory, ActionId, Animation, GameButton, SimpleState, SoundEffect, METER_BAR_SEGMENT,
+};
 
 use crate::{
     Action, ActionEvent, ActionRequirement, AnimationRequest, FlashRequest, ResourceType, Situation,
@@ -15,10 +17,22 @@ pub struct CharacterUniversals {
 }
 
 #[derive(Clone, Default)]
-struct Events {
-    constant: Vec<ActionEvent>,
-    dynamic: Option<DynamicEvents>,
+pub struct Events {
+    pub constant: Vec<ActionEvent>,
+    pub dynamic: Option<DynamicEvents>,
 }
+
+impl std::fmt::Debug for Events {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Events, constant: {:?}, dynamic is_some: {}",
+            self.constant,
+            self.dynamic.is_some()
+        )
+    }
+}
+
 impl Events {
     fn merge_with(self, other: Events) -> Events {
         Self {
@@ -67,24 +81,17 @@ impl Input {
     }
 }
 
-#[derive(Debug, Default, PartialEq, Eq)]
-enum State {
-    Air,
-    #[default]
-    Stand,
-    Crouch,
-}
-
 #[derive(Default)]
 pub struct ActionBuilder {
     input: Option<Input>,
-    state: State,
+    pub state: SimpleState,
     category: ActionCategory,
     blobs: Vec<EventBlob>,
     needs_charge: bool,
     needs_meter: bool,
     extra_requirements: Vec<ActionRequirement>,
     follow_up_from: Option<Vec<ActionId>>,
+    pub total_duration: usize,
 }
 
 impl ActionBuilder {
@@ -153,19 +160,43 @@ impl ActionBuilder {
 
     pub fn crouching(self) -> Self {
         Self {
-            state: State::Crouch,
+            state: SimpleState::Crouch,
             ..self
         }
     }
 
     pub fn air_only(self) -> Self {
         Self {
-            state: State::Air,
+            state: SimpleState::Air,
             ..self
         }
     }
 
-    pub fn immediate_events(mut self, events: Vec<ActionEvent>) -> Self {
+    pub fn immediate_events(mut self, events: Events) -> Self {
+        self.blobs.push(EventBlob {
+            events,
+            timing: Timing::OnFrame(0),
+        });
+        self
+    }
+
+    pub fn events_on_frame(mut self, frame: usize, events: Events) -> Self {
+        self.blobs.push(EventBlob {
+            events,
+            timing: Timing::OnFrame(frame),
+        });
+        self
+    }
+
+    pub fn events_after_frame(mut self, frame: usize, events: Events) -> Self {
+        self.blobs.push(EventBlob {
+            events,
+            timing: Timing::After(frame),
+        });
+        self
+    }
+
+    pub fn static_immediate_events(mut self, events: Vec<ActionEvent>) -> Self {
         self.blobs.push(EventBlob {
             events: Events {
                 constant: events,
@@ -176,7 +207,7 @@ impl ActionBuilder {
         self
     }
 
-    pub fn events_on_frame(mut self, frame: usize, events: Vec<ActionEvent>) -> Self {
+    pub fn static_events_on_frame(mut self, frame: usize, events: Vec<ActionEvent>) -> Self {
         self.blobs.push(EventBlob {
             events: Events {
                 constant: events,
@@ -187,7 +218,7 @@ impl ActionBuilder {
         self
     }
 
-    pub fn events_after_frame(mut self, frame: usize, events: Vec<ActionEvent>) -> Self {
+    pub fn static_events_after_frame(mut self, frame: usize, events: Vec<ActionEvent>) -> Self {
         self.blobs.push(EventBlob {
             events: Events {
                 constant: events,
@@ -232,16 +263,19 @@ impl ActionBuilder {
     }
 
     pub fn end_at(self, frame: usize) -> Self {
-        self.events_after_frame(frame, vec![ActionEvent::End])
+        Self {
+            total_duration: frame,
+            ..self
+        }
     }
 
     pub fn with_sound(self, sound: SoundEffect) -> Self {
-        self.immediate_events(vec![ActionEvent::Sound(sound)])
+        self.static_immediate_events(vec![ActionEvent::Sound(sound)])
     }
 
     pub fn with_animation(self, animation: impl Into<Animation>) -> Self {
         let anim = AnimationRequest::from(animation.into());
-        self.immediate_events(vec![ActionEvent::Animation(anim)])
+        self.static_immediate_events(vec![ActionEvent::Animation(anim)])
     }
 
     pub fn with_requirement(mut self, extra_requirement: ActionRequirement) -> Self {
@@ -252,15 +286,15 @@ impl ActionBuilder {
     pub fn build_input(&self) -> Option<String> {
         self.input
             .clone()
-            .map(|input| input.to_dsl(self.state == State::Crouch))
+            .map(|input| input.to_dsl(self.state == SimpleState::Crouch))
     }
 
     pub fn build_requirements(&self) -> ActionRequirement {
         let mut temp = self.extra_requirements.clone();
 
         temp.push(match self.state {
-            State::Air => ActionRequirement::Airborne,
-            State::Stand | State::Crouch => ActionRequirement::Grounded,
+            SimpleState::Air => ActionRequirement::Airborne,
+            SimpleState::Stand | SimpleState::Crouch => ActionRequirement::Grounded,
         });
 
         if self.needs_meter {
@@ -284,24 +318,36 @@ impl ActionBuilder {
 
     pub fn build_script(mut self) -> impl Fn(&Situation) -> Vec<ActionEvent> {
         if self.needs_meter {
-            self = self.immediate_events(vec![
+            self = self.static_immediate_events(vec![
                 ActionEvent::ModifyResource(ResourceType::Meter, -METER_BAR_SEGMENT),
                 ActionEvent::Flash(FlashRequest::meter_use()),
             ]);
         }
         if self.needs_charge {
-            self = self.immediate_events(vec![ActionEvent::ClearResource(ResourceType::Charge)]);
+            self = self
+                .static_immediate_events(vec![ActionEvent::ClearResource(ResourceType::Charge)]);
         }
         match self.state {
-            State::Air => {}
-            State::Stand => self = self.immediate_events(vec![ActionEvent::ForceStand]),
-            State::Crouch => self = self.immediate_events(vec![ActionEvent::ForceCrouch]),
+            SimpleState::Air => {}
+            SimpleState::Stand => {
+                self = self.static_immediate_events(vec![ActionEvent::ForceStand])
+            }
+            SimpleState::Crouch => {
+                self = self.static_immediate_events(vec![ActionEvent::ForceCrouch])
+            }
         }
 
         let folded_events: Vec<(Timing, Events)> = self
             .blobs
             .clone()
             .into_iter()
+            .chain([EventBlob {
+                timing: Timing::After(self.total_duration),
+                events: Events {
+                    constant: vec![ActionEvent::End],
+                    ..default()
+                },
+            }])
             .fold(HashMap::<Timing, Events>::new(), |mut res, new| {
                 if let Some(events) = res.get(&new.timing) {
                     // This timing already exists

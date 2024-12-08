@@ -43,6 +43,9 @@ pub use item_id::ItemId;
 mod player;
 pub use player::{Owner, Player, Players};
 
+mod simple_state;
+pub use simple_state::SimpleState;
+
 mod sound;
 pub use sound::{SoundEffect, VoiceLine, BIG_HIT_THRESHOLD, SMALL_HIT_THRESHOLD};
 

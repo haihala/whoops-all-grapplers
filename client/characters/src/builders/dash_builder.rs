@@ -62,7 +62,7 @@ impl DashBuilder {
         builder = builder
             .with_input(input)
             .with_animation(self.animation.unwrap())
-            .immediate_events(vec![VfxRequest {
+            .static_immediate_events(vec![VfxRequest {
                 effect: VisualEffect::SpeedLines,
                 tf: Transform {
                     translation: Vec3::new(0.0, 1.3, 0.0),
@@ -81,7 +81,7 @@ impl DashBuilder {
             if goes_up {
                 evs.push(ActionEvent::ForceAir);
             }
-            builder = builder.events_on_frame(*frame, evs);
+            builder = builder.static_events_on_frame(*frame, evs);
         }
 
         builder.build()

@@ -1,10 +1,11 @@
 use std::{f32::consts::PI, sync::Arc};
 
 use bevy::prelude::*;
+
 use wag_core::{
-    ActionId, Animation, Area, CancelType, GameButton, Model, SoundEffect, StatusCondition,
-    StatusFlag, VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR,
-    LOW_OPENER_COLOR, MID_OPENER_COLOR, SMALL_HIT_THRESHOLD,
+    ActionId, Animation, Area, CancelType, GameButton, Model, SimpleState, SoundEffect,
+    StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD,
+    HIGH_OPENER_COLOR, LOW_OPENER_COLOR, MID_OPENER_COLOR, SMALL_HIT_THRESHOLD,
 };
 
 use crate::{
@@ -12,7 +13,7 @@ use crate::{
     HitEffect, HitInfo, Hitbox, Lifetime, Movement, OnHitEffect, ResourceType, Situation, ToHit,
 };
 
-use super::{ActionBuilder, CharacterUniversals};
+use super::{ActionBuilder, CharacterUniversals, DynamicEvents, Events};
 
 #[derive(Debug, Clone, Copy, Default)]
 struct ThrowStartupBuilder {
@@ -53,33 +54,28 @@ impl Default for SubBuilder {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Stun {
+    Relative(i32),
+    Absolute(usize),
+}
+
+impl Default for Stun {
+    fn default() -> Self {
+        Stun::Absolute(0)
+    }
+}
+
 #[derive(Default)]
 pub struct AttackBuilder {
     action_builder: ActionBuilder,
-    hitbox: Hitbox,
-    startup: usize,
-    recovery: usize,
-    expand_hurtbox: Option<usize>,
-    spawn: Option<Model>,
-    projectile: bool,
-    velocity: Vec2,
-    gravity: f32,
-    sub_builder: SubBuilder,
-    hit_count: usize,
-    hitbox_lifetime: Lifetime,
+    hits: Vec<(usize, HitBuilder)>,
 }
 
 impl AttackBuilder {
     pub fn special() -> Self {
         Self {
             action_builder: ActionBuilder::special(),
-            expand_hurtbox: Some(5),
-            hit_count: 1,
-            sub_builder: SubBuilder::Strike(
-                StrikeEffectBuilder::default()
-                    .with_chip_damage(2)
-                    .with_cancel(CancelType::Super),
-            ),
             ..default()
         }
     }
@@ -87,8 +83,6 @@ impl AttackBuilder {
     pub fn normal() -> Self {
         Self {
             action_builder: ActionBuilder::normal(),
-            expand_hurtbox: Some(5),
-            hit_count: 1,
             ..default()
         }
     }
@@ -98,26 +92,6 @@ impl AttackBuilder {
             action_builder: ActionBuilder::button(btn),
             ..Self::normal()
         }
-    }
-
-    fn with_strike_builder(
-        mut self,
-        transformer: impl Fn(StrikeEffectBuilder) -> StrikeEffectBuilder,
-    ) -> Self {
-        let SubBuilder::Strike(sb) = &self.sub_builder else {
-            panic!("Not a strike")
-        };
-
-        self.sub_builder = SubBuilder::Strike(transformer(sb.clone()));
-
-        self
-    }
-
-    fn throw_builder(&self) -> ThrowStartupBuilder {
-        let SubBuilder::Throw(tb) = self.sub_builder else {
-            panic!("Not a throw")
-        };
-        tb
     }
 
     pub fn with_character_universals(self, universals: CharacterUniversals) -> Self {
@@ -153,6 +127,244 @@ impl AttackBuilder {
             action_builder: self.action_builder.with_charge(),
             ..self
         }
+    }
+
+    pub fn with_sound(self, sound: SoundEffect) -> Self {
+        Self {
+            action_builder: self.action_builder.with_sound(sound),
+            ..self
+        }
+    }
+
+    pub fn with_hit_on_frame(mut self, frame: usize, mut hit: HitBuilder) -> Self {
+        if self.action_builder.state == SimpleState::Air {
+            hit = {
+                hit.sub_builder = match hit.sub_builder {
+                    SubBuilder::Strike(sb) => {
+                        SubBuilder::Strike(sb.with_height(AttackHeight::High))
+                    }
+                    throw => throw,
+                };
+                hit
+            };
+        }
+        self.hits.push((frame, hit));
+        self
+    }
+
+    pub fn with_animation(self, animation: impl Into<Animation>) -> Self {
+        Self {
+            action_builder: self.action_builder.with_animation(animation),
+            ..self
+        }
+    }
+
+    pub fn with_total_duration(self, duration: usize) -> Self {
+        Self {
+            action_builder: self.action_builder.end_at(duration),
+            ..self
+        }
+    }
+
+    pub fn crouching(self) -> Self {
+        Self {
+            action_builder: self.action_builder.crouching(),
+            ..self
+        }
+    }
+    pub fn air_only(self) -> Self {
+        Self {
+            action_builder: self.action_builder.air_only(),
+            // Automatically make existing strikes overheads
+            hits: self
+                .hits
+                .into_iter()
+                .map(|(frame, mut hit)| {
+                    (frame, {
+                        hit.sub_builder = match hit.sub_builder {
+                            SubBuilder::Strike(sb) => {
+                                SubBuilder::Strike(sb.with_height(AttackHeight::High))
+                            }
+                            throw => throw,
+                        };
+                        hit
+                    })
+                })
+                .collect(),
+        }
+    }
+
+    pub fn with_extra_initial_events(self, events: Vec<ActionEvent>) -> Self {
+        Self {
+            action_builder: self.action_builder.static_immediate_events(events),
+            ..self
+        }
+    }
+
+    pub fn with_dynamic_initial_events(
+        self,
+        generator: impl Fn(&Situation) -> Vec<ActionEvent> + Send + Sync + 'static,
+    ) -> Self {
+        Self {
+            action_builder: self
+                .action_builder
+                .dyn_immediate_events(Arc::new(generator)),
+            ..self
+        }
+    }
+
+    pub fn with_extra_requirement(self, extra_requirement: ActionRequirement) -> Self {
+        Self {
+            action_builder: self.action_builder.with_requirement(extra_requirement),
+            ..self
+        }
+    }
+
+    fn build_script(self) -> impl Fn(&Situation) -> Vec<ActionEvent> {
+        let mut ab = self.action_builder;
+        for hit in self.hits {
+            let (frame, builder) = hit;
+            let recovery = ab.total_duration - frame;
+            ab = ab.events_on_frame(frame, builder.build(recovery as i32));
+        }
+        ab.build_script()
+    }
+
+    pub fn build(self) -> Action {
+        debug_assert!(!self.hits.is_empty());
+
+        Action {
+            input: self.action_builder.build_input(),
+            requirement: self.action_builder.build_requirements(),
+            script: Box::new(self.build_script()),
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct HitBuilder {
+    hitbox: Hitbox,
+    expand_hurtbox: Option<usize>,
+    spawn: Option<Model>,
+    projectile: bool,
+    velocity: Vec2,
+    gravity: f32,
+    sub_builder: SubBuilder,
+    hit_count: usize,
+    hitbox_lifetime: Lifetime,
+    additional_events: Events,
+}
+
+impl HitBuilder {
+    fn build(mut self, recovery: i32) -> Events {
+        debug_assert_ne!(self.hitbox_lifetime, Lifetime::default());
+        debug_assert_ne!(self.hitbox, Hitbox(Area::default()));
+        self.sub_builder.assert_valid();
+
+        if let Some(duration) = self.expand_hurtbox {
+            self.additional_events
+                .constant
+                .push(ActionEvent::ExpandHurtbox(
+                    self.hitbox.grow(0.1),
+                    self.hitbox_lifetime.frames.unwrap_or_default() + duration,
+                ));
+        }
+
+        let to_hit = ToHit {
+            projectile: self.projectile,
+            lifetime: self.hitbox_lifetime,
+            hitbox: self.hitbox,
+            block_type: self.sub_builder.block_type(),
+            velocity: self.velocity,
+            gravity: self.gravity,
+            model: self.spawn,
+            hits: self.hit_count,
+        };
+
+        let on_hit = match self.sub_builder {
+            SubBuilder::Throw(tb) => {
+                build_throw_effect(tb.on_hit_action, tb.sideswitch, tb.target_action)
+            }
+            SubBuilder::Strike(sb) => sb.build(recovery),
+        };
+
+        self.additional_events
+            .constant
+            .push(ActionEvent::SpawnHitbox(Attack { on_hit, to_hit }));
+
+        self.additional_events
+    }
+
+    pub fn special() -> Self {
+        Self {
+            expand_hurtbox: Some(5),
+            hit_count: 1,
+            sub_builder: SubBuilder::Strike(
+                StrikeEffectBuilder::default()
+                    .with_chip_damage(2)
+                    .with_cancel(CancelType::Super),
+            ),
+            ..default()
+        }
+    }
+
+    pub fn normal() -> Self {
+        Self {
+            expand_hurtbox: Some(5),
+            hit_count: 1,
+            ..default()
+        }
+    }
+
+    fn with_strike_builder(
+        mut self,
+        transformer: impl Fn(StrikeEffectBuilder) -> StrikeEffectBuilder,
+    ) -> Self {
+        let SubBuilder::Strike(sb) = &self.sub_builder else {
+            panic!("Not a strike")
+        };
+
+        self.sub_builder = SubBuilder::Strike(transformer(sb.clone()));
+
+        self
+    }
+
+    fn throw_builder(&self) -> ThrowStartupBuilder {
+        let SubBuilder::Throw(tb) = self.sub_builder else {
+            panic!("Not a throw")
+        };
+        tb
+    }
+
+    pub fn with_additional_events(mut self, mut events: Vec<ActionEvent>) -> Self {
+        self.additional_events.constant.append(&mut events);
+        self
+    }
+
+    pub fn with_dynamic_events(mut self, events: DynamicEvents) -> Self {
+        assert!(self.additional_events.dynamic.is_none());
+        self.additional_events.dynamic = Some(events);
+        self
+    }
+
+    pub fn with_on_hit_events(self, events: Vec<ActionEvent>) -> Self {
+        self.with_strike_builder(move |mut sb| {
+            sb.on_hit_effects.constant.append(&mut events.clone());
+            sb
+        })
+    }
+
+    pub fn with_dynamic_on_hit_events(self, events: DynamicEvents) -> Self {
+        self.with_strike_builder(move |mut sb| {
+            assert!(sb.on_hit_effects.dynamic.is_none());
+            sb.on_hit_effects.dynamic = Some(events.clone());
+            sb
+        })
+    }
+
+    pub fn with_active_frames(mut self, frames: usize) -> Self {
+        self.hitbox_lifetime = Lifetime::frames(frames);
+        self
     }
 
     pub fn with_hitbox(self, hitbox: Area) -> Self {
@@ -196,37 +408,6 @@ impl AttackBuilder {
         }
     }
 
-    pub fn with_sound(self, sound: SoundEffect) -> Self {
-        Self {
-            action_builder: self.action_builder.with_sound(sound),
-            ..self
-        }
-    }
-
-    pub fn with_timings(self, startup: usize, recovery: usize) -> Self {
-        Self {
-            startup,
-            recovery,
-            ..self
-        }
-    }
-
-    pub fn with_frame_data(self, startup: usize, active: usize, recovery: usize) -> Self {
-        Self {
-            startup,
-            hitbox_lifetime: Lifetime::frames(active),
-            recovery,
-            ..self
-        }
-    }
-
-    pub fn with_animation(self, animation: impl Into<Animation>) -> Self {
-        Self {
-            action_builder: self.action_builder.with_animation(animation),
-            ..self
-        }
-    }
-
     pub fn with_disjoint(self) -> Self {
         Self {
             expand_hurtbox: None,
@@ -247,39 +428,27 @@ impl AttackBuilder {
     }
 
     pub fn with_blockstun(self, frames: usize) -> Self {
-        self.with_strike_builder(|sb| sb.with_blockstun(frames))
-    }
-
-    pub fn with_advantage_on_block(self, frame_advantage: i32) -> Self {
-        debug_assert_ne!(self.recovery, 0);
-
-        let amount = (self.recovery as i32 + frame_advantage) as usize;
-        self.with_blockstun(amount)
+        self.with_strike_builder(|sb| sb.with_blockstun(Stun::Absolute(frames)))
     }
 
     pub fn with_hitstun(self, frames: usize) -> Self {
-        self.with_strike_builder(|sb| sb.with_on_hit_events(vec![ActionEvent::HitStun(frames)]))
+        self.with_strike_builder(|sb| sb.with_hitstun(Stun::Absolute(frames)))
+    }
+
+    pub fn with_advantage_on_block(self, frame_advantage: i32) -> Self {
+        self.with_strike_builder(|sb| sb.with_blockstun(Stun::Relative(frame_advantage)))
     }
 
     pub fn with_advantage_on_hit(self, frame_advantage: i32) -> Self {
-        debug_assert_ne!(self.recovery, 0);
-
-        let amount = (self.recovery as i32 + frame_advantage) as usize;
-        self.with_hitstun(amount)
+        self.with_strike_builder(|sb| sb.with_hitstun(Stun::Relative(frame_advantage)))
     }
 
     pub fn knocks_down(self) -> Self {
-        self.with_strike_builder(|sb| {
-            sb.with_on_hit_events(vec![ActionEvent::LaunchStun(Vec2::ZERO)])
-        })
+        self.with_strike_builder(|sb| sb.knocks_down())
     }
 
     pub fn launches(self, impulse: Vec2) -> Self {
-        self.with_strike_builder(move |sb| {
-            let attacker_pushback = sb.attacker_push_on_hit;
-            sb.with_on_hit_events(vec![ActionEvent::LaunchStun(Vec2::Y * impulse.y)])
-                .with_pushback_on_hit(attacker_pushback, impulse.x)
-        })
+        self.with_strike_builder(move |sb| sb.launches(impulse))
     }
 
     pub fn sword(self) -> Self {
@@ -294,26 +463,11 @@ impl AttackBuilder {
         self.with_strike_builder(|sb| sb.with_height(AttackHeight::Low))
     }
 
-    pub fn crouching(self) -> Self {
-        Self {
-            action_builder: self.action_builder.crouching(),
-            ..self
-        }
-    }
-    pub fn air_only(self) -> Self {
-        Self {
-            action_builder: self.action_builder.air_only(),
-            // Automatically make air strikes overheads
-            sub_builder: match self.sub_builder {
-                SubBuilder::Strike(sb) => SubBuilder::Strike(sb.with_height(AttackHeight::High)),
-                throw => throw,
-            },
-            ..self
-        }
-    }
-
     pub fn with_distance_on_block(self, distance: f32) -> Self {
         self.with_strike_builder(|sb| sb.with_distance_on_block(distance))
+    }
+    pub fn with_distance_on_hit(self, distance: f32) -> Self {
+        self.with_strike_builder(|sb| sb.with_distance_on_hit(distance))
     }
 
     pub fn with_pushback_on_hit(self, amount: f32) -> Self {
@@ -361,103 +515,6 @@ impl AttackBuilder {
             ..self
         }
     }
-
-    pub fn with_extra_initial_events(self, events: Vec<ActionEvent>) -> Self {
-        Self {
-            action_builder: self.action_builder.immediate_events(events),
-            ..self
-        }
-    }
-
-    pub fn with_dynamic_initial_events(
-        self,
-        generator: impl Fn(&Situation) -> Vec<ActionEvent> + Send + Sync + 'static,
-    ) -> Self {
-        Self {
-            action_builder: self
-                .action_builder
-                .dyn_immediate_events(Arc::new(generator)),
-            ..self
-        }
-    }
-
-    pub fn with_extra_activation_events(self, events: Vec<ActionEvent>) -> Self {
-        debug_assert_ne!(self.startup, 0, "Set startup before activation events");
-        Self {
-            action_builder: self.action_builder.events_on_frame(self.startup, events),
-            ..self
-        }
-    }
-
-    pub fn with_dynamic_activation_events(
-        self,
-        generator: impl Fn(&Situation) -> Vec<ActionEvent> + Send + Sync + 'static,
-    ) -> Self {
-        debug_assert_ne!(self.startup, 0, "Set startup before activation events");
-        Self {
-            action_builder: self
-                .action_builder
-                .dyn_events_on_frame(self.startup, Arc::new(generator)),
-            ..self
-        }
-    }
-
-    pub fn with_extra_requirement(self, extra_requirement: ActionRequirement) -> Self {
-        Self {
-            action_builder: self.action_builder.with_requirement(extra_requirement),
-            ..self
-        }
-    }
-
-    fn build_script(self) -> impl Fn(&Situation) -> Vec<ActionEvent> {
-        let mut activation_events = vec![];
-
-        if let Some(duration) = self.expand_hurtbox {
-            activation_events.push(ActionEvent::ExpandHurtbox(
-                self.hitbox.grow(0.1),
-                self.hitbox_lifetime.frames.unwrap_or_default() + duration,
-            ));
-        }
-
-        let to_hit = ToHit {
-            projectile: self.projectile,
-            lifetime: self.hitbox_lifetime,
-            hitbox: self.hitbox,
-            block_type: self.sub_builder.block_type(),
-            velocity: self.velocity,
-            gravity: self.gravity,
-            model: self.spawn,
-            hits: self.hit_count,
-        };
-
-        let on_hit = match self.sub_builder {
-            SubBuilder::Throw(tb) => {
-                build_throw_effect(tb.on_hit_action, tb.sideswitch, tb.target_action)
-            }
-            SubBuilder::Strike(sb) => sb.build(),
-        };
-
-        activation_events.push(ActionEvent::SpawnHitbox(Attack { on_hit, to_hit }));
-
-        self.action_builder
-            .events_on_frame(self.startup, activation_events)
-            .end_at(self.startup + self.recovery)
-            .build_script()
-    }
-
-    pub fn build(self) -> Action {
-        debug_assert_ne!(self.startup, 0);
-        debug_assert_ne!(self.hitbox_lifetime, Lifetime::default());
-        debug_assert_ne!(self.recovery, 0);
-        debug_assert_ne!(self.hitbox, Hitbox(Area::default()));
-        self.sub_builder.assert_valid();
-
-        Action {
-            input: self.action_builder.build_input(),
-            requirement: self.action_builder.build_requirements(),
-            script: Box::new(self.build_script()),
-        }
-    }
 }
 
 pub fn build_throw_effect(
@@ -495,27 +552,42 @@ pub fn build_throw_effect(
     })
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum HitStun {
+    Stun(Stun),
+    Launch(Vec2),
+    Knockdown,
+}
+
+impl Default for HitStun {
+    fn default() -> Self {
+        HitStun::Stun(Stun::default())
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct StrikeEffectBuilder {
-    block_stun: usize,
+    block_stun: Stun,
     block_height: AttackHeight,
     attacker_push_on_block: f32,
     defender_push_on_block: f32,
     chip_damage: i32,
+    hit_stun: HitStun,
     attacker_push_on_hit: f32,
     defender_push_on_hit: f32,
     base_damage: i32,
     sharpness_scaling: i32,
-    on_hit_effects: Vec<ActionEvent>,
+    on_hit_effects: Events,
     cancel: Option<(CancelType, Option<usize>)>,
 }
 impl Default for StrikeEffectBuilder {
     fn default() -> Self {
         Self {
             // These gotta get set
-            block_stun: 0,
+            block_stun: Default::default(),
+            hit_stun: Default::default(),
             base_damage: 0,
-            on_hit_effects: vec![],
+            on_hit_effects: Events::default(),
             cancel: Some((CancelType::Special, None)),
             block_height: AttackHeight::Mid,
             attacker_push_on_block: 0.0,
@@ -538,11 +610,29 @@ impl StrikeEffectBuilder {
         }
     }
 
-    pub fn with_blockstun(self, duration: usize) -> Self {
+    pub fn with_blockstun(self, stun: Stun) -> Self {
         Self {
-            block_stun: duration,
+            block_stun: stun,
             ..self
         }
+    }
+
+    pub fn with_hitstun(self, stun: Stun) -> Self {
+        Self {
+            hit_stun: HitStun::Stun(stun),
+            ..self
+        }
+    }
+
+    pub fn launches(mut self, impulse: Vec2) -> Self {
+        self.defender_push_on_hit = impulse.x;
+        self.hit_stun = HitStun::Launch(Vec2::Y * impulse.y);
+        self
+    }
+
+    pub fn knocks_down(mut self) -> Self {
+        self.hit_stun = HitStun::Knockdown;
+        self
     }
 
     pub fn with_damage(self, damage: i32) -> Self {
@@ -597,8 +687,8 @@ impl StrikeEffectBuilder {
         }
     }
 
-    pub fn with_on_hit_events(mut self, events: Vec<ActionEvent>) -> Self {
-        self.on_hit_effects = events;
+    pub fn with_on_hit_events(mut self, mut events: Vec<ActionEvent>) -> Self {
+        self.on_hit_effects.constant.append(&mut events);
         self
     }
 
@@ -617,7 +707,7 @@ impl StrikeEffectBuilder {
         self
     }
 
-    pub fn build(self) -> OnHitEffect {
+    pub fn build(self, recovery: i32) -> OnHitEffect {
         Arc::new(move |situation: &Situation, hit_data: &HitInfo| {
             let sharpness = situation
                 .get_resource(ResourceType::Sharpness)
@@ -686,7 +776,12 @@ impl StrikeEffectBuilder {
                         } else {
                             ActionEvent::Noop
                         },
-                        ActionEvent::BlockStun(self.block_stun),
+                        ActionEvent::BlockStun({
+                            match self.block_stun {
+                                Stun::Relative(advantage) => (recovery + advantage) as usize,
+                                Stun::Absolute(frames) => frames,
+                            }
+                        }),
                         Movement::impulse(-Vec2::X * self.defender_push_on_block).into(),
                         ActionEvent::CharacterShake(0.25),
                     ],
@@ -701,10 +796,17 @@ impl StrikeEffectBuilder {
                     ActionEvent::Noop
                 };
 
-                let launcher = self
-                    .on_hit_effects
-                    .iter()
-                    .any(|ev| matches!(ev, ActionEvent::LaunchStun(_)));
+                let (launcher, stun_event) = match self.hit_stun {
+                    HitStun::Stun(stun) => (
+                        false,
+                        ActionEvent::HitStun(match stun {
+                            Stun::Relative(advantage) => (recovery + advantage) as usize,
+                            Stun::Absolute(frames) => frames,
+                        }),
+                    ),
+                    HitStun::Launch(vec2) => (true, ActionEvent::LaunchStun(vec2)),
+                    HitStun::Knockdown => (true, ActionEvent::LaunchStun(Vec2::ZERO)),
+                };
 
                 HitEffect {
                     attacker: vec![
@@ -726,9 +828,16 @@ impl StrikeEffectBuilder {
                     ],
                     defender: self
                         .on_hit_effects
+                        .constant
                         .clone()
                         .into_iter()
-                        .chain(vec![
+                        .chain(if let Some(dyn_effect) = &self.on_hit_effects.dynamic {
+                            (dyn_effect)(situation)
+                        } else {
+                            vec![]
+                        })
+                        .chain([
+                            stun_event,
                             Movement::impulse(-Vec2::X * self.defender_push_on_hit).into(),
                             ActionEvent::ModifyResource(ResourceType::Health, -damage),
                             if hit_data.airborne && !launcher {
@@ -748,7 +857,7 @@ impl StrikeEffectBuilder {
 
     fn assert_valid(&self) {
         debug_assert_ne!(self.base_damage, 0);
-        debug_assert_ne!(self.block_stun, 0);
-        debug_assert!(!self.on_hit_effects.is_empty())
+        debug_assert_ne!(self.block_stun, Stun::Absolute(0));
+        debug_assert_ne!(self.hit_stun, HitStun::Stun(Stun::Absolute(0)));
     }
 }

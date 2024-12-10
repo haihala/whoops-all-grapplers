@@ -285,7 +285,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 category: Upgrade(vec![ItemId::Feather, ItemId::Boots]),
                 explanation: "Allows you to double jump".into(),
                 cost: 1000,
-                icon: Icon::PigeonWing,
+                icon: Icon::FeatheredBoots,
                 ..default()
             },
         ),
@@ -296,6 +296,16 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Allows you to tap down to fast fall\n\nHiyaa!".into(),
                 cost: 400,
                 icon: Icon::DivingHelmet,
+                ..default()
+            },
+        ),
+        (
+            ItemId::Wing,
+            Item {
+                category: Upgrade(vec![ItemId::DivingHelmet, ItemId::Feather]),
+                explanation: "Allows you to dash mid air".into(),
+                cost: 400,
+                icon: Icon::PigeonWing,
                 ..default()
             },
         ),

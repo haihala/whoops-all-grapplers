@@ -12,7 +12,6 @@
 ### Features
 
 - Kunai drop on hit, last a while on the ground, then despawn
-- Air dash item
 
 ### Before contacting artists
 

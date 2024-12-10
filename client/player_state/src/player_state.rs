@@ -231,7 +231,7 @@ impl PlayerState {
         };
 
         self.conditions
-            .retain(|cond| cond.flag != StatusFlag::DoubleJumped);
+            .retain(|cond| cond.flag != StatusFlag::AirActionCooldown);
     }
     pub fn is_grounded(&self) -> bool {
         !matches!(self.main, MainState::Air(_))

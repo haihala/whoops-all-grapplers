@@ -155,8 +155,7 @@ pub enum StatusFlag {
     Parry,
     MovementLock,
     Weaken,
-    DoubleJumped,
-    JumpCooldown,
+    AirActionCooldown,
     Cancel(CancelType),
     ComicCancelCooldown,
 }

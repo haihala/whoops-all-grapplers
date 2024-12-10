@@ -90,24 +90,26 @@ fn jump(
             let base_impulse = 0.5 * gravity_force * duration;
 
             if situation.on_frame(0) {
-                let mut initial_events = vec![
-                    animation.into(),
-                    ActionEvent::Condition(StatusCondition {
-                        flag: StatusFlag::JumpCooldown,
-                        expiration: Some(10),
-                        ..default()
-                    }),
-                ];
+                let mut initial_events = vec![animation.into()];
 
-                if jump_type == JumpType::Air {
-                    initial_events.extend(vec![
+                initial_events.extend(if jump_type == JumpType::Air {
+                    vec![
                         ActionEvent::ClearMovement,
                         ActionEvent::Condition(StatusCondition {
-                            flag: StatusFlag::DoubleJumped,
+                            flag: StatusFlag::AirActionCooldown,
                             ..default()
                         }),
-                    ]);
-                }
+                    ]
+                } else {
+                    vec![
+                        // This prevents immediately jumping again
+                        ActionEvent::Condition(StatusCondition {
+                            flag: StatusFlag::AirActionCooldown,
+                            expiration: Some(10),
+                            ..default()
+                        }),
+                    ]
+                });
 
                 return initial_events;
             }
@@ -160,7 +162,7 @@ fn jump(
                 JumpType::Air => vec![
                     ActionRequirement::Airborne,
                     ActionRequirement::ItemOwned(ItemId::FeatheredBoots),
-                    ActionRequirement::StatusNotActive(StatusFlag::DoubleJumped),
+                    ActionRequirement::StatusNotActive(StatusFlag::AirActionCooldown),
                 ],
                 JumpType::Super => vec![
                     ActionRequirement::Grounded,
@@ -169,7 +171,7 @@ fn jump(
             };
 
             requirements.extend([
-                ActionRequirement::StatusNotActive(StatusFlag::JumpCooldown),
+                ActionRequirement::StatusNotActive(StatusFlag::AirActionCooldown),
                 ActionRequirement::Starter(ActionCategory::Jump),
             ]);
 

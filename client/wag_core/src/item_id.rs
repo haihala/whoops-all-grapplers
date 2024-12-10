@@ -27,6 +27,7 @@ pub enum ItemId {
     MoonBoots,
     ComicBook,
     RomaineLettuce,
+    Wing,
 
     // Character specific
     // Samurai
@@ -46,7 +47,6 @@ pub enum ItemId {
 
     // TODO: Unused
     SafetyBoots,
-    PigeonWing,
 }
 
 impl ItemId {
@@ -54,7 +54,7 @@ impl ItemId {
         match self {
             Self::DivingHelmet => "Diving helmet".into(),
             Self::OliveOil => "Olive Oil".into(),
-            Self::PigeonWing => "Pigeon wing".into(),
+            Self::Wing => "Pigeon wing".into(),
             Self::FeatheredBoots => "Feathered boots".into(),
             Self::TrackSpikes => "Track spikes".into(),
             Self::MoonBoots => "Moon boots".into(),

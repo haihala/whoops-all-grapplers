@@ -115,28 +115,47 @@ fn samurai_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<Act
 }
 
 fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
-    let forward = DashBuilder::forward()
-        .with_animation(SamuraiAnimation::DashForward)
-        .with_character_universals(CHARACTER_UNIVERSALS)
-        .on_frame(
-            0,
-            Movement {
-                amount: Vec2::X * 2.0,
-                duration: 4,
-            },
-        )
-        .on_frame(5, Movement::impulse(Vec2::new(2.0, 5.0)))
-        .end_at(20)
-        .build();
-
-    let back = DashBuilder::back()
-        .with_animation(SamuraiAnimation::DashBack)
-        .with_character_universals(CHARACTER_UNIVERSALS)
-        .on_frame(0, Movement::impulse(Vec2::X * 6.9))
-        .end_at(20)
-        .build();
-
-    forward.chain(back)
+    [
+        // Grounded forward dash
+        DashBuilder::forward()
+            .with_animation(SamuraiAnimation::GroundForwardDash)
+            .with_character_universals(CHARACTER_UNIVERSALS)
+            .on_frame(
+                0,
+                Movement {
+                    amount: Vec2::X * 2.0,
+                    duration: 4,
+                },
+            )
+            .on_frame(5, Movement::impulse(Vec2::new(2.0, 5.0)))
+            .end_at(20)
+            .build(),
+        // Grounded back dash
+        DashBuilder::back()
+            .with_animation(SamuraiAnimation::BackDash)
+            .with_character_universals(CHARACTER_UNIVERSALS)
+            .on_frame(0, Movement::impulse(Vec2::X * 6.9))
+            .end_at(20)
+            .build(),
+        // Air forward dash
+        DashBuilder::forward()
+            .air_only()
+            .with_animation(SamuraiAnimation::AirForwardDash)
+            .with_character_universals(CHARACTER_UNIVERSALS)
+            .on_frame(0, Movement::impulse(Vec2::X * 3.0))
+            .end_at(20)
+            .build(),
+        // Air back dash
+        DashBuilder::back()
+            .air_only()
+            .with_animation(SamuraiAnimation::BackDash)
+            .with_character_universals(CHARACTER_UNIVERSALS)
+            .on_frame(0, Movement::impulse(Vec2::X * 3.0))
+            .end_at(20)
+            .build(),
+    ]
+    .into_iter()
+    .flatten()
 }
 
 fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {

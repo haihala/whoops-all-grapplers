@@ -18,6 +18,7 @@ pub struct DashBuilder {
     phases: Vec<(usize, Movement)>,
     universals: Option<CharacterUniversals>,
     total_duration: usize,
+    air: bool,
 }
 
 impl DashBuilder {
@@ -38,6 +39,19 @@ impl DashBuilder {
         } else {
             ActionBuilder::for_category(ActionCategory::Dash)
         };
+
+        if self.air {
+            builder = builder
+                .air_only()
+                .with_requirement(ActionRequirement::ItemOwned(ItemId::Wing))
+                .with_requirement(ActionRequirement::StatusNotActive(
+                    StatusFlag::AirActionCooldown,
+                ))
+                .static_immediate_events(vec![ActionEvent::Condition(StatusCondition {
+                    flag: StatusFlag::AirActionCooldown,
+                    ..default()
+                })]);
+        }
 
         let (input, vfx_rotation) = if self.backdash {
             builder = builder.dyn_immediate_events(Arc::new(move |situation: &Situation| {
@@ -143,6 +157,11 @@ impl DashBuilder {
                 },
             },
         ));
+        self
+    }
+
+    pub fn air_only(mut self) -> Self {
+        self.air = true;
         self
     }
 

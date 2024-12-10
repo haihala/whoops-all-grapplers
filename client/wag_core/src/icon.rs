@@ -39,6 +39,7 @@ pub enum Icon {
     Protractor,
     IceCube,
     ComicBook,
+    Lettuce,
 
     // UI
     OkLink,
@@ -78,6 +79,7 @@ impl Icon {
             (Icon::Protractor, "icons/protractor.png".into()),
             (Icon::IceCube, "icons/ice-cube.png".into()),
             (Icon::ComicBook, "icons/comic-book.png".into()),
+            (Icon::Lettuce, "icons/lettuce.png".into()),
             (Icon::OkLink, "icons/link-bonus-ok.png".into()),
             (Icon::GoodLink, "icons/link-bonus-good.png".into()),
             (Icon::PerfectLink, "icons/link-bonus-perfect.png".into()),

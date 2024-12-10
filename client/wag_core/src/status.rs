@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{ActionId, CancelType, METERED_KARA_WINDOW, WEAKEN_STATUS_COLOR};
+use crate::{ActionId, CancelType, KARA_WINDOW, WEAKEN_STATUS_COLOR};
 
 #[derive(Reflect, Debug, Clone, Copy, PartialEq, Component)]
 pub struct Stats {
@@ -180,7 +180,7 @@ pub struct StatusCondition {
 impl StatusCondition {
     pub fn kara_to(options: Vec<ActionId>) -> Self {
         Self {
-            expiration: Some(METERED_KARA_WINDOW),
+            expiration: Some(KARA_WINDOW),
             effect: None,
             flag: StatusFlag::Cancel(CancelType::Specific(options)),
         }

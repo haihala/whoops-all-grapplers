@@ -84,7 +84,7 @@ impl Input {
 #[derive(Default)]
 pub struct ActionBuilder {
     input: Option<Input>,
-    pub state: SimpleState,
+    pub state: Option<SimpleState>,
     pub category: ActionCategory,
     blobs: Vec<EventBlob>,
     needs_charge: bool,
@@ -98,22 +98,17 @@ impl ActionBuilder {
     pub fn for_category(category: ActionCategory) -> Self {
         Self {
             category,
+            state: Some(SimpleState::Stand),
             ..default()
         }
     }
 
     pub fn special() -> Self {
-        Self {
-            category: ActionCategory::Special,
-            ..default()
-        }
+        Self::for_category(ActionCategory::Special)
     }
 
     pub fn normal() -> Self {
-        Self {
-            category: ActionCategory::Normal,
-            ..default()
-        }
+        Self::for_category(ActionCategory::Normal)
     }
 
     pub fn button(btn: GameButton) -> Self {
@@ -160,14 +155,21 @@ impl ActionBuilder {
 
     pub fn crouching(self) -> Self {
         Self {
-            state: SimpleState::Crouch,
+            state: Some(SimpleState::Crouch),
             ..self
         }
     }
 
     pub fn air_only(self) -> Self {
         Self {
-            state: SimpleState::Air,
+            state: Some(SimpleState::Air),
+            ..self
+        }
+    }
+
+    pub fn air_or_ground(self) -> Self {
+        Self {
+            state: None,
             ..self
         }
     }
@@ -286,16 +288,18 @@ impl ActionBuilder {
     pub fn build_input(&self) -> Option<String> {
         self.input
             .clone()
-            .map(|input| input.to_dsl(self.state == SimpleState::Crouch))
+            .map(|input| input.to_dsl(self.state == Some(SimpleState::Crouch)))
     }
 
     pub fn build_requirements(&self) -> ActionRequirement {
         let mut temp = self.extra_requirements.clone();
 
-        temp.push(match self.state {
-            SimpleState::Air => ActionRequirement::Airborne,
-            SimpleState::Stand | SimpleState::Crouch => ActionRequirement::Grounded,
-        });
+        if let Some(state) = self.state {
+            temp.push(match state {
+                SimpleState::Air => ActionRequirement::Airborne,
+                SimpleState::Stand | SimpleState::Crouch => ActionRequirement::Grounded,
+            });
+        }
 
         if self.needs_meter {
             temp.push(ActionRequirement::ResourceValue(
@@ -328,14 +332,16 @@ impl ActionBuilder {
             self = self
                 .static_immediate_events(vec![ActionEvent::ClearResource(ResourceType::Charge)]);
         }
-        match self.state {
-            SimpleState::Air => {}
-            SimpleState::Stand => {
-                self = self.static_immediate_events(vec![ActionEvent::ForceStand])
-            }
-            SimpleState::Crouch => {
-                self = self.static_immediate_events(vec![ActionEvent::ForceCrouch])
-            }
+        if let Some(state) = self.state {
+            match state {
+                SimpleState::Air => {}
+                SimpleState::Stand => {
+                    self = self.static_immediate_events(vec![ActionEvent::ForceStand])
+                }
+                SimpleState::Crouch => {
+                    self = self.static_immediate_events(vec![ActionEvent::ForceCrouch])
+                }
+            };
         }
 
         let folded_events: Vec<(Timing, Events)> = self

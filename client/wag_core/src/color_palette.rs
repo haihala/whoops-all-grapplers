@@ -56,8 +56,11 @@ pub const HIT_SPARK_EDGE_COLOR: Color = Color::srgb(1.0, 1.0, 0.1);
 pub const BLOCK_EFFECT_BASE_COLOR: Color = Color::WHITE;
 pub const BLOCK_EFFECT_EDGE_COLOR: Color = Color::srgb(0.1, 0.2, 1.0);
 
-pub const RING_RIPPLE_EDGE_COLOR: Color = Color::WHITE;
-pub const RING_RIPPLE_BASE_COLOR: Color = Color::srgb(0.2, 1.0, 0.5);
+pub const THROW_TECH_RING_EDGE_COLOR: Color = Color::WHITE;
+pub const THROW_TECH_RING_BASE_COLOR: Color = Color::srgb(0.2, 1.0, 0.5);
+
+pub const RC_PULSE_BASE_COLOR: Color = METER_BAR_PARTIAL_SEGMENT_COLOR;
+pub const RC_PULSE_EDGE_COLOR: Color = METER_BAR_FULL_SEGMENT_COLOR;
 
 pub const SPEED_LINES_BASE_COLOR: Color = Color::srgb(1.0, 1.0, 1.0);
 pub const SPEED_LINES_EDGE_COLOR: Color = Color::srgb(0.6, 0.6, 0.6);

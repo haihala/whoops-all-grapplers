@@ -110,11 +110,11 @@ pub fn start_absolute_vfx(
                 frames_to_live: 10,
             });
         }
-        VisualEffect::ThrowTech => {
+        VisualEffect::RingPulse(c1, c2) => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: RingRippleMaterial::new(time.elapsed_seconds()),
+                material: RingRippleMaterial::new(*c1, *c2, time.elapsed_seconds()),
                 frames_to_live: 60,
             });
         }

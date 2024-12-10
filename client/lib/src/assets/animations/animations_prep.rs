@@ -281,6 +281,7 @@ pub fn animation_paths() -> HashMap<Animation, AssetPath<'static>> {
             SamuraiAnimation::KneeThrust,
             SamuraiAnimation::KunaiThrow,
             SamuraiAnimation::LowKick,
+            SamuraiAnimation::RC,
             SamuraiAnimation::SkyStab,
             SamuraiAnimation::Stagger,
             SamuraiAnimation::StandThrowHit,

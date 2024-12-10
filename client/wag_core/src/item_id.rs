@@ -26,6 +26,7 @@ pub enum ItemId {
     DivingHelmet, // TODO: Directional fast fall -> air dash
     MoonBoots,
     ComicBook,
+    RomaineLettuce,
 
     // Character specific
     // Samurai
@@ -71,6 +72,8 @@ impl ItemId {
             Self::BladeOil => "Blade oil".into(),
             Self::SmithyCoupon => "Smithy coupon".into(),
             Self::IceCube => "Ice cube".into(),
+            Self::ComicBook => "Comic book".into(),
+            Self::RomaineLettuce => "Romaine lettuce".into(),
             Self::ThumbTacks(n) => match n {
                 1 => "A single thumbtack".into(),
                 5 => "Fistful of thumbtacks".into(),

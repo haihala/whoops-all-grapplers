@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use wag_core::{
     ActionCategory, ActionId, Animation, CancelType, Icon, ItemId, Stats, StatusCondition,
-    StatusFlag, GI_PARRY_FLASH_COLOR,
+    StatusFlag, VfxRequest, VisualEffect, GI_PARRY_FLASH_COLOR, RC_PULSE_BASE_COLOR,
+    RC_PULSE_EDGE_COLOR,
 };
 
 use crate::{
@@ -9,9 +10,9 @@ use crate::{
     ItemCategory::*, Movement,
 };
 
-pub fn gi_parry(animation: Animation) -> Action {
+fn gi_parry(animation: Animation) -> Action {
     ActionBuilder::for_category(ActionCategory::Other)
-        .with_input("{6}(fs)")
+        .with_input("{6}(gw)")
         .static_immediate_events(vec![
             animation.into(),
             ActionEvent::ForceStand,
@@ -32,7 +33,7 @@ pub fn gi_parry(animation: Animation) -> Action {
         .build()
 }
 
-pub fn fast_fall() -> Action {
+fn fast_fall() -> Action {
     ActionBuilder::for_category(ActionCategory::Other)
         .with_input("{5}[123]")
         .air_only()
@@ -42,11 +43,37 @@ pub fn fast_fall() -> Action {
         .build()
 }
 
+fn romaine_cancel(animation: Animation) -> Action {
+    ActionBuilder::for_category(ActionCategory::MegaInterrupt)
+        .air_or_ground()
+        .with_input("(gw)")
+        .with_requirement(ActionRequirement::ItemOwned(ItemId::RomaineLettuce))
+        .with_requirement(ActionRequirement::AnyActionOngoing)
+        .end_at(10)
+        .with_meter_cost()
+        .static_immediate_events(vec![
+            animation.into(),
+            ActionEvent::RelativeVisualEffect(VfxRequest {
+                effect: VisualEffect::RingPulse(RC_PULSE_BASE_COLOR, RC_PULSE_EDGE_COLOR),
+                tf: Transform::from_translation(Vec3::Y),
+                ..default()
+            }),
+            ActionEvent::RelativeVisualEffect(VfxRequest {
+                effect: VisualEffect::Icon(Icon::Lettuce),
+                tf: Transform::from_translation(Vec3::Y),
+                ..default()
+            }),
+        ])
+        .build()
+}
+
 pub fn universal_item_actions(
     parry_animation: Animation,
+    rc_animation: Animation,
 ) -> impl Iterator<Item = (ActionId, Action)> {
     vec![
         (ActionId::GiParry, gi_parry(parry_animation)),
+        (ActionId::RomaineCancel, romaine_cancel(rc_animation)),
         (ActionId::FastFall, fast_fall()),
     ]
     .into_iter()
@@ -73,7 +100,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             ItemId::Gi,
             Item {
                 cost: 400,
-                explanation: "Forward+f+s to parry, cancels to anything on success.\n\nLesgo justin".into(),
+                explanation: "Forward+g+w to parry, cancels to anything on success.\n\nLesgo justin".into(),
                 icon: Icon::Gi,
                 ..default()
             },
@@ -218,6 +245,16 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 explanation: "Gives you one normal to normal cancel per sequence.".into(),
                 cost: 1000,
                 icon: Icon::ComicBook,
+                ..default()
+            },
+        ),
+        (
+            ItemId::RomaineLettuce,
+            Item {
+                category: Basic,
+                explanation: "Press g+w mid-move to cancel ongoing action. Costs bar.".into(),
+                cost: 1000,
+                icon: Icon::Lettuce,
                 ..default()
             },
         ),

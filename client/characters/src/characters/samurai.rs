@@ -158,9 +158,6 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         .with_advantage_on_hit(4)
                         .with_hitbox(Area::new(0.5, 1.2, 0.35, 0.35)),
                 )
-                .with_extra_initial_events(vec![ActionEvent::Condition(StatusCondition::kara_to(
-                    vec![ActionId::GiParry],
-                ))])
                 .build(),
         ),
         (
@@ -259,11 +256,13 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .build(),
         ),
         (
-            // TODO: You made this a two hit move in animation
             SamuraiAction::HighStab,
             AttackBuilder::button(GameButton::Gimmick)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_animation(SamuraiAnimation::HighStab)
+                .with_extra_initial_events(vec![ActionEvent::Condition(StatusCondition::kara_to(
+                    vec![ActionId::GiParry],
+                ))])
                 .with_total_duration(71)
                 .with_hit_on_frame(
                     // Drawing hit
@@ -359,7 +358,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 }
                 .into()])
                 .air_only()
-                .end_at(60 * 60) // TODO: Get the max length of the animation here
+                .end_at(60 * 60)
                 .dyn_events_after_frame(
                     30,
                     Arc::new(|situation: &Situation| {
@@ -436,6 +435,9 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_total_duration(37)
                 .with_animation(SamuraiAnimation::StandThrowStartup)
+                .with_extra_initial_events(vec![ActionEvent::Condition(StatusCondition::kara_to(
+                    vec![ActionId::GiParry],
+                ))])
                 .with_hit_on_frame(
                     3,
                     HitBuilder::normal()
@@ -957,7 +959,10 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
 }
 
 fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
-    universal_item_actions(Animation::Samurai(SamuraiAnimation::GiParry))
+    universal_item_actions(
+        Animation::Samurai(SamuraiAnimation::GiParry),
+        Animation::Samurai(SamuraiAnimation::RC),
+    )
 }
 
 fn samurai_items() -> HashMap<ItemId, Item> {

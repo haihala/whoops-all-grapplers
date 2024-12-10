@@ -38,6 +38,7 @@ pub enum ActionId {
     BackSuperJump,
     FastFall,
     GiParry,
+    RomaineCancel,
     TrackSpikesDashForward,
     TrackSpikesDashBack,
 

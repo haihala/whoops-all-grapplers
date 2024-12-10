@@ -63,4 +63,4 @@ pub use visual_effects::{VfxRequest, VisualEffect};
 pub const FPS: f32 = 60.0;
 
 // How many frames can you kara cancel to metered versions of moves
-pub const METERED_KARA_WINDOW: usize = 3;
+pub const KARA_WINDOW: usize = 3;

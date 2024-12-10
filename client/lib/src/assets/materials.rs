@@ -7,9 +7,8 @@ use wag_core::{
     BLOCK_EFFECT_BASE_COLOR, BLOCK_EFFECT_EDGE_COLOR, CLASH_SPARK_BASE_COLOR,
     CLASH_SPARK_EDGE_COLOR, HIT_SPARK_BASE_COLOR, HIT_SPARK_EDGE_COLOR, HIT_SPARK_MID_COLOR,
     LIGHTNING_BOLT_INNER_COLOR, LIGHTNING_BOLT_OUTER_COLOR, OPENER_INNER_COLOR,
-    PEBBLE_BORDER_COLOR, PEBBLE_INNER_COLOR, RING_RIPPLE_BASE_COLOR, RING_RIPPLE_EDGE_COLOR,
-    SPARK_BURST_BORDER_COLOR, SPARK_BURST_INNER_COLOR, SPEED_LINES_BASE_COLOR,
-    SPEED_LINES_EDGE_COLOR,
+    PEBBLE_BORDER_COLOR, PEBBLE_INNER_COLOR, SPARK_BURST_BORDER_COLOR, SPARK_BURST_INNER_COLOR,
+    SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR,
 };
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -235,11 +234,11 @@ pub struct RingRippleMaterial {
     start_time: f32,
 }
 impl RingRippleMaterial {
-    pub fn new(start_time: f32) -> Self {
+    pub fn new(base_color: Color, edge_color: Color, start_time: f32) -> Self {
         Self {
             start_time,
-            edge_color: RING_RIPPLE_EDGE_COLOR.into(),
-            base_color: RING_RIPPLE_BASE_COLOR.into(),
+            base_color: base_color.into(),
+            edge_color: edge_color.into(),
             duration: 0.7,
             ring_thickness: 0.05,
         }

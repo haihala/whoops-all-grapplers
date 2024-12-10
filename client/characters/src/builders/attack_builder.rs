@@ -6,6 +6,7 @@ use wag_core::{
     ActionCategory, ActionId, Animation, Area, CancelType, GameButton, Icon, Model, SimpleState,
     SoundEffect, StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine,
     BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR, LOW_OPENER_COLOR, MID_OPENER_COLOR, SMALL_HIT_THRESHOLD,
+    THROW_TECH_RING_BASE_COLOR, THROW_TECH_RING_EDGE_COLOR,
 };
 
 use crate::{
@@ -137,7 +138,7 @@ impl AttackBuilder {
     }
 
     pub fn with_hit_on_frame(mut self, frame: usize, mut hit: HitBuilder) -> Self {
-        if self.action_builder.state == SimpleState::Air {
+        if self.action_builder.state == Some(SimpleState::Air) {
             hit = {
                 hit.sub_builder = match hit.sub_builder {
                     SubBuilder::Strike(sb) => {
@@ -555,7 +556,10 @@ pub fn build_throw_effect(
                     ActionEvent::Sound(SoundEffect::BottleBonk),
                     Movement::impulse(Vec2::X * -2.0).into(),
                     ActionEvent::AbsoluteVisualEffect(VfxRequest {
-                        effect: VisualEffect::ThrowTech,
+                        effect: VisualEffect::RingPulse(
+                            THROW_TECH_RING_BASE_COLOR,
+                            THROW_TECH_RING_EDGE_COLOR,
+                        ),
                         tf,
                         ..default()
                     }),

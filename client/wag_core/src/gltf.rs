@@ -37,6 +37,7 @@ pub enum SamuraiAnimation {
     KneeThrust,
     KunaiThrow,
     LowKick,
+    RC,
     SkyStab,
     Stagger,
     StandPose,

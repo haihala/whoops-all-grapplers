@@ -2,14 +2,13 @@
 
 This document is a way to store ideas of items
 
-## Vibe
+## Aesthetic
 
 - Armor of the Modern Crusader (AMC), a suit item
 - Bootleg functions series
   - Item names are scuffed marvel characters like "Magnet man" for magneto
   - They grant a move / trait that is commonly associated with that character in mvc
   - For example: Magnet man would grant an 8-way airdash
-- Romaine (like the lettuce) cancel, which is just a RC from gg
 
 ## Mechanic
 
@@ -25,14 +24,9 @@ This document is a way to store ideas of items
 - Glue that reduces pushback
 - Wings that reset air actions when a move makes contact
 
-## Specific
+## Aesthetic + Mechanic
 
 - Some phone charger item that increases charge speed
-- Monkey picture - Does nothing but take up a slot and fluctuate in price (trending downwards, but can occasionally be sold for profit)
-- Egg
-  - Hatches to a chicken
-  - Chickens produce an egg per round
-  - You can sell the eggs
 - Brick
   - Defense bonus
   - Add a page for defense bonus
@@ -47,9 +41,6 @@ This document is a way to store ideas of items
     - Not thrilled about using the shield for this, as it's less blocking and more evading
 - 2x Defence item = Hardhat
   - Less damage from overheads
-
-## If the right character comes along
-
 - Jumper cables. Allows you to do electrics with special moves with frame perfect inputs
 - Burst that throws a bag of money at the enemy
   - Bag can miss

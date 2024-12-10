@@ -9,6 +9,7 @@ enough to be put on a more important list.
 - Red paint + throws
 - Stick input occasionally gets stuck
   - Replicate with 46464646... on the dpad
+- Camera should reset after shop
 
 ### Online
 
@@ -16,7 +17,6 @@ enough to be put on a more important list.
 
 ### Watchlist
 
-- Does new animations system not handle restarts?
 - Does input parser work after frame reset?
   - Repeat inputs from the previous round?
 - Defender can't block 2f spam and there are opener sparks (had paint)

@@ -1,0 +1,4 @@
+- Universal basic item
+- Allows one normal to normal cancle per sequence
+  - For example 5s 2s special
+  - This can be into the same normal, so 2f 2f special works

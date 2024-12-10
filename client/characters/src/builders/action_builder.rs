@@ -90,7 +90,7 @@ pub struct ActionBuilder {
     needs_charge: bool,
     needs_meter: bool,
     extra_requirements: Vec<ActionRequirement>,
-    follow_up_from: Option<Vec<ActionId>>,
+    pub follows_up_from: Option<Vec<ActionId>>,
     pub total_duration: usize,
 }
 
@@ -128,7 +128,7 @@ impl ActionBuilder {
 
     pub fn follow_up_from(self, actions: Vec<ActionId>) -> Self {
         Self {
-            follow_up_from: Some(actions),
+            follows_up_from: Some(actions),
             ..self
         }
     }
@@ -312,7 +312,7 @@ impl ActionBuilder {
             temp.push(ActionRequirement::ResourceFull(ResourceType::Charge));
         }
 
-        if let Some(ongoing) = self.follow_up_from.clone() {
+        if let Some(ongoing) = self.follows_up_from.clone() {
             temp.push(ActionRequirement::ActionOngoing(ongoing));
         }
 

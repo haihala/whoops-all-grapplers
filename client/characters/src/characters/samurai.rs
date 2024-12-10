@@ -375,6 +375,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
         (
             SamuraiAction::FootDiveRelease,
             AttackBuilder::normal()
+                .follow_up_from(vec![ActionId::Samurai(SamuraiAction::FootDiveHold)])
                 .with_animation(SamuraiAnimation::FootDiveRelease)
                 .with_total_duration(20)
                 .air_only()

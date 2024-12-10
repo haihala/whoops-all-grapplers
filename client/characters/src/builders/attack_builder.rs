@@ -223,13 +223,17 @@ impl AttackBuilder {
 
     fn build_script(self) -> impl Fn(&Situation) -> Vec<ActionEvent> {
         let is_normal = self.action_builder.category == ActionCategory::Normal;
+        // If this is not considered, multi part normals (foot dive)
+        // are always seen as cc'd
+        let is_follow_up = self.action_builder.follows_up_from.is_some();
 
         let mut ab =
             self.action_builder
                 .dyn_immediate_events(Arc::new(move |situation: &Situation| {
+                    let was_cancelled_into = situation.tracker.unwrap().was_cancelled_into;
                     let mut evs = vec![];
 
-                    if is_normal && situation.tracker.unwrap().was_cancelled_into {
+                    if is_normal && !is_follow_up && was_cancelled_into {
                         // This was a comic cancel, as the flag would've gotten
                         // cleared if it was a raw activation
                         evs.extend([

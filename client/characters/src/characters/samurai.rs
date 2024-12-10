@@ -126,7 +126,7 @@ fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
             },
         )
         .on_frame(5, Movement::impulse(Vec2::new(2.0, 5.0)))
-        .end_at(17)
+        .end_at(20)
         .build();
 
     let back = DashBuilder::back()

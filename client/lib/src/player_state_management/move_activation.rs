@@ -95,7 +95,13 @@ pub(super) fn move_activator(
         &Facing,
         Option<&Combo>,
     )>,
+    mut last_processed_frame: Local<usize>,
 ) {
+    if *last_processed_frame == clock.frame {
+        return;
+    }
+    *last_processed_frame = clock.frame;
+
     // Activate and clear activating move
     for (
         mut hurtboxes,

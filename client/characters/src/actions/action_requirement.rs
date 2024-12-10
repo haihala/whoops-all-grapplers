@@ -84,11 +84,12 @@ impl ActionRequirement {
                     return false;
                 }
 
+                // Raw activation
                 if situation.tracker.is_none() {
-                    // Raw activation (easy to make it different for bursts)
                     return true;
                 }
 
+                // Mega interrupts
                 if *category == ActionCategory::MegaInterrupt && !situation.stunned {
                     return true;
                 }
@@ -96,6 +97,17 @@ impl ActionRequirement {
                 for win in windows {
                     let matching_cancel = match win {
                         CancelType::Special => {
+                            // Comic cancel uses the same cancel window
+                            // as the special cancel
+                            if *category == ActionCategory::Normal
+                                && situation.inventory.contains(&ItemId::ComicBook)
+                                && !situation
+                                    .status_flags
+                                    .contains(&StatusFlag::ComicCancelCooldown)
+                            {
+                                return true;
+                            }
+
                             matches!(category, ActionCategory::Special | ActionCategory::Super)
                         }
                         CancelType::Super => *category == ActionCategory::Super,

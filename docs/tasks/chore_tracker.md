@@ -16,11 +16,10 @@ enough to be put on a more important list.
 
 ### Watchlist
 
+- Does new animations system not handle restarts?
 - Does input parser work after frame reset?
   - Repeat inputs from the previous round?
-- Cancel windows feel really bad
 - Defender can't block 2f spam and there are opener sparks (had paint)
-- Players falling through the floor
 
 ## Misc improvement ideas
 

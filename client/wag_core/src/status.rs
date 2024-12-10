@@ -158,6 +158,7 @@ pub enum StatusFlag {
     DoubleJumped,
     JumpCooldown,
     Cancel(CancelType),
+    ComicCancelCooldown,
 }
 
 impl StatusFlag {

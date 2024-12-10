@@ -25,6 +25,7 @@ pub enum ItemId {
     FeatheredBoots,
     DivingHelmet, // TODO: Directional fast fall -> air dash
     MoonBoots,
+    ComicBook,
 
     // Character specific
     // Samurai

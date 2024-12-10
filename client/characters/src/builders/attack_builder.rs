@@ -3,9 +3,9 @@ use std::{f32::consts::PI, sync::Arc};
 use bevy::prelude::*;
 
 use wag_core::{
-    ActionId, Animation, Area, CancelType, GameButton, Model, SimpleState, SoundEffect,
-    StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, BIG_HIT_THRESHOLD,
-    HIGH_OPENER_COLOR, LOW_OPENER_COLOR, MID_OPENER_COLOR, SMALL_HIT_THRESHOLD,
+    ActionCategory, ActionId, Animation, Area, CancelType, GameButton, Icon, Model, SimpleState,
+    SoundEffect, StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine,
+    BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR, LOW_OPENER_COLOR, MID_OPENER_COLOR, SMALL_HIT_THRESHOLD,
 };
 
 use crate::{
@@ -221,7 +221,32 @@ impl AttackBuilder {
     }
 
     fn build_script(self) -> impl Fn(&Situation) -> Vec<ActionEvent> {
-        let mut ab = self.action_builder;
+        let is_normal = self.action_builder.category == ActionCategory::Normal;
+
+        let mut ab =
+            self.action_builder
+                .dyn_immediate_events(Arc::new(move |situation: &Situation| {
+                    let mut evs = vec![];
+
+                    if is_normal && situation.tracker.unwrap().was_cancelled_into {
+                        // This was a comic cancel, as the flag would've gotten
+                        // cleared if it was a raw activation
+                        evs.extend([
+                            ActionEvent::RelativeVisualEffect(VfxRequest {
+                                effect: VisualEffect::Icon(Icon::ComicBook),
+                                tf: Transform::from_translation(Vec3::Y),
+                                ..default()
+                            }),
+                            ActionEvent::Condition(StatusCondition {
+                                flag: StatusFlag::ComicCancelCooldown,
+                                ..default()
+                            }),
+                        ]);
+                    }
+
+                    evs
+                }));
+
         for hit in self.hits {
             let (frame, builder) = hit;
             let recovery = ab.total_duration - frame;

@@ -65,9 +65,8 @@ impl PlayerState {
     }
 
     // Moves
-    #[allow(clippy::too_many_arguments)]
     pub fn start_move(&mut self, action_id: ActionId, start_frame: usize) {
-        let tracker = ActionTracker::new(start_frame, action_id);
+        let tracker = ActionTracker::new(start_frame, self.action_in_progress(), action_id);
 
         self.main = match &self.main {
             MainState::Stand(_) => MainState::Stand(StandState::Move(tracker)),
@@ -77,7 +76,7 @@ impl PlayerState {
             other => panic!("Starting a move while {:?}", other),
         };
         self.free_since = None;
-        self.clear_cancels();
+        self.clear_cancel_windows();
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -104,7 +103,7 @@ impl PlayerState {
             combo,
         );
 
-        let action_id = self.get_action_tracker_mut().unwrap().action_id;
+        let action_id = self.get_action_tracker().unwrap().action_id;
         (character.get_move(action_id).unwrap().script)(&situation)
     }
 
@@ -191,7 +190,8 @@ impl PlayerState {
             MainState::Ground(_) => MainState::Crouch(CrouchState::Idle),
         };
         self.free_since = Some(frame);
-        self.clear_cancels();
+        self.clear_cancel_windows();
+        self.clear_comic_cancels();
     }
     pub fn unstun_frame(&self) -> Option<usize> {
         match self.main {
@@ -358,9 +358,16 @@ impl PlayerState {
             .collect()
     }
 
-    pub fn clear_cancels(&mut self) {
+    // This is called when a move starts OR ends
+    pub fn clear_cancel_windows(&mut self) {
         self.conditions
             .retain(|cond| !matches!(cond.flag, StatusFlag::Cancel(_)));
+    }
+
+    // This is called when a move recovers naturally
+    pub fn clear_comic_cancels(&mut self) {
+        self.conditions
+            .retain(|cond| !matches!(cond.flag, StatusFlag::ComicCancelCooldown));
     }
 }
 
@@ -372,7 +379,11 @@ mod test {
     fn generic_animation_mid_move() {
         // TODO: Creating testing states should be easier
         let mut move_state = PlayerState {
-            main: MainState::Stand(StandState::Move(ActionTracker::new(0, ActionId::TestMove))),
+            main: MainState::Stand(StandState::Move(ActionTracker::new(
+                0,
+                false,
+                ActionId::TestMove,
+            ))),
             ..default()
         };
 

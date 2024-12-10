@@ -27,6 +27,7 @@ pub(super) fn move_advancement(
     if *last_processed_frame == clock.frame {
         return;
     }
+    *last_processed_frame = clock.frame;
 
     for (mut state, tf, inventory, character, resources, parser, stats, facing, entity, combo) in
         &mut query
@@ -47,8 +48,6 @@ pub(super) fn move_advancement(
             }
         }
     }
-
-    *last_processed_frame = clock.frame;
 }
 
 pub fn end_moves(

@@ -211,6 +211,16 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 icon: Icon::ThumbTacks(1),
             },
         ),
+        (
+            ItemId::ComicBook,
+            Item {
+                category: Basic,
+                explanation: "Gives you one normal to normal cancel per sequence.".into(),
+                cost: 1000,
+                icon: Icon::ComicBook,
+                ..default()
+            },
+        ),
         // Upgrades
         (
             ItemId::TrackSpikes,

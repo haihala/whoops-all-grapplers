@@ -85,7 +85,7 @@ impl Input {
 pub struct ActionBuilder {
     input: Option<Input>,
     pub state: SimpleState,
-    category: ActionCategory,
+    pub category: ActionCategory,
     blobs: Vec<EventBlob>,
     needs_charge: bool,
     needs_meter: bool,
@@ -311,6 +311,7 @@ impl ActionBuilder {
         if let Some(ongoing) = self.follow_up_from.clone() {
             temp.push(ActionRequirement::ActionOngoing(ongoing));
         }
+
         temp.push(ActionRequirement::Starter(self.category));
 
         ActionRequirement::And(temp)

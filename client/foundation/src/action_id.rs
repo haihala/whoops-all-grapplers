@@ -23,8 +23,8 @@ pub enum ActionId {
     Start,
 
     // Universal
-    DashForward,
-    DashBack,
+    ForwardDash,
+    BackDash,
     NeutralJump,
     ForwardJump,
     BackJump,
@@ -39,8 +39,12 @@ pub enum ActionId {
     FastFall,
     GiParry,
     RomaineCancel,
-    TrackSpikesDashForward,
-    TrackSpikesDashBack,
+    MeteredForwardDash,
+    MeteredBackDash,
+    AirForwardDash,
+    AirBackDash,
+    MeteredAirForwardDash,
+    MeteredAirBackDash,
 
     // Test moves
     TestMove,

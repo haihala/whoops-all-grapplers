@@ -31,10 +31,10 @@ impl DashBuilder {
                 .with_requirement(ActionRequirement::AnyActionOngoing)
                 // This prevents immediately using bar when doing dashes in neutral
                 .with_requirement(ActionRequirement::ActionNotOngoing(vec![
-                    ActionId::DashForward,
-                    ActionId::DashBack,
-                    ActionId::TrackSpikesDashForward,
-                    ActionId::TrackSpikesDashBack,
+                    ActionId::ForwardDash,
+                    ActionId::BackDash,
+                    ActionId::MeteredForwardDash,
+                    ActionId::MeteredBackDash,
                 ]))
         } else {
             ActionBuilder::for_category(ActionCategory::Dash)
@@ -104,10 +104,11 @@ impl DashBuilder {
     pub fn build(self) -> impl Iterator<Item = (ActionId, Action)> {
         debug_assert!(!self.phases.is_empty());
 
-        let (basic_action, super_action) = if self.backdash {
-            (ActionId::DashBack, ActionId::TrackSpikesDashBack)
-        } else {
-            (ActionId::DashForward, ActionId::TrackSpikesDashForward)
+        let (basic_action, super_action) = match (self.air, self.backdash) {
+            (true, true) => (ActionId::AirBackDash, ActionId::MeteredAirBackDash),
+            (true, false) => (ActionId::AirForwardDash, ActionId::MeteredAirForwardDash),
+            (false, true) => (ActionId::BackDash, ActionId::MeteredBackDash),
+            (false, false) => (ActionId::ForwardDash, ActionId::MeteredForwardDash),
         };
 
         vec![

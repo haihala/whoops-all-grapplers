@@ -1,21 +1,21 @@
 use bevy::{audio::Volume, prelude::*};
 use characters::{AnimationRequest, Character};
-use foundation::{Facing, Players};
+use foundation::{Facing, Players, SoundEffect};
 use player_state::PlayerState;
 use rand::Rng;
 
-use crate::event_spreading::{ActivateVoiceline, PlaySound, StartAnimation};
+use crate::event_spreading::ActivateVoiceline;
 
 use super::{announcer::AnnouncerMarker, AnimationHelper, Sounds};
 
 pub fn start_animation(
-    trigger: Trigger<StartAnimation>,
+    trigger: Trigger<AnimationRequest>,
     mut query: Query<&mut AnimationHelper>,
     tfs: Query<&Transform>,
     players: Res<Players>,
 ) {
     let mut helper = query.get_mut(trigger.entity()).unwrap();
-    let animation_request = trigger.event().0;
+    let animation_request = trigger.event();
 
     helper.play(if animation_request.invert {
         // Meant for targets
@@ -62,21 +62,18 @@ pub fn play_voiceline(
     mut commands: Commands,
     chars: Query<&Character>,
 ) {
-    commands.trigger_targets(
-        PlaySound(
-            chars
-                .get(trigger.entity())
-                .unwrap()
-                .get_voiceline(trigger.event().0),
-        ),
-        trigger.entity(),
+    commands.trigger(
+        chars
+            .get(trigger.entity())
+            .unwrap()
+            .get_voiceline(trigger.event().0),
     );
 }
 
-pub fn play_audio(trigger: Trigger<PlaySound>, mut commands: Commands, sounds: Res<Sounds>) {
-    let effect = trigger.event().0;
+pub fn play_audio(trigger: Trigger<SoundEffect>, mut commands: Commands, sounds: Res<Sounds>) {
+    let effect = trigger.event();
 
-    let clips = sounds.handles.get(&effect).unwrap();
+    let clips = sounds.handles.get(effect).unwrap();
 
     let source = clips[rand::thread_rng().gen_range(0..clips.len())].clone();
     let mut entity = commands.spawn(AudioBundle {

@@ -169,7 +169,7 @@ impl StatusFlag {
     }
 }
 
-#[derive(Reflect, Debug, Clone, Default, PartialEq, Hash)]
+#[derive(Reflect, Debug, Clone, Default, PartialEq, Hash, Event)]
 pub struct StatusCondition {
     pub flag: StatusFlag,
     pub effect: Option<Stats>,

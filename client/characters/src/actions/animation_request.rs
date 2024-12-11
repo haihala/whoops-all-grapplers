@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use foundation::Animation;
 
-#[derive(Debug, Clone, Copy, PartialEq, Reflect)]
+#[derive(Debug, Clone, Copy, PartialEq, Reflect, Event)]
 pub struct AnimationRequest {
     pub animation: Animation,
     pub position_offset: Vec2,

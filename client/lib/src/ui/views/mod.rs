@@ -5,7 +5,7 @@ use foundation::{
     GameState, InCharacterSelect, InputStream, LocalState, MatchState, OwnedInput, SoundEffect,
 };
 
-use crate::{assets::Fonts, event_spreading::PlaySound};
+use crate::assets::Fonts;
 
 mod character_select;
 mod controller_assignment;
@@ -97,7 +97,7 @@ fn update_menu_inputs(
 }
 
 fn play_transition_noise(mut commands: Commands) {
-    commands.trigger(PlaySound(SoundEffect::PlasticCupFlick));
+    commands.trigger(SoundEffect::PlasticCupFlick);
 }
 
 fn setup_view_title(root: &mut ChildBuilder, fonts: &Fonts, text: impl Into<String>) {

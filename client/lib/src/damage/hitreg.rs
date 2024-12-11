@@ -13,8 +13,7 @@ use player_state::PlayerState;
 
 use crate::{
     event_spreading::{
-        LaunchImpulse, PlaySound, SnapToOpponent, SpawnVfx, UpdateBlockstun, UpdateHitstun,
-        ZoomCamera,
+        LaunchImpulse, SnapToOpponent, SpawnVfx, UpdateBlockstun, UpdateHitstun, ZoomCamera,
     },
     movement::{PlayerVelocity, Pushbox},
     ui::Notifications,
@@ -99,7 +98,7 @@ pub(super) fn clash_parry(
             .intersection(&hitbox2.with_offset(gtf2.translation().truncate()))
         {
             // Hitboxes collide
-            commands.trigger(PlaySound(SoundEffect::GlassClink));
+            commands.trigger(SoundEffect::GlassClink);
             commands.trigger(SpawnVfx(VfxRequest {
                 effect: VisualEffect::Clash,
                 tf: Transform::from_translation(overlap.center().extend(0.0)),
@@ -299,7 +298,7 @@ pub fn apply_connections(
             ConnectionType::Tech | ConnectionType::Stunlock => true,
             ConnectionType::Parry => {
                 commands.trigger(ZoomCamera(0.3));
-                commands.trigger(PlaySound(SoundEffect::Clash));
+                commands.trigger(SoundEffect::Clash);
                 commands.trigger_targets(
                     ActionEvent::ModifyResource(GaugeType::Meter, GI_PARRY_METER_GAIN),
                     hit.defender,
@@ -349,7 +348,7 @@ pub fn apply_connections(
                     old_health: defender.properties.get(GaugeType::Health).unwrap().current,
                 });
 
-                commands.trigger(PlaySound(SoundEffect::Matches));
+                commands.trigger(SoundEffect::Matches);
                 notifications.add(*attacker.player, "Opener!".to_owned());
                 if attacker.stats.opener_damage_multiplier > 1.0 {
                     attacker_actions = handle_opener(attacker_actions, attacker.stats);

@@ -4,6 +4,7 @@ mod stick_movement;
 
 use std::f32::consts::PI;
 
+use characters::Movement;
 pub use followers::Follow;
 pub use player_velocity::PlayerVelocity;
 
@@ -17,7 +18,7 @@ use player_state::PlayerState;
 
 use crate::{
     damage::{HitTracker, HitboxSpawner},
-    event_spreading::{AddMovement, ClearMovement, TeleportEvent},
+    event_spreading::{ClearMovement, TeleportEvent},
 };
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
@@ -118,12 +119,12 @@ pub fn clear_movement(trigger: Trigger<ClearMovement>, mut query: Query<&mut Pla
 }
 
 pub fn add_movement(
-    trigger: Trigger<AddMovement>,
+    trigger: Trigger<Movement>,
     clock: Res<Clock>,
     mut query: Query<(&mut PlayerVelocity, &Facing)>,
 ) {
     let (mut vel, facing) = query.get_mut(trigger.entity()).unwrap();
-    vel.handle_movement(clock.frame, *facing, trigger.event().0);
+    vel.handle_movement(clock.frame, *facing, *trigger.event());
 }
 
 pub fn handle_teleports(

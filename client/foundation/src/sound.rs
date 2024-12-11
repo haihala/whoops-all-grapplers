@@ -2,7 +2,9 @@ use bevy::{prelude::*, utils::HashMap};
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect, EnumIter)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect, EnumIter, Event,
+)]
 pub enum SoundEffect {
     Whoosh,
     Clash,

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use foundation::{HIT_FLASH_COLOR, METER_BAR_FULL_SEGMENT_COLOR};
 
-#[derive(Debug, Clone, Copy, PartialEq, Reflect)]
+#[derive(Debug, Clone, Copy, PartialEq, Reflect, Event)]
 pub struct FlashRequest {
     pub color: Color,
     pub speed: f32,

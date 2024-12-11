@@ -2,8 +2,6 @@ use foundation::{Player, RoundLog, SoundEffect};
 
 use bevy::prelude::*;
 
-use crate::event_spreading::PlaySound;
-
 #[derive(Debug, Resource, Default)]
 pub struct Announcer {
     stack: Vec<SoundEffect>,
@@ -50,7 +48,7 @@ pub fn update_announcer(
         return;
     };
 
-    commands.trigger(PlaySound(next));
+    commands.trigger(next);
 }
 
 pub fn preround(mut announcer: ResMut<Announcer>, round_log: Res<RoundLog>) {

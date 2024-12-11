@@ -3,33 +3,33 @@ use characters::{Character, Inventory};
 use foundation::{Clock, Stats, StatusCondition, StatusFlag};
 use player_state::PlayerState;
 
-use crate::event_spreading::{AddCondition, ClearStatus, ColorShift};
+use crate::event_spreading::{ClearStatus, ColorShift};
 
 pub fn activate_conditions(
-    trigger: Trigger<AddCondition>,
+    trigger: Trigger<StatusCondition>,
     mut commands: Commands,
     mut query: Query<&mut PlayerState>,
     clock: Res<Clock>,
 ) {
-    let mut state = query.get_mut(trigger.entity()).unwrap();
-
-    let new_condition = trigger.event().0.clone();
+    let entity = trigger.entity();
+    let new_condition = trigger.event().clone();
+    let mut state = query.get_mut(entity).unwrap();
 
     if let Some(color) = new_condition.flag.display_color() {
         commands.trigger_targets(
             ColorShift(color, new_condition.expiration.unwrap_or(1000000)),
-            trigger.entity(),
+            entity,
         );
     }
 
     // Start invuln -> Vulnerable until back to neutral
     if new_condition.flag == StatusFlag::Intangible {
         commands.trigger_targets(
-            AddCondition(StatusCondition {
+            StatusCondition {
                 flag: StatusFlag::Weaken,
                 ..default()
-            }),
-            trigger.entity(),
+            },
+            entity,
         );
     }
 

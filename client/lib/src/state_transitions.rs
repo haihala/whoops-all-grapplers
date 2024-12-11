@@ -12,7 +12,6 @@ use input_parsing::InputParser;
 
 use crate::{
     assets::{Announcer, AssetsLoading, PlayerModelHook},
-    event_spreading::PlaySound,
     ui::Notifications,
 };
 
@@ -122,7 +121,7 @@ pub fn end_combat(
         notifications.add(**winner, format!("Victory bonus: ${}", VICTORY_BONUS));
         winner_inventory.money += VICTORY_BONUS;
 
-        commands.trigger(PlaySound(loser_character.get_voiceline(VoiceLine::Defeat)));
+        commands.trigger(loser_character.get_voiceline(VoiceLine::Defeat));
 
         announcer.round_win(**winner);
         RoundResult {

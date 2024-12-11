@@ -1,13 +1,11 @@
 use bevy::prelude::*;
+use characters::FlashRequest;
 use foundation::FPS;
 
-use crate::{
-    assets::ExtendedFlashMaterial,
-    event_spreading::{ColorShift, FlashPlayer},
-};
+use crate::{assets::ExtendedFlashMaterial, event_spreading::ColorShift};
 
 pub fn handle_flash_events(
-    trigger: Trigger<FlashPlayer>,
+    trigger: Trigger<FlashRequest>,
     mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
     handles: Query<(Entity, &Handle<ExtendedFlashMaterial>)>,
     parents: Query<&Parent>,
@@ -27,7 +25,7 @@ pub fn handle_flash_events(
 
         let material = materials.get_mut(handle).unwrap();
         material.extension.flash_start = time.elapsed_seconds();
-        let req = trigger.event().0;
+        let req = trigger.event();
         material.extension.color = req.color.into();
         material.extension.speed = req.speed;
         material.extension.depth = req.depth;

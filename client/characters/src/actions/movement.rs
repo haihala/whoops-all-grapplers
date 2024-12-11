@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Debug, Clone, Copy, PartialEq, Default, Reflect)]
+#[derive(Debug, Clone, Copy, PartialEq, Default, Reflect, Event)]
 pub struct Movement {
     pub amount: Vec2,
     pub duration: usize,

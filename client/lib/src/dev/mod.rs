@@ -11,7 +11,6 @@ use input_parsing::{InputParser, ParrotStream};
 use strum::IntoEnumIterator;
 
 use crate::{
-    event_spreading::PlaySound,
     movement::{ObjectVelocity, PlayerVelocity, Pushbox},
     player_state_management::MoveBuffer,
 };
@@ -153,7 +152,7 @@ fn shader_test_system(
 fn audio_test_system(mut commands: Commands, keys: Res<ButtonInput<KeyCode>>) {
     if keys.just_pressed(KeyCode::Digit2) {
         info!("Playing whoosh audio");
-        commands.trigger(PlaySound(SoundEffect::Whoosh));
+        commands.trigger(SoundEffect::Whoosh);
     }
 }
 

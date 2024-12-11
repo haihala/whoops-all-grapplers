@@ -2,17 +2,9 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use characters::{ActionEvent, AnimationRequest, Attack, FlashRequest, GaugeType, Movement};
+use characters::{ActionEvent, Attack, GaugeType};
 
-use foundation::{
-    ActionId, Area, SimpleState, SoundEffect, StatusCondition, StatusFlag, VfxRequest, VoiceLine,
-};
-
-#[derive(Debug, Event)]
-pub struct StartAnimation(pub AnimationRequest);
-
-#[derive(Debug, Event)]
-pub struct PlaySound(pub SoundEffect);
+use foundation::{ActionId, Area, SimpleState, StatusFlag, VfxRequest, VoiceLine};
 
 #[derive(Debug, Event)]
 pub struct StartAction(pub ActionId);
@@ -22,12 +14,6 @@ pub struct SpawnHitbox(pub Attack);
 
 #[derive(Debug, Event)]
 pub struct ClearMovement;
-
-#[derive(Debug, Event)]
-pub struct AddMovement(pub Movement);
-
-#[derive(Debug, Event)]
-pub struct AddCondition(pub StatusCondition);
 
 #[derive(Debug, Event)]
 pub struct ForceState(pub SimpleState);
@@ -68,9 +54,6 @@ pub struct ZoomCamera(pub f32);
 pub struct ShakeCamera;
 
 #[derive(Debug, Event)]
-pub struct FlashPlayer(pub FlashRequest);
-
-#[derive(Debug, Event)]
 pub struct SpawnRelativeVfx(pub VfxRequest);
 
 #[derive(Debug, Event)]
@@ -103,10 +86,10 @@ pub struct ClearStatus(pub StatusFlag);
 pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
     match trigger.event() {
         ActionEvent::Animation(ar) => {
-            commands.trigger_targets(StartAnimation(ar.to_owned()), trigger.entity());
+            commands.trigger_targets(*ar, trigger.entity());
         }
         ActionEvent::Sound(sfx) => {
-            commands.trigger(PlaySound(sfx.to_owned()));
+            commands.trigger(*sfx);
         }
         ActionEvent::StartAction(act) => {
             commands.trigger_targets(StartAction(act.to_owned()), trigger.entity());
@@ -118,10 +101,10 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
             commands.trigger_targets(ClearMovement, trigger.entity());
         }
         ActionEvent::Movement(mov) => {
-            commands.trigger_targets(AddMovement(mov.to_owned()), trigger.entity());
+            commands.trigger_targets(*mov, trigger.entity());
         }
         ActionEvent::Condition(cond) => {
-            commands.trigger_targets(AddCondition(cond.to_owned()), trigger.entity());
+            commands.trigger_targets(cond.to_owned(), trigger.entity());
         }
         ActionEvent::ForceStand => {
             commands.trigger_targets(ForceState(SimpleState::Stand), trigger.entity());
@@ -176,7 +159,7 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
             commands.trigger(ShakeCamera);
         }
         ActionEvent::Flash(fr) => {
-            commands.trigger_targets(FlashPlayer(*fr), trigger.entity());
+            commands.trigger_targets(*fr, trigger.entity());
         }
         ActionEvent::AbsoluteVisualEffect(vfx) => {
             commands.trigger(SpawnVfx(*vfx));

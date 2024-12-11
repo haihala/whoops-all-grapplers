@@ -4,7 +4,7 @@ use bevy::{
     window::{WindowMode, WindowResolution},
 };
 use wag_core::WagArgs;
-use whoops_all_grapplers_lib::WAGLib;
+use whoops_all_grapplers_lib::Lib;
 
 fn main() {
     let args = WagArgs::from_cli();
@@ -38,7 +38,7 @@ fn main() {
             }),
             ..default()
         }))
-        .add_plugins(WAGLib::with_args(args))
+        .add_plugins(Lib::with_args(args))
         // .add_plugins((
         //     LogDiagnosticsPlugin::default(),
         //     FrameTimeDiagnosticsPlugin::default(),

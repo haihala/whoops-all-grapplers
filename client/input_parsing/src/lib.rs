@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::HashMap};
 use parrot_stream::update_parrots;
-use wag_core::{ActionId, InMatch, RollbackSchedule, WAGStage};
+use wag_core::{ActionId, InMatch, RollbackSchedule, SystemStep};
 
 mod helper_types;
 mod input_parser;
@@ -18,7 +18,7 @@ impl Plugin for InputParsingPlugin {
             RollbackSchedule,
             (update_parrots, input_parser::parse_input)
                 .chain()
-                .in_set(WAGStage::Inputs)
+                .in_set(SystemStep::Inputs)
                 .run_if(in_state(InMatch)),
         );
     }

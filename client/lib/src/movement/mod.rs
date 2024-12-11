@@ -11,7 +11,8 @@ use bevy::prelude::*;
 
 use player_state::PlayerState;
 use wag_core::{
-    Area, Clock, Combo, Facing, Player, Players, RollbackSchedule, Stats, StatusFlag, WAGStage, FPS,
+    Area, Clock, Combo, Facing, Player, Players, RollbackSchedule, Stats, StatusFlag, SystemStep,
+    FPS,
 };
 
 use crate::{
@@ -76,7 +77,7 @@ impl Plugin for PhysicsPlugin {
                 followers::update_followers,
             )
                 .chain()
-                .in_set(WAGStage::Physics),
+                .in_set(SystemStep::Physics),
         );
     }
 }

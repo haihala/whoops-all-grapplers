@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use characters::{GaugeType, Gauges};
 use wag_core::{
     Area, Clock, Facing, MatchState, Owner, Pickup, PickupRequest, Player, RollbackSchedule,
-    WAGStage,
+    SystemStep,
 };
 
 use crate::{
@@ -17,7 +17,7 @@ impl Plugin for PickupPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             RollbackSchedule,
-            pick_up_pickups.in_set(WAGStage::HouseKeeping),
+            pick_up_pickups.in_set(SystemStep::HouseKeeping),
         );
     }
 }

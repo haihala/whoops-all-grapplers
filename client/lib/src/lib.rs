@@ -22,17 +22,17 @@ use wag_core::WagArgs;
 
 // Only thing exported out of this crate
 #[derive(Debug)]
-pub struct WAGLib {
+pub struct Lib {
     args: WagArgs,
 }
 
-impl WAGLib {
+impl Lib {
     pub fn with_args(args: WagArgs) -> Self {
         Self { args }
     }
 }
 
-impl PluginGroup for WAGLib {
+impl PluginGroup for Lib {
     fn build(self) -> PluginGroupBuilder {
         let mut group = PluginGroupBuilder::start::<Self>();
 

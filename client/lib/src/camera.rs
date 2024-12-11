@@ -1,6 +1,6 @@
 use bevy::{prelude::*, render::view::NoFrustumCulling};
 use wag_core::{
-    Facing, InMatch, MatchState, Player, RollbackSchedule, WAGStage, WagArgs,
+    Facing, InMatch, MatchState, Player, RollbackSchedule, SystemStep, WagArgs,
     LOADING_SCREEN_BACKGROUND,
 };
 
@@ -36,7 +36,7 @@ impl Plugin for CustomCameraPlugin {
                 RollbackSchedule,
                 (center_camera, reset_camera_tilt, child_camera_effects)
                     .chain()
-                    .in_set(WAGStage::Camera)
+                    .in_set(SystemStep::Camera)
                     .run_if(in_state(InMatch)),
             )
             .observe(shake_camera)

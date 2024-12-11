@@ -17,7 +17,7 @@ pub use models::{shake_character, CharacterShake, Models, PlayerModelHook};
 pub use sounds::Sounds;
 pub use vfx::start_relative_vfx;
 
-use wag_core::{MatchState, RollbackSchedule, WAGStage};
+use wag_core::{MatchState, RollbackSchedule, SystemStep};
 
 #[derive(Debug, Resource)]
 pub struct Fonts {
@@ -81,7 +81,7 @@ impl Plugin for AssetsPlugin {
                     announcer::update_announcer,
                 )
                     .chain()
-                    .in_set(WAGStage::Presentation),
+                    .in_set(SystemStep::Presentation),
             )
             .add_systems(OnEnter(MatchState::PostRound), animations::pause_animations)
             .add_systems(OnEnter(MatchState::PreRound), announcer::preround)

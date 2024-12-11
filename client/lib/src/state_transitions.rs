@@ -6,7 +6,7 @@ use characters::{Character, GaugeType, Gauges, Inventory};
 use input_parsing::InputParser;
 use wag_core::{
     Clock, GameResult, GameState, InCharacterSelect, InMatch, MatchState, Player, RollbackSchedule,
-    RoundLog, RoundResult, VoiceLine, WAGStage, BASE_ROUND_MONEY, POST_ROUND_DURATION,
+    RoundLog, RoundResult, SystemStep, VoiceLine, BASE_ROUND_MONEY, POST_ROUND_DURATION,
     ROUNDS_TO_WIN, ROUND_MONEY_BUILDUP, VICTORY_BONUS,
 };
 
@@ -34,7 +34,7 @@ impl Plugin for StateTransitionPlugin {
                     transition_after_timer::<MatchState>,
                 )
                     .chain()
-                    .in_set(WAGStage::StateTransitions),
+                    .in_set(SystemStep::StateTransitions),
             );
     }
 }

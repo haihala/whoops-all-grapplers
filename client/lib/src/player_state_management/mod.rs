@@ -12,7 +12,7 @@ use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
     AnimationType, CharacterId, Characters, Clock, Combo, Facing, InMatch, MatchState, Player,
-    Players, RollbackSchedule, Stats, WAGStage, WagArgs,
+    Players, RollbackSchedule, Stats, SystemStep, WagArgs,
 };
 
 use crate::{
@@ -39,7 +39,7 @@ impl Plugin for PlayerStateManagementPlugin {
                 RollbackSchedule,
                 side_switcher::sideswitcher
                     .run_if(in_state(InMatch))
-                    .in_set(WAGStage::HouseKeeping),
+                    .in_set(SystemStep::HouseKeeping),
             )
             .add_systems(
                 RollbackSchedule,
@@ -48,8 +48,8 @@ impl Plugin for PlayerStateManagementPlugin {
                     condition_management::update_combined_status_effect,
                 )
                     .chain()
-                    .after(WAGStage::MovePipeline)
-                    .before(WAGStage::PlayerUpdates),
+                    .after(SystemStep::MovePipeline)
+                    .before(SystemStep::PlayerUpdates),
             )
             .add_systems(
                 RollbackSchedule,
@@ -59,7 +59,7 @@ impl Plugin for PlayerStateManagementPlugin {
                     move_advancement::move_advancement,
                 )
                     .chain()
-                    .in_set(WAGStage::MovePipeline),
+                    .in_set(SystemStep::MovePipeline),
             )
             .add_systems(
                 RollbackSchedule,
@@ -70,7 +70,7 @@ impl Plugin for PlayerStateManagementPlugin {
                     size_adjustment::remove_old_hurtbox_expansions,
                 )
                     .chain()
-                    .in_set(WAGStage::PlayerUpdates),
+                    .in_set(SystemStep::PlayerUpdates),
             );
     }
 }

@@ -11,7 +11,7 @@ pub use hitreg::{blockstun_events, hitstun_events, launch_events, snap_and_switc
 pub use hit_tracker::HitTracker;
 pub use hitboxes::HitboxSpawner;
 
-use wag_core::{RollbackSchedule, WAGStage};
+use wag_core::{RollbackSchedule, SystemStep};
 pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
@@ -24,11 +24,11 @@ impl Plugin for DamagePlugin {
                 hitboxes::handle_despawn_flags,
             )
                 .chain()
-                .in_set(WAGStage::HitReg),
+                .in_set(SystemStep::HitReg),
         )
         .add_systems(
             RollbackSchedule,
-            hitstop::clear_hitstop.in_set(WAGStage::HitStop),
+            hitstop::clear_hitstop.in_set(SystemStep::HitStop),
         )
         .observe(hitstop::start_hitstop);
     }

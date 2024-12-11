@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 use wag_core::{
-    ActionId, Animation, Area, SamuraiAnimation, SoundEffect, StatusCondition, StatusFlag,
-    VfxRequest, VoiceLine,
+    ActionId, Animation, Area, PickupRequest, SamuraiAnimation, SoundEffect, StatusCondition,
+    StatusFlag, VfxRequest, VoiceLine,
 };
 
 use crate::{FlashRequest, Movement, ResourceType};
@@ -42,9 +42,10 @@ pub enum ActionEvent {
     RelativeVisualEffect(VfxRequest),
     AbsoluteVisualEffect(VfxRequest),
     ExpandHurtbox(Area, usize), // New area, how long it should hang around
+    SpawnPickup(PickupRequest),
     #[default]
-    Noop,        // makes writing macros easier
-    End,                        // Ends the move, return to neutral
+    Noop, // makes writing macros easier
+    End, // Ends the move, return to neutral
 }
 
 impl std::fmt::Debug for ActionEvent {
@@ -136,6 +137,9 @@ impl std::fmt::Debug for ActionEvent {
             }
             ActionEvent::Zoom(duration) => {
                 write!(f, "Zoom - {:?}", duration)
+            }
+            ActionEvent::SpawnPickup(pickup_request) => {
+                write!(f, "SpawnPickup - {:?}", pickup_request)
             }
             ActionEvent::Noop => {
                 write!(f, "NO-OP")

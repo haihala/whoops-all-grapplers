@@ -120,13 +120,13 @@ impl Default for Lifetime {
 }
 
 impl Lifetime {
-    pub(crate) fn until_owner_hit() -> Self {
+    pub fn until_despawned() -> Self {
         Self {
             frames: None,
             ..default()
         }
     }
-    pub(crate) fn frames(frames: usize) -> Self {
+    pub fn frames(frames: usize) -> Self {
         Self {
             frames: Some(frames),
             ..default()

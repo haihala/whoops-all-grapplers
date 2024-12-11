@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Clone, Copy, Default, Debug, Reflect, PartialEq)]
+#[derive(Clone, Copy, Default, Debug, Reflect, PartialEq, Component)]
 pub struct Area {
     center: Vec2,
     width: f32,

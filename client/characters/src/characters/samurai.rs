@@ -4,10 +4,10 @@ use bevy::{prelude::*, utils::HashMap};
 
 use wag_core::{
     ActionId, Animation, AnimationType, Area, CancelType, Facing, GameButton, Icon, ItemId, Model,
-    SamuraiAction, SamuraiAnimation, SoundEffect, SpecialVersion, Stats, StatusCondition,
-    StatusFlag, VfxRequest, VisualEffect, VoiceLine, FAST_SWORD_VFX, METERED_SWORD_VFX,
-    METER_BAR_SEGMENT, SAMURAI_ALT_HELMET_COLOR, SAMURAI_ALT_JEANS_COLOR, SAMURAI_ALT_SHIRT_COLOR,
-    STRONG_SWORD_VFX,
+    Pickup, PickupRequest, SamuraiAction, SamuraiAnimation, SoundEffect, SpecialVersion, Stats,
+    StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, FAST_SWORD_VFX, FPS,
+    METERED_SWORD_VFX, METER_BAR_SEGMENT, SAMURAI_ALT_HELMET_COLOR, SAMURAI_ALT_JEANS_COLOR,
+    SAMURAI_ALT_SHIRT_COLOR, STRONG_SWORD_VFX,
 };
 
 use crate::{
@@ -926,7 +926,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                             ActionEvent::SpawnHitbox(Attack {
                                 to_hit: ToHit {
                                     hitbox: Hitbox(Area::new(0.2, 1.2, 0.3, 0.3)),
-                                    lifetime: Lifetime::until_owner_hit(),
+                                    lifetime: Lifetime::until_despawned(),
                                     velocity: base_velocity + stick_influence,
                                     gravity: 4.0,
                                     model: Some(Model::Kunai),
@@ -944,6 +944,16 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                     .with_damage(12)
                                     .with_defender_block_pushback(0.4)
                                     .with_chip_damage(2)
+                                    .with_on_hit_events(vec![ActionEvent::SpawnPickup(
+                                        PickupRequest {
+                                            pickup: Pickup::Kunai,
+                                            spawn_point: Vec2::new(0.5, 1.0),
+                                            spawn_velocity: Vec2::Y,
+                                            gravity: 4.0,
+                                            size: Area::of_size(0.5, 0.5),
+                                            lifetime: Some((2.0 * FPS as f32) as usize),
+                                        },
+                                    )])
                                     .with_on_hit_events(if extra_stun {
                                         vec![
                                             ActionEvent::HitStun(if extra_stun { 30 } else { 20 }),

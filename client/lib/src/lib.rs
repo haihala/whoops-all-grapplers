@@ -10,6 +10,7 @@ mod entity_management;
 mod event_spreading;
 mod movement;
 mod networking;
+mod pickup_management;
 mod player_state_management;
 mod resources;
 mod stage;
@@ -49,6 +50,7 @@ impl PluginGroup for WAGLib {
             .add(stage::StagePlugin)
             .add(state_transitions::StateTransitionPlugin)
             .add(networking::NetworkPlugin)
+            .add(pickup_management::PickupPlugin)
             .add(entity_management::EntityManagementPlugin);
 
         if self.args.dev.is_some() {

@@ -28,6 +28,7 @@ pub struct ObjectVelocity {
     pub speed: Vec3,
     pub acceleration: Vec3,
     pub face_forward: bool,
+    pub floor_despawns: bool,
 }
 impl ObjectVelocity {
     pub fn new(speed: Vec3, gravity: f32) -> ObjectVelocity {
@@ -35,6 +36,7 @@ impl ObjectVelocity {
             speed,
             acceleration: -Vec3::Y * gravity,
             face_forward: true,
+            floor_despawns: true,
         }
     }
 }
@@ -303,6 +305,17 @@ fn move_objects(
             continue;
         }
 
+        // Despawn the thing if it's outside of the arena or under the floor
+        if transform.translation.x.abs() > ARENA_WIDTH
+            || transform.translation.y < GROUND_PLANE_HEIGHT
+        {
+            if velocity.floor_despawns {
+                commands.entity(entity).despawn_recursive();
+            } else {
+                continue;
+            }
+        }
+
         let acceleration = velocity.acceleration / FPS;
         velocity.speed += acceleration;
         let shift = velocity.speed / FPS;
@@ -315,13 +328,6 @@ fn move_objects(
         if velocity.face_forward {
             transform.look_to(velocity.speed.normalize(), Vec3::Z);
             transform.rotate_z(PI / 2.0);
-        }
-
-        // Despawn the thing if it's outside of the arena or under the floor
-        if transform.translation.x.abs() > ARENA_WIDTH
-            || transform.translation.y < GROUND_PLANE_HEIGHT
-        {
-            commands.entity(entity).despawn_recursive();
         }
     }
 }

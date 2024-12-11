@@ -9,10 +9,6 @@
   - Diff full input state for events
   - Send events
 
-### Features
-
-- Kunai drop on hit, last a while on the ground, then despawn
-
 ### Before contacting artists
 
 - Credits to main menu

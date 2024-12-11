@@ -211,6 +211,9 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
         ActionEvent::ClearCondition(flag) => {
             commands.trigger_targets(ClearStatus(flag.clone()), trigger.entity());
         }
+        ActionEvent::SpawnPickup(pickup_request) => {
+            commands.trigger_targets(*pickup_request, trigger.entity())
+        }
         ActionEvent::Noop => {}
     }
 }

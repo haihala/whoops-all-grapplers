@@ -30,3 +30,11 @@ enough to be put on a more important list.
 - Newtype wrapper for frames.
   - Currently using usize, which means frames 99% of the time, but not always.
 - Maybe you could make requirements dynamic as well?
+- Allow for stackable items
+  - Make thumbtacks a single item you can buy multiple times
+    - It takes up too much space in the menu
+  - Add a similar item for defense
+- Experiment with air combos
+  - Add tools to enable configuring air properties of hits.
+  - Maybe ice cube default is the thing?
+  - Maybe less knockback on air hits because lesser friction?

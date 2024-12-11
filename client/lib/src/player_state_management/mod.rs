@@ -189,6 +189,7 @@ fn spawn_player(
         .observe(crate::movement::clear_movement)
         .observe(crate::movement::add_movement)
         .observe(crate::movement::handle_teleports)
+        .observe(crate::pickup_management::spawn_pickups)
         .observe(crate::resources::modify_properties)
         .observe(crate::resources::clear_properties)
         .id()

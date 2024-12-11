@@ -38,6 +38,7 @@ pub const SHOP_DARK_BACKGROUND_COLOR: Color = Color::srgba(0.25, 0.25, 0.25, 0.2
 pub const HITBOX_VISUALIZATION_COLOR: Color = Color::Srgba(RED);
 pub const HURTBOX_VISUALIZATION_COLOR: Color = Color::Srgba(LIME);
 pub const PUSHBOX_VISUALIZATION_COLOR: Color = Color::Srgba(BLUE);
+pub const GENERIC_AREA_VISUALIZATION_COLOR: Color = Color::Srgba(YELLOW);
 
 // Notifications
 pub const NOTIFICATION_BACKGROUND_COLOR: Color = Color::srgba(1.0, 1.0, 1.0, 0.3);

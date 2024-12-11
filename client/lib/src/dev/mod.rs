@@ -54,6 +54,7 @@ impl Plugin for DevPlugin {
                     box_visualization::visualize_hitboxes,
                     box_visualization::visualize_hurtboxes,
                     box_visualization::visualize_pushboxes,
+                    box_visualization::visualize_generic_areas,
                 )
                     .chain(),
             );

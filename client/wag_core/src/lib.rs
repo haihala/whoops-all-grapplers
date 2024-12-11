@@ -40,6 +40,9 @@ pub use inputs::{
 mod item_id;
 pub use item_id::ItemId;
 
+mod pickups;
+pub use pickups::*;
+
 mod player;
 pub use player::{Owner, Player, Players};
 

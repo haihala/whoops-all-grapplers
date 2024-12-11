@@ -433,7 +433,7 @@ impl HitBuilder {
     pub fn with_spawn(self, projectile: Model) -> Self {
         Self {
             spawn: Some(projectile),
-            hitbox_lifetime: Lifetime::until_owner_hit(),
+            hitbox_lifetime: Lifetime::until_despawned(),
             ..self
         }
     }

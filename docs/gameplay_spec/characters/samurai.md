@@ -53,6 +53,7 @@ how this may be culturally insensitive.
 ### Kunai
 
 - Limited resource used for [Kunai throw](#Kunai throw)
+  - Can be picked up after being thrown
 - Resets at the start of the round
   - By default, 2
 - Upgrades
@@ -220,7 +221,6 @@ how this may be culturally insensitive.
 ## Ideas
 
 - [Kunai](#kunai-throw)
-  - Ability to pick them back up / restock
   - A second hitbox after making contact (bomb?)
   - Air version?
 - [Falcon knee](#falcon-knee) back foot hitbox (needs char to not flip mid-air)

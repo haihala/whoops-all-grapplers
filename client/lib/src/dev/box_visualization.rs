@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use characters::{Hitbox, Hurtboxes};
 use wag_core::{
-    Facing, HITBOX_VISUALIZATION_COLOR, HURTBOX_VISUALIZATION_COLOR, PUSHBOX_VISUALIZATION_COLOR,
+    Area, Facing, GENERIC_AREA_VISUALIZATION_COLOR, HITBOX_VISUALIZATION_COLOR,
+    HURTBOX_VISUALIZATION_COLOR, PUSHBOX_VISUALIZATION_COLOR,
 };
 
 use crate::movement::Pushbox;
@@ -43,6 +44,17 @@ pub(super) fn visualize_pushboxes(
             Quat::default(),
             pushbox.size(),
             PUSHBOX_VISUALIZATION_COLOR,
+        )
+    }
+}
+
+pub(super) fn visualize_generic_areas(mut gizmos: Gizmos, areas: Query<(&Transform, &Area)>) {
+    for (tf, area) in &areas {
+        gizmos.rect(
+            tf.translation,
+            Quat::default(),
+            area.size(),
+            GENERIC_AREA_VISUALIZATION_COLOR,
         )
     }
 }

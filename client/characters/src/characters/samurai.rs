@@ -14,12 +14,12 @@ use crate::{
     actions::ActionRequirement,
     items::{universal_item_actions, universal_items},
     jumps,
-    resources::{RenderInstructions, ResourceType},
+    resources::{GaugeType, RenderInstructions},
     Action, ActionBuilder, ActionEvent, Attack, AttackBuilder,
     AttackHeight::*,
     CharacterBoxes, CharacterStateBoxes, CharacterUniversals, ConsumableType, CounterVisual,
-    DashBuilder, HitBuilder, Hitbox, Item, ItemCategory, Lifetime, Movement, Situation,
-    StrikeEffectBuilder, Stun, ThrowEffectBuilder, ToHit, WAGResource,
+    DashBuilder, Gauge, HitBuilder, Hitbox, Item, ItemCategory, Lifetime, Movement, Situation,
+    StrikeEffectBuilder, Stun, ThrowEffectBuilder, ToHit,
 };
 
 use super::Character;
@@ -53,8 +53,8 @@ pub fn samurai() -> Character {
         },
         vec![
             (
-                ResourceType::Sharpness,
-                WAGResource {
+                GaugeType::Sharpness,
+                Gauge {
                     render_instructions: RenderInstructions::Counter(CounterVisual {
                         label: "Sharpness",
                     }),
@@ -62,8 +62,8 @@ pub fn samurai() -> Character {
                 },
             ),
             (
-                ResourceType::KunaiCounter,
-                WAGResource {
+                GaugeType::KunaiCounter,
+                Gauge {
                     render_instructions: RenderInstructions::Counter(CounterVisual {
                         label: "Kunais",
                     }),
@@ -717,8 +717,8 @@ fn sharpen(version: SpecialVersion) -> Action {
         .static_events_on_frame(
             if slow { 50 } else { 35 },
             vec![
-                ActionEvent::ModifyResource(ResourceType::Sharpness, sharpness_gain),
-                ActionEvent::ModifyResource(ResourceType::Meter, meter_gain),
+                ActionEvent::ModifyResource(GaugeType::Sharpness, sharpness_gain),
+                ActionEvent::ModifyResource(GaugeType::Meter, meter_gain),
                 ActionEvent::Sound(SoundEffect::HangingKnifeFlick),
             ],
         )
@@ -902,10 +902,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .with_input(input)
                 .with_animation(SamuraiAnimation::KunaiThrow)
                 .with_sound(SoundEffect::FemaleKyatchi)
-                .with_requirement(ActionRequirement::ResourceValue(
-                    ResourceType::KunaiCounter,
-                    1,
-                ))
+                .with_requirement(ActionRequirement::ResourceValue(GaugeType::KunaiCounter, 1))
                 .dyn_events_on_frame(
                     11,
                     Arc::new(move |situation: &Situation| {
@@ -922,7 +919,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         };
 
                         vec![
-                            ActionEvent::ModifyResource(ResourceType::KunaiCounter, -1),
+                            ActionEvent::ModifyResource(GaugeType::KunaiCounter, -1),
                             ActionEvent::SpawnHitbox(Attack {
                                 to_hit: ToHit {
                                     hitbox: Hitbox(Area::new(0.2, 1.2, 0.3, 0.3)),
@@ -951,7 +948,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                             spawn_velocity: Vec2::Y,
                                             gravity: 4.0,
                                             size: Area::of_size(0.5, 0.5),
-                                            lifetime: Some((2.0 * FPS as f32) as usize),
+                                            lifetime: Some((2.0 * FPS) as usize),
                                         },
                                     )])
                                     .with_on_hit_events(if extra_stun {

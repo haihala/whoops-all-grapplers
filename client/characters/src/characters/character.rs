@@ -3,7 +3,7 @@ use wag_core::{
     ActionId, Animation, AnimationType, ItemId, Model, Player, SoundEffect, Stats, VoiceLine,
 };
 
-use crate::{resources::ResourceType, Action, CharacterBoxes, Item, WAGResource};
+use crate::{resources::GaugeType, Action, CharacterBoxes, Gauge, Item};
 
 #[derive(Debug, Component)]
 pub struct Character {
@@ -15,7 +15,7 @@ pub struct Character {
     pub boxes: CharacterBoxes,
     pub generic_animations: HashMap<AnimationType, Animation>,
     pub base_stats: Stats,
-    pub special_properties: Vec<(ResourceType, WAGResource)>,
+    pub special_properties: Vec<(GaugeType, Gauge)>,
 }
 impl Character {
     // TODO: Consider making a builder for this
@@ -28,7 +28,7 @@ impl Character {
         items: HashMap<ItemId, Item>,
         boxes: CharacterBoxes,
         base_stats: Stats,
-        special_properties: Vec<(ResourceType, WAGResource)>,
+        special_properties: Vec<(GaugeType, Gauge)>,
         voicelines: HashMap<VoiceLine, SoundEffect>,
     ) -> Character {
         debug_assert_eq!(boxes.standing.pushbox.bottom(), 0.0);

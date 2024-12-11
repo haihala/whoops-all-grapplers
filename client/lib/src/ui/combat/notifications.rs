@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use characters::{ResourceType, WAGResources};
+use characters::{GaugeType, Gauges};
 use wag_core::{
     Clock, Combo, MatchState, Player, Players, COMBO_COUNTER_TEXT_COLOR,
     NOTIFICATION_BACKGROUND_COLOR, NOTIFICATION_TEXT_COLOR,
@@ -216,7 +216,7 @@ fn spawn_notification(
 
 #[allow(clippy::type_complexity)]
 pub fn update_combo_counters(
-    player_query: Query<(Option<&Combo>, &Player, &WAGResources)>,
+    player_query: Query<(Option<&Combo>, &Player, &Gauges)>,
     players: Res<Players>,
     mut roots: Query<(&mut Visibility, &ComboCounter, &Children)>,
     mut texts: ParamSet<(
@@ -257,7 +257,7 @@ pub fn update_combo_counters(
             .iter_mut()
             .find(|(_, entity)| children.contains(entity))
             .unwrap();
-        let current_health = resources.get(ResourceType::Health).unwrap().current;
+        let current_health = resources.get(GaugeType::Health).unwrap().current;
         damage_text.0.sections[1].value = (combo.old_health - current_health).to_string();
     }
 }

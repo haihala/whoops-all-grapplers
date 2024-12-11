@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::{asset::LoadState, prelude::*, state::state::FreelyMutableState};
 
-use characters::{Character, Inventory, ResourceType, WAGResources};
+use characters::{Character, GaugeType, Gauges, Inventory};
 use input_parsing::InputParser;
 use wag_core::{
     Clock, GameResult, GameState, InCharacterSelect, InMatch, MatchState, Player, RollbackSchedule,
@@ -51,13 +51,13 @@ pub fn end_combat(
     mut notifications: ResMut<Notifications>,
     mut announcer: ResMut<Announcer>,
     mut round_log: ResMut<RoundLog>,
-    mut players: Query<(&WAGResources, &Player, &mut Inventory, &Character)>,
+    mut players: Query<(&Gauges, &Player, &mut Inventory, &Character)>,
     mut next_match_state: ResMut<NextState<MatchState>>,
 ) {
     let round_over = players
         .iter()
         .filter_map(|(properties, player, _, _)| {
-            if properties.get(ResourceType::Health).unwrap().is_empty() {
+            if properties.get(GaugeType::Health).unwrap().is_empty() {
                 None
             } else {
                 Some(player)
@@ -75,11 +75,7 @@ pub fn end_combat(
 
     // TODO: There has to be a cleaner way This whole function could use a once-over. Many names seem outdated due to refactors elsewhere
     ordered_healths.sort_by_key(|(res, _, _, _)| {
-        -(res
-            .get(ResourceType::Health)
-            .unwrap()
-            .get_percentage()
-            .round() as i32) // f32 doesn't implement ord, so sort doesn't work
+        -(res.get(GaugeType::Health).unwrap().get_percentage().round() as i32) // f32 doesn't implement ord, so sort doesn't work
     });
 
     assert!(ordered_healths.len() == 2);
@@ -95,11 +91,11 @@ pub fn end_combat(
         notifications.add(player, format!("Round payout: ${}", round_money));
 
         let meter_money = if player == **winner {
-            let meter_money = winner_props.get(ResourceType::Meter).unwrap().current;
+            let meter_money = winner_props.get(GaugeType::Meter).unwrap().current;
             winner_inventory.money += meter_money as usize;
             meter_money
         } else {
-            let meter_money = loser_props.get(ResourceType::Meter).unwrap().current;
+            let meter_money = loser_props.get(GaugeType::Meter).unwrap().current;
             loser_inventory.money += meter_money as usize;
             meter_money
         };
@@ -114,13 +110,10 @@ pub fn end_combat(
     loser_inventory.money += round_money;
 
     let result = if winner_props
-        .get(ResourceType::Health)
+        .get(GaugeType::Health)
         .unwrap()
         .get_percentage()
-        == loser_props
-            .get(ResourceType::Health)
-            .unwrap()
-            .get_percentage()
+        == loser_props.get(GaugeType::Health).unwrap().get_percentage()
     {
         // Tie
         announcer.tie();

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use characters::{
-    ActionEvent, ActionTracker, Character, CharacterStateBoxes, Inventory, Situation, WAGResources,
+    ActionEvent, ActionTracker, Character, CharacterStateBoxes, Gauges, Inventory, Situation,
 };
 use input_parsing::InputParser;
 use wag_core::{
@@ -84,7 +84,7 @@ impl PlayerState {
         &mut self,
         inventory: Inventory,
         character: &Character,
-        resources: WAGResources,
+        resources: Gauges,
         parser: InputParser,
         stats: Stats,
         frame: usize,
@@ -111,7 +111,7 @@ impl PlayerState {
     pub fn build_situation(
         &self,
         inventory: Inventory,
-        resources: WAGResources,
+        resources: Gauges,
         input_parser: InputParser,
         stats: Stats,
         frame: usize,

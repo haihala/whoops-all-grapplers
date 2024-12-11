@@ -1,6 +1,6 @@
 use wag_core::{ActionCategory, ActionId, CancelType, GameButton, ItemId, StatusFlag};
 
-use crate::{ResourceType, Situation};
+use crate::{GaugeType, Situation};
 
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub enum ActionRequirement {
@@ -12,8 +12,8 @@ pub enum ActionRequirement {
     ActionOngoing(Vec<ActionId>),
     ActionNotOngoing(Vec<ActionId>),
     ItemOwned(ItemId),
-    ResourceFull(ResourceType),
-    ResourceValue(ResourceType, i32),
+    ResourceFull(GaugeType),
+    ResourceValue(GaugeType, i32),
     ButtonPressed(GameButton),
     ButtonNotPressed(GameButton),
     StatusNotActive(StatusFlag),

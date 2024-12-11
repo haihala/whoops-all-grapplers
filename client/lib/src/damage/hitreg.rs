@@ -1,8 +1,8 @@
 use bevy::{ecs::query::QueryData, prelude::*};
 
 use characters::{
-    ActionEvent, Attack, AttackHeight, BlockType, Character, HitEffect, HitInfo, Hitbox, Hurtboxes,
-    Inventory, ResourceType, WAGResources,
+    ActionEvent, Attack, AttackHeight, BlockType, Character, GaugeType, Gauges, HitEffect, HitInfo,
+    Hitbox, Hurtboxes, Inventory,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -46,7 +46,7 @@ pub(super) struct AttackConnection {
 /// Used for querying all the components that are required when a player is hit.
 pub struct HitPlayerQuery<'a> {
     tf: &'a mut Transform,
-    properties: &'a mut WAGResources,
+    properties: &'a mut Gauges,
     player: &'a Player,
     parser: &'a InputParser,
     state: &'a mut PlayerState,
@@ -71,7 +71,7 @@ pub(super) fn clash_parry(
         Option<&ProjectileMarker>,
     )>,
     clock: Res<Clock>,
-    mut owners: Query<&mut WAGResources>,
+    mut owners: Query<&mut Gauges>,
     players: Res<Players>,
 ) {
     let mut iter = hitboxes.iter_combinations_mut();
@@ -115,7 +115,7 @@ pub(super) fn clash_parry(
                 // Pay up
                 if !is_projectile {
                     properties
-                        .get_mut(ResourceType::Meter)
+                        .get_mut(GaugeType::Meter)
                         .unwrap()
                         .gain(CLASH_PARRY_METER_GAIN);
                 }
@@ -289,7 +289,7 @@ pub fn apply_connections(
                 if defender.stats.defense_meter != 0 {
                     defender
                         .properties
-                        .get_mut(ResourceType::Meter)
+                        .get_mut(GaugeType::Meter)
                         .unwrap()
                         .gain(defender.stats.defense_meter);
                 }
@@ -301,7 +301,7 @@ pub fn apply_connections(
                 commands.trigger(ZoomCamera(0.3));
                 commands.trigger(PlaySound(SoundEffect::Clash));
                 commands.trigger_targets(
-                    ActionEvent::ModifyResource(ResourceType::Meter, GI_PARRY_METER_GAIN),
+                    ActionEvent::ModifyResource(GaugeType::Meter, GI_PARRY_METER_GAIN),
                     hit.defender,
                 );
                 commands.trigger(SpawnVfx(VfxRequest {
@@ -346,11 +346,7 @@ pub fn apply_connections(
                 // First hit of a combo
                 commands.entity(hit.attacker).insert(Combo {
                     hits: 1,
-                    old_health: defender
-                        .properties
-                        .get(ResourceType::Health)
-                        .unwrap()
-                        .current,
+                    old_health: defender.properties.get(GaugeType::Health).unwrap().current,
                 });
 
                 commands.trigger(PlaySound(SoundEffect::Matches));
@@ -358,7 +354,7 @@ pub fn apply_connections(
                 if attacker.stats.opener_damage_multiplier > 1.0 {
                     attacker_actions = handle_opener(attacker_actions, attacker.stats);
                     attacker_actions.push(ActionEvent::ModifyResource(
-                        ResourceType::Meter,
+                        GaugeType::Meter,
                         attacker.stats.opener_meter_gain,
                     ));
                     defender_actions = handle_opener(defender_actions, attacker.stats);
@@ -412,12 +408,10 @@ fn handle_opener(actions: Vec<ActionEvent>, status_effect: &Stats) -> Vec<Action
     actions
         .into_iter()
         .map(|action| match action {
-            ActionEvent::ModifyResource(ResourceType::Health, amount) => {
-                ActionEvent::ModifyResource(
-                    ResourceType::Health,
-                    (amount as f32 * status_effect.opener_damage_multiplier) as i32,
-                )
-            }
+            ActionEvent::ModifyResource(GaugeType::Health, amount) => ActionEvent::ModifyResource(
+                GaugeType::Health,
+                (amount as f32 * status_effect.opener_damage_multiplier) as i32,
+            ),
             ActionEvent::HitStun(amount) => {
                 ActionEvent::HitStun((amount as i32 + status_effect.opener_stun_frames) as usize)
             }
@@ -429,11 +423,8 @@ fn apply_damage_multiplier(actions: Vec<ActionEvent>, multiplier: f32) -> Vec<Ac
     actions
         .into_iter()
         .map(|action| match action {
-            ActionEvent::ModifyResource(ResourceType::Health, amount) => {
-                ActionEvent::ModifyResource(
-                    ResourceType::Health,
-                    (amount as f32 * multiplier) as i32,
-                )
+            ActionEvent::ModifyResource(GaugeType::Health, amount) => {
+                ActionEvent::ModifyResource(GaugeType::Health, (amount as f32 * multiplier) as i32)
             }
             other => other,
         })

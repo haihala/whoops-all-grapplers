@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use characters::{Character, Hurtboxes, Inventory, WAGResources};
+use characters::{Character, Gauges, Hurtboxes, Inventory};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{Clock, Combo, Facing, Stats, StatusFlag};
@@ -16,7 +16,7 @@ pub(super) fn move_advancement(
         &Transform,
         &Inventory,
         &Character,
-        &WAGResources,
+        &Gauges,
         &InputParser,
         &Stats,
         &Facing,

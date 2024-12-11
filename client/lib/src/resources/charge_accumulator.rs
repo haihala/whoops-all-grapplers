@@ -1,12 +1,9 @@
 use bevy::prelude::*;
-use characters::{SpecialProperty, WAGResources};
+use characters::{Gauges, SpecialProperty};
 use input_parsing::InputParser;
 use wag_core::{Clock, Facing};
 
-pub fn manage_charge(
-    mut query: Query<(&mut WAGResources, &InputParser, &Facing)>,
-    clock: Res<Clock>,
-) {
+pub fn manage_charge(mut query: Query<(&mut Gauges, &InputParser, &Facing)>, clock: Res<Clock>) {
     for (mut properties, parser, facing) in &mut query {
         for (_, prop) in &mut properties.iter_mut() {
             let mut clear = false;

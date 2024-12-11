@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use wag_core::{Animation, StatusCondition, StatusFlag, VfxRequest, VisualEffect};
 
 use crate::{
-    Action, ActionEvent, ActionRequirement, AnimationRequest, FlashRequest, ResourceType, Situation,
+    Action, ActionEvent, ActionRequirement, AnimationRequest, FlashRequest, GaugeType, Situation,
 };
 
 pub struct ThrowEffectBuilder {
@@ -87,7 +87,7 @@ impl ThrowEffectBuilder {
                     if situation.on_frame(self.lock_duration) {
                         return vec![
                             ActionEvent::LaunchStun(self.launch_impulse),
-                            ActionEvent::ModifyResource(ResourceType::Health, -self.damage),
+                            ActionEvent::ModifyResource(GaugeType::Health, -self.damage),
                         ]
                         .into_iter()
                         .chain(self.extra_target_events.clone())

@@ -7,7 +7,7 @@ use wag_core::{
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Reflect)]
 /// This is a quick handle that can be referred to in requirement checks
-pub enum ResourceType {
+pub enum GaugeType {
     Health,
     Meter,
     Charge,
@@ -16,18 +16,15 @@ pub enum ResourceType {
 }
 
 #[derive(Debug, Clone, Component, Deref, DerefMut)]
-pub struct WAGResources(pub Vec<(ResourceType, WAGResource)>);
+pub struct Gauges(pub Vec<(GaugeType, Gauge)>);
 
-impl WAGResources {
-    pub fn from_stats(
-        stats: &Stats,
-        additional_properties: Vec<(ResourceType, WAGResource)>,
-    ) -> Self {
-        WAGResources(
+impl Gauges {
+    pub fn from_stats(stats: &Stats, additional_properties: Vec<(GaugeType, Gauge)>) -> Self {
+        Gauges(
             vec![
                 (
-                    ResourceType::Health,
-                    WAGResource {
+                    GaugeType::Health,
+                    Gauge {
                         max: Some(stats.max_health),
                         current: stats.max_health,
                         render_instructions: RenderInstructions::Bar(
@@ -37,8 +34,8 @@ impl WAGResources {
                     },
                 ),
                 (
-                    ResourceType::Meter,
-                    WAGResource {
+                    GaugeType::Meter,
+                    Gauge {
                         // TODO: Add more stats attributes here and in reset
                         max: Some(100),
                         render_instructions: RenderInstructions::Bar(
@@ -57,18 +54,18 @@ impl WAGResources {
     pub fn reset(&mut self, stats: &Stats) {
         for (prop_type, prop) in self.iter_mut() {
             match prop_type {
-                ResourceType::Health => {
+                GaugeType::Health => {
                     prop.max = Some(stats.max_health);
                     prop.current = stats.max_health;
                 }
-                ResourceType::Meter => {
+                GaugeType::Meter => {
                     prop.current = stats.starting_meter;
                 }
-                ResourceType::KunaiCounter => {
+                GaugeType::KunaiCounter => {
                     prop.max = Some(stats.kunais);
                     prop.current = stats.kunais;
                 }
-                ResourceType::Sharpness => {
+                GaugeType::Sharpness => {
                     if !stats.retain_sharpness {
                         prop.current = prop.min;
                     }
@@ -82,12 +79,12 @@ impl WAGResources {
         }
     }
 
-    pub fn get(&self, resource_type: ResourceType) -> Option<&WAGResource> {
+    pub fn get(&self, resource_type: GaugeType) -> Option<&Gauge> {
         self.iter()
             .find_map(|(t, r)| if *t == resource_type { Some(r) } else { None })
     }
 
-    pub fn get_mut(&mut self, resource_type: ResourceType) -> Option<&mut WAGResource> {
+    pub fn get_mut(&mut self, resource_type: GaugeType) -> Option<&mut Gauge> {
         self.iter_mut()
             .find_map(|(t, r)| if *t == resource_type { Some(r) } else { None })
     }
@@ -107,14 +104,14 @@ impl Default for RenderInstructions {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct WAGResource {
+pub struct Gauge {
     pub max: Option<i32>,
     pub min: i32,
     pub current: i32,
     pub render_instructions: RenderInstructions,
     pub special: Option<SpecialProperty>,
 }
-impl WAGResource {
+impl Gauge {
     pub fn is_full(&self) -> bool {
         self.current == self.max.unwrap_or(i32::MAX)
     }

@@ -6,7 +6,7 @@ use wag_core::{
 };
 
 use crate::{
-    Action, ActionEvent, ActionRequirement, AnimationRequest, FlashRequest, ResourceType, Situation,
+    Action, ActionEvent, ActionRequirement, AnimationRequest, FlashRequest, GaugeType, Situation,
 };
 
 use super::DynamicEvents;
@@ -303,13 +303,13 @@ impl ActionBuilder {
 
         if self.needs_meter {
             temp.push(ActionRequirement::ResourceValue(
-                ResourceType::Meter,
+                GaugeType::Meter,
                 METER_BAR_SEGMENT,
             ));
         }
 
         if self.needs_charge {
-            temp.push(ActionRequirement::ResourceFull(ResourceType::Charge));
+            temp.push(ActionRequirement::ResourceFull(GaugeType::Charge));
         }
 
         if let Some(ongoing) = self.follows_up_from.clone() {
@@ -324,13 +324,13 @@ impl ActionBuilder {
     pub fn build_script(mut self) -> impl Fn(&Situation) -> Vec<ActionEvent> {
         if self.needs_meter {
             self = self.static_immediate_events(vec![
-                ActionEvent::ModifyResource(ResourceType::Meter, -METER_BAR_SEGMENT),
+                ActionEvent::ModifyResource(GaugeType::Meter, -METER_BAR_SEGMENT),
                 ActionEvent::Flash(FlashRequest::meter_use()),
             ]);
         }
         if self.needs_charge {
-            self = self
-                .static_immediate_events(vec![ActionEvent::ClearResource(ResourceType::Charge)]);
+            self =
+                self.static_immediate_events(vec![ActionEvent::ClearResource(GaugeType::Charge)]);
         }
         if let Some(state) = self.state {
             match state {

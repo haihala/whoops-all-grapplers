@@ -1,8 +1,8 @@
 use bevy::prelude::*;
-use characters::{ResourceType, WAGResources};
+use characters::{GaugeType, Gauges};
 use wag_core::{Clock, Stats};
 
-pub fn meter_over_time(clock: Res<Clock>, mut players: Query<(&Stats, &mut WAGResources)>) {
+pub fn meter_over_time(clock: Res<Clock>, mut players: Query<(&Stats, &mut Gauges)>) {
     for (stats, mut resources) in &mut players {
         let mut gain = (stats.meter_per_second / 60.0).floor() as i32;
 
@@ -12,7 +12,7 @@ pub fn meter_over_time(clock: Res<Clock>, mut players: Query<(&Stats, &mut WAGRe
             gain += (clock.frame % interval == 0) as i32;
         }
 
-        let meter = resources.get_mut(ResourceType::Meter).unwrap();
+        let meter = resources.get_mut(GaugeType::Meter).unwrap();
         meter.gain(gain);
     }
 }

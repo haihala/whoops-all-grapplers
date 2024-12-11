@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::utils::HashSet;
 use wag_core::{Combo, Facing, GameButton, Stats, StatusFlag, StickPosition};
 
-use crate::{ActionEvent, ActionTracker, Inventory, ResourceType, WAGResource};
+use crate::{ActionEvent, ActionTracker, Gauge, GaugeType, Inventory};
 
 #[derive(Debug, Clone, Default)]
 pub struct Situation {
@@ -10,7 +10,7 @@ pub struct Situation {
     pub facing: Facing,
     pub tracker: Option<ActionTracker>,
     pub inventory: Inventory,
-    pub resources: Vec<(ResourceType, WAGResource)>,
+    pub resources: Vec<(GaugeType, Gauge)>,
     pub status_flags: HashSet<StatusFlag>,
     pub frame: usize,
     pub stats: Stats,
@@ -21,7 +21,7 @@ pub struct Situation {
     pub stunned: bool,
 }
 impl Situation {
-    pub fn get_resource(&self, resource_type: ResourceType) -> Option<&WAGResource> {
+    pub fn get_resource(&self, resource_type: GaugeType) -> Option<&Gauge> {
         self.resources.iter().find_map(|(rt, res)| {
             if rt == &resource_type {
                 Some(res)

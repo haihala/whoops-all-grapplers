@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use characters::{ResourceType, WAGResources};
+use characters::{GaugeType, Gauges};
 use wag_core::{
     Area, Clock, Facing, MatchState, Owner, Pickup, PickupRequest, Player, RollbackSchedule,
     WAGStage,
@@ -25,7 +25,7 @@ impl Plugin for PickupPlugin {
 pub fn pick_up_pickups(
     mut commands: Commands,
     pickups: Query<(Entity, &Pickup, &Area, &Owner, &Transform)>,
-    mut picker_uppers: Query<(&mut WAGResources, &Player, &Pushbox, &Transform)>,
+    mut picker_uppers: Query<(&mut Gauges, &Player, &Pushbox, &Transform)>,
 ) {
     for (entity, pickup, size, owner, pickup_tf) in &pickups {
         let pickup_target = size.with_center(pickup_tf.translation.truncate());
@@ -41,7 +41,7 @@ pub fn pick_up_pickups(
 
                 match pickup {
                     Pickup::Kunai => {
-                        let res = resources.get_mut(ResourceType::KunaiCounter).unwrap();
+                        let res = resources.get_mut(GaugeType::KunaiCounter).unwrap();
                         res.gain(1);
                     }
                 }

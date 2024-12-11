@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use characters::{ActionEvent, AnimationRequest, Attack, FlashRequest, Movement, ResourceType};
+use characters::{ActionEvent, AnimationRequest, Attack, FlashRequest, GaugeType, Movement};
 
 use wag_core::{
     ActionId, Area, SimpleState, SoundEffect, StatusCondition, StatusFlag, VfxRequest, VoiceLine,
@@ -34,12 +34,12 @@ pub struct ForceState(pub SimpleState);
 
 #[derive(Debug, Event, Clone, Copy)]
 pub struct ModifyResource {
-    pub resource: ResourceType,
+    pub resource: GaugeType,
     pub amount: i32,
 }
 
 #[derive(Debug, Event)]
-pub struct ClearResource(pub ResourceType);
+pub struct ClearResource(pub GaugeType);
 
 #[derive(Debug, Event)]
 pub struct SnapToOpponent {

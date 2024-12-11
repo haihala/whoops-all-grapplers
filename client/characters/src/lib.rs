@@ -18,6 +18,6 @@ pub use bridging::{ActionTracker, HitEffect, HitInfo, Situation};
 pub use characters::{samurai, Character};
 pub use items::{ConsumableType, Inventory, Item, ItemCategory};
 pub use resources::{
-    ChargeProperty, CounterVisual, RenderInstructions, ResourceBarVisual, ResourceType,
-    SpecialProperty, WAGResource, WAGResources,
+    ChargeProperty, CounterVisual, Gauge, GaugeType, Gauges, RenderInstructions, ResourceBarVisual,
+    SpecialProperty,
 };

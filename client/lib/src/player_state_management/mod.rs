@@ -7,7 +7,7 @@ mod recovery;
 mod side_switcher;
 mod size_adjustment;
 
-use characters::{samurai, Hurtboxes, Inventory, WAGResources};
+use characters::{samurai, Gauges, Hurtboxes, Inventory};
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 use wag_core::{
@@ -134,7 +134,7 @@ fn spawn_player(
                 transform: Transform::from_translation(Vec3::new(offset, GROUND_PLANE_HEIGHT, 0.0)),
                 ..default()
             },
-            WAGResources::from_stats(&character.base_stats, character.special_properties.clone()),
+            Gauges::from_stats(&character.base_stats, character.special_properties.clone()),
             PlayerDefaults::default(),
             PadBundle::new(character.get_inputs()),
             Name::new(format!("Player {player}")),
@@ -200,7 +200,7 @@ fn setup_combat(
     mut query: Query<(
         &Player,
         &Stats,
-        &mut WAGResources,
+        &mut Gauges,
         &mut Transform,
         &mut PlayerState,
         &mut MoveBuffer,

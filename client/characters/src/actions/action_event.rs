@@ -5,7 +5,7 @@ use wag_core::{
     StatusFlag, VfxRequest, VoiceLine,
 };
 
-use crate::{FlashRequest, Movement, ResourceType};
+use crate::{FlashRequest, GaugeType, Movement};
 
 use super::{AnimationRequest, Attack};
 
@@ -24,8 +24,8 @@ pub enum ActionEvent {
     ForceCrouch,
     ForceAir,
     SayVoiceLine(VoiceLine),
-    ModifyResource(ResourceType, i32),
-    ClearResource(ResourceType),
+    ModifyResource(GaugeType, i32),
+    ClearResource(GaugeType),
     SnapToOpponent {
         sideswitch: bool,
     },

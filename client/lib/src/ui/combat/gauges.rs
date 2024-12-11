@@ -1,11 +1,11 @@
 use bevy::prelude::*;
-use characters::{CounterVisual, ResourceBarVisual, ResourceType, WAGResources};
+use characters::{CounterVisual, GaugeType, Gauges, ResourceBarVisual};
 use wag_core::{Player, RESOURCE_COUNTER_TEXT_COLOR, TRANSPARENT};
 
 #[derive(Debug, Component)]
-pub struct ResourceGauge(pub Player, pub ResourceType);
+pub struct ResourceGauge(pub Player, pub GaugeType);
 #[derive(Debug, Component)]
-pub struct ResourceCounter(pub Player, pub ResourceType);
+pub struct ResourceCounter(pub Player, pub GaugeType);
 
 pub const SCREEN_EDGE_PADDING: f32 = 5.0;
 
@@ -146,7 +146,7 @@ pub fn setup_counter(
 pub fn update_bars(
     mut segments: Query<(&mut Style, &mut BackgroundColor)>,
     bars: Query<(&Children, &ResourceBarVisual, &ResourceGauge)>,
-    players: Query<(&Player, &WAGResources)>,
+    players: Query<(&Player, &Gauges)>,
 ) {
     for (player, properties) in &players {
         for (key, property) in properties.iter() {
@@ -186,7 +186,7 @@ pub fn update_bars(
 
 pub fn update_counters(
     mut counters: Query<(&mut Text, &ResourceCounter)>,
-    players: Query<(&Player, &WAGResources)>,
+    players: Query<(&Player, &Gauges)>,
 ) {
     for (player, properties) in &players {
         for (key, property) in properties.iter() {

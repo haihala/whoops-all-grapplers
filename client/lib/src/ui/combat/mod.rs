@@ -9,7 +9,7 @@ pub use notifications::{update_combo_counters, update_notifications, Notificatio
 mod round_timer;
 pub use round_timer::update_timer;
 
-use characters::{RenderInstructions, ResourceBarVisual, ResourceType, WAGResources};
+use characters::{GaugeType, Gauges, RenderInstructions, ResourceBarVisual};
 use wag_core::{InMatch, MatchState, Player, Players, RoundLog, GENERIC_TEXT_COLOR};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
@@ -20,7 +20,7 @@ pub struct ScoreText(pub Player);
 pub fn setup_combat_hud(
     mut commands: Commands,
     fonts: Res<Fonts>,
-    properties: Query<&WAGResources>,
+    properties: Query<&Gauges>,
     players: Res<Players>,
 ) {
     let container = commands
@@ -71,7 +71,7 @@ fn setup_player_hud(
     width_percentage: f32,
     fonts: &Fonts,
     player: Player,
-    properties: &WAGResources,
+    properties: &Gauges,
 ) {
     let container = commands
         .spawn(NodeBundle {
@@ -123,7 +123,7 @@ fn setup_top_hud(commands: &mut Commands, parent: Entity, fonts: &Fonts, player:
         player,
         container,
         ResourceBarVisual::default_health(),
-        ResourceGauge(player, ResourceType::Health),
+        ResourceGauge(player, GaugeType::Health),
         "Health bar",
     );
     setup_round_counter(commands, container, fonts, player);
@@ -151,7 +151,7 @@ fn setup_bottom_hud(
     fonts: &Fonts,
     parent: Entity,
     player: Player,
-    properties: &WAGResources,
+    properties: &Gauges,
 ) {
     let container = commands
         .spawn(NodeBundle {
@@ -177,7 +177,7 @@ fn setup_bottom_hud(
         .id();
 
     for (prop_type, property) in properties.iter() {
-        if matches!(prop_type, ResourceType::Health | ResourceType::Meter) {
+        if matches!(prop_type, GaugeType::Health | GaugeType::Meter) {
             continue;
         }
 
@@ -212,7 +212,7 @@ fn setup_bottom_hud(
         player,
         container,
         ResourceBarVisual::default_meter(),
-        ResourceGauge(player, ResourceType::Meter),
+        ResourceGauge(player, GaugeType::Meter),
         "Meter bar",
     );
 }

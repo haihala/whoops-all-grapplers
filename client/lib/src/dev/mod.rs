@@ -1,9 +1,7 @@
 use bevy::{prelude::*, window::WindowMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-use characters::{
-    ActionEvent, FlashRequest, Hitbox, Hurtboxes, Inventory, ResourceType, WAGResources,
-};
+use characters::{ActionEvent, FlashRequest, GaugeType, Gauges, Hitbox, Hurtboxes, Inventory};
 use input_parsing::{InputParser, ParrotStream};
 use strum::IntoEnumIterator;
 use wag_core::{
@@ -201,14 +199,14 @@ fn pause_toggle(
     }
 }
 
-fn kill_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<(&Player, &mut WAGResources)>) {
+fn kill_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<(&Player, &mut Gauges)>) {
     let kill_p1 = keys.just_released(KeyCode::Digit6);
     let kill_p2 = keys.just_released(KeyCode::Digit7);
 
     if kill_p1 || kill_p2 {
         for (player, mut res) in &mut players {
             if (kill_p1 && *player == Player::One) || (kill_p2 && *player == Player::Two) {
-                res.get_mut(ResourceType::Health).unwrap().drain(99999);
+                res.get_mut(GaugeType::Health).unwrap().drain(99999);
             }
         }
     }

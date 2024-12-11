@@ -11,7 +11,7 @@ use wag_core::{
 
 use crate::{
     Action, ActionEvent, ActionRequirement, Attack, AttackHeight, BlockType, FlashRequest,
-    HitEffect, HitInfo, Hitbox, Lifetime, Movement, OnHitEffect, ResourceType, Situation, ToHit,
+    GaugeType, HitEffect, HitInfo, Hitbox, Lifetime, Movement, OnHitEffect, Situation, ToHit,
 };
 
 use super::{ActionBuilder, CharacterUniversals, DynamicEvents, Events};
@@ -743,7 +743,7 @@ impl StrikeEffectBuilder {
     pub fn build(self, recovery: i32) -> OnHitEffect {
         Arc::new(move |situation: &Situation, hit_data: &HitInfo| {
             let sharpness = situation
-                .get_resource(ResourceType::Sharpness)
+                .get_resource(GaugeType::Sharpness)
                 .unwrap()
                 .current;
 
@@ -805,7 +805,7 @@ impl StrikeEffectBuilder {
                     ],
                     defender: vec![
                         if hit_data.defender_stats.chip_damage && self.chip_damage > 0 {
-                            ActionEvent::ModifyResource(ResourceType::Health, -self.chip_damage)
+                            ActionEvent::ModifyResource(GaugeType::Health, -self.chip_damage)
                         } else {
                             ActionEvent::Noop
                         },
@@ -872,7 +872,7 @@ impl StrikeEffectBuilder {
                         .chain([
                             stun_event,
                             Movement::impulse(-Vec2::X * self.defender_push_on_hit).into(),
-                            ActionEvent::ModifyResource(ResourceType::Health, -damage),
+                            ActionEvent::ModifyResource(GaugeType::Health, -damage),
                             if hit_data.airborne && !launcher {
                                 ActionEvent::LaunchStun(Vec2::new(-1.0, 5.0))
                             } else {

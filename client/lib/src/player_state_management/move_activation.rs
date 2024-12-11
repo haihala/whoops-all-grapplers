@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::HashMap};
 
-use characters::{Character, Hurtboxes, Inventory, Situation, WAGResources};
+use characters::{Character, Gauges, Hurtboxes, Inventory, Situation};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 use wag_core::{ActionId, CancelType, Clock, Combo, Facing, Stats};
@@ -89,7 +89,7 @@ pub(super) fn move_activator(
         &Character,
         &mut PlayerState,
         &Inventory,
-        &WAGResources,
+        &Gauges,
         &Stats,
         &InputParser,
         &Facing,

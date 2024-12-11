@@ -7,7 +7,7 @@ use bevy::{
 };
 use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
-use characters::{Attack, Hitbox, Hurtboxes, Inventory, WAGResources};
+use characters::{Attack, Gauges, Hitbox, Hurtboxes, Inventory};
 use input_parsing::{InputParser, ParrotStream};
 use player_state::PlayerState;
 use strum::IntoEnumIterator;
@@ -95,7 +95,7 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_clone::<ParrotStream>()
             .rollback_component_with_clone::<PlayerState>()
             .rollback_component_with_clone::<PlayerVelocity>()
-            .rollback_component_with_clone::<WAGResources>()
+            .rollback_component_with_clone::<Gauges>()
             .rollback_component_with_copy::<AnimationHelper>()
             .rollback_component_with_copy::<Combo>()
             .rollback_component_with_copy::<Facing>()

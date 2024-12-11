@@ -1,6 +1,6 @@
 use bevy::{animation::AnimationTargetId, asset::AssetPath, prelude::*, utils::HashMap};
 
-use wag_core::{Animation, Facing, SamuraiAnimation};
+use foundation::{Animation, Facing, SamuraiAnimation};
 
 #[derive(Debug, Default, Resource)]
 pub struct Animations {

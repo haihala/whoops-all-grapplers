@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{Gauges, SpecialProperty};
+use foundation::{Clock, Facing};
 use input_parsing::InputParser;
-use wag_core::{Clock, Facing};
 
 pub fn manage_charge(mut query: Query<(&mut Gauges, &InputParser, &Facing)>, clock: Res<Clock>) {
     for (mut properties, parser, facing) in &mut query {

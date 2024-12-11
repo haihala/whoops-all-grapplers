@@ -2,9 +2,9 @@ use std::{f32::consts::PI, sync::Arc};
 
 use bevy::prelude::*;
 
-use wag_core::{
-    ActionCategory, ActionId, Animation, Area, CancelType, GameButton, Icon, Model, SimpleState,
-    SoundEffect, StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine,
+use foundation::{
+    ActionCategory, ActionId, Animation, Area, CancelType, Facing, GameButton, Icon, Model,
+    SimpleState, SoundEffect, StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine,
     BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR, LOW_OPENER_COLOR, MID_OPENER_COLOR, SMALL_HIT_THRESHOLD,
     THROW_TECH_RING_BASE_COLOR, THROW_TECH_RING_EDGE_COLOR,
 };
@@ -756,24 +756,24 @@ impl StrikeEffectBuilder {
                         VisualEffect::OpenerSpark(HIGH_OPENER_COLOR),
                         situation.facing.mirror_vec2(Vec2::new(0.5, -0.5)),
                         Quat::from_rotation_z(match situation.facing {
-                            wag_core::Facing::Right => 0.0,
-                            wag_core::Facing::Left => -PI / 2.0,
+                            Facing::Right => 0.0,
+                            Facing::Left => -PI / 2.0,
                         }),
                     ),
                     AttackHeight::Mid => (
                         VisualEffect::OpenerSpark(MID_OPENER_COLOR),
                         situation.facing.mirror_vec2(Vec2::X * 0.5),
                         Quat::from_rotation_z(match situation.facing {
-                            wag_core::Facing::Right => PI / 6.0,
-                            wag_core::Facing::Left => PI * (8.0 / 6.0),
+                            Facing::Right => PI / 6.0,
+                            Facing::Left => PI * (8.0 / 6.0),
                         }),
                     ),
                     AttackHeight::Low => (
                         VisualEffect::OpenerSpark(LOW_OPENER_COLOR),
                         situation.facing.mirror_vec2(Vec2::new(0.5, 0.5)),
                         Quat::from_rotation_z(match situation.facing {
-                            wag_core::Facing::Right => PI / 2.0,
-                            wag_core::Facing::Left => PI,
+                            Facing::Right => PI / 2.0,
+                            Facing::Left => PI,
                         }),
                     ),
                 }

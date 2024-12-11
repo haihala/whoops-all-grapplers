@@ -1,5 +1,5 @@
 use bevy::{ecs::system::SystemId, prelude::*};
-use wag_core::{
+use foundation::{
     Controllers, GameButton, GameState, InputEvent, LocalState, Player, StickPosition,
     CONTROLLER_ASSIGNMENT_SIDE_COLOR,
 };

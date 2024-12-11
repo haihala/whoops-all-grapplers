@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{HIT_FLASH_COLOR, METER_BAR_FULL_SEGMENT_COLOR};
+use foundation::{HIT_FLASH_COLOR, METER_BAR_FULL_SEGMENT_COLOR};
 
 #[derive(Debug, Clone, Copy, PartialEq, Reflect)]
 pub struct FlashRequest {

@@ -4,12 +4,12 @@ use crate::{
     ui::{SharedVerticalNav, VerticalMenuNavigation},
 };
 use bevy::prelude::*;
-use strum::IntoEnumIterator;
-use wag_core::{
+use foundation::{
     CharacterId, Characters, Controllers, GameButton, GameState, InputEvent, LocalCharacter,
     LocalController, LocalState, MatchState, OnlineState, Player, StickPosition,
     CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
 };
+use strum::IntoEnumIterator;
 
 use super::{setup_view_title, MenuInputs};
 

@@ -1,4 +1,4 @@
-use wag_core::{Player, RoundLog, SoundEffect};
+use foundation::{Player, RoundLog, SoundEffect};
 
 use bevy::prelude::*;
 

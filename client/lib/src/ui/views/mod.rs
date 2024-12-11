@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 use bevy::prelude::*;
-use wag_core::{
+use foundation::{
     GameState, InCharacterSelect, InputStream, LocalState, MatchState, OwnedInput, SoundEffect,
 };
 

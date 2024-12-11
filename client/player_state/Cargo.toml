@@ -10,5 +10,5 @@ strum = { workspace = true }
 strum_macros = { workspace = true }
 
 characters = { path = "../characters" }
-wag_core = { path = "../wag_core" }
+foundation = { path = "../foundation" }
 input_parsing = { path = "../input_parsing" }

@@ -1,4 +1,4 @@
-use wag_core::{ActionCategory, ActionId, CancelType, GameButton, ItemId, StatusFlag};
+use foundation::{ActionCategory, ActionId, CancelType, GameButton, ItemId, StatusFlag};
 
 use crate::{GaugeType, Situation};
 

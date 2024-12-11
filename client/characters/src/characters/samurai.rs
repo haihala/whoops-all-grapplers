@@ -2,7 +2,7 @@ use std::{f32::consts::PI, sync::Arc};
 
 use bevy::{prelude::*, utils::HashMap};
 
-use wag_core::{
+use foundation::{
     ActionId, Animation, AnimationType, Area, CancelType, Facing, GameButton, Icon, ItemId, Model,
     Pickup, PickupRequest, SamuraiAction, SamuraiAnimation, SoundEffect, SpecialVersion, Stats,
     StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, FAST_SWORD_VFX, FPS,

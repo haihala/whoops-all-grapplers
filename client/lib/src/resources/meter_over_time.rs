@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::{GaugeType, Gauges};
-use wag_core::{Clock, Stats};
+use foundation::{Clock, Stats};
 
 pub fn meter_over_time(clock: Res<Clock>, mut players: Query<(&Stats, &mut Gauges)>) {
     for (stats, mut resources) in &mut players {

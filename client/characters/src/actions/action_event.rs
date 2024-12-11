@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use wag_core::{
+use foundation::{
     ActionId, Animation, Area, PickupRequest, SamuraiAnimation, SoundEffect, StatusCondition,
     StatusFlag, VfxRequest, VoiceLine,
 };

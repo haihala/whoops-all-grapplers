@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use bevy_ggrs::AddRollbackCommandExtension;
 use characters::{Attack, Hitbox, Lifetime};
-use wag_core::{Area, Clock, Facing, MatchState, Owner, Player};
+use foundation::{Area, Clock, Facing, MatchState, Owner, Player};
 
 use crate::{
     assets::Models,

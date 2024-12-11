@@ -1831,7 +1831,7 @@ name = "characters"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "wag_core",
+ "foundation",
 ]
 
 [[package]]
@@ -2680,6 +2680,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "foundation"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "clap",
+ "strum",
+ "strum_macros",
+]
+
+[[package]]
 name = "futures"
 version = "0.3.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3434,7 +3444,7 @@ name = "input_parsing"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "wag_core",
+ "foundation",
 ]
 
 [[package]]
@@ -4533,10 +4543,10 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "characters",
+ "foundation",
  "input_parsing",
  "strum",
  "strum_macros",
- "wag_core",
 ]
 
 [[package]]
@@ -5939,16 +5949,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
-name = "wag_core"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "clap",
- "strum",
- "strum_macros",
-]
-
-[[package]]
 name = "waitgroup"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6536,7 +6536,7 @@ name = "whoops-all-grapplers"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "wag_core",
+ "foundation",
  "whoops-all-grapplers-lib",
 ]
 
@@ -6549,11 +6549,11 @@ dependencies = [
  "bevy_ggrs",
  "bevy_matchbox",
  "characters",
+ "foundation",
  "input_parsing",
  "player_state",
  "rand",
  "strum",
- "wag_core",
 ]
 
 [[package]]

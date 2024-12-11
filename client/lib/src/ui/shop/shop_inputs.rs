@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory};
+use foundation::{ActionId, Owner, Player};
 use input_parsing::InputParser;
-use wag_core::{ActionId, Owner, Player};
 
 use super::{setup_shop::ShopItem, shops_resource::Shop, Shops, SHOP_COLUMNS};
 

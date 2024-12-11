@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{GaugeType, Gauges};
-use wag_core::{
-    Clock, Combo, MatchState, Player, Players, COMBO_COUNTER_TEXT_COLOR,
+use foundation::{
+    Clock, Combo, MatchState, Player, Players, COMBO_COUNTER_TEXT_COLOR, FPS,
     NOTIFICATION_BACKGROUND_COLOR, NOTIFICATION_TEXT_COLOR,
 };
 
@@ -136,7 +136,7 @@ pub fn setup_combo_counter(commands: &mut Commands, parent: Entity, player: Play
         });
 }
 
-const TIME_TO_LIVE: usize = 3 * wag_core::FPS as usize;
+const TIME_TO_LIVE: usize = 3 * FPS as usize;
 
 pub fn update_notifications(
     mut commands: Commands,

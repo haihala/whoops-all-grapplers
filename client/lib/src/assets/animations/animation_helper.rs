@@ -3,7 +3,7 @@ use std::{mem::take, time::Duration};
 use bevy::{prelude::*, scene::SceneInstance};
 
 use characters::AnimationRequest;
-use wag_core::{Animation, Facing, Hitstop, MatchState, Stats};
+use foundation::{Animation, Facing, Hitstop, MatchState, Stats};
 
 use super::Animations;
 

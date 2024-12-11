@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use wag_core::{InMatch, MatchState, PRE_ROUND_DURATION};
+use foundation::{InMatch, MatchState, PRE_ROUND_DURATION};
 
 mod combat;
 mod round_text;

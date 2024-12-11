@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{Controllers, InputEvent, InputStream, Player};
+use foundation::{Controllers, InputEvent, InputStream, Player};
 
 #[derive(PartialEq, Eq, Default, Clone, Copy, Reflect)]
 enum ParrotMode {

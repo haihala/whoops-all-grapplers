@@ -1,9 +1,9 @@
 use bevy::{prelude::*, utils::HashMap};
 
 use characters::{Character, Gauges, Hurtboxes, Inventory, Situation};
+use foundation::{ActionId, CancelType, Clock, Combo, Facing, Stats};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{ActionId, CancelType, Clock, Combo, Facing, Stats};
 
 use crate::event_spreading::StartAction;
 

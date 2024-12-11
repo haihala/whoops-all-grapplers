@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{RollbackSchedule, SystemStep};
+use foundation::{RollbackSchedule, SystemStep};
 
 mod charge_accumulator;
 mod economy;

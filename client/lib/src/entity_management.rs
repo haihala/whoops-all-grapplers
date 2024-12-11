@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{Clock, GameState, InMatch, MatchState, RollbackSchedule};
+use foundation::{Clock, GameState, InMatch, MatchState, RollbackSchedule};
 
 #[derive(Component, Copy, Clone)]
 pub struct DespawnMarker(pub usize);

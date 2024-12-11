@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 
-use wag_core::SoundEffect;
+use foundation::SoundEffect;
 
 #[derive(Debug, Resource)]
 pub struct Sounds {

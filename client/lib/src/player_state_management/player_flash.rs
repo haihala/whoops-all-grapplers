@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::FPS;
+use foundation::FPS;
 
 use crate::{
     assets::ExtendedFlashMaterial,

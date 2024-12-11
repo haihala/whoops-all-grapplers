@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use characters::{Character, Gauges, Hurtboxes, Inventory};
+use foundation::{Clock, Combo, Facing, Stats, StatusFlag};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{Clock, Combo, Facing, Stats, StatusFlag};
 
 use crate::event_spreading::{ColorShift, EndAction};
 

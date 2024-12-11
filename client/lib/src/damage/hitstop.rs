@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::Hitstop;
+use foundation::Hitstop;
 
 use crate::event_spreading::StartHitstop;
 

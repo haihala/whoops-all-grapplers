@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::HashMap};
 
-use wag_core::{Animation, Icon, Icons, Model, SoundEffect};
+use foundation::{Animation, Icon, Icons, Model, SoundEffect};
 
 use super::{
     animations::animation_paths, models::model_paths, sounds::Sounds, Animations, AssetsLoading,

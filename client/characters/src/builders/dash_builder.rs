@@ -2,7 +2,7 @@ use std::{f32::consts::PI, sync::Arc};
 
 use bevy::prelude::*;
 
-use wag_core::{
+use foundation::{
     ActionCategory, ActionId, Animation, ItemId, StatusCondition, StatusFlag, VfxRequest,
     VisualEffect,
 };

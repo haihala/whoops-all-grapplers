@@ -3,11 +3,11 @@ use bevy::prelude::*;
 use characters::{
     ActionEvent, ActionTracker, Character, CharacterStateBoxes, Gauges, Inventory, Situation,
 };
-use input_parsing::InputParser;
-use wag_core::{
+use foundation::{
     ActionId, AnimationType, CancelType, Combo, Facing, SimpleState, Stats, StatusCondition,
     StatusFlag,
 };
+use input_parsing::InputParser;
 
 use crate::sub_state::{AirState, CrouchState, StandState, Stun};
 

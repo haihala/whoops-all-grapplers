@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::{Hitbox, Hurtboxes};
-use wag_core::{
+use foundation::{
     Area, Facing, GENERIC_AREA_VISUALIZATION_COLOR, HITBOX_VISUALIZATION_COLOR,
     HURTBOX_VISUALIZATION_COLOR, PUSHBOX_VISUALIZATION_COLOR,
 };

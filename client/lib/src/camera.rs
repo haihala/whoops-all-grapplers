@@ -1,5 +1,5 @@
 use bevy::{prelude::*, render::view::NoFrustumCulling};
-use wag_core::{
+use foundation::{
     Facing, InMatch, MatchState, Player, RollbackSchedule, SystemStep, WagArgs,
     LOADING_SCREEN_BACKGROUND,
 };

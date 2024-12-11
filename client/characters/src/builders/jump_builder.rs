@@ -1,9 +1,9 @@
 use std::f32::consts::PI;
 
 use bevy::prelude::*;
-use wag_core::{
+use foundation::{
     ActionCategory, ActionId, Animation, ItemId, StatusCondition, StatusFlag, StickPosition,
-    VfxRequest, VisualEffect,
+    VfxRequest, VisualEffect, FPS,
 };
 
 use crate::{Action, ActionEvent, ActionRequirement, Movement, Situation};
@@ -199,7 +199,7 @@ pub fn jumps(
     a = 2*h/t^2
     */
     let gravity_force = 2.0 * height / (duration / 2.0).powf(2.0);
-    let gravity_per_frame = gravity_force / wag_core::FPS;
+    let gravity_per_frame = gravity_force / FPS;
 
     let animation = Into::<Animation>::into(anim);
 

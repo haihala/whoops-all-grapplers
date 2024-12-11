@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use wag_core::{Clock, Facing, Icons, MatchState, VfxRequest, VisualEffect};
+use foundation::{Clock, Facing, Icons, MatchState, VfxRequest, VisualEffect};
 
 use crate::{
     entity_management::DespawnMarker,

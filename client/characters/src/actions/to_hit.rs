@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use wag_core::{Area, Model};
+use foundation::{Area, Model};
 
 #[derive(Debug, Clone, Copy, PartialEq, Reflect)]
 pub struct ToHit {

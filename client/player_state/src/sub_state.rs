@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use characters::ActionTracker;
-use wag_core::Facing;
+use foundation::Facing;
 
 #[derive(Reflect, Clone, Debug, Hash)]
 pub enum Stun {

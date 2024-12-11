@@ -1,8 +1,8 @@
 use bevy::{audio::Volume, prelude::*};
 use characters::{AnimationRequest, Character};
+use foundation::{Facing, Players};
 use player_state::PlayerState;
 use rand::Rng;
-use wag_core::{Facing, Players};
 
 use crate::event_spreading::{ActivateVoiceline, PlaySound, StartAnimation};
 

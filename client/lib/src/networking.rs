@@ -8,14 +8,14 @@ use bevy::{
 use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
 use characters::{Attack, Gauges, Hitbox, Hurtboxes, Inventory};
-use input_parsing::{InputParser, ParrotStream};
-use player_state::PlayerState;
-use strum::IntoEnumIterator;
-use wag_core::{
+use foundation::{
     Characters, Clock, Combo, Controllers, Facing, GameState, Hitstop, InputState, InputStream,
     LocalCharacter, LocalController, MatchState, NetworkInputButton, OnlineState, OwnedInput,
     Owner, Player, RollbackSchedule, Stats, WagArgs, KEYBOARD_PAD_ID, STICK_DEAD_ZONE,
 };
+use input_parsing::{InputParser, ParrotStream};
+use player_state::PlayerState;
+use strum::IntoEnumIterator;
 
 use crate::{
     assets::AnimationHelper,

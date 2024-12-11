@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 use characters::{Character, Hurtboxes};
+use foundation::Clock;
 use player_state::PlayerState;
-use wag_core::Clock;
 
 use crate::{event_spreading::ExpandHurtbox, movement::Pushbox};
 

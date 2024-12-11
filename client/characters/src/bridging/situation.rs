@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::utils::HashSet;
-use wag_core::{Combo, Facing, GameButton, Stats, StatusFlag, StickPosition};
+use foundation::{Combo, Facing, GameButton, Stats, StatusFlag, StickPosition};
 
 use crate::{ActionEvent, ActionTracker, Gauge, GaugeType, Inventory};
 

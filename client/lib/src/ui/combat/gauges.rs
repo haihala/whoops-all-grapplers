@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::{CounterVisual, GaugeType, Gauges, ResourceBarVisual};
-use wag_core::{Player, RESOURCE_COUNTER_TEXT_COLOR, TRANSPARENT};
+use foundation::{Player, RESOURCE_COUNTER_TEXT_COLOR, TRANSPARENT};
 
 #[derive(Debug, Component)]
 pub struct ResourceGauge(pub Player, pub GaugeType);

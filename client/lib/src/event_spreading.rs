@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use characters::{ActionEvent, AnimationRequest, Attack, FlashRequest, GaugeType, Movement};
 
-use wag_core::{
+use foundation::{
     ActionId, Area, SimpleState, SoundEffect, StatusCondition, StatusFlag, VfxRequest, VoiceLine,
 };
 

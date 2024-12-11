@@ -1,6 +1,6 @@
 use bevy::reflect::Reflect;
 
-use wag_core::{GameButton, InputEvent, InputState, StickPosition};
+use foundation::{GameButton, InputEvent, InputState, StickPosition};
 
 #[derive(Debug, Clone, Eq, PartialEq, Reflect, Default)]
 pub enum RequirementMode {

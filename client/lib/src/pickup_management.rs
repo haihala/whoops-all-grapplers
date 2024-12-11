@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::{GaugeType, Gauges};
-use wag_core::{
+use foundation::{
     Area, Clock, Facing, MatchState, Owner, Pickup, PickupRequest, Player, RollbackSchedule,
     SystemStep,
 };

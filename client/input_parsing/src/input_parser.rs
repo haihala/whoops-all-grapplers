@@ -5,7 +5,7 @@ use bevy::{
     utils::{HashMap, HashSet},
 };
 
-use wag_core::{ActionId, Clock, Facing, GameButton, InputEvent, InputState, StickPosition};
+use foundation::{ActionId, Clock, Facing, GameButton, InputEvent, InputState, StickPosition};
 
 #[derive(Debug, Component, Clone, Reflect)]
 pub struct InputHistory {

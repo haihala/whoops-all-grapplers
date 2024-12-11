@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::HashMap};
-use wag_core::{
+use foundation::{
     ActionId, Animation, AnimationType, ItemId, Model, Player, SoundEffect, Stats, VoiceLine,
 };
 

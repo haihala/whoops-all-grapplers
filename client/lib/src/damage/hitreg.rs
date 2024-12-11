@@ -4,12 +4,12 @@ use characters::{
     ActionEvent, Attack, AttackHeight, BlockType, Character, GaugeType, Gauges, HitEffect, HitInfo,
     Hitbox, Hurtboxes, Inventory,
 };
-use input_parsing::InputParser;
-use player_state::PlayerState;
-use wag_core::{
+use foundation::{
     Area, Clock, Combo, Facing, Owner, Player, Players, SoundEffect, Stats, StatusFlag,
     StickPosition, VfxRequest, VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
 };
+use input_parsing::InputParser;
+use player_state::PlayerState;
 
 use crate::{
     event_spreading::{

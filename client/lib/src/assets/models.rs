@@ -2,7 +2,7 @@ use bevy::{
     pbr::ExtendedMaterial, prelude::*, render::view::NoFrustumCulling, scene::SceneInstance,
     utils::HashMap,
 };
-use wag_core::{Clock, MatchState, Model};
+use foundation::{Clock, MatchState, Model};
 
 use crate::event_spreading::ShakeCharacter;
 

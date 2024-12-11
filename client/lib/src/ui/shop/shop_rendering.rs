@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
-use wag_core::{
+use foundation::{
     Icons, MatchState, Owner, Player, Players, RoundLog, ITEM_SLOT_COMPONENT_COLOR,
     ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR, ITEM_SLOT_HIGHLIGHT_COLOR,
     ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,

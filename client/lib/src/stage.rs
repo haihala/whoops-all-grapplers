@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{InMatch, MatchState, Model};
+use foundation::{InMatch, MatchState, Model};
 
 use crate::assets::Models;
 

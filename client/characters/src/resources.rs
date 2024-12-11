@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use wag_core::{
+use foundation::{
     GameButton, Stats, StickPosition, HEALTH_BAR_COLOR, METER_BAR_FULL_SEGMENT_COLOR,
     METER_BAR_PARTIAL_SEGMENT_COLOR, METER_BAR_SEGMENT,
 };

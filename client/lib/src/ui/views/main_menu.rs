@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{
+use foundation::{
     GameButton, GameState, InputEvent, LocalController, LocalState, OnlineState, StickPosition,
     GENERIC_TEXT_COLOR, MAIN_MENU_HIGHLIGHT_TEXT_COLOR,
 };

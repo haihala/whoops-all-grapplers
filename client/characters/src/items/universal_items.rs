@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{
+use foundation::{
     ActionCategory, ActionId, Animation, CancelType, Icon, ItemId, Stats, StatusCondition,
     StatusFlag, VfxRequest, VisualEffect, GI_PARRY_FLASH_COLOR, RC_PULSE_BASE_COLOR,
     RC_PULSE_EDGE_COLOR,

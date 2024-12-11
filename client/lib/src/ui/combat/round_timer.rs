@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use wag_core::{Clock, COMBAT_DURATION, ROUND_TIMER_TEXT_COLOR};
+use foundation::{Clock, COMBAT_DURATION, ROUND_TIMER_TEXT_COLOR};
 
 #[derive(Debug, Component)]
 pub struct RoundTimer;

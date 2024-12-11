@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{GaugeType, Gauges};
+use foundation::{SoundEffect, StatusFlag};
 use player_state::PlayerState;
-use wag_core::{SoundEffect, StatusFlag};
 
 use crate::event_spreading::{ClearResource, ModifyResource, PlaySound};
 

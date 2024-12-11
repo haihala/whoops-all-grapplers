@@ -10,7 +10,7 @@ mod round_timer;
 pub use round_timer::update_timer;
 
 use characters::{GaugeType, Gauges, RenderInstructions, ResourceBarVisual};
-use wag_core::{InMatch, MatchState, Player, Players, RoundLog, GENERIC_TEXT_COLOR};
+use foundation::{InMatch, MatchState, Player, Players, RoundLog, GENERIC_TEXT_COLOR};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 

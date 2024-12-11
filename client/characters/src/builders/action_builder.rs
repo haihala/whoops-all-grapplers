@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
-use wag_core::{
+use foundation::{
     ActionCategory, ActionId, Animation, GameButton, SimpleState, SoundEffect, METER_BAR_SEGMENT,
 };
 

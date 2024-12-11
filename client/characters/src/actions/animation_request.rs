@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::Animation;
+use foundation::Animation;
 
 #[derive(Debug, Clone, Copy, PartialEq, Reflect)]
 pub struct AnimationRequest {

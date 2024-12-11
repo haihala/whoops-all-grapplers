@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::HashMap};
+use foundation::{ActionId, InMatch, RollbackSchedule, SystemStep};
 use parrot_stream::update_parrots;
-use wag_core::{ActionId, InMatch, RollbackSchedule, SystemStep};
 
 mod helper_types;
 mod input_parser;

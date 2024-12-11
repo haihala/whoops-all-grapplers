@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{Facing, Players};
+use foundation::{Facing, Players};
 
 pub fn sideswitcher(players: Res<Players>, mut query: Query<(&Transform, &mut Facing)>) {
     if let Ok([(tf1, mut facing1), (tf2, mut facing2)]) =

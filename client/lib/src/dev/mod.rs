@@ -2,13 +2,13 @@ use bevy::{prelude::*, window::WindowMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use characters::{ActionEvent, FlashRequest, GaugeType, Gauges, Hitbox, Hurtboxes, Inventory};
-use input_parsing::{InputParser, ParrotStream};
-use strum::IntoEnumIterator;
-use wag_core::{
+use foundation::{
     Area, Characters, Clock, Controllers, Dev, Facing, GameState, LocalCharacter, LocalController,
     LocalState, MatchState, OnlineState, Player, Players, SoundEffect, Stats, StatusCondition,
     StatusFlag, WagArgs, GI_PARRY_FLASH_COLOR,
 };
+use input_parsing::{InputParser, ParrotStream};
+use strum::IntoEnumIterator;
 
 use crate::{
     event_spreading::PlaySound,

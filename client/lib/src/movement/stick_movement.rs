@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
+use foundation::{ActionId, Clock, Facing, StatusFlag, StickPosition};
 use input_parsing::InputParser;
 use player_state::PlayerState;
-use wag_core::{ActionId, Clock, Facing, StatusFlag, StickPosition};
 
 use crate::player_state_management::MoveBuffer;
 

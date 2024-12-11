@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use characters::Character;
-use wag_core::{
+use foundation::{
     Icon, Icons, InMatch, ItemId, MatchState, Owner, Player, Players, GENERIC_TEXT_COLOR,
     ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
     ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR,

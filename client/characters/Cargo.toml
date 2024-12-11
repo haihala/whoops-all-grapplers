@@ -7,4 +7,4 @@ authors = ["Eero Häihälä <eero.haihala@gmail.com>"]
 [dependencies]
 bevy = { workspace = true }
 
-wag_core = { path = "../wag_core" }
+foundation = { path = "../foundation" }

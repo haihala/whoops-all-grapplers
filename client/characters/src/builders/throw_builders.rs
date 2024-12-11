@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{Animation, StatusCondition, StatusFlag, VfxRequest, VisualEffect};
+use foundation::{Animation, StatusCondition, StatusFlag, VfxRequest, VisualEffect};
 
 use crate::{
     Action, ActionEvent, ActionRequirement, AnimationRequest, FlashRequest, GaugeType, Situation,

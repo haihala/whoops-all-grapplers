@@ -11,7 +11,7 @@ pub use hitreg::{blockstun_events, hitstun_events, launch_events, snap_and_switc
 pub use hit_tracker::HitTracker;
 pub use hitboxes::HitboxSpawner;
 
-use wag_core::{RollbackSchedule, SystemStep};
+use foundation::{RollbackSchedule, SystemStep};
 pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {

@@ -18,7 +18,7 @@ mod state_transitions;
 mod ui;
 
 use bevy::{app::PluginGroupBuilder, prelude::*};
-use wag_core::WagArgs;
+use foundation::WagArgs;
 
 // Only thing exported out of this crate
 #[derive(Debug)]
@@ -38,7 +38,7 @@ impl PluginGroup for Lib {
 
         group = group
             .add(ArgsPlugin::new(self.args.clone()))
-            .add(wag_core::TimePlugin) // Has to be first, since it defines labels for ordering other systems
+            .add(foundation::TimePlugin) // Has to be first, since it defines labels for ordering other systems
             .add(assets::AssetsPlugin) // Has to be before those assets are used
             .add(ui::UIPlugin)
             .add(camera::CustomCameraPlugin)

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::Player;
+use foundation::Player;
 
 #[derive(Default)]
 pub struct ShopComponentsBuilder {

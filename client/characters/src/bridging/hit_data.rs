@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::Stats;
+use foundation::Stats;
 
 use crate::ActionEvent;
 

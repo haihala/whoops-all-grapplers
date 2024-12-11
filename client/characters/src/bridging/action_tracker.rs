@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::ActionId;
+use foundation::ActionId;
 
 #[derive(Debug, Clone, Default, Reflect, Copy, Hash)]
 pub struct ActionTracker {

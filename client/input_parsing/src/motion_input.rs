@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::InputEvent;
+use foundation::InputEvent;
 
 use crate::{
     helper_types::{InputRequirement, RequirementMode, StateRequirement},
@@ -219,14 +219,14 @@ impl From<String> for MotionInput {
 mod test {
     use super::*;
     use bevy::utils::HashSet;
-    use wag_core::{Facing::*, GameButton::*, InputEvent::*, InputState, StickPosition::*};
+    use foundation::{Facing::*, GameButton::*, InputEvent::*, InputState, StickPosition::*};
 
     #[test]
     fn hadouken() {
         let parsed: MotionInput = "236f".into();
         assert_eq!(
             parsed.requirements,
-            vec![Press(Fast), Point(E), Point(SE), Point(S),]
+            vec![Press(Fast), Point(E), Point(SE), Point(S)]
                 .into_iter()
                 .map(|ev| InputRequirement {
                     mode: RequirementMode::Any(vec![ev]),

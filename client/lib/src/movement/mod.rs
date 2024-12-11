@@ -9,11 +9,11 @@ pub use player_velocity::PlayerVelocity;
 
 use bevy::prelude::*;
 
-use player_state::PlayerState;
-use wag_core::{
+use foundation::{
     Area, Clock, Combo, Facing, Player, Players, RollbackSchedule, Stats, StatusFlag, SystemStep,
     FPS,
 };
+use player_state::PlayerState;
 
 use crate::{
     damage::{HitTracker, HitboxSpawner},

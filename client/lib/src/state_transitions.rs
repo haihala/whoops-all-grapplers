@@ -3,12 +3,12 @@ use std::time::Duration;
 use bevy::{asset::LoadState, prelude::*, state::state::FreelyMutableState};
 
 use characters::{Character, GaugeType, Gauges, Inventory};
-use input_parsing::InputParser;
-use wag_core::{
+use foundation::{
     Clock, GameResult, GameState, InCharacterSelect, InMatch, MatchState, Player, RollbackSchedule,
-    RoundLog, RoundResult, SystemStep, VoiceLine, BASE_ROUND_MONEY, POST_ROUND_DURATION,
+    RoundLog, RoundResult, SystemStep, VoiceLine, BASE_ROUND_MONEY, FPS, POST_ROUND_DURATION,
     ROUNDS_TO_WIN, ROUND_MONEY_BUILDUP, VICTORY_BONUS,
 };
+use input_parsing::InputParser;
 
 use crate::{
     assets::{Announcer, AssetsLoading, PlayerModelHook},
@@ -157,7 +157,7 @@ fn transition_after_timer<T: FreelyMutableState>(
     if let Some(mut transition) = timer_resource {
         transition
             .timer
-            .tick(Duration::from_millis((1000.0 / wag_core::FPS) as u64));
+            .tick(Duration::from_millis((1000.0 / FPS) as u64));
 
         if transition.timer.finished() {
             next_state.set(transition.state.clone());

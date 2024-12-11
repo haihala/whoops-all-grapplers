@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
     window::{WindowMode, WindowResolution},
 };
-use wag_core::WagArgs;
+use foundation::WagArgs;
 use whoops_all_grapplers_lib::Lib;
 
 fn main() {

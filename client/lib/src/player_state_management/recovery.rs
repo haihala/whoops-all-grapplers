@@ -1,6 +1,6 @@
 use bevy::prelude::*;
+use foundation::{Clock, Combo, Player, Players, FPS};
 use player_state::PlayerState;
-use wag_core::{Clock, Combo, Player, Players};
 
 pub fn stun_recovery(
     mut commands: Commands,
@@ -20,7 +20,7 @@ pub fn stun_recovery(
     }
 }
 
-const QUICK_RISE_DURATION: usize = (wag_core::FPS * 0.5) as usize;
+const QUICK_RISE_DURATION: usize = (FPS * 0.5) as usize;
 
 pub fn ground_recovery(
     mut commands: Commands,

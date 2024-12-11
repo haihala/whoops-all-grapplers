@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory};
+use foundation::{Clock, Stats, StatusCondition, StatusFlag};
 use player_state::PlayerState;
-use wag_core::{Clock, Stats, StatusCondition, StatusFlag};
 
 use crate::event_spreading::{AddCondition, ClearStatus, ColorShift};
 

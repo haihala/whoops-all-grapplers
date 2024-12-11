@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use characters::Movement;
-use wag_core::{Facing, Stats};
+use foundation::{Facing, Stats, FPS};
 
 #[derive(Debug, Reflect, Clone, Default, Copy)]
 pub struct AppliedMovement {
@@ -32,7 +32,7 @@ impl PlayerVelocity {
     }
 
     pub(super) fn get_shift(&self) -> Vec2 {
-        self.velocity / wag_core::FPS
+        self.velocity / FPS
     }
 
     pub(super) fn get_teleport(&mut self) -> Vec2 {

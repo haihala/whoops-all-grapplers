@@ -4,7 +4,7 @@ use crate::{
     ui::{SharedVerticalNav, VerticalMenuNavigation},
 };
 use bevy::prelude::*;
-use wag_core::{
+use foundation::{
     Controllers, GameButton, GameResult, GameState, InputEvent, MatchState, Player, StickPosition,
     CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
 };

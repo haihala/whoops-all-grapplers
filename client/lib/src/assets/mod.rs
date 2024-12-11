@@ -17,7 +17,7 @@ pub use models::{shake_character, CharacterShake, Models, PlayerModelHook};
 pub use sounds::Sounds;
 pub use vfx::start_relative_vfx;
 
-use wag_core::{MatchState, RollbackSchedule, SystemStep};
+use foundation::{MatchState, RollbackSchedule, SystemStep};
 
 #[derive(Debug, Resource)]
 pub struct Fonts {

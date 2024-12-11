@@ -8,12 +8,12 @@ mod side_switcher;
 mod size_adjustment;
 
 use characters::{samurai, Gauges, Hurtboxes, Inventory};
-use input_parsing::{InputParser, PadBundle};
-use player_state::PlayerState;
-use wag_core::{
+use foundation::{
     AnimationType, CharacterId, Characters, Clock, Combo, Facing, InMatch, MatchState, Player,
     Players, RollbackSchedule, Stats, SystemStep, WagArgs,
 };
+use input_parsing::{InputParser, PadBundle};
+use player_state::PlayerState;
 
 use crate::{
     assets::{AnimationHelper, AnimationHelperSetup, CharacterShake, Models, PlayerModelHook},

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use wag_core::{InMatch, MatchState, RoundLog, GENERIC_TEXT_COLOR};
+use foundation::{InMatch, MatchState, RoundLog, GENERIC_TEXT_COLOR};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 

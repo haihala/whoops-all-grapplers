@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::HashSet};
-use wag_core::{ItemId, Stats, SELL_RETURN, STARTING_MONEY};
+use foundation::{ItemId, Stats, SELL_RETURN, STARTING_MONEY};
 
 use crate::{Character, ConsumableType, Item, ItemCategory};
 

@@ -72,8 +72,8 @@ pub fn spawn_pickups(
     let (player_tf, player, facing) = query.get(trigger.entity()).unwrap();
 
     let mut entity_commands = commands.spawn((
-        TransformBundle {
-            local: Transform::from_translation(spawn_point.extend(0.0) + player_tf.translation),
+        SpatialBundle {
+            transform: Transform::from_translation(spawn_point.extend(0.0) + player_tf.translation),
             ..default()
         },
         *pickup,

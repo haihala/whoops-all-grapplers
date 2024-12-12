@@ -153,6 +153,11 @@ impl AttackBuilder {
         self
     }
 
+    pub fn with_vfx_on_frame(mut self, frame: usize, effect: VisualEffect, tf: Transform) -> Self {
+        self.action_builder = self.action_builder.with_vfx_on_frame(frame, effect, tf);
+        self
+    }
+
     pub fn with_animation(self, animation: impl Into<Animation>) -> Self {
         Self {
             action_builder: self.action_builder.with_animation(animation),

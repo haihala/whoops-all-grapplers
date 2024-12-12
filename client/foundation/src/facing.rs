@@ -78,6 +78,23 @@ impl Facing {
             Facing::Left => stick_pos.mirror(),
         }
     }
+
+    pub fn mirror_quat(&self, quat: Quat) -> Quat {
+        if *self == Facing::Right {
+            quat
+        } else {
+            let (x, z, y) = quat.to_euler(EulerRot::XZY);
+            Quat::from_euler(EulerRot::XZY, x, -z, -y)
+        }
+    }
+
+    pub fn mirror_transform(&self, tf: Transform) -> Transform {
+        Transform {
+            translation: self.mirror_vec3(tf.translation),
+            rotation: self.mirror_quat(tf.rotation),
+            ..tf
+        }
+    }
 }
 
 #[cfg(test)]

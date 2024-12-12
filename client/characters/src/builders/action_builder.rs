@@ -2,7 +2,8 @@ use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
 use foundation::{
-    ActionCategory, ActionId, Animation, GameButton, SimpleState, SoundEffect, METER_BAR_SEGMENT,
+    ActionCategory, ActionId, Animation, GameButton, SimpleState, SoundEffect, VfxRequest,
+    VisualEffect, METER_BAR_SEGMENT,
 };
 
 use crate::{
@@ -283,6 +284,19 @@ impl ActionBuilder {
     pub fn with_requirement(mut self, extra_requirement: ActionRequirement) -> Self {
         self.extra_requirements.push(extra_requirement);
         self
+    }
+
+    pub fn with_vfx_on_frame(self, frame: usize, effect: VisualEffect, tf: Transform) -> Self {
+        self.dyn_events_on_frame(
+            frame,
+            Arc::new(move |situation: &Situation| {
+                vec![ActionEvent::RelativeVisualEffect(VfxRequest {
+                    effect,
+                    tf: situation.facing.mirror_transform(tf),
+                    ..default()
+                })]
+            }),
+        )
     }
 
     pub fn build_input(&self) -> Option<String> {

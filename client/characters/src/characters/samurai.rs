@@ -3,8 +3,8 @@ use std::{f32::consts::PI, sync::Arc};
 use bevy::{prelude::*, utils::HashMap};
 
 use foundation::{
-    ActionId, Animation, AnimationType, Area, CancelType, Facing, GameButton, Icon, ItemId, Model,
-    Pickup, PickupRequest, SamuraiAction, SamuraiAnimation, SoundEffect, SpecialVersion, Stats,
+    ActionId, Animation, AnimationType, Area, CancelType, GameButton, Icon, ItemId, Model, Pickup,
+    PickupRequest, SamuraiAction, SamuraiAnimation, SoundEffect, SpecialVersion, Stats,
     StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, FAST_SWORD_VFX, FPS,
     METERED_SWORD_VFX, METER_BAR_SEGMENT, SAMURAI_ALT_HELMET_COLOR, SAMURAI_ALT_JEANS_COLOR,
     SAMURAI_ALT_SHIRT_COLOR, STRONG_SWORD_VFX,
@@ -45,8 +45,8 @@ pub fn samurai() -> Character {
         samurai_items(),
         samurai_boxes(),
         Stats {
-            walk_speed: 1.0,
-            back_walk_speed_multiplier: 1.0,
+            walk_speed: 1.2,
+            back_walk_speed_multiplier: 0.8,
             kunais: 2,
             gravity,
             ..Stats::character_default()
@@ -292,7 +292,16 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         .with_damage(6)
                         .sword()
                         .with_advantage_on_block(-10)
-                        .with_advantage_on_hit(-3),
+                        .launches(Vec2::new(0.5, 4.0)),
+                )
+                .with_vfx_on_frame(
+                    5,
+                    VisualEffect::WaveFlat(FAST_SWORD_VFX),
+                    Transform {
+                        translation: Vec3::new(0.2, 1.4, 0.0),
+                        rotation: Quat::from_euler(EulerRot::ZYX, 1.0, 0.3, -1.0),
+                        scale: Vec3::splat(2.0),
+                    },
                 )
                 .with_hit_on_frame(
                     // Swinging hit
@@ -304,6 +313,15 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         .sword()
                         .with_advantage_on_block(-16)
                         .with_advantage_on_hit(-6),
+                )
+                .with_vfx_on_frame(
+                    21,
+                    VisualEffect::WaveFlat(FAST_SWORD_VFX),
+                    Transform {
+                        translation: Vec3::new(1.0, 1.4, 0.0),
+                        rotation: Quat::from_euler(EulerRot::ZYX, -PI / 2.0, -1.3, 0.2),
+                        scale: Vec3::splat(3.0),
+                    },
                 )
                 .build(),
         ),
@@ -733,6 +751,7 @@ fn sword_slam(version: SpecialVersion) -> Action {
         SpecialVersion::Fast => (false, false, FAST_SWORD_VFX, false),
         SpecialVersion::Metered => (false, true, METERED_SWORD_VFX, true),
     };
+    let activation_frame = if slow { 25 } else { 20 };
 
     AttackBuilder::special()
         .with_character_universals(CHARACTER_UNIVERSALS)
@@ -745,7 +764,16 @@ fn sword_slam(version: SpecialVersion) -> Action {
             SamuraiAnimation::FastSwordSlam
         })
         .with_total_duration(if slow { 80 } else { 60 })
-        .with_hit_on_frame(if slow { 25 } else { 20 }, {
+        .with_vfx_on_frame(
+            activation_frame,
+            VisualEffect::WaveFlat(color),
+            Transform {
+                translation: Vec3::new(1.0, 0.5, 0.0),
+                rotation: Quat::IDENTITY,
+                scale: Vec3::splat(4.0),
+            },
+        )
+        .with_hit_on_frame(activation_frame, {
             let mut hit = HitBuilder::special()
                 .with_active_frames(2)
                 .with_hitbox(Area::new(0.5, 1.0, 2.0, 1.0))
@@ -753,21 +781,7 @@ fn sword_slam(version: SpecialVersion) -> Action {
                 .with_damage(if high_damage { 30 } else { 15 })
                 .sword()
                 .with_distance_on_block(0.1)
-                .with_advantage_on_block(if slow { -40 } else { -30 })
-                .with_dynamic_events(Arc::new(move |situation: &Situation| {
-                    vec![ActionEvent::RelativeVisualEffect(VfxRequest {
-                        effect: VisualEffect::WaveFlat(color),
-                        tf: Transform {
-                            translation: situation.facing.to_vec3() + Vec3::Y * 0.5,
-                            rotation: match situation.facing {
-                                Facing::Right => Quat::IDENTITY,
-                                Facing::Left => Quat::from_rotation_z(PI),
-                            },
-                            scale: Vec3::splat(4.0),
-                        },
-                        ..default()
-                    })]
-                }));
+                .with_advantage_on_block(if slow { -40 } else { -30 });
 
             if launch {
                 hit = hit.launches(Vec2::new(1.0, 6.0));
@@ -786,6 +800,8 @@ fn viper_strike(version: SpecialVersion) -> Action {
         SpecialVersion::Metered => (false, false, true, METERED_SWORD_VFX),
     };
 
+    let activation_frame = if slow { 10 } else { 5 };
+
     AttackBuilder::special()
         .with_character_universals(CHARACTER_UNIVERSALS)
         .with_sound(SoundEffect::FemaleShagamu)
@@ -801,8 +817,17 @@ fn viper_strike(version: SpecialVersion) -> Action {
         }
         .into()])
         .with_total_duration(if slow { 50 } else { 45 })
+        .with_vfx_on_frame(
+            activation_frame,
+            VisualEffect::WaveFlat(color),
+            Transform {
+                translation: Vec3::new(if long_lunge { 1.5 } else { 1.0 }, 0.4, 0.0),
+                rotation: Quat::from_euler(EulerRot::ZYX, 0.0, 0.0, PI / 3.0),
+                scale: Vec3::splat(4.0),
+            },
+        )
         .with_hit_on_frame(
-            if slow { 10 } else { 5 },
+            activation_frame,
             HitBuilder::special()
                 .with_active_frames(2)
                 .with_distance_on_block(0.1)
@@ -811,25 +836,7 @@ fn viper_strike(version: SpecialVersion) -> Action {
                 .with_damage(if high_damage { 30 } else { 15 })
                 .sword()
                 .with_advantage_on_hit(if slow { 1 } else { 3 })
-                .with_advantage_on_block(if slow { -40 } else { -30 })
-                .with_dynamic_on_hit_events(Arc::new(move |situation: &Situation| {
-                    vec![ActionEvent::RelativeVisualEffect(VfxRequest {
-                        effect: VisualEffect::WaveFlat(color),
-                        tf: Transform {
-                            translation: situation.facing.to_vec3()
-                                * if long_lunge { 1.5 } else { 1.0 }
-                                + Vec3::Y * 0.4,
-                            rotation: match situation.facing {
-                                Facing::Left => Quat::from_euler(EulerRot::ZYX, PI, 0.0, -PI / 3.0),
-                                Facing::Right => {
-                                    Quat::from_euler(EulerRot::ZYX, 0.0, 0.0, PI / 3.0)
-                                }
-                            },
-                            scale: Vec3::splat(4.0),
-                        },
-                        ..default()
-                    })]
-                })),
+                .with_advantage_on_block(if slow { -40 } else { -30 }),
         )
         .build()
 }
@@ -841,6 +848,8 @@ fn rising_sun(version: SpecialVersion) -> Action {
         SpecialVersion::Metered => (false, false, true, METERED_SWORD_VFX),
     };
 
+    let activation_frame = if slow { 14 } else { 4 };
+
     AttackBuilder::special()
         .with_character_universals(CHARACTER_UNIVERSALS)
         .with_sound(SoundEffect::FemaleHiYah)
@@ -851,8 +860,17 @@ fn rising_sun(version: SpecialVersion) -> Action {
         })
         .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
         .with_total_duration(if slow { 56 } else { 44 })
+        .with_vfx_on_frame(
+            activation_frame,
+            VisualEffect::WaveDiagonal(color),
+            Transform {
+                translation: Vec3::new(1.0, 1.7, 0.0),
+                rotation: Quat::from_rotation_z(PI / 3.0),
+                scale: Vec3::splat(2.0),
+            },
+        )
         .with_hit_on_frame(
-            if slow { 14 } else { 4 },
+            activation_frame,
             HitBuilder::special()
                 .with_active_frames(3)
                 .sword()
@@ -864,21 +882,7 @@ fn rising_sun(version: SpecialVersion) -> Action {
                 })
                 .with_advantage_on_block(-30)
                 .with_distance_on_block(0.1)
-                .with_hitbox(Area::new(0.25, 1.5, 2.0, 1.5))
-                .with_dynamic_events(Arc::new(move |situation: &Situation| {
-                    vec![ActionEvent::RelativeVisualEffect(VfxRequest {
-                        effect: VisualEffect::WaveDiagonal(color),
-                        tf: Transform {
-                            translation: situation.facing.to_vec3() + Vec3::Y * 1.7,
-                            rotation: match situation.facing {
-                                Facing::Left => Quat::from_rotation_z(PI * 7.0 / 6.0),
-                                Facing::Right => Quat::from_rotation_z(PI / 3.0),
-                            },
-                            scale: Vec3::splat(2.0),
-                        },
-                        ..default()
-                    })]
-                })),
+                .with_hitbox(Area::new(0.25, 1.5, 2.0, 1.5)),
         )
         .build()
 }

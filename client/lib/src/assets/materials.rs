@@ -402,12 +402,15 @@ pub struct DiagonalWaveMaterial {
     start_time: f32,
     #[uniform(1)]
     color: LinearRgba,
+    #[uniform(2)]
+    mirror: i32, // Bools not supported
 }
 impl DiagonalWaveMaterial {
-    pub fn new(start_time: f32, color: Color) -> Self {
+    pub fn new(start_time: f32, color: Color, mirror: bool) -> Self {
         Self {
             start_time,
             color: color.into(),
+            mirror: mirror as i32,
         }
     }
 }
@@ -428,12 +431,15 @@ pub struct FlatWaveMaterial {
     start_time: f32,
     #[uniform(1)]
     color: LinearRgba,
+    #[uniform(2)]
+    mirror: i32, // Bools not supported
 }
 impl FlatWaveMaterial {
-    pub fn new(start_time: f32, color: Color) -> Self {
+    pub fn new(start_time: f32, color: Color, mirror: bool) -> Self {
         Self {
             start_time,
             color: color.into(),
+            mirror: mirror as i32,
         }
     }
 }

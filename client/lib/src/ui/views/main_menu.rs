@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 use foundation::{
-    GameButton, GameState, InputEvent, LocalController, LocalState, OnlineState, StickPosition,
-    GENERIC_TEXT_COLOR, MAIN_MENU_HIGHLIGHT_TEXT_COLOR,
+    GameButton, GameState, InputEvent, InputStream, LocalController, LocalState, OnlineState,
+    StickPosition, GENERIC_TEXT_COLOR, MAIN_MENU_HIGHLIGHT_TEXT_COLOR,
 };
 
 use crate::{assets::Fonts, entity_management::VisibleInStates, ui::VerticalMenuNavigation};
 
-use super::{setup_view_title, MenuInputs};
+use super::setup_view_title;
 
 #[derive(Debug, Resource, Deref, DerefMut)]
 pub struct MainMenuNav(VerticalMenuNavigation);
@@ -15,6 +15,7 @@ pub struct MainMenuNav(VerticalMenuNavigation);
 pub enum MainMenuOptions {
     LocalPlay,
     OnlinePlay,
+    Credits,
     QuitToDesktop,
 }
 
@@ -26,6 +27,7 @@ impl std::fmt::Display for MainMenuOptions {
             match self {
                 MainMenuOptions::LocalPlay => "Local play",
                 MainMenuOptions::OnlinePlay => "Online play",
+                MainMenuOptions::Credits => "Credits",
                 MainMenuOptions::QuitToDesktop => "Quit to desktop",
             }
         )
@@ -69,6 +71,7 @@ fn setup_buttons(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity> {
     vec![
         MainMenuOptions::LocalPlay,
         MainMenuOptions::OnlinePlay,
+        MainMenuOptions::Credits,
         MainMenuOptions::QuitToDesktop,
     ]
     .into_iter()
@@ -93,12 +96,12 @@ fn setup_buttons(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity> {
 pub fn navigate_main_menu(
     mut commands: Commands,
     mut nav: ResMut<MainMenuNav>,
-    mut events: ResMut<MenuInputs>,
+    input_stream: ResMut<InputStream>,
     options: Query<&MainMenuOptions>,
     mut state: ResMut<NextState<GameState>>,
     mut exit: EventWriter<AppExit>,
 ) {
-    while let Some(ev) = events.pop_front() {
+    for ev in input_stream.events.clone() {
         match ev.event {
             InputEvent::Point(StickPosition::N) => nav.up(),
             InputEvent::Point(StickPosition::S) => nav.down(),
@@ -109,6 +112,9 @@ pub fn navigate_main_menu(
                 MainMenuOptions::OnlinePlay => {
                     commands.insert_resource(LocalController(ev.player_handle));
                     state.set(GameState::Online(OnlineState::CharacterSelect));
+                }
+                MainMenuOptions::Credits => {
+                    state.set(GameState::Credits);
                 }
                 MainMenuOptions::QuitToDesktop => {
                     exit.send_default();

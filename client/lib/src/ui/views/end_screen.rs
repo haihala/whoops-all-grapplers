@@ -5,11 +5,12 @@ use crate::{
 };
 use bevy::prelude::*;
 use foundation::{
-    Controllers, GameButton, GameResult, GameState, InputEvent, MatchState, Player, StickPosition,
-    CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
+    Controllers, GameButton, GameResult, GameState, InputEvent, InputStream, MatchState, Player,
+    StickPosition, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR,
+    VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
-use super::{setup_view_subtitle, setup_view_title, MenuInputs};
+use super::{setup_view_subtitle, setup_view_title};
 
 #[derive(Debug, Resource, Deref, DerefMut)]
 pub struct EndScreenNav(SharedVerticalNav);
@@ -160,14 +161,14 @@ fn setup_end_screen_option(
 pub fn navigate_end_screen(
     mut commands: Commands,
     mut nav: ResMut<EndScreenNav>,
-    mut events: ResMut<MenuInputs>,
+    input_stream: ResMut<InputStream>,
     controllers: Res<Controllers>,
     options: Query<&EndScreenOption>,
     mut next_game_state: ResMut<NextState<GameState>>,
     mut next_match_state: ResMut<NextState<MatchState>>,
     mut quitter: EventWriter<AppExit>,
 ) {
-    while let Some(ev) = events.pop_front() {
+    for ev in input_stream.events.clone() {
         let Some(player) = controllers.get_player(ev.player_handle) else {
             continue;
         };

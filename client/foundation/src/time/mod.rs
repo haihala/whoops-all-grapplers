@@ -50,6 +50,7 @@ pub struct RollbackSchedule;
 #[derive(Debug, SystemSet, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum SystemStep {
     HouseKeeping,
+    MenuNavigation,
     StateTransitions,
     Inputs,
     Physics,
@@ -69,7 +70,11 @@ impl Plugin for TimePlugin {
     fn build(&self, app: &mut App) {
         app.configure_sets(
             RollbackSchedule,
-            (SystemStep::HouseKeeping, SystemStep::StateTransitions)
+            (
+                SystemStep::HouseKeeping,
+                SystemStep::MenuNavigation,
+                SystemStep::StateTransitions,
+            )
                 .chain()
                 .before(SystemStep::Inputs),
         )

@@ -5,13 +5,13 @@ use crate::{
 };
 use bevy::prelude::*;
 use foundation::{
-    CharacterId, Characters, Controllers, GameButton, GameState, InputEvent, LocalCharacter,
-    LocalController, LocalState, MatchState, OnlineState, Player, StickPosition,
+    CharacterId, Characters, Controllers, GameButton, GameState, InputEvent, InputStream,
+    LocalCharacter, LocalController, LocalState, MatchState, OnlineState, Player, StickPosition,
     CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
 };
 use strum::IntoEnumIterator;
 
-use super::{setup_view_title, MenuInputs};
+use super::setup_view_title;
 
 #[derive(Debug, Resource, Deref, DerefMut)]
 pub struct CharacterSelectNav(SharedVerticalNav);
@@ -143,10 +143,10 @@ pub fn navigate_character_select(
     options: Query<&CharacterId>,
     mut game_state: ResMut<NextState<GameState>>,
     mut match_state: ResMut<NextState<MatchState>>,
-    mut events: ResMut<MenuInputs>,
+    input_stream: ResMut<InputStream>,
     local_controller: Option<Res<LocalController>>,
 ) {
-    while let Some(ev) = events.pop_front() {
+    for ev in input_stream.events.clone() {
         let player = if let Some(ref lc) = local_controller {
             if lc.0 != ev.player_handle {
                 continue;

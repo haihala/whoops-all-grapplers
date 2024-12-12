@@ -11,7 +11,6 @@
 
 ### Before contacting artists
 
-- Credits to main menu
 - Get some free music up in there
 - Check for free SFX / VA work
 

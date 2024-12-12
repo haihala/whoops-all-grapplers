@@ -1,14 +1,13 @@
-use std::collections::VecDeque;
-
 use bevy::prelude::*;
 use foundation::{
-    GameState, InCharacterSelect, InputStream, LocalState, MatchState, OwnedInput, SoundEffect,
+    GameState, InCharacterSelect, LocalState, MatchState, RollbackSchedule, SoundEffect, SystemStep,
 };
 
 use crate::assets::Fonts;
 
 mod character_select;
 mod controller_assignment;
+mod credits;
 mod end_screen;
 mod main_menu;
 
@@ -22,48 +21,43 @@ impl Plugin for ViewsPlugin {
                 main_menu::setup_main_menu,
                 controller_assignment::setup_controller_assignment,
                 character_select::setup_character_select,
+                credits::setup_credits_menu,
             ),
         )
-        .init_resource::<MenuInputs>()
-        .add_systems(Update, update_menu_inputs)
         .add_systems(
-            Update,
+            RollbackSchedule,
             (
-                main_menu::navigate_main_menu,
-                main_menu::update_main_menu_visuals,
+                (
+                    main_menu::navigate_main_menu,
+                    main_menu::update_main_menu_visuals,
+                )
+                    .chain()
+                    .run_if(in_state(GameState::MainMenu)),
+                credits::navigate_credits.run_if(in_state(GameState::Credits)),
+                (
+                    controller_assignment::navigate_controller_assignment_menu,
+                    controller_assignment::update_controller_assignment_menu_visuals,
+                )
+                    .chain()
+                    .run_if(in_state(GameState::Local(LocalState::ControllerAssignment))),
+                (
+                    character_select::navigate_character_select,
+                    character_select::update_character_select_visuals,
+                )
+                    .chain()
+                    .run_if(in_state(InCharacterSelect)),
+                (
+                    end_screen::navigate_end_screen,
+                    end_screen::update_end_screen_visuals,
+                )
+                    .chain()
+                    .run_if(in_state(MatchState::EndScreen))
+                    .after(end_screen::setup_end_screen),
             )
                 .chain()
-                .run_if(in_state(GameState::MainMenu)),
-        )
-        .add_systems(
-            Update,
-            (
-                controller_assignment::navigate_controller_assignment_menu,
-                controller_assignment::update_controller_assignment_menu_visuals,
-            )
-                .chain()
-                .run_if(in_state(GameState::Local(LocalState::ControllerAssignment))),
-        )
-        .add_systems(
-            Update,
-            (
-                character_select::navigate_character_select,
-                character_select::update_character_select_visuals,
-            )
-                .chain()
-                .run_if(in_state(InCharacterSelect)),
+                .in_set(SystemStep::MenuNavigation),
         )
         .add_systems(OnEnter(MatchState::EndScreen), end_screen::setup_end_screen)
-        .add_systems(
-            Update,
-            (
-                end_screen::navigate_end_screen,
-                end_screen::update_end_screen_visuals,
-            )
-                .chain()
-                .run_if(in_state(MatchState::EndScreen))
-                .after(end_screen::setup_end_screen),
-        )
         .add_systems(OnExit(GameState::MainMenu), play_transition_noise)
         .add_systems(
             OnExit(GameState::Local(LocalState::ControllerAssignment)),
@@ -74,25 +68,6 @@ impl Plugin for ViewsPlugin {
             play_transition_noise,
         )
         .add_systems(OnExit(MatchState::EndScreen), play_transition_noise);
-    }
-}
-
-#[derive(Debug, Resource, Default, Deref, DerefMut)]
-struct MenuInputs(VecDeque<OwnedInput>);
-
-// This is a workaround. Inputs would otherwise be duplicated per system, which causes
-// duplication issues during state transitions.
-fn update_menu_inputs(
-    mut mi: ResMut<MenuInputs>,
-    stream: Res<InputStream>,
-    match_state: Res<State<MatchState>>,
-) {
-    if !matches!(*match_state.get(), MatchState::EndScreen | MatchState::None) {
-        return;
-    }
-
-    for ev in stream.events.iter() {
-        mi.push_back(ev.to_owned());
     }
 }
 

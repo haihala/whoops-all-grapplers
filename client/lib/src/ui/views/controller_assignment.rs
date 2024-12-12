@@ -1,12 +1,12 @@
 use bevy::{ecs::system::SystemId, prelude::*};
 use foundation::{
-    Controllers, GameButton, GameState, InputEvent, LocalState, Player, StickPosition,
+    Controllers, GameButton, GameState, InputEvent, InputStream, LocalState, Player, StickPosition,
     CONTROLLER_ASSIGNMENT_SIDE_COLOR,
 };
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 
-use super::{setup_view_title, MenuInputs};
+use super::setup_view_title;
 
 #[derive(Debug, Resource, Default)]
 pub struct ControllerAssignment {
@@ -168,11 +168,11 @@ fn create_unused_controller_area(fonts: &Fonts, root: &mut ChildBuilder) {
 pub fn navigate_controller_assignment_menu(
     mut commands: Commands,
     mut ca: ResMut<ControllerAssignment>,
-    mut events: ResMut<MenuInputs>,
+    input_stream: ResMut<InputStream>,
     callback: Res<SubmitCallback>,
     mut state: ResMut<NextState<GameState>>,
 ) {
-    while let Some(ev) = events.pop_front() {
+    for ev in input_stream.events.clone() {
         match ev.event {
             InputEvent::Point(StickPosition::E) => ca.right(ev.player_handle),
             InputEvent::Point(StickPosition::W) => ca.left(ev.player_handle),

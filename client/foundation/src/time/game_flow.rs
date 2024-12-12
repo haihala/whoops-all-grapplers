@@ -52,6 +52,7 @@ pub enum MatchState {
 pub enum GameState {
     #[default]
     MainMenu,
+    Credits,
 
     Local(LocalState),
     Online(OnlineState),

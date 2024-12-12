@@ -842,13 +842,14 @@ fn viper_strike(version: SpecialVersion) -> Action {
 }
 
 fn rising_sun(version: SpecialVersion) -> Action {
-    let (slow, high_bounce, high_damage, color) = match version {
-        SpecialVersion::Strong => (true, true, true, STRONG_SWORD_VFX),
-        SpecialVersion::Fast => (false, false, false, FAST_SWORD_VFX),
-        SpecialVersion::Metered => (false, false, true, METERED_SWORD_VFX),
+    let (slow, big, high_bounce, high_damage, color) = match version {
+        SpecialVersion::Strong => (true, true, true, true, STRONG_SWORD_VFX),
+        SpecialVersion::Fast => (false, false, false, false, FAST_SWORD_VFX),
+        SpecialVersion::Metered => (false, false, false, true, METERED_SWORD_VFX),
     };
 
     let activation_frame = if slow { 14 } else { 4 };
+    let size_multiplier = if big { 1.5 } else { 1.0 };
 
     AttackBuilder::special()
         .with_character_universals(CHARACTER_UNIVERSALS)
@@ -866,7 +867,7 @@ fn rising_sun(version: SpecialVersion) -> Action {
             Transform {
                 translation: Vec3::new(1.0, 1.7, 0.0),
                 rotation: Quat::from_rotation_z(PI / 3.0),
-                scale: Vec3::splat(2.0),
+                scale: Vec3::splat(2.0 * size_multiplier),
             },
         )
         .with_hit_on_frame(
@@ -882,7 +883,7 @@ fn rising_sun(version: SpecialVersion) -> Action {
                 })
                 .with_advantage_on_block(-30)
                 .with_distance_on_block(0.1)
-                .with_hitbox(Area::new(0.25, 1.5, 2.0, 1.5)),
+                .with_hitbox(Area::new(0.25, 1.5, 2.0, 1.5).mul_grow(size_multiplier)),
         )
         .build()
 }

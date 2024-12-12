@@ -300,7 +300,7 @@ impl HitBuilder {
             self.additional_events
                 .constant
                 .push(ActionEvent::ExpandHurtbox(
-                    self.hitbox.grow(0.1),
+                    self.hitbox.flag_grow(0.1),
                     self.hitbox_lifetime.frames.unwrap_or_default() + duration,
                 ));
         }

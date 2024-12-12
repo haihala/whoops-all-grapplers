@@ -154,7 +154,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: FlatWaveMaterial::new(time.elapsed_seconds(), *color, dbg!(*mirror)),
+                material: FlatWaveMaterial::new(time.elapsed_seconds(), *color, *mirror),
                 frames_to_live: 60,
             });
         }

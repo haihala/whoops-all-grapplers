@@ -175,10 +175,12 @@ fn end_loading(
     let two_players = ready_players.iter().count() == 2;
     let hooks_ran = hooked_children.iter().count() == 0;
     let asset_loads_started = !loading_assets.0.is_empty();
-    let all_assets_loaded = loading_assets
-        .0
-        .iter()
-        .all(|h| server.get_load_state(h.id()) == Some(LoadState::Loaded));
+    let all_assets_loaded = loading_assets.0.iter().all(|h| {
+        server
+            .get_load_state(h.id())
+            .map(|inner| matches!(inner, LoadState::Loaded))
+            .unwrap_or_default()
+    });
 
     if two_players && hooks_ran && asset_loads_started && all_assets_loaded {
         info!("Done loading assets");

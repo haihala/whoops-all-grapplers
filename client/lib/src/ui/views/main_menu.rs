@@ -39,18 +39,15 @@ pub fn setup_main_menu(mut commands: Commands, fonts: Res<Fonts>) {
 
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    height: Val::Percent(100.0),
-                    width: Val::Percent(100.0),
-                    position_type: PositionType::Absolute,
-                    left: Val::Percent(0.0),
-                    top: Val::Percent(0.0),
-                    flex_direction: FlexDirection::Column,
-                    row_gap: Val::Percent(0.5),
-                    padding: UiRect::all(Val::Percent(20.0)),
-                    ..default()
-                },
+            Node {
+                height: Val::Percent(100.0),
+                width: Val::Percent(100.0),
+                position_type: PositionType::Absolute,
+                left: Val::Percent(0.0),
+                top: Val::Percent(0.0),
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Percent(0.5),
+                padding: UiRect::all(Val::Percent(20.0)),
                 ..default()
             },
             VisibleInStates(vec![GameState::MainMenu]),
@@ -77,14 +74,12 @@ fn setup_buttons(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity> {
     .into_iter()
     .map(|opt| {
         root.spawn((
-            TextBundle::from_section(
-                opt.to_string(),
-                TextStyle {
-                    font: fonts.basic.clone(),
-                    font_size: 36.0,
-                    ..default()
-                },
-            ),
+            Text::new(opt.to_string()),
+            TextFont {
+                font: fonts.basic.clone(),
+                font_size: 36.0,
+                ..default()
+            },
             Name::new(opt.to_string()),
             opt,
         ))
@@ -125,13 +120,13 @@ pub fn navigate_main_menu(
     }
 }
 
-pub fn update_main_menu_visuals(mmn: Res<MainMenuNav>, mut texts: Query<(Entity, &mut Text)>) {
+pub fn update_main_menu_visuals(mmn: Res<MainMenuNav>, mut texts: Query<(Entity, &mut TextColor)>) {
     if !mmn.is_changed() {
         return;
     }
 
-    for (entity, mut text) in &mut texts {
-        text.sections[0].style.color = if entity == mmn.selected {
+    for (entity, mut text_color) in &mut texts {
+        text_color.0 = if entity == mmn.selected {
             MAIN_MENU_HIGHLIGHT_TEXT_COLOR
         } else {
             GENERIC_TEXT_COLOR

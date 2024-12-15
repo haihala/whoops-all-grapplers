@@ -24,7 +24,7 @@ pub struct Clock {
 impl FromWorld for Clock {
     fn from_world(world: &mut World) -> Self {
         Self {
-            start_time: world.get_resource::<Time>().unwrap().elapsed_seconds(),
+            start_time: world.get_resource::<Time>().unwrap().elapsed_secs(),
             frame: 0,
             done: false,
             timer_value: COMBAT_DURATION as usize,
@@ -129,7 +129,7 @@ fn update_clock(
     }
 
     // This updates timer
-    let elapsed = bevy_clock.elapsed_seconds() - clock.start_time;
+    let elapsed = bevy_clock.elapsed_secs() - clock.start_time;
     clock.timer_value = (COMBAT_DURATION + PRE_ROUND_DURATION - elapsed)
         .clamp(0.0, COMBAT_DURATION)
         .ceil() as usize;

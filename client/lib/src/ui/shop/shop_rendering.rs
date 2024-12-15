@@ -13,13 +13,13 @@ use super::{
     Shops,
 };
 
-pub fn update_top_bar_scores(
-    mut scores: Query<&mut Text, With<ShopScore>>,
-    results: Res<RoundLog>,
-) {
-    let mut text = scores.get_single_mut().unwrap();
-    text.sections[0].value = results.wins(Player::One).to_string();
-    text.sections[2].value = results.wins(Player::Two).to_string();
+pub fn update_top_bar_scores(scores: Single<&mut Text, With<ShopScore>>, results: Res<RoundLog>) {
+    let mut text = scores.into_inner();
+    text.0 = format!(
+        "{} - {}",
+        results.wins(Player::One),
+        results.wins(Player::Two)
+    );
 }
 
 pub fn update_top_bar_moneys(
@@ -29,7 +29,7 @@ pub fn update_top_bar_moneys(
 ) {
     for (mut text, owner) in &mut moneys {
         let inv = inventories.get(players.get(owner.0)).unwrap();
-        text.sections[1].value = inv.money.to_string();
+        text.0 = format!("${}", inv.money);
     }
 }
 
@@ -89,10 +89,12 @@ pub fn update_slot_visuals(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn update_info_panel(
     slots: Query<&ShopItem>,
-    mut texts: Query<(&mut Text, &mut Visibility)>,
-    mut icon_query: Query<&mut UiImage>,
+    mut texts: Query<(Entity, &mut Visibility)>,
+    mut icon_query: Query<&mut ImageNode>,
+    mut writer: TextUiWriter,
     icons: Res<Icons>,
     shops: Res<Shops>,
     characters: Query<(&Character, &Inventory)>,
@@ -133,17 +135,17 @@ pub fn update_info_panel(
                 },
             ),
         ] {
-            let (mut text, mut visibility) = texts.get_mut(entity).unwrap();
+            let (entity, mut visibility) = texts.get_mut(entity).unwrap();
             if content.is_empty() {
                 *visibility = Visibility::Hidden;
             } else {
-                text.sections[section].value = content;
+                *writer.get_text(entity, section).unwrap() = content;
                 *visibility = Visibility::Inherited;
             }
         }
 
         let mut icon = icon_query.get_mut(shop.components.big_icon).unwrap();
-        icon.texture = icons.0.get(&item.icon).unwrap().clone();
+        icon.image = icons.0.get(&item.icon).unwrap().clone();
     }
 }
 
@@ -181,8 +183,7 @@ pub fn handle_shop_ending(
                 countdown_texts
                     .get_mut(shop.components.countdown_text)
                     .unwrap()
-                    .sections[0]
-                    .value = value;
+                    .0 = value;
             } else {
                 *local_timer = Some(Timer::from_seconds(POST_SHOP_DURATION, TimerMode::Once));
                 *countdown_roots.get_mut(shop.components.countdown).unwrap() =

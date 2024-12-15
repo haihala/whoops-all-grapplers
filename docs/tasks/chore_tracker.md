@@ -6,6 +6,7 @@ enough to be put on a more important list.
 ## Bugs
 
 - Controllers connected after game has started show up weird in the controller claim menu
+  - That menu won't show keyboard
 - Red paint + throws
 - Stick input occasionally gets stuck
   - Replicate with 46464646... on the dpad

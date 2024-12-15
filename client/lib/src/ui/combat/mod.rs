@@ -25,16 +25,13 @@ pub fn setup_combat_hud(
 ) {
     let container = commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    height: Val::Percent(100.0),
-                    width: Val::Percent(100.0),
-                    position_type: PositionType::Absolute,
-                    left: Val::Percent(0.0),
-                    top: Val::Percent(0.0),
-                    justify_content: JustifyContent::SpaceBetween,
-                    ..default()
-                },
+            Node {
+                height: Val::Percent(100.0),
+                width: Val::Percent(100.0),
+                position_type: PositionType::Absolute,
+                left: Val::Percent(0.0),
+                top: Val::Percent(0.0),
+                justify_content: JustifyContent::SpaceBetween,
                 ..default()
             },
             VisibleInStates(vec![MatchState::Combat, MatchState::PostRound]),
@@ -74,16 +71,13 @@ fn setup_player_hud(
     properties: &Gauges,
 ) {
     let container = commands
-        .spawn(NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::Column,
-                justify_content: JustifyContent::SpaceBetween,
-                align_items: AlignItems::Center,
-                margin: UiRect::all(Val::Px(3.0)),
-                width: Val::Percent(width_percentage),
-                height: Val::Percent(100.0),
-                ..default()
-            },
+        .spawn(Node {
+            flex_direction: FlexDirection::Column,
+            justify_content: JustifyContent::SpaceBetween,
+            align_items: AlignItems::Center,
+            margin: UiRect::all(Val::Px(3.0)),
+            width: Val::Percent(width_percentage),
+            height: Val::Percent(100.0),
             ..default()
         })
         .set_parent(parent)
@@ -98,19 +92,16 @@ fn setup_player_hud(
 fn setup_top_hud(commands: &mut Commands, parent: Entity, fonts: &Fonts, player: Player) {
     let container = commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    flex_direction: FlexDirection::Column,
-                    justify_content: JustifyContent::FlexStart,
-                    align_items: match player {
-                        // Align towards the center
-                        Player::One => AlignItems::FlexEnd,
-                        Player::Two => AlignItems::FlexStart,
-                    },
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(10.0),
-                    ..default()
+            Node {
+                flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::FlexStart,
+                align_items: match player {
+                    // Align towards the center
+                    Player::One => AlignItems::FlexEnd,
+                    Player::Two => AlignItems::FlexStart,
                 },
+                width: Val::Percent(100.0),
+                height: Val::Percent(10.0),
                 ..default()
             },
             Name::new(format!("Player {player} health bar wrapper")),
@@ -132,14 +123,13 @@ fn setup_top_hud(commands: &mut Commands, parent: Entity, fonts: &Fonts, player:
 fn setup_round_counter(commands: &mut Commands, parent: Entity, fonts: &Fonts, player: Player) {
     commands
         .spawn((
-            TextBundle::from_section(
-                "0",
-                TextStyle {
-                    font: fonts.basic.clone(),
-                    font_size: 40.0,
-                    color: GENERIC_TEXT_COLOR,
-                },
-            ),
+            Text::new("0"),
+            TextFont {
+                font: fonts.basic.clone(),
+                font_size: 40.0,
+                ..default()
+            },
+            TextColor(GENERIC_TEXT_COLOR),
             ScoreText(player),
             Name::new("Round counter"),
         ))
@@ -154,21 +144,18 @@ fn setup_bottom_hud(
     properties: &Gauges,
 ) {
     let container = commands
-        .spawn(NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::Column,
-                justify_content: JustifyContent::FlexEnd,
-                align_items: match player {
-                    // Align towards the side of the screen
-                    Player::One => AlignItems::FlexStart,
-                    Player::Two => AlignItems::FlexEnd,
-                },
-                width: Val::Percent(100.0),
-                height: Val::Percent(40.0),
-                margin: UiRect {
-                    bottom: Val::Percent(gauges::SCREEN_EDGE_PADDING),
-                    ..default()
-                },
+        .spawn(Node {
+            flex_direction: FlexDirection::Column,
+            justify_content: JustifyContent::FlexEnd,
+            align_items: match player {
+                // Align towards the side of the screen
+                Player::One => AlignItems::FlexStart,
+                Player::Two => AlignItems::FlexEnd,
+            },
+            width: Val::Percent(100.0),
+            height: Val::Percent(40.0),
+            margin: UiRect {
+                bottom: Val::Percent(gauges::SCREEN_EDGE_PADDING),
                 ..default()
             },
             ..default()
@@ -225,7 +212,7 @@ pub fn update_score(
     for player in &players {
         for (mut text, score_text) in &mut score_texts {
             if *player == **score_text {
-                text.sections[0].value = round_log.wins(*player).to_string();
+                text.0 = round_log.wins(*player).to_string();
             }
         }
     }

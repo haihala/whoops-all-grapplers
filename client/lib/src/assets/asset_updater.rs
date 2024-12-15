@@ -78,15 +78,15 @@ pub fn play_audio(trigger: Trigger<SoundEffect>, mut commands: Commands, sounds:
     let clips = sounds.handles.get(effect).unwrap();
 
     let source = clips[rand::thread_rng().gen_range(0..clips.len())].clone();
-    let mut entity = commands.spawn(AudioBundle {
-        source,
-        settings: PlaybackSettings {
+    let mut entity = commands.spawn((
+        AudioPlayer(source),
+        PlaybackSettings {
             // Shift speed (pitch) by up to about 10% either way
             speed: rand::thread_rng().gen_range(0.9..1.1),
             volume: Volume::new(effect.volume()),
             ..default()
         },
-    });
+    ));
 
     if effect.is_announcer() {
         entity.insert(AnnouncerMarker);

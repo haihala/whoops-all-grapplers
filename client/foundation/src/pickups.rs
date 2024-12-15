@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-pub use bevy::prelude::*;
+use bevy::prelude::*;
 
 use crate::{Area, Model};
 

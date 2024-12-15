@@ -10,7 +10,6 @@ pub use stick_position::StickPosition;
 mod input_state;
 pub use input_state::InputState;
 
-pub const KEYBOARD_PAD_ID: usize = 69;
 pub const STICK_DEAD_ZONE: f32 = 0.3;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, EnumIter, Reflect, Default)]
@@ -84,24 +83,24 @@ pub enum NetworkInputButton {
 }
 
 impl NetworkInputButton {
-    pub fn from_gamepad_button_type(value: GamepadButtonType) -> Option<Self> {
+    pub fn from_gamepad_button_type(value: GamepadButton) -> Option<Self> {
         Some(match value {
-            GamepadButtonType::South => NetworkInputButton::South,
-            GamepadButtonType::East => NetworkInputButton::East,
-            GamepadButtonType::North => NetworkInputButton::North,
-            GamepadButtonType::West => NetworkInputButton::West,
-            GamepadButtonType::LeftTrigger => NetworkInputButton::L1,
-            GamepadButtonType::LeftTrigger2 => NetworkInputButton::L2,
-            GamepadButtonType::RightTrigger => NetworkInputButton::R1,
-            GamepadButtonType::RightTrigger2 => NetworkInputButton::R2,
-            GamepadButtonType::Select => NetworkInputButton::Select,
-            GamepadButtonType::Start => NetworkInputButton::Start,
-            GamepadButtonType::LeftThumb => NetworkInputButton::L3,
-            GamepadButtonType::RightThumb => NetworkInputButton::R3,
-            GamepadButtonType::DPadUp => NetworkInputButton::Up,
-            GamepadButtonType::DPadDown => NetworkInputButton::Down,
-            GamepadButtonType::DPadLeft => NetworkInputButton::Left,
-            GamepadButtonType::DPadRight => NetworkInputButton::Right,
+            GamepadButton::South => NetworkInputButton::South,
+            GamepadButton::East => NetworkInputButton::East,
+            GamepadButton::North => NetworkInputButton::North,
+            GamepadButton::West => NetworkInputButton::West,
+            GamepadButton::LeftTrigger => NetworkInputButton::L1,
+            GamepadButton::LeftTrigger2 => NetworkInputButton::L2,
+            GamepadButton::RightTrigger => NetworkInputButton::R1,
+            GamepadButton::RightTrigger2 => NetworkInputButton::R2,
+            GamepadButton::Select => NetworkInputButton::Select,
+            GamepadButton::Start => NetworkInputButton::Start,
+            GamepadButton::LeftThumb => NetworkInputButton::L3,
+            GamepadButton::RightThumb => NetworkInputButton::R3,
+            GamepadButton::DPadUp => NetworkInputButton::Up,
+            GamepadButton::DPadDown => NetworkInputButton::Down,
+            GamepadButton::DPadLeft => NetworkInputButton::Left,
+            GamepadButton::DPadRight => NetworkInputButton::Right,
             _ => return None,
         })
     }
@@ -128,24 +127,24 @@ impl NetworkInputButton {
         })
     }
 
-    pub fn to_gamepad_button_type(&self) -> GamepadButtonType {
+    pub fn to_gamepad_button_type(&self) -> GamepadButton {
         match self {
-            NetworkInputButton::South => GamepadButtonType::South,
-            NetworkInputButton::East => GamepadButtonType::East,
-            NetworkInputButton::North => GamepadButtonType::North,
-            NetworkInputButton::West => GamepadButtonType::West,
-            NetworkInputButton::L1 => GamepadButtonType::LeftTrigger,
-            NetworkInputButton::L2 => GamepadButtonType::LeftTrigger2,
-            NetworkInputButton::R1 => GamepadButtonType::RightTrigger,
-            NetworkInputButton::R2 => GamepadButtonType::RightTrigger2,
-            NetworkInputButton::Select => GamepadButtonType::Select,
-            NetworkInputButton::Start => GamepadButtonType::Start,
-            NetworkInputButton::L3 => GamepadButtonType::LeftThumb,
-            NetworkInputButton::R3 => GamepadButtonType::RightThumb,
-            NetworkInputButton::Up => GamepadButtonType::DPadUp,
-            NetworkInputButton::Down => GamepadButtonType::DPadDown,
-            NetworkInputButton::Left => GamepadButtonType::DPadLeft,
-            NetworkInputButton::Right => GamepadButtonType::DPadRight,
+            NetworkInputButton::South => GamepadButton::South,
+            NetworkInputButton::East => GamepadButton::East,
+            NetworkInputButton::North => GamepadButton::North,
+            NetworkInputButton::West => GamepadButton::West,
+            NetworkInputButton::L1 => GamepadButton::LeftTrigger,
+            NetworkInputButton::L2 => GamepadButton::LeftTrigger2,
+            NetworkInputButton::R1 => GamepadButton::RightTrigger,
+            NetworkInputButton::R2 => GamepadButton::RightTrigger2,
+            NetworkInputButton::Select => GamepadButton::Select,
+            NetworkInputButton::Start => GamepadButton::Start,
+            NetworkInputButton::L3 => GamepadButton::LeftThumb,
+            NetworkInputButton::R3 => GamepadButton::RightThumb,
+            NetworkInputButton::Up => GamepadButton::DPadUp,
+            NetworkInputButton::Down => GamepadButton::DPadDown,
+            NetworkInputButton::Left => GamepadButton::DPadLeft,
+            NetworkInputButton::Right => GamepadButton::DPadRight,
         }
     }
 
@@ -242,7 +241,7 @@ impl From<char> for InputEvent {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct OwnedInput {
     pub event: InputEvent,
-    pub player_handle: usize,
+    pub player_handle: InputDevice,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Eq, Resource)]
@@ -250,14 +249,14 @@ pub struct InputStream {
     pub events: Vec<OwnedInput>,
     dpads: HashMap<usize, StickPosition>,
     analog_sticks: HashMap<usize, StickPosition>,
-    pub input_states: HashMap<usize, InputState>,
+    pub input_states: HashMap<InputDevice, InputState>,
 }
 
 impl InputStream {
     pub fn update_analog_stick(
         &mut self,
         pad_id: usize,
-        axis: GamepadAxisType,
+        axis: GamepadAxis,
         value: f32,
     ) -> StickPosition {
         let mut old_stick: IVec2 = self
@@ -274,8 +273,8 @@ impl InputStream {
         };
 
         match axis {
-            GamepadAxisType::LeftStickX => old_stick.x = snap_value,
-            GamepadAxisType::LeftStickY => old_stick.y = snap_value,
+            GamepadAxis::LeftStickX => old_stick.x = snap_value,
+            GamepadAxis::LeftStickY => old_stick.y = snap_value,
             _ => {}
         };
 
@@ -320,27 +319,28 @@ impl InputStream {
     }
 }
 
-#[derive(Debug, Resource, Clone, Copy)]
-pub struct Controllers {
-    pub p1: usize,
-    pub p2: usize,
+#[derive(Debug, Resource, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum InputDevice {
+    Controller(Entity),
+    Keyboard,
+    Online(usize),
 }
 
-impl Default for Controllers {
-    fn default() -> Self {
-        Controllers { p1: 0, p2: 1 }
-    }
+#[derive(Debug, Resource, Clone, Copy)]
+pub struct Controllers {
+    pub p1: InputDevice,
+    pub p2: InputDevice,
 }
 
 impl Controllers {
-    pub fn get_handle(&self, player: Player) -> usize {
+    pub fn get_handle(&self, player: Player) -> InputDevice {
         match player {
             Player::One => self.p1,
             Player::Two => self.p2,
         }
     }
 
-    pub fn get_player(&self, handle: usize) -> Option<Player> {
+    pub fn get_player(&self, handle: InputDevice) -> Option<Player> {
         if handle == self.p1 {
             Some(Player::One)
         } else if handle == self.p2 {
@@ -352,4 +352,4 @@ impl Controllers {
 }
 
 #[derive(Debug, Resource, Clone, Copy)]
-pub struct LocalController(pub usize);
+pub struct LocalController(pub InputDevice);

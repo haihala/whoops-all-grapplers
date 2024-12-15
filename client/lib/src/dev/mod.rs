@@ -1,11 +1,11 @@
-use bevy::{prelude::*, window::WindowMode};
+use bevy::{prelude::*, utils::HashMap, window::WindowMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use characters::{ActionEvent, FlashRequest, GaugeType, Gauges, Hitbox, Hurtboxes, Inventory};
 use foundation::{
-    Area, Characters, Clock, Controllers, Dev, Facing, GameState, LocalCharacter, LocalController,
-    LocalState, MatchState, OnlineState, Player, Players, SoundEffect, Stats, StatusCondition,
-    StatusFlag, WagArgs, GI_PARRY_FLASH_COLOR,
+    Area, Characters, Clock, Controllers, Dev, Facing, GameState, InputDevice, LocalCharacter,
+    LocalController, LocalState, MatchState, OnlineState, Player, Players, SoundEffect, Stats,
+    StatusCondition, StatusFlag, WagArgs, GI_PARRY_FLASH_COLOR,
 };
 use input_parsing::{InputParser, ParrotStream};
 use strum::IntoEnumIterator;
@@ -39,7 +39,17 @@ impl Plugin for DevPlugin {
             .register_type::<InputParser>()
             .register_type::<ParrotStream>()
             .add_systems(Startup, setup_gizmos)
-            .add_systems(PostStartup, skip_menus)
+            .add_systems(
+                FixedUpdate,
+                skip_menus.run_if(|mut flag: Local<bool>| {
+                    if *flag {
+                        false
+                    } else {
+                        *flag = true;
+                        true
+                    }
+                }),
+            )
             .add_systems(
                 Update,
                 (
@@ -68,10 +78,20 @@ fn skip_menus(
     mut next_game_state: ResMut<NextState<GameState>>,
     mut next_match_state: ResMut<NextState<MatchState>>,
     args: Res<WagArgs>,
+    pad_query: Query<Entity, With<Gamepad>>,
 ) {
     let Some(dev_mode) = args.dev else {
         panic!("In dev plugin but not in dev mode")
     };
+
+    let pads: HashMap<_, _> = pad_query
+        .iter()
+        .map(InputDevice::Controller)
+        .enumerate()
+        .chain([(69, InputDevice::Keyboard)])
+        .collect();
+
+    dbg!(&pads);
 
     match dev_mode {
         Dev::Online {
@@ -79,7 +99,7 @@ fn skip_menus(
             local_character,
         } => {
             next_game_state.set(GameState::Online(OnlineState::Lobby));
-            commands.insert_resource(LocalController(local_controller));
+            commands.insert_resource(LocalController(pads[&local_controller]));
             commands.insert_resource(LocalCharacter(local_character));
         }
         Dev::Local {
@@ -91,7 +111,10 @@ fn skip_menus(
         } => {
             next_game_state.set(GameState::Local(LocalState::Match));
             next_match_state.set(MatchState::Loading);
-            commands.insert_resource(Controllers { p1: pad1, p2: pad2 });
+            commands.insert_resource(Controllers {
+                p1: pads[&pad1],
+                p2: pads[&pad2],
+            });
 
             commands.insert_resource(Characters {
                 p1: character1,
@@ -104,9 +127,21 @@ fn skip_menus(
         } => {
             next_game_state.set(GameState::Synctest);
             next_match_state.set(MatchState::Loading);
-            commands.insert_resource(LocalController(local_controller));
+            commands.insert_resource(LocalController(pads[&local_controller]));
             commands.insert_resource(LocalCharacter(local_character));
-            commands.insert_resource(Controllers::default());
+            commands.insert_resource(Controllers {
+                p1: pads[&local_controller],
+                p2: pads
+                    .into_iter()
+                    .find_map(|(index, device)| {
+                        if index != local_controller {
+                            Some(device)
+                        } else {
+                            None
+                        }
+                    })
+                    .unwrap(),
+            });
             commands.insert_resource(Characters {
                 p1: local_character,
                 p2: local_character,
@@ -162,8 +197,8 @@ fn fullscreen_toggle(keys: Res<ButtonInput<KeyCode>>, mut windows: Query<&mut Wi
         info!("Fullscreen toggle");
 
         win.mode = match win.mode {
-            WindowMode::Windowed => WindowMode::BorderlessFullscreen,
-            WindowMode::BorderlessFullscreen => WindowMode::Windowed,
+            WindowMode::Windowed => WindowMode::BorderlessFullscreen(MonitorSelection::Current),
+            WindowMode::BorderlessFullscreen(_) => WindowMode::Windowed,
             _ => win.mode,
         }
     }

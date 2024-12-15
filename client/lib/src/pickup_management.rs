@@ -72,10 +72,8 @@ pub fn spawn_pickups(
     let (player_tf, player, facing) = query.get(trigger.entity()).unwrap();
 
     let mut entity_commands = commands.spawn((
-        SpatialBundle {
-            transform: Transform::from_translation(spawn_point.extend(0.0) + player_tf.translation),
-            ..default()
-        },
+        Transform::from_translation(spawn_point.extend(0.0) + player_tf.translation),
+        Visibility::default(),
         *pickup,
         *size,
         Owner(player.other()), // FIXME: This is here because it is spawned on hit
@@ -93,10 +91,6 @@ pub fn spawn_pickups(
     };
 
     entity_commands.with_children(|cb| {
-        cb.spawn(SceneBundle {
-            transform,
-            scene: models[&model].clone(),
-            ..default()
-        });
+        cb.spawn((transform, SceneRoot(models[&model].clone())));
     });
 }

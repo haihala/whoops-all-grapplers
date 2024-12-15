@@ -130,10 +130,7 @@ fn spawn_player(
 
     commands
         .spawn((
-            SpatialBundle {
-                transform: Transform::from_translation(Vec3::new(offset, GROUND_PLANE_HEIGHT, 0.0)),
-                ..default()
-            },
+            Transform::from_translation(Vec3::new(offset, GROUND_PLANE_HEIGHT, 0.0)),
             Gauges::from_stats(&character.base_stats, character.special_properties.clone()),
             PlayerDefaults::default(),
             PadBundle::new(character.get_inputs()),
@@ -155,14 +152,11 @@ fn spawn_player(
             // Root bone of the model moves with the animation (resets position)
             // Have this as an intermediate layer for when we want to offset the animation
             parent
-                .spawn(SpatialBundle::default())
+                .spawn((Transform::default(), Visibility::default()))
                 .with_children(|model_pivot| {
                     model_pivot.spawn((
                         PlayerModelHook(colors.clone()),
-                        SceneBundle {
-                            scene: models[&model].clone(),
-                            ..default()
-                        },
+                        SceneRoot(models[&model].clone()),
                     ));
                 });
         })
@@ -216,7 +210,7 @@ fn setup_combat(
     bevy_time: Res<Time>,
 ) {
     info!("Round start reset");
-    clock.reset(bevy_time.elapsed_seconds_f64());
+    clock.reset(bevy_time.elapsed_secs_f64());
 
     for (
         player,

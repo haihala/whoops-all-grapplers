@@ -2,12 +2,8 @@
 
 ## Next steps
 
-### After [Bevy 0.15](/docs/tasks/backlog/bevy_0.15.md)
-
-- Fix the damn input reading
-  - Read full input state each frame
-  - Diff full input state for events
-  - Send events
+- Analog stick for online inputs
+- Settings (volume and keybinds)
 
 ### Before contacting artists
 

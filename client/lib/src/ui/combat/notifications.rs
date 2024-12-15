@@ -39,18 +39,15 @@ pub struct ComboDamageMarker;
 pub fn setup_toasts(commands: &mut Commands, parent: Entity, player: Player) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    flex_direction: FlexDirection::Column,
-                    align_items: match player {
-                        // Align towards the edge of the screen
-                        Player::One => AlignItems::FlexStart,
-                        Player::Two => AlignItems::FlexEnd,
-                    },
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(30.0),
-                    ..default()
+            Node {
+                flex_direction: FlexDirection::Column,
+                align_items: match player {
+                    // Align towards the edge of the screen
+                    Player::One => AlignItems::FlexStart,
+                    Player::Two => AlignItems::FlexEnd,
                 },
+                width: Val::Percent(100.0),
+                height: Val::Percent(30.0),
                 ..default()
             },
             VisibleInStates(vec![MatchState::Combat, MatchState::PostRound]),
@@ -62,18 +59,15 @@ pub fn setup_toasts(commands: &mut Commands, parent: Entity, player: Player) {
 pub fn setup_combo_counter(commands: &mut Commands, parent: Entity, player: Player, fonts: &Fonts) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(20.0),
-                    padding: UiRect::new(
-                        Val::Percent(10.0),
-                        Val::Percent(10.0),
-                        Val::Percent(0.0),
-                        Val::Percent(0.0),
-                    ),
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(20.0),
+                padding: UiRect::new(
+                    Val::Percent(10.0),
+                    Val::Percent(10.0),
+                    Val::Percent(0.0),
+                    Val::Percent(0.0),
+                ),
                 ..default()
             },
             VisibleInStates(vec![MatchState::Combat, MatchState::PostRound]),
@@ -83,53 +77,34 @@ pub fn setup_combo_counter(commands: &mut Commands, parent: Entity, player: Play
             // This exists so that we can use both the generic visibility system and the more
             // fine-grained model that hides the combo counter when not in a combo
             cb.spawn((
-                NodeBundle {
-                    style: Style {
-                        flex_direction: FlexDirection::Column,
-                        align_items: match player {
-                            // Align towards the edge of the screen
-                            Player::One => AlignItems::FlexStart,
-                            Player::Two => AlignItems::FlexEnd,
-                        },
-                        width: Val::Percent(100.0),
-                        height: Val::Percent(100.0),
-                        ..default()
+                Node {
+                    flex_direction: FlexDirection::Column,
+                    align_items: match player {
+                        // Align towards the edge of the screen
+                        Player::One => AlignItems::FlexStart,
+                        Player::Two => AlignItems::FlexEnd,
                     },
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
                     ..default()
                 },
                 ComboCounter(player),
             ))
             .with_children(|mb| {
-                let style = TextStyle {
-                    font: fonts.basic.clone(),
-                    font_size: 18.0,
-                    color: COMBO_COUNTER_TEXT_COLOR,
-                };
-
-                mb.spawn(TextBundle {
-                    text: Text::from_section("Combo!", style.clone()),
-                    ..default()
-                });
-
-                mb.spawn((
-                    TextBundle {
-                        text: Text::from_sections([
-                            TextSection::new("Hits ", style.clone()),
-                            TextSection::new("0", style.clone()),
-                        ]),
+                let style_bundle = (
+                    TextFont {
+                        font: fonts.basic.clone(),
+                        font_size: 18.0,
                         ..default()
                     },
-                    ComboHitsMarker,
-                ));
+                    TextColor(COMBO_COUNTER_TEXT_COLOR),
+                );
 
+                mb.spawn((Text::new("Combo!"), style_bundle.clone()));
+                mb.spawn((Text::new("Hits 0"), style_bundle.clone(), ComboHitsMarker));
                 mb.spawn((
-                    TextBundle {
-                        text: Text::from_sections([
-                            TextSection::new("Damage ", style.clone()),
-                            TextSection::new("0", style.clone()),
-                        ]),
-                        ..default()
-                    },
+                    Text::new("Damage 0"),
+                    style_bundle.clone(),
                     ComboDamageMarker,
                 ));
             });
@@ -183,33 +158,30 @@ fn spawn_notification(
     content: String,
 ) -> Entity {
     parent
-        .spawn(NodeBundle {
-            style: Style {
+        .spawn((
+            Node {
                 width: Val::Percent(40.0),
                 height: Val::Auto,
                 margin: UiRect::all(Val::Px(7.0)),
                 justify_content: JustifyContent::Center,
                 ..default()
             },
-            background_color: bg_color.into(),
-            ..default()
-        })
+            BackgroundColor(bg_color),
+        ))
         .with_children(|container| {
-            container.spawn(TextBundle {
-                text: Text::from_section(
-                    content,
-                    TextStyle {
-                        font,
-                        font_size: 18.0,
-                        color: text_color,
-                    },
-                ),
-                style: Style {
+            container.spawn((
+                Text::new(content),
+                TextFont {
+                    font,
+                    font_size: 18.0,
+                    ..default()
+                },
+                TextColor(text_color),
+                Node {
                     align_self: AlignSelf::Center,
                     ..default()
                 },
-                ..default()
-            });
+            ));
         })
         .id()
 }
@@ -250,7 +222,7 @@ pub fn update_combo_counters(
             .iter_mut()
             .find(|(_, entity)| children.contains(entity))
             .unwrap();
-        hit_text.0.sections[1].value = combo.hits.to_string();
+        hit_text.0 .0 = format!("Hits: {}", combo.hits);
 
         let mut damages_query = texts.p1();
         let mut damage_text = damages_query
@@ -258,6 +230,6 @@ pub fn update_combo_counters(
             .find(|(_, entity)| children.contains(entity))
             .unwrap();
         let current_health = resources.get(GaugeType::Health).unwrap().current;
-        damage_text.0.sections[1].value = (combo.old_health - current_health).to_string();
+        damage_text.0 .0 = format!("Total damage: {}", combo.old_health - current_health);
     }
 }

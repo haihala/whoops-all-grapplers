@@ -40,19 +40,16 @@ pub fn setup_end_screen(mut commands: Commands, fonts: Res<Fonts>, game_result: 
 
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    height: Val::Percent(100.0),
-                    width: Val::Percent(100.0),
-                    position_type: PositionType::Absolute,
-                    left: Val::Percent(0.0),
-                    top: Val::Percent(0.0),
-                    flex_direction: FlexDirection::Column,
-                    row_gap: Val::Percent(5.0),
-                    padding: UiRect::all(Val::Percent(20.0)),
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
+            Node {
+                height: Val::Percent(100.0),
+                width: Val::Percent(100.0),
+                position_type: PositionType::Absolute,
+                left: Val::Percent(0.0),
+                top: Val::Percent(0.0),
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Percent(5.0),
+                padding: UiRect::all(Val::Percent(20.0)),
+                align_items: AlignItems::Center,
                 ..default()
             },
             StateScoped(MatchState::EndScreen),
@@ -94,60 +91,50 @@ fn setup_end_screen_option(
     option: EndScreenOption,
 ) -> Entity {
     root.spawn((
-        NodeBundle {
-            background_color: VERTICAL_MENU_OPTION_BACKGROUND.into(),
-            style: Style {
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Center,
-                padding: UiRect::all(Val::Percent(1.0)),
-                width: Val::Percent(40.0),
-                ..default()
-            },
+        Node {
+            flex_direction: FlexDirection::Column,
+            align_items: AlignItems::Center,
+            padding: UiRect::all(Val::Percent(1.0)),
+            width: Val::Percent(40.0),
             ..default()
         },
+        BackgroundColor(VERTICAL_MENU_OPTION_BACKGROUND),
         Name::new(option.to_string()),
         option,
     ))
     .with_children(|cb| {
-        cb.spawn(TextBundle::from_section(
-            option.to_string(),
-            TextStyle {
+        cb.spawn((
+            Text::new(option.to_string()),
+            TextFont {
                 font: fonts.basic.clone(),
                 font_size: 30.0,
                 ..default()
             },
         ));
 
-        cb.spawn(NodeBundle {
-            style: Style {
-                justify_content: JustifyContent::SpaceBetween,
-                width: Val::Percent(100.0),
-                ..default()
-            },
+        cb.spawn(Node {
+            justify_content: JustifyContent::SpaceBetween,
+            width: Val::Percent(100.0),
             ..default()
         })
         .with_children(|ccb| {
             ccb.spawn((
-                TextBundle::from_section(
-                    "P1",
-                    TextStyle {
-                        font: fonts.basic.clone(),
-                        ..default()
-                    },
-                ),
+                Text::new("P1"),
+                TextFont {
+                    font: fonts.basic.clone(),
+                    ..default()
+                },
                 OptionHoverIndicator {
                     player: Player::One,
                 },
             ));
 
             ccb.spawn((
-                TextBundle::from_section(
-                    "P2",
-                    TextStyle {
-                        font: fonts.basic.clone(),
-                        ..default()
-                    },
-                ),
+                Text::new("P2"),
+                TextFont {
+                    font: fonts.basic.clone(),
+                    ..default()
+                },
                 OptionHoverIndicator {
                     player: Player::Two,
                 },
@@ -209,11 +196,16 @@ pub fn navigate_end_screen(
 }
 
 pub fn update_end_screen_visuals(
-    mut indicators: Query<(&mut Visibility, &mut Text, &OptionHoverIndicator, Entity)>,
+    mut indicators: Query<(
+        &mut Visibility,
+        &mut TextColor,
+        &OptionHoverIndicator,
+        Entity,
+    )>,
     hierarchy: Query<&Parent>,
     navigator: Res<EndScreenNav>,
 ) {
-    for (mut visibility, mut text, indicator, entity) in &mut indicators {
+    for (mut visibility, mut text_color, indicator, entity) in &mut indicators {
         let middle = hierarchy.get(entity).unwrap();
         let option = **hierarchy.get(**middle).unwrap();
 
@@ -222,7 +214,7 @@ pub fn update_end_screen_visuals(
             Player::Two => (navigator.p2_locked, navigator.p2_select.selected),
         };
 
-        text.sections[0].style.color = if locked {
+        text_color.0 = if locked {
             CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR
         } else {
             GENERIC_TEXT_COLOR

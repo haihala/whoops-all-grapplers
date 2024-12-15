@@ -28,12 +28,9 @@ pub fn spawn_vfx<M: Material>(
     } = trigger.event();
 
     commands.spawn((
-        MaterialMeshBundle {
-            mesh: mesh.clone(),
-            transform: *transform,
-            material: material_asset.add(material.clone()),
-            ..default()
-        },
+        Mesh3d(mesh.clone()),
+        *transform,
+        MeshMaterial3d(material_asset.add(material.clone())),
         DespawnMarker(clock.frame + frames_to_live),
         StateScoped(MatchState::Combat),
         Name::new("VFX"),
@@ -90,7 +87,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: HitSparkMaterial::new(time.elapsed_seconds()),
+                material: HitSparkMaterial::new(time.elapsed_secs()),
                 frames_to_live: 10,
             });
         }
@@ -98,7 +95,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: ClashSparkMaterial::new(time.elapsed_seconds()),
+                material: ClashSparkMaterial::new(time.elapsed_secs()),
                 frames_to_live: 10,
             });
         }
@@ -106,7 +103,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: BlockEffectMaterial::new(time.elapsed_seconds()),
+                material: BlockEffectMaterial::new(time.elapsed_secs()),
                 frames_to_live: 10,
             });
         }
@@ -114,7 +111,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: RingRippleMaterial::new(*c1, *c2, time.elapsed_seconds()),
+                material: RingRippleMaterial::new(*c1, *c2, time.elapsed_secs()),
                 frames_to_live: 60,
             });
         }
@@ -122,7 +119,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: LineFieldMaterial::new(time.elapsed_seconds(), *mirror),
+                material: LineFieldMaterial::new(time.elapsed_secs(), *mirror),
                 frames_to_live: 20,
             });
         }
@@ -130,7 +127,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: FocalPointLinesMaterial::new(time.elapsed_seconds()),
+                material: FocalPointLinesMaterial::new(time.elapsed_secs()),
                 frames_to_live: 60,
             });
         }
@@ -138,7 +135,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: LightningBoltMaterial::new(time.elapsed_seconds(), *mirror),
+                material: LightningBoltMaterial::new(time.elapsed_secs(), *mirror),
                 frames_to_live: 60,
             });
         }
@@ -146,7 +143,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: DiagonalWaveMaterial::new(time.elapsed_seconds(), *color, *mirror),
+                material: DiagonalWaveMaterial::new(time.elapsed_secs(), *color, *mirror),
                 frames_to_live: 60,
             });
         }
@@ -154,7 +151,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: FlatWaveMaterial::new(time.elapsed_seconds(), *color, *mirror),
+                material: FlatWaveMaterial::new(time.elapsed_secs(), *color, *mirror),
                 frames_to_live: 60,
             });
         }
@@ -162,7 +159,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: PebbleMaterial::new(time.elapsed_seconds(), *mirror),
+                material: PebbleMaterial::new(time.elapsed_secs(), *mirror),
                 frames_to_live: 60,
             });
         }
@@ -170,7 +167,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: SparkBurstMaterial::new(time.elapsed_seconds(), *mirror),
+                material: SparkBurstMaterial::new(time.elapsed_secs(), *mirror),
                 frames_to_live: 60,
             });
         }
@@ -178,7 +175,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: MidFlashMaterial::new(time.elapsed_seconds(), *color),
+                material: MidFlashMaterial::new(time.elapsed_secs(), *color),
                 frames_to_live: 60,
             });
         }
@@ -186,7 +183,7 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: SmokeBombMaterial::new(time.elapsed_seconds()),
+                material: SmokeBombMaterial::new(time.elapsed_secs()),
                 frames_to_live: 60,
             });
         }
@@ -195,7 +192,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 material: IconFlashMaterial::new(
-                    time.elapsed_seconds(),
+                    time.elapsed_secs(),
                     icons.0.get(icon).unwrap().clone(),
                 ),
                 frames_to_live: 60,

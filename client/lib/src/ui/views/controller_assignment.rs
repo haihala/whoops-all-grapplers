@@ -1,7 +1,7 @@
 use bevy::{ecs::system::SystemId, prelude::*};
 use foundation::{
-    Controllers, GameButton, GameState, InputEvent, InputStream, LocalState, Player, StickPosition,
-    CONTROLLER_ASSIGNMENT_SIDE_COLOR,
+    Controllers, GameButton, GameState, InputDevice, InputEvent, InputStream, LocalState, Player,
+    StickPosition, CONTROLLER_ASSIGNMENT_SIDE_COLOR,
 };
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
@@ -10,11 +10,11 @@ use super::setup_view_title;
 
 #[derive(Debug, Resource, Default)]
 pub struct ControllerAssignment {
-    p1: Option<usize>,
-    p2: Option<usize>,
+    p1: Option<InputDevice>,
+    p2: Option<InputDevice>,
 }
 impl ControllerAssignment {
-    fn left(&mut self, player_handle: usize) {
+    fn left(&mut self, player_handle: InputDevice) {
         if self.p2 == Some(player_handle) {
             self.p2 = None;
         } else if self.p1.is_none() {
@@ -22,7 +22,7 @@ impl ControllerAssignment {
         }
     }
 
-    fn right(&mut self, player_handle: usize) {
+    fn right(&mut self, player_handle: InputDevice) {
         if self.p1 == Some(player_handle) {
             self.p1 = None;
         } else if self.p2.is_none() {
@@ -47,19 +47,16 @@ pub struct FreeControllers;
 pub fn setup_controller_assignment(mut commands: Commands, fonts: Res<Fonts>) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    height: Val::Percent(100.0),
-                    width: Val::Percent(100.0),
-                    position_type: PositionType::Absolute,
-                    left: Val::Percent(0.0),
-                    top: Val::Percent(0.0),
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::Stretch,
-                    row_gap: Val::Percent(0.5),
-                    padding: UiRect::all(Val::Percent(10.0)),
-                    ..default()
-                },
+            Node {
+                height: Val::Percent(100.0),
+                width: Val::Percent(100.0),
+                position_type: PositionType::Absolute,
+                left: Val::Percent(0.0),
+                top: Val::Percent(0.0),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Stretch,
+                row_gap: Val::Percent(0.5),
+                padding: UiRect::all(Val::Percent(10.0)),
                 ..default()
             },
             VisibleInStates(vec![GameState::Local(LocalState::ControllerAssignment)]),
@@ -70,7 +67,7 @@ pub fn setup_controller_assignment(mut commands: Commands, fonts: Res<Fonts>) {
             setup_areas(cb, &fonts);
         });
 
-    let system_id = commands.register_one_shot_system(go_to_character_select);
+    let system_id = commands.register_system(go_to_character_select);
     commands.insert_resource(SubmitCallback(system_id));
 
     commands.insert_resource(ControllerAssignment::default());
@@ -91,14 +88,11 @@ fn go_to_character_select(
 
 fn setup_areas(root: &mut ChildBuilder, fonts: &Fonts) {
     root.spawn((
-        NodeBundle {
-            style: Style {
-                flex_grow: 1.0,
-                flex_direction: FlexDirection::Row,
-                justify_content: JustifyContent::SpaceEvenly,
-                align_items: AlignItems::Stretch,
-                ..default()
-            },
+        Node {
+            flex_grow: 1.0,
+            flex_direction: FlexDirection::Row,
+            justify_content: JustifyContent::SpaceEvenly,
+            align_items: AlignItems::Stretch,
             ..default()
         },
         Name::new("Area container"),
@@ -112,24 +106,21 @@ fn setup_areas(root: &mut ChildBuilder, fonts: &Fonts) {
 
 fn create_selected_controller_area(fonts: &Fonts, root: &mut ChildBuilder, player: Player) {
     root.spawn((
-        NodeBundle {
-            background_color: CONTROLLER_ASSIGNMENT_SIDE_COLOR.into(),
-            style: Style {
-                flex_grow: 1.0,
-                flex_direction: FlexDirection::Column,
-                justify_content: JustifyContent::FlexStart,
-                align_items: AlignItems::Center,
-                column_gap: Val::Percent(2.0),
-                ..default()
-            },
+        Node {
+            flex_grow: 1.0,
+            flex_direction: FlexDirection::Column,
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::Center,
+            column_gap: Val::Percent(2.0),
             ..default()
         },
+        BackgroundColor(CONTROLLER_ASSIGNMENT_SIDE_COLOR),
         SelectedController(player),
     ))
     .with_children(|cb| {
-        cb.spawn(TextBundle::from_section(
-            format!("Player {}", player),
-            TextStyle {
+        cb.spawn((
+            Text::from(format!("Player {}", player)),
+            TextFont {
                 font: fonts.basic.clone(),
                 font_size: 60.0,
                 ..default()
@@ -140,23 +131,20 @@ fn create_selected_controller_area(fonts: &Fonts, root: &mut ChildBuilder, playe
 
 fn create_unused_controller_area(fonts: &Fonts, root: &mut ChildBuilder) {
     root.spawn((
-        NodeBundle {
-            style: Style {
-                flex_grow: 1.0,
-                flex_direction: FlexDirection::Column,
-                justify_content: JustifyContent::FlexStart,
-                align_items: AlignItems::Center,
-                column_gap: Val::Percent(2.0),
-                ..default()
-            },
+        Node {
+            flex_grow: 1.0,
+            flex_direction: FlexDirection::Column,
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::Center,
+            column_gap: Val::Percent(2.0),
             ..default()
         },
         FreeControllers,
     ))
     .with_children(|cb| {
-        cb.spawn(TextBundle::from_section(
-            "Unassigned controllers",
-            TextStyle {
+        cb.spawn((
+            Text::from("Unassigned controllers"),
+            TextFont {
                 font: fonts.basic.clone(),
                 font_size: 60.0,
                 ..default()
@@ -195,7 +183,7 @@ pub struct ControllerIcon;
 pub fn update_controller_assignment_menu_visuals(
     mut commands: Commands,
     ca: Res<ControllerAssignment>,
-    pads: Res<Gamepads>,
+    pads: Query<Entity, With<Gamepad>>,
     existing_icons: Query<Entity, With<ControllerIcon>>,
     free_container: Query<Entity, With<FreeControllers>>,
     selected_controllers: Query<(Entity, &SelectedController)>,
@@ -222,20 +210,23 @@ pub fn update_controller_assignment_menu_visuals(
         .0;
 
     let unused = free_container.get_single().unwrap();
+    // TODO: Keyboard
 
-    for pad in pads.iter() {
-        if ca.p1 == Some(pad.id) {
+    for (index, pad) in pads.iter().enumerate() {
+        let pad_id = InputDevice::Controller(pad);
+
+        if ca.p1 == Some(pad_id) {
             commands
                 .entity(p1_selected)
-                .with_children(create_icon(pad.id, &fonts));
-        } else if ca.p2 == Some(pad.id) {
+                .with_children(create_icon(index, &fonts));
+        } else if ca.p2 == Some(pad_id) {
             commands
                 .entity(p2_selected)
-                .with_children(create_icon(pad.id, &fonts));
+                .with_children(create_icon(index, &fonts));
         } else {
             commands
                 .entity(unused)
-                .with_children(create_icon(pad.id, &fonts));
+                .with_children(create_icon(index, &fonts));
         }
     }
 }
@@ -244,14 +235,12 @@ fn create_icon(id: usize, fonts: &Fonts) -> impl Fn(&mut ChildBuilder) {
     let font = fonts.basic.clone();
     move |cb: &mut ChildBuilder| {
         cb.spawn((
-            TextBundle::from_section(
-                id.to_string(),
-                TextStyle {
-                    font: font.clone(),
-                    font_size: 40.0,
-                    ..default()
-                },
-            ),
+            Text::from(id.to_string()),
+            TextFont {
+                font: font.clone(),
+                font_size: 40.0,
+                ..default()
+            },
             ControllerIcon,
         ));
     }

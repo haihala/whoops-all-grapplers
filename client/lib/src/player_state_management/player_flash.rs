@@ -7,7 +7,7 @@ use crate::{assets::ExtendedFlashMaterial, event_spreading::ColorShift};
 pub fn handle_flash_events(
     trigger: Trigger<FlashRequest>,
     mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
-    handles: Query<(Entity, &Handle<ExtendedFlashMaterial>)>,
+    handles: Query<(Entity, &MeshMaterial3d<ExtendedFlashMaterial>)>,
     parents: Query<&Parent>,
     time: Res<Time>,
 ) {
@@ -24,7 +24,7 @@ pub fn handle_flash_events(
         }
 
         let material = materials.get_mut(handle).unwrap();
-        material.extension.flash_start = time.elapsed_seconds();
+        material.extension.flash_start = time.elapsed_secs();
         let req = trigger.event();
         material.extension.color = req.color.into();
         material.extension.speed = req.speed;
@@ -36,7 +36,7 @@ pub fn handle_flash_events(
 pub fn handle_color_shift(
     trigger: Trigger<ColorShift>,
     mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
-    handles: Query<(Entity, &Handle<ExtendedFlashMaterial>)>,
+    handles: Query<(Entity, &MeshMaterial3d<ExtendedFlashMaterial>)>,
     parents: Query<&Parent>,
     time: Res<Time>,
 ) {
@@ -55,6 +55,6 @@ pub fn handle_color_shift(
         let material = materials.get_mut(handle).unwrap();
         let ColorShift(color, duration) = trigger.event();
         material.extension.color_shift = (*color).into();
-        material.extension.color_shift_end = time.elapsed_seconds() + *duration as f32 / FPS;
+        material.extension.color_shift_end = time.elapsed_secs() + *duration as f32 / FPS;
     }
 }

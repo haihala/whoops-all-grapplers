@@ -928,6 +928,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
 
                         vec![
                             ActionEvent::ModifyResource(GaugeType::KunaiCounter, -1),
+                            // TODO: Use hitbuilder
                             ActionEvent::SpawnHitbox(Attack {
                                 to_hit: ToHit {
                                     hitbox: Hitbox(Area::new(0.2, 1.2, 0.3, 0.3)),

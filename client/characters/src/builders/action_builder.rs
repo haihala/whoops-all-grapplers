@@ -175,6 +175,7 @@ impl ActionBuilder {
         }
     }
 
+    #[allow(unused)]
     pub fn immediate_events(mut self, events: Events) -> Self {
         self.blobs.push(EventBlob {
             events,
@@ -191,6 +192,7 @@ impl ActionBuilder {
         self
     }
 
+    #[allow(unused)]
     pub fn events_after_frame(mut self, frame: usize, events: Events) -> Self {
         self.blobs.push(EventBlob {
             events,

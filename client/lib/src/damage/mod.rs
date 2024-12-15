@@ -30,6 +30,6 @@ impl Plugin for DamagePlugin {
             RollbackSchedule,
             hitstop::clear_hitstop.in_set(SystemStep::HitStop),
         )
-        .observe(hitstop::start_hitstop);
+        .add_observer(hitstop::start_hitstop);
     }
 }

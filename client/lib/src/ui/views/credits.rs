@@ -1,4 +1,4 @@
-pub use bevy::prelude::*;
+use bevy::prelude::*;
 use foundation::{GameButton, GameState, InputEvent, InputStream, StickPosition};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
@@ -9,19 +9,16 @@ pub struct CreditsNav;
 pub fn setup_credits_menu(mut commands: Commands, fonts: Res<Fonts>) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    height: Val::Percent(100.0),
-                    width: Val::Percent(100.0),
-                    position_type: PositionType::Absolute,
-                    left: Val::Percent(0.0),
-                    top: Val::Percent(0.0),
-                    flex_direction: FlexDirection::Column,
-                    row_gap: Val::Percent(5.0),
-                    padding: UiRect::all(Val::Percent(20.0)),
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
+            Node {
+                height: Val::Percent(100.0),
+                width: Val::Percent(100.0),
+                position_type: PositionType::Absolute,
+                left: Val::Percent(0.0),
+                top: Val::Percent(0.0),
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Percent(5.0),
+                padding: UiRect::all(Val::Percent(20.0)),
+                align_items: AlignItems::Center,
                 ..default()
             },
             VisibleInStates(vec![GameState::Credits]),
@@ -30,46 +27,38 @@ pub fn setup_credits_menu(mut commands: Commands, fonts: Res<Fonts>) {
         ))
         .with_children(|cb| {
             cb.spawn((
-                TextBundle::from_section(
-                    "Credits",
-                    TextStyle {
-                        font: fonts.basic.clone(),
-                        font_size: 128.0,
-                        ..default()
-                    },
-                ),
+                Text::new("Credits"),
+                TextFont {
+                    font: fonts.basic.clone(),
+                    font_size: 128.0,
+                    ..default()
+                },
                 Name::new("Credits main heading"),
             ));
 
             for section in credits_sections() {
                 cb.spawn((
-                    TextBundle {
-                        style: Style {
-                            margin: UiRect::top(Val::Percent(4.0)),
-                            ..default()
-                        },
-                        ..TextBundle::from_section(
-                            section.heading.clone(),
-                            TextStyle {
-                                font: fonts.basic.clone(),
-                                font_size: 48.0,
-                                ..default()
-                            },
-                        )
+                    Text::new(section.heading.clone()),
+                    Node {
+                        margin: UiRect::top(Val::Percent(4.0)),
+                        ..default()
+                    },
+                    TextFont {
+                        font: fonts.basic.clone(),
+                        font_size: 48.0,
+                        ..default()
                     },
                     Name::new(format!("{} credits subheading", section.heading)),
                 ));
 
                 for name in section.people {
                     cb.spawn((
-                        TextBundle::from_section(
-                            name.clone(),
-                            TextStyle {
-                                font: fonts.basic.clone(),
-                                font_size: 24.0,
-                                ..default()
-                            },
-                        ),
+                        Text::new(name.clone()),
+                        TextFont {
+                            font: fonts.basic.clone(),
+                            font_size: 24.0,
+                            ..default()
+                        },
                         Name::new(format!("{} credit for {}", name, section.heading)),
                     ));
                 }
@@ -104,7 +93,7 @@ const SCROLL_SPEED: f32 = 1.0;
 pub fn navigate_credits(
     input_stream: Res<InputStream>,
     mut next_state: ResMut<NextState<GameState>>,
-    mut ui_root: Query<&mut Style, With<CreditsNav>>,
+    mut ui_root: Query<&mut Node, With<CreditsNav>>,
     mut scroll_direction: Local<f32>,
 ) {
     let mut style = ui_root.single_mut();

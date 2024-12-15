@@ -77,28 +77,24 @@ fn play_transition_noise(mut commands: Commands) {
 
 fn setup_view_title(root: &mut ChildBuilder, fonts: &Fonts, text: impl Into<String>) {
     root.spawn((
-        TextBundle::from_section(
-            text,
-            TextStyle {
-                font: fonts.basic.clone(),
-                font_size: 128.0,
-                ..default()
-            },
-        ),
+        Text::new(text),
+        TextFont {
+            font: fonts.basic.clone(),
+            font_size: 128.0,
+            ..default()
+        },
         Name::new("Title"),
     ));
 }
 
 fn setup_view_subtitle(root: &mut ChildBuilder, fonts: &Fonts, text: impl Into<String>) {
     root.spawn((
-        TextBundle::from_section(
-            text,
-            TextStyle {
-                font: fonts.basic.clone(),
-                font_size: 64.0,
-                ..default()
-            },
-        ),
+        Text::new(text),
+        TextFont {
+            font: fonts.basic.clone(),
+            font_size: 64.0,
+            ..default()
+        },
         Name::new("Title"),
     ));
 }

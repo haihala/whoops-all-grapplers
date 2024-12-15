@@ -31,7 +31,7 @@ fn main() {
                 }
             } else {
                 Window {
-                    mode: WindowMode::BorderlessFullscreen,
+                    mode: WindowMode::BorderlessFullscreen(MonitorSelection::Current),
                     resizable: false,
                     ..default()
                 }

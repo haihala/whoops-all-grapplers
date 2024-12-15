@@ -116,6 +116,7 @@ impl AttackBuilder {
         }
     }
 
+    #[allow(unused)] // No metered attack builder attacks yet
     pub fn with_meter_cost(self) -> Self {
         Self {
             action_builder: self.action_builder.with_meter_cost(),
@@ -123,6 +124,7 @@ impl AttackBuilder {
         }
     }
 
+    #[allow(unused)]
     pub fn with_charge(self) -> Self {
         Self {
             action_builder: self.action_builder.with_charge(),
@@ -203,18 +205,6 @@ impl AttackBuilder {
     pub fn with_extra_initial_events(self, events: Vec<ActionEvent>) -> Self {
         Self {
             action_builder: self.action_builder.static_immediate_events(events),
-            ..self
-        }
-    }
-
-    pub fn with_dynamic_initial_events(
-        self,
-        generator: impl Fn(&Situation) -> Vec<ActionEvent> + Send + Sync + 'static,
-    ) -> Self {
-        Self {
-            action_builder: self
-                .action_builder
-                .dyn_immediate_events(Arc::new(generator)),
             ..self
         }
     }
@@ -376,19 +366,6 @@ impl HitBuilder {
         self
     }
 
-    pub fn with_dynamic_events(mut self, events: DynamicEvents) -> Self {
-        assert!(self.additional_events.dynamic.is_none());
-        self.additional_events.dynamic = Some(events);
-        self
-    }
-
-    pub fn with_on_hit_events(self, events: Vec<ActionEvent>) -> Self {
-        self.with_strike_builder(move |mut sb| {
-            sb.on_hit_effects.constant.append(&mut events.clone());
-            sb
-        })
-    }
-
     pub fn with_dynamic_on_hit_events(self, events: DynamicEvents) -> Self {
         self.with_strike_builder(move |mut sb| {
             assert!(sb.on_hit_effects.dynamic.is_none());
@@ -409,18 +386,22 @@ impl HitBuilder {
         }
     }
 
+    #[allow(unused)]
     pub fn with_multiple_hits(self, hit_count: usize) -> Self {
         Self { hit_count, ..self }
     }
 
+    #[allow(unused)]
     pub fn with_hitbox_gravity(self, gravity: f32) -> Self {
         Self { gravity, ..self }
     }
 
+    #[allow(unused)]
     pub fn with_hitbox_velocity(self, velocity: Vec2) -> Self {
         Self { velocity, ..self }
     }
 
+    #[allow(unused)]
     pub fn with_hitbox_speed(self, speed: f32) -> Self {
         Self {
             velocity: Vec2::X * speed,
@@ -428,6 +409,7 @@ impl HitBuilder {
         }
     }
 
+    #[allow(unused)]
     pub fn projectile(self) -> Self {
         Self {
             projectile: true,
@@ -435,6 +417,7 @@ impl HitBuilder {
         }
     }
 
+    #[allow(unused)]
     pub fn with_spawn(self, projectile: Model) -> Self {
         Self {
             spawn: Some(projectile),
@@ -450,10 +433,12 @@ impl HitBuilder {
         }
     }
 
+    #[allow(unused)]
     pub fn with_cancels_to(self, cancel_type: CancelType, window_size: usize) -> Self {
         self.with_strike_builder(|sb| sb.with_cancel_window(cancel_type.clone(), window_size))
     }
 
+    #[allow(unused)]
     pub fn with_no_cancels(self) -> Self {
         self.with_strike_builder(|sb| sb.without_cancel())
     }
@@ -478,6 +463,7 @@ impl HitBuilder {
         self.with_strike_builder(|sb| sb.with_hitstun(Stun::Relative(frame_advantage)))
     }
 
+    #[allow(unused)]
     pub fn knocks_down(self) -> Self {
         self.with_strike_builder(|sb| sb.knocks_down())
     }

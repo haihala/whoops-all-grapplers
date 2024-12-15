@@ -21,19 +21,16 @@ pub fn setup_character_select(mut commands: Commands, fonts: Res<Fonts>) {
 
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    height: Val::Percent(100.0),
-                    width: Val::Percent(100.0),
-                    position_type: PositionType::Absolute,
-                    left: Val::Percent(0.0),
-                    top: Val::Percent(0.0),
-                    flex_direction: FlexDirection::Column,
-                    row_gap: Val::Percent(5.0),
-                    padding: UiRect::all(Val::Percent(20.0)),
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
+            Node {
+                height: Val::Percent(100.0),
+                width: Val::Percent(100.0),
+                position_type: PositionType::Absolute,
+                left: Val::Percent(0.0),
+                top: Val::Percent(0.0),
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Percent(5.0),
+                padding: UiRect::all(Val::Percent(20.0)),
+                align_items: AlignItems::Center,
                 ..default()
             },
             VisibleInStates(vec![
@@ -68,47 +65,39 @@ fn setup_character_options(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity
     CharacterId::iter()
         .map(|character| {
             root.spawn((
-                NodeBundle {
-                    background_color: VERTICAL_MENU_OPTION_BACKGROUND.into(),
-                    style: Style {
-                        flex_direction: FlexDirection::Column,
-                        align_items: AlignItems::Center,
-                        padding: UiRect::all(Val::Percent(1.0)),
-                        width: Val::Percent(40.0),
-                        ..default()
-                    },
+                Node {
+                    flex_direction: FlexDirection::Column,
+                    align_items: AlignItems::Center,
+                    padding: UiRect::all(Val::Percent(1.0)),
+                    width: Val::Percent(40.0),
                     ..default()
                 },
+                BackgroundColor(VERTICAL_MENU_OPTION_BACKGROUND),
                 Name::new(character.to_string()),
                 character,
             ))
             .with_children(|cb| {
-                cb.spawn(TextBundle::from_section(
-                    character.to_string(),
-                    TextStyle {
+                cb.spawn((
+                    Text::new(character.to_string()),
+                    TextFont {
                         font: fonts.basic.clone(),
                         font_size: 30.0,
                         ..default()
                     },
                 ));
 
-                cb.spawn(NodeBundle {
-                    style: Style {
-                        justify_content: JustifyContent::SpaceBetween,
-                        width: Val::Percent(100.0),
-                        ..default()
-                    },
+                cb.spawn(Node {
+                    justify_content: JustifyContent::SpaceBetween,
+                    width: Val::Percent(100.0),
                     ..default()
                 })
                 .with_children(|ccb| {
                     ccb.spawn((
-                        TextBundle::from_section(
-                            "P1",
-                            TextStyle {
-                                font: fonts.basic.clone(),
-                                ..default()
-                            },
-                        ),
+                        Text::new("P1"),
+                        TextFont {
+                            font: fonts.basic.clone(),
+                            ..default()
+                        },
                         CharacterHoverIndicator {
                             character,
                             player: Player::One,
@@ -116,13 +105,11 @@ fn setup_character_options(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity
                     ));
 
                     ccb.spawn((
-                        TextBundle::from_section(
-                            "P2",
-                            TextStyle {
-                                font: fonts.basic.clone(),
-                                ..default()
-                            },
-                        ),
+                        Text::new("P2"),
+                        TextFont {
+                            font: fonts.basic.clone(),
+                            ..default()
+                        },
                         CharacterHoverIndicator {
                             character,
                             player: Player::Two,
@@ -206,7 +193,7 @@ pub fn navigate_character_select(
 }
 
 pub fn update_character_select_visuals(
-    mut indicators: Query<(&mut Visibility, &mut Text, &CharacterHoverIndicator)>,
+    mut indicators: Query<(&mut Visibility, &mut TextColor, &CharacterHoverIndicator)>,
     navigator: Res<CharacterSelectNav>,
     options: Query<&CharacterId>,
     local_controller: Option<Res<LocalController>>,
@@ -215,7 +202,7 @@ pub fn update_character_select_visuals(
         .get_many([navigator.p1_select.selected, navigator.p2_select.selected])
         .unwrap();
 
-    for (mut visibility, mut text, indicator) in &mut indicators {
+    for (mut visibility, mut text_color, indicator) in &mut indicators {
         let (locked, character) = match indicator.player {
             Player::One => (navigator.p1_locked, p1_char),
             Player::Two => (navigator.p2_locked, p2_char),
@@ -230,7 +217,7 @@ pub fn update_character_select_visuals(
             Visibility::Hidden
         };
 
-        text.sections[0].style.color = if locked {
+        text_color.0 = if locked {
             CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR
         } else {
             GENERIC_TEXT_COLOR

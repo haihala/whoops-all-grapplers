@@ -59,11 +59,8 @@ impl HitboxSpawner {
         ));
 
         let mut builder = commands.spawn((
-            SpatialBundle {
-                transform,
-                global_transform: Transform::from_translation(absolute_position).into(),
-                ..default()
-            },
+            transform,
+            GlobalTransform::from_translation(absolute_position),
             HitTracker::new(attack.to_hit.hits),
             Owner(player),
             hitbox,
@@ -82,10 +79,7 @@ impl HitboxSpawner {
 
         if let Some(model) = attack.to_hit.model {
             builder.with_children(|parent| {
-                parent.spawn(SceneBundle {
-                    scene: models[&model].clone(),
-                    ..default()
-                });
+                parent.spawn(SceneRoot(models[&model].clone()));
             });
         }
 

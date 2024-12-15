@@ -21,10 +21,7 @@ fn add_stage(mut commands: Commands, models: Res<Models>, stages: Query<&Stage>)
     }
 
     commands.spawn((
-        SceneBundle {
-            scene: models[&Model::TrainingStage].clone(),
-            ..default()
-        },
+        SceneRoot(models[&Model::TrainingStage].clone()),
         Name::new("Stage"),
         StateScoped(InMatch),
     ));
@@ -45,10 +42,8 @@ fn setup_lights(mut commands: Commands, lights: Query<&Spotlight>) {
     });
 
     commands.spawn((
-        PointLightBundle {
-            transform: Transform::from_xyz(0.0, 5.0, 2.0),
-            ..default()
-        },
+        PointLight::default(),
+        Transform::from_xyz(0.0, 5.0, 2.0),
         Name::new("Point light"),
         StateScoped(InMatch),
     ));

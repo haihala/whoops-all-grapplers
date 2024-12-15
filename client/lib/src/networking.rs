@@ -9,9 +9,9 @@ use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
 use characters::{Attack, Gauges, Hitbox, Hurtboxes, Inventory};
 use foundation::{
-    CharacterFacing, Characters, Clock, Combo, Controllers, GameState, Hitstop, InputState,
-    InputStream, LocalCharacter, LocalController, MatchState, NetworkInputButton, OnlineState,
-    OwnedInput, Owner, Player, RollbackSchedule, Stats, WagArgs, KEYBOARD_PAD_ID, STICK_DEAD_ZONE,
+    CharacterFacing, Characters, Clock, Combo, Controllers, GameState, Hitstop, InputDevice,
+    InputState, InputStream, LocalCharacter, LocalController, MatchState, NetworkInputButton,
+    OnlineState, OwnedInput, Owner, Player, RollbackSchedule, Stats, WagArgs, STICK_DEAD_ZONE,
 };
 use input_parsing::{InputParser, ParrotStream};
 use player_state::PlayerState;
@@ -147,11 +147,13 @@ enum ConnectionState {
     StartSession,
 }
 
+#[allow(clippy::too_many_arguments)]
 fn wait_for_players(
     mut commands: Commands,
     mut connection_state: Local<ConnectionState>,
     mut socket: ResMut<MatchboxSocket<MultipleChannels>>,
     local_character: Res<LocalCharacter>,
+    local_controls: Res<LocalController>,
     args: Res<WagArgs>,
     mut next_game_state: ResMut<NextState<GameState>>,
     mut next_match_state: ResMut<NextState<MatchState>>,
@@ -191,16 +193,28 @@ fn wait_for_players(
             };
 
             // First to join is index 0 -> player 1
-            let chars = if peer_index == 0 {
-                Characters {
-                    p1: contents[0].into(),
-                    p2: local_character.0,
-                }
+            let (chars, controllers) = if peer_index == 0 {
+                (
+                    Characters {
+                        p1: contents[0].into(),
+                        p2: local_character.0,
+                    },
+                    Controllers {
+                        p1: InputDevice::Online(0),
+                        p2: local_controls.0,
+                    },
+                )
             } else if peer_index == 1 {
-                Characters {
-                    p1: local_character.0,
-                    p2: contents[0].into(),
-                }
+                (
+                    Characters {
+                        p1: local_character.0,
+                        p2: contents[0].into(),
+                    },
+                    Controllers {
+                        p1: local_controls.0,
+                        p2: InputDevice::Online(1),
+                    },
+                )
             } else {
                 // I'm assuming only valid indices are 0 and 1
                 // I think this will break if spectating is introduced
@@ -209,7 +223,7 @@ fn wait_for_players(
             };
 
             commands.insert_resource(chars);
-            commands.insert_resource(Controllers { p1: 0, p2: 1 });
+            commands.insert_resource(controllers);
             *connection_state = ConnectionState::StartSession;
         }
         ConnectionState::StartSession => {
@@ -276,18 +290,14 @@ fn start_synctest_session(mut commands: Commands, args: Res<WagArgs>, mut starte
 
 fn read_local_inputs(
     mut commands: Commands,
-    gamepad_buttons: Res<ButtonInput<GamepadButton>>,
     keyboard_keys: Res<ButtonInput<KeyCode>>,
     maybe_controller: Option<Res<LocalController>>,
     local_players: Res<LocalPlayers>,
-    local_controller: Res<LocalController>,
-    axes: Res<Axis<GamepadAxis>>,
+    pad_query: Query<&Gamepad>,
 ) {
-    let Some(controller) = maybe_controller else {
+    let Some(local_controls) = maybe_controller else {
         return;
     };
-
-    let gamepad = Gamepad { id: controller.0 };
 
     let mut inputs = HashMap::new();
 
@@ -295,58 +305,52 @@ fn read_local_inputs(
     for handle in &local_players.0 {
         let mut input = 0u16;
 
-        for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
-            if gamepad_buttons.pressed(GamepadButton {
-                gamepad, // Maybe this is supposed to refer to handle?
-                button_type: wag_button.to_gamepad_button_type(),
-            }) {
-                input |= 1 << shift;
-            }
-        }
-
-        // The joysticks are represented using a separate axis for X and Y
-        // This is from the cheatbook: https://bevy-cheatbook.github.io/input/gamepad.html
-        let axis_lx = GamepadAxis {
-            gamepad,
-            axis_type: GamepadAxisType::LeftStickX,
-        };
-        let axis_ly = GamepadAxis {
-            gamepad,
-            axis_type: GamepadAxisType::LeftStickY,
-        };
-
-        // This analog stick handling is untested
-        if let (Some(float_x), Some(float_y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
-            let (up, down) = if float_y.abs() < STICK_DEAD_ZONE {
-                (0, 0)
-            } else if float_y < 0.0 {
-                (0, 1)
-            } else {
-                (1, 0)
-            };
-
-            let (left, right) = if float_x.abs() < STICK_DEAD_ZONE {
-                (0, 0)
-            } else if float_x < 0.0 {
-                (1, 0)
-            } else {
-                (0, 1)
-            };
-
-            // You may end up with opposing cardinals pressed with stick+dpad
-            input |= up;
-            input |= down << 1;
-            input |= left << 2;
-            input |= right << 3;
-        }
-
-        // Keyboard -> Player 1
-        // TODO: This is probably broken online, it's useful for synctesting
-        if local_controller.0 == 69 && *handle == 0 {
-            for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
-                if keyboard_keys.pressed(wag_button.to_keycode()) {
-                    input |= 1 << shift;
+        match local_controls.0 {
+            InputDevice::Controller(entity) => {
+                let gamepad = pad_query.get(entity).unwrap();
+                for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
+                    if gamepad.pressed(wag_button.to_gamepad_button_type()) {
+                        input |= 1 << shift;
+                    }
                 }
+
+                if let (Some(float_x), Some(float_y)) = (
+                    gamepad.get(GamepadAxis::LeftStickX),
+                    gamepad.get(GamepadAxis::LeftStickY),
+                ) {
+                    let (up, down) = if float_y.abs() < STICK_DEAD_ZONE {
+                        (0, 0)
+                    } else if float_y < 0.0 {
+                        (0, 1)
+                    } else {
+                        (1, 0)
+                    };
+
+                    let (left, right) = if float_x.abs() < STICK_DEAD_ZONE {
+                        (0, 0)
+                    } else if float_x < 0.0 {
+                        (1, 0)
+                    } else {
+                        (0, 1)
+                    };
+
+                    // You may end up with opposing cardinals pressed with stick+dpad
+                    input |= up;
+                    input |= down << 1;
+                    input |= left << 2;
+                    input |= right << 3;
+                }
+            }
+            InputDevice::Keyboard => {
+                for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
+                    if keyboard_keys.pressed(wag_button.to_keycode()) {
+                        input |= 1 << shift;
+                    }
+                }
+            }
+            InputDevice::Online(_) => {
+                error!("We should never have online input devices here");
+                panic!()
             }
         }
 
@@ -359,23 +363,17 @@ fn read_local_inputs(
 fn generate_offline_input_streams(
     mut stream: ResMut<InputStream>,
     keys: Res<ButtonInput<KeyCode>>,
-    gamepads: Res<Gamepads>,
-    pad_buttons: Res<ButtonInput<GamepadButton>>,
-    pad_axis: Res<Axis<GamepadAxis>>,
+    pad_query: Query<(Entity, &Gamepad)>,
 ) {
-    let mut new_states = HashMap::<usize, InputState>::new();
+    let mut new_states = HashMap::<InputDevice, InputState>::new();
 
-    // Get input states
-    for pad in gamepads.iter() {
+    for (entity, pad) in &pad_query {
         let mut state = InputState::default();
         let mut stick: IVec2 = default();
 
         // Buttons
         for nb in NetworkInputButton::iter() {
-            if pad_buttons.pressed(GamepadButton {
-                gamepad: pad,
-                button_type: nb.to_gamepad_button_type(),
-            }) {
+            if pad.pressed(nb.to_gamepad_button_type()) {
                 match nb {
                     // Dpad
                     NetworkInputButton::Up => {
@@ -402,19 +400,8 @@ fn generate_offline_input_streams(
         }
 
         // Analog stick (Not sure why they are options)
-        let analog_x = pad_axis
-            .get(GamepadAxis {
-                gamepad: pad,
-                axis_type: GamepadAxisType::LeftStickX,
-            })
-            .unwrap_or_default();
-
-        let analog_y = pad_axis
-            .get(GamepadAxis {
-                gamepad: pad,
-                axis_type: GamepadAxisType::LeftStickY,
-            })
-            .unwrap_or_default();
+        let analog_x = pad.get(GamepadAxis::LeftStickX).unwrap();
+        let analog_y = pad.get(GamepadAxis::LeftStickY).unwrap();
 
         if analog_x.abs() > STICK_DEAD_ZONE {
             stick.x += analog_x.signum() as i32;
@@ -433,7 +420,7 @@ fn generate_offline_input_streams(
         //dbg!(&state, &stick, analog_x, analog_y, pad);
         state.stick_position = stick.into();
 
-        new_states.insert(pad.id, state);
+        new_states.insert(InputDevice::Controller(entity), state);
     }
 
     // Add keyboard
@@ -470,7 +457,7 @@ fn generate_offline_input_streams(
 
     kb_state.stick_position = kb_stick.into();
 
-    new_states.insert(KEYBOARD_PAD_ID, kb_state);
+    new_states.insert(InputDevice::Keyboard, kb_state);
 
     // Compare to previous state
     for (pad, new_state) in new_states.iter() {
@@ -514,9 +501,10 @@ fn generate_online_input_streams(
                 let game_event = button_type.to_input_event(&mut writer, 69, is_pressed);
 
                 if let Some(input_event) = game_event {
+                    // TODO: This may be wrong and we may have to do a mapping to local inputs here
                     writer.events.push(OwnedInput {
                         event: input_event,
-                        player_handle,
+                        player_handle: InputDevice::Online(player_handle),
                     });
                 }
             }

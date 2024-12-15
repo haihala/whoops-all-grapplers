@@ -67,7 +67,7 @@ pub fn setup_helpers(
             commands
                 .entity(animation_player)
                 .insert(AnimationTransitions::new())
-                .insert(animations.monograph.clone());
+                .insert(AnimationGraphHandle(animations.monograph.clone()));
         }
     }
 }
@@ -102,7 +102,7 @@ pub fn update_animation(
     animations: Res<Animations>,
     mut main: Query<(&mut AnimationHelper, &Stats)>,
     mut players: Query<(&mut AnimationPlayer, &mut AnimationTransitions)>,
-    mut scenes: Query<&mut Transform, With<Handle<Scene>>>,
+    mut scenes: Query<&mut Transform, With<SceneRoot>>,
     maybe_hitstop: Option<ResMut<Hitstop>>,
     mut hitstop_last_frame: Local<bool>,
     match_state: Res<State<MatchState>>,

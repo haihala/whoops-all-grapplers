@@ -19,29 +19,26 @@ pub fn setup_bar(
 ) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0 - SCREEN_EDGE_PADDING),
-                    height: Val::Percent(instructions.height),
-                    column_gap: Val::Percent(instructions.segment_gap),
-                    flex_direction: match player {
-                        Player::One => FlexDirection::RowReverse,
-                        Player::Two => FlexDirection::Row,
-                    },
-                    margin: UiRect {
-                        bottom: Val::Percent(1.0),
-                        left: Val::Percent(if player == Player::One {
-                            SCREEN_EDGE_PADDING
-                        } else {
-                            0.0
-                        }),
-                        right: Val::Percent(if player == Player::Two {
-                            SCREEN_EDGE_PADDING
-                        } else {
-                            0.0
-                        }),
-                        ..default()
-                    },
+            Node {
+                width: Val::Percent(100.0 - SCREEN_EDGE_PADDING),
+                height: Val::Percent(instructions.height),
+                column_gap: Val::Percent(instructions.segment_gap),
+                flex_direction: match player {
+                    Player::One => FlexDirection::RowReverse,
+                    Player::Two => FlexDirection::Row,
+                },
+                margin: UiRect {
+                    bottom: Val::Percent(1.0),
+                    left: Val::Percent(if player == Player::One {
+                        SCREEN_EDGE_PADDING
+                    } else {
+                        0.0
+                    }),
+                    right: Val::Percent(if player == Player::Two {
+                        SCREEN_EDGE_PADDING
+                    } else {
+                        0.0
+                    }),
                     ..default()
                 },
                 ..default()
@@ -54,15 +51,12 @@ pub fn setup_bar(
         .with_children(|root_bar| {
             for i in 0..instructions.segments {
                 root_bar.spawn((
-                    NodeBundle {
-                        style: Style {
-                            width: Val::Percent(instructions.segment_width()),
-                            height: Val::Percent(100.0),
-                            ..default()
-                        },
-                        background_color: instructions.default_color.into(),
+                    Node {
+                        width: Val::Percent(instructions.segment_width()),
+                        height: Val::Percent(100.0),
                         ..default()
                     },
+                    BackgroundColor(instructions.default_color),
                     Name::new(format!("Segment {}", i)),
                 ));
             }
@@ -80,20 +74,17 @@ pub fn setup_counter(
 ) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    column_gap: Val::Px(10.0),
-                    flex_direction: FlexDirection::Row,
-                    justify_content: match player {
-                        // Align towards the center
-                        Player::One => JustifyContent::FlexEnd,
-                        Player::Two => JustifyContent::FlexStart,
-                    },
-                    margin: UiRect {
-                        bottom: Val::Percent(1.0),
-                        ..default()
-                    },
+            Node {
+                width: Val::Percent(100.0),
+                column_gap: Val::Px(10.0),
+                flex_direction: FlexDirection::Row,
+                justify_content: match player {
+                    // Align towards the center
+                    Player::One => JustifyContent::FlexEnd,
+                    Player::Two => JustifyContent::FlexStart,
+                },
+                margin: UiRect {
+                    bottom: Val::Percent(1.0),
                     ..default()
                 },
                 ..default()
@@ -103,28 +94,27 @@ pub fn setup_counter(
         ))
         .set_parent(parent)
         .with_children(|root_bar| {
-            let text_style = TextStyle {
-                font: font.clone(),
-                font_size: 36.0,
-                color: RESOURCE_COUNTER_TEXT_COLOR,
-            };
+            let text_style = (
+                TextFont {
+                    font: font.clone(),
+                    font_size: 36.0,
+                    ..default()
+                },
+                TextColor(RESOURCE_COUNTER_TEXT_COLOR),
+            );
 
             let spawn_label = |root: &mut ChildBuilder| {
                 root.spawn((
-                    TextBundle {
-                        text: Text::from_section(instructions.label, text_style.clone()),
-                        ..default()
-                    },
+                    Text::new(instructions.label),
+                    text_style.clone(),
                     Name::new("Label"),
                 ));
             };
 
             let spawn_counter = |root: &mut ChildBuilder| {
                 root.spawn((
-                    TextBundle {
-                        text: Text::from_section("0", text_style.clone()),
-                        ..default()
-                    },
+                    Text::new("0"),
+                    text_style.clone(),
                     marker,
                     Name::new("Value"),
                 ));
@@ -144,7 +134,7 @@ pub fn setup_counter(
 }
 
 pub fn update_bars(
-    mut segments: Query<(&mut Style, &mut BackgroundColor)>,
+    mut segments: Query<(&mut Node, &mut BackgroundColor)>,
     bars: Query<(&Children, &ResourceBarVisual, &ResourceGauge)>,
     players: Query<(&Player, &Gauges)>,
 ) {
@@ -195,7 +185,7 @@ pub fn update_counters(
                     continue;
                 }
 
-                text.sections[0].value = property.current.to_string();
+                text.0 = property.current.to_string();
             }
         }
     }

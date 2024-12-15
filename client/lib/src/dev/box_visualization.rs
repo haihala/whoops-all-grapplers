@@ -11,7 +11,6 @@ pub(super) fn visualize_hitboxes(mut gizmos: Gizmos, hitboxes: Query<(&GlobalTra
     for (gtf, hitbox) in &hitboxes {
         gizmos.rect(
             gtf.translation() + hitbox.center().extend(0.0),
-            Quat::default(),
             hitbox.size(),
             HITBOX_VISUALIZATION_COLOR,
         )
@@ -26,7 +25,6 @@ pub(super) fn visualize_hurtboxes(
         for hurtbox in boxes.as_vec() {
             gizmos.rect(
                 tf.translation + facing.visual.mirror_vec2(hurtbox.center()).extend(0.0),
-                Quat::default(),
                 hurtbox.size(),
                 HURTBOX_VISUALIZATION_COLOR,
             );
@@ -41,7 +39,6 @@ pub(super) fn visualize_pushboxes(
     for (tf, facing, pushbox) in &pushboxes {
         gizmos.rect(
             tf.translation + facing.visual.mirror_vec2(pushbox.center()).extend(0.0),
-            Quat::default(),
             pushbox.size(),
             PUSHBOX_VISUALIZATION_COLOR,
         )
@@ -52,7 +49,6 @@ pub(super) fn visualize_generic_areas(mut gizmos: Gizmos, areas: Query<(&Transfo
     for (tf, area) in &areas {
         gizmos.rect(
             tf.translation,
-            Quat::default(),
             area.size(),
             GENERIC_AREA_VISUALIZATION_COLOR,
         )

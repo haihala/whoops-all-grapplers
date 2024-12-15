@@ -35,7 +35,7 @@ pub struct PlayerModelHook(pub HashMap<&'static str, Color>);
 #[allow(clippy::too_many_arguments)]
 pub fn prep_player_gltf(
     unloaded_instances: Query<(Entity, &SceneInstance, &PlayerModelHook)>,
-    material_handles: Query<(Entity, &Handle<StandardMaterial>, &Name)>,
+    material_handles: Query<(Entity, &MeshMaterial3d<StandardMaterial>, &Name)>,
     pbr_materials: Res<Assets<StandardMaterial>>,
     scene_manager: Res<SceneSpawner>,
     mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
@@ -69,8 +69,8 @@ pub fn prep_player_gltf(
 
             commands
                 .entity(entity)
-                .insert(material.clone())
-                .remove::<Handle<StandardMaterial>>();
+                .remove::<MeshMaterial3d<StandardMaterial>>()
+                .insert(MeshMaterial3d(material.clone()));
         }
     }
 }

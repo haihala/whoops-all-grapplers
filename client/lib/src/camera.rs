@@ -11,6 +11,7 @@ use crate::{
 };
 
 #[derive(Debug, Component, Default)]
+#[require(Transform, Visibility)]
 pub struct CameraWrapper;
 
 pub const VIEWPORT_HALFWIDTH: f32 = MAX_PLAYER_DISTANCE / 2.0; // This is used to control stage border relative to the camera
@@ -39,8 +40,8 @@ impl Plugin for CustomCameraPlugin {
                     .in_set(SystemStep::Camera)
                     .run_if(in_state(InMatch)),
             )
-            .observe(shake_camera)
-            .observe(zoom_camera);
+            .add_observer(shake_camera)
+            .add_observer(zoom_camera);
     }
 }
 
@@ -52,7 +53,6 @@ fn add_camera(
 ) {
     commands
         .spawn((
-            SpatialBundle::default(),
             Name::new("Cameras"),
             CameraWrapper,
             RootCameraEffects::default(),
@@ -60,11 +60,9 @@ fn add_camera(
         .with_children(|parent| {
             parent
                 .spawn((
-                    Camera3dBundle {
-                        transform: Transform::from_xyz(0.0, MAX_CAMERA_HEIGHT, MAX_CAMERA_DISTANCE),
-                        projection: PerspectiveProjection::default().into(),
-                        ..default()
-                    },
+                    Camera3d::default(),
+                    Transform::from_xyz(0.0, MAX_CAMERA_HEIGHT, MAX_CAMERA_DISTANCE),
+                    Projection::Perspective(PerspectiveProjection::default()),
                     Name::new("Main Camera"),
                     ChildCameraEffects::default(),
                     InheritedVisibility::VISIBLE,
@@ -73,14 +71,11 @@ fn add_camera(
                     if args.dev.is_none() {
                         // This blocks the view while game is loading
                         main_cam.spawn((
-                            PbrBundle {
-                                mesh: meshes.add(Mesh::from(Cuboid {
-                                    half_size: Vec3::splat(3.0),
-                                })),
-                                material: materials.add(LOADING_SCREEN_BACKGROUND),
-                                transform: Transform::from_xyz(0.0, 0.0, -2.0),
-                                ..default()
-                            },
+                            Mesh3d(meshes.add(Mesh::from(Cuboid {
+                                half_size: Vec3::splat(3.0),
+                            }))),
+                            MeshMaterial3d(materials.add(LOADING_SCREEN_BACKGROUND)),
+                            Transform::from_xyz(0.0, 0.0, -2.0),
                             VisibleInStates(vec![MatchState::Loading, MatchState::PostLoad]),
                             NoFrustumCulling,
                         ));
@@ -176,7 +171,7 @@ fn shake_camera(
 ) {
     let mut childcam_fx = cams.single_mut();
     // Done after to avoid division by zero.
-    childcam_fx.last_shake_start = time.elapsed_seconds();
+    childcam_fx.last_shake_start = time.elapsed_secs();
 }
 
 fn zoom_camera(
@@ -185,7 +180,7 @@ fn zoom_camera(
     time: Res<Time>,
 ) {
     let mut childcam_fx = cams.single_mut();
-    childcam_fx.zoom_until = time.elapsed_seconds() + trigger.event().0;
+    childcam_fx.zoom_until = time.elapsed_secs() + trigger.event().0;
 }
 
 fn child_camera_effects(
@@ -195,7 +190,7 @@ fn child_camera_effects(
     let (mut tf, mut childcam_fx) = cams.single_mut();
 
     let translation = if childcam_fx.pivot.is_some() {
-        let zoomed = childcam_fx.zoom_until > time.elapsed_seconds();
+        let zoomed = childcam_fx.zoom_until > time.elapsed_secs();
 
         // TODO: Smoother transitions
         if zoomed {
@@ -216,9 +211,9 @@ fn child_camera_effects(
 
     childcam_fx.pivot = Some(translation);
 
-    let progress = (time.elapsed_seconds() - childcam_fx.last_shake_start) / SHAKE_DURATION;
+    let progress = (time.elapsed_secs() - childcam_fx.last_shake_start) / SHAKE_DURATION;
     let magnitude = SHAKE_INITIAL_MAGNITUDE * (1.0 - progress).max(0.0);
-    let angle = time.elapsed_seconds() * SHAKE_TWIST;
+    let angle = time.elapsed_secs() * SHAKE_TWIST;
     let offset = magnitude * Vec3::new(angle.sin(), angle.cos(), 0.0);
 
     tf.translation = childcam_fx.pivot.unwrap() + offset;

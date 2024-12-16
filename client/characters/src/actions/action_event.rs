@@ -29,6 +29,7 @@ pub enum ActionEvent {
     SnapToOpponent {
         sideswitch: bool,
     },
+    FlipVisuals,
     HitStun(usize),
     BlockStun(usize),
     LaunchStun(Vec2),
@@ -140,6 +141,9 @@ impl std::fmt::Debug for ActionEvent {
             }
             ActionEvent::SpawnPickup(pickup_request) => {
                 write!(f, "SpawnPickup - {:?}", pickup_request)
+            }
+            ActionEvent::FlipVisuals => {
+                write!(f, "FlipVisuals")
             }
             ActionEvent::Noop => {
                 write!(f, "NO-OP")

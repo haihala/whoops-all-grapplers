@@ -23,7 +23,7 @@ mod economy;
 pub use economy::*;
 
 mod facing;
-pub use facing::Facing;
+pub use facing::{CharacterFacing, Facing};
 
 mod gltf;
 pub use gltf::*;

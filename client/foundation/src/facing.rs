@@ -2,7 +2,22 @@ use bevy::prelude::*;
 
 use crate::StickPosition;
 
-#[derive(Reflect, PartialEq, Eq, Clone, Copy, Debug, Component, Default, Hash)]
+#[derive(Reflect, PartialEq, Eq, Clone, Copy, Debug, Default, Hash, Component)]
+pub struct CharacterFacing {
+    pub visual: Facing,
+    pub absolute: Facing,
+}
+
+impl From<Facing> for CharacterFacing {
+    fn from(value: Facing) -> Self {
+        Self {
+            visual: value,
+            absolute: value,
+        }
+    }
+}
+
+#[derive(Reflect, PartialEq, Eq, Clone, Copy, Debug, Default, Hash)]
 pub enum Facing {
     #[default]
     Right,

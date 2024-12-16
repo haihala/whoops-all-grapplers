@@ -5,7 +5,7 @@ use characters::{
     Hitbox, Hurtboxes, Inventory,
 };
 use foundation::{
-    Area, Clock, Combo, Facing, Owner, Player, Players, SoundEffect, Stats, StatusFlag,
+    Area, CharacterFacing, Clock, Combo, Owner, Player, Players, SoundEffect, Stats, StatusFlag,
     StickPosition, VfxRequest, VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
 };
 use input_parsing::InputParser;
@@ -50,7 +50,7 @@ pub struct HitPlayerQuery<'a> {
     parser: &'a InputParser,
     state: &'a mut PlayerState,
     velocity: &'a mut PlayerVelocity,
-    facing: &'a Facing,
+    facing: &'a CharacterFacing,
     spawner: &'a mut HitboxSpawner,
     stats: &'a Stats,
     combo: Option<&'a mut Combo>,
@@ -134,7 +134,13 @@ pub(super) fn detect_hits(
     mut notifications: ResMut<Notifications>,
     mut hitboxes: Query<(&Owner, &Attack, &GlobalTransform, &Hitbox, &mut HitTracker)>,
     players: Res<Players>,
-    defenders: Query<(&Transform, &Facing, &Hurtboxes, &PlayerState, &InputParser)>,
+    defenders: Query<(
+        &Transform,
+        &CharacterFacing,
+        &Hurtboxes,
+        &PlayerState,
+        &InputParser,
+    )>,
     attackers: Query<Option<&Combo>>,
 ) -> Vec<AttackConnection> {
     hitboxes
@@ -159,7 +165,8 @@ pub(super) fn detect_hits(
                 // Different owners, hit can register
                 hurtbox
                     .with_center(
-                        facing.mirror_vec2(hurtbox.center()) + defender_tf.translation.truncate(),
+                        facing.visual.mirror_vec2(hurtbox.center())
+                            + defender_tf.translation.truncate(),
                     )
                     .intersection(&offset_hitbox)
             })?;
@@ -184,8 +191,10 @@ pub(super) fn detect_hits(
             let (avoid_notification, contact_type) = match attack.to_hit.block_type {
                 BlockType::Strike(height) => {
                     let parrying = state.has_flag(StatusFlag::Parry) && state.is_grounded();
-                    let (blocked, reason) =
-                        handle_blocking(height, facing.mirror_stick_pos(parser.get_stick_pos()));
+                    let (blocked, reason) = handle_blocking(
+                        height,
+                        facing.absolute.mirror_stick_pos(parser.get_stick_pos()),
+                    );
 
                     if parrying {
                         (Some("Parry!".into()), ConnectionType::Parry)
@@ -247,7 +256,7 @@ pub fn apply_connections(
             for mut player in &mut players {
                 player
                     .velocity
-                    .add_impulse(player.facing.mirror_vec2(Vec2::X * -10.0));
+                    .add_impulse(player.facing.absolute.mirror_vec2(Vec2::X * -10.0));
                 notifications.add(*player.player, "Throw clash".to_owned());
             }
 
@@ -432,7 +441,12 @@ fn apply_damage_multiplier(actions: Vec<ActionEvent>, multiplier: f32) -> Vec<Ac
 
 pub fn snap_and_switch(
     trigger: Trigger<SnapToOpponent>,
-    mut query: Query<(&mut Transform, &mut Facing, &Pushbox, &mut PlayerVelocity)>,
+    mut query: Query<(
+        &mut Transform,
+        &mut CharacterFacing,
+        &Pushbox,
+        &mut PlayerVelocity,
+    )>,
     players: Res<Players>,
 ) {
     let [(mut self_tf, mut self_facing, self_pushbox, mut self_velocity), (other_tf, mut other_facing, other_pushbox, other_velocity)] =
@@ -481,9 +495,9 @@ pub fn blockstun_events(
 
 pub fn launch_events(
     trigger: Trigger<LaunchImpulse>,
-    mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &Facing)>,
+    mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &CharacterFacing)>,
 ) {
     let (mut state, mut velocity, facing) = query.get_mut(trigger.entity()).unwrap();
     state.launch();
-    velocity.add_impulse(facing.mirror_vec2(trigger.event().0));
+    velocity.add_impulse(facing.visual.mirror_vec2(trigger.event().0));
 }

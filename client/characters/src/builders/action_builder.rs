@@ -292,7 +292,7 @@ impl ActionBuilder {
             Arc::new(move |situation: &Situation| {
                 vec![ActionEvent::RelativeVisualEffect(VfxRequest {
                     effect,
-                    tf: situation.facing.mirror_transform(tf),
+                    tf: situation.facing.visual.mirror_transform(tf),
                     ..default()
                 })]
             }),

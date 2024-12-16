@@ -5,7 +5,9 @@ use bevy::{
     utils::{HashMap, HashSet},
 };
 
-use foundation::{ActionId, Clock, Facing, GameButton, InputEvent, InputState, StickPosition};
+use foundation::{
+    ActionId, CharacterFacing, Clock, Facing, GameButton, InputEvent, InputState, StickPosition,
+};
 
 #[derive(Debug, Component, Clone, Reflect)]
 pub struct InputHistory {
@@ -170,13 +172,13 @@ impl InputParser {
 }
 
 pub fn parse_input(
-    mut characters: Query<(&mut InputParser, &ParrotStream, &Facing)>,
+    mut characters: Query<(&mut InputParser, &ParrotStream, &CharacterFacing)>,
     clock: Res<Clock>,
 ) {
     for (mut parser, reader, facing) in &mut characters {
         let evs = reader.next_read.clone();
         if !evs.is_empty() {
-            parser.input_change(evs, *facing, clock.frame);
+            parser.input_change(evs, facing.absolute, clock.frame);
         }
     }
 }
@@ -320,7 +322,7 @@ mod test {
                         .map(|(id, dsl)| (id, dsl.to_string()))
                         .collect(),
                 ),
-                Facing::Right,
+                CharacterFacing::from(Facing::Right),
             ));
 
             app.init_resource::<Time>();

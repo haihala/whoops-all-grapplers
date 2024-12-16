@@ -9,8 +9,8 @@ mod size_adjustment;
 
 use characters::{samurai, Gauges, Hurtboxes, Inventory};
 use foundation::{
-    AnimationType, CharacterId, Characters, Clock, Combo, Facing, InMatch, MatchState, Player,
-    Players, RollbackSchedule, Stats, SystemStep, WagArgs,
+    AnimationType, CharacterFacing, CharacterId, Characters, Clock, Combo, Facing, InMatch,
+    MatchState, Player, Players, RollbackSchedule, Stats, SystemStep, WagArgs,
 };
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
@@ -139,7 +139,7 @@ fn spawn_player(
             PadBundle::new(character.get_inputs()),
             Name::new(format!("Player {player}")),
             AnimationHelperSetup(character.generic_animations[&AnimationType::Default]),
-            Facing::from_flipped(offset.is_sign_positive()),
+            CharacterFacing::from(Facing::from_flipped(offset.is_sign_positive())),
             Pushbox(character.boxes.standing.pushbox),
             Hurtboxes::from(character.boxes.standing),
             character,
@@ -175,6 +175,7 @@ fn spawn_player(
         .observe(move_advancement::end_moves)
         .observe(player_flash::handle_flash_events)
         .observe(player_flash::handle_color_shift)
+        .observe(side_switcher::flip_visuals)
         .observe(size_adjustment::expand_hurtboxes)
         .observe(crate::assets::start_animation)
         .observe(crate::assets::start_relative_vfx)

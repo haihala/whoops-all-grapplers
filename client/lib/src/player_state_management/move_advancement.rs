@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::{Character, Gauges, Hurtboxes, Inventory};
-use foundation::{Clock, Combo, Facing, Stats, StatusFlag};
+use foundation::{CharacterFacing, Clock, Combo, Stats, StatusFlag};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 
@@ -19,7 +19,7 @@ pub(super) fn move_advancement(
         &Gauges,
         &InputParser,
         &Stats,
-        &Facing,
+        &CharacterFacing,
         Entity,
         Option<&Combo>,
     )>,

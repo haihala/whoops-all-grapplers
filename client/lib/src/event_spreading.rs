@@ -83,6 +83,9 @@ pub struct ColorShift(pub Color, pub usize);
 #[derive(Debug, Event)]
 pub struct ClearStatus(pub StatusFlag);
 
+#[derive(Debug, Event)]
+pub struct FlipVisuals;
+
 pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
     match trigger.event() {
         ActionEvent::Animation(ar) => {
@@ -196,6 +199,9 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
         }
         ActionEvent::SpawnPickup(pickup_request) => {
             commands.trigger_targets(*pickup_request, trigger.entity())
+        }
+        ActionEvent::FlipVisuals => {
+            commands.trigger_targets(FlipVisuals, trigger.entity());
         }
         ActionEvent::Noop => {}
     }

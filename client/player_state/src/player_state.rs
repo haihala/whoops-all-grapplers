@@ -4,8 +4,8 @@ use characters::{
     ActionEvent, ActionTracker, Character, CharacterStateBoxes, Gauges, Inventory, Situation,
 };
 use foundation::{
-    ActionId, AnimationType, CancelType, Combo, Facing, SimpleState, Stats, StatusCondition,
-    StatusFlag,
+    ActionId, AnimationType, CancelType, CharacterFacing, Combo, Facing, SimpleState, Stats,
+    StatusCondition, StatusFlag,
 };
 use input_parsing::InputParser;
 
@@ -89,7 +89,7 @@ impl PlayerState {
         stats: Stats,
         frame: usize,
         player_position: Vec3,
-        player_facing: Facing,
+        player_facing: CharacterFacing,
         combo: Option<Combo>,
     ) -> Vec<ActionEvent> {
         let situation = self.build_situation(
@@ -116,7 +116,7 @@ impl PlayerState {
         stats: Stats,
         frame: usize,
         player_position: Vec3,
-        player_facing: Facing,
+        player_facing: CharacterFacing,
         combo: Option<Combo>,
     ) -> Situation {
         Situation {
@@ -235,6 +235,9 @@ impl PlayerState {
     }
     pub fn is_grounded(&self) -> bool {
         !matches!(self.main, MainState::Air(_))
+    }
+    pub fn can_update_visual_facing(&self) -> bool {
+        self.is_grounded() && !self.has_flag(StatusFlag::MovementLock)
     }
     pub fn otg_since(&self) -> Option<usize> {
         if let MainState::Ground(landing_frame) = self.main {

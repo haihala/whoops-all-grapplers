@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use foundation::{Clock, Facing, Icons, MatchState, VfxRequest, VisualEffect};
+use foundation::{CharacterFacing, Clock, Icons, MatchState, VfxRequest, VisualEffect};
 
 use crate::{
     entity_management::DespawnMarker,
@@ -42,12 +42,12 @@ pub fn spawn_vfx<M: Material>(
 
 pub fn start_relative_vfx(
     trigger: Trigger<SpawnRelativeVfx>,
-    query: Query<(&Transform, &Facing)>,
+    query: Query<(&Transform, &CharacterFacing)>,
     mut commands: Commands,
 ) {
     let (tf, facing) = query.get(trigger.entity()).unwrap();
     let mut request = trigger.event().0;
-    if facing.to_flipped() {
+    if facing.visual.to_flipped() {
         request.mirror = !request.mirror;
     }
     request.tf.translation += tf.translation;

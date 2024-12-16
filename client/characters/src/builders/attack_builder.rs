@@ -759,24 +759,24 @@ impl StrikeEffectBuilder {
                 match self.block_height {
                     AttackHeight::High => (
                         VisualEffect::OpenerSpark(HIGH_OPENER_COLOR),
-                        situation.facing.mirror_vec2(Vec2::new(0.5, -0.5)),
-                        Quat::from_rotation_z(match situation.facing {
+                        situation.facing.visual.mirror_vec2(Vec2::new(0.5, -0.5)),
+                        Quat::from_rotation_z(match situation.facing.visual {
                             Facing::Right => 0.0,
                             Facing::Left => -PI / 2.0,
                         }),
                     ),
                     AttackHeight::Mid => (
                         VisualEffect::OpenerSpark(MID_OPENER_COLOR),
-                        situation.facing.mirror_vec2(Vec2::X * 0.5),
-                        Quat::from_rotation_z(match situation.facing {
+                        situation.facing.visual.mirror_vec2(Vec2::X * 0.5),
+                        Quat::from_rotation_z(match situation.facing.visual {
                             Facing::Right => PI / 6.0,
                             Facing::Left => PI * (8.0 / 6.0),
                         }),
                     ),
                     AttackHeight::Low => (
                         VisualEffect::OpenerSpark(LOW_OPENER_COLOR),
-                        situation.facing.mirror_vec2(Vec2::new(0.5, 0.5)),
-                        Quat::from_rotation_z(match situation.facing {
+                        situation.facing.visual.mirror_vec2(Vec2::new(0.5, 0.5)),
+                        Quat::from_rotation_z(match situation.facing.visual {
                             Facing::Right => PI / 2.0,
                             Facing::Left => PI,
                         }),
@@ -805,7 +805,7 @@ impl StrikeEffectBuilder {
                         ActionEvent::AbsoluteVisualEffect(VfxRequest {
                             effect: VisualEffect::Block,
                             tf: Transform::from_translation(hit_data.hitbox_pos.extend(0.0)),
-                            mirror: situation.facing.to_flipped(),
+                            mirror: situation.facing.visual.to_flipped(),
                         }),
                     ],
                     defender: vec![
@@ -861,7 +861,7 @@ impl StrikeEffectBuilder {
                                 rotation,
                                 ..default()
                             },
-                            mirror: situation.facing.to_flipped(),
+                            mirror: situation.facing.visual.to_flipped(),
                         }),
                     ],
                     defender: self

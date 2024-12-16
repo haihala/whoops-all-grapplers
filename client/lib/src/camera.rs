@@ -1,6 +1,6 @@
 use bevy::{prelude::*, render::view::NoFrustumCulling};
 use foundation::{
-    Facing, InMatch, MatchState, Player, RollbackSchedule, SystemStep, WagArgs,
+    CharacterFacing, InMatch, MatchState, Player, RollbackSchedule, SystemStep, WagArgs,
     LOADING_SCREEN_BACKGROUND,
 };
 
@@ -130,11 +130,11 @@ const TILT_GRAVITY: f32 = 0.01;
 pub fn tilt_camera(
     trigger: Trigger<TiltCamera>,
     mut cams: Query<&mut RootCameraEffects>,
-    players: Query<&Facing>,
+    players: Query<&CharacterFacing>,
 ) {
     let mut tilt = cams.single_mut();
     let facing = players.get(trigger.entity()).unwrap();
-    tilt.tilt_velocity += facing.mirror_vec2(trigger.event().0);
+    tilt.tilt_velocity += facing.visual.mirror_vec2(trigger.event().0);
 }
 
 fn reset_camera_tilt(

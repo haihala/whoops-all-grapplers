@@ -1,13 +1,18 @@
 use bevy::prelude::*;
 
-use foundation::{ActionId, Clock, Facing, StatusFlag, StickPosition};
+use foundation::{ActionId, CharacterFacing, Clock, Facing, StatusFlag, StickPosition};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 
 use crate::player_state_management::MoveBuffer;
 
 pub fn movement_input(
-    mut query: Query<(&InputParser, &mut PlayerState, &mut MoveBuffer, &Facing)>,
+    mut query: Query<(
+        &InputParser,
+        &mut PlayerState,
+        &mut MoveBuffer,
+        &CharacterFacing,
+    )>,
     clock: Res<Clock>,
 ) {
     for (reader, mut state, mut buffer, facing) in &mut query {
@@ -23,7 +28,7 @@ pub fn movement_input(
                 StickPosition::Neutral => state.stand(),
                 _ => {
                     // Jumps are relative, the rest are absolute
-                    let mirrored_stick = facing.mirror_stick_pos(reader.get_stick_pos());
+                    let mirrored_stick = facing.absolute.mirror_stick_pos(reader.get_stick_pos());
 
                     match mirrored_stick {
                         StickPosition::N => {

@@ -63,6 +63,7 @@ impl ThrowEffectBuilder {
                 script: Box::new(move |situation: &Situation| {
                     if situation.on_frame(0) {
                         return vec![
+                            ActionEvent::FlipVisuals,
                             AnimationRequest {
                                 invert: true,
                                 ..AnimationRequest::from(self.target_animation)

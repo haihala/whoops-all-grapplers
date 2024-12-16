@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 
 use characters::{Character, Gauges, Hurtboxes, Inventory, Situation};
-use foundation::{ActionId, CancelType, Clock, Combo, Facing, Stats};
+use foundation::{ActionId, CancelType, CharacterFacing, Clock, Combo, Stats};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 
@@ -92,7 +92,7 @@ pub(super) fn move_activator(
         &Gauges,
         &Stats,
         &InputParser,
-        &Facing,
+        &CharacterFacing,
         Option<&Combo>,
     )>,
     mut last_processed_frame: Local<usize>,

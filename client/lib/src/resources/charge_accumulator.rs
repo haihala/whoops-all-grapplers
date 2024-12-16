@@ -1,9 +1,12 @@
 use bevy::prelude::*;
 use characters::{Gauges, SpecialProperty};
-use foundation::{Clock, Facing};
+use foundation::{CharacterFacing, Clock};
 use input_parsing::InputParser;
 
-pub fn manage_charge(mut query: Query<(&mut Gauges, &InputParser, &Facing)>, clock: Res<Clock>) {
+pub fn manage_charge(
+    mut query: Query<(&mut Gauges, &InputParser, &CharacterFacing)>,
+    clock: Res<Clock>,
+) {
     for (mut properties, parser, facing) in &mut query {
         for (_, prop) in &mut properties.iter_mut() {
             let mut clear = false;
@@ -13,7 +16,7 @@ pub fn manage_charge(mut query: Query<(&mut Gauges, &InputParser, &Facing)>, clo
                 let direction_held = !charge_props.directions.is_empty()
                     && charge_props
                         .directions
-                        .contains(&facing.mirror_stick_pos(parser.get_stick_pos()));
+                        .contains(&facing.absolute.mirror_stick_pos(parser.get_stick_pos()));
 
                 let buttons_pressed = !charge_props.buttons.is_empty()
                     && charge_props

@@ -452,7 +452,7 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
         30,
     )
     .with_damage(10)
-    .with_launch_impulse(Vec2::new(-5.0, 2.0))
+    .with_launch_impulse(Vec2::new(5.0, 2.0))
     .with_extra_target_events(vec![ActionEvent::Teleport(Vec2::new(2.0, 1.0))])
     .build();
 
@@ -651,6 +651,7 @@ fn sword_stance(version: SpecialVersion) -> Action {
                             SamuraiAction::ViperStrike(version)
                         } else if situation
                             .facing
+                            .absolute
                             .mirror_vec2(situation.stick_position.as_vec2())
                             .x
                             == -1.0
@@ -658,6 +659,7 @@ fn sword_stance(version: SpecialVersion) -> Action {
                             SamuraiAction::RisingSun(version)
                         } else if situation
                             .facing
+                            .absolute
                             .mirror_vec2(situation.stick_position.as_vec2())
                             .x
                             == 1.0
@@ -916,6 +918,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         let stick_influence = if situation.inventory.contains(&ItemId::Protractor) {
                             situation
                                 .facing
+                                .absolute
                                 .mirror_vec2(situation.stick_position.as_vec2())
                                 .normalize()
                                 * 0.8

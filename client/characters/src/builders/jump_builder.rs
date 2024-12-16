@@ -115,7 +115,11 @@ fn jump(
             }
 
             if situation.on_frame(4) {
-                let impulse = match situation.facing.mirror_stick_pos(situation.stick_position) {
+                let impulse = match situation
+                    .facing
+                    .absolute
+                    .mirror_stick_pos(situation.stick_position)
+                {
                     // This allows redirecting jumps, should feel better
                     StickPosition::N => JumpDirection::Neutral,
                     StickPosition::NE => JumpDirection::Forward,
@@ -141,7 +145,7 @@ fn jump(
                             rotation: Quat::from_rotation_z(if impulse.x == 0.0 {
                                 std::f32::consts::PI
                             } else {
-                                -situation.facing.to_signum()
+                                -situation.facing.absolute.to_signum()
                                     * jump_dir.base_vec().x.signum()
                                     * std::f32::consts::PI
                                     / 4.0

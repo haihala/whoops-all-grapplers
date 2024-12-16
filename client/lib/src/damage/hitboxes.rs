@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use bevy_ggrs::AddRollbackCommandExtension;
 use characters::{Attack, Hitbox, Lifetime};
-use foundation::{Area, Clock, Facing, MatchState, Owner, Player};
+use foundation::{Area, CharacterFacing, Clock, MatchState, Owner, Player};
 
 use crate::{
     assets::Models,
@@ -45,11 +45,11 @@ impl HitboxSpawner {
         attack: Attack,
         frame: usize,
         parent: Entity,
-        facing: &Facing,
+        facing: &CharacterFacing,
         player: Player,
         parent_position: Vec3,
     ) {
-        let offset = facing.mirror_vec2(attack.to_hit.hitbox.center());
+        let offset = facing.visual.mirror_vec2(attack.to_hit.hitbox.center());
         let absolute_position = parent_position + offset.extend(0.0);
         let transform = Transform::from_translation(absolute_position);
 
@@ -73,7 +73,9 @@ impl HitboxSpawner {
 
         if attack.to_hit.velocity != Vec2::ZERO || attack.to_hit.gravity != 0.0 {
             builder.insert(ObjectVelocity::new(
-                facing.mirror_vec3(attack.to_hit.velocity.extend(0.0)),
+                facing
+                    .visual
+                    .mirror_vec3(attack.to_hit.velocity.extend(0.0)),
                 attack.to_hit.gravity,
             ));
         }
@@ -117,7 +119,13 @@ pub fn spawn_hitbox(
     mut commands: Commands,
     clock: Res<Clock>,
     models: Res<Models>,
-    mut query: Query<(&mut HitboxSpawner, &Transform, Entity, &Facing, &Player)>,
+    mut query: Query<(
+        &mut HitboxSpawner,
+        &Transform,
+        Entity,
+        &CharacterFacing,
+        &Player,
+    )>,
 ) {
     let (mut spawner, tf, parent, facing, player) = query.get_mut(trigger.entity()).unwrap();
     let SpawnHitbox(attack) = trigger.event();

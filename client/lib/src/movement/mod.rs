@@ -11,8 +11,8 @@ pub use player_velocity::PlayerVelocity;
 use bevy::prelude::*;
 
 use foundation::{
-    Area, Clock, Combo, Facing, Player, Players, RollbackSchedule, Stats, StatusFlag, SystemStep,
-    FPS,
+    Area, CharacterFacing, Clock, Combo, Player, Players, RollbackSchedule, Stats, StatusFlag,
+    SystemStep, FPS,
 };
 use player_state::PlayerState;
 
@@ -121,23 +121,29 @@ pub fn clear_movement(trigger: Trigger<ClearMovement>, mut query: Query<&mut Pla
 pub fn add_movement(
     trigger: Trigger<Movement>,
     clock: Res<Clock>,
-    mut query: Query<(&mut PlayerVelocity, &Facing)>,
+    mut query: Query<(&mut PlayerVelocity, &CharacterFacing)>,
 ) {
     let (mut vel, facing) = query.get_mut(trigger.entity()).unwrap();
-    vel.handle_movement(clock.frame, *facing, *trigger.event());
+    vel.handle_movement(clock.frame, facing.visual, *trigger.event());
 }
 
 pub fn handle_teleports(
     trigger: Trigger<TeleportEvent>,
-    mut query: Query<(&mut PlayerVelocity, &Facing)>,
+    mut query: Query<(&mut PlayerVelocity, &CharacterFacing)>,
 ) {
     let (mut vel, facing) = query.get_mut(trigger.entity()).unwrap();
-    vel.teleport = Some(facing.mirror_vec2(trigger.event().0));
+    vel.teleport = Some(facing.absolute.mirror_vec2(trigger.event().0));
 }
 
 fn player_input(
     clock: Res<Clock>,
-    mut query: Query<(&PlayerState, &mut PlayerVelocity, &Stats, &Facing, &Stats)>,
+    mut query: Query<(
+        &PlayerState,
+        &mut PlayerVelocity,
+        &Stats,
+        &CharacterFacing,
+        &Stats,
+    )>,
 ) {
     for (state, mut velocity, status_effects, facing, stats) in &mut query {
         if state.has_flag(StatusFlag::MovementLock) {
@@ -147,7 +153,7 @@ fn player_input(
         if let Some(walk_direction) = state.get_walk_direction() {
             velocity.handle_walking_velocity(
                 status_effects.walk_speed,
-                *facing,
+                facing.absolute,
                 walk_direction,
                 stats,
             );

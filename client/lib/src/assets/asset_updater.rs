@@ -1,6 +1,6 @@
 use bevy::{audio::Volume, prelude::*};
 use characters::{AnimationRequest, Character};
-use foundation::{Facing, Players, SoundEffect};
+use foundation::{CharacterFacing, Players, SoundEffect};
 use player_state::PlayerState;
 use rand::Rng;
 
@@ -35,13 +35,15 @@ pub fn start_animation(
 
 #[allow(clippy::type_complexity)]
 pub fn update_generic_animation(
-    mut query: Query<
-        (&Character, &PlayerState, &Facing, &mut AnimationHelper),
-        Or<(Changed<PlayerState>, Changed<Facing>)>,
-    >,
+    mut query: Query<(
+        &Character,
+        &PlayerState,
+        &CharacterFacing,
+        &mut AnimationHelper,
+    )>,
 ) {
     for (character, state, facing, mut helper) in &mut query {
-        if let Some(generic) = state.get_generic_animation(*facing) {
+        if let Some(generic) = state.get_generic_animation(facing.absolute) {
             let animation = character
                 .generic_animations
                 .get(&generic)
@@ -99,10 +101,13 @@ pub fn clear_empty_audio_players(mut commands: Commands, spawned: Query<(Entity,
     }
 }
 
-pub fn mirror_models(players: Query<(&Facing, &AnimationHelper)>, mut tfs: Query<&mut Transform>) {
+pub fn mirror_models(
+    players: Query<(&CharacterFacing, &AnimationHelper)>,
+    mut tfs: Query<&mut Transform>,
+) {
     for (facing, anim_helper) in &players {
         let root = anim_helper.scene_root;
         let mut root_tf = tfs.get_mut(root).unwrap();
-        root_tf.scale.x = facing.mirror_f32(1.0);
+        root_tf.scale.x = facing.visual.mirror_f32(1.0);
     }
 }

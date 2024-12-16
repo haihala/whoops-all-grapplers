@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use characters::{GaugeType, Gauges};
 use foundation::{
-    Area, Clock, Facing, MatchState, Owner, Pickup, PickupRequest, Player, RollbackSchedule,
-    SystemStep,
+    Area, CharacterFacing, Clock, MatchState, Owner, Pickup, PickupRequest, Player,
+    RollbackSchedule, SystemStep,
 };
 
 use crate::{
@@ -57,7 +57,7 @@ pub fn spawn_pickups(
     mut commands: Commands,
     clock: Res<Clock>,
     models: Res<Models>,
-    query: Query<(&Transform, &Player, &Facing)>,
+    query: Query<(&Transform, &Player, &CharacterFacing)>,
 ) {
     let PickupRequest {
         pickup,
@@ -81,7 +81,7 @@ pub fn spawn_pickups(
         Owner(player.other()), // FIXME: This is here because it is spawned on hit
         StateScoped(MatchState::Combat),
         ObjectVelocity {
-            speed: facing.mirror_vec3(spawn_velocity.extend(0.0)),
+            speed: facing.visual.mirror_vec3(spawn_velocity.extend(0.0)),
             acceleration: -Vec3::Y * *gravity,
             face_forward: false,
             floor_despawns: false,

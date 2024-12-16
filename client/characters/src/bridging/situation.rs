@@ -1,13 +1,13 @@
 use bevy::prelude::*;
 use bevy::utils::HashSet;
-use foundation::{Combo, Facing, GameButton, Stats, StatusFlag, StickPosition};
+use foundation::{CharacterFacing, Combo, GameButton, Stats, StatusFlag, StickPosition};
 
 use crate::{ActionEvent, ActionTracker, Gauge, GaugeType, Inventory};
 
 #[derive(Debug, Clone, Default)]
 pub struct Situation {
     pub grounded: bool,
-    pub facing: Facing,
+    pub facing: CharacterFacing,
     pub tracker: Option<ActionTracker>,
     pub inventory: Inventory,
     pub resources: Vec<(GaugeType, Gauge)>,

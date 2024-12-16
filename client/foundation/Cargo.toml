@@ -9,3 +9,4 @@ bevy = { workspace = true }
 strum = { workspace = true }
 strum_macros = { workspace = true }
 clap = { workspace = true }
+bevy_ggrs = { workspace = true }

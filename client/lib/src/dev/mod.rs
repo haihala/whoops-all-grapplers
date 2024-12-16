@@ -130,17 +130,8 @@ fn skip_menus(
             commands.insert_resource(LocalController(pads[&local_controller]));
             commands.insert_resource(LocalCharacter(local_character));
             commands.insert_resource(Controllers {
-                p1: pads[&local_controller],
-                p2: pads
-                    .into_iter()
-                    .find_map(|(index, device)| {
-                        if index != local_controller {
-                            Some(device)
-                        } else {
-                            None
-                        }
-                    })
-                    .unwrap(),
+                p1: InputDevice::Online(0),
+                p2: InputDevice::Online(1),
             });
             commands.insert_resource(Characters {
                 p1: local_character,

@@ -114,7 +114,7 @@ fn center_camera(
     tf.translation = tf.translation.lerp(target, 0.1);
 }
 
-#[derive(Debug, Component, Default, Reflect)]
+#[derive(Debug, Component, Default, Reflect, Clone, Copy)]
 pub struct RootCameraEffects {
     tilt_velocity: Vec2,
 }
@@ -151,7 +151,7 @@ fn reset_camera_tilt(
     );
 }
 
-#[derive(Debug, Component, Default, Reflect, Clone)]
+#[derive(Debug, Component, Default, Reflect, Clone, Copy)]
 pub struct ChildCameraEffects {
     last_shake_start: f32,
     player_distance: f32,

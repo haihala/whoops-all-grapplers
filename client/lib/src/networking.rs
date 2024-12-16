@@ -9,9 +9,10 @@ use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
 use characters::{Attack, Gauges, Hitbox, Hurtboxes, Inventory};
 use foundation::{
-    CharacterFacing, Characters, Clock, Combo, Controllers, GameState, Hitstop, InputDevice,
+    Area, CharacterFacing, Characters, Clock, Combo, Controllers, GameState, Hitstop, InputDevice,
     InputState, InputStream, LocalCharacter, LocalController, MatchState, NetworkInputButton,
-    OnlineState, OwnedInput, Owner, Player, RollbackSchedule, Stats, WagArgs, STICK_DEAD_ZONE,
+    OnlineState, OwnedInput, Owner, Pickup, Player, RollbackSchedule, Stats, WagArgs,
+    STICK_DEAD_ZONE,
 };
 use input_parsing::{InputParser, ParrotStream};
 use player_state::PlayerState;
@@ -19,7 +20,7 @@ use strum::IntoEnumIterator;
 
 use crate::{
     assets::AnimationHelper,
-    camera::ChildCameraEffects,
+    camera::{ChildCameraEffects, RootCameraEffects},
     damage::{HitTracker, HitboxSpawner, LifetimeFlags},
     entity_management::DespawnMarker,
     movement::{Follow, ObjectVelocity, PlayerVelocity, Pushbox, Walls},
@@ -79,15 +80,12 @@ impl Plugin for NetworkPlugin {
                     .run_if(no_session_exists),
             )
             .add_plugins(GgrsPlugin::<Config>::default())
-            .init_resource::<InputGenCache>()
             // Probably an incomplete list of things to roll back
             // Resources
-            .rollback_resource_with_clone::<InputGenCache>()
             .rollback_resource_with_copy::<Clock>()
             .rollback_resource_with_copy::<Hitstop>()
             .rollback_resource_with_copy::<Walls>()
             // Player components
-            .rollback_component_with_clone::<ChildCameraEffects>()
             .rollback_component_with_clone::<Hurtboxes>()
             .rollback_component_with_clone::<InputParser>()
             .rollback_component_with_clone::<Inventory>()
@@ -112,6 +110,12 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_copy::<Hitbox>()
             .rollback_component_with_copy::<LifetimeFlags>()
             .rollback_component_with_copy::<Owner>()
+            // Pickups
+            .rollback_component_with_copy::<Area>()
+            .rollback_component_with_copy::<Pickup>()
+            // Camera
+            .rollback_component_with_clone::<RootCameraEffects>()
+            .rollback_component_with_clone::<ChildCameraEffects>()
             // Bevy inbuilts
             .rollback_component_with_clone::<Name>()
             .rollback_component_with_copy::<GlobalTransform>()
@@ -121,6 +125,7 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_copy::<Visibility>()
             // Checksums
             .checksum_component::<Transform>(tf_hasher)
+            .checksum_resource::<Clock>(clock_hasher)
             .checksum_component_with_hash::<PlayerState>();
     }
 }
@@ -302,60 +307,60 @@ fn read_local_inputs(
     let mut inputs = HashMap::new();
 
     // There is only ever one, but the value can be 1 or 0
-    for handle in &local_players.0 {
-        let mut input = 0u16;
+    let handle = local_players.0.first().unwrap();
+    let mut input = 0u16;
 
-        match local_controls.0 {
-            InputDevice::Controller(entity) => {
-                let gamepad = pad_query.get(entity).unwrap();
-                for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
-                    if gamepad.pressed(wag_button.to_gamepad_button_type()) {
-                        input |= 1 << shift;
-                    }
-                }
-
-                if let (Some(float_x), Some(float_y)) = (
-                    gamepad.get(GamepadAxis::LeftStickX),
-                    gamepad.get(GamepadAxis::LeftStickY),
-                ) {
-                    let (up, down) = if float_y.abs() < STICK_DEAD_ZONE {
-                        (0, 0)
-                    } else if float_y < 0.0 {
-                        (0, 1)
-                    } else {
-                        (1, 0)
-                    };
-
-                    let (left, right) = if float_x.abs() < STICK_DEAD_ZONE {
-                        (0, 0)
-                    } else if float_x < 0.0 {
-                        (1, 0)
-                    } else {
-                        (0, 1)
-                    };
-
-                    // You may end up with opposing cardinals pressed with stick+dpad
-                    input |= up;
-                    input |= down << 1;
-                    input |= left << 2;
-                    input |= right << 3;
+    match local_controls.0 {
+        InputDevice::Controller(entity) => {
+            let gamepad = pad_query.get(entity).unwrap();
+            for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
+                if gamepad.pressed(wag_button.to_gamepad_button_type()) {
+                    input |= 1 << shift;
                 }
             }
-            InputDevice::Keyboard => {
-                for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
-                    if keyboard_keys.pressed(wag_button.to_keycode()) {
-                        input |= 1 << shift;
-                    }
-                }
-            }
-            InputDevice::Online(_) => {
-                error!("We should never have online input devices here");
-                panic!()
+
+            if let (Some(stick_x), Some(stick_y)) = (
+                gamepad.get(GamepadAxis::LeftStickX),
+                gamepad.get(GamepadAxis::LeftStickY),
+            ) {
+                let (up, down) = if stick_y.abs() < STICK_DEAD_ZONE {
+                    (0, 0)
+                } else if stick_y < 0.0 {
+                    (0, 1)
+                } else {
+                    (1, 0)
+                };
+
+                let (left, right) = if stick_x.abs() < STICK_DEAD_ZONE {
+                    (0, 0)
+                } else if stick_x < 0.0 {
+                    (1, 0)
+                } else {
+                    (0, 1)
+                };
+
+                // You may end up with opposing cardinals pressed with stick+dpad
+                input |= up;
+                input |= down << 1;
+                input |= left << 2;
+                input |= right << 3;
             }
         }
-
-        inputs.insert(*handle, input);
+        InputDevice::Keyboard => {
+            for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
+                if keyboard_keys.pressed(wag_button.to_keycode()) {
+                    input |= 1 << shift;
+                }
+            }
+        }
+        InputDevice::Online(_) => {
+            error!("We should never have online input devices here");
+            panic!()
+        }
     }
+
+    inputs.insert(*handle, input);
+    inputs.insert(1 - handle, 0);
 
     commands.insert_resource(LocalInputs::<Config>(inputs));
 }
@@ -479,13 +484,10 @@ fn clear_input_stream(mut stream: ResMut<InputStream>) {
     stream.events.clear();
 }
 
-#[derive(Debug, Resource, Deref, DerefMut, Default, Clone)]
-struct InputGenCache(HashMap<usize, u16>);
-
 fn generate_online_input_streams(
     mut writer: ResMut<InputStream>,
     inputs: Res<PlayerInputs<Config>>,
-    mut input_states: ResMut<InputGenCache>,
+    mut input_states: Local<HashMap<usize, u16>>,
 ) {
     for (player_handle, (index, _)) in inputs.iter().enumerate() {
         let Some(old_state) = input_states.get(&player_handle) else {
@@ -561,6 +563,14 @@ fn tf_hasher(transform: &Transform) -> u64 {
     transform.scale.x.to_bits().hash(&mut hasher);
     transform.scale.y.to_bits().hash(&mut hasher);
     transform.scale.z.to_bits().hash(&mut hasher);
+
+    hasher.finish()
+}
+
+fn clock_hasher(clock: &Clock) -> u64 {
+    let mut hasher = checksum_hasher();
+
+    clock.frame.hash(&mut hasher);
 
     hasher.finish()
 }

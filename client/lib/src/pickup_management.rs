@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_ggrs::AddRollbackCommandExtension;
 use characters::{GaugeType, Gauges};
 use foundation::{
     Area, CharacterFacing, Clock, MatchState, Owner, Pickup, PickupRequest, Player,
@@ -85,6 +86,8 @@ pub fn spawn_pickups(
             floor_despawns: false,
         },
     ));
+
+    entity_commands.add_rollback();
 
     if let Some(frames) = lifetime {
         entity_commands.insert(DespawnMarker(frames + clock.frame));

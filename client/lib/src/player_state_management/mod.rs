@@ -207,10 +207,9 @@ fn setup_combat(
     )>,
     mut commands: Commands,
     mut clock: ResMut<Clock>,
-    bevy_time: Res<Time>,
 ) {
     info!("Round start reset");
-    clock.reset(bevy_time.elapsed_secs_f64());
+    clock.reset();
 
     for (
         player,

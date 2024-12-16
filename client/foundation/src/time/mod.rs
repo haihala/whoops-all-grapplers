@@ -3,10 +3,13 @@ use std::time::Instant;
 use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
 
 mod game_flow;
+use bevy_ggrs::RollbackFrameCount;
 pub use game_flow::{
     GameResult, GameState, InCharacterSelect, InMatch, LocalState, MatchState, OnlineState,
     RoundLog, RoundResult,
 };
+
+use crate::FPS;
 
 pub const ROUNDS_TO_WIN: usize = 3;
 pub const PRE_ROUND_DURATION: f32 = 2.0;
@@ -17,14 +20,12 @@ pub const POST_SHOP_DURATION: f32 = 11.0;
 #[derive(Reflect, Resource, Debug, Clone, Copy)]
 pub struct Clock {
     pub frame: usize,
-    start_time: f32,
     pub done: bool,
     pub timer_value: usize,
 }
 impl FromWorld for Clock {
-    fn from_world(world: &mut World) -> Self {
+    fn from_world(_world: &mut World) -> Self {
         Self {
-            start_time: world.get_resource::<Time>().unwrap().elapsed_secs(),
             frame: 0,
             done: false,
             timer_value: COMBAT_DURATION as usize,
@@ -32,10 +33,9 @@ impl FromWorld for Clock {
     }
 }
 impl Clock {
-    pub fn reset(&mut self, time: f64) {
+    pub fn reset(&mut self) {
         self.frame = 0;
         self.done = false;
-        self.start_time = time as f32;
     }
 }
 
@@ -106,30 +106,53 @@ impl Plugin for TimePlugin {
         .insert_resource(Time::<Fixed>::from_seconds(1.0 / crate::FPS as f64))
         .add_systems(
             RollbackSchedule,
-            update_clock.in_set(SystemStep::HouseKeeping),
+            (
+                fixed_clock_update.run_if(|gs: Res<State<GameState>>| !gs.get().is_online()),
+                ggrs_clock_update.run_if(|gs: Res<State<GameState>>| gs.get().is_online()),
+                timer_update,
+            )
+                .chain()
+                .in_set(SystemStep::HouseKeeping),
         )
         .add_systems(OnExit(MatchState::EndScreen), clear_round_log)
         .insert_resource(RoundLog::default());
     }
 }
 
-fn update_clock(
-    mut clock: ResMut<Clock>,
-    bevy_clock: Res<Time>,
-    maybe_hitstop: Option<Res<Hitstop>>,
-) {
+fn fixed_clock_update(mut clock: ResMut<Clock>, maybe_hitstop: Option<Res<Hitstop>>) {
     if maybe_hitstop.is_some() {
         return;
     }
 
     clock.frame += 1;
+}
 
+fn ggrs_clock_update(
+    mut clock: ResMut<Clock>,
+    maybe_hitstop: Option<Res<Hitstop>>,
+    ggrs_count: Res<RollbackFrameCount>,
+    mut prev_ggrs_count: Local<usize>,
+) {
+    if maybe_hitstop.is_some() {
+        return;
+    }
+
+    let curr_ggrs_count = ggrs_count.0 as usize;
+    if curr_ggrs_count == *prev_ggrs_count {
+        return;
+    }
+
+    clock.frame += 1;
+    *prev_ggrs_count = curr_ggrs_count;
+}
+
+fn timer_update(mut clock: ResMut<Clock>) {
     if clock.done {
         return;
     }
 
     // This updates timer
-    let elapsed = bevy_clock.elapsed_secs() - clock.start_time;
+    let elapsed = clock.frame as f32 / FPS;
     clock.timer_value = (COMBAT_DURATION + PRE_ROUND_DURATION - elapsed)
         .clamp(0.0, COMBAT_DURATION)
         .ceil() as usize;

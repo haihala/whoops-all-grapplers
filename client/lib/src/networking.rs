@@ -65,6 +65,7 @@ impl Plugin for NetworkPlugin {
                     generate_online_input_streams,
                     run_rollback_schedule,
                     handle_ggrs_events,
+                    clear_input_stream,
                 )
                     .chain()
                     .run_if(session_exists),
@@ -82,6 +83,7 @@ impl Plugin for NetworkPlugin {
             .add_plugins(GgrsPlugin::<Config>::default())
             // Probably an incomplete list of things to roll back
             // Resources
+            .rollback_resource_with_clone::<InputStream>()
             .rollback_resource_with_copy::<Clock>()
             .rollback_resource_with_copy::<Hitstop>()
             .rollback_resource_with_copy::<Walls>()
@@ -419,10 +421,6 @@ fn generate_offline_input_streams(
         // Clamps values from -1 to 1 (in cases where dpad and analog stick press the same way)
         stick.x = stick.x.signum();
         stick.y = stick.y.signum();
-
-        // FIXME: This seems bugged. Every now and then, it seems that the axis value I get out of
-        // this is stuck. Physical input is in neutral, but game thinks a direction is being held.
-        //dbg!(&state, &stick, analog_x, analog_y, pad);
         state.stick_position = stick.into();
 
         new_states.insert(InputDevice::Controller(entity), state);
@@ -487,32 +485,59 @@ fn clear_input_stream(mut stream: ResMut<InputStream>) {
 fn generate_online_input_streams(
     mut writer: ResMut<InputStream>,
     inputs: Res<PlayerInputs<Config>>,
-    mut input_states: Local<HashMap<usize, u16>>,
 ) {
-    for (player_handle, (index, _)) in inputs.iter().enumerate() {
-        let Some(old_state) = input_states.get(&player_handle) else {
-            input_states.insert(player_handle, 0);
-            continue;
-        };
+    let mut new_states = HashMap::<InputDevice, InputState>::new();
 
-        for (shift, button_type) in NetworkInputButton::iter().enumerate() {
-            let was_pressed = ((old_state >> shift) & 1) == 1;
+    for (player_index, (index, _)) in inputs.iter().enumerate() {
+        let mut new_state = InputState::default();
+        let mut new_stick: IVec2 = default();
+
+        for (shift, nb) in NetworkInputButton::iter().enumerate() {
             let is_pressed = ((index >> shift) & 1) == 1;
 
-            if was_pressed != is_pressed {
-                let game_event = button_type.to_input_event(&mut writer, 69, is_pressed);
-
-                if let Some(input_event) = game_event {
-                    // TODO: This may be wrong and we may have to do a mapping to local inputs here
-                    writer.events.push(OwnedInput {
-                        event: input_event,
-                        player_handle: InputDevice::Online(player_handle),
-                    });
+            if is_pressed {
+                match nb {
+                    // Dpad
+                    NetworkInputButton::Up => {
+                        new_stick.y += 1;
+                    }
+                    NetworkInputButton::Down => {
+                        new_stick.y -= 1;
+                    }
+                    NetworkInputButton::Left => {
+                        new_stick.x -= 1;
+                    }
+                    NetworkInputButton::Right => {
+                        new_stick.x += 1;
+                    }
+                    // Other buttons
+                    _ => {
+                        // This filters out unused buttons
+                        if let Ok(btn) = nb.try_into() {
+                            new_state.pressed.insert(btn);
+                        }
+                    }
                 }
             }
         }
 
-        input_states.insert(player_handle, *index);
+        new_state.stick_position = new_stick.into();
+
+        new_states.insert(InputDevice::Online(player_index), new_state);
+    }
+
+    // Compare to previous state
+    for (handle, new_state) in new_states.iter() {
+        let old_state = writer.input_states.entry(*handle).or_default();
+        for event in old_state.changes_to(new_state) {
+            // Send events if differences noted
+            writer.events.push(OwnedInput {
+                event,
+                player_handle: *handle,
+            });
+        }
+        // Save new state
+        writer.input_states.insert(*handle, new_state.clone());
     }
 }
 

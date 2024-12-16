@@ -56,6 +56,7 @@ pub struct InputParser {
     inputs: Vec<(MotionInput, Vec<ActionId>)>,
     history: Vec<InputHistory>,
     state: InputState,
+    longest_move_lookback: usize,
 }
 
 impl InputParser {
@@ -67,10 +68,16 @@ impl InputParser {
 
         let mut inputs = vec![];
 
+        let mut longest_move_lookback = 0;
         for motion in motions {
             // Remove duplicates
             if inputs.iter().any(|(input, _)| input == &motion) {
                 continue;
+            }
+
+            let buffer_time = motion.buffer_window_size();
+            if buffer_time > longest_move_lookback {
+                longest_move_lookback = buffer_time;
             }
 
             let actions = new_inputs
@@ -89,6 +96,7 @@ impl InputParser {
 
         Self {
             inputs,
+            longest_move_lookback,
             ..default()
         }
     }
@@ -163,6 +171,7 @@ impl InputParser {
         self.history = new_history
             .into_iter()
             .chain(self.history.clone())
+            .filter(|x| x.frame + self.longest_move_lookback >= frame)
             .collect();
     }
 

@@ -91,8 +91,6 @@ fn skip_menus(
         .chain([(69, InputDevice::Keyboard)])
         .collect();
 
-    dbg!(&pads);
-
     match dev_mode {
         Dev::Online {
             local_controller,

@@ -64,16 +64,13 @@ impl Plugin for AssetsPlugin {
             )
             .add_systems(
                 Update,
-                (
-                    animations::setup_helpers,
-                    animations::mirror_after_load,
-                    models::prep_player_gltf,
-                )
+                (animations::setup_helpers, models::prep_player_gltf)
                     .run_if(in_state(MatchState::Loading)),
             )
             .add_systems(
                 RollbackSchedule,
                 (
+                    asset_updater::mirror_models,
                     asset_updater::clear_empty_audio_players,
                     asset_updater::update_generic_animation,
                     models::do_character_shake,

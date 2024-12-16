@@ -98,3 +98,11 @@ pub fn clear_empty_audio_players(mut commands: Commands, spawned: Query<(Entity,
         }
     }
 }
+
+pub fn mirror_models(players: Query<(&Facing, &AnimationHelper)>, mut tfs: Query<&mut Transform>) {
+    for (facing, anim_helper) in &players {
+        let root = anim_helper.scene_root;
+        let mut root_tf = tfs.get_mut(root).unwrap();
+        root_tf.scale.x = facing.mirror_f32(1.0);
+    }
+}

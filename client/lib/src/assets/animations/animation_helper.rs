@@ -3,7 +3,7 @@ use std::{mem::take, time::Duration};
 use bevy::{prelude::*, scene::SceneInstance};
 
 use characters::AnimationRequest;
-use foundation::{Animation, Facing, Hitstop, MatchState, Stats};
+use foundation::{Animation, Hitstop, MatchState, Stats};
 
 use super::Animations;
 
@@ -12,7 +12,6 @@ pub struct AnimationHelper {
     pub player_entity: Entity,
     pub scene_root: Entity,
     default_animation: Animation,
-    facing: Facing,
     request: Option<AnimationRequest>,
     playing: Option<AnimationRequest>,
 }
@@ -26,7 +25,6 @@ impl AnimationHelper {
             player_entity,
             scene_root,
             default_animation,
-            facing: Facing::default(),
             request: None,
             playing: None,
         }
@@ -102,7 +100,7 @@ fn find_animation_player_entity(
 #[allow(clippy::too_many_arguments)]
 pub fn update_animation(
     animations: Res<Animations>,
-    mut main: Query<(&mut AnimationHelper, &Facing, &Stats)>,
+    mut main: Query<(&mut AnimationHelper, &Stats)>,
     mut players: Query<(&mut AnimationPlayer, &mut AnimationTransitions)>,
     mut scenes: Query<&mut Transform, With<Handle<Scene>>>,
     maybe_hitstop: Option<ResMut<Hitstop>>,
@@ -119,20 +117,13 @@ pub fn update_animation(
 
     *hitstop_last_frame = hitstop_this_frame;
 
-    for (mut helper, facing, stats) in &mut main {
+    for (mut helper, stats) in &mut main {
         let (mut player, mut transitions) = players.get_mut(helper.player_entity).unwrap();
         let mut scene_root = scenes.get_mut(helper.scene_root).unwrap();
 
         if let Some(request) = helper.request.take() {
             // New animation set to start
-            let index = animations.get(
-                request.animation,
-                &if request.invert {
-                    facing.opposite()
-                } else {
-                    *facing
-                },
-            );
+            let index = animations.get(request.animation);
 
             player.stop_all();
             let active = transitions.play(&mut player, index, Duration::ZERO);
@@ -146,25 +137,7 @@ pub fn update_animation(
             }
 
             helper.playing = Some(request);
-            helper.facing = *facing;
             scene_root.translation = request.position_offset.extend(0.0);
-
-            // Looping animations like idle ought to turn when the sides switch. Non looping like moves should not
-        } else if *facing != helper.facing && helper.playing.unwrap().looping {
-            // Sideswitch
-            let index = animations.get(helper.playing.unwrap().animation, facing);
-            player.stop_all();
-            let elapsed = player
-                .playing_animations()
-                .next()
-                .map(|(_, active)| active.elapsed())
-                .unwrap_or_default();
-
-            transitions
-                .play(&mut player, index, Duration::ZERO)
-                .seek_to(elapsed)
-                .repeat();
-            helper.facing = *facing;
         } else if hitstop_ended && !post_round {
             // Don't pause in post round time, as that would make animations play during the
             // freeze time, invalidating pause_animations. Last hit has hitstop.

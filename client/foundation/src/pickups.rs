@@ -34,4 +34,5 @@ pub struct PickupRequest {
     pub size: Area,
     pub gravity: f32,
     pub lifetime: Option<usize>,
+    pub flip_owner: bool,
 }

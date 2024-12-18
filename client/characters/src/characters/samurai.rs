@@ -958,6 +958,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                             gravity: 4.0,
                                             size: Area::of_size(0.5, 0.5),
                                             lifetime: Some((2.0 * FPS) as usize),
+                                            flip_owner: true,
                                         },
                                     )])
                                     .with_on_hit_events(if extra_stun {

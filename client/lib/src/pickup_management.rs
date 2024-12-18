@@ -67,6 +67,7 @@ pub fn spawn_pickups(
         spawn_velocity,
         gravity,
         lifetime,
+        flip_owner,
     } = trigger.event();
     let (model, transform) = pickup.spawn_info();
 
@@ -77,7 +78,7 @@ pub fn spawn_pickups(
         Visibility::default(),
         *pickup,
         *size,
-        Owner(player.other()), // FIXME: This is here because it is spawned on hit
+        Owner(if *flip_owner { player.other() } else { *player }),
         StateScoped(MatchState::Combat),
         ObjectVelocity {
             speed: facing.visual.mirror_vec3(spawn_velocity.extend(0.0)),
@@ -87,14 +88,13 @@ pub fn spawn_pickups(
         },
     ));
 
-    entity_commands.add_rollback();
-
     if let Some(frames) = lifetime {
         entity_commands.insert(DespawnMarker(frames + clock.frame));
     };
 
     entity_commands.with_children(|cb| {
-        cb.spawn((transform, SceneRoot(models[&model].clone())))
-            .add_rollback();
+        cb.spawn((transform, SceneRoot(models[&model].clone())));
     });
+
+    entity_commands.add_rollback();
 }

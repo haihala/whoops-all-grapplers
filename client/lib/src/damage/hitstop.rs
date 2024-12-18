@@ -15,7 +15,6 @@ pub fn start_hitstop(
         .entity(trigger.entity())
         .insert(Hitstop(clock.frame + *duration));
 
-    dbg!("Starting hitstop");
     anim_players
         .get_mut(helpers.get(trigger.entity()).unwrap().player_entity)
         .unwrap()

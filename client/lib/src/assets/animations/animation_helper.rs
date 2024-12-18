@@ -108,7 +108,6 @@ pub fn update_animation(
         let mut scene_root = scenes.get_mut(helper.scene_root).unwrap();
 
         if let Some(request) = helper.request.take() {
-            dbg!(request.animation);
             let index = animations.get(request.animation);
 
             player.stop_all();

@@ -2874,7 +2874,6 @@ name = "foundation"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "bevy_ggrs",
  "clap",
  "strum",
  "strum_macros",

@@ -39,7 +39,7 @@ impl Plugin for PlayerStateManagementPlugin {
                 RollbackSchedule,
                 side_switcher::sideswitcher
                     .run_if(in_state(InMatch))
-                    .in_set(SystemStep::HouseKeeping),
+                    .in_set(SystemStep::SideSwitch),
             )
             .add_systems(
                 RollbackSchedule,
@@ -48,8 +48,7 @@ impl Plugin for PlayerStateManagementPlugin {
                     condition_management::update_combined_status_effect,
                 )
                     .chain()
-                    .after(SystemStep::MovePipeline)
-                    .before(SystemStep::PlayerUpdates),
+                    .in_set(SystemStep::Conditions),
             )
             .add_systems(
                 RollbackSchedule,

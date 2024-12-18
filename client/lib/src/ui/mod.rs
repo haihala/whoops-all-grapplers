@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use foundation::{InMatch, MatchState, PRE_ROUND_DURATION};
+use foundation::{InMatch, MatchState, RollbackSchedule, SystemStep, PRE_ROUND_DURATION};
 
 mod combat;
 mod round_text;
@@ -20,27 +20,23 @@ impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(views::ViewsPlugin)
             .insert_resource(Notifications::default())
+            .add_systems(OnEnter(MatchState::PostRound), combat::update_score)
             .add_systems(
-                Last,
+                RollbackSchedule,
                 (
                     combat::update_bars,
                     combat::update_counters,
                     combat::update_timer,
-                )
-                    .run_if(in_state(MatchState::Combat)),
-            )
-            .add_systems(OnEnter(MatchState::PostRound), combat::update_score)
-            .add_systems(
-                Update,
-                (
                     combat::update_notifications,
                     combat::update_combo_counters,
                     round_text::update_round_text,
                 )
-                    .run_if(in_state(InMatch)),
+                    .chain()
+                    .run_if(in_state(InMatch))
+                    .in_set(SystemStep::UI),
             )
             .add_systems(
-                Update,
+                RollbackSchedule,
                 (
                     shop::navigate_shop,
                     shop::update_slot_visuals,
@@ -49,7 +45,9 @@ impl Plugin for UIPlugin {
                     shop::update_info_panel,
                     shop::handle_shop_ending,
                 )
-                    .run_if(in_state(MatchState::Shop)),
+                    .chain()
+                    .run_if(in_state(MatchState::Shop))
+                    .in_set(SystemStep::Shop),
             )
             .add_systems(
                 OnEnter(MatchState::PostLoad),
@@ -61,7 +59,7 @@ impl Plugin for UIPlugin {
                 )
                     .chain(),
             )
-            .add_systems(Update, set_ui_scale);
+            .add_systems(RollbackSchedule, set_ui_scale);
     }
 }
 

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use foundation::{Clock, GameState, InMatch, MatchState, RollbackSchedule};
+use foundation::{Clock, GameState, InMatch, MatchState, RollbackSchedule, SystemStep};
 
 #[derive(Component, Copy, Clone)]
 pub struct DespawnMarker(pub usize);
@@ -16,11 +16,13 @@ impl Plugin for EntityManagementPlugin {
             despawn_marked.after(crate::damage::handle_despawn_flags),
         )
         .add_systems(
-            Update,
+            RollbackSchedule,
             (
                 update_visibility_on_state_change::<GameState>,
                 update_visibility_on_state_change::<MatchState>,
-            ),
+            )
+                .chain()
+                .in_set(SystemStep::Visibility),
         )
         .enable_state_scoped_entities::<GameState>()
         .enable_state_scoped_entities::<MatchState>()

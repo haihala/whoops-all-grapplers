@@ -78,7 +78,7 @@ impl Plugin for PhysicsPlugin {
                 followers::update_followers,
             )
                 .chain()
-                .in_set(SystemStep::Physics),
+                .in_set(SystemStep::Movement),
         );
     }
 }

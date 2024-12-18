@@ -18,9 +18,6 @@ enough to be put on a more important list.
 
 ## Misc improvement ideas
 
-- Make airborne characters not turn around
-  - This requires splitting facing into multiple facings
-  - One for character model, one for inputs.
 - Pushback should not apply to projectiles
 - Newtype wrapper for frames.
   - Currently using usize, which means frames 99% of the time, but not always.

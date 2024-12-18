@@ -221,6 +221,7 @@ fn child_camera_effects(
     tf.translation = childcam_fx.pivot.unwrap() + offset;
 }
 
+#[allow(clippy::type_complexity)]
 fn reset_camera(
     mut queries: ParamSet<(
         Single<(&mut Transform, &mut RootCameraEffects), With<CameraWrapper>>,

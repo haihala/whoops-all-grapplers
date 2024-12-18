@@ -62,19 +62,24 @@ pub struct RollbackSchedule;
 
 #[derive(Debug, SystemSet, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum SystemStep {
-    HouseKeeping,
-    MenuNavigation,
+    Clock,
+    Visibility,
+    Menus,
     StateTransitions,
     Inputs,
-    Physics,
+    SideSwitch,
+    Pickups,
+    Conditions,
+    Movement,
     HitReg,
     MovePipeline,
     PlayerUpdates,
-    ResourceUpdates,
+    Economy,
+    Shop,
     Presentation,
+    UI,
     HitStop,
     Camera,
-    Final,
 }
 
 pub struct TimePlugin;
@@ -84,42 +89,42 @@ impl Plugin for TimePlugin {
         app.configure_sets(
             RollbackSchedule,
             (
-                SystemStep::HouseKeeping,
-                SystemStep::MenuNavigation,
-                SystemStep::StateTransitions,
+                (
+                    SystemStep::Clock,
+                    SystemStep::Visibility,
+                    SystemStep::Menus,
+                    SystemStep::Conditions,
+                    SystemStep::StateTransitions,
+                    SystemStep::Inputs,
+                )
+                    .chain(),
+                (
+                    SystemStep::SideSwitch,
+                    SystemStep::Pickups,
+                    SystemStep::Movement,
+                    SystemStep::HitReg,
+                    SystemStep::MovePipeline,
+                    SystemStep::PlayerUpdates,
+                    SystemStep::Economy,
+                )
+                    .chain()
+                    .run_if(in_state(MatchState::Combat)),
+                (
+                    SystemStep::Shop,
+                    SystemStep::Presentation,
+                    SystemStep::UI,
+                    SystemStep::HitStop,
+                    SystemStep::Camera,
+                )
+                    .chain(),
             )
-                .chain()
-                .before(SystemStep::Inputs),
-        )
-        .configure_sets(
-            RollbackSchedule,
-            (
-                SystemStep::Physics,
-                SystemStep::HitReg,
-                SystemStep::MovePipeline,
-                SystemStep::PlayerUpdates,
-                SystemStep::ResourceUpdates,
-            )
-                .chain()
-                .run_if(in_state(MatchState::Combat))
-                .after(SystemStep::Inputs),
-        )
-        .configure_sets(
-            RollbackSchedule,
-            (
-                SystemStep::Presentation,
-                SystemStep::HitStop,
-                SystemStep::Camera,
-                SystemStep::Final,
-            )
-                .chain()
-                .after(SystemStep::ResourceUpdates),
+                .chain(),
         )
         .init_resource::<Clock>()
         .insert_resource(Time::<Fixed>::from_seconds(1.0 / crate::FPS as f64))
         .add_systems(
             RollbackSchedule,
-            (global_clock_update, character_clock_update).in_set(SystemStep::HouseKeeping),
+            (global_clock_update, character_clock_update).in_set(SystemStep::Clock),
         )
         .add_systems(OnExit(MatchState::EndScreen), clear_round_log)
         .insert_resource(RoundLog::default());

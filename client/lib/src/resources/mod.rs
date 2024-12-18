@@ -18,7 +18,7 @@ impl Plugin for ResourcesPlugin {
                 meter_over_time::meter_over_time,
             )
                 .chain()
-                .in_set(SystemStep::ResourceUpdates),
+                .in_set(SystemStep::Economy),
         );
     }
 }

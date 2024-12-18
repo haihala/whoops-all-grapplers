@@ -18,7 +18,7 @@ impl Plugin for PickupPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             RollbackSchedule,
-            pick_up_pickups.in_set(SystemStep::HouseKeeping),
+            pick_up_pickups.in_set(SystemStep::Pickups),
         );
     }
 }

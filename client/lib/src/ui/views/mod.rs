@@ -55,7 +55,7 @@ impl Plugin for ViewsPlugin {
                     .after(end_screen::setup_end_screen),
             )
                 .chain()
-                .in_set(SystemStep::MenuNavigation),
+                .in_set(SystemStep::Menus),
         )
         .add_systems(OnEnter(MatchState::EndScreen), end_screen::setup_end_screen)
         .add_systems(OnExit(GameState::MainMenu), play_transition_noise)

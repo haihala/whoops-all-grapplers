@@ -33,7 +33,7 @@ pub struct HitboxSpawner {
     mark_hitters: bool,
 }
 
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Clone, Copy)]
 pub struct ProjectileMarker;
 
 impl HitboxSpawner {
@@ -78,9 +78,7 @@ impl HitboxSpawner {
         }
 
         if let Some(model) = attack.to_hit.model {
-            builder.with_children(|parent| {
-                parent.spawn(SceneRoot(models[&model].clone()));
-            });
+            builder.insert(SceneRoot(models[&model].clone()));
         }
 
         if attack.to_hit.projectile {

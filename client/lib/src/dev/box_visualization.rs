@@ -7,10 +7,10 @@ use foundation::{
 
 use crate::movement::Pushbox;
 
-pub(super) fn visualize_hitboxes(mut gizmos: Gizmos, hitboxes: Query<(&GlobalTransform, &Hitbox)>) {
+pub(super) fn visualize_hitboxes(mut gizmos: Gizmos, hitboxes: Query<(&Transform, &Hitbox)>) {
     for (gtf, hitbox) in &hitboxes {
         gizmos.rect(
-            gtf.translation() + hitbox.center().extend(0.0),
+            gtf.translation + hitbox.center().extend(0.0),
             hitbox.size(),
             HITBOX_VISUALIZATION_COLOR,
         )

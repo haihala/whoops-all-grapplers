@@ -21,7 +21,7 @@ use strum::IntoEnumIterator;
 use crate::{
     assets::{AnimationHelper, CharacterShake},
     camera::{ChildCameraEffects, RootCameraEffects},
-    damage::{HitTracker, HitboxSpawner, LifetimeFlags},
+    damage::{HitTracker, HitboxSpawner, LifetimeFlags, ProjectileMarker},
     entity_management::DespawnMarker,
     movement::{Follow, ObjectVelocity, PlayerVelocity, Pushbox, Walls},
     player_state_management::MoveBuffer,
@@ -114,6 +114,7 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_copy::<LifetimeFlags>()
             .rollback_component_with_copy::<ObjectVelocity>()
             .rollback_component_with_copy::<Owner>()
+            .rollback_component_with_copy::<ProjectileMarker>()
             // Pickups
             .rollback_component_with_copy::<Area>()
             .rollback_component_with_copy::<Pickup>()
@@ -122,11 +123,16 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_clone::<RootCameraEffects>()
             // Bevy inbuilts
             .rollback_component_with_clone::<Name>()
+            .rollback_component_with_clone::<StateScoped<GameState>>()
+            .rollback_component_with_clone::<StateScoped<MatchState>>()
             .rollback_component_with_copy::<GlobalTransform>()
             .rollback_component_with_copy::<InheritedVisibility>()
             .rollback_component_with_copy::<Transform>()
             .rollback_component_with_copy::<ViewVisibility>()
             .rollback_component_with_copy::<Visibility>()
+            .rollback_component_with_reflect::<AnimationPlayer>()
+            .rollback_component_with_reflect::<AnimationTransitions>()
+            .rollback_component_with_reflect::<SceneRoot>()
             // Checksums
             .checksum_component::<Transform>(tf_hasher)
             .checksum_resource::<Clock>(clock_hasher)

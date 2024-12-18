@@ -7,11 +7,12 @@ pub struct Follow {
 }
 
 pub(super) fn update_followers(
-    mut followers: Query<(&Follow, &mut Transform)>,
-    targets: Query<&GlobalTransform>,
+    followers: Query<(Entity, &Follow)>,
+    mut tfs: Query<&mut Transform>,
 ) {
-    for (follow, mut tf) in &mut followers {
-        // This has 1 frame delay due to how transforms get updated
-        tf.translation = targets.get(follow.target).unwrap().translation() + follow.offset;
+    for (entity, follow) in &followers {
+        let [mut tf, target] = tfs.get_many_mut([entity, follow.target]).unwrap();
+
+        tf.translation = target.translation + follow.offset;
     }
 }

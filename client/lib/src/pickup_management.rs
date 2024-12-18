@@ -94,6 +94,7 @@ pub fn spawn_pickups(
     };
 
     entity_commands.with_children(|cb| {
-        cb.spawn((transform, SceneRoot(models[&model].clone())));
+        cb.spawn((transform, SceneRoot(models[&model].clone())))
+            .add_rollback();
     });
 }

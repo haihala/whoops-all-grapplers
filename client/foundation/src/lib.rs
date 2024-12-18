@@ -60,7 +60,3 @@ pub use time::*;
 
 mod visual_effects;
 pub use visual_effects::{VfxRequest, VisualEffect};
-
-// This crate will be as small as possible so that types are where they are used
-// It's meant for common universal types to circumvent circular dependencies.
-pub const FPS: f32 = 60.0;

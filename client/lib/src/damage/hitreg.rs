@@ -63,7 +63,7 @@ pub(super) fn clash_parry(
     mut commands: Commands,
     mut hitboxes: Query<(
         &Owner,
-        &GlobalTransform,
+        &Transform,
         &Hitbox,
         &mut HitTracker,
         &Attack,
@@ -94,8 +94,8 @@ pub(super) fn clash_parry(
         }
 
         if let Some(overlap) = hitbox1
-            .with_offset(gtf1.translation().truncate())
-            .intersection(&hitbox2.with_offset(gtf2.translation().truncate()))
+            .with_offset(gtf1.translation.truncate())
+            .intersection(&hitbox2.with_offset(gtf2.translation.truncate()))
         {
             // Hitboxes collide
             commands.trigger(SoundEffect::GlassClink);
@@ -132,7 +132,7 @@ pub(super) fn clash_parry(
 pub(super) fn detect_hits(
     clock: Res<Clock>,
     mut notifications: ResMut<Notifications>,
-    mut hitboxes: Query<(&Owner, &Attack, &GlobalTransform, &Hitbox, &mut HitTracker)>,
+    mut hitboxes: Query<(&Owner, &Attack, &Transform, &Hitbox, &mut HitTracker)>,
     players: Res<Players>,
     defenders: Query<(
         &Transform,
@@ -158,7 +158,7 @@ pub(super) fn detect_hits(
             let (defender_tf, facing, hurtboxes, state, parser) = defenders.get(defender).unwrap();
             let combo = attackers.get(attacker).unwrap();
 
-            let offset_hitbox = hitbox.with_offset(hitbox_tf.translation().truncate());
+            let offset_hitbox = hitbox.with_offset(hitbox_tf.translation.truncate());
 
             // This technically doesn't get the actual overlap, as it just gets some overlap with one of the hitboxes
             let overlap = hurtboxes.as_vec().iter().find_map(|hurtbox| {

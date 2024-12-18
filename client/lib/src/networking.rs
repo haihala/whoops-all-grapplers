@@ -42,6 +42,7 @@ impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<InputStream>()
             .add_systems(OnEnter(GameState::Online(OnlineState::Lobby)), setup_socket)
+            .add_systems(OnExit(GameState::Online(OnlineState::Match)), teardown)
             .add_systems(
                 FixedUpdate,
                 wait_for_players.run_if(in_state(GameState::Online(OnlineState::Lobby))),
@@ -155,6 +156,17 @@ fn setup_socket(mut commands: Commands) {
         .add_ggrs_channel()
         .build();
     commands.insert_resource(MatchboxSocket::from(sock));
+}
+
+fn teardown(mut commands: Commands) {
+    commands.remove_resource::<MatchboxSocket<MultipleChannels>>();
+    commands.remove_resource::<bevy_ggrs::Session<Config>>();
+    commands.remove_resource::<bevy_ggrs::LocalInputs<Config>>();
+
+    commands.remove_resource::<Characters>();
+    commands.remove_resource::<Controllers>();
+    commands.remove_resource::<LocalCharacter>();
+    commands.remove_resource::<LocalController>();
 }
 
 #[derive(Debug, Default)]
@@ -552,7 +564,11 @@ fn generate_online_input_streams(
     }
 }
 
-fn handle_ggrs_events(mut sesh: ResMut<Session<Config>>) {
+fn handle_ggrs_events(
+    mut sesh: ResMut<Session<Config>>,
+    mut next_main_state: ResMut<NextState<GameState>>,
+    mut next_match_state: ResMut<NextState<MatchState>>,
+) {
     let Session::P2P(s) = sesh.as_mut() else {
         return;
     };
@@ -560,18 +576,23 @@ fn handle_ggrs_events(mut sesh: ResMut<Session<Config>>) {
     for event in s.events() {
         match event {
             ggrs::GgrsEvent::Disconnected { addr: _ }
-            | ggrs::GgrsEvent::NetworkInterrupted {
-                addr: _,
-                disconnect_timeout: _,
-            }
-            | ggrs::GgrsEvent::NetworkResumed { addr: _ }
-            | ggrs::GgrsEvent::WaitRecommendation { skip_frames: _ }
             | ggrs::GgrsEvent::DesyncDetected {
                 frame: _,
                 local_checksum: _,
                 remote_checksum: _,
                 addr: _,
             } => {
+                warn!("GGRS event: {:?}, transitioning to main menu", event);
+                next_main_state.set(GameState::MainMenu);
+                next_match_state.set(MatchState::None);
+                // TODO: Add like a notification for the user or something
+            }
+            ggrs::GgrsEvent::NetworkInterrupted {
+                addr: _,
+                disconnect_timeout: _,
+            }
+            | ggrs::GgrsEvent::NetworkResumed { addr: _ }
+            | ggrs::GgrsEvent::WaitRecommendation { skip_frames: _ } => {
                 debug!("Unhandled GGRS event: {:?}", event);
             }
             _ => {}

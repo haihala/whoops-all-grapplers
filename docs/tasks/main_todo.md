@@ -12,7 +12,6 @@
 - More synctest
   - Immediate desync on some starts
     - Seems like a system ordering inconsistency
-- Add a system that gets you out of a desync without crashing the game
 
 ### Before public playtests
 

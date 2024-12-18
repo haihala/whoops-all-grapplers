@@ -74,7 +74,9 @@ pub fn spawn_pickups(
     let (player_tf, player, facing) = query.get(trigger.entity()).unwrap();
 
     let mut entity_commands = commands.spawn((
-        Transform::from_translation(spawn_point.extend(0.0) + player_tf.translation),
+        Transform::from_translation(
+            facing.absolute.mirror_vec2(*spawn_point).extend(0.0) + player_tf.translation,
+        ),
         Visibility::default(),
         *pickup,
         *size,

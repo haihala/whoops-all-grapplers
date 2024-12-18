@@ -5,8 +5,9 @@ use characters::{
     Hitbox, Hurtboxes, Inventory,
 };
 use foundation::{
-    Area, CharacterFacing, Clock, Combo, Owner, Player, Players, SoundEffect, Stats, StatusFlag,
-    StickPosition, VfxRequest, VisualEffect, CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
+    Area, CharacterClock, CharacterFacing, Clock, Combo, Owner, Player, Players, SoundEffect,
+    Stats, StatusFlag, StickPosition, VfxRequest, VisualEffect, CLASH_PARRY_METER_GAIN,
+    GI_PARRY_METER_GAIN,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -477,19 +478,17 @@ pub fn snap_and_switch(
 
 pub fn hitstun_events(
     trigger: Trigger<UpdateHitstun>,
-    mut query: Query<&mut PlayerState>,
-    clock: Res<Clock>,
+    mut query: Query<(&mut PlayerState, &CharacterClock)>,
 ) {
-    let mut state = query.get_mut(trigger.entity()).unwrap();
+    let (mut state, clock) = query.get_mut(trigger.entity()).unwrap();
     state.hit_stun(clock.frame + trigger.event().0);
 }
 
 pub fn blockstun_events(
     trigger: Trigger<UpdateBlockstun>,
-    mut query: Query<&mut PlayerState>,
-    clock: Res<Clock>,
+    mut query: Query<(&mut PlayerState, &CharacterClock)>,
 ) {
-    let mut state = query.get_mut(trigger.entity()).unwrap();
+    let (mut state, clock) = query.get_mut(trigger.entity()).unwrap();
     state.block(clock.frame + trigger.event().0);
 }
 

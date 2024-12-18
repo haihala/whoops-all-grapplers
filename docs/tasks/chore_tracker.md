@@ -7,7 +7,6 @@ enough to be put on a more important list.
 
 - Controllers connected after game has started show up weird in the controller claim menu
   - That menu won't show keyboard
-- st.s links to itself
 
 ### Online
 

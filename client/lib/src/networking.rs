@@ -9,17 +9,17 @@ use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
 use characters::{Attack, Gauges, Hitbox, Hurtboxes, Inventory};
 use foundation::{
-    Area, CharacterFacing, Characters, Clock, Combo, Controllers, GameState, Hitstop, InputDevice,
-    InputState, InputStream, LocalCharacter, LocalController, MatchState, NetworkInputButton,
-    OnlineState, OwnedInput, Owner, Pickup, Player, RollbackSchedule, Stats, WagArgs,
-    STICK_DEAD_ZONE,
+    Area, CharacterClock, CharacterFacing, Characters, Clock, Combo, Controllers, GameState,
+    Hitstop, InputDevice, InputState, InputStream, LocalCharacter, LocalController, MatchState,
+    NetworkInputButton, OnlineState, OwnedInput, Owner, Pickup, Player, RollbackSchedule, Stats,
+    WagArgs, STICK_DEAD_ZONE,
 };
 use input_parsing::{InputParser, ParrotStream};
 use player_state::PlayerState;
 use strum::IntoEnumIterator;
 
 use crate::{
-    assets::AnimationHelper,
+    assets::{AnimationHelper, CharacterShake},
     camera::{ChildCameraEffects, RootCameraEffects},
     damage::{HitTracker, HitboxSpawner, LifetimeFlags},
     entity_management::DespawnMarker,
@@ -85,9 +85,9 @@ impl Plugin for NetworkPlugin {
             // Resources
             .rollback_resource_with_clone::<InputStream>()
             .rollback_resource_with_copy::<Clock>()
-            .rollback_resource_with_copy::<Hitstop>()
             .rollback_resource_with_copy::<Walls>()
             // Player components
+            .rollback_component_with_clone::<Gauges>()
             .rollback_component_with_clone::<Hurtboxes>()
             .rollback_component_with_clone::<InputParser>()
             .rollback_component_with_clone::<Inventory>()
@@ -95,29 +95,31 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_clone::<ParrotStream>()
             .rollback_component_with_clone::<PlayerState>()
             .rollback_component_with_clone::<PlayerVelocity>()
-            .rollback_component_with_clone::<Gauges>()
             .rollback_component_with_copy::<AnimationHelper>()
-            .rollback_component_with_copy::<Combo>()
+            .rollback_component_with_copy::<CharacterClock>()
             .rollback_component_with_copy::<CharacterFacing>()
+            .rollback_component_with_copy::<CharacterShake>()
+            .rollback_component_with_copy::<Combo>()
             .rollback_component_with_copy::<HitboxSpawner>()
+            .rollback_component_with_copy::<Hitstop>()
             .rollback_component_with_copy::<Player>()
             .rollback_component_with_copy::<Pushbox>()
             .rollback_component_with_copy::<Stats>()
             // Hitboxes
             .rollback_component_with_clone::<Attack>()
-            .rollback_component_with_copy::<ObjectVelocity>()
             .rollback_component_with_copy::<DespawnMarker>()
             .rollback_component_with_copy::<Follow>()
             .rollback_component_with_copy::<HitTracker>()
             .rollback_component_with_copy::<Hitbox>()
             .rollback_component_with_copy::<LifetimeFlags>()
+            .rollback_component_with_copy::<ObjectVelocity>()
             .rollback_component_with_copy::<Owner>()
             // Pickups
             .rollback_component_with_copy::<Area>()
             .rollback_component_with_copy::<Pickup>()
             // Camera
-            .rollback_component_with_clone::<RootCameraEffects>()
             .rollback_component_with_clone::<ChildCameraEffects>()
+            .rollback_component_with_clone::<RootCameraEffects>()
             // Bevy inbuilts
             .rollback_component_with_clone::<Name>()
             .rollback_component_with_copy::<GlobalTransform>()

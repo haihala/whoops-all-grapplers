@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 
 use characters::{Character, Gauges, Hurtboxes, Inventory, Situation};
-use foundation::{ActionId, CancelType, CharacterFacing, Clock, Combo, Stats};
+use foundation::{ActionId, CancelType, CharacterClock, CharacterFacing, Clock, Combo, Stats};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 
@@ -81,7 +81,6 @@ pub(super) fn automatic_activation(
 
 #[allow(clippy::type_complexity)]
 pub(super) fn move_activator(
-    clock: Res<Clock>,
     mut query: Query<(
         &mut Hurtboxes,
         &mut MoveBuffer,
@@ -93,15 +92,10 @@ pub(super) fn move_activator(
         &Stats,
         &InputParser,
         &CharacterFacing,
+        &mut CharacterClock,
         Option<&Combo>,
     )>,
-    mut last_processed_frame: Local<usize>,
 ) {
-    if *last_processed_frame == clock.frame {
-        return;
-    }
-    *last_processed_frame = clock.frame;
-
     // Activate and clear activating move
     for (
         mut hurtboxes,
@@ -114,9 +108,14 @@ pub(super) fn move_activator(
         stats,
         parser,
         facing,
+        mut clock,
         combo,
     ) in &mut query
     {
+        if clock.move_activation_processed {
+            continue;
+        }
+
         let primary = buffer.activation.take();
         let to_activate = if let Some(id) = primary {
             id
@@ -154,5 +153,6 @@ pub(super) fn move_activator(
 
         buffer.buffer.retain(|id, _| *id != to_activate);
         state.start_move(to_activate, clock.frame);
+        clock.move_activation_processed = true;
     }
 }

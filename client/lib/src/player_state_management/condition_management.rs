@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory};
-use foundation::{Clock, Stats, StatusCondition, StatusFlag};
+use foundation::{CharacterClock, Stats, StatusCondition, StatusFlag};
 use player_state::PlayerState;
 
 use crate::event_spreading::{ClearStatus, ColorShift};
@@ -8,12 +8,11 @@ use crate::event_spreading::{ClearStatus, ColorShift};
 pub fn activate_conditions(
     trigger: Trigger<StatusCondition>,
     mut commands: Commands,
-    mut query: Query<&mut PlayerState>,
-    clock: Res<Clock>,
+    mut query: Query<(&mut PlayerState, &CharacterClock)>,
 ) {
     let entity = trigger.entity();
     let new_condition = trigger.event().clone();
-    let mut state = query.get_mut(entity).unwrap();
+    let (mut state, clock) = query.get_mut(entity).unwrap();
 
     if let Some(color) = new_condition.flag.display_color() {
         commands.trigger_targets(
@@ -46,8 +45,8 @@ pub fn clear_conditions(trigger: Trigger<ClearStatus>, mut query: Query<&mut Pla
     state.clear_conditions(trigger.event().0.clone());
 }
 
-pub fn expire_conditions(mut query: Query<&mut PlayerState>, clock: Res<Clock>) {
-    for mut state in &mut query {
+pub fn expire_conditions(mut query: Query<(&mut PlayerState, &CharacterClock)>) {
+    for (mut state, clock) in &mut query {
         state.expire_conditions(clock.frame);
     }
 }

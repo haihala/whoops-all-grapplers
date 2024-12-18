@@ -442,7 +442,7 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
         30,
     )
     .with_damage(10)
-    .with_launch_impulse(Vec2::new(2.0, 6.0))
+    .with_launch_impulse(Vec2::new(-2.0, 6.0))
     .build();
 
     let (crouch_throw_target, crouch_throw_activation) = ThrowEffectBuilder::new(
@@ -463,7 +463,7 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
         50,
     )
     .with_damage(10)
-    .with_launch_impulse(Vec2::new(2.0, 2.0))
+    .with_launch_impulse(Vec2::new(-2.0, 2.0))
     .build();
 
     vec![

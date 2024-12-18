@@ -34,7 +34,7 @@ pub use icon::{Icon, Icons};
 mod inputs;
 pub use inputs::{
     Controllers, GameButton, InputDevice, InputEvent, InputState, InputStream, LocalController,
-    NetworkInputButton, OwnedInput, StickPosition, STICK_DEAD_ZONE,
+    NetworkInputButton, OwnedInput, StickPosition, KARA_WINDOW, STICK_DEAD_ZONE,
 };
 
 mod item_id;
@@ -64,6 +64,3 @@ pub use visual_effects::{VfxRequest, VisualEffect};
 // This crate will be as small as possible so that types are where they are used
 // It's meant for common universal types to circumvent circular dependencies.
 pub const FPS: f32 = 60.0;
-
-// How many frames can you kara cancel to metered versions of moves
-pub const KARA_WINDOW: usize = 3;

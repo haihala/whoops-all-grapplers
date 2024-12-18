@@ -11,7 +11,7 @@ use super::{ExtendedFlashMaterial, FlashMaterial};
 #[derive(Debug, Resource, Deref, DerefMut)]
 pub struct Models(pub HashMap<Model, Handle<Scene>>);
 
-#[derive(Debug, Component, Default)]
+#[derive(Debug, Component, Default, Clone, Copy)]
 pub struct CharacterShake {
     amount: f32,
 }

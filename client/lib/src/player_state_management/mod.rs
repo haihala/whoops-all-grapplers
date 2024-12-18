@@ -9,8 +9,8 @@ mod size_adjustment;
 
 use characters::{samurai, Gauges, Hurtboxes, Inventory};
 use foundation::{
-    AnimationType, CharacterFacing, CharacterId, Characters, Clock, Combo, Facing, InMatch,
-    MatchState, Player, Players, RollbackSchedule, Stats, SystemStep, WagArgs,
+    AnimationType, CharacterClock, CharacterFacing, CharacterId, Characters, Clock, Combo, Facing,
+    InMatch, MatchState, Player, Players, RollbackSchedule, Stats, SystemStep, WagArgs,
 };
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
@@ -111,6 +111,7 @@ struct PlayerDefaults {
     status_effects: Stats,
     state: PlayerState,
     character_shake: CharacterShake,
+    character_clock: CharacterClock,
 }
 
 fn spawn_player(
@@ -203,6 +204,7 @@ fn setup_combat(
         &mut PlayerVelocity,
         &mut AnimationHelper,
         &mut Hurtboxes,
+        &mut CharacterClock,
         Entity,
     )>,
     mut commands: Commands,
@@ -222,6 +224,7 @@ fn setup_combat(
         mut velocity,
         mut animation_helper,
         mut hurtboxes,
+        mut char_clock,
         entity,
     ) in &mut query
     {
@@ -232,6 +235,7 @@ fn setup_combat(
         velocity.reset();
         animation_helper.reset();
         hurtboxes.reset();
+        char_clock.reset();
         commands.entity(entity).remove::<Combo>();
 
         tf.translation = Vec3::new(

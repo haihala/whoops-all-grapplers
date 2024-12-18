@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::{Character, Gauges, Hurtboxes, Inventory};
-use foundation::{CharacterFacing, Clock, Combo, Stats, StatusFlag};
+use foundation::{CharacterClock, CharacterFacing, Clock, Combo, Stats, StatusFlag};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 
@@ -9,10 +9,9 @@ use crate::event_spreading::{ColorShift, EndAction};
 #[allow(clippy::type_complexity)]
 pub(super) fn move_advancement(
     mut commands: Commands,
-    clock: Res<Clock>,
-    mut last_processed_frame: Local<usize>,
     mut query: Query<(
         &mut PlayerState,
+        &mut CharacterClock,
         &Transform,
         &Inventory,
         &Character,
@@ -24,14 +23,24 @@ pub(super) fn move_advancement(
         Option<&Combo>,
     )>,
 ) {
-    if *last_processed_frame == clock.frame {
-        return;
-    }
-    *last_processed_frame = clock.frame;
-
-    for (mut state, tf, inventory, character, resources, parser, stats, facing, entity, combo) in
-        &mut query
+    for (
+        mut state,
+        mut clock,
+        tf,
+        inventory,
+        character,
+        resources,
+        parser,
+        stats,
+        facing,
+        entity,
+        combo,
+    ) in &mut query
     {
+        if clock.move_events_processed {
+            continue;
+        }
+
         if state.action_in_progress() {
             for event in state.proceed_move(
                 inventory.to_owned(),
@@ -47,6 +56,8 @@ pub(super) fn move_advancement(
                 commands.trigger_targets(event, entity)
             }
         }
+
+        clock.move_events_processed = true;
     }
 }
 

@@ -33,7 +33,7 @@ pub enum ActionEvent {
     HitStun(usize),
     BlockStun(usize),
     LaunchStun(Vec2),
-    Hitstop, // TODO: Add strength
+    Hitstop(usize),
     CameraTilt(Vec2),
     CameraShake, // TODO: Add strength
     Zoom(f32),
@@ -109,8 +109,8 @@ impl std::fmt::Debug for ActionEvent {
             ActionEvent::LaunchStun(vec2) => {
                 write!(f, "LaunchStun - {:?}", vec2)
             }
-            ActionEvent::Hitstop => {
-                write!(f, "HitStop")
+            ActionEvent::Hitstop(frames) => {
+                write!(f, "HitStop - {:?}", frames)
             }
             ActionEvent::CameraTilt(vec2) => {
                 write!(f, "CameraTilt - {:?}", vec2)

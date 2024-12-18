@@ -1,15 +1,15 @@
-use std::time::Instant;
-
 use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
 
 mod game_flow;
-use bevy_ggrs::RollbackFrameCount;
 pub use game_flow::{
     GameResult, GameState, InCharacterSelect, InMatch, LocalState, MatchState, OnlineState,
     RoundLog, RoundResult,
 };
 
-use crate::FPS;
+pub const FPS: f32 = 60.0;
+pub const ON_BLOCK_HITSTOP: usize = 4;
+pub const ON_HIT_HITSTOP: usize = 8;
+pub const ON_THROW_HITSTOP: usize = 12;
 
 pub const ROUNDS_TO_WIN: usize = 3;
 pub const PRE_ROUND_DURATION: f32 = 2.0;
@@ -39,8 +39,21 @@ impl Clock {
     }
 }
 
-#[derive(Debug, Resource, Deref, Clone, Copy)]
-pub struct Hitstop(pub Instant);
+#[derive(Reflect, Component, Debug, Clone, Copy, Default)]
+pub struct CharacterClock {
+    pub frame: usize,
+    pub move_activation_processed: bool,
+    pub move_events_processed: bool,
+}
+
+impl CharacterClock {
+    pub fn reset(&mut self) {
+        *self = Self::default();
+    }
+}
+
+#[derive(Debug, Component, Deref, Clone, Copy)]
+pub struct Hitstop(pub usize);
 
 // This needs to be defined here because it gets used here
 // It is a workaround that allows running the same systems in both online and offline
@@ -106,47 +119,16 @@ impl Plugin for TimePlugin {
         .insert_resource(Time::<Fixed>::from_seconds(1.0 / crate::FPS as f64))
         .add_systems(
             RollbackSchedule,
-            (
-                fixed_clock_update.run_if(|gs: Res<State<GameState>>| !gs.get().is_online()),
-                ggrs_clock_update.run_if(|gs: Res<State<GameState>>| gs.get().is_online()),
-                timer_update,
-            )
-                .chain()
-                .in_set(SystemStep::HouseKeeping),
+            (global_clock_update, character_clock_update).in_set(SystemStep::HouseKeeping),
         )
         .add_systems(OnExit(MatchState::EndScreen), clear_round_log)
         .insert_resource(RoundLog::default());
     }
 }
 
-fn fixed_clock_update(mut clock: ResMut<Clock>, maybe_hitstop: Option<Res<Hitstop>>) {
-    if maybe_hitstop.is_some() {
-        return;
-    }
-
+fn global_clock_update(mut clock: ResMut<Clock>) {
     clock.frame += 1;
-}
 
-fn ggrs_clock_update(
-    mut clock: ResMut<Clock>,
-    maybe_hitstop: Option<Res<Hitstop>>,
-    ggrs_count: Res<RollbackFrameCount>,
-    mut prev_ggrs_count: Local<usize>,
-) {
-    if maybe_hitstop.is_some() {
-        return;
-    }
-
-    let curr_ggrs_count = ggrs_count.0 as usize;
-    if curr_ggrs_count == *prev_ggrs_count {
-        return;
-    }
-
-    clock.frame += 1;
-    *prev_ggrs_count = curr_ggrs_count;
-}
-
-fn timer_update(mut clock: ResMut<Clock>) {
     if clock.done {
         return;
     }
@@ -157,6 +139,16 @@ fn timer_update(mut clock: ResMut<Clock>) {
         .clamp(0.0, COMBAT_DURATION)
         .ceil() as usize;
     clock.done = clock.timer_value == 0;
+}
+
+fn character_clock_update(mut query: Query<(&mut CharacterClock, Option<&Hitstop>)>) {
+    for (mut clock, maybe_hitstop) in &mut query {
+        if maybe_hitstop.is_none() {
+            clock.frame += 1;
+            clock.move_activation_processed = false;
+            clock.move_events_processed = false;
+        }
+    }
 }
 
 fn clear_round_log(mut log: ResMut<RoundLog>) {

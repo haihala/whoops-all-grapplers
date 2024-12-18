@@ -10,6 +10,8 @@ pub use stick_position::StickPosition;
 mod input_state;
 pub use input_state::InputState;
 
+// How many frames can you kara cancel to metered versions of moves
+pub const KARA_WINDOW: usize = 3;
 pub const STICK_DEAD_ZONE: f32 = 0.3;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, EnumIter, Reflect, Default)]

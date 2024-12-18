@@ -3,7 +3,7 @@ use std::{mem::take, time::Duration};
 use bevy::{prelude::*, scene::SceneInstance};
 
 use characters::AnimationRequest;
-use foundation::{Animation, Hitstop, MatchState, Stats};
+use foundation::{Animation, Hitstop, Stats};
 
 use super::Animations;
 
@@ -97,32 +97,18 @@ fn find_animation_player_entity(
     (None, None)
 }
 
-#[allow(clippy::too_many_arguments)]
 pub fn update_animation(
     animations: Res<Animations>,
-    mut main: Query<(&mut AnimationHelper, &Stats)>,
+    mut main: Query<(&mut AnimationHelper, &Stats, Option<&Hitstop>)>,
     mut players: Query<(&mut AnimationPlayer, &mut AnimationTransitions)>,
     mut scenes: Query<&mut Transform, With<SceneRoot>>,
-    maybe_hitstop: Option<ResMut<Hitstop>>,
-    mut hitstop_last_frame: Local<bool>,
-    match_state: Res<State<MatchState>>,
 ) {
-    let hitstop_this_frame = maybe_hitstop.is_some();
-    let (hitstop_started, hitstop_ended) = if hitstop_this_frame != *hitstop_last_frame {
-        (hitstop_this_frame, *hitstop_last_frame)
-    } else {
-        (false, false)
-    };
-    let post_round = *match_state.get() == MatchState::PostRound;
-
-    *hitstop_last_frame = hitstop_this_frame;
-
-    for (mut helper, stats) in &mut main {
+    for (mut helper, stats, maybe_histop) in &mut main {
         let (mut player, mut transitions) = players.get_mut(helper.player_entity).unwrap();
         let mut scene_root = scenes.get_mut(helper.scene_root).unwrap();
 
         if let Some(request) = helper.request.take() {
-            // New animation set to start
+            dbg!(request.animation);
             let index = animations.get(request.animation);
 
             player.stop_all();
@@ -136,14 +122,12 @@ pub fn update_animation(
                 active.set_speed(stats.action_speed_multiplier);
             }
 
+            if maybe_histop.is_some() {
+                active.pause();
+            }
+
             helper.playing = Some(request);
             scene_root.translation = request.position_offset.extend(0.0);
-        } else if hitstop_ended && !post_round {
-            // Don't pause in post round time, as that would make animations play during the
-            // freeze time, invalidating pause_animations. Last hit has hitstop.
-            player.resume_all();
-        } else if hitstop_started {
-            player.pause_all();
         }
     }
 }

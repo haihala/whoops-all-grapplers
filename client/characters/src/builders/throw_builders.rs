@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use foundation::{Animation, StatusCondition, StatusFlag, VfxRequest, VisualEffect};
+use foundation::{
+    Animation, StatusCondition, StatusFlag, VfxRequest, VisualEffect, ON_THROW_HITSTOP,
+};
 
 use crate::{
     Action, ActionEvent, ActionRequirement, AnimationRequest, FlashRequest, GaugeType, Situation,
@@ -76,6 +78,7 @@ impl ThrowEffectBuilder {
                             }),
                             ActionEvent::CameraShake,
                             ActionEvent::Zoom(1.0),
+                            ActionEvent::Hitstop(ON_THROW_HITSTOP),
                             ActionEvent::Flash(FlashRequest::hit_flash()),
                             ActionEvent::Condition(StatusCondition {
                                 flag: StatusFlag::MovementLock,
@@ -89,6 +92,7 @@ impl ThrowEffectBuilder {
                         return vec![
                             ActionEvent::LaunchStun(self.launch_impulse),
                             ActionEvent::ModifyResource(GaugeType::Health, -self.damage),
+                            ActionEvent::FlipVisuals,
                         ]
                         .into_iter()
                         .chain(self.extra_target_events.clone())
@@ -110,6 +114,7 @@ impl ThrowEffectBuilder {
                                 expiration: Some(self.lock_duration),
                                 ..default()
                             }),
+                            ActionEvent::Hitstop(ON_THROW_HITSTOP),
                         ];
                     }
 

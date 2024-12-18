@@ -5,8 +5,8 @@ use bevy::prelude::*;
 use foundation::{
     ActionCategory, ActionId, Animation, Area, CancelType, Facing, GameButton, Icon, Model,
     SimpleState, SoundEffect, StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine,
-    BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR, LOW_OPENER_COLOR, MID_OPENER_COLOR, SMALL_HIT_THRESHOLD,
-    THROW_TECH_RING_BASE_COLOR, THROW_TECH_RING_EDGE_COLOR,
+    BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR, LOW_OPENER_COLOR, MID_OPENER_COLOR, ON_BLOCK_HITSTOP,
+    ON_HIT_HITSTOP, SMALL_HIT_THRESHOLD, THROW_TECH_RING_BASE_COLOR, THROW_TECH_RING_EDGE_COLOR,
 };
 
 use crate::{
@@ -786,7 +786,7 @@ impl StrikeEffectBuilder {
                         cancel_event,
                         Movement::impulse(-Vec2::X * self.attacker_push_on_block).into(),
                         ActionEvent::CameraTilt(-Vec2::X * 0.01),
-                        ActionEvent::Hitstop,
+                        ActionEvent::Hitstop(ON_BLOCK_HITSTOP),
                         ActionEvent::Sound(SoundEffect::PlasticCupTap),
                         ActionEvent::AbsoluteVisualEffect(VfxRequest {
                             effect: VisualEffect::Block,
@@ -807,6 +807,7 @@ impl StrikeEffectBuilder {
                             }
                         }),
                         Movement::impulse(-Vec2::X * self.defender_push_on_block).into(),
+                        ActionEvent::Hitstop(ON_BLOCK_HITSTOP),
                         ActionEvent::CharacterShake(0.25),
                     ],
                 }
@@ -838,7 +839,7 @@ impl StrikeEffectBuilder {
                         Movement::impulse(-Vec2::X * self.attacker_push_on_hit).into(),
                         ActionEvent::CameraTilt(Vec2::X * 0.02),
                         ActionEvent::CameraShake,
-                        ActionEvent::Hitstop,
+                        ActionEvent::Hitstop(ON_HIT_HITSTOP),
                         ActionEvent::Sound(SoundEffect::PastaPat),
                         ActionEvent::AbsoluteVisualEffect(VfxRequest {
                             effect,
@@ -870,6 +871,7 @@ impl StrikeEffectBuilder {
                                 ActionEvent::Noop
                             },
                             voice_line_event,
+                            ActionEvent::Hitstop(ON_HIT_HITSTOP),
                             ActionEvent::Flash(FlashRequest::hit_flash()),
                             ActionEvent::CharacterShake(0.5),
                         ])

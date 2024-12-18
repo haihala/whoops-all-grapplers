@@ -68,6 +68,7 @@ impl ThrowEffectBuilder {
                             ActionEvent::FlipVisuals,
                             AnimationRequest {
                                 invert: true,
+                                ignore_action_speed: true,
                                 ..AnimationRequest::from(self.target_animation)
                             }
                             .into(),
@@ -88,7 +89,7 @@ impl ThrowEffectBuilder {
                         ];
                     }
 
-                    if situation.on_frame(self.lock_duration) {
+                    if situation.elapsed() == self.lock_duration {
                         return vec![
                             ActionEvent::LaunchStun(self.launch_impulse),
                             ActionEvent::ModifyResource(GaugeType::Health, -self.damage),
@@ -99,7 +100,12 @@ impl ThrowEffectBuilder {
                         .collect();
                     }
 
-                    situation.end_at(self.target_duration)
+                    // Done this way to avoid including animation speed from items
+                    if situation.elapsed() >= self.target_duration {
+                        vec![ActionEvent::End]
+                    } else {
+                        vec![]
+                    }
                 }),
                 requirement: ActionRequirement::default(),
             },
@@ -108,7 +114,11 @@ impl ThrowEffectBuilder {
                 script: Box::new(move |situation: &Situation| {
                     if situation.on_frame(0) {
                         return vec![
-                            self.self_animation.into(),
+                            AnimationRequest {
+                                ignore_action_speed: true,
+                                ..AnimationRequest::from(self.self_animation)
+                            }
+                            .into(),
                             ActionEvent::Condition(StatusCondition {
                                 flag: StatusFlag::MovementLock,
                                 expiration: Some(self.lock_duration),
@@ -118,7 +128,12 @@ impl ThrowEffectBuilder {
                         ];
                     }
 
-                    situation.end_at(self.self_duration)
+                    // Done this way to avoid including animation speed from items
+                    if situation.elapsed() >= self.self_duration {
+                        vec![ActionEvent::End]
+                    } else {
+                        vec![]
+                    }
                 }),
                 requirement: ActionRequirement::default(),
             },

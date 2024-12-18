@@ -12,6 +12,7 @@
 - More synctest
   - Immediate desync on some starts
     - Seems like a system ordering inconsistency
+  - Ghost objects
 
 ### Before public playtests
 

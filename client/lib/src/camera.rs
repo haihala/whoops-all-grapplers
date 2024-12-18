@@ -40,6 +40,7 @@ impl Plugin for CustomCameraPlugin {
                     .in_set(SystemStep::Camera)
                     .run_if(in_state(InMatch)),
             )
+            .add_systems(OnEnter(MatchState::PreRound), reset_camera)
             .add_observer(shake_camera)
             .add_observer(zoom_camera);
     }
@@ -56,6 +57,7 @@ fn add_camera(
             Name::new("Cameras"),
             CameraWrapper,
             RootCameraEffects::default(),
+            InheritedVisibility::VISIBLE,
         ))
         .with_children(|parent| {
             parent
@@ -217,4 +219,19 @@ fn child_camera_effects(
     let offset = magnitude * Vec3::new(angle.sin(), angle.cos(), 0.0);
 
     tf.translation = childcam_fx.pivot.unwrap() + offset;
+}
+
+fn reset_camera(
+    mut queries: ParamSet<(
+        Single<(&mut Transform, &mut RootCameraEffects), With<CameraWrapper>>,
+        Single<(&mut Transform, &mut ChildCameraEffects)>,
+    )>,
+) {
+    let (mut root_tf, mut root_cam_effects) = queries.p0().into_inner();
+    *root_tf = Transform::default();
+    *root_cam_effects = RootCameraEffects::default();
+
+    let (mut child_tf, mut child_cam_effects) = queries.p1().into_inner();
+    *child_tf = Transform::from_xyz(0.0, MAX_CAMERA_HEIGHT, MAX_CAMERA_DISTANCE);
+    *child_cam_effects = ChildCameraEffects::default();
 }

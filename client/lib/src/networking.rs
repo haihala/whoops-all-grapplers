@@ -19,7 +19,7 @@ use player_state::PlayerState;
 use strum::IntoEnumIterator;
 
 use crate::{
-    assets::{AnimationHelper, CharacterShake},
+    assets::{AnimationHelper, CharacterShake, ExtendedFlashMaterial},
     camera::{ChildCameraEffects, RootCameraEffects},
     damage::{HitTracker, HitboxSpawner, LifetimeFlags, ProjectileMarker},
     entity_management::DespawnMarker,
@@ -132,6 +132,9 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_copy::<Visibility>()
             .rollback_component_with_reflect::<AnimationPlayer>()
             .rollback_component_with_reflect::<AnimationTransitions>()
+            .rollback_component_with_reflect::<Mesh3d>()
+            .rollback_component_with_reflect::<MeshMaterial3d<StandardMaterial>>()
+            .rollback_component_with_reflect::<MeshMaterial3d<ExtendedFlashMaterial>>()
             .rollback_component_with_reflect::<SceneRoot>()
             // Checksums
             .checksum_component::<Transform>(tf_hasher)

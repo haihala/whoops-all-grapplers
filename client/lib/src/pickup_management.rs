@@ -86,6 +86,7 @@ pub fn spawn_pickups(
             face_forward: false,
             floor_despawns: false,
         },
+        Name::new("Pickup"),
     ));
 
     if let Some(frames) = lifetime {
@@ -93,7 +94,12 @@ pub fn spawn_pickups(
     };
 
     entity_commands.with_children(|cb| {
-        cb.spawn((transform, SceneRoot(models[&model].clone())));
+        cb.spawn((
+            Name::new("Pickup model"),
+            transform,
+            SceneRoot(models[&model].clone()),
+        ))
+        .add_rollback();
     });
 
     entity_commands.add_rollback();

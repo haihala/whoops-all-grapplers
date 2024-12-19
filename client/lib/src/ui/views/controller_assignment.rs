@@ -1,7 +1,7 @@
 use bevy::{ecs::system::SystemId, prelude::*};
 use foundation::{
     Controllers, GameButton, GameState, InputDevice, InputEvent, InputStream, LocalState, Player,
-    StickPosition, CONTROLLER_ASSIGNMENT_SIDE_COLOR,
+    StickPosition, CONTROLLER_ASSIGNMENT_SIDE_COLOR, KEYBOARD_MAGIC_CONSTANT,
 };
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
@@ -210,11 +210,10 @@ pub fn update_controller_assignment_menu_visuals(
         .0;
 
     let unused = free_container.get_single().unwrap();
-    // TODO: Keyboard
-
-    for (index, pad) in pads.iter().enumerate() {
-        let pad_id = InputDevice::Controller(pad);
-
+    for (index, pad_id) in [(KEYBOARD_MAGIC_CONSTANT, InputDevice::Keyboard)]
+        .into_iter()
+        .chain(pads.iter().map(InputDevice::Controller).enumerate())
+    {
         if ca.p1 == Some(pad_id) {
             commands
                 .entity(p1_selected)
@@ -235,7 +234,11 @@ fn create_icon(id: usize, fonts: &Fonts) -> impl Fn(&mut ChildBuilder) {
     let font = fonts.basic.clone();
     move |cb: &mut ChildBuilder| {
         cb.spawn((
-            Text::from(id.to_string()),
+            Text::from(if id == KEYBOARD_MAGIC_CONSTANT {
+                "keyboard".into()
+            } else {
+                id.to_string()
+            }),
             TextFont {
                 font: font.clone(),
                 font_size: 40.0,

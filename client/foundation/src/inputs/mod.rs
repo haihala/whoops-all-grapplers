@@ -14,6 +14,8 @@ pub use input_state::InputState;
 pub const KARA_WINDOW: usize = 3;
 pub const STICK_DEAD_ZONE: f32 = 0.3;
 
+pub const KEYBOARD_MAGIC_CONSTANT: usize = 69;
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, EnumIter, Reflect, Default)]
 /// Buttons of the game
 /// The name 'Button' is in prelude

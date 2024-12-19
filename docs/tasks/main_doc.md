@@ -59,9 +59,6 @@ Low priority do later tasks
 
 ### Known issues
 
-- Controllers connected after game has started show up weird in the controller claim menu
-  - That menu won't show keyboard
-
 ### Under review
 
 - Defender can't block 2f spam and there are opener sparks (had paint)

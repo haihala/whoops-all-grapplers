@@ -6,6 +6,7 @@ use foundation::{
     Area, Characters, Clock, Controllers, Dev, Facing, GameState, InputDevice, LocalCharacter,
     LocalController, LocalState, MatchState, OnlineState, Player, Players, RollbackSchedule, Sound,
     SoundRequest, Stats, StatusCondition, StatusFlag, SystemStep, WagArgs, GI_PARRY_FLASH_COLOR,
+    KEYBOARD_MAGIC_CONSTANT,
 };
 use input_parsing::{InputParser, ParrotStream};
 use strum::IntoEnumIterator;
@@ -83,7 +84,7 @@ fn skip_menus(
         .iter()
         .map(InputDevice::Controller)
         .enumerate()
-        .chain([(69, InputDevice::Keyboard)])
+        .chain([(KEYBOARD_MAGIC_CONSTANT, InputDevice::Keyboard)])
         .collect();
 
     match dev_mode {

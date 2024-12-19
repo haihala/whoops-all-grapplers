@@ -24,15 +24,22 @@ impl Plugin for UIPlugin {
             .add_systems(
                 RollbackSchedule,
                 (
-                    combat::update_bars,
-                    combat::update_counters,
-                    combat::update_timer,
-                    combat::update_notifications,
-                    combat::update_combo_counters,
-                    round_text::update_round_text,
+                    (
+                        combat::update_bars,
+                        combat::update_counters,
+                        combat::update_timer,
+                    )
+                        .chain()
+                        .run_if(in_state(MatchState::Combat)),
+                    (
+                        combat::update_notifications,
+                        combat::update_combo_counters,
+                        round_text::update_round_text,
+                    )
+                        .chain()
+                        .run_if(in_state(InMatch)),
                 )
                     .chain()
-                    .run_if(in_state(InMatch))
                     .in_set(SystemStep::UI),
             )
             .add_systems(

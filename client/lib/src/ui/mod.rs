@@ -24,6 +24,7 @@ impl Plugin for UIPlugin {
             .add_systems(
                 RollbackSchedule,
                 (
+                    set_ui_scale,
                     (
                         combat::update_bars,
                         combat::update_counters,
@@ -60,8 +61,7 @@ impl Plugin for UIPlugin {
             .add_systems(
                 OnEnter(MatchState::PostLoad),
                 (shop::setup_shop, combat::setup_combat_hud, exit_match_setup).chain(),
-            )
-            .add_systems(RollbackSchedule, set_ui_scale);
+            );
     }
 }
 

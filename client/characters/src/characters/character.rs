@@ -1,14 +1,17 @@
 use bevy::{prelude::*, utils::HashMap};
 use foundation::{
-    ActionId, Animation, AnimationType, ItemId, Model, Player, Sound, Stats, VoiceLine,
+    ActionId, Animation, AnimationType, CharacterId, ItemId, Model, Player, Sound, Stats, VoiceLine,
 };
 
 use crate::{resources::GaugeType, Action, CharacterBoxes, Gauge, Item};
+
+use super::samurai;
 
 #[derive(Debug, Component)]
 pub struct Character {
     pub(crate) moves: HashMap<ActionId, Action>,
     pub(crate) voicelines: HashMap<VoiceLine, Sound>,
+    pub theme_song: Sound,
     pub colors: HashMap<Player, HashMap<&'static str, Color>>,
     pub items: HashMap<ItemId, Item>,
     pub model: Model,
@@ -22,6 +25,7 @@ impl Character {
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
         model: Model,
+        theme_song: Sound,
         p2_colors: HashMap<&'static str, Color>,
         generic_animations: HashMap<AnimationType, Animation>,
         moves: HashMap<ActionId, Action>,
@@ -35,6 +39,7 @@ impl Character {
 
         Self {
             model,
+            theme_song,
             colors: vec![(Player::One, HashMap::new()), (Player::Two, p2_colors)]
                 .into_iter()
                 .collect(),
@@ -61,6 +66,14 @@ impl Character {
 
     pub fn get_voiceline(&self, line: VoiceLine) -> Sound {
         *self.voicelines.get(&line).unwrap_or(&Sound::Silence)
+    }
+}
+
+impl From<CharacterId> for Character {
+    fn from(value: CharacterId) -> Self {
+        match value {
+            CharacterId::Samurai => samurai(),
+        }
     }
 }
 

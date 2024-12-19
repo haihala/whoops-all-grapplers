@@ -33,6 +33,7 @@ pub fn samurai() -> Character {
 
     Character::new(
         Model::Samurai,
+        Sound::Motivation,
         vec![
             ("T-shirt", SAMURAI_ALT_SHIRT_COLOR),
             ("Jeans", SAMURAI_ALT_JEANS_COLOR),

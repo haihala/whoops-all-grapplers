@@ -7,10 +7,10 @@ mod recovery;
 mod side_switcher;
 mod size_adjustment;
 
-use characters::{samurai, Gauges, Hurtboxes, Inventory};
+use characters::{Character, Gauges, Hurtboxes, Inventory};
 use foundation::{
-    AnimationType, CharacterClock, CharacterFacing, CharacterId, Characters, Clock, Combo, Facing,
-    InMatch, MatchState, Player, Players, RollbackSchedule, Sound, Stats, SystemStep, WagArgs,
+    AnimationType, CharacterClock, CharacterFacing, Characters, Clock, Combo, Facing, InMatch,
+    MatchState, Player, Players, RollbackSchedule, Stats, SystemStep, WagArgs,
 };
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
@@ -83,16 +83,18 @@ fn setup_players(
     args: Res<WagArgs>,
     mut music: ResMut<Music>,
 ) {
-    music.push(match characters.p1 {
-        CharacterId::Samurai => Sound::Motivation,
-    });
+    let char1 = Character::from(characters.p1);
+    let char2 = Character::from(characters.p2);
+
+    music.push(char1.theme_song);
+
     let players = Players {
         one: spawn_player(
             &mut commands,
             &models,
             -PLAYER_SPAWN_DISTANCE,
             Player::One,
-            characters.p1,
+            char1,
             &args,
         ),
         two: spawn_player(
@@ -100,7 +102,7 @@ fn setup_players(
             &models,
             PLAYER_SPAWN_DISTANCE,
             Player::Two,
-            characters.p2,
+            char2,
             &args,
         ),
     };
@@ -125,13 +127,9 @@ fn spawn_player(
     models: &Models,
     offset: f32,
     player: Player,
-    character_id: CharacterId,
+    character: Character,
     args: &WagArgs,
 ) -> Entity {
-    let character = match character_id {
-        CharacterId::Samurai => samurai(),
-    };
-
     let colors = character.colors[&player].clone();
     let model = character.model;
 

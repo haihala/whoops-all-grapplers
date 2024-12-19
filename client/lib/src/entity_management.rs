@@ -13,16 +13,13 @@ impl Plugin for EntityManagementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             RollbackSchedule,
-            despawn_marked.after(crate::damage::handle_despawn_flags),
-        )
-        .add_systems(
-            RollbackSchedule,
             (
                 update_visibility_on_state_change::<GameState>,
                 update_visibility_on_state_change::<MatchState>,
+                despawn_marked,
             )
                 .chain()
-                .in_set(SystemStep::Visibility),
+                .in_set(SystemStep::EntityManagement),
         )
         .enable_state_scoped_entities::<GameState>()
         .enable_state_scoped_entities::<MatchState>()

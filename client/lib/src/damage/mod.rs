@@ -5,7 +5,7 @@ mod hitboxes;
 mod hitreg;
 mod hitstop;
 
-pub use hitboxes::{handle_despawn_flags, spawn_hitbox, LifetimeFlags, ProjectileMarker};
+pub use hitboxes::{spawn_hitbox, LifetimeFlags, ProjectileMarker};
 pub use hitreg::{blockstun_events, hitstun_events, launch_events, snap_and_switch};
 
 pub use hit_tracker::HitTracker;

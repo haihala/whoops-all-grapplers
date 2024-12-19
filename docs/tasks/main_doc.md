@@ -8,13 +8,6 @@ This is the one stop shop for what's up in the project
 
 - Check for free SFX / VA work
 
-### Netcode debugging
-
-- More synctest
-  - Immediate desync on some starts
-    - Seems like a system ordering inconsistency
-  - Ghost objects
-
 ### Before public playtests
 
 - Character 2
@@ -58,6 +51,12 @@ Low priority do later tasks
 ## Bug terrarium
 
 ### Known issues
+
+- Network bugs
+  - Sometimes synctest spawns with 0 kunais
+  - Immediate desync on some starts
+    - Seems like a system ordering inconsistency
+  - Ghost objects
 
 ### Under review
 

@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use foundation::{
-    GameState, InCharacterSelect, LocalState, MatchState, RollbackSchedule, SoundEffect, SystemStep,
+    GameState, InCharacterSelect, LocalState, MatchState, RollbackSchedule, Sound, SoundRequest,
+    SystemStep,
 };
 
 use crate::assets::Fonts;
@@ -72,7 +73,7 @@ impl Plugin for ViewsPlugin {
 }
 
 fn play_transition_noise(mut commands: Commands) {
-    commands.trigger(SoundEffect::PlasticCupFlick);
+    commands.trigger(SoundRequest::from(Sound::PlasticCupFlick));
 }
 
 fn setup_view_title(root: &mut ChildBuilder, fonts: &Fonts, text: impl Into<String>) {

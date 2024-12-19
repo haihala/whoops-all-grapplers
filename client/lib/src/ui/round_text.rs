@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use foundation::{InMatch, MatchState, RoundLog, GENERIC_TEXT_COLOR};
+use foundation::{MatchState, RoundLog, GENERIC_TEXT_COLOR};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 
@@ -57,7 +57,6 @@ pub fn setup_round_info_text(mut commands: Commands, fonts: Res<Fonts>) {
                     ..default()
                 },
                 TextColor::from(GENERIC_TEXT_COLOR),
-                StateScoped(InMatch),
                 VisibleInStates(vec![
                     MatchState::Loading,
                     MatchState::PreRound,

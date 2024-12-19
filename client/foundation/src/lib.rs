@@ -50,7 +50,7 @@ mod simple_state;
 pub use simple_state::SimpleState;
 
 mod sound;
-pub use sound::{SoundEffect, VoiceLine, BIG_HIT_THRESHOLD, SMALL_HIT_THRESHOLD};
+pub use sound::{Sound, SoundRequest, Sounds, VoiceLine, BIG_HIT_THRESHOLD, SMALL_HIT_THRESHOLD};
 
 mod status;
 pub use status::{Stats, StatusCondition, StatusFlag};

@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use foundation::{
     ActionCategory, ActionId, Animation, Area, CancelType, Facing, GameButton, Icon, Model,
-    SimpleState, SoundEffect, StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine,
+    SimpleState, Sound, StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine,
     BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR, LOW_OPENER_COLOR, MID_OPENER_COLOR, ON_BLOCK_HITSTOP,
     ON_HIT_HITSTOP, SMALL_HIT_THRESHOLD, THROW_TECH_RING_BASE_COLOR, THROW_TECH_RING_EDGE_COLOR,
 };
@@ -132,7 +132,7 @@ impl AttackBuilder {
         }
     }
 
-    pub fn with_sound(self, sound: SoundEffect) -> Self {
+    pub fn with_sound(self, sound: Sound) -> Self {
         Self {
             action_builder: self.action_builder.with_sound(sound),
             ..self
@@ -548,7 +548,7 @@ pub fn build_throw_effect(
         if hit_data.avoided {
             HitEffect {
                 attacker: vec![
-                    ActionEvent::Sound(SoundEffect::BottleBonk),
+                    ActionEvent::Sound(Sound::BottleBonk.into()),
                     Movement::impulse(Vec2::X * -2.0).into(),
                     ActionEvent::AbsoluteVisualEffect(VfxRequest {
                         effect: VisualEffect::RingPulse(
@@ -565,7 +565,7 @@ pub fn build_throw_effect(
             HitEffect {
                 attacker: vec![
                     ActionEvent::StartAction(on_hit_action),
-                    ActionEvent::Sound(SoundEffect::PastaPat),
+                    ActionEvent::Sound(Sound::PastaPat.into()),
                 ],
                 defender: vec![
                     ActionEvent::SnapToOpponent { sideswitch },
@@ -787,7 +787,7 @@ impl StrikeEffectBuilder {
                         Movement::impulse(-Vec2::X * self.attacker_push_on_block).into(),
                         ActionEvent::CameraTilt(-Vec2::X * 0.01),
                         ActionEvent::Hitstop(ON_BLOCK_HITSTOP),
-                        ActionEvent::Sound(SoundEffect::PlasticCupTap),
+                        ActionEvent::Sound(Sound::PlasticCupTap.into()),
                         ActionEvent::AbsoluteVisualEffect(VfxRequest {
                             effect: VisualEffect::Block,
                             tf: Transform::from_translation(hit_data.hitbox_pos.extend(0.0)),
@@ -840,7 +840,7 @@ impl StrikeEffectBuilder {
                         ActionEvent::CameraTilt(Vec2::X * 0.02),
                         ActionEvent::CameraShake,
                         ActionEvent::Hitstop(ON_HIT_HITSTOP),
-                        ActionEvent::Sound(SoundEffect::PastaPat),
+                        ActionEvent::Sound(Sound::PastaPat.into()),
                         ActionEvent::AbsoluteVisualEffect(VfxRequest {
                             effect,
                             tf: Transform {

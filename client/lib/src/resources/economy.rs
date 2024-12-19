@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use characters::{GaugeType, Gauges};
-use foundation::{SoundEffect, StatusFlag};
+use foundation::{Sound, SoundRequest, StatusFlag};
 use player_state::PlayerState;
 
 use crate::event_spreading::{ClearResource, ModifyResource};
@@ -20,7 +20,7 @@ pub fn modify_properties(
 
     if ev.resource == GaugeType::Health && state.has_flag(StatusFlag::Weaken) {
         ev.amount *= 2;
-        commands.trigger(SoundEffect::PaperCrumple);
+        commands.trigger(SoundRequest::from(Sound::PaperCrumple));
     }
 
     properties.get_mut(ev.resource).unwrap().change(ev.amount);

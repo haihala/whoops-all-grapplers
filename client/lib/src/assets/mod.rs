@@ -6,7 +6,7 @@ mod asset_updater;
 mod loaders;
 mod materials;
 mod models;
-mod sounds;
+mod music;
 mod vfx;
 
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
@@ -14,10 +14,10 @@ pub use announcer::Announcer;
 pub use asset_updater::{play_voiceline, start_animation};
 pub use materials::{ExtendedFlashMaterial, FlashMaterial};
 pub use models::{shake_character, CharacterShake, Models, PlayerModelHook};
-pub use sounds::Sounds;
+pub use music::Music;
 pub use vfx::start_relative_vfx;
 
-use foundation::{MatchState, RollbackSchedule, SystemStep};
+use foundation::{MatchState, RollbackSchedule, Sound, SystemStep};
 
 #[derive(Debug, Resource)]
 pub struct Fonts {
@@ -62,8 +62,9 @@ impl Plugin for AssetsPlugin {
                     loaders::sounds,
                 ),
             )
+            .add_systems(PostStartup, music::setup_music)
             .add_systems(
-                Update,
+                First,
                 (animations::setup_helpers, models::prep_player_gltf)
                     .run_if(in_state(MatchState::Loading)),
             )
@@ -71,14 +72,24 @@ impl Plugin for AssetsPlugin {
                 RollbackSchedule,
                 (
                     asset_updater::mirror_models,
-                    asset_updater::clear_empty_audio_players,
                     asset_updater::update_generic_animation,
                     models::do_character_shake,
                     animations::update_animation,
                     announcer::update_announcer,
+                    music::update_music,
                 )
                     .chain()
                     .in_set(SystemStep::Presentation),
+            )
+            .add_systems(OnEnter(MatchState::Shop), |mut music: ResMut<Music>| {
+                music.push(Sound::WaitingMusic)
+            })
+            .add_systems(OnExit(MatchState::Shop), |mut music: ResMut<Music>| {
+                music.pop()
+            })
+            .add_systems(
+                OnEnter(MatchState::EndScreen),
+                |mut music: ResMut<Music>| music.pop(),
             )
             .add_systems(OnEnter(MatchState::PostRound), animations::pause_animations)
             .add_systems(OnEnter(MatchState::PreRound), announcer::preround)

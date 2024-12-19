@@ -1,34 +1,31 @@
-use foundation::{Player, RoundLog, SoundEffect};
+use foundation::{Player, RoundLog, Sound, SoundRequest};
 
 use bevy::prelude::*;
 
 #[derive(Debug, Resource, Default)]
 pub struct Announcer {
-    stack: Vec<SoundEffect>,
+    stack: Vec<Sound>,
 }
 
 impl Announcer {
     pub fn fight(&mut self) {
-        self.stack = vec![SoundEffect::AnnouncerFight];
+        self.stack = vec![Sound::AnnouncerFight];
     }
 
     pub fn round_start(&mut self, round_number: usize) {
-        self.stack = vec![
-            SoundEffect::Number(round_number),
-            SoundEffect::AnnouncerRound,
-        ];
+        self.stack = vec![Sound::Number(round_number), Sound::AnnouncerRound];
     }
 
     pub fn round_win(&mut self, winner: Player) {
         self.stack = vec![
-            SoundEffect::AnnouncerWins,
-            SoundEffect::Number(winner.into()),
-            SoundEffect::AnnouncerPlayer,
+            Sound::AnnouncerWins,
+            Sound::Number(winner.into()),
+            Sound::AnnouncerPlayer,
         ];
     }
 
     pub fn tie(&mut self) {
-        self.stack = vec![SoundEffect::AnnouncerDraw];
+        self.stack = vec![Sound::AnnouncerDraw];
     }
 }
 
@@ -48,7 +45,7 @@ pub fn update_announcer(
         return;
     };
 
-    commands.trigger(next);
+    commands.trigger(SoundRequest::from(next));
 }
 
 pub fn preround(mut announcer: ResMut<Announcer>, round_log: Res<RoundLog>) {

@@ -56,15 +56,10 @@ impl Plugin for UIPlugin {
                     .run_if(in_state(MatchState::Shop))
                     .in_set(SystemStep::Shop),
             )
+            .add_systems(PostStartup, round_text::setup_round_info_text)
             .add_systems(
                 OnEnter(MatchState::PostLoad),
-                (
-                    combat::setup_combat_hud,
-                    round_text::setup_round_info_text,
-                    shop::setup_shop,
-                    exit_match_setup,
-                )
-                    .chain(),
+                (shop::setup_shop, combat::setup_combat_hud, exit_match_setup).chain(),
             )
             .add_systems(RollbackSchedule, set_ui_scale);
     }

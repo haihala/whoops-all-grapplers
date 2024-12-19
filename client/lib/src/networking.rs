@@ -63,6 +63,7 @@ impl Plugin for NetworkPlugin {
             .add_systems(
                 GgrsSchedule,
                 (
+                    apply_deferred,
                     generate_online_input_streams,
                     run_rollback_schedule,
                     handle_ggrs_events,
@@ -74,6 +75,7 @@ impl Plugin for NetworkPlugin {
             .add_systems(
                 FixedUpdate,
                 (
+                    apply_deferred,
                     generate_offline_input_streams,
                     run_rollback_schedule,
                     clear_input_stream,

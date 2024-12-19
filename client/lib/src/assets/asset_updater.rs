@@ -1,12 +1,15 @@
-use bevy::{audio::Volume, prelude::*};
+use bevy::{
+    audio::{PlaybackMode, Volume},
+    prelude::*,
+};
 use characters::{AnimationRequest, Character};
-use foundation::{CharacterFacing, Players, SoundEffect};
+use foundation::{CharacterFacing, Players, SoundRequest, Sounds};
 use player_state::PlayerState;
 use rand::Rng;
 
 use crate::event_spreading::ActivateVoiceline;
 
-use super::{announcer::AnnouncerMarker, AnimationHelper, Sounds};
+use super::{announcer::AnnouncerMarker, music::MusicMarker, AnimationHelper};
 
 pub fn start_animation(
     trigger: Trigger<AnimationRequest>,
@@ -64,40 +67,41 @@ pub fn play_voiceline(
     mut commands: Commands,
     chars: Query<&Character>,
 ) {
-    commands.trigger(
+    commands.trigger(Into::<SoundRequest>::into(
         chars
             .get(trigger.entity())
             .unwrap()
             .get_voiceline(trigger.event().0),
-    );
+    ));
 }
 
-pub fn play_audio(trigger: Trigger<SoundEffect>, mut commands: Commands, sounds: Res<Sounds>) {
-    let effect = trigger.event();
+pub fn play_audio(trigger: Trigger<SoundRequest>, mut commands: Commands, sounds: Res<Sounds>) {
+    let SoundRequest { sound } = trigger.event();
 
-    let clips = sounds.handles.get(effect).unwrap();
-
+    let clips = sounds.handles.get(sound).unwrap();
     let source = clips[rand::thread_rng().gen_range(0..clips.len())].clone();
+
     let mut entity = commands.spawn((
         AudioPlayer(source),
         PlaybackSettings {
             // Shift speed (pitch) by up to about 10% either way
             speed: rand::thread_rng().gen_range(0.9..1.1),
-            volume: Volume::new(effect.volume()),
+            volume: Volume::new(sound.volume()),
+            mode: if sound.is_music() {
+                PlaybackMode::Loop
+            } else {
+                PlaybackMode::Despawn
+            },
             ..default()
         },
     ));
 
-    if effect.is_announcer() {
-        entity.insert(AnnouncerMarker);
-    }
-}
-
-pub fn clear_empty_audio_players(mut commands: Commands, spawned: Query<(Entity, &AudioSink)>) {
-    for (entity, sink) in &spawned {
-        if sink.empty() {
-            commands.entity(entity).despawn_recursive();
-        }
+    if sound.is_announcer() {
+        entity.insert((AnnouncerMarker, Name::new("Announcer audio")));
+    } else if sound.is_music() {
+        entity.insert((MusicMarker(*sound), Name::new("Music")));
+    } else {
+        entity.insert(Name::new("VFX"));
     }
 }
 

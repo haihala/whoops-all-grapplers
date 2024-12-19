@@ -10,14 +10,15 @@ pub fn setup_credits_menu(mut commands: Commands, fonts: Res<Fonts>) {
     commands
         .spawn((
             Node {
-                height: Val::Percent(100.0),
-                width: Val::Percent(100.0),
                 position_type: PositionType::Absolute,
-                left: Val::Percent(0.0),
                 top: Val::Percent(0.0),
+                bottom: Val::Percent(0.0),
+                right: Val::Percent(0.0),
+                left: Val::Percent(0.0),
+                overflow: Overflow::scroll_y(),
                 flex_direction: FlexDirection::Column,
                 row_gap: Val::Percent(5.0),
-                padding: UiRect::all(Val::Percent(20.0)),
+                margin: UiRect::all(Val::Percent(1.0)),
                 align_items: AlignItems::Center,
                 ..default()
             },
@@ -74,6 +75,13 @@ struct CreditSection {
 fn credits_sections() -> Vec<CreditSection> {
     vec![
         CreditSection {
+            heading: "Music found through Pixabay".into(),
+            people: vec![
+                "SigmaMusicArt (Mihail Smusev)".into(),
+                "PHANTASTICBEATS (Vincent)".into(),
+            ],
+        },
+        CreditSection {
             heading: "Playtesting".into(),
             people: vec![
                 "Friends".into(),
@@ -88,26 +96,26 @@ fn credits_sections() -> Vec<CreditSection> {
     ]
 }
 
-const SCROLL_SPEED: f32 = 1.0;
+const SCROLL_SPEED: f32 = 5.0;
 
 pub fn navigate_credits(
     input_stream: Res<InputStream>,
     mut next_state: ResMut<NextState<GameState>>,
-    mut ui_root: Query<&mut Node, With<CreditsNav>>,
+    mut ui_root: Query<&mut ScrollPosition, With<CreditsNav>>,
     mut scroll_direction: Local<f32>,
 ) {
-    let mut style = ui_root.single_mut();
+    let mut scroll = ui_root.single_mut();
 
     for ev in input_stream.events.clone() {
         match ev.event {
             InputEvent::Press(GameButton::Strong) => {
-                style.top = Val::Percent(0.0);
+                scroll.offset_y = 0.0;
                 next_state.set(GameState::MainMenu);
             }
             InputEvent::Point(dir) => {
                 match dir {
-                    StickPosition::N => *scroll_direction = 1.0,
-                    StickPosition::S => *scroll_direction = -1.0,
+                    StickPosition::N => *scroll_direction = -1.0,
+                    StickPosition::S => *scroll_direction = 1.0,
                     _ => *scroll_direction = 0.0,
                 };
             }
@@ -115,9 +123,8 @@ pub fn navigate_credits(
         }
     }
 
-    let Val::Percent(old) = style.top else {
-        panic!()
-    };
+    let old = scroll.offset_y;
     let new = old + SCROLL_SPEED * *scroll_direction;
-    style.top = Val::Percent(new.clamp(-10.0, 0.0));
+
+    scroll.offset_y = new;
 }

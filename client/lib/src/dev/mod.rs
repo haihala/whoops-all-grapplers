@@ -4,8 +4,8 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use characters::{ActionEvent, FlashRequest, GaugeType, Gauges, Hitbox, Hurtboxes, Inventory};
 use foundation::{
     Area, Characters, Clock, Controllers, Dev, Facing, GameState, InputDevice, LocalCharacter,
-    LocalController, LocalState, MatchState, OnlineState, Player, Players, SoundEffect, Stats,
-    StatusCondition, StatusFlag, WagArgs, GI_PARRY_FLASH_COLOR,
+    LocalController, LocalState, MatchState, OnlineState, Player, Players, RollbackSchedule, Sound,
+    SoundRequest, Stats, StatusCondition, StatusFlag, SystemStep, WagArgs, GI_PARRY_FLASH_COLOR,
 };
 use input_parsing::{InputParser, ParrotStream};
 use strum::IntoEnumIterator;
@@ -39,19 +39,9 @@ impl Plugin for DevPlugin {
             .register_type::<InputParser>()
             .register_type::<ParrotStream>()
             .add_systems(Startup, setup_gizmos)
+            .add_systems(Last, skip_menus)
             .add_systems(
-                FixedUpdate,
-                skip_menus.run_if(|mut flag: Local<bool>| {
-                    if *flag {
-                        false
-                    } else {
-                        *flag = true;
-                        true
-                    }
-                }),
-            )
-            .add_systems(
-                Update,
+                RollbackSchedule,
                 (
                     audio_test_system,
                     shader_test_system,
@@ -63,7 +53,8 @@ impl Plugin for DevPlugin {
                     box_visualization::visualize_pushboxes,
                     box_visualization::visualize_generic_areas,
                 )
-                    .chain(),
+                    .chain()
+                    .in_set(SystemStep::DevTools),
             );
     }
 }
@@ -79,7 +70,11 @@ fn skip_menus(
     mut next_match_state: ResMut<NextState<MatchState>>,
     args: Res<WagArgs>,
     pad_query: Query<Entity, With<Gamepad>>,
+    mut has_ran: Local<bool>,
 ) {
+    if *has_ran {
+        return;
+    }
     let Some(dev_mode) = args.dev else {
         panic!("In dev plugin but not in dev mode")
     };
@@ -137,6 +132,7 @@ fn skip_menus(
             });
         }
     }
+    *has_ran = true;
 }
 
 fn shader_test_system(
@@ -176,7 +172,7 @@ fn shader_test_system(
 fn audio_test_system(mut commands: Commands, keys: Res<ButtonInput<KeyCode>>) {
     if keys.just_pressed(KeyCode::Digit2) {
         info!("Playing whoosh audio");
-        commands.trigger(SoundEffect::Whoosh);
+        commands.trigger(SoundRequest::from(Sound::Whoosh));
     }
 }
 

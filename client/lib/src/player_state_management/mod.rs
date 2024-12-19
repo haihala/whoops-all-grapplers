@@ -10,13 +10,15 @@ mod size_adjustment;
 use characters::{samurai, Gauges, Hurtboxes, Inventory};
 use foundation::{
     AnimationType, CharacterClock, CharacterFacing, CharacterId, Characters, Clock, Combo, Facing,
-    InMatch, MatchState, Player, Players, RollbackSchedule, Stats, SystemStep, WagArgs,
+    InMatch, MatchState, Player, Players, RollbackSchedule, Sound, Stats, SystemStep, WagArgs,
 };
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
 
 use crate::{
-    assets::{AnimationHelper, AnimationHelperSetup, CharacterShake, Models, PlayerModelHook},
+    assets::{
+        AnimationHelper, AnimationHelperSetup, CharacterShake, Models, Music, PlayerModelHook,
+    },
     damage::HitboxSpawner,
     event_spreading,
     movement::{PlayerVelocity, Pushbox, GROUND_PLANE_HEIGHT},
@@ -79,7 +81,11 @@ fn setup_players(
     characters: Res<Characters>,
     models: Res<Models>,
     args: Res<WagArgs>,
+    mut music: ResMut<Music>,
 ) {
+    music.push(match characters.p1 {
+        CharacterId::Samurai => Sound::Motivation,
+    });
     let players = Players {
         one: spawn_player(
             &mut commands,

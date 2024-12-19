@@ -6,7 +6,6 @@ This is the one stop shop for what's up in the project
 
 ### Before contacting artists
 
-- Get some free music up in there
 - Check for free SFX / VA work
 
 ### Netcode debugging

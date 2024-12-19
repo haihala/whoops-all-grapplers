@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::HashMap};
 use foundation::{
-    ActionId, Animation, AnimationType, ItemId, Model, Player, SoundEffect, Stats, VoiceLine,
+    ActionId, Animation, AnimationType, ItemId, Model, Player, Sound, Stats, VoiceLine,
 };
 
 use crate::{resources::GaugeType, Action, CharacterBoxes, Gauge, Item};
@@ -8,7 +8,7 @@ use crate::{resources::GaugeType, Action, CharacterBoxes, Gauge, Item};
 #[derive(Debug, Component)]
 pub struct Character {
     pub(crate) moves: HashMap<ActionId, Action>,
-    pub(crate) voicelines: HashMap<VoiceLine, SoundEffect>,
+    pub(crate) voicelines: HashMap<VoiceLine, Sound>,
     pub colors: HashMap<Player, HashMap<&'static str, Color>>,
     pub items: HashMap<ItemId, Item>,
     pub model: Model,
@@ -29,7 +29,7 @@ impl Character {
         boxes: CharacterBoxes,
         base_stats: Stats,
         special_properties: Vec<(GaugeType, Gauge)>,
-        voicelines: HashMap<VoiceLine, SoundEffect>,
+        voicelines: HashMap<VoiceLine, Sound>,
     ) -> Character {
         debug_assert_eq!(boxes.standing.pushbox.bottom(), 0.0);
 
@@ -59,8 +59,8 @@ impl Character {
             .collect()
     }
 
-    pub fn get_voiceline(&self, line: VoiceLine) -> SoundEffect {
-        *self.voicelines.get(&line).unwrap_or(&SoundEffect::Silence)
+    pub fn get_voiceline(&self, line: VoiceLine) -> Sound {
+        *self.voicelines.get(&line).unwrap_or(&Sound::Silence)
     }
 }
 

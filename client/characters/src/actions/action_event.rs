@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use foundation::{
-    ActionId, Animation, Area, PickupRequest, SamuraiAnimation, SoundEffect, StatusCondition,
+    ActionId, Animation, Area, PickupRequest, SamuraiAnimation, SoundRequest, StatusCondition,
     StatusFlag, VfxRequest, VoiceLine,
 };
 
@@ -12,7 +12,7 @@ use super::{AnimationRequest, Attack};
 #[derive(Clone, Default, Event)]
 pub enum ActionEvent {
     Animation(AnimationRequest),
-    Sound(SoundEffect),
+    Sound(SoundRequest),
     StartAction(ActionId),
     SpawnHitbox(Attack),
     ClearMovement,
@@ -170,8 +170,8 @@ impl From<AnimationRequest> for ActionEvent {
         ActionEvent::Animation(value)
     }
 }
-impl From<SoundEffect> for ActionEvent {
-    fn from(value: SoundEffect) -> Self {
+impl From<SoundRequest> for ActionEvent {
+    fn from(value: SoundRequest) -> Self {
         ActionEvent::Sound(value)
     }
 }

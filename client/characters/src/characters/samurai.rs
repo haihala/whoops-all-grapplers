@@ -4,10 +4,10 @@ use bevy::{prelude::*, utils::HashMap};
 
 use foundation::{
     ActionId, Animation, AnimationType, Area, CancelType, GameButton, Icon, ItemId, Model, Pickup,
-    PickupRequest, SamuraiAction, SamuraiAnimation, SoundEffect, SpecialVersion, Stats,
-    StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine, FAST_SWORD_VFX, FPS,
-    METERED_SWORD_VFX, METER_BAR_SEGMENT, SAMURAI_ALT_HELMET_COLOR, SAMURAI_ALT_JEANS_COLOR,
-    SAMURAI_ALT_SHIRT_COLOR, STRONG_SWORD_VFX,
+    PickupRequest, SamuraiAction, SamuraiAnimation, Sound, SpecialVersion, Stats, StatusCondition,
+    StatusFlag, VfxRequest, VisualEffect, VoiceLine, FAST_SWORD_VFX, FPS, METERED_SWORD_VFX,
+    METER_BAR_SEGMENT, SAMURAI_ALT_HELMET_COLOR, SAMURAI_ALT_JEANS_COLOR, SAMURAI_ALT_SHIRT_COLOR,
+    STRONG_SWORD_VFX,
 };
 
 use crate::{
@@ -25,7 +25,7 @@ use crate::{
 use super::Character;
 
 const CHARACTER_UNIVERSALS: CharacterUniversals = CharacterUniversals {
-    normal_grunt: SoundEffect::FemaleExhale,
+    normal_grunt: Sound::FemaleExhale,
 };
 
 pub fn samurai() -> Character {
@@ -72,9 +72,9 @@ pub fn samurai() -> Character {
             ),
         ],
         vec![
-            (VoiceLine::Defeat, SoundEffect::FemaleNoooo),
-            (VoiceLine::BigHit, SoundEffect::FemaleGutPunch),
-            (VoiceLine::SmallHit, SoundEffect::FemaleOw),
+            (VoiceLine::Defeat, Sound::FemaleNoooo),
+            (VoiceLine::BigHit, Sound::FemaleGutPunch),
+            (VoiceLine::SmallHit, Sound::FemaleOw),
         ]
         .into_iter()
         .collect(),
@@ -732,14 +732,14 @@ fn sharpen(version: SpecialVersion) -> Action {
                 SamuraiAnimation::FastSharpen
             }
             .into(),
-            ActionEvent::Sound(SoundEffect::KnifeChopstickDrag),
+            ActionEvent::Sound(Sound::KnifeChopstickDrag.into()),
         ])
         .static_events_on_frame(
             if slow { 50 } else { 35 },
             vec![
                 ActionEvent::ModifyResource(GaugeType::Sharpness, sharpness_gain),
                 ActionEvent::ModifyResource(GaugeType::Meter, meter_gain),
-                ActionEvent::Sound(SoundEffect::HangingKnifeFlick),
+                ActionEvent::Sound(Sound::HangingKnifeFlick.into()),
             ],
         )
         .end_at(if slow { 60 } else { 45 })
@@ -759,7 +759,7 @@ fn sword_slam(version: SpecialVersion) -> Action {
         .with_character_universals(CHARACTER_UNIVERSALS)
         .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
         .with_extra_requirement(ActionRequirement::ItemOwned(ItemId::Fireaxe))
-        .with_sound(SoundEffect::FemaleKiritsu)
+        .with_sound(Sound::FemaleKiritsu)
         .with_animation(if slow {
             SamuraiAnimation::SlowSwordSlam
         } else {
@@ -806,7 +806,7 @@ fn viper_strike(version: SpecialVersion) -> Action {
 
     AttackBuilder::special()
         .with_character_universals(CHARACTER_UNIVERSALS)
-        .with_sound(SoundEffect::FemaleShagamu)
+        .with_sound(Sound::FemaleShagamu)
         .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
         .with_animation(if slow {
             SamuraiAnimation::SlowViperStrike
@@ -855,7 +855,7 @@ fn rising_sun(version: SpecialVersion) -> Action {
 
     AttackBuilder::special()
         .with_character_universals(CHARACTER_UNIVERSALS)
-        .with_sound(SoundEffect::FemaleHiYah)
+        .with_sound(Sound::FemaleHiYah)
         .with_animation(if slow {
             SamuraiAnimation::SlowRisingSun
         } else {
@@ -908,7 +908,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
             let mut builder = ActionBuilder::special()
                 .with_input(input)
                 .with_animation(SamuraiAnimation::KunaiThrow)
-                .with_sound(SoundEffect::FemaleKyatchi)
+                .with_sound(Sound::FemaleKyatchi)
                 .with_requirement(ActionRequirement::ResourceValue(GaugeType::KunaiCounter, 1))
                 .dyn_events_on_frame(
                     11,

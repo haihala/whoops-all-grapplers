@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
 use foundation::{
-    ActionCategory, ActionId, Animation, GameButton, SimpleState, SoundEffect, VfxRequest,
-    VisualEffect, METER_BAR_SEGMENT,
+    ActionCategory, ActionId, Animation, GameButton, SimpleState, Sound, VfxRequest, VisualEffect,
+    METER_BAR_SEGMENT,
 };
 
 use crate::{
@@ -14,7 +14,7 @@ use super::DynamicEvents;
 
 #[derive(Debug, Clone, Copy)]
 pub struct CharacterUniversals {
-    pub normal_grunt: SoundEffect,
+    pub normal_grunt: Sound,
 }
 
 #[derive(Clone, Default)]
@@ -274,8 +274,8 @@ impl ActionBuilder {
         }
     }
 
-    pub fn with_sound(self, sound: SoundEffect) -> Self {
-        self.static_immediate_events(vec![ActionEvent::Sound(sound)])
+    pub fn with_sound(self, sound: Sound) -> Self {
+        self.static_immediate_events(vec![ActionEvent::Sound(sound.into())])
     }
 
     pub fn with_animation(self, animation: impl Into<Animation>) -> Self {

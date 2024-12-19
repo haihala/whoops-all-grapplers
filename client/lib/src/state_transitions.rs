@@ -5,8 +5,8 @@ use bevy::{asset::LoadState, prelude::*, state::state::FreelyMutableState};
 use characters::{Character, GaugeType, Gauges, Inventory};
 use foundation::{
     Clock, GameResult, GameState, InCharacterSelect, InMatch, MatchState, Player, RollbackSchedule,
-    RoundLog, RoundResult, SystemStep, VoiceLine, BASE_ROUND_MONEY, FPS, POST_ROUND_DURATION,
-    ROUNDS_TO_WIN, ROUND_MONEY_BUILDUP, VICTORY_BONUS,
+    RoundLog, RoundResult, SoundRequest, SystemStep, VoiceLine, BASE_ROUND_MONEY, FPS,
+    POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY_BUILDUP, VICTORY_BONUS,
 };
 use input_parsing::InputParser;
 
@@ -121,7 +121,9 @@ pub fn end_combat(
         notifications.add(**winner, format!("Victory bonus: ${}", VICTORY_BONUS));
         winner_inventory.money += VICTORY_BONUS;
 
-        commands.trigger(loser_character.get_voiceline(VoiceLine::Defeat));
+        commands.trigger(SoundRequest::from(
+            loser_character.get_voiceline(VoiceLine::Defeat),
+        ));
 
         announcer.round_win(**winner);
         RoundResult {

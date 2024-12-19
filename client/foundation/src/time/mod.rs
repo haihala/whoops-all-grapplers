@@ -80,6 +80,7 @@ pub enum SystemStep {
     UI,
     HitStop,
     Camera,
+    DevTools,
 }
 
 pub struct TimePlugin;
@@ -115,6 +116,7 @@ impl Plugin for TimePlugin {
                     SystemStep::UI,
                     SystemStep::HitStop,
                     SystemStep::Camera,
+                    SystemStep::DevTools,
                 )
                     .chain(),
             )

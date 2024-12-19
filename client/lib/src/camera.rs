@@ -30,9 +30,9 @@ pub struct CustomCameraPlugin;
 
 impl Plugin for CustomCameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, add_camera)
-            .register_type::<RootCameraEffects>()
+        app.register_type::<RootCameraEffects>()
             .register_type::<ChildCameraEffects>()
+            .add_systems(Startup, add_camera)
             .add_systems(
                 RollbackSchedule,
                 (center_camera, reset_camera_tilt, child_camera_effects)

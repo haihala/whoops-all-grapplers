@@ -5,9 +5,9 @@ use characters::{
     Hitbox, Hurtboxes, Inventory,
 };
 use foundation::{
-    Area, CharacterClock, CharacterFacing, Clock, Combo, Owner, Player, Players, SoundEffect,
-    Stats, StatusFlag, StickPosition, VfxRequest, VisualEffect, CLASH_PARRY_METER_GAIN,
-    GI_PARRY_METER_GAIN,
+    Area, CharacterClock, CharacterFacing, Clock, Combo, Owner, Player, Players, Sound,
+    SoundRequest, Stats, StatusFlag, StickPosition, VfxRequest, VisualEffect,
+    CLASH_PARRY_METER_GAIN, GI_PARRY_METER_GAIN,
 };
 use input_parsing::InputParser;
 use player_state::PlayerState;
@@ -99,7 +99,7 @@ pub(super) fn clash_parry(
             .intersection(&hitbox2.with_offset(gtf2.translation.truncate()))
         {
             // Hitboxes collide
-            commands.trigger(SoundEffect::GlassClink);
+            commands.trigger(SoundRequest::from(Sound::GlassClink));
             commands.trigger(SpawnVfx(VfxRequest {
                 effect: VisualEffect::Clash,
                 tf: Transform::from_translation(overlap.center().extend(0.0)),
@@ -308,7 +308,7 @@ pub fn apply_connections(
             ConnectionType::Tech | ConnectionType::Stunlock => true,
             ConnectionType::Parry => {
                 commands.trigger(ZoomCamera(0.3));
-                commands.trigger(SoundEffect::Clash);
+                commands.trigger(SoundRequest::from(Sound::Clash));
                 commands.trigger_targets(
                     ActionEvent::ModifyResource(GaugeType::Meter, GI_PARRY_METER_GAIN),
                     hit.defender,
@@ -358,7 +358,7 @@ pub fn apply_connections(
                     old_health: defender.properties.get(GaugeType::Health).unwrap().current,
                 });
 
-                commands.trigger(SoundEffect::Matches);
+                commands.trigger(SoundRequest::from(Sound::Matches));
                 notifications.add(*attacker.player, "Opener!".to_owned());
                 if attacker.stats.opener_damage_multiplier > 1.0 {
                     attacker_actions = handle_opener(attacker_actions, attacker.stats);

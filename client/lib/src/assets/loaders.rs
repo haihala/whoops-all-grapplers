@@ -1,10 +1,9 @@
 use bevy::{prelude::*, utils::HashMap};
 
-use foundation::{Animation, Icon, Icons, Model, SoundEffect};
+use foundation::{Animation, Icon, Icons, Model, Sound, Sounds};
 
 use super::{
-    animations::animation_paths, models::model_paths, sounds::Sounds, Animations, AssetsLoading,
-    Fonts, Models,
+    animations::animation_paths, models::model_paths, Animations, AssetsLoading, Fonts, Models,
 };
 
 pub fn fonts(
@@ -84,7 +83,7 @@ pub fn sounds(
     asset_server: Res<AssetServer>,
     mut loading_assets: ResMut<AssetsLoading>,
 ) {
-    let handles: HashMap<SoundEffect, Vec<Handle<AudioSource>>> = SoundEffect::paths()
+    let handles: HashMap<Sound, Vec<Handle<AudioSource>>> = Sound::paths()
         .into_iter()
         .map(|(id, paths)| {
             (

@@ -381,7 +381,7 @@ fn setup_text_sections(
     name: impl Into<String>,
 ) -> Entity {
     commands
-        .spawn((Text::new(""), Name::new(name.into())))
+        .spawn((Text::default(), Name::new(name.into())))
         .set_parent(parent)
         .with_children(|cb| {
             for txt in texts {

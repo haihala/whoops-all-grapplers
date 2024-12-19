@@ -118,10 +118,10 @@ pub fn update_info_panel(
 
         // Update texts
         for (entity, section, content) in [
-            (shop.components.item_name, 0, item_name),
-            (shop.components.explanation, 0, item.explanation.to_owned()),
-            (shop.components.cost, 0, verb.to_string()),
-            (shop.components.cost, 2, cost.to_string()),
+            (shop.components.item_name, 1, item_name),
+            (shop.components.explanation, 1, item.explanation.to_owned()),
+            (shop.components.cost, 1, verb.to_string()),
+            (shop.components.cost, 3, cost.to_string()),
             (
                 shop.components.dependencies,
                 1,

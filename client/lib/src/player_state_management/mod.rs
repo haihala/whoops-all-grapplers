@@ -110,13 +110,14 @@ fn setup_players(
 
 #[derive(Bundle, Default)]
 struct PlayerDefaults {
-    spawner: HitboxSpawner,
-    player_velocity: PlayerVelocity,
-    move_buffer: MoveBuffer,
-    status_effects: Stats,
-    state: PlayerState,
-    character_shake: CharacterShake,
     character_clock: CharacterClock,
+    character_shake: CharacterShake,
+    move_buffer: MoveBuffer,
+    player_velocity: PlayerVelocity,
+    spawner: HitboxSpawner,
+    state: PlayerState,
+    status_effects: Stats,
+    visibility: Visibility,
 }
 
 fn spawn_player(

@@ -19,7 +19,7 @@ This document is a way to store ideas of items
   - Like Hearthstone
 - -1 hitstun frame per hit of combo
 - Dash self cancel
-- Air dash
+- Jump cancel on normals
 - Helmet that works like raindrop from Dota (this is probably a bad idea)
 - Glue that reduces pushback
 - Wings that reset air actions when a move makes contact

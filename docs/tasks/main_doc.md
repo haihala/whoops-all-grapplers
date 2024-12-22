@@ -11,6 +11,8 @@ This is the one stop shop for what's up in the project
 ### Before public playtests
 
 - Character 2
+  - Animations
+  - Materials (pinstripes and skin)
 - Tutorial (mostly text)
 - Pretty loading screen (Move lists)
 - Settings (volume and keybinds)

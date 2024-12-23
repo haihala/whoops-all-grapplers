@@ -128,7 +128,6 @@ impl Plugin for TimePlugin {
             RollbackSchedule,
             (global_clock_update, character_clock_update).in_set(SystemStep::Clock),
         )
-        .add_systems(OnExit(MatchState::EndScreen), clear_round_log)
         .insert_resource(RoundLog::default());
     }
 }
@@ -156,8 +155,4 @@ fn character_clock_update(mut query: Query<(&mut CharacterClock, Option<&Hitstop
             clock.move_events_processed = false;
         }
     }
-}
-
-fn clear_round_log(mut log: ResMut<RoundLog>) {
-    log.clear();
 }

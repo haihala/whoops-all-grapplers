@@ -7,7 +7,7 @@ use crate::{
 use bevy::prelude::*;
 use foundation::{
     Controllers, GameButton, GameResult, GameState, InputEvent, InputStream, MatchState, Player,
-    StickPosition, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR,
+    RoundLog, StickPosition, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR,
     VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
@@ -159,6 +159,7 @@ pub fn navigate_end_screen(
     mut next_game_state: ResMut<NextState<GameState>>,
     mut next_match_state: ResMut<NextState<MatchState>>,
     mut quitter: EventWriter<AppExit>,
+    mut log: ResMut<RoundLog>,
 ) {
     for ev in input_stream.events.clone() {
         let Some(player) = controllers.get_player(ev.player_handle) else {
@@ -181,11 +182,13 @@ pub fn navigate_end_screen(
                                 timer: Timer::from_seconds(0.0, TimerMode::Once),
                                 state: MatchState::Loading,
                             });
+                            log.clear();
                         }
                     }
                     EndScreenOption::QuitToMainMenu => {
                         next_game_state.set(GameState::MainMenu);
                         next_match_state.set(MatchState::None);
+                        log.clear();
                     }
                     EndScreenOption::QuitToDesktop => {
                         quitter.send_default();

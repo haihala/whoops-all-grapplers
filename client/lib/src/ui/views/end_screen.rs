@@ -1,5 +1,6 @@
 use crate::{
     assets::Fonts,
+    entity_management::VisibleInStates,
     state_transitions::TransitionTimer,
     ui::{SharedVerticalNav, VerticalMenuNavigation},
 };
@@ -11,6 +12,9 @@ use foundation::{
 };
 
 use super::{setup_view_subtitle, setup_view_title};
+
+#[derive(Debug, Component)]
+pub struct MatchResultTextMarker;
 
 #[derive(Debug, Resource, Deref, DerefMut)]
 pub struct EndScreenNav(SharedVerticalNav);
@@ -35,7 +39,7 @@ impl std::fmt::Display for EndScreenOption {
     }
 }
 
-pub fn setup_end_screen(mut commands: Commands, fonts: Res<Fonts>, game_result: Res<GameResult>) {
+pub fn setup_end_screen(mut commands: Commands, fonts: Res<Fonts>) {
     let mut navigation = None;
 
     commands
@@ -52,14 +56,23 @@ pub fn setup_end_screen(mut commands: Commands, fonts: Res<Fonts>, game_result: 
                 align_items: AlignItems::Center,
                 ..default()
             },
-            StateScoped(MatchState::EndScreen),
+            VisibleInStates(vec![MatchState::EndScreen]),
             Name::new("End screen UI"),
         ))
         .with_children(|cb| {
-            setup_view_title(cb, &fonts, format!("Player {} wins!", game_result.winner));
+            setup_view_title(cb, &fonts, "").insert(MatchResultTextMarker);
             setup_view_subtitle(cb, &fonts, "go next?");
-            let options = setup_end_screen_options(cb, &fonts);
-            navigation = Some(VerticalMenuNavigation::from_buttons(options));
+
+            navigation = Some(VerticalMenuNavigation::from_buttons(
+                vec![
+                    EndScreenOption::Rematch,
+                    EndScreenOption::QuitToMainMenu,
+                    EndScreenOption::QuitToDesktop,
+                ]
+                .into_iter()
+                .map(|opt| setup_end_screen_option(cb, &fonts, opt))
+                .collect::<Vec<_>>(),
+            ));
         });
 
     if let Some(nav) = navigation {
@@ -75,14 +88,6 @@ pub fn setup_end_screen(mut commands: Commands, fonts: Res<Fonts>, game_result: 
 #[derive(Debug, Component)]
 pub struct OptionHoverIndicator {
     player: Player,
-}
-
-fn setup_end_screen_options(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity> {
-    vec![
-        setup_end_screen_option(root, fonts, EndScreenOption::Rematch),
-        setup_end_screen_option(root, fonts, EndScreenOption::QuitToMainMenu),
-        setup_end_screen_option(root, fonts, EndScreenOption::QuitToDesktop),
-    ]
 }
 
 fn setup_end_screen_option(
@@ -202,6 +207,8 @@ pub fn update_end_screen_visuals(
         &OptionHoverIndicator,
         Entity,
     )>,
+    result_text: Single<&mut Text, With<MatchResultTextMarker>>,
+    result: Res<GameResult>,
     hierarchy: Query<&Parent>,
     navigator: Res<EndScreenNav>,
 ) {
@@ -226,4 +233,6 @@ pub fn update_end_screen_visuals(
             Visibility::Hidden
         };
     }
+
+    result_text.into_inner().0 = format!("Player {} wins!", result.winner);
 }

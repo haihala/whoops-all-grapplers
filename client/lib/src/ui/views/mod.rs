@@ -23,6 +23,7 @@ impl Plugin for ViewsPlugin {
                 controller_assignment::setup_controller_assignment,
                 character_select::setup_character_select,
                 credits::setup_credits_menu,
+                end_screen::setup_end_screen,
             ),
         )
         .add_systems(
@@ -58,7 +59,6 @@ impl Plugin for ViewsPlugin {
                 .chain()
                 .in_set(SystemStep::Menus),
         )
-        .add_systems(OnEnter(MatchState::EndScreen), end_screen::setup_end_screen)
         .add_systems(OnExit(GameState::MainMenu), play_transition_noise)
         .add_systems(
             OnExit(GameState::Local(LocalState::ControllerAssignment)),
@@ -76,7 +76,11 @@ fn play_transition_noise(mut commands: Commands) {
     commands.trigger(SoundRequest::from(Sound::PlasticCupFlick));
 }
 
-fn setup_view_title(root: &mut ChildBuilder, fonts: &Fonts, text: impl Into<String>) {
+fn setup_view_title<'a>(
+    root: &'a mut ChildBuilder,
+    fonts: &Fonts,
+    text: impl Into<String>,
+) -> EntityCommands<'a> {
     root.spawn((
         Text::new(text),
         TextFont {
@@ -85,7 +89,7 @@ fn setup_view_title(root: &mut ChildBuilder, fonts: &Fonts, text: impl Into<Stri
             ..default()
         },
         Name::new("Title"),
-    ));
+    ))
 }
 
 fn setup_view_subtitle(root: &mut ChildBuilder, fonts: &Fonts, text: impl Into<String>) {

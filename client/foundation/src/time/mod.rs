@@ -75,6 +75,7 @@ pub enum SystemStep {
     Movement,
     HitReg,
     MovePipeline,
+    Recovery,
     PlayerUpdates,
     Economy,
     Shop,
@@ -110,6 +111,7 @@ impl Plugin for TimePlugin {
                     SystemStep::Movement,
                     SystemStep::HitReg,
                     SystemStep::MovePipeline,
+                    SystemStep::Recovery,
                     SystemStep::PlayerUpdates,
                     SystemStep::Economy,
                 )

@@ -1,6 +1,7 @@
 use crate::{
     assets::Fonts,
     entity_management::VisibleInStates,
+    networking,
     ui::{SharedVerticalNav, VerticalMenuNavigation},
 };
 use bevy::prelude::*;
@@ -167,6 +168,7 @@ pub fn navigate_character_select(
 
                     if is_online {
                         game_state.set(GameState::Online(OnlineState::Lobby));
+                        networking::setup_socket(&mut commands);
                         commands.insert_resource(LocalCharacter(
                             *options.get(nav.p1_select.selected).unwrap(),
                         ));

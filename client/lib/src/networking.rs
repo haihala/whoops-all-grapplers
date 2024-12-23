@@ -41,7 +41,6 @@ fn no_session_exists(session: Option<Res<bevy_ggrs::Session<Config>>>) -> bool {
 impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<InputStream>()
-            .add_systems(OnEnter(GameState::Online(OnlineState::Lobby)), setup_socket)
             .add_systems(
                 FixedUpdate,
                 wait_for_players.run_if(in_state(GameState::Online(OnlineState::Lobby))),
@@ -150,7 +149,7 @@ fn run_rollback_schedule(world: &mut World) {
     world.run_schedule(RollbackSchedule);
 }
 
-fn setup_socket(mut commands: Commands) {
+pub fn setup_socket(commands: &mut Commands) {
     let room_url = "ws://wag.tunk.org:3536/wag?next=2";
     info!("connecting to matchbox server: {room_url}");
     let sock = WebRtcSocketBuilder::new(room_url)

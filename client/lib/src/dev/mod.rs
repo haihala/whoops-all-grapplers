@@ -13,6 +13,7 @@ use strum::IntoEnumIterator;
 
 use crate::{
     movement::{ObjectVelocity, PlayerVelocity, Pushbox},
+    networking,
     player_state_management::MoveBuffer,
 };
 
@@ -93,6 +94,7 @@ fn skip_menus(
             local_character,
         } => {
             next_game_state.set(GameState::Online(OnlineState::Lobby));
+            networking::setup_socket(&mut commands);
             commands.insert_resource(LocalController(pads[&local_controller]));
             commands.insert_resource(LocalCharacter(local_character));
         }

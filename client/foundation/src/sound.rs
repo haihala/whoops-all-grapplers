@@ -1,4 +1,5 @@
 use bevy::{prelude::*, utils::HashMap};
+use rand::Rng;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
@@ -142,6 +143,16 @@ impl Sound {
             self,
             Sound::AnimeBeginnings | Sound::WaitingMusic | Sound::Motivation
         )
+    }
+
+    pub fn speed_modifier(&self) -> f32 {
+        if self.is_music() {
+            1.0
+        } else {
+            // Shift speed (pitch) by up to about 10% either way
+            // Creates more variations of lines, making them less repetitive
+            rand::thread_rng().gen_range(0.9..1.1)
+        }
     }
 }
 

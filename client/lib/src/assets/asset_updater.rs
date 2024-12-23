@@ -85,7 +85,7 @@ pub fn play_audio(trigger: Trigger<SoundRequest>, mut commands: Commands, sounds
         AudioPlayer(source),
         PlaybackSettings {
             // Shift speed (pitch) by up to about 10% either way
-            speed: rand::thread_rng().gen_range(0.9..1.1),
+            speed: sound.speed_modifier(),
             volume: Volume::new(sound.volume()),
             mode: if sound.is_music() {
                 PlaybackMode::Loop

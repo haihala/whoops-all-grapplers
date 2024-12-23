@@ -2877,6 +2877,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "clap",
+ "rand",
  "strum",
  "strum_macros",
 ]

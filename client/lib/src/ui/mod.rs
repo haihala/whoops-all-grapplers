@@ -20,7 +20,6 @@ impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(views::ViewsPlugin)
             .insert_resource(Notifications::default())
-            .add_systems(OnEnter(MatchState::PostRound), combat::update_score)
             .add_systems(
                 RollbackSchedule,
                 (
@@ -29,6 +28,7 @@ impl Plugin for UIPlugin {
                         combat::update_bars,
                         combat::update_counters,
                         combat::update_timer,
+                        combat::update_score,
                     )
                         .chain()
                         .run_if(in_state(MatchState::Combat)),

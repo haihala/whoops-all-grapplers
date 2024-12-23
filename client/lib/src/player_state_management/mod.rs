@@ -35,47 +35,52 @@ pub struct PlayerStateManagementPlugin;
 
 impl Plugin for PlayerStateManagementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(MatchState::Loading), setup_players)
-            .add_systems(
-                RollbackSchedule,
-                reset_combat.in_set(SystemStep::RoundReset),
+        app.add_systems(
+            RollbackSchedule,
+            setup_players
+                .run_if(in_state(MatchState::Loading))
+                .in_set(SystemStep::SpawnPlayers),
+        )
+        .add_systems(
+            RollbackSchedule,
+            reset_combat.in_set(SystemStep::RoundReset),
+        )
+        .add_systems(
+            RollbackSchedule,
+            side_switcher::sideswitcher
+                .run_if(in_state(InMatch))
+                .in_set(SystemStep::SideSwitch),
+        )
+        .add_systems(
+            RollbackSchedule,
+            (
+                condition_management::expire_conditions,
+                condition_management::update_combined_status_effect,
             )
-            .add_systems(
-                RollbackSchedule,
-                side_switcher::sideswitcher
-                    .run_if(in_state(InMatch))
-                    .in_set(SystemStep::SideSwitch),
+                .chain()
+                .in_set(SystemStep::Conditions),
+        )
+        .add_systems(
+            RollbackSchedule,
+            (
+                move_activation::manage_buffer,
+                move_activation::move_activator,
+                move_advancement::move_advancement,
             )
-            .add_systems(
-                RollbackSchedule,
-                (
-                    condition_management::expire_conditions,
-                    condition_management::update_combined_status_effect,
-                )
-                    .chain()
-                    .in_set(SystemStep::Conditions),
+                .chain()
+                .in_set(SystemStep::MovePipeline),
+        )
+        .add_systems(
+            RollbackSchedule,
+            (
+                recovery::stun_recovery,
+                recovery::ground_recovery,
+                size_adjustment::update_box_sizes_from_state,
+                size_adjustment::remove_old_hurtbox_expansions,
             )
-            .add_systems(
-                RollbackSchedule,
-                (
-                    move_activation::manage_buffer,
-                    move_activation::move_activator,
-                    move_advancement::move_advancement,
-                )
-                    .chain()
-                    .in_set(SystemStep::MovePipeline),
-            )
-            .add_systems(
-                RollbackSchedule,
-                (
-                    recovery::stun_recovery,
-                    recovery::ground_recovery,
-                    size_adjustment::update_box_sizes_from_state,
-                    size_adjustment::remove_old_hurtbox_expansions,
-                )
-                    .chain()
-                    .in_set(SystemStep::PlayerUpdates),
-            );
+                .chain()
+                .in_set(SystemStep::PlayerUpdates),
+        );
     }
 }
 
@@ -85,7 +90,12 @@ fn setup_players(
     models: Res<Models>,
     args: Res<WagArgs>,
     mut music: ResMut<Music>,
+    maybe_players: Option<Res<Players>>,
 ) {
+    if maybe_players.is_some() {
+        return;
+    }
+
     let char1 = Character::from(characters.p1);
     let char2 = Character::from(characters.p2);
 

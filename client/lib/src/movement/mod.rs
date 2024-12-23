@@ -18,7 +18,7 @@ use player_state::PlayerState;
 
 use crate::{
     damage::{HitTracker, HitboxSpawner},
-    event_spreading::{ClearMovement, TeleportEvent},
+    event_spreading::{MultiplyMomentum, TeleportEvent},
 };
 
 pub const GROUND_PLANE_HEIGHT: f32 = 0.0;
@@ -113,9 +113,9 @@ fn player_gravity(mut players: Query<(&mut PlayerVelocity, &PlayerState, &Stats,
     }
 }
 
-pub fn clear_movement(trigger: Trigger<ClearMovement>, mut query: Query<&mut PlayerVelocity>) {
+pub fn clear_movement(trigger: Trigger<MultiplyMomentum>, mut query: Query<&mut PlayerVelocity>) {
     let mut vel = query.get_mut(trigger.entity()).unwrap();
-    vel.clear_movements();
+    vel.multiply_moments(trigger.event().0);
 }
 
 pub fn add_movement(

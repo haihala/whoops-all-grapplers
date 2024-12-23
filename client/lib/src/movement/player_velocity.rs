@@ -43,9 +43,11 @@ impl PlayerVelocity {
         self.velocity += impulse;
     }
 
-    pub(super) fn clear_movements(&mut self) {
-        self.movements.clear();
-        self.velocity = Vec2::ZERO; // TODO: This may be a mistake
+    pub(super) fn multiply_moments(&mut self, amount: f32) {
+        for ref mut movement in self.movements.iter_mut() {
+            movement.amount *= amount;
+        }
+        self.velocity *= amount;
     }
 
     pub(super) fn handle_movement(&mut self, frame: usize, facing: Facing, movement: Movement) {

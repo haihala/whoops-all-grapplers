@@ -11,7 +11,7 @@ pub struct StartAction(pub ActionId);
 pub struct SpawnHitbox(pub Attack);
 
 #[derive(Debug, Event)]
-pub struct ClearMovement;
+pub struct MultiplyMomentum(pub f32);
 
 #[derive(Debug, Event)]
 pub struct ForceState(pub SimpleState);
@@ -98,8 +98,8 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
         ActionEvent::SpawnHitbox(atk) => {
             commands.trigger_targets(SpawnHitbox(atk.clone()), trigger.entity());
         }
-        ActionEvent::ClearMovement => {
-            commands.trigger_targets(ClearMovement, trigger.entity());
+        ActionEvent::MultiplyMomentum(amount) => {
+            commands.trigger_targets(MultiplyMomentum(*amount), trigger.entity());
         }
         ActionEvent::Movement(mov) => {
             commands.trigger_targets(*mov, trigger.entity());

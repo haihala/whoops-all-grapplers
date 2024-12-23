@@ -15,7 +15,7 @@ pub enum ActionEvent {
     Sound(SoundRequest),
     StartAction(ActionId),
     SpawnHitbox(Attack),
-    ClearMovement,
+    MultiplyMomentum(f32),
     Movement(Movement),
     Teleport(Vec2),
     Condition(StatusCondition),
@@ -64,8 +64,8 @@ impl std::fmt::Debug for ActionEvent {
             ActionEvent::SpawnHitbox(attack) => {
                 write!(f, "SpawnHitbox - to hit: {:?}", attack.to_hit)
             }
-            ActionEvent::ClearMovement => {
-                write!(f, "ClearMovement")
+            ActionEvent::MultiplyMomentum(amount) => {
+                write!(f, "MultiplyMomentum - {:?}", amount)
             }
             ActionEvent::Movement(movement) => {
                 write!(f, "Movement - {:?}", movement)

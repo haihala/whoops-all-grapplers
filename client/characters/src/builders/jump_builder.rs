@@ -94,7 +94,7 @@ fn jump(
 
                 initial_events.extend(if jump_type == JumpType::Air {
                     vec![
-                        ActionEvent::ClearMovement,
+                        ActionEvent::MultiplyMomentum(0.2),
                         ActionEvent::Condition(StatusCondition {
                             flag: StatusFlag::AirActionCooldown,
                             ..default()

@@ -862,6 +862,7 @@ impl StrikeEffectBuilder {
                             vec![]
                         })
                         .chain([
+                            ActionEvent::MultiplyMomentum(0.2),
                             stun_event,
                             Movement::impulse(-Vec2::X * self.defender_push_on_hit).into(),
                             ActionEvent::ModifyResource(GaugeType::Health, -damage),

@@ -81,7 +81,6 @@ impl Plugin for AssetsPlugin {
                     .chain()
                     .in_set(SystemStep::Presentation),
             )
-            .add_systems(OnEnter(MatchState::PostRound), animations::pause_animations)
             .add_systems(OnEnter(MatchState::PreRound), announcer::preround)
             .add_systems(OnEnter(MatchState::Combat), announcer::combat)
             .add_observer(asset_updater::play_audio)

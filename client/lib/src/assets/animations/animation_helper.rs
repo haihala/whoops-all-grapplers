@@ -130,10 +130,3 @@ pub fn update_animation(
         }
     }
 }
-
-// This is called when entering postround, so the freeze frame is still
-pub fn pause_animations(mut players: Query<&mut AnimationPlayer>) {
-    for mut player in &mut players {
-        player.pause_all();
-    }
-}

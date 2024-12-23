@@ -54,6 +54,7 @@ pub fn end_combat(
     mut players: Query<(&Gauges, &Player, &mut Inventory, &Character)>,
     mut next_match_state: ResMut<NextState<MatchState>>,
     mut music: ResMut<Music>,
+    mut animation_players: Query<&mut AnimationPlayer>,
 ) {
     let round_over = players
         .iter()
@@ -149,6 +150,11 @@ pub fn end_combat(
     };
 
     next_match_state.set(MatchState::PostRound);
+
+    for mut anim_player in &mut animation_players {
+        anim_player.pause_all();
+    }
+
     commands.insert_resource(TransitionTimer {
         timer: Timer::from_seconds(POST_ROUND_DURATION, TimerMode::Once),
         state: next_state,

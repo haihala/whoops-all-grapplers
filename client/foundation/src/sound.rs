@@ -167,3 +167,9 @@ impl From<Sound> for SoundRequest {
         Self { sound }
     }
 }
+
+impl SoundRequest {
+    pub fn menu_transition() -> Self {
+        Self::from(Sound::PlasticCupFlick)
+    }
+}

@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use foundation::{
-    GameState, InCharacterSelect, LocalState, MatchState, RollbackSchedule, Sound, SoundRequest,
-    SystemStep,
+    GameState, InCharacterSelect, LocalState, MatchState, RollbackSchedule, SystemStep,
 };
 
 use crate::assets::Fonts;
@@ -53,27 +52,12 @@ impl Plugin for ViewsPlugin {
                     end_screen::update_end_screen_visuals,
                 )
                     .chain()
-                    .run_if(in_state(MatchState::EndScreen))
-                    .after(end_screen::setup_end_screen),
+                    .run_if(in_state(MatchState::EndScreen)),
             )
                 .chain()
                 .in_set(SystemStep::Menus),
-        )
-        .add_systems(OnExit(GameState::MainMenu), play_transition_noise)
-        .add_systems(
-            OnExit(GameState::Local(LocalState::ControllerAssignment)),
-            play_transition_noise,
-        )
-        .add_systems(
-            OnExit(GameState::Local(LocalState::CharacterSelect)),
-            play_transition_noise,
-        )
-        .add_systems(OnExit(MatchState::EndScreen), play_transition_noise);
+        );
     }
-}
-
-fn play_transition_noise(mut commands: Commands) {
-    commands.trigger(SoundRequest::from(Sound::PlasticCupFlick));
 }
 
 fn setup_view_title<'a>(

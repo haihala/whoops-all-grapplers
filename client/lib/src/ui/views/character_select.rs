@@ -6,8 +6,9 @@ use crate::{
 use bevy::prelude::*;
 use foundation::{
     CharacterId, Characters, Controllers, GameButton, GameState, InputEvent, InputStream,
-    LocalCharacter, LocalController, LocalState, MatchState, OnlineState, Player, StickPosition,
-    CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
+    LocalCharacter, LocalController, LocalState, MatchState, OnlineState, Player, SoundRequest,
+    StickPosition, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR,
+    VERTICAL_MENU_OPTION_BACKGROUND,
 };
 use strum::IntoEnumIterator;
 
@@ -134,19 +135,22 @@ pub fn navigate_character_select(
     local_controller: Option<Res<LocalController>>,
 ) {
     for ev in input_stream.events.clone() {
-        let player = if let Some(ref lc) = local_controller {
+        let (player, is_online) = if let Some(ref lc) = local_controller {
             if lc.0 != ev.player_handle {
                 continue;
             }
             // Always player one in online
-            Player::One
+            (Player::One, true)
         } else {
             // Local play
-            controllers
-                .as_ref()
-                .unwrap()
-                .get_player(ev.player_handle)
-                .unwrap()
+            (
+                controllers
+                    .as_ref()
+                    .unwrap()
+                    .get_player(ev.player_handle)
+                    .unwrap(),
+                false,
+            )
         };
 
         match ev.event {
@@ -159,7 +163,9 @@ pub fn navigate_character_select(
             }
             InputEvent::Press(button) => {
                 if button == GameButton::Fast {
-                    if local_controller.is_some() {
+                    commands.trigger(SoundRequest::menu_transition());
+
+                    if is_online {
                         game_state.set(GameState::Online(OnlineState::Lobby));
                         commands.insert_resource(LocalCharacter(
                             *options.get(nav.p1_select.selected).unwrap(),
@@ -180,6 +186,12 @@ pub fn navigate_character_select(
                         match_state.set(MatchState::Loading);
                     }
                 } else if button == GameButton::Strong {
+                    commands.trigger(SoundRequest::menu_transition());
+                    if is_online {
+                        game_state.set(GameState::MainMenu);
+                        return;
+                    }
+
                     if nav.locked(player) {
                         nav.unlock(player);
                     } else {

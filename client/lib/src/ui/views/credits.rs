@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use foundation::{GameButton, GameState, InputEvent, InputStream, StickPosition};
+use foundation::{GameButton, GameState, InputEvent, InputStream, SoundRequest, StickPosition};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 
@@ -99,6 +99,7 @@ fn credits_sections() -> Vec<CreditSection> {
 const SCROLL_SPEED: f32 = 5.0;
 
 pub fn navigate_credits(
+    mut commands: Commands,
     input_stream: Res<InputStream>,
     mut next_state: ResMut<NextState<GameState>>,
     mut ui_root: Query<&mut ScrollPosition, With<CreditsNav>>,
@@ -109,6 +110,7 @@ pub fn navigate_credits(
     for ev in input_stream.events.clone() {
         match ev.event {
             InputEvent::Press(GameButton::Strong) => {
+                commands.trigger(SoundRequest::menu_transition());
                 scroll.offset_y = 0.0;
                 next_state.set(GameState::MainMenu);
             }

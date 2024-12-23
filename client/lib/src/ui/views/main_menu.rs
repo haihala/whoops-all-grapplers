@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use foundation::{
     GameButton, GameState, InputEvent, InputStream, LocalController, LocalState, OnlineState,
-    StickPosition, GENERIC_TEXT_COLOR, MAIN_MENU_HIGHLIGHT_TEXT_COLOR,
+    SoundRequest, StickPosition, GENERIC_TEXT_COLOR, MAIN_MENU_HIGHLIGHT_TEXT_COLOR,
 };
 
 use crate::{assets::Fonts, entity_management::VisibleInStates, ui::VerticalMenuNavigation};
@@ -100,21 +100,25 @@ pub fn navigate_main_menu(
         match ev.event {
             InputEvent::Point(StickPosition::N) => nav.up(),
             InputEvent::Point(StickPosition::S) => nav.down(),
-            InputEvent::Press(GameButton::Fast) => match options.get(nav.selected).unwrap() {
-                MainMenuOptions::LocalPlay => {
-                    state.set(GameState::Local(LocalState::ControllerAssignment));
-                }
-                MainMenuOptions::OnlinePlay => {
-                    commands.insert_resource(LocalController(ev.player_handle));
-                    state.set(GameState::Online(OnlineState::CharacterSelect));
-                }
-                MainMenuOptions::Credits => {
-                    state.set(GameState::Credits);
-                }
-                MainMenuOptions::QuitToDesktop => {
-                    exit.send_default();
-                }
-            },
+            InputEvent::Press(GameButton::Fast) => {
+                commands.trigger(SoundRequest::menu_transition());
+
+                match options.get(nav.selected).unwrap() {
+                    MainMenuOptions::LocalPlay => {
+                        state.set(GameState::Local(LocalState::ControllerAssignment));
+                    }
+                    MainMenuOptions::OnlinePlay => {
+                        commands.insert_resource(LocalController(ev.player_handle));
+                        state.set(GameState::Online(OnlineState::CharacterSelect));
+                    }
+                    MainMenuOptions::Credits => {
+                        state.set(GameState::Credits);
+                    }
+                    MainMenuOptions::QuitToDesktop => {
+                        exit.send_default();
+                    }
+                };
+            }
             _ => {}
         }
     }

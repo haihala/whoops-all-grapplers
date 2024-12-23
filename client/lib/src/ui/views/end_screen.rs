@@ -8,8 +8,8 @@ use crate::{
 use bevy::prelude::*;
 use foundation::{
     Controllers, GameButton, GameResult, GameState, InputEvent, InputStream, MatchState, Player,
-    RoundLog, StickPosition, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR,
-    VERTICAL_MENU_OPTION_BACKGROUND,
+    RoundLog, SoundRequest, StickPosition, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR,
+    GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
 use super::{setup_view_subtitle, setup_view_title};
@@ -172,6 +172,7 @@ pub fn navigate_end_screen(
             InputEvent::Point(StickPosition::N) => nav.up(player),
             InputEvent::Point(StickPosition::S) => nav.down(player),
             InputEvent::Press(GameButton::Fast) => {
+                commands.trigger(SoundRequest::menu_transition());
                 let selected = nav.selected(player);
                 let option_type = options.get(selected).unwrap();
 

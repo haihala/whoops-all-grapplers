@@ -1,7 +1,7 @@
-use bevy::{ecs::system::SystemId, prelude::*};
+use bevy::prelude::*;
 use foundation::{
     Controllers, GameButton, GameState, InputDevice, InputEvent, InputStream, LocalState, Player,
-    StickPosition, CONTROLLER_ASSIGNMENT_SIDE_COLOR, KEYBOARD_MAGIC_CONSTANT,
+    SoundRequest, StickPosition, CONTROLLER_ASSIGNMENT_SIDE_COLOR, KEYBOARD_MAGIC_CONSTANT,
 };
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
@@ -35,9 +35,6 @@ impl ControllerAssignment {
     }
 }
 
-#[derive(Debug, Resource)]
-pub struct SubmitCallback(SystemId);
-
 #[derive(Debug, Component)]
 pub struct SelectedController(Player);
 
@@ -67,23 +64,7 @@ pub fn setup_controller_assignment(mut commands: Commands, fonts: Res<Fonts>) {
             setup_areas(cb, &fonts);
         });
 
-    let system_id = commands.register_system(go_to_character_select);
-    commands.insert_resource(SubmitCallback(system_id));
-
     commands.insert_resource(ControllerAssignment::default());
-}
-
-fn go_to_character_select(
-    mut commands: Commands,
-    ca: Res<ControllerAssignment>,
-    mut state: ResMut<NextState<GameState>>,
-) {
-    commands.insert_resource(Controllers {
-        p1: ca.p1.unwrap(),
-        p2: ca.p2.unwrap(),
-    });
-
-    state.set(GameState::Local(LocalState::CharacterSelect));
 }
 
 fn setup_areas(root: &mut ChildBuilder, fonts: &Fonts) {
@@ -157,7 +138,6 @@ pub fn navigate_controller_assignment_menu(
     mut commands: Commands,
     mut ca: ResMut<ControllerAssignment>,
     input_stream: ResMut<InputStream>,
-    callback: Res<SubmitCallback>,
     mut state: ResMut<NextState<GameState>>,
 ) {
     for ev in input_stream.events.clone() {
@@ -166,11 +146,18 @@ pub fn navigate_controller_assignment_menu(
             InputEvent::Point(StickPosition::W) => ca.left(ev.player_handle),
             InputEvent::Press(GameButton::Fast) => {
                 if ca.is_complete() {
-                    commands.run_system(callback.0);
+                    commands.insert_resource(Controllers {
+                        p1: ca.p1.unwrap(),
+                        p2: ca.p2.unwrap(),
+                    });
+
+                    state.set(GameState::Local(LocalState::CharacterSelect));
+                    commands.trigger(SoundRequest::menu_transition());
                 }
             }
             InputEvent::Press(GameButton::Strong) => {
                 state.set(GameState::MainMenu);
+                commands.trigger(SoundRequest::menu_transition());
             }
             _ => {}
         }

@@ -98,16 +98,18 @@ impl ComputedStates for InMatch {
     }
 }
 
-#[derive(Debug, Resource, Default)]
+#[derive(Debug, Resource, Default, Clone)]
 pub struct RoundLog {
     log: Vec<RoundResult>,
+    pub reset_done: bool,
 }
 impl RoundLog {
     pub fn clear(&mut self) {
-        self.log.clear();
+        *self = Self::default();
     }
     pub fn add(&mut self, result: RoundResult) {
         self.log.push(result);
+        self.reset_done = false;
     }
     pub fn last(&self) -> Option<RoundResult> {
         self.log.last().cloned()

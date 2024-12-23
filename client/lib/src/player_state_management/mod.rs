@@ -10,7 +10,7 @@ mod size_adjustment;
 use characters::{Character, Gauges, Hurtboxes, Inventory};
 use foundation::{
     AnimationType, CharacterClock, CharacterFacing, Characters, Clock, Combo, Facing, InMatch,
-    MatchState, Player, Players, RollbackSchedule, Stats, SystemStep, WagArgs,
+    MatchState, Player, Players, RollbackSchedule, RoundLog, Stats, SystemStep, WagArgs,
 };
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
@@ -36,7 +36,10 @@ pub struct PlayerStateManagementPlugin;
 impl Plugin for PlayerStateManagementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(MatchState::Loading), setup_players)
-            .add_systems(OnEnter(MatchState::PreRound), setup_combat)
+            .add_systems(
+                RollbackSchedule,
+                reset_combat.in_set(SystemStep::RoundReset),
+            )
             .add_systems(
                 RollbackSchedule,
                 side_switcher::sideswitcher
@@ -196,7 +199,7 @@ fn spawn_player(
 }
 
 #[allow(clippy::type_complexity)]
-fn setup_combat(
+fn reset_combat(
     mut query: Query<(
         &Player,
         &Stats,
@@ -213,7 +216,13 @@ fn setup_combat(
     )>,
     mut commands: Commands,
     mut clock: ResMut<Clock>,
+    mut round_result: ResMut<RoundLog>,
 ) {
+    if round_result.reset_done {
+        return;
+    }
+    round_result.reset_done = true;
+
     info!("Round start reset");
     clock.reset();
 

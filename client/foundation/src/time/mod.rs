@@ -70,6 +70,7 @@ pub enum SystemStep {
     SideSwitch,
     Pickups,
     Conditions,
+    RoundReset,
     Movement,
     HitReg,
     MovePipeline,
@@ -95,6 +96,7 @@ impl Plugin for TimePlugin {
                     SystemStep::EntityManagement,
                     SystemStep::Menus,
                     SystemStep::Conditions,
+                    SystemStep::RoundReset,
                     SystemStep::StateTransitions,
                     SystemStep::Inputs,
                 )

@@ -11,8 +11,8 @@ use characters::{Attack, Gauges, Hitbox, Hurtboxes, Inventory};
 use foundation::{
     Area, CharacterClock, CharacterFacing, Characters, Clock, Combo, Controllers, GameState,
     Hitstop, InputDevice, InputState, InputStream, LocalCharacter, LocalController, MatchState,
-    NetworkInputButton, OnlineState, OwnedInput, Owner, Pickup, Player, RollbackSchedule, Stats,
-    WagArgs, STICK_DEAD_ZONE,
+    NetworkInputButton, OnlineState, OwnedInput, Owner, Pickup, Player, RollbackSchedule, RoundLog,
+    Stats, WagArgs, STICK_DEAD_ZONE,
 };
 use input_parsing::{InputParser, ParrotStream};
 use player_state::PlayerState;
@@ -86,6 +86,7 @@ impl Plugin for NetworkPlugin {
             // Probably an incomplete list of things to roll back
             // Resources
             .rollback_resource_with_clone::<InputStream>()
+            .rollback_resource_with_clone::<RoundLog>()
             .rollback_resource_with_copy::<Clock>()
             .rollback_resource_with_copy::<Walls>()
             // Player components

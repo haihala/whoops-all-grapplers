@@ -81,8 +81,9 @@ impl Plugin for AssetsPlugin {
                     .chain()
                     .in_set(SystemStep::Presentation),
             )
-            .add_systems(OnEnter(MatchState::PreRound), announcer::preround)
-            .add_systems(OnEnter(MatchState::Combat), announcer::combat)
+            .add_systems(OnEnter(MatchState::Combat), |mut ann: ResMut<Announcer>| {
+                ann.fight()
+            })
             .add_observer(asset_updater::play_audio)
             .add_observer(vfx::start_absolute_vfx)
             .add_observer(vfx::spawn_vfx::<materials::BlankMaterial>)

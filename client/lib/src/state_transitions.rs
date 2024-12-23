@@ -6,13 +6,14 @@ use characters::{Character, GaugeType, Gauges, Inventory};
 use foundation::{
     Clock, GameResult, GameState, InCharacterSelect, InMatch, MatchState, Player, RollbackSchedule,
     RoundLog, RoundResult, Sound, SoundRequest, SystemStep, VoiceLine, BASE_ROUND_MONEY, FPS,
-    POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY_BUILDUP, VICTORY_BONUS,
+    POST_ROUND_DURATION, PRE_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY_BUILDUP, VICTORY_BONUS,
 };
 use input_parsing::InputParser;
 
 use crate::{
     assets::{Announcer, AssetsLoading, Music, PlayerModelHook},
-    ui::Notifications,
+    networking,
+    ui::{self, Notifications},
 };
 
 pub struct StateTransitionPlugin;
@@ -178,12 +179,16 @@ fn transition_after_timer<T: FreelyMutableState>(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn end_loading(
     ready_players: Query<&Player>,
     hooked_children: Query<&PlayerModelHook>,
     loading_assets: Res<AssetsLoading>,
     server: Res<AssetServer>,
+    game_state: Res<State<GameState>>,
     mut next_match_state: ResMut<NextState<MatchState>>,
+    mut commands: Commands,
+    mut announcer: ResMut<Announcer>,
 ) {
     let two_players = ready_players.iter().count() == 2;
     let hooks_ran = hooked_children.iter().count() == 0;
@@ -197,7 +202,19 @@ fn end_loading(
 
     if two_players && hooks_ran && asset_loads_started && all_assets_loaded {
         info!("Done loading assets");
-        next_match_state.set(MatchState::PostLoad);
+
+        announcer.round_start(1);
+        commands.run_system_cached(ui::setup_shop);
+        commands.run_system_cached(ui::setup_combat_hud);
+        if *game_state.get() == GameState::Synctest {
+            commands.run_system_cached(networking::start_synctest_session);
+        }
+
+        next_match_state.set(MatchState::PreRound);
+        commands.insert_resource(TransitionTimer {
+            timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),
+            state: MatchState::Combat,
+        });
     }
 }
 

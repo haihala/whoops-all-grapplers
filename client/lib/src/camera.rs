@@ -40,7 +40,6 @@ impl Plugin for CustomCameraPlugin {
                     .in_set(SystemStep::Camera)
                     .run_if(in_state(InMatch)),
             )
-            .add_systems(OnEnter(MatchState::PreRound), reset_camera)
             .add_observer(shake_camera)
             .add_observer(zoom_camera);
     }
@@ -78,7 +77,7 @@ fn add_camera(
                             }))),
                             MeshMaterial3d(materials.add(LOADING_SCREEN_BACKGROUND)),
                             Transform::from_xyz(0.0, 0.0, -2.0),
-                            VisibleInStates(vec![MatchState::Loading, MatchState::PostLoad]),
+                            VisibleInStates(vec![MatchState::Loading]),
                             NoFrustumCulling,
                         ));
                     };
@@ -222,7 +221,7 @@ fn child_camera_effects(
 }
 
 #[allow(clippy::type_complexity)]
-fn reset_camera(
+pub fn reset_camera(
     mut queries: ParamSet<(
         Single<(&mut Transform, &mut RootCameraEffects), With<CameraWrapper>>,
         Single<(&mut Transform, &mut ChildCameraEffects)>,

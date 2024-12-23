@@ -6,7 +6,11 @@ use foundation::{
     ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
 };
 
-use crate::{assets::Music, state_transitions::TransitionTimer};
+use crate::{
+    assets::{Announcer, Music},
+    camera,
+    state_transitions::TransitionTimer,
+};
 
 use super::{
     setup_shop::{ShopItem, ShopMoney, ShopScore},
@@ -158,8 +162,12 @@ pub fn handle_shop_ending(
     mut countdown_roots: Query<&mut Visibility>,
     mut countdown_texts: Query<&mut Text>,
     mut music: ResMut<Music>,
+    mut announcer: ResMut<Announcer>,
     time: Res<Time>,
+    round_log: Res<RoundLog>,
 ) {
+    commands.run_system_cached(camera::reset_camera);
+    let round_num = round_log.rounds_played() + 1;
     if shops.player_one.closed && shops.player_two.closed {
         end_shopping(
             &mut shops,
@@ -167,6 +175,8 @@ pub fn handle_shop_ending(
             &mut commands,
             &mut countdown_roots,
             &mut music,
+            &mut announcer,
+            round_num,
         );
         *local_timer = None;
         return;
@@ -201,6 +211,8 @@ pub fn handle_shop_ending(
             &mut commands,
             &mut countdown_roots,
             &mut music,
+            &mut announcer,
+            round_num,
         );
         *local_timer = None;
     }
@@ -215,8 +227,11 @@ fn end_shopping(
     commands: &mut Commands,
     countdown_roots: &mut Query<&mut Visibility>,
     music: &mut Music,
+    announcer: &mut Announcer,
+    round_num: usize,
 ) {
     next_state.set(MatchState::PreRound);
+    announcer.round_start(round_num);
 
     commands.insert_resource(TransitionTimer {
         timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),

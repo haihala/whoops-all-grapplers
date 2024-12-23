@@ -36,6 +36,7 @@ pub fn setup_shop(
                 row_gap: Val::Percent(0.5),
                 ..default()
             },
+            Visibility::Hidden,
             BackgroundColor(SHOP_DIVIDER_COLOR), // This will color the divider between the sides
             VisibleInStates(vec![MatchState::Shop]),
             StateScoped(InMatch),

@@ -45,10 +45,6 @@ impl Plugin for NetworkPlugin {
                 FixedUpdate,
                 wait_for_players.run_if(in_state(GameState::Online(OnlineState::Lobby))),
             )
-            .add_systems(
-                FixedUpdate,
-                start_synctest_session.run_if(in_synctest_postload),
-            )
             .add_systems(ReadInputs, read_local_inputs)
             .init_schedule(RollbackSchedule)
             .edit_schedule(RollbackSchedule, |schedule| {
@@ -284,20 +280,7 @@ fn wait_for_players(
     };
 }
 
-fn in_synctest_postload(
-    game_state: Res<State<GameState>>,
-    match_state: Res<State<MatchState>>,
-) -> bool {
-    *game_state.get() == GameState::Synctest && *match_state.get() == MatchState::PostLoad
-}
-
-fn start_synctest_session(mut commands: Commands, args: Res<WagArgs>, mut started: Local<bool>) {
-    if *started {
-        return;
-    }
-
-    *started = true;
-
+pub fn start_synctest_session(mut commands: Commands, args: Res<WagArgs>) {
     info!("Starting synctest session");
     let num_players = 2;
 

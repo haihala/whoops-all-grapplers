@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use foundation::{InMatch, MatchState, RollbackSchedule, SystemStep, PRE_ROUND_DURATION};
+use foundation::{InMatch, MatchState, RollbackSchedule, SystemStep};
 
 mod combat;
 mod round_text;
@@ -10,9 +10,9 @@ mod views;
 
 pub use utils::*;
 
+pub use combat::setup_combat_hud;
 pub use combat::Notifications;
-
-use crate::state_transitions::TransitionTimer;
+pub use shop::setup_shop;
 
 pub struct UIPlugin;
 
@@ -57,11 +57,7 @@ impl Plugin for UIPlugin {
                     .run_if(in_state(MatchState::Shop))
                     .in_set(SystemStep::Shop),
             )
-            .add_systems(PostStartup, round_text::setup_round_info_text)
-            .add_systems(
-                OnEnter(MatchState::PostLoad),
-                (shop::setup_shop, combat::setup_combat_hud, exit_match_setup).chain(),
-            );
+            .add_systems(PostStartup, round_text::setup_round_info_text);
     }
 }
 
@@ -78,12 +74,4 @@ fn set_ui_scale(
 
     ui_scale.0 = window.width() / 1920.0;
     *local_width = window.width();
-}
-
-fn exit_match_setup(mut commands: Commands, mut next_state: ResMut<NextState<MatchState>>) {
-    next_state.set(MatchState::PreRound);
-    commands.insert_resource(TransitionTimer {
-        timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),
-        state: MatchState::Combat,
-    });
 }

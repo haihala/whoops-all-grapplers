@@ -40,7 +40,6 @@ pub enum MatchState {
     #[default]
     None,
     Loading,
-    PostLoad,
     PreRound, // TODO: Rename to countdown
     Combat,
     PostRound,

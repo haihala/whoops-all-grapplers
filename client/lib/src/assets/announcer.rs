@@ -1,4 +1,4 @@
-use foundation::{Player, RoundLog, Sound, SoundRequest};
+use foundation::{Player, Sound, SoundRequest};
 
 use bevy::prelude::*;
 
@@ -46,12 +46,4 @@ pub fn update_announcer(
     };
 
     commands.trigger(SoundRequest::from(next));
-}
-
-pub fn preround(mut announcer: ResMut<Announcer>, round_log: Res<RoundLog>) {
-    announcer.round_start(round_log.rounds_played() + 1);
-}
-
-pub fn combat(mut announcer: ResMut<Announcer>) {
-    announcer.fight();
 }

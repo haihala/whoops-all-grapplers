@@ -10,7 +10,7 @@ mod round_timer;
 pub use round_timer::update_timer;
 
 use characters::{GaugeType, Gauges, RenderInstructions, ResourceBarVisual};
-use foundation::{MatchState, Player, Players, RoundLog, GENERIC_TEXT_COLOR};
+use foundation::{InMatch, MatchState, Player, Players, RoundLog, GENERIC_TEXT_COLOR};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 
@@ -35,6 +35,7 @@ pub fn setup_combat_hud(
                 ..default()
             },
             VisibleInStates(vec![MatchState::Combat, MatchState::PostRound]),
+            StateScoped(InMatch),
             Name::new("Combat UI container"),
         ))
         .id();

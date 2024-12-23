@@ -17,7 +17,7 @@ pub use models::{shake_character, CharacterShake, Models, PlayerModelHook};
 pub use music::Music;
 pub use vfx::start_relative_vfx;
 
-use foundation::{MatchState, RollbackSchedule, Sound, SystemStep};
+use foundation::{MatchState, RollbackSchedule, SystemStep};
 
 #[derive(Debug, Resource)]
 pub struct Fonts {
@@ -80,13 +80,6 @@ impl Plugin for AssetsPlugin {
                 )
                     .chain()
                     .in_set(SystemStep::Presentation),
-            )
-            .add_systems(OnEnter(MatchState::Shop), |mut music: ResMut<Music>| {
-                music.push(Sound::WaitingMusic)
-            })
-            .add_systems(
-                OnEnter(MatchState::EndScreen),
-                |mut music: ResMut<Music>| music.pop(),
             )
             .add_systems(OnEnter(MatchState::PostRound), animations::pause_animations)
             .add_systems(OnEnter(MatchState::PreRound), announcer::preround)

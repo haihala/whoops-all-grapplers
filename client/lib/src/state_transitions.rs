@@ -5,13 +5,13 @@ use bevy::{asset::LoadState, prelude::*, state::state::FreelyMutableState};
 use characters::{Character, GaugeType, Gauges, Inventory};
 use foundation::{
     Clock, GameResult, GameState, InCharacterSelect, InMatch, MatchState, Player, RollbackSchedule,
-    RoundLog, RoundResult, SoundRequest, SystemStep, VoiceLine, BASE_ROUND_MONEY, FPS,
+    RoundLog, RoundResult, Sound, SoundRequest, SystemStep, VoiceLine, BASE_ROUND_MONEY, FPS,
     POST_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY_BUILDUP, VICTORY_BONUS,
 };
 use input_parsing::InputParser;
 
 use crate::{
-    assets::{Announcer, AssetsLoading, PlayerModelHook},
+    assets::{Announcer, AssetsLoading, Music, PlayerModelHook},
     ui::Notifications,
 };
 
@@ -44,6 +44,7 @@ pub struct TransitionTimer<T: States> {
     pub state: T,
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn end_combat(
     mut commands: Commands,
     clock: Res<Clock>,
@@ -52,6 +53,7 @@ pub fn end_combat(
     mut round_log: ResMut<RoundLog>,
     mut players: Query<(&Gauges, &Player, &mut Inventory, &Character)>,
     mut next_match_state: ResMut<NextState<MatchState>>,
+    mut music: ResMut<Music>,
 ) {
     let round_over = players
         .iter()
@@ -135,18 +137,21 @@ pub fn end_combat(
 
     let game_over = round_log.wins(**winner) >= ROUNDS_TO_WIN;
 
-    if game_over {
+    let next_state = if game_over {
         commands.insert_resource(GameResult { winner: **winner });
-    }
+        music.pop();
+
+        MatchState::EndScreen
+    } else {
+        music.push(Sound::WaitingMusic);
+
+        MatchState::Shop
+    };
 
     next_match_state.set(MatchState::PostRound);
     commands.insert_resource(TransitionTimer {
         timer: Timer::from_seconds(POST_ROUND_DURATION, TimerMode::Once),
-        state: if game_over {
-            MatchState::EndScreen
-        } else {
-            MatchState::Shop
-        },
+        state: next_state,
     });
 }
 

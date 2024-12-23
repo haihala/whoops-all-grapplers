@@ -81,6 +81,7 @@ pub enum SystemStep {
     UI,
     HitStop,
     Camera,
+    SetupStage,
     DevTools,
 }
 
@@ -118,6 +119,7 @@ impl Plugin for TimePlugin {
                     SystemStep::UI,
                     SystemStep::HitStop,
                     SystemStep::Camera,
+                    SystemStep::SetupStage,
                     SystemStep::DevTools,
                 )
                     .chain(),

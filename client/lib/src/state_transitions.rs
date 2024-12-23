@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use bevy::{asset::LoadState, prelude::*, state::state::FreelyMutableState};
 
 use characters::{Character, GaugeType, Gauges, Inventory};
@@ -41,7 +39,7 @@ impl Plugin for StateTransitionPlugin {
 
 #[derive(Debug, Resource)]
 pub struct TransitionTimer<T: States> {
-    pub timer: Timer,
+    pub frame: usize,
     pub state: T,
 }
 
@@ -157,22 +155,19 @@ pub fn end_combat(
     }
 
     commands.insert_resource(TransitionTimer {
-        timer: Timer::from_seconds(POST_ROUND_DURATION, TimerMode::Once),
+        frame: clock.frame + (FPS * POST_ROUND_DURATION) as usize,
         state: next_state,
     });
 }
 
 fn transition_after_timer<T: FreelyMutableState>(
     mut commands: Commands,
-    timer_resource: Option<ResMut<TransitionTimer<T>>>,
+    timer_resource: Option<Res<TransitionTimer<T>>>,
     mut next_state: ResMut<NextState<T>>,
+    clock: Res<Clock>,
 ) {
-    if let Some(mut transition) = timer_resource {
-        transition
-            .timer
-            .tick(Duration::from_millis((1000.0 / FPS) as u64));
-
-        if transition.timer.finished() {
+    if let Some(transition) = timer_resource {
+        if transition.frame <= clock.frame {
             next_state.set(transition.state.clone());
             commands.remove_resource::<TransitionTimer<T>>()
         }
@@ -189,6 +184,7 @@ fn end_loading(
     mut next_match_state: ResMut<NextState<MatchState>>,
     mut commands: Commands,
     mut announcer: ResMut<Announcer>,
+    clock: Res<Clock>,
 ) {
     let two_players = ready_players.iter().count() == 2;
     let hooks_ran = hooked_children.iter().count() == 0;
@@ -212,7 +208,7 @@ fn end_loading(
 
         next_match_state.set(MatchState::PreRound);
         commands.insert_resource(TransitionTimer {
-            timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),
+            frame: clock.frame + (FPS * PRE_ROUND_DURATION) as usize,
             state: MatchState::Combat,
         });
     }

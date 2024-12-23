@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory, ItemCategory};
 use foundation::{
-    Icons, MatchState, Owner, Player, Players, RoundLog, ITEM_SLOT_COMPONENT_COLOR,
+    Clock, Icons, MatchState, Owner, Player, Players, RoundLog, FPS, ITEM_SLOT_COMPONENT_COLOR,
     ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR, ITEM_SLOT_HIGHLIGHT_COLOR,
     ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
 };
@@ -158,13 +158,13 @@ pub fn handle_shop_ending(
     mut commands: Commands,
     mut shops: ResMut<Shops>,
     mut next_state: ResMut<NextState<MatchState>>,
-    mut local_timer: Local<Option<Timer>>,
+    mut local_timer: Local<Option<usize>>,
     mut countdown_roots: Query<&mut Visibility>,
     mut countdown_texts: Query<&mut Text>,
     mut music: ResMut<Music>,
     mut announcer: ResMut<Announcer>,
-    time: Res<Time>,
     round_log: Res<RoundLog>,
+    clock: Res<Clock>,
 ) {
     commands.run_system_cached(camera::reset_camera);
     let round_num = round_log.rounds_played() + 1;
@@ -177,6 +177,7 @@ pub fn handle_shop_ending(
             &mut music,
             &mut announcer,
             round_num,
+            clock.frame,
         );
         *local_timer = None;
         return;
@@ -185,19 +186,20 @@ pub fn handle_shop_ending(
     let mut end = false;
     for shop in [&shops.player_one, &shops.player_two] {
         if shop.closed {
-            if let Some(timer) = &mut *local_timer {
-                timer.tick(time.delta());
-                end = timer.finished();
+            if let Some(transition_frame) = *local_timer {
+                if transition_frame <= clock.frame {
+                    end = true;
+                    break;
+                }
 
-                // Update text
-                let value =
-                    ((POST_SHOP_DURATION - timer.elapsed_secs()).floor() as i32).to_string();
+                let frames_left = (transition_frame - clock.frame) as f32;
+                let secs_left = (frames_left / FPS).ceil() as usize;
                 countdown_texts
                     .get_mut(shop.components.countdown_text)
                     .unwrap()
-                    .0 = value;
+                    .0 = secs_left.to_string();
             } else {
-                *local_timer = Some(Timer::from_seconds(POST_SHOP_DURATION, TimerMode::Once));
+                *local_timer = Some(clock.frame + (FPS * POST_SHOP_DURATION) as usize);
                 *countdown_roots.get_mut(shop.components.countdown).unwrap() =
                     Visibility::Inherited;
             }
@@ -213,6 +215,7 @@ pub fn handle_shop_ending(
             &mut music,
             &mut announcer,
             round_num,
+            clock.frame,
         );
         *local_timer = None;
     }
@@ -221,6 +224,7 @@ pub fn handle_shop_ending(
     // If one is closed and timer is not yet out -> make sure the counter is visible and up to date
 }
 
+#[allow(clippy::too_many_arguments)]
 fn end_shopping(
     shops: &mut Shops,
     next_state: &mut ResMut<NextState<MatchState>>,
@@ -229,12 +233,13 @@ fn end_shopping(
     music: &mut Music,
     announcer: &mut Announcer,
     round_num: usize,
+    clock_frame: usize,
 ) {
     next_state.set(MatchState::PreRound);
     announcer.round_start(round_num);
 
     commands.insert_resource(TransitionTimer {
-        timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),
+        frame: clock_frame + (FPS * PRE_ROUND_DURATION) as usize,
         state: MatchState::Combat,
     });
 

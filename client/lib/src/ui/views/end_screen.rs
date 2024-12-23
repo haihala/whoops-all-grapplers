@@ -7,8 +7,8 @@ use crate::{
 };
 use bevy::prelude::*;
 use foundation::{
-    Controllers, GameButton, GameResult, GameState, InputEvent, InputStream, MatchState, Player,
-    RoundLog, SoundRequest, StickPosition, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR,
+    Clock, Controllers, GameButton, GameResult, GameState, InputEvent, InputStream, MatchState,
+    Player, RoundLog, SoundRequest, StickPosition, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR,
     GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
@@ -162,6 +162,7 @@ pub fn navigate_end_screen(
     mut next_match_state: ResMut<NextState<MatchState>>,
     mut quitter: EventWriter<AppExit>,
     mut log: ResMut<RoundLog>,
+    clock: Res<Clock>,
 ) {
     for ev in input_stream.events.clone() {
         let Some(player) = controllers.get_player(ev.player_handle) else {
@@ -180,9 +181,10 @@ pub fn navigate_end_screen(
                     EndScreenOption::Rematch => {
                         nav.lock_in(player);
                         if nav.both_locked() {
-                            next_match_state.set(MatchState::None); // This will despawn shit
+                            // Despawn state scoped entities
+                            next_match_state.set(MatchState::None);
                             commands.insert_resource(TransitionTimer {
-                                timer: Timer::from_seconds(0.0, TimerMode::Once),
+                                frame: clock.frame + 1,
                                 state: MatchState::Loading,
                             });
                             log.clear();

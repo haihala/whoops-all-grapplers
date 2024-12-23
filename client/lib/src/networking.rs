@@ -42,7 +42,6 @@ impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<InputStream>()
             .add_systems(OnEnter(GameState::Online(OnlineState::Lobby)), setup_socket)
-            .add_systems(OnExit(GameState::Online(OnlineState::Match)), teardown)
             .add_systems(
                 FixedUpdate,
                 wait_for_players.run_if(in_state(GameState::Online(OnlineState::Lobby))),
@@ -159,7 +158,7 @@ fn setup_socket(mut commands: Commands) {
     commands.insert_resource(MatchboxSocket::from(sock));
 }
 
-fn teardown(mut commands: Commands) {
+pub fn network_teardown(commands: &mut Commands) {
     commands.remove_resource::<MatchboxSocket>();
     commands.remove_resource::<bevy_ggrs::Session<Config>>();
     commands.remove_resource::<bevy_ggrs::LocalInputs<Config>>();

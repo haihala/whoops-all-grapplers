@@ -1,6 +1,7 @@
 use crate::{
     assets::Fonts,
     entity_management::VisibleInStates,
+    networking,
     state_transitions::TransitionTimer,
     ui::{SharedVerticalNav, VerticalMenuNavigation},
 };
@@ -156,6 +157,7 @@ pub fn navigate_end_screen(
     input_stream: ResMut<InputStream>,
     controllers: Res<Controllers>,
     options: Query<&EndScreenOption>,
+    game_state: ResMut<State<GameState>>,
     mut next_game_state: ResMut<NextState<GameState>>,
     mut next_match_state: ResMut<NextState<MatchState>>,
     mut quitter: EventWriter<AppExit>,
@@ -189,6 +191,10 @@ pub fn navigate_end_screen(
                         next_game_state.set(GameState::MainMenu);
                         next_match_state.set(MatchState::None);
                         log.clear();
+
+                        if game_state.get().is_online() {
+                            networking::network_teardown(&mut commands);
+                        }
                     }
                     EndScreenOption::QuitToDesktop => {
                         quitter.send_default();

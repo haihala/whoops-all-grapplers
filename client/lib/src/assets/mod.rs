@@ -84,9 +84,6 @@ impl Plugin for AssetsPlugin {
             .add_systems(OnEnter(MatchState::Shop), |mut music: ResMut<Music>| {
                 music.push(Sound::WaitingMusic)
             })
-            .add_systems(OnExit(MatchState::Shop), |mut music: ResMut<Music>| {
-                music.pop()
-            })
             .add_systems(
                 OnEnter(MatchState::EndScreen),
                 |mut music: ResMut<Music>| music.pop(),

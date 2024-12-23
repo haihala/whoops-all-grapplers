@@ -6,7 +6,7 @@ use foundation::{
     ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
 };
 
-use crate::state_transitions::TransitionTimer;
+use crate::{assets::Music, state_transitions::TransitionTimer};
 
 use super::{
     setup_shop::{ShopItem, ShopMoney, ShopScore},
@@ -157,6 +157,7 @@ pub fn handle_shop_ending(
     mut local_timer: Local<Option<Timer>>,
     mut countdown_roots: Query<&mut Visibility>,
     mut countdown_texts: Query<&mut Text>,
+    mut music: ResMut<Music>,
     time: Res<Time>,
 ) {
     if shops.player_one.closed && shops.player_two.closed {
@@ -165,6 +166,7 @@ pub fn handle_shop_ending(
             &mut next_state,
             &mut commands,
             &mut countdown_roots,
+            &mut music,
         );
         *local_timer = None;
         return;
@@ -198,6 +200,7 @@ pub fn handle_shop_ending(
             &mut next_state,
             &mut commands,
             &mut countdown_roots,
+            &mut music,
         );
         *local_timer = None;
     }
@@ -211,6 +214,7 @@ fn end_shopping(
     next_state: &mut ResMut<NextState<MatchState>>,
     commands: &mut Commands,
     countdown_roots: &mut Query<&mut Visibility>,
+    music: &mut Music,
 ) {
     next_state.set(MatchState::PreRound);
 
@@ -218,6 +222,8 @@ fn end_shopping(
         timer: Timer::from_seconds(PRE_ROUND_DURATION, TimerMode::Once),
         state: MatchState::Combat,
     });
+
+    music.pop();
 
     for shop in [&mut shops.player_one, &mut shops.player_two] {
         shop.closed = false;

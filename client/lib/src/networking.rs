@@ -155,13 +155,12 @@ fn setup_socket(mut commands: Commands) {
     info!("connecting to matchbox server: {room_url}");
     let sock = WebRtcSocketBuilder::new(room_url)
         .add_reliable_channel()
-        .add_ggrs_channel()
         .build();
     commands.insert_resource(MatchboxSocket::from(sock));
 }
 
 fn teardown(mut commands: Commands) {
-    commands.remove_resource::<MatchboxSocket<MultipleChannels>>();
+    commands.remove_resource::<MatchboxSocket>();
     commands.remove_resource::<bevy_ggrs::Session<Config>>();
     commands.remove_resource::<bevy_ggrs::LocalInputs<Config>>();
 
@@ -183,7 +182,7 @@ enum ConnectionState {
 fn wait_for_players(
     mut commands: Commands,
     mut connection_state: Local<ConnectionState>,
-    mut socket: ResMut<MatchboxSocket<MultipleChannels>>,
+    mut socket: ResMut<MatchboxSocket>,
     local_character: Res<LocalCharacter>,
     local_controls: Res<LocalController>,
     args: Res<WagArgs>,

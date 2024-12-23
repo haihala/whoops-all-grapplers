@@ -1,12 +1,12 @@
 [workspace]
 resolver = "2"
 members = [
-    "characters",
-    "input_parsing",
-    "lib",
-    "main",
-    "player_state",
-    "foundation",
+  "characters",
+  "input_parsing",
+  "lib",
+  "main",
+  "player_state",
+  "foundation",
 ]
 
 [profile.dev]
@@ -19,10 +19,8 @@ opt-level = 3
 [workspace.dependencies]
 bevy = "0.15"
 bevy-inspector-egui = "0.28"
-bevy_matchbox = { git = "https://github.com/haihala/matchbox.git", features = [
-    "ggrs",
-] }
-bevy_ggrs = { git = "https://github.com/johanhelsing/bevy_ggrs.git", branch = "bevy-0.15" }
+bevy_matchbox = { version = "0.11", features = ["ggrs"] }
+bevy_ggrs = "0.17"
 
 rand = "0.8"
 strum = "0.26"

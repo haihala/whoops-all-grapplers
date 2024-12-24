@@ -12,7 +12,6 @@ This is the one stop shop for what's up in the project
 
 - Character 2
   - Animations
-  - Materials (pinstripes and skin)
 - Tutorial (mostly text)
 - Pretty loading screen (Move lists)
 - Settings (volume and keybinds)
@@ -55,10 +54,11 @@ Low priority do later tasks
 ### Known issues
 
 - Network bugs
+  - Ghost objects
+- Maybe fixed
   - Sometimes synctest spawns with 0 kunais
   - Immediate desync on some starts
     - Seems like a system ordering inconsistency
-  - Ghost objects
 
 ### Under review
 

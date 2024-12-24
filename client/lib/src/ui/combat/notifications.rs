@@ -71,6 +71,8 @@ pub fn setup_combo_counter(commands: &mut Commands, parent: Entity, player: Play
                 ..default()
             },
             VisibleInStates(vec![MatchState::Combat, MatchState::PostRound]),
+            Visibility::Inherited,
+            Name::new("Combo counter"),
         ))
         .set_parent(parent)
         .with_children(|cb| {
@@ -89,6 +91,7 @@ pub fn setup_combo_counter(commands: &mut Commands, parent: Entity, player: Play
                     ..default()
                 },
                 ComboCounter(player),
+                Visibility::Inherited,
             ))
             .with_children(|mb| {
                 let style_bundle = (
@@ -188,7 +191,7 @@ fn spawn_notification(
 
 #[allow(clippy::type_complexity)]
 pub fn update_combo_counters(
-    player_query: Query<(Option<&Combo>, &Player, &Gauges)>,
+    player_query: Query<(&Combo, &Player, &Gauges)>,
     players: Res<Players>,
     mut roots: Query<(&mut Visibility, &ComboCounter, &Children)>,
     mut texts: ParamSet<(
@@ -204,14 +207,14 @@ pub fn update_combo_counters(
 
     for player in [Player::One, Player::Two] {
         let entity = players.get(player);
-        let [(maybe_combo, _, _), (_, _, resources)] = player_query
+        let [(combo, _, _), (_, _, resources)] = player_query
             .get_many([entity, players.get_other_entity(entity)])
             .unwrap();
 
         let (mut root_visibility, _, children) =
             roots.iter_mut().find(|(_, cc, _)| cc.0 == player).unwrap();
 
-        let Some(combo) = maybe_combo else {
+        if !combo.ongoing() {
             *root_visibility = Visibility::Hidden;
             continue;
         };

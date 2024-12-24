@@ -17,12 +17,20 @@ use crate::{assets::Fonts, entity_management::VisibleInStates};
 #[derive(Debug, Component, Deref)]
 pub struct ScoreText(pub Player);
 
+#[derive(Debug, Component)]
+pub struct CombatUI;
+
 pub fn setup_combat_hud(
     mut commands: Commands,
     fonts: Res<Fonts>,
     properties: Query<&Gauges>,
     players: Res<Players>,
+    existing_huds: Query<Entity, With<CombatUI>>,
 ) {
+    for entity in &existing_huds {
+        commands.entity(entity).despawn_recursive();
+    }
+
     let container = commands
         .spawn((
             Node {
@@ -38,6 +46,7 @@ pub fn setup_combat_hud(
             VisibleInStates(vec![MatchState::Combat, MatchState::PostRound]),
             StateScoped(InMatch),
             Name::new("Combat UI container"),
+            CombatUI,
         ))
         .id();
 
@@ -72,15 +81,18 @@ fn setup_player_hud(
     properties: &Gauges,
 ) {
     let container = commands
-        .spawn(Node {
-            flex_direction: FlexDirection::Column,
-            justify_content: JustifyContent::SpaceBetween,
-            align_items: AlignItems::Center,
-            margin: UiRect::all(Val::Px(3.0)),
-            width: Val::Percent(width_percentage),
-            height: Val::Percent(100.0),
-            ..default()
-        })
+        .spawn((
+            Node {
+                flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::SpaceBetween,
+                align_items: AlignItems::Center,
+                margin: UiRect::all(Val::Px(3.0)),
+                width: Val::Percent(width_percentage),
+                height: Val::Percent(100.0),
+                ..default()
+            },
+            Name::new("Player HUD"),
+        ))
         .set_parent(parent)
         .id();
 

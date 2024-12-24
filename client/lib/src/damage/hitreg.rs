@@ -54,7 +54,7 @@ pub struct HitPlayerQuery<'a> {
     facing: &'a CharacterFacing,
     spawner: &'a mut HitboxSpawner,
     stats: &'a Stats,
-    combo: Option<&'a mut Combo>,
+    combo: &'a mut Combo,
     character: &'a Character,
     inventory: &'a Inventory,
 }
@@ -333,7 +333,7 @@ pub fn apply_connections(
             clock.frame,
             attacker.tf.translation,
             attacker.facing.to_owned(),
-            attacker.combo.as_ref().map(|c| **c),
+            attacker.combo.to_owned(),
         );
         let HitEffect {
             attacker: mut attacker_actions,
@@ -349,14 +349,13 @@ pub fn apply_connections(
         );
 
         if !avoided {
-            if let Some(mut combo) = attacker.combo {
-                combo.hits += 1;
+            if attacker.combo.ongoing() {
+                attacker.combo.hits += 1;
             } else {
                 // First hit of a combo
-                commands.entity(hit.attacker).insert(Combo {
-                    hits: 1,
-                    old_health: defender.properties.get(GaugeType::Health).unwrap().current,
-                });
+                attacker
+                    .combo
+                    .start_at(defender.properties.get(GaugeType::Health).unwrap().current);
 
                 commands.trigger(SoundRequest::from(Sound::Matches));
                 notifications.add(*attacker.player, "Opener!".to_owned());

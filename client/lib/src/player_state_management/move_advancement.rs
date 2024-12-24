@@ -20,7 +20,7 @@ pub(super) fn move_advancement(
         &Stats,
         &CharacterFacing,
         Entity,
-        Option<&Combo>,
+        &Combo,
     )>,
 ) {
     for (
@@ -51,7 +51,7 @@ pub(super) fn move_advancement(
                 clock.frame,
                 tf.translation,
                 *facing,
-                combo.copied(),
+                combo.to_owned(),
             ) {
                 commands.trigger_targets(event, entity)
             }

@@ -90,7 +90,7 @@ impl PlayerState {
         frame: usize,
         player_position: Vec3,
         player_facing: CharacterFacing,
-        combo: Option<Combo>,
+        combo: Combo,
     ) -> Vec<ActionEvent> {
         let situation = self.build_situation(
             inventory,
@@ -117,7 +117,7 @@ impl PlayerState {
         frame: usize,
         player_position: Vec3,
         player_facing: CharacterFacing,
-        combo: Option<Combo>,
+        combo: Combo,
     ) -> Situation {
         Situation {
             inventory,

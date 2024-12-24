@@ -17,7 +17,7 @@ pub struct Situation {
     pub stick_position: StickPosition,
     pub held_buttons: HashSet<GameButton>,
     pub position: Vec3,
-    pub combo: Option<Combo>,
+    pub combo: Combo,
     pub stunned: bool,
 }
 impl Situation {

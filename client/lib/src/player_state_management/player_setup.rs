@@ -73,6 +73,7 @@ struct PlayerDefaults {
     state: PlayerState,
     status_effects: Stats,
     visibility: Visibility,
+    combo: Combo,
 }
 
 fn spawn_player(
@@ -162,9 +163,8 @@ pub fn reset_combat(
         &mut AnimationHelper,
         &mut Hurtboxes,
         &mut CharacterClock,
-        Entity,
+        &mut Combo,
     )>,
-    mut commands: Commands,
     mut clock: ResMut<Clock>,
     mut round_result: ResMut<RoundLog>,
 ) {
@@ -188,7 +188,7 @@ pub fn reset_combat(
         mut animation_helper,
         mut hurtboxes,
         mut char_clock,
-        entity,
+        mut combo,
     ) in &mut query
     {
         resources.reset(stats);
@@ -199,7 +199,7 @@ pub fn reset_combat(
         animation_helper.reset();
         hurtboxes.reset();
         char_clock.reset();
-        commands.entity(entity).remove::<Combo>();
+        combo.reset();
 
         tf.translation = Vec3::new(
             match *player {

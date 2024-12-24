@@ -93,7 +93,7 @@ pub(super) fn move_activator(
         &InputParser,
         &CharacterFacing,
         &mut CharacterClock,
-        Option<&Combo>,
+        &Combo,
     )>,
 ) {
     // Activate and clear activating move
@@ -128,7 +128,7 @@ pub(super) fn move_activator(
                 clock.frame,
                 tf.translation,
                 *facing,
-                combo.copied(),
+                combo.to_owned(),
             );
 
             let situation_moves =

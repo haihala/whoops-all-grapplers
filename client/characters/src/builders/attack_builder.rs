@@ -738,7 +738,7 @@ impl StrikeEffectBuilder {
                 .unwrap()
                 .current;
 
-            let (effect, offset, rotation) = if situation.combo.is_some() {
+            let (effect, offset, rotation) = if situation.combo.ongoing() {
                 (VisualEffect::Hit, Vec2::ZERO, Quat::default())
             } else {
                 // First hit gets a fancier effect

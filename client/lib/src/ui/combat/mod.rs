@@ -34,6 +34,7 @@ pub fn setup_combat_hud(
                 justify_content: JustifyContent::SpaceBetween,
                 ..default()
             },
+            Visibility::Hidden,
             VisibleInStates(vec![MatchState::Combat, MatchState::PostRound]),
             StateScoped(InMatch),
             Name::new("Combat UI container"),

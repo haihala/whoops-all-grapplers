@@ -11,8 +11,8 @@ pub use player_velocity::PlayerVelocity;
 use bevy::prelude::*;
 
 use foundation::{
-    Area, CharacterFacing, Clock, Combo, Player, Players, RollbackSchedule, Stats, StatusFlag,
-    SystemStep, FPS,
+    Area, CharacterClock, CharacterFacing, Clock, Combo, Player, Players, RollbackSchedule, Stats,
+    StatusFlag, SystemStep, FPS,
 };
 use player_state::PlayerState;
 
@@ -180,16 +180,16 @@ fn set_target_position(mut query: Query<(&Transform, &PlayerState, &mut PlayerVe
 
 #[allow(clippy::type_complexity)]
 fn resolve_floor(
-    clock: Res<Clock>,
     mut players: Query<(
         &mut PlayerVelocity,
         &mut PlayerState,
         &mut HitboxSpawner,
         &mut Transform,
         &Pushbox,
+        &CharacterClock,
     )>,
 ) {
-    for (mut velocity, mut state, mut spawner, tf, pushbox) in &mut players {
+    for (mut velocity, mut state, mut spawner, tf, pushbox, clock) in &mut players {
         let on_floor =
             pushbox.with_center(tf.translation.truncate()).bottom() <= GROUND_PLANE_HEIGHT;
 

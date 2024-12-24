@@ -1,12 +1,16 @@
 use bevy::prelude::*;
 
-use foundation::{Clock, COMBAT_DURATION, ROUND_TIMER_TEXT_COLOR};
+use foundation::{Clock, COMBAT_DURATION, FPS, MAX_COMBAT_DURATION, ROUND_TIMER_TEXT_COLOR};
 
 #[derive(Debug, Component)]
 pub struct RoundTimer;
 
 pub fn update_timer(query: Single<&mut Text, With<RoundTimer>>, clock: Res<Clock>) {
-    query.into_inner().0 = clock.timer_value.to_string();
+    let elapsed_secs = clock.relative_frame() as f32 / FPS;
+    let secs_left = (MAX_COMBAT_DURATION - elapsed_secs)
+        .clamp(0.0, COMBAT_DURATION - 1.0)
+        .ceil() as usize;
+    query.into_inner().0 = secs_left.to_string();
 }
 
 pub fn setup_timer(

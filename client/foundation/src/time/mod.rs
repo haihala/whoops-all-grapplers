@@ -13,29 +13,23 @@ pub const ON_THROW_HITSTOP: usize = 12;
 
 pub const ROUNDS_TO_WIN: usize = 3;
 pub const PRE_ROUND_DURATION: f32 = 2.0;
-pub const COMBAT_DURATION: f32 = 99.0;
+pub const COMBAT_DURATION: f32 = 100.0;
+pub const MAX_COMBAT_DURATION: f32 = COMBAT_DURATION + PRE_ROUND_DURATION;
 pub const POST_ROUND_DURATION: f32 = 4.0;
 pub const POST_SHOP_DURATION: f32 = 11.0;
 
-#[derive(Reflect, Resource, Debug, Clone, Copy)]
+#[derive(Reflect, Resource, Debug, Clone, Copy, Default)]
 pub struct Clock {
-    pub frame: usize,
-    pub done: bool,
-    pub timer_value: usize,
-}
-impl FromWorld for Clock {
-    fn from_world(_world: &mut World) -> Self {
-        Self {
-            frame: 0,
-            done: false,
-            timer_value: COMBAT_DURATION as usize,
-        }
-    }
+    pub frame: usize,      // This will always tick every frame
+    pub base_frame: usize, // This points to the previous round start
 }
 impl Clock {
     pub fn reset(&mut self) {
-        self.frame = 0;
-        self.done = false;
+        self.base_frame = self.frame;
+    }
+
+    pub fn relative_frame(&self) -> usize {
+        self.frame - self.base_frame
     }
 }
 
@@ -141,18 +135,8 @@ impl Plugin for TimePlugin {
 }
 
 fn global_clock_update(mut clock: ResMut<Clock>) {
+    dbg!(&clock);
     clock.frame += 1;
-
-    if clock.done {
-        return;
-    }
-
-    // This updates timer
-    let elapsed = clock.frame as f32 / FPS;
-    clock.timer_value = (COMBAT_DURATION + PRE_ROUND_DURATION - elapsed)
-        .clamp(0.0, COMBAT_DURATION)
-        .ceil() as usize;
-    clock.done = clock.timer_value == 0;
 }
 
 fn character_clock_update(mut query: Query<(&mut CharacterClock, Option<&Hitstop>)>) {

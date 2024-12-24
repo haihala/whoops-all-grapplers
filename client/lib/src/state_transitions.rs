@@ -4,7 +4,8 @@ use characters::{Character, GaugeType, Gauges, Inventory};
 use foundation::{
     Clock, GameResult, GameState, InCharacterSelect, InMatch, MatchState, Player, RollbackSchedule,
     RoundLog, RoundResult, Sound, SoundRequest, SystemStep, VoiceLine, BASE_ROUND_MONEY, FPS,
-    POST_ROUND_DURATION, PRE_ROUND_DURATION, ROUNDS_TO_WIN, ROUND_MONEY_BUILDUP, VICTORY_BONUS,
+    MAX_COMBAT_DURATION, POST_ROUND_DURATION, PRE_ROUND_DURATION, ROUNDS_TO_WIN,
+    ROUND_MONEY_BUILDUP, VICTORY_BONUS,
 };
 use input_parsing::InputParser;
 
@@ -55,18 +56,12 @@ pub fn end_combat(
     mut music: ResMut<Music>,
     mut animation_players: Query<&mut AnimationPlayer>,
 ) {
-    let round_over = players
+    let player_dead = players
         .iter()
-        .filter_map(|(properties, player, _, _)| {
-            if properties.get(GaugeType::Health).unwrap().is_empty() {
-                None
-            } else {
-                Some(player)
-            }
-        })
-        .count()
-        != 2
-        || clock.done;
+        .any(|(properties, _, _, _)| properties.get(GaugeType::Health).unwrap().is_empty());
+
+    let time_out = clock.relative_frame() as f32 / FPS >= MAX_COMBAT_DURATION;
+    let round_over = player_dead || time_out;
 
     if !round_over {
         return;

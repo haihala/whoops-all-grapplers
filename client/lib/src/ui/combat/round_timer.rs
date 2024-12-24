@@ -5,12 +5,15 @@ use foundation::{Clock, COMBAT_DURATION, FPS, MAX_COMBAT_DURATION, ROUND_TIMER_T
 #[derive(Debug, Component)]
 pub struct RoundTimer;
 
-pub fn update_timer(query: Single<&mut Text, With<RoundTimer>>, clock: Res<Clock>) {
+pub fn update_timer(mut query: Query<&mut Text, With<RoundTimer>>, clock: Res<Clock>) {
     let elapsed_secs = clock.relative_frame() as f32 / FPS;
     let secs_left = (MAX_COMBAT_DURATION - elapsed_secs)
         .clamp(0.0, COMBAT_DURATION - 1.0)
         .ceil() as usize;
-    query.into_inner().0 = secs_left.to_string();
+
+    for mut txt in &mut query {
+        txt.0 = secs_left.to_string();
+    }
 }
 
 pub fn setup_timer(

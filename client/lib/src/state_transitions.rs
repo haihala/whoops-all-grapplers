@@ -11,7 +11,6 @@ use input_parsing::InputParser;
 
 use crate::{
     assets::{Announcer, AssetsLoading, Music, PlayerModelHook},
-    networking,
     ui::{self, Notifications},
 };
 
@@ -175,7 +174,6 @@ fn end_loading(
     hooked_children: Query<&PlayerModelHook>,
     loading_assets: Res<AssetsLoading>,
     server: Res<AssetServer>,
-    game_state: Res<State<GameState>>,
     mut next_match_state: ResMut<NextState<MatchState>>,
     mut commands: Commands,
     mut announcer: ResMut<Announcer>,
@@ -197,9 +195,6 @@ fn end_loading(
         announcer.round_start(1);
         commands.run_system_cached(ui::setup_shop);
         commands.run_system_cached(ui::setup_combat_hud);
-        if *game_state.get() == GameState::Synctest {
-            commands.run_system_cached(networking::start_synctest_session);
-        }
 
         next_match_state.set(MatchState::PreRound);
         commands.insert_resource(TransitionTimer {

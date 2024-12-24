@@ -94,12 +94,12 @@ impl Plugin for TimePlugin {
                     SystemStep::Menus,
                     SystemStep::Conditions,
                     SystemStep::SpawnPlayers,
-                    SystemStep::RoundReset,
                     SystemStep::StateTransitions,
                     SystemStep::Inputs,
                 )
                     .chain(),
                 (
+                    SystemStep::RoundReset,
                     SystemStep::SideSwitch,
                     SystemStep::Pickups,
                     SystemStep::Movement,
@@ -135,7 +135,6 @@ impl Plugin for TimePlugin {
 }
 
 fn global_clock_update(mut clock: ResMut<Clock>) {
-    dbg!(&clock);
     clock.frame += 1;
 }
 

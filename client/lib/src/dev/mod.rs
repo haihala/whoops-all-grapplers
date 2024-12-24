@@ -40,8 +40,7 @@ impl Plugin for DevPlugin {
             .register_type::<Stats>()
             .register_type::<InputParser>()
             .register_type::<ParrotStream>()
-            .add_systems(Startup, setup_gizmos)
-            .add_systems(Last, skip_menus)
+            .add_systems(Startup, (setup_gizmos, skip_menus))
             .add_systems(
                 RollbackSchedule,
                 (
@@ -72,11 +71,7 @@ fn skip_menus(
     mut next_match_state: ResMut<NextState<MatchState>>,
     args: Res<WagArgs>,
     pad_query: Query<Entity, With<Gamepad>>,
-    mut has_ran: Local<bool>,
 ) {
-    if *has_ran {
-        return;
-    }
     let Some(dev_mode) = args.dev else {
         panic!("In dev plugin but not in dev mode")
     };
@@ -133,9 +128,9 @@ fn skip_menus(
                 p1: local_character,
                 p2: local_character,
             });
+            commands.run_system_cached(networking::start_synctest_session);
         }
     }
-    *has_ran = true;
 }
 
 fn shader_test_system(

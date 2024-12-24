@@ -57,6 +57,7 @@ pub struct RollbackSchedule;
 #[derive(Debug, SystemSet, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum SystemStep {
     Clock,
+    SetupPlayerGLTF,
     EntityManagement,
     Menus,
     StateTransitions,
@@ -90,6 +91,7 @@ impl Plugin for TimePlugin {
             (
                 (
                     SystemStep::Clock,
+                    SystemStep::SetupPlayerGLTF,
                     SystemStep::EntityManagement,
                     SystemStep::Menus,
                     SystemStep::Conditions,

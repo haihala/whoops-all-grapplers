@@ -19,7 +19,7 @@ use player_state::PlayerState;
 use strum::IntoEnumIterator;
 
 use crate::{
-    assets::{AnimationHelper, CharacterShake, ExtendedFlashMaterial},
+    assets::{AnimationHelper, AnimationHelperSetup, CharacterShake, ExtendedFlashMaterial},
     camera::{ChildCameraEffects, RootCameraEffects},
     damage::{HitTracker, HitboxSpawner, LifetimeFlags, ProjectileMarker},
     entity_management::DespawnMarker,
@@ -92,6 +92,7 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_clone::<PlayerState>()
             .rollback_component_with_clone::<PlayerVelocity>()
             .rollback_component_with_copy::<AnimationHelper>()
+            .rollback_component_with_copy::<AnimationHelperSetup>()
             .rollback_component_with_copy::<CharacterClock>()
             .rollback_component_with_copy::<CharacterFacing>()
             .rollback_component_with_copy::<CharacterShake>()

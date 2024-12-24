@@ -64,9 +64,10 @@ impl Plugin for AssetsPlugin {
             )
             .add_systems(PostStartup, music::setup_music)
             .add_systems(
-                First,
+                RollbackSchedule,
                 (animations::setup_helpers, models::prep_player_gltf)
-                    .run_if(in_state(MatchState::Loading)),
+                    .run_if(in_state(MatchState::Loading))
+                    .in_set(SystemStep::SetupPlayerGLTF),
             )
             .add_systems(
                 RollbackSchedule,

@@ -10,7 +10,7 @@ use foundation::{
 use input_parsing::InputParser;
 
 use crate::{
-    assets::{Announcer, AssetsLoading, Music, PlayerModelHook},
+    assets::{AnimationHelper, Announcer, AssetsLoading, Music, PlayerModelHook},
     ui::{self, Notifications},
 };
 
@@ -170,7 +170,7 @@ fn transition_after_timer<T: FreelyMutableState>(
 
 #[allow(clippy::too_many_arguments)]
 fn end_loading(
-    ready_players: Query<&Player>,
+    ready_players: Query<&AnimationHelper>,
     hooked_children: Query<&PlayerModelHook>,
     loading_assets: Res<AssetsLoading>,
     server: Res<AssetServer>,

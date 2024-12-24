@@ -44,25 +44,26 @@ impl AnimationHelper {
         }
     }
 }
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Clone, Copy)]
 pub struct AnimationHelperSetup(pub Animation);
 
 pub fn setup_helpers(
     mut commands: Commands,
-    to_setup: Query<(Entity, &AnimationHelperSetup)>,
+    to_setup: Query<(Entity, &AnimationHelperSetup), Without<AnimationHelper>>,
     children: Query<&Children>,
     players: Query<&AnimationPlayer>,
     scenes: Query<&SceneInstance>,
     animations: Res<Animations>,
 ) {
-    for (host_entity, helper) in &to_setup {
+    for (host_entity, setup_marker) in &to_setup {
         if let (Some(animation_player), Some(scene_root)) =
             find_animation_player_entity(host_entity, &children, &players, &scenes)
         {
-            commands
-                .entity(host_entity)
-                .remove::<AnimationHelperSetup>()
-                .insert(AnimationHelper::new(animation_player, scene_root, helper.0));
+            commands.entity(host_entity).insert(AnimationHelper::new(
+                animation_player,
+                scene_root,
+                setup_marker.0,
+            ));
 
             commands
                 .entity(animation_player)

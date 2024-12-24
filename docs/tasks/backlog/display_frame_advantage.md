@@ -1,1 +1,0 @@
-Not in default game, but in dev mode / training mode

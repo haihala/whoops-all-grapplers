@@ -2,7 +2,7 @@
 - Community
 	- Pull often distinct orbiting communities into a larger melting pot
 	- Discord
-		- Matchmaking integration (See [Netplay 2.0](/docs/tasks/backlog/netplay_2.0.md))
+		- Matchmaking integration
 		- Emotes for motions (Establish names for weird ones)
 	- Weekly tournaments
 		- Winners will be shown in the main menu / discord

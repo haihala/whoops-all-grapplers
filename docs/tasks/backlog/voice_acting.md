@@ -1,1 +1,0 @@
-- [Samurai](/docs/gameplay_spec/characters/samurai.md) idle barks

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_ggrs::{AddRollbackCommandExtension, Rollback};
 use foundation::{Clock, GameState, InMatch, MatchState, RollbackSchedule, SystemStep};
 
 #[derive(Component, Copy, Clone)]
@@ -17,6 +18,7 @@ impl Plugin for EntityManagementPlugin {
                 update_visibility_on_state_change::<GameState>,
                 update_visibility_on_state_change::<MatchState>,
                 despawn_marked,
+                recurse_rollback,
             )
                 .chain()
                 .in_set(SystemStep::EntityManagement),
@@ -54,6 +56,21 @@ fn update_visibility_on_state_change<T: States>(
             } else {
                 Visibility::Hidden
             };
+        }
+    }
+}
+
+fn recurse_rollback(
+    mut commands: Commands,
+    children: Query<&Children>,
+    rollbacks: Query<Entity, With<Rollback>>,
+    no_rollbacks: Query<Entity, Without<Rollback>>,
+) {
+    for root in &rollbacks {
+        for child in children.iter_descendants(root) {
+            if no_rollbacks.contains(child) {
+                commands.entity(child).add_rollback();
+            }
         }
     }
 }

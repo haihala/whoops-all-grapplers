@@ -70,6 +70,7 @@ fn setup_gizmos(mut config_store: ResMut<GizmoConfigStore>) {
     config.depth_bias = -1.0;
 }
 
+// FIXME: This is broken atm, because it runs before the controllers are present
 fn skip_menus(
     mut commands: Commands,
     mut next_game_state: ResMut<NextState<GameState>>,

@@ -10,9 +10,9 @@ use bevy_matchbox::prelude::*;
 use characters::{Attack, Gauges, Hitbox, Hurtboxes, Inventory};
 use foundation::{
     Area, CharacterClock, CharacterFacing, Characters, Clock, Combo, Controllers, GameState,
-    Hitstop, InputDevice, InputState, InputStream, LocalCharacter, LocalController, MatchState,
-    NetworkInputButton, OnlineState, OwnedInput, Owner, Pickup, Player, RollbackSchedule, RoundLog,
-    Stats, WagArgs, STICK_DEAD_ZONE,
+    Hitstop, InputDevice, InputStream, LocalCharacter, LocalController, MatchState,
+    NetworkInputButton, OnlineState, Owner, Pickup, Player, RollbackSchedule, RoundLog, Stats,
+    WagArgs, STICK_DEAD_ZONE,
 };
 use input_parsing::{InputParser, ParrotStream};
 use player_state::PlayerState;
@@ -320,11 +320,9 @@ fn read_local_inputs(
     match local_controls.0 {
         InputDevice::Controller(entity) => {
             let gamepad = pad_query.get(entity).unwrap();
-            for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
-                if gamepad.pressed(wag_button.to_gamepad_button_type()) {
-                    input |= 1 << shift;
-                }
-            }
+            input |= NetworkInputButton::serialize(|nw_btn: NetworkInputButton| {
+                gamepad.pressed(nw_btn.to_gamepad_button_type())
+            });
 
             if let (Some(stick_x), Some(stick_y)) = (
                 gamepad.get(GamepadAxis::LeftStickX),
@@ -354,11 +352,9 @@ fn read_local_inputs(
             }
         }
         InputDevice::Keyboard => {
-            for (shift, wag_button) in NetworkInputButton::iter().enumerate() {
-                if keyboard_keys.pressed(wag_button.to_keycode()) {
-                    input |= 1 << shift;
-                }
-            }
+            input |= NetworkInputButton::serialize(|nw_btn: NetworkInputButton| {
+                keyboard_keys.pressed(nw_btn.to_keycode())
+            });
         }
         InputDevice::Online(_) => {
             error!("We should never have online input devices here");
@@ -377,10 +373,10 @@ fn generate_offline_input_streams(
     keys: Res<ButtonInput<KeyCode>>,
     pad_query: Query<(Entity, &Gamepad)>,
 ) {
-    let mut new_states = HashMap::<InputDevice, InputState>::new();
+    let mut new_states = HashMap::<InputDevice, u16>::new();
 
     for (entity, pad) in &pad_query {
-        let mut state = InputState::default();
+        let mut state = vec![];
         let mut stick: IVec2 = default();
 
         // Buttons
@@ -402,10 +398,7 @@ fn generate_offline_input_streams(
                     }
                     // Other buttons
                     _ => {
-                        // This filters out unused buttons
-                        if let Ok(btn) = nb.try_into() {
-                            state.pressed.insert(btn);
-                        }
+                        state.push(nb);
                     }
                 }
             }
@@ -426,13 +419,17 @@ fn generate_offline_input_streams(
         // Clamps values from -1 to 1 (in cases where dpad and analog stick press the same way)
         stick.x = stick.x.signum();
         stick.y = stick.y.signum();
-        state.stick_position = stick.into();
 
-        new_states.insert(InputDevice::Controller(entity), state);
+        state.extend(NetworkInputButton::from_stick(stick));
+
+        new_states.insert(
+            InputDevice::Controller(entity),
+            NetworkInputButton::serialize(|nw_btn| state.contains(&nw_btn)),
+        );
     }
 
     // Add keyboard
-    let mut kb_state = InputState::default();
+    let mut kb_state = vec![];
     let mut kb_stick: IVec2 = default();
 
     // Buttons
@@ -455,46 +452,39 @@ fn generate_offline_input_streams(
                 // Other buttons
                 _ => {
                     // This filters out unused buttons
-                    if let Ok(btn) = nb.try_into() {
-                        kb_state.pressed.insert(btn);
-                    }
+                    kb_state.push(nb);
                 }
             }
         }
     }
 
-    kb_state.stick_position = kb_stick.into();
+    kb_state.extend(NetworkInputButton::from_stick(kb_stick));
 
-    new_states.insert(InputDevice::Keyboard, kb_state);
+    new_states.insert(
+        InputDevice::Keyboard,
+        NetworkInputButton::serialize(|nw_btn| kb_state.contains(&nw_btn)),
+    );
 
     // Compare to previous state
-    for (pad, new_state) in new_states.iter() {
-        let old_state = stream.input_states.entry(*pad).or_default();
-        for event in old_state.changes_to(new_state) {
-            // Send events if differences noted
-            stream.events.push(OwnedInput {
-                event,
-                player_handle: *pad,
-            });
-        }
-        // Save new state
-        stream.input_states.insert(*pad, new_state.clone());
+    for (input_device, new_state) in new_states.iter() {
+        stream.update_pad(*input_device, *new_state);
     }
 }
 
 fn clear_input_stream(mut stream: ResMut<InputStream>) {
     // This is scheduled to run at the end of each rollback loop
     stream.events.clear();
+    stream.menu_events.clear();
 }
 
 fn generate_online_input_streams(
     mut writer: ResMut<InputStream>,
     inputs: Res<PlayerInputs<Config>>,
 ) {
-    let mut new_states = HashMap::<InputDevice, InputState>::new();
+    let mut new_states = HashMap::<InputDevice, u16>::new();
 
     for (player_index, (index, _)) in inputs.iter().enumerate() {
-        let mut new_state = InputState::default();
+        let mut new_state = vec![];
         let mut new_stick: IVec2 = default();
 
         for (shift, nb) in NetworkInputButton::iter().enumerate() {
@@ -517,32 +507,23 @@ fn generate_online_input_streams(
                     }
                     // Other buttons
                     _ => {
-                        // This filters out unused buttons
-                        if let Ok(btn) = nb.try_into() {
-                            new_state.pressed.insert(btn);
-                        }
+                        new_state.push(nb);
                     }
                 }
             }
         }
 
-        new_state.stick_position = new_stick.into();
+        new_state.extend(NetworkInputButton::from_stick(new_stick));
 
-        new_states.insert(InputDevice::Online(player_index), new_state);
+        new_states.insert(
+            InputDevice::Online(player_index),
+            NetworkInputButton::serialize(|nw_btn| new_state.contains(&nw_btn)),
+        );
     }
 
     // Compare to previous state
-    for (handle, new_state) in new_states.iter() {
-        let old_state = writer.input_states.entry(*handle).or_default();
-        for event in old_state.changes_to(new_state) {
-            // Send events if differences noted
-            writer.events.push(OwnedInput {
-                event,
-                player_handle: *handle,
-            });
-        }
-        // Save new state
-        writer.input_states.insert(*handle, new_state.clone());
+    for (input_device, new_state) in new_states.iter() {
+        writer.update_pad(*input_device, *new_state);
     }
 }
 

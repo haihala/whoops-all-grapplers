@@ -1,5 +1,6 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{math::u16, prelude::*, utils::HashMap};
 
+use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 use crate::Player;
@@ -65,6 +66,36 @@ impl TryFrom<NetworkInputButton> for GameButton {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, EnumIter)]
+pub enum MenuInput {
+    Up,
+    Down,
+    Left,
+    Right,
+    Accept,
+    Cancel,
+    Secondary,
+}
+
+impl TryFrom<NetworkInputButton> for MenuInput {
+    type Error = ();
+
+    fn try_from(value: NetworkInputButton) -> Result<Self, ()> {
+        Ok(match value {
+            // This is where keybindings are sort of defined
+            NetworkInputButton::South => MenuInput::Accept,
+            NetworkInputButton::West => MenuInput::Secondary,
+            NetworkInputButton::East => MenuInput::Cancel,
+
+            NetworkInputButton::Up => MenuInput::Up,
+            NetworkInputButton::Down => MenuInput::Down,
+            NetworkInputButton::Left => MenuInput::Left,
+            NetworkInputButton::Right => MenuInput::Right,
+            _ => return Err(()),
+        })
+    }
+}
+
 // Game runs with strictly digital input, this is an abstraction
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, EnumIter)]
 pub enum NetworkInputButton {
@@ -87,50 +118,6 @@ pub enum NetworkInputButton {
 }
 
 impl NetworkInputButton {
-    pub fn from_gamepad_button_type(value: GamepadButton) -> Option<Self> {
-        Some(match value {
-            GamepadButton::South => NetworkInputButton::South,
-            GamepadButton::East => NetworkInputButton::East,
-            GamepadButton::North => NetworkInputButton::North,
-            GamepadButton::West => NetworkInputButton::West,
-            GamepadButton::LeftTrigger => NetworkInputButton::L1,
-            GamepadButton::LeftTrigger2 => NetworkInputButton::L2,
-            GamepadButton::RightTrigger => NetworkInputButton::R1,
-            GamepadButton::RightTrigger2 => NetworkInputButton::R2,
-            GamepadButton::Select => NetworkInputButton::Select,
-            GamepadButton::Start => NetworkInputButton::Start,
-            GamepadButton::LeftThumb => NetworkInputButton::L3,
-            GamepadButton::RightThumb => NetworkInputButton::R3,
-            GamepadButton::DPadUp => NetworkInputButton::Up,
-            GamepadButton::DPadDown => NetworkInputButton::Down,
-            GamepadButton::DPadLeft => NetworkInputButton::Left,
-            GamepadButton::DPadRight => NetworkInputButton::Right,
-            _ => return None,
-        })
-    }
-
-    pub fn from_key(value: KeyCode) -> Option<Self> {
-        Some(match value {
-            KeyCode::KeyJ => NetworkInputButton::South,
-            KeyCode::KeyK => NetworkInputButton::East,
-            KeyCode::KeyI => NetworkInputButton::North,
-            KeyCode::KeyU => NetworkInputButton::West,
-            KeyCode::KeyY => NetworkInputButton::L1,
-            KeyCode::KeyH => NetworkInputButton::L2,
-            KeyCode::KeyO => NetworkInputButton::R1,
-            KeyCode::KeyL => NetworkInputButton::R2,
-            KeyCode::KeyV => NetworkInputButton::Select,
-            KeyCode::KeyB => NetworkInputButton::Start,
-            KeyCode::KeyN => NetworkInputButton::L3,
-            KeyCode::KeyM => NetworkInputButton::R3,
-            KeyCode::KeyW => NetworkInputButton::Up,
-            KeyCode::KeyS => NetworkInputButton::Down,
-            KeyCode::KeyA => NetworkInputButton::Left,
-            KeyCode::KeyD => NetworkInputButton::Right,
-            _ => return None,
-        })
-    }
-
     pub fn to_gamepad_button_type(&self) -> GamepadButton {
         match self {
             NetworkInputButton::South => GamepadButton::South,
@@ -173,41 +160,41 @@ impl NetworkInputButton {
         }
     }
 
-    pub fn to_input_event(
-        &self,
-        writer: &mut InputStream,
-        pad_id: usize,
-        pressed: bool,
-    ) -> Option<InputEvent> {
-        match self {
-            NetworkInputButton::Up
-            | NetworkInputButton::Down
-            | NetworkInputButton::Left
-            | NetworkInputButton::Right => Some(InputEvent::Point(
-                writer.update_dpad(pad_id, *self, pressed),
-            )),
-
-            NetworkInputButton::South
-            | NetworkInputButton::West
-            | NetworkInputButton::North
-            | NetworkInputButton::East
-            | NetworkInputButton::Start
-            | NetworkInputButton::Select => {
-                let game_button = GameButton::try_from(*self).unwrap();
-                Some(if pressed {
-                    InputEvent::Press(game_button)
-                } else {
-                    InputEvent::Release(game_button)
-                })
+    pub fn serialize(active: impl Fn(NetworkInputButton) -> bool) -> u16 {
+        let mut out = 0;
+        for (shift, nw_btn) in NetworkInputButton::iter().enumerate() {
+            if active(nw_btn) {
+                out |= 1 << shift;
             }
-
-            NetworkInputButton::R1
-            | NetworkInputButton::R2
-            | NetworkInputButton::R3
-            | NetworkInputButton::L1
-            | NetworkInputButton::L2
-            | NetworkInputButton::L3 => None,
         }
+        out
+    }
+
+    pub fn from_stick(stick: IVec2) -> Vec<NetworkInputButton> {
+        let mut out = vec![];
+        if stick.x == 1 {
+            out.push(NetworkInputButton::Right);
+        } else if stick.x == -1 {
+            out.push(NetworkInputButton::Left);
+        }
+
+        if stick.y == 1 {
+            out.push(NetworkInputButton::Up);
+        } else if stick.y == -1 {
+            out.push(NetworkInputButton::Down);
+        }
+
+        out
+    }
+
+    pub fn deserialize(input: u16) -> Vec<NetworkInputButton> {
+        let mut out = vec![];
+        for (shift, nw_btn) in NetworkInputButton::iter().enumerate() {
+            if input & 1 << shift != 0 {
+                out.push(nw_btn);
+            }
+        }
+        out
     }
 }
 
@@ -241,85 +228,92 @@ impl From<char> for InputEvent {
     }
 }
 
-// TODO: Rename to owned input event etc
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct OwnedInput {
     pub event: InputEvent,
     pub player_handle: InputDevice,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct OwnedMenuInput {
+    pub event: MenuInput,
+    pub player_handle: InputDevice,
+}
+
 #[derive(Debug, Default, Clone, PartialEq, Eq, Resource)]
 pub struct InputStream {
     pub events: Vec<OwnedInput>,
-    dpads: HashMap<usize, StickPosition>,
-    analog_sticks: HashMap<usize, StickPosition>,
-    pub input_states: HashMap<InputDevice, InputState>,
+    pub menu_events: Vec<OwnedMenuInput>,
+    pub input_states: HashMap<InputDevice, u16>,
+}
+
+fn stream_folder(mut stick: IVec2, new: &NetworkInputButton) -> IVec2 {
+    match new {
+        NetworkInputButton::Up => {
+            stick.y += 1;
+        }
+        NetworkInputButton::Down => {
+            stick.y -= 1;
+        }
+        NetworkInputButton::Right => {
+            stick.x += 1;
+        }
+        NetworkInputButton::Left => {
+            stick.x -= 1;
+        }
+        _ => {}
+    };
+    stick
 }
 
 impl InputStream {
-    pub fn update_analog_stick(
-        &mut self,
-        pad_id: usize,
-        axis: GamepadAxis,
-        value: f32,
-    ) -> StickPosition {
-        let mut old_stick: IVec2 = self
-            .analog_sticks
-            .get(&pad_id)
-            .map(|sp| sp.to_owned())
-            .unwrap_or_default()
-            .into();
+    pub fn update_pad(&mut self, input_device: InputDevice, state: u16) {
+        let old_state =
+            NetworkInputButton::deserialize(*self.input_states.entry(input_device).or_default());
+        let new_state = NetworkInputButton::deserialize(state);
+        self.input_states.insert(input_device, state);
 
-        let snap_value = if value.abs() < STICK_DEAD_ZONE {
-            0
-        } else {
-            value.signum() as i32
-        };
+        let old_stick = old_state.iter().fold(IVec2::default(), stream_folder);
+        let new_stick = new_state.iter().fold(IVec2::default(), stream_folder);
 
-        match axis {
-            GamepadAxis::LeftStickX => old_stick.x = snap_value,
-            GamepadAxis::LeftStickY => old_stick.y = snap_value,
-            _ => {}
-        };
+        if new_stick != old_stick {
+            self.events.push(OwnedInput {
+                event: InputEvent::Point(new_stick.into()),
+                player_handle: input_device,
+            })
+        }
 
-        let new_stick = old_stick.into();
-        self.analog_sticks.insert(pad_id, new_stick);
-        new_stick
-    }
+        for nw_btn in NetworkInputButton::iter() {
+            let old = old_state.contains(&nw_btn);
+            let new = new_state.contains(&nw_btn);
 
-    pub fn update_dpad(
-        &mut self,
-        pad_id: usize,
-        button: NetworkInputButton,
-        pressed: bool,
-    ) -> StickPosition {
-        let mut old_dpad: IVec2 = self
-            .dpads
-            .get(&pad_id)
-            .map(|sp| sp.to_owned())
-            .unwrap_or_default()
-            .into();
+            if new && !old {
+                // Press
+                if let Ok(game_btn) = GameButton::try_from(nw_btn) {
+                    self.events.push(OwnedInput {
+                        event: InputEvent::Press(game_btn),
+                        player_handle: input_device,
+                    })
+                }
 
-        // This is cumbersome on devices that don't clean socd
-        // Need to figure out a solution where socd and repeated events work
-        let val = pressed as i32;
-        match button {
-            NetworkInputButton::Up => old_dpad.y = val,
-            NetworkInputButton::Down => old_dpad.y = -val,
-            NetworkInputButton::Left => old_dpad.x = -val,
-            NetworkInputButton::Right => old_dpad.x = val,
-            _ => panic!(),
-        };
+                if let Ok(event) = MenuInput::try_from(nw_btn) {
+                    self.menu_events.push(OwnedMenuInput {
+                        event,
+                        player_handle: input_device,
+                    })
+                }
+            }
 
-        debug_assert!(old_dpad.x.abs() <= 1, "dpad x is greater than 1");
-        debug_assert!(old_dpad.y.abs() <= 1, "dpad y is greater than 1");
-
-        old_dpad.x = old_dpad.x.signum();
-        old_dpad.y = old_dpad.y.signum();
-
-        let new_stick = old_dpad.into();
-        self.dpads.insert(pad_id, new_stick);
-        new_stick
+            if old && !new {
+                // Release
+                if let Ok(game_btn) = GameButton::try_from(nw_btn) {
+                    self.events.push(OwnedInput {
+                        event: InputEvent::Release(game_btn),
+                        player_handle: input_device,
+                    })
+                }
+            }
+        }
     }
 }
 

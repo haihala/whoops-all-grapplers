@@ -325,7 +325,7 @@ mod test {
             app.add_systems(Update, parse_input);
 
             app.world_mut().spawn((
-                PadBundle::without_generic_inputs(
+                PadBundle::new(
                     moves
                         .into_iter()
                         .map(|(id, dsl)| (id, dsl.to_string()))

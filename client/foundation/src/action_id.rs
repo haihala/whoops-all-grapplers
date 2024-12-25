@@ -10,17 +10,7 @@ pub enum SpecialVersion {
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default, Component)]
 pub enum ActionId {
     #[default]
-    Default, // To satisfy Inspectable.
-    Up,
-    Down,
-    Left,
-    Right,
-    Back,
-    Forward,
-    Primary,
-    Secondary,
-    Cancel,
-    Start,
+    Default, // TODO: Get rid of this
 
     // Universal
     ForwardDash,

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use foundation::{GameButton, GameState, InputEvent, InputStream, SoundRequest, StickPosition};
+use foundation::{GameState, InputEvent, InputStream, MenuInput, SoundRequest, StickPosition};
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
 
@@ -107,21 +107,23 @@ pub fn navigate_credits(
 ) {
     let mut scroll = ui_root.single_mut();
 
+    for ev in input_stream.menu_events.clone() {
+        if ev.event == MenuInput::Cancel {
+            commands.trigger(SoundRequest::menu_transition());
+            scroll.offset_y = 0.0;
+            next_state.set(GameState::MainMenu);
+        }
+    }
+
+    // This uses non-menu inputs, because menu inputs don't get hold info
+    // Shouldn't be a problem, as you shouldn't be able to rebind the stick
     for ev in input_stream.events.clone() {
-        match ev.event {
-            InputEvent::Press(GameButton::Strong) => {
-                commands.trigger(SoundRequest::menu_transition());
-                scroll.offset_y = 0.0;
-                next_state.set(GameState::MainMenu);
-            }
-            InputEvent::Point(dir) => {
-                match dir {
-                    StickPosition::N => *scroll_direction = -1.0,
-                    StickPosition::S => *scroll_direction = 1.0,
-                    _ => *scroll_direction = 0.0,
-                };
-            }
-            _ => {}
+        if let InputEvent::Point(dir) = ev.event {
+            match dir {
+                StickPosition::N => *scroll_direction = -1.0,
+                StickPosition::S => *scroll_direction = 1.0,
+                _ => *scroll_direction = 0.0,
+            };
         }
     }
 

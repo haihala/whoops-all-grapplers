@@ -30,32 +30,10 @@ pub struct PadBundle {
     parrot: ParrotStream,
 }
 impl PadBundle {
-    pub fn new(mut inputs: HashMap<ActionId, String>) -> Self {
-        inputs.extend(generic_inputs());
-        Self::without_generic_inputs(inputs)
-    }
-
-    pub fn without_generic_inputs(inputs: HashMap<ActionId, String>) -> Self {
+    pub fn new(inputs: HashMap<ActionId, String>) -> Self {
         Self {
             parser: InputParser::new(inputs),
             parrot: ParrotStream::default(),
         }
     }
-}
-
-fn generic_inputs() -> impl Iterator<Item = (ActionId, String)> {
-    vec![
-        (ActionId::Up, "{5}8"),
-        (ActionId::Down, "{5}2"),
-        (ActionId::Left, "{5}4|A"),
-        (ActionId::Right, "{5}6|A"),
-        (ActionId::Back, "{5}4"),
-        (ActionId::Forward, "{5}6"),
-        (ActionId::Primary, "f"),
-        (ActionId::Secondary, "g"),
-        (ActionId::Cancel, "s"),
-        (ActionId::Start, "."), // It was at this point when I realized this shit was stupid for the UI thingies.
-    ]
-    .into_iter()
-    .map(|(id, dsl)| (id, dsl.to_string()))
 }

@@ -34,7 +34,7 @@ pub use icon::{Icon, Icons};
 mod inputs;
 pub use inputs::{
     Controllers, GameButton, InputDevice, InputEvent, InputState, InputStream, LocalController,
-    NetworkInputButton, OwnedInput, StickPosition, KARA_WINDOW, KEYBOARD_MAGIC_CONSTANT,
+    MenuInput, NetworkInputButton, OwnedInput, StickPosition, KARA_WINDOW, KEYBOARD_MAGIC_CONSTANT,
     STICK_DEAD_ZONE,
 };
 

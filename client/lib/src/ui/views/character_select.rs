@@ -6,10 +6,9 @@ use crate::{
 };
 use bevy::prelude::*;
 use foundation::{
-    CharacterId, Characters, Controllers, GameButton, GameState, InputEvent, InputStream,
-    LocalCharacter, LocalController, LocalState, MatchState, OnlineState, Player, SoundRequest,
-    StickPosition, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR,
-    VERTICAL_MENU_OPTION_BACKGROUND,
+    CharacterId, Characters, Controllers, GameState, InputStream, LocalCharacter, LocalController,
+    LocalState, MatchState, MenuInput, OnlineState, Player, SoundRequest,
+    CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
 };
 use strum::IntoEnumIterator;
 
@@ -135,7 +134,7 @@ pub fn navigate_character_select(
     input_stream: ResMut<InputStream>,
     local_controller: Option<Res<LocalController>>,
 ) {
-    for ev in input_stream.events.clone() {
+    for ev in input_stream.menu_events.clone() {
         let (player, is_online) = if let Some(ref lc) = local_controller {
             if lc.0 != ev.player_handle {
                 continue;
@@ -155,53 +154,47 @@ pub fn navigate_character_select(
         };
 
         match ev.event {
-            InputEvent::Point(point) => {
-                if point == StickPosition::N {
-                    nav.up(player);
-                } else if point == StickPosition::S {
-                    nav.down(player);
+            MenuInput::Up => nav.up(player),
+            MenuInput::Down => nav.down(player),
+            MenuInput::Accept => {
+                commands.trigger(SoundRequest::menu_transition());
+
+                if is_online {
+                    game_state.set(GameState::Online(OnlineState::Lobby));
+                    networking::setup_socket(&mut commands);
+                    commands.insert_resource(LocalCharacter(
+                        *options.get(nav.p1_select.selected).unwrap(),
+                    ));
+                    return;
+                }
+
+                nav.lock_in(player);
+                if nav.both_locked() {
+                    let [p1_char, p2_char] = options
+                        .get_many([nav.p1_select.selected, nav.p2_select.selected])
+                        .unwrap();
+                    commands.insert_resource(Characters {
+                        p1: *p1_char,
+                        p2: *p2_char,
+                    });
+                    game_state.set(GameState::Local(LocalState::Match));
+                    match_state.set(MatchState::Loading);
                 }
             }
-            InputEvent::Press(button) => {
-                if button == GameButton::Fast {
-                    commands.trigger(SoundRequest::menu_transition());
+            MenuInput::Cancel => {
+                commands.trigger(SoundRequest::menu_transition());
+                if is_online {
+                    game_state.set(GameState::MainMenu);
+                    return;
+                }
 
-                    if is_online {
-                        game_state.set(GameState::Online(OnlineState::Lobby));
-                        networking::setup_socket(&mut commands);
-                        commands.insert_resource(LocalCharacter(
-                            *options.get(nav.p1_select.selected).unwrap(),
-                        ));
-                        return;
-                    }
-
-                    nav.lock_in(player);
-                    if nav.both_locked() {
-                        let [p1_char, p2_char] = options
-                            .get_many([nav.p1_select.selected, nav.p2_select.selected])
-                            .unwrap();
-                        commands.insert_resource(Characters {
-                            p1: *p1_char,
-                            p2: *p2_char,
-                        });
-                        game_state.set(GameState::Local(LocalState::Match));
-                        match_state.set(MatchState::Loading);
-                    }
-                } else if button == GameButton::Strong {
-                    commands.trigger(SoundRequest::menu_transition());
-                    if is_online {
-                        game_state.set(GameState::MainMenu);
-                        return;
-                    }
-
-                    if nav.locked(player) {
-                        nav.unlock(player);
-                    } else {
-                        game_state.set(GameState::Local(LocalState::ControllerAssignment));
-                    }
+                if nav.locked(player) {
+                    nav.unlock(player);
+                } else {
+                    game_state.set(GameState::Local(LocalState::ControllerAssignment));
                 }
             }
-            InputEvent::Release(_) => {}
+            _ => {}
         }
     }
 }

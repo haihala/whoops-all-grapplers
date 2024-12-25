@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use foundation::{
-    Controllers, GameButton, GameState, InputDevice, InputEvent, InputStream, LocalState, Player,
-    SoundRequest, StickPosition, CONTROLLER_ASSIGNMENT_SIDE_COLOR, KEYBOARD_MAGIC_CONSTANT,
+    Controllers, GameState, InputDevice, InputStream, LocalState, MenuInput, Player, SoundRequest,
+    CONTROLLER_ASSIGNMENT_SIDE_COLOR, KEYBOARD_MAGIC_CONSTANT,
 };
 
 use crate::{assets::Fonts, entity_management::VisibleInStates};
@@ -140,11 +140,11 @@ pub fn navigate_controller_assignment_menu(
     input_stream: ResMut<InputStream>,
     mut state: ResMut<NextState<GameState>>,
 ) {
-    for ev in input_stream.events.clone() {
+    for ev in input_stream.menu_events.clone() {
         match ev.event {
-            InputEvent::Point(StickPosition::E) => ca.right(ev.player_handle),
-            InputEvent::Point(StickPosition::W) => ca.left(ev.player_handle),
-            InputEvent::Press(GameButton::Fast) => {
+            MenuInput::Right => ca.right(ev.player_handle),
+            MenuInput::Left => ca.left(ev.player_handle),
+            MenuInput::Accept => {
                 if ca.is_complete() {
                     commands.insert_resource(Controllers {
                         p1: ca.p1.unwrap(),
@@ -155,7 +155,7 @@ pub fn navigate_controller_assignment_menu(
                     commands.trigger(SoundRequest::menu_transition());
                 }
             }
-            InputEvent::Press(GameButton::Strong) => {
+            MenuInput::Cancel => {
                 state.set(GameState::MainMenu);
                 commands.trigger(SoundRequest::menu_transition());
             }

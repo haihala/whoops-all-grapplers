@@ -7,9 +7,9 @@ use crate::{
 };
 use bevy::prelude::*;
 use foundation::{
-    Clock, Controllers, GameButton, GameResult, GameState, InputEvent, InputStream, MatchState,
-    Player, RoundLog, SoundRequest, StickPosition, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR,
-    GENERIC_TEXT_COLOR, VERTICAL_MENU_OPTION_BACKGROUND,
+    Clock, Controllers, GameResult, GameState, InputStream, MatchState, MenuInput, Player,
+    RoundLog, SoundRequest, CHARACTER_SELECT_HIGHLIGHT_TEXT_COLOR, GENERIC_TEXT_COLOR,
+    VERTICAL_MENU_OPTION_BACKGROUND,
 };
 
 use super::{setup_view_subtitle, setup_view_title};
@@ -164,15 +164,15 @@ pub fn navigate_end_screen(
     mut log: ResMut<RoundLog>,
     clock: Res<Clock>,
 ) {
-    for ev in input_stream.events.clone() {
+    for ev in input_stream.menu_events.clone() {
         let Some(player) = controllers.get_player(ev.player_handle) else {
             continue;
         };
 
         match ev.event {
-            InputEvent::Point(StickPosition::N) => nav.up(player),
-            InputEvent::Point(StickPosition::S) => nav.down(player),
-            InputEvent::Press(GameButton::Fast) => {
+            MenuInput::Up => nav.up(player),
+            MenuInput::Down => nav.down(player),
+            MenuInput::Accept => {
                 commands.trigger(SoundRequest::menu_transition());
                 let selected = nav.selected(player);
                 let option_type = options.get(selected).unwrap();
@@ -204,7 +204,7 @@ pub fn navigate_end_screen(
                     }
                 }
             }
-            InputEvent::Press(GameButton::Strong) => {
+            MenuInput::Cancel => {
                 nav.unlock(player);
             }
             _ => {}

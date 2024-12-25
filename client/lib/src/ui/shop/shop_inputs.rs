@@ -1,34 +1,39 @@
 use bevy::prelude::*;
 use characters::{Character, Inventory};
-use foundation::{ActionId, Owner, Player};
-use input_parsing::InputParser;
+use foundation::{Controllers, InputStream, MenuInput, Owner, Player};
 
 use super::{setup_shop::ShopItem, shops_resource::Shop, Shops, SHOP_COLUMNS};
 
 pub fn navigate_shop(
-    mut parsers: Query<(&mut InputParser, &Player, &mut Inventory, &Character)>,
+    mut players: Query<(&Player, &mut Inventory, &Character)>,
     slots: Query<(Entity, &Owner, Option<&ShopItem>)>,
     mut shops: ResMut<Shops>,
+    input_stream: Res<InputStream>,
+    controllers: Res<Controllers>,
 ) {
-    for (mut parser, player, mut inventory, character) in &mut parsers {
-        let events = parser.get_events();
-        parser.clear();
+    let evs = input_stream.menu_events.clone();
+    for (player, mut inventory, character) in &mut players {
         let shop = shops.get_mut_shop(player);
 
-        if events.is_empty() || shop.closed {
+        if shop.closed {
             continue;
         }
 
-        for event in events {
-            match event {
-                ActionId::Up => move_selection(shop, Up),
-                ActionId::Down => move_selection(shop, Down),
-                ActionId::Left => move_selection(shop, Left),
-                ActionId::Right => move_selection(shop, Right),
-                ActionId::Primary => buy(shop, &mut inventory, character, &slots),
-                ActionId::Cancel => sell(shop, &mut inventory, character, &slots),
-                ActionId::Start => shop.closed = true,
-                _ => {}
+        let input_device = controllers.get_handle(*player);
+
+        for ev in &evs {
+            if ev.player_handle != input_device {
+                continue;
+            }
+
+            match ev.event {
+                MenuInput::Up => move_selection(shop, Up),
+                MenuInput::Down => move_selection(shop, Down),
+                MenuInput::Left => move_selection(shop, Left),
+                MenuInput::Right => move_selection(shop, Right),
+                MenuInput::Accept => buy(shop, &mut inventory, character, &slots),
+                MenuInput::Cancel => sell(shop, &mut inventory, character, &slots),
+                MenuInput::Secondary => shop.closed = true,
             };
         }
     }

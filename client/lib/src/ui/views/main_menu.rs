@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use foundation::{
-    GameButton, GameState, InputEvent, InputStream, LocalController, LocalState, OnlineState,
-    SoundRequest, StickPosition, GENERIC_TEXT_COLOR, MAIN_MENU_HIGHLIGHT_TEXT_COLOR,
+    GameState, InputStream, LocalController, LocalState, MenuInput, OnlineState, SoundRequest,
+    GENERIC_TEXT_COLOR, MAIN_MENU_HIGHLIGHT_TEXT_COLOR,
 };
 
 use crate::{assets::Fonts, entity_management::VisibleInStates, ui::VerticalMenuNavigation};
@@ -96,11 +96,11 @@ pub fn navigate_main_menu(
     mut state: ResMut<NextState<GameState>>,
     mut exit: EventWriter<AppExit>,
 ) {
-    for ev in input_stream.events.clone() {
+    for ev in input_stream.menu_events.clone() {
         match ev.event {
-            InputEvent::Point(StickPosition::N) => nav.up(),
-            InputEvent::Point(StickPosition::S) => nav.down(),
-            InputEvent::Press(GameButton::Fast) => {
+            MenuInput::Up => nav.up(),
+            MenuInput::Down => nav.down(),
+            MenuInput::Accept => {
                 commands.trigger(SoundRequest::menu_transition());
 
                 match options.get(nav.selected).unwrap() {

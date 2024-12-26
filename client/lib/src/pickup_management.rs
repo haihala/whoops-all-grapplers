@@ -3,13 +3,13 @@ use bevy_ggrs::AddRollbackCommandExtension;
 use characters::{GaugeType, Gauges};
 use foundation::{
     Area, CharacterFacing, Clock, MatchState, Owner, Pickup, PickupRequest, Player,
-    RollbackSchedule, SystemStep,
+    RollbackSchedule, SystemStep, MAX_COMBAT_DURATION,
 };
 
 use crate::{
     assets::Models,
     entity_management::DespawnMarker,
-    movement::{ObjectVelocity, Pushbox},
+    movement::{Follow, ObjectVelocity, Pushbox},
 };
 
 pub struct PickupPlugin;
@@ -73,36 +73,39 @@ pub fn spawn_pickups(
 
     let (player_tf, player, facing) = query.get(trigger.entity()).unwrap();
 
-    let mut entity_commands = commands.spawn((
-        Transform::from_translation(
-            facing.absolute.mirror_vec2(*spawn_point).extend(0.0) + player_tf.translation,
-        ),
-        Visibility::default(),
-        *pickup,
-        *size,
-        Owner(if *flip_owner { player.other() } else { *player }),
-        StateScoped(MatchState::Combat),
-        ObjectVelocity {
-            speed: facing.visual.mirror_vec3(spawn_velocity.extend(0.0)),
-            acceleration: -Vec3::Y * *gravity,
-            face_forward: false,
-            floor_despawns: false,
-        },
-        Name::new("Pickup"),
-    ));
+    // These will get despawned in the post-round cleanup
+    let despawn_after = lifetime.unwrap_or((60.0 * MAX_COMBAT_DURATION) as usize);
 
-    if let Some(frames) = lifetime {
-        entity_commands.insert(DespawnMarker(frames + clock.frame));
-    };
-
-    entity_commands.with_children(|cb| {
-        cb.spawn((
-            Name::new("Pickup model"),
-            transform,
-            SceneRoot(models[&model].clone()),
+    let target = commands
+        .spawn((
+            Transform::from_translation(
+                facing.absolute.mirror_vec2(*spawn_point).extend(0.0) + player_tf.translation,
+            ),
+            Visibility::default(),
+            *pickup,
+            *size,
+            Owner(if *flip_owner { player.other() } else { *player }),
+            StateScoped(MatchState::Combat),
+            ObjectVelocity {
+                speed: facing.visual.mirror_vec3(spawn_velocity.extend(0.0)),
+                acceleration: -Vec3::Y * *gravity,
+                face_forward: false,
+                floor_despawns: false,
+            },
+            DespawnMarker(clock.frame + despawn_after),
+            Name::new("Pickup"),
         ))
-        .add_rollback();
-    });
+        .add_rollback()
+        .id();
 
-    entity_commands.add_rollback();
+    commands.spawn((
+        Name::new("Pickup model"),
+        transform,
+        SceneRoot(models[&model].clone()),
+        Follow {
+            target,
+            offset: transform.translation,
+        },
+        DespawnMarker(clock.frame + despawn_after),
+    ));
 }

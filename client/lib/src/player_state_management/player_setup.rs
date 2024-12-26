@@ -3,7 +3,7 @@ use bevy_ggrs::AddRollbackCommandExtension;
 use characters::{Character, Gauges, Hurtboxes, Inventory};
 use foundation::{
     AnimationType, CharacterClock, CharacterFacing, Characters, Clock, Combo, Facing, InMatch,
-    Player, Players, RoundLog, Stats, WagArgs,
+    Player, Players, Stats, WagArgs,
 };
 use input_parsing::{InputParser, PadBundle};
 use player_state::PlayerState;
@@ -166,13 +166,7 @@ pub fn reset_combat(
         &mut Combo,
     )>,
     mut clock: ResMut<Clock>,
-    mut round_result: ResMut<RoundLog>,
 ) {
-    if round_result.reset_done {
-        return;
-    }
-    round_result.reset_done = true;
-
     info!("Round start reset");
     clock.reset();
 

@@ -8,7 +8,7 @@ use foundation::{
 
 use crate::{
     assets::{Announcer, Music},
-    camera,
+    camera, player_state_management,
     state_transitions::TransitionTimer,
 };
 
@@ -244,6 +244,7 @@ fn end_shopping(
     });
 
     music.pop();
+    commands.run_system_cached(player_state_management::reset_combat);
 
     for shop in [&mut shops.player_one, &mut shops.player_two] {
         shop.closed = false;

@@ -13,6 +13,7 @@ use foundation::{MatchState, RollbackSchedule, SystemStep};
 use bevy::prelude::*;
 
 pub use move_activation::MoveBuffer;
+pub use player_setup::reset_combat;
 
 pub struct PlayerStateManagementPlugin;
 
@@ -24,7 +25,6 @@ impl Plugin for PlayerStateManagementPlugin {
                 player_setup::setup_players
                     .run_if(in_state(MatchState::Loading))
                     .in_set(SystemStep::SpawnPlayers),
-                player_setup::reset_combat.in_set(SystemStep::RoundReset),
                 side_switcher::sideswitcher.in_set(SystemStep::SideSwitch),
                 (
                     condition_management::expire_conditions,

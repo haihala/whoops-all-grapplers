@@ -20,7 +20,7 @@ pub struct Gauges(pub Vec<(GaugeType, Gauge)>);
 
 impl Gauges {
     pub fn from_stats(stats: &Stats, additional_properties: Vec<(GaugeType, Gauge)>) -> Self {
-        Gauges(
+        let mut out = Gauges(
             vec![
                 (
                     GaugeType::Health,
@@ -36,7 +36,6 @@ impl Gauges {
                 (
                     GaugeType::Meter,
                     Gauge {
-                        // TODO: Add more stats attributes here and in reset
                         max: Some(100),
                         render_instructions: RenderInstructions::Bar(
                             ResourceBarVisual::default_meter(),
@@ -48,7 +47,11 @@ impl Gauges {
             .into_iter()
             .chain(additional_properties)
             .collect(),
-        )
+        );
+
+        out.reset(stats);
+
+        out
     }
 
     pub fn reset(&mut self, stats: &Stats) {

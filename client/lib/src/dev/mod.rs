@@ -1,4 +1,6 @@
-use bevy::{prelude::*, utils::HashMap, window::WindowMode};
+use bevy::{
+    input::gamepad::gamepad_event_processing_system, prelude::*, utils::HashMap, window::WindowMode,
+};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use characters::{ActionEvent, FlashRequest, GaugeType, Gauges, Hitbox, Hurtboxes, Inventory};
@@ -40,7 +42,11 @@ impl Plugin for DevPlugin {
             .register_type::<Stats>()
             .register_type::<InputParser>()
             .register_type::<ParrotStream>()
-            .add_systems(Startup, (setup_gizmos, skip_menus))
+            .add_systems(Startup, setup_gizmos)
+            // This needs access to gamepads, which don't in startup
+            // It also needs to happen before any other gameplay systems
+            // Too early, dev-local breaks. Too late and dev-synctest breaks.
+            .add_systems(PreUpdate, skip_menus.after(gamepad_event_processing_system))
             .add_systems(
                 RollbackSchedule,
                 (
@@ -70,9 +76,9 @@ fn setup_gizmos(mut config_store: ResMut<GizmoConfigStore>) {
     config.depth_bias = -1.0;
 }
 
-// FIXME: This is broken atm, because it runs before the controllers are present
 fn skip_menus(
     mut commands: Commands,
+    game_state: Res<State<GameState>>,
     mut next_game_state: ResMut<NextState<GameState>>,
     mut next_match_state: ResMut<NextState<MatchState>>,
     args: Res<WagArgs>,
@@ -81,6 +87,12 @@ fn skip_menus(
     let Some(dev_mode) = args.dev else {
         panic!("In dev plugin but not in dev mode")
     };
+
+    if *game_state.get() != GameState::MainMenu {
+        return;
+    }
+
+    info!("Skipping menus");
 
     let pads: HashMap<_, _> = pad_query
         .iter()

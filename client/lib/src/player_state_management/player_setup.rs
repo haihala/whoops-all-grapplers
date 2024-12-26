@@ -36,6 +36,8 @@ pub fn setup_players(
         return;
     }
 
+    info!("Spawning players");
+
     let char1 = Character::from(characters.p1);
     let char2 = Character::from(characters.p2);
 

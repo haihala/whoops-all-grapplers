@@ -102,7 +102,7 @@ fn center_camera(
         .iter()
         .map(|tf| tf.translation.x)
         .reduce(|a, b| a - b)
-        .unwrap()
+        .unwrap_or_default()
         .abs();
 
     // Do some light lerping to make backthrows less jarring

@@ -128,7 +128,7 @@ fn sell(
     let (_, _, selected_item) = slots.get(selected_slot).unwrap();
     let shop_item = selected_item.unwrap();
 
-    if inventory.contains(&shop_item.0) {
+    if inventory.contains(shop_item.0) {
         inventory.sell(character, shop_item.0);
     }
 }

@@ -4,6 +4,7 @@ use foundation::{
     Clock, Icons, MatchState, Owner, Player, Players, RoundLog, FPS, ITEM_SLOT_COMPONENT_COLOR,
     ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR, ITEM_SLOT_HIGHLIGHT_COLOR,
     ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR, POST_SHOP_DURATION, PRE_ROUND_DURATION,
+    SELL_RETURN,
 };
 
 use crate::{
@@ -13,7 +14,7 @@ use crate::{
 };
 
 use super::{
-    setup_shop::{ShopItem, ShopMoney, ShopScore},
+    setup_shop::{OwnedText, ShopItem, ShopMoney, ShopScore},
     Shops,
 };
 
@@ -39,8 +40,9 @@ pub fn update_top_bar_moneys(
 
 pub fn update_slot_visuals(
     player_query: Query<(&Inventory, &Character, &Player)>,
-    item_query: Query<(&ShopItem, &Owner, Entity, &Children)>,
+    item_query: Query<(&ShopItem, &Owner, Entity, &Children, &OwnedText)>,
     mut colors: Query<&mut BackgroundColor>,
+    mut texts: Query<&mut Text>,
     shops: Res<Shops>,
 ) {
     for (inventory, character, player) in &player_query {
@@ -48,12 +50,17 @@ pub fn update_slot_visuals(
         let selected_slot = shop.get_selected_slot();
         let selected_item_id = item_query
             .iter()
-            .find(|(_, _, e, _)| *e == selected_slot)
-            .map(|(shop_item, _, _, _)| **shop_item)
+            .find_map(|(shop_item, _, e, _, _)| {
+                if e == selected_slot {
+                    Some(**shop_item)
+                } else {
+                    None
+                }
+            })
             .unwrap();
         let selected_item = character.items.get(&selected_item_id).unwrap();
 
-        for (shop_item, owner, item_entity, children) in &item_query {
+        for (shop_item, owner, item_entity, children, owned_text) in &item_query {
             if *player != owner.0 {
                 continue;
             }
@@ -81,14 +88,27 @@ pub fn update_slot_visuals(
             }
             .into();
 
-            *child_color = if inventory.contains(&item_id) {
-                ITEM_SLOT_OWNED_COLOR
-            } else if inventory.can_buy(item_id, item) {
-                ITEM_SLOT_DEFAULT_COLOR
+            let mut text = texts.get_mut(**owned_text).unwrap();
+            let item_count = inventory.count(item_id);
+            (*child_color, text.0) = if item_count != 0 {
+                (
+                    ITEM_SLOT_OWNED_COLOR.into(),
+                    if item.max_stack == 1 {
+                        "Owned".into()
+                    } else {
+                        format!("{}/{}", item_count, item.max_stack)
+                    },
+                )
             } else {
-                ITEM_SLOT_DISABLED_COLOR
+                (
+                    if inventory.can_buy(item_id, item) {
+                        ITEM_SLOT_DEFAULT_COLOR.into()
+                    } else {
+                        ITEM_SLOT_DISABLED_COLOR.into()
+                    },
+                    "".into(),
+                )
             }
-            .into();
         }
     }
 }
@@ -108,24 +128,36 @@ pub fn update_info_panel(
         let shop = shops.get_shop(&player);
         let active_slot = shop.get_selected_slot();
         let slot = slots.get(active_slot).unwrap();
+        let item_id = slot.0;
 
         let (character, inventory) = characters.get(players.get(player)).unwrap();
-        let item_name = slot.0.display_name();
-        let item = character.items.get(&slot.0).unwrap();
+        let item_name = item_id.display_name();
+        let item = character.items.get(&item_id).unwrap();
 
-        let (verb, cost) = if inventory.contains(&slot.0) {
-            ("Sell", inventory.sell_price(character, slot.0))
-        } else {
-            // TODO: Recursive buy
-            ("Buy", item.cost)
+        let mut allowed_ops = vec![];
+
+        if inventory.has_space_for(item_id, item) {
+            allowed_ops.push(("Buy", item.cost));
+        }
+
+        if inventory.contains(item_id) {
+            allowed_ops.push((
+                "Sell",
+                (SELL_RETURN * (inventory.sell_price(character, item_id) as f32)) as usize,
+            ));
         };
+
+        let price_line = allowed_ops
+            .into_iter()
+            .map(|(op, amount)| format!("{} for ${}", op, amount))
+            .reduce(|a, b| format!("{}, {}", a, b))
+            .unwrap();
 
         // Update texts
         for (entity, section, content) in [
             (shop.components.item_name, 1, item_name),
             (shop.components.explanation, 1, item.explanation.to_owned()),
-            (shop.components.cost, 1, verb.to_string()),
-            (shop.components.cost, 3, cost.to_string()),
+            (shop.components.cost, 1, price_line),
             (
                 shop.components.dependencies,
                 1,

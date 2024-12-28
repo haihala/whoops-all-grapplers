@@ -145,6 +145,15 @@ impl Stats {
 
         self
     }
+
+    pub fn multiply(&self, count: usize) -> Stats {
+        // TODO: Make this as a whole smarter
+        let mut out = Self::default();
+        for _ in 0..count {
+            out = out.combine(self);
+        }
+        out
+    }
 }
 
 #[derive(Reflect, Debug, Clone, PartialEq, Default, Hash, Eq)]

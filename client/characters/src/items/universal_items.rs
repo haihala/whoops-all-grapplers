@@ -93,6 +93,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 },
                 category: Consumable(OneRound),
                 icon: Icon::PreWorkout,
+                ..default()
             },
         ),
         // Basics
@@ -226,7 +227,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
             },
         ),
         (
-            ItemId::ThumbTacks(1),
+            ItemId::ThumbTacks,
             Item {
                 category: Basic,
                 explanation: "+1% damage to all hits\n\nPrickly!".into(),
@@ -235,7 +236,8 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     damage_multiplier: 1.01,
                     ..default()
                 },
-                icon: Icon::ThumbTacks(1),
+                icon: Icon::ThumbTack,
+                max_stack: 10,
             },
         ),
         (
@@ -262,7 +264,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
         (
             ItemId::TrackSpikes,
             Item {
-                category: Upgrade(vec![ItemId::Boots, ItemId::Stopwatch, ItemId::ThumbTacks(2)]),
+                category: Upgrade(vec![ItemId::Boots, ItemId::Stopwatch, ItemId::ThumbTacks]),
                 explanation: "Allows you to cancel normals into a dash\n\nNow with Fast Action Disruption Compatible soles".into(),
                 cost: 1000,
                 icon: Icon::TrackSpikes,
@@ -324,27 +326,9 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     ..default()
                 },
                 icon: Icon::GoalieGear,
+                ..default()
             },
         ),
     ]
     .into_iter()
-    .chain((2..9).map(|id| {
-        let exponential = usize::pow(2, (id - 1) as u32);
-        (
-            ItemId::ThumbTacks(id),
-            Item {
-                category: Upgrade(vec![ItemId::ThumbTacks(id - 1)]),
-                explanation: format!(
-                    "+{}% damage to all hits. Stacks multiplicatively with previous upgrades.",
-                    exponential
-                ),
-                cost: 125*exponential,
-                icon: Icon::ThumbTacks(id),
-                effect: Stats {
-                    damage_multiplier: 1.0 + (exponential as f32 * 0.01),
-                    ..default()
-                },
-            },
-        )
-    }))
 }

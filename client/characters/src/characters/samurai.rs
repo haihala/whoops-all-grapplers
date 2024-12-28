@@ -248,7 +248,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         .with_distance_on_hit(0.9)
                         .with_damage(9)
                         .with_dynamic_on_hit_events(Arc::new(|situation: &Situation| {
-                            if situation.inventory.contains(&ItemId::IceCube) {
+                            if situation.inventory.contains(ItemId::IceCube) {
                                 vec![
                                     ActionEvent::MultiplyMomentum(0.0),
                                     ActionEvent::Hitstop(20),
@@ -665,7 +665,7 @@ fn sword_stance(version: SpecialVersion) -> Action {
                             .mirror_vec2(situation.stick_position.as_vec2())
                             .x
                             == 1.0
-                            && situation.inventory.contains(&ItemId::Fireaxe)
+                            && situation.inventory.contains(ItemId::Fireaxe)
                         {
                             SamuraiAction::SwordSlam(version)
                         } else {
@@ -915,9 +915,9 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .dyn_events_on_frame(
                     11,
                     Arc::new(move |situation: &Situation| {
-                        let extra_stun = situation.inventory.contains(&ItemId::MiniTasers);
+                        let extra_stun = situation.inventory.contains(ItemId::MiniTasers);
 
-                        let stick_influence = if situation.inventory.contains(&ItemId::Protractor) {
+                        let stick_influence = if situation.inventory.contains(ItemId::Protractor) {
                             situation
                                 .facing
                                 .absolute
@@ -1027,6 +1027,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                     kunais: 1,
                     ..default()
                 },
+                ..default()
             },
         ),
         (
@@ -1040,6 +1041,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                     kunais: 2,
                     ..default()
                 },
+                ..default()
             },
         ),
         (
@@ -1053,6 +1055,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                     kunais: 3,
                     ..default()
                 },
+                ..default()
             },
         ),
         (
@@ -1087,6 +1090,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                     retain_sharpness: true,
                     ..default()
                 },
+                ..default()
             },
         ),
         (
@@ -1100,6 +1104,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                     auto_sharpen: 2,
                     ..default()
                 },
+                ..default()
             },
         ),
         (

@@ -1,15 +1,17 @@
 use bevy::{prelude::*, utils::HashMap};
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 
 #[derive(Debug, Resource)]
 pub struct Icons(pub HashMap<Icon, Handle<Image>>);
 
-#[derive(Default, Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(Default, Debug, PartialEq, Eq, Hash, Clone, Copy, Asset, Reflect, EnumIter)]
 pub enum Icon {
     #[default]
     Blank,
 
     // Items
-    ThumbTacks(usize),
+    ThumbTack,
     Boots,
     Crowbar,
     Feather,
@@ -48,49 +50,47 @@ pub enum Icon {
 }
 impl Icon {
     pub fn paths() -> HashMap<Icon, String> {
-        vec![
-            (Icon::Blank, "icons/blank.png".into()),
-            (Icon::Boots, "icons/boots.png".into()),
-            (Icon::Crowbar, "icons/crowbar.png".into()),
-            (Icon::Feather, "icons/feather.png".into()),
-            (Icon::OliveOil, "icons/olive-oil.png".into()),
-            (Icon::RedPaint, "icons/red-paint.png".into()),
-            (Icon::Dumbbell, "icons/dumbbell.png".into()),
-            (Icon::Stopwatch, "icons/stopwatch.png".into()),
-            (Icon::HockeyPads, "icons/hockeypads.png".into()),
-            (Icon::Cigarettes, "icons/cigarettes.png".into()),
-            (Icon::PreWorkout, "icons/pre-workout.png".into()),
-            (Icon::Gi, "icons/gi.png".into()),
-            (Icon::PigeonWing, "icons/pigeon-wing.png".into()),
-            (Icon::FeatheredBoots, "icons/feathered-boots.png".into()),
-            (Icon::DivingHelmet, "icons/diving-helmet.png".into()),
-            (Icon::SafetyBoots, "icons/safety-boots.png".into()),
-            (Icon::TrackSpikes, "icons/track-spikes.png".into()),
-            (Icon::GoalieGear, "icons/goalie-gear.png".into()),
-            (Icon::Kunai, "icons/kunai.png".into()),
-            (Icon::KunaiPouch, "icons/kunai-pouch.png".into()),
-            (Icon::KunaiBelt, "icons/kunai-bandolier.png".into()),
-            (Icon::SpaceSuitBoots, "icons/space-boots.png".into()),
-            (Icon::BladeOil, "icons/blade-oil.png".into()),
-            (Icon::SmithyCoupon, "icons/coupon.png".into()),
-            (Icon::Fireaxe, "icons/fireaxe.png".into()),
-            (Icon::SmokeBomb, "icons/smoke-bomb.png".into()),
-            (Icon::Taser, "icons/taser.png".into()),
-            (Icon::Protractor, "icons/protractor.png".into()),
-            (Icon::IceCube, "icons/ice-cube.png".into()),
-            (Icon::ComicBook, "icons/comic-book.png".into()),
-            (Icon::Lettuce, "icons/lettuce.png".into()),
-            (Icon::OkLink, "icons/link-bonus-ok.png".into()),
-            (Icon::GoodLink, "icons/link-bonus-good.png".into()),
-            (Icon::PerfectLink, "icons/link-bonus-perfect.png".into()),
-        ]
-        .into_iter()
-        .chain((1..9).map(|id| {
-            (
-                Icon::ThumbTacks(id),
-                format!("icons/thumbtack{}.png", usize::pow(2, (id - 1) as u32)),
-            )
-        }))
-        .collect()
+        Self::iter().map(|icon| (icon, icon.asset_path())).collect()
+    }
+
+    fn asset_path(&self) -> String {
+        match self {
+            Icon::Blank => "icons/blank.png",
+            Icon::Boots => "icons/boots.png",
+            Icon::Crowbar => "icons/crowbar.png",
+            Icon::Feather => "icons/feather.png",
+            Icon::OliveOil => "icons/olive-oil.png",
+            Icon::RedPaint => "icons/red-paint.png",
+            Icon::Dumbbell => "icons/dumbbell.png",
+            Icon::Stopwatch => "icons/stopwatch.png",
+            Icon::HockeyPads => "icons/hockeypads.png",
+            Icon::Cigarettes => "icons/cigarettes.png",
+            Icon::PreWorkout => "icons/pre-workout.png",
+            Icon::Gi => "icons/gi.png",
+            Icon::PigeonWing => "icons/pigeon-wing.png",
+            Icon::FeatheredBoots => "icons/feathered-boots.png",
+            Icon::DivingHelmet => "icons/diving-helmet.png",
+            Icon::SafetyBoots => "icons/safety-boots.png",
+            Icon::TrackSpikes => "icons/track-spikes.png",
+            Icon::GoalieGear => "icons/goalie-gear.png",
+            Icon::Kunai => "icons/kunai.png",
+            Icon::KunaiPouch => "icons/kunai-pouch.png",
+            Icon::KunaiBelt => "icons/kunai-bandolier.png",
+            Icon::SpaceSuitBoots => "icons/space-boots.png",
+            Icon::BladeOil => "icons/blade-oil.png",
+            Icon::SmithyCoupon => "icons/coupon.png",
+            Icon::Fireaxe => "icons/fireaxe.png",
+            Icon::SmokeBomb => "icons/smoke-bomb.png",
+            Icon::Taser => "icons/taser.png",
+            Icon::Protractor => "icons/protractor.png",
+            Icon::IceCube => "icons/ice-cube.png",
+            Icon::ComicBook => "icons/comic-book.png",
+            Icon::Lettuce => "icons/lettuce.png",
+            Icon::OkLink => "icons/link-bonus-ok.png",
+            Icon::GoodLink => "icons/link-bonus-good.png",
+            Icon::PerfectLink => "icons/link-bonus-perfect.png",
+            Icon::ThumbTack => "icons/thumbtack.png",
+        }
+        .into()
     }
 }

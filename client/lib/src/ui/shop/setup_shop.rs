@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-use characters::Character;
+use characters::{Character, Item};
 use foundation::{
-    Icon, Icons, InMatch, ItemId, MatchState, Owner, Player, Players, GENERIC_TEXT_COLOR,
+    Icons, InMatch, ItemId, MatchState, Owner, Player, Players, GENERIC_TEXT_COLOR,
     ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
     ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR,
     SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_TIMER_BACKGROUND_COLOR,
@@ -360,7 +360,7 @@ fn setup_explanation_box(
     shop_root.cost = Some(setup_text_sections(
         commands,
         container,
-        vec!["Sell", " for: $", "0"],
+        vec!["Sell for $0"],
         basic_style.clone(),
         "Costs",
     ));
@@ -434,7 +434,7 @@ fn fill_item_grid(
 
     pairs
         .into_iter()
-        .map(|(id, item)| setup_shop_item(commands, icons, parent, player, *id, item.icon))
+        .map(|(id, item)| setup_shop_item(commands, icons, parent, player, *id, item.clone()))
         .collect()
 }
 
@@ -452,14 +452,35 @@ fn recursive_cost(character: &Character, item_id: ItemId) -> usize {
     }
 }
 
+#[derive(Debug, Component, Deref)]
+pub struct OwnedText(pub Entity);
+
 fn setup_shop_item(
     commands: &mut Commands,
     icons: &Icons,
     parent: Entity,
     player: Player,
     id: ItemId,
-    icon: Icon,
+    item: Item,
 ) -> Entity {
+    let mut owned_text = None;
+
+    let image = commands
+        .spawn((
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                justify_content: JustifyContent::End,
+                align_items: AlignItems::End,
+                ..default()
+            },
+            ImageNode::from(icons.0.get(&item.icon).unwrap().clone()),
+        ))
+        .with_children(|cb| {
+            owned_text = Some(cb.spawn(Text("".into())).id());
+        })
+        .id();
+
     commands
         .spawn((
             Node {
@@ -470,11 +491,10 @@ fn setup_shop_item(
                 ..default()
             },
             ShopItem(id),
+            OwnedText(owned_text.unwrap()),
             Owner(player),
         ))
         .set_parent(parent)
-        .with_children(|cb| {
-            cb.spawn(ImageNode::from(icons.0.get(&icon).unwrap().clone()));
-        })
+        .insert_children(0, &[image])
         .id()
 }

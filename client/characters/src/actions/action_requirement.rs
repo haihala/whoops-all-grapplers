@@ -47,7 +47,7 @@ impl ActionRequirement {
                 !ids.contains(&tracker.action_id)
             }
             ActionRequirement::AnyActionOngoing => situation.tracker.is_some(),
-            ActionRequirement::ItemOwned(item_id) => situation.inventory.contains(item_id),
+            ActionRequirement::ItemOwned(item_id) => situation.inventory.contains(*item_id),
             ActionRequirement::ResourceFull(resource) => situation
                 .get_resource(*resource)
                 .expect("Character to have resource")
@@ -100,7 +100,7 @@ impl ActionRequirement {
                             // Comic cancel uses the same cancel window
                             // as the special cancel
                             if *category == ActionCategory::Normal
-                                && situation.inventory.contains(&ItemId::ComicBook)
+                                && situation.inventory.contains(ItemId::ComicBook)
                                 && !situation
                                     .status_flags
                                     .contains(&StatusFlag::ComicCancelCooldown)

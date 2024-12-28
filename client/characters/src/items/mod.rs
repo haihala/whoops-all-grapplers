@@ -27,6 +27,7 @@ pub struct Item {
     pub effect: Stats,
     pub explanation: String,
     pub icon: Icon,
+    pub max_stack: usize,
 }
 
 impl Default for Item {
@@ -37,6 +38,7 @@ impl Default for Item {
             effect: Default::default(),
             explanation: "Description missing".into(),
             icon: Icon::Blank,
+            max_stack: 1,
         }
     }
 }

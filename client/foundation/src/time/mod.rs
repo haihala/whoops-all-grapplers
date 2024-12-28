@@ -16,7 +16,7 @@ pub const PRE_ROUND_DURATION: f32 = 2.0;
 pub const COMBAT_DURATION: f32 = 100.0;
 pub const MAX_COMBAT_DURATION: f32 = COMBAT_DURATION + PRE_ROUND_DURATION;
 pub const POST_ROUND_DURATION: f32 = 4.0;
-pub const POST_SHOP_DURATION: f32 = 11.0;
+pub const POST_SHOP_DURATION: f32 = 10.0;
 
 #[derive(Reflect, Resource, Debug, Clone, Copy, Default)]
 pub struct Clock {

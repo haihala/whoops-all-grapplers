@@ -262,7 +262,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                                 vec![]
                             }
                         }))
-                        .launches(Vec2::Y * 5.0),
+                        .launches(Vec2::Y * 3.0),
                 )
                 .with_hit_on_frame(
                     12,
@@ -788,7 +788,7 @@ fn sword_slam(version: SpecialVersion) -> Action {
                 .with_advantage_on_block(if slow { -40 } else { -30 });
 
             if launch {
-                hit = hit.launches(Vec2::new(1.0, 6.0));
+                hit = hit.launches(Vec2::new(1.0, 4.0));
             } else {
                 hit = hit.with_advantage_on_hit(6);
             }
@@ -881,7 +881,7 @@ fn rising_sun(version: SpecialVersion) -> Action {
                 .sword()
                 .with_damage(if high_damage { 20 } else { 15 })
                 .launches(if high_bounce {
-                    Vec2::new(0.1, 10.0)
+                    Vec2::new(0.1, 8.0)
                 } else {
                     Vec2::new(1.0, 3.0)
                 })

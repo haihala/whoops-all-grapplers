@@ -43,7 +43,7 @@ impl PlayerVelocity {
         self.velocity += impulse;
     }
 
-    pub(super) fn multiply_moments(&mut self, amount: f32) {
+    pub(super) fn multiply_moments(&mut self, amount: Vec2) {
         for ref mut movement in self.movements.iter_mut() {
             movement.amount *= amount;
         }

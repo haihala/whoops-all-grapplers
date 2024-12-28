@@ -24,12 +24,14 @@ pub struct PlayerState {
     main: MainState,
     pub free_since: Option<usize>,
     conditions: Vec<StatusCondition>,
+    transient: Option<ActionId>,
 }
 
 impl Default for PlayerState {
     fn default() -> Self {
         Self {
             main: MainState::Stand(StandState::default()),
+            transient: None,
             free_since: Some(0),
             conditions: vec![],
         }
@@ -79,6 +81,10 @@ impl PlayerState {
         self.clear_cancel_windows();
     }
 
+    pub fn set_transient(&mut self, action_id: ActionId) {
+        self.transient = Some(action_id);
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub fn proceed_move(
         &mut self,
@@ -103,8 +109,19 @@ impl PlayerState {
             combo,
         );
 
-        let action_id = self.get_action_tracker().unwrap().action_id;
-        (character.get_move(action_id).unwrap().script)(&situation)
+        let mut evs = vec![];
+
+        if let Some(trans) = self.transient.take() {
+            let trans_evs = (character.get_move(trans).unwrap().script)(&situation);
+            evs.extend(trans_evs);
+        };
+
+        if let Some(tracker) = self.get_action_tracker() {
+            let action_evs = (character.get_move(tracker.action_id).unwrap().script)(&situation);
+            evs.extend(action_evs);
+        }
+
+        evs
     }
 
     #[allow(clippy::too_many_arguments)]

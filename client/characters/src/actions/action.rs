@@ -3,6 +3,7 @@ use crate::{ActionEvent, ActionRequirement, Situation};
 pub type Script = Box<dyn Fn(&Situation) -> Vec<ActionEvent> + Send + Sync>;
 
 pub struct Action {
+    pub transient: bool,
     pub input: Option<String>,
     pub requirement: ActionRequirement,
     pub script: Script,

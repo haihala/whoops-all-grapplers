@@ -87,6 +87,10 @@ mod test {
     fn all_moves_end() {
         for char in [samurai()] {
             for (id, mov) in char.moves.iter() {
+                if mov.transient {
+                    continue;
+                }
+
                 let sit = Situation {
                     tracker: Some(ActionTracker {
                         start_frame: 0,

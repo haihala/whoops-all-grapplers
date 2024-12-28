@@ -73,6 +73,7 @@ fn jump(
     jump_type: JumpType,
 ) -> Action {
     Action {
+        transient: false,
         input: Some(jump_dir.input(jump_type)),
         script: Box::new(move |situation: &Situation| {
             /*
@@ -94,7 +95,7 @@ fn jump(
 
                 initial_events.extend(if jump_type == JumpType::Air {
                     vec![
-                        ActionEvent::MultiplyMomentum(0.2),
+                        ActionEvent::MultiplyMomentum(Vec2::new(0.5, 0.2)),
                         ActionEvent::Condition(StatusCondition {
                             flag: StatusFlag::AirActionCooldown,
                             ..default()

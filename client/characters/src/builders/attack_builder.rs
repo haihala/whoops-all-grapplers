@@ -259,6 +259,7 @@ impl AttackBuilder {
         debug_assert!(!self.hits.is_empty());
 
         Action {
+            transient: false,
             input: self.action_builder.build_input(),
             requirement: self.action_builder.build_requirements(),
             script: Box::new(self.build_script()),
@@ -862,7 +863,7 @@ impl StrikeEffectBuilder {
                             vec![]
                         })
                         .chain([
-                            ActionEvent::MultiplyMomentum(0.2),
+                            ActionEvent::MultiplyMomentum(Vec2::new(0.3, 0.2)),
                             stun_event,
                             Movement::impulse(-Vec2::X * self.defender_push_on_hit).into(),
                             ActionEvent::ModifyResource(GaugeType::Health, -damage),

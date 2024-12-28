@@ -15,7 +15,7 @@ pub enum ActionEvent {
     Sound(SoundRequest),
     StartAction(ActionId),
     SpawnHitbox(Attack),
-    MultiplyMomentum(f32),
+    MultiplyMomentum(Vec2),
     Movement(Movement),
     Teleport(Vec2),
     Condition(StatusCondition),

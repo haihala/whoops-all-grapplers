@@ -53,6 +53,7 @@ impl Events {
 enum Timing {
     OnFrame(usize),
     After(usize),
+    Always,
 }
 
 #[derive(Clone)]
@@ -85,6 +86,7 @@ impl Input {
 #[derive(Default)]
 pub struct ActionBuilder {
     input: Option<Input>,
+    transient: bool,
     pub state: Option<SimpleState>,
     pub category: ActionCategory,
     blobs: Vec<EventBlob>,
@@ -117,6 +119,12 @@ impl ActionBuilder {
             input: Some(Input::Button(btn)),
             ..Self::normal()
         }
+    }
+
+    pub fn make_transient(mut self) -> Self {
+        assert!(self.total_duration == 0);
+        self.transient = true;
+        self
     }
 
     pub fn with_character_universals(self, universals: CharacterUniversals) -> Self {
@@ -201,18 +209,23 @@ impl ActionBuilder {
         self
     }
 
-    pub fn static_immediate_events(mut self, events: Vec<ActionEvent>) -> Self {
+    pub fn every_frame(mut self, events: Vec<ActionEvent>) -> Self {
         self.blobs.push(EventBlob {
             events: Events {
                 constant: events,
                 ..default()
             },
-            timing: Timing::OnFrame(0),
+            timing: Timing::Always,
         });
         self
     }
 
+    pub fn static_immediate_events(self, events: Vec<ActionEvent>) -> Self {
+        self.static_events_on_frame(0, events)
+    }
+
     pub fn static_events_on_frame(mut self, frame: usize, events: Vec<ActionEvent>) -> Self {
+        assert!(!self.transient);
         self.blobs.push(EventBlob {
             events: Events {
                 constant: events,
@@ -224,6 +237,7 @@ impl ActionBuilder {
     }
 
     pub fn static_events_after_frame(mut self, frame: usize, events: Vec<ActionEvent>) -> Self {
+        assert!(!self.transient);
         self.blobs.push(EventBlob {
             events: Events {
                 constant: events,
@@ -234,18 +248,12 @@ impl ActionBuilder {
         self
     }
 
-    pub fn dyn_immediate_events(mut self, events: DynamicEvents) -> Self {
-        self.blobs.push(EventBlob {
-            events: Events {
-                dynamic: Some(events),
-                ..default()
-            },
-            timing: Timing::OnFrame(0),
-        });
-        self
+    pub fn dyn_immediate_events(self, events: DynamicEvents) -> Self {
+        self.dyn_events_on_frame(0, events)
     }
 
     pub fn dyn_events_on_frame(mut self, frame: usize, events: DynamicEvents) -> Self {
+        assert!(!self.transient);
         self.blobs.push(EventBlob {
             events: Events {
                 dynamic: Some(events),
@@ -257,6 +265,7 @@ impl ActionBuilder {
     }
 
     pub fn dyn_events_after_frame(mut self, frame: usize, events: DynamicEvents) -> Self {
+        assert!(!self.transient);
         self.blobs.push(EventBlob {
             events: Events {
                 dynamic: Some(events),
@@ -267,11 +276,10 @@ impl ActionBuilder {
         self
     }
 
-    pub fn end_at(self, frame: usize) -> Self {
-        Self {
-            total_duration: frame,
-            ..self
-        }
+    pub fn end_at(mut self, frame: usize) -> Self {
+        assert!(!self.transient);
+        self.total_duration = frame;
+        self
     }
 
     pub fn with_sound(self, sound: Sound) -> Self {
@@ -364,13 +372,17 @@ impl ActionBuilder {
             .blobs
             .clone()
             .into_iter()
-            .chain([EventBlob {
-                timing: Timing::After(self.total_duration),
-                events: Events {
-                    constant: vec![ActionEvent::End],
-                    ..default()
-                },
-            }])
+            .chain(if !self.transient {
+                vec![EventBlob {
+                    timing: Timing::After(self.total_duration),
+                    events: Events {
+                        constant: vec![ActionEvent::End],
+                        ..default()
+                    },
+                }]
+            } else {
+                vec![]
+            })
             .fold(HashMap::<Timing, Events>::new(), |mut res, new| {
                 if let Some(events) = res.get(&new.timing) {
                     // This timing already exists
@@ -392,6 +404,7 @@ impl ActionBuilder {
                 if match timing {
                     Timing::OnFrame(frame) => situation.on_frame(*frame),
                     Timing::After(frame) => situation.after_frame(*frame),
+                    Timing::Always => true,
                 } {
                     out.extend(events.constant.clone());
                     if let Some(generator) = events.dynamic.clone() {
@@ -406,6 +419,7 @@ impl ActionBuilder {
 
     pub fn build(self) -> Action {
         Action {
+            transient: self.transient,
             input: self.build_input(),
             requirement: self.build_requirements(),
             script: Box::new(self.build_script()),

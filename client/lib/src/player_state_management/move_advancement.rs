@@ -41,20 +41,18 @@ pub(super) fn move_advancement(
             continue;
         }
 
-        if state.action_in_progress() {
-            for event in state.proceed_move(
-                inventory.to_owned(),
-                character,
-                resources.to_owned(),
-                parser.to_owned(),
-                stats.to_owned(),
-                clock.frame,
-                tf.translation,
-                *facing,
-                combo.to_owned(),
-            ) {
-                commands.trigger_targets(event, entity)
-            }
+        for event in state.proceed_move(
+            inventory.to_owned(),
+            character,
+            resources.to_owned(),
+            parser.to_owned(),
+            stats.to_owned(),
+            clock.frame,
+            tf.translation,
+            *facing,
+            combo.to_owned(),
+        ) {
+            commands.trigger_targets(event, entity)
         }
 
         clock.move_events_processed = true;

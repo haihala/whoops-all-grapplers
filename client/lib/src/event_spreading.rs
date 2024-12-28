@@ -11,7 +11,7 @@ pub struct StartAction(pub ActionId);
 pub struct SpawnHitbox(pub Attack);
 
 #[derive(Debug, Event)]
-pub struct MultiplyMomentum(pub f32);
+pub struct MultiplyMomentum(pub Vec2);
 
 #[derive(Debug, Event)]
 pub struct ForceState(pub SimpleState);

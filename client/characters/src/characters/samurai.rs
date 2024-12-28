@@ -250,7 +250,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                         .with_dynamic_on_hit_events(Arc::new(|situation: &Situation| {
                             if situation.inventory.contains(ItemId::IceCube) {
                                 vec![
-                                    ActionEvent::MultiplyMomentum(0.0),
+                                    ActionEvent::MultiplyMomentum(Vec2::splat(0.0)),
                                     ActionEvent::Hitstop(20),
                                     ActionEvent::RelativeVisualEffect(VfxRequest {
                                         effect: VisualEffect::Icon(Icon::IceCube),

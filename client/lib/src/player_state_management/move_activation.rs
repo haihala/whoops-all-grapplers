@@ -148,11 +148,17 @@ pub(super) fn move_activator(
                 .1
         };
 
-        // Remove old extra expanded hurtboxes (if a move is cancelled)
-        hurtboxes.extra.clear();
+        let action = character.get_move(to_activate).unwrap();
 
         buffer.buffer.retain(|id, _| *id != to_activate);
-        state.start_move(to_activate, clock.frame);
+        if action.transient {
+            state.set_transient(to_activate);
+        } else {
+            // Remove old extra expanded hurtboxes (if a move is canceled)
+            hurtboxes.extra.clear();
+
+            state.start_move(to_activate, clock.frame);
+        }
         clock.move_activation_processed = true;
     }
 }

@@ -61,6 +61,7 @@ impl ThrowEffectBuilder {
 
         (
             Action {
+                transient: false,
                 input: None,
                 script: Box::new(move |situation: &Situation| {
                     if situation.on_frame(0) {
@@ -110,6 +111,7 @@ impl ThrowEffectBuilder {
                 requirement: ActionRequirement::default(),
             },
             Action {
+                transient: false,
                 input: None,
                 script: Box::new(move |situation: &Situation| {
                     if situation.on_frame(0) {

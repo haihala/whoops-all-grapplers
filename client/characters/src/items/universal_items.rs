@@ -34,11 +34,14 @@ fn gi_parry(animation: Animation) -> Action {
 }
 
 fn fast_fall() -> Action {
-    ActionBuilder::for_category(ActionCategory::Other)
-        .with_input("{5}[123]")
+    ActionBuilder::for_category(ActionCategory::MegaInterrupt)
+        .with_input("{789456}[123]")
+        .make_transient()
         .air_only()
-        .static_immediate_events(vec![Movement::impulse(Vec2::Y * -1.5).into()])
-        .end_at(10)
+        .every_frame(vec![
+            ActionEvent::MultiplyMomentum(Vec2::new(1.0, 0.1)),
+            Movement::impulse(Vec2::Y * -3.0).into(),
+        ])
         .with_requirement(ActionRequirement::ItemOwned(ItemId::DivingHelmet))
         .build()
 }

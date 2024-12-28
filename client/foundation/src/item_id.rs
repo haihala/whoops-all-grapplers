@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default)]
+#[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ItemId {
     // Universal consumables
     PreWorkout,
@@ -23,7 +23,7 @@ pub enum ItemId {
     GoalieGear,
     TrackSpikes,
     FeatheredBoots,
-    DivingHelmet, // TODO: Directional fast fall -> air dash
+    DivingHelmet,
     MoonBoots,
     ComicBook,
     RomaineLettuce,
@@ -42,9 +42,6 @@ pub enum ItemId {
     SmokeBomb,
     IceCube,
 
-    #[default]
-    Default,
-
     // TODO: Unused
     SafetyBoots,
 }
@@ -52,30 +49,37 @@ pub enum ItemId {
 impl ItemId {
     pub fn display_name(&self) -> String {
         match self {
-            Self::DivingHelmet => "Diving helmet",
-            Self::OliveOil => "Olive Oil",
-            Self::Wing => "Pigeon wing",
-            Self::FeatheredBoots => "Feathered boots",
-            Self::TrackSpikes => "Track spikes",
-            Self::MoonBoots => "Moon boots",
+            Self::BladeOil => "Blade oil",
             Self::Cigarettes => "Pack of cigs",
+            Self::ComicBook => "Comic book",
+            Self::DivingHelmet => "Diving helmet",
+            Self::FeatheredBoots => "Feathered boots",
+            Self::Gi => "Gi of the old masters",
+            Self::GoalieGear => "Goalie gear",
+            Self::HockeyPads => "Hockey pads",
+            Self::IceCube => "Ice cube",
+            Self::KunaiBelt => "Kunai belt",
+            Self::KunaiPouch => "Kunai pouch",
+            Self::MiniTasers => "Mini tasers",
+            Self::MoonBoots => "Moon boots",
+            Self::OliveOil => "Olive Oil",
             Self::PreWorkout => "Pre-workout",
             Self::RedPaint => "Can of red paint",
-            Self::HockeyPads => "Hockey pads",
-            Self::GoalieGear => "Goalie gear",
-            Self::SafetyBoots => "Safety boots",
-            Self::Gi => "Gi of the old masters",
-            Self::SpareKunai => "Spare kunai",
-            Self::KunaiPouch => "Kunai pouch",
-            Self::KunaiBelt => "Kunai belt",
-            Self::MiniTasers => "Mini tasers",
-            Self::BladeOil => "Blade oil",
-            Self::SmithyCoupon => "Smithy coupon",
-            Self::IceCube => "Ice cube",
-            Self::ComicBook => "Comic book",
             Self::RomaineLettuce => "Romaine lettuce",
-            Self::ThumbTacks => "ThumbTacks",
-            _ => return format!("{:?}", self),
+            Self::SafetyBoots => "Safety boots",
+            Self::SmithyCoupon => "Smithy coupon",
+            Self::SmokeBomb => "Smoke bomb",
+            Self::SpareKunai => "Spare kunai",
+            Self::ThumbTacks => "Thumbtacks",
+            Self::TrackSpikes => "Track spikes",
+            Self::Wing => "Pigeon wing",
+            Self::Boots
+            | Self::Crowbar
+            | Self::Dumbbell
+            | Self::Feather
+            | Self::Fireaxe
+            | Self::Protractor
+            | Self::Stopwatch => return format!("{:?}", self),
         }
         .into()
     }

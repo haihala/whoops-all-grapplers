@@ -28,6 +28,7 @@ pub struct Item {
     pub explanation: String,
     pub icon: Icon,
     pub max_stack: usize,
+    pub suggested: bool,
 }
 
 impl Default for Item {
@@ -39,6 +40,7 @@ impl Default for Item {
             explanation: "Description missing".into(),
             icon: Icon::Blank,
             max_stack: 1,
+            suggested: false,
         }
     }
 }

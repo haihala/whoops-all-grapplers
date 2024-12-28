@@ -1027,6 +1027,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                     kunais: 1,
                     ..default()
                 },
+                suggested: true,
                 ..default()
             },
         ),
@@ -1041,6 +1042,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                     kunais: 2,
                     ..default()
                 },
+                suggested: true,
                 ..default()
             },
         ),
@@ -1055,6 +1057,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                     kunais: 3,
                     ..default()
                 },
+                suggested: true,
                 ..default()
             },
         ),
@@ -1124,6 +1127,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
                 explanation: "Dash in sword stance".into(),
                 cost: 1000,
                 icon: Icon::SmokeBomb,
+                suggested: true,
                 ..default()
             },
         ),

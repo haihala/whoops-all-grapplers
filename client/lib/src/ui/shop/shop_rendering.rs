@@ -14,7 +14,7 @@ use crate::{
 };
 
 use super::{
-    setup_shop::{OwnedText, ShopItem, ShopMoney, ShopScore},
+    setup_shop::{OwnedText, ShopItem, ShopMoney, ShopScore, SuggestionStar},
     Shops,
 };
 
@@ -40,9 +40,17 @@ pub fn update_top_bar_moneys(
 
 pub fn update_slot_visuals(
     player_query: Query<(&Inventory, &Character, &Player)>,
-    item_query: Query<(&ShopItem, &Owner, Entity, &Children, &OwnedText)>,
+    item_query: Query<(
+        &ShopItem,
+        &Owner,
+        Entity,
+        &Children,
+        &OwnedText,
+        &SuggestionStar,
+    )>,
     mut colors: Query<&mut BackgroundColor>,
     mut texts: Query<&mut Text>,
+    mut visibilities: Query<&mut Visibility>,
     shops: Res<Shops>,
 ) {
     for (inventory, character, player) in &player_query {
@@ -50,7 +58,7 @@ pub fn update_slot_visuals(
         let selected_slot = shop.get_selected_slot();
         let selected_item_id = item_query
             .iter()
-            .find_map(|(shop_item, _, e, _, _)| {
+            .find_map(|(shop_item, _, e, _, _, _)| {
                 if e == selected_slot {
                     Some(**shop_item)
                 } else {
@@ -60,7 +68,7 @@ pub fn update_slot_visuals(
             .unwrap();
         let selected_item = character.items.get(&selected_item_id).unwrap();
 
-        for (shop_item, owner, item_entity, children, owned_text) in &item_query {
+        for (shop_item, owner, item_entity, children, owned_text, suggestion_star) in &item_query {
             if *player != owner.0 {
                 continue;
             }
@@ -108,7 +116,13 @@ pub fn update_slot_visuals(
                     },
                     "".into(),
                 )
-            }
+            };
+
+            *visibilities.get_mut(**suggestion_star).unwrap() = if item.suggested {
+                Visibility::Inherited
+            } else {
+                Visibility::Hidden
+            };
         }
     }
 }
@@ -116,8 +130,8 @@ pub fn update_slot_visuals(
 #[allow(clippy::too_many_arguments)]
 pub fn update_info_panel(
     slots: Query<&ShopItem>,
-    mut texts: Query<(Entity, &mut Visibility)>,
-    mut icon_query: Query<&mut ImageNode>,
+    mut visibilities: Query<(Entity, &mut Visibility)>,
+    mut icon_query: Query<(&mut ImageNode, &SuggestionStar)>,
     mut writer: TextUiWriter,
     icons: Res<Icons>,
     shops: Res<Shops>,
@@ -171,7 +185,7 @@ pub fn update_info_panel(
                 },
             ),
         ] {
-            let (entity, mut visibility) = texts.get_mut(entity).unwrap();
+            let (entity, mut visibility) = visibilities.get_mut(entity).unwrap();
             if content.is_empty() {
                 *visibility = Visibility::Hidden;
             } else {
@@ -180,8 +194,14 @@ pub fn update_info_panel(
             }
         }
 
-        let mut icon = icon_query.get_mut(shop.components.big_icon).unwrap();
+        let (mut icon, star) = icon_query.get_mut(shop.components.big_icon).unwrap();
         icon.image = icons.0.get(&item.icon).unwrap().clone();
+        let mut star_vis = visibilities.get_mut(**star).unwrap().1;
+        *star_vis = if item.suggested {
+            Visibility::Inherited
+        } else {
+            Visibility::Hidden
+        };
     }
 }
 

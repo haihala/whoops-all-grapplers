@@ -47,6 +47,7 @@ pub enum Icon {
     OkLink,
     GoodLink,
     PerfectLink,
+    Star,
 }
 impl Icon {
     pub fn paths() -> HashMap<Icon, String> {
@@ -90,6 +91,7 @@ impl Icon {
             Icon::GoodLink => "icons/link-bonus-good.png",
             Icon::PerfectLink => "icons/link-bonus-perfect.png",
             Icon::ThumbTack => "icons/thumbtack.png",
+            Icon::Star => "icons/star.png",
         }
         .into()
     }

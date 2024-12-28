@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use characters::{Character, Item};
 use foundation::{
-    Icons, InMatch, ItemId, MatchState, Owner, Player, Players, GENERIC_TEXT_COLOR,
+    Icon, Icons, InMatch, ItemId, MatchState, Owner, Player, Players, GENERIC_TEXT_COLOR,
     ITEM_SLOT_COMPONENT_COLOR, ITEM_SLOT_DEFAULT_COLOR, ITEM_SLOT_DISABLED_COLOR,
     ITEM_SLOT_HIGHLIGHT_COLOR, ITEM_SLOT_OWNED_COLOR, ITEM_SLOT_UPGRADE_COLOR,
     SHOP_DARK_BACKGROUND_COLOR, SHOP_DIVIDER_COLOR, SHOP_TIMER_BACKGROUND_COLOR,
@@ -217,7 +217,7 @@ fn setup_shop_root(
         .set_parent(parent)
         .id();
 
-    setup_info_panel(commands, container, &mut shop_root_builder, fonts);
+    setup_info_panel(commands, container, &mut shop_root_builder, fonts, icons);
     setup_shop_grid(
         commands,
         icons,
@@ -276,6 +276,7 @@ fn setup_info_panel(
     parent: Entity,
     shop_root: &mut ShopComponentsBuilder,
     fonts: &Fonts,
+    icons: &Icons,
 ) {
     let container = commands
         .spawn((
@@ -290,23 +291,28 @@ fn setup_info_panel(
         .set_parent(parent)
         .id();
 
-    shop_root.big_icon = Some(big_icon(commands, container));
+    shop_root.big_icon = Some(big_icon(commands, container, icons));
     setup_explanation_box(commands, container, shop_root, fonts);
 }
 
-fn big_icon(commands: &mut Commands, parent: Entity) -> Entity {
+fn big_icon(commands: &mut Commands, parent: Entity, icons: &Icons) -> Entity {
+    let star = commands.spawn(fav_star(icons)).id();
     commands
         .spawn((
             Node {
                 width: Val::Px(200.0),
                 max_width: Val::Px(200.0),
                 flex_shrink: 0.0,
+                justify_content: JustifyContent::End,
+                align_items: AlignItems::Start,
                 ..default()
             },
             ImageNode::default(),
+            SuggestionStar(star),
             Name::new("Big icon"),
         ))
         .set_parent(parent)
+        .insert_children(0, &[star])
         .id()
 }
 
@@ -453,6 +459,9 @@ fn recursive_cost(character: &Character, item_id: ItemId) -> usize {
 }
 
 #[derive(Debug, Component, Deref)]
+pub struct SuggestionStar(pub Entity);
+
+#[derive(Debug, Component, Deref)]
 pub struct OwnedText(pub Entity);
 
 fn setup_shop_item(
@@ -464,19 +473,22 @@ fn setup_shop_item(
     item: Item,
 ) -> Entity {
     let mut owned_text = None;
+    let mut star = None;
 
     let image = commands
         .spawn((
             Node {
+                flex_direction: FlexDirection::Column,
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
-                justify_content: JustifyContent::End,
+                justify_content: JustifyContent::SpaceBetween,
                 align_items: AlignItems::End,
                 ..default()
             },
             ImageNode::from(icons.0.get(&item.icon).unwrap().clone()),
         ))
         .with_children(|cb| {
+            star = Some(cb.spawn(fav_star(icons)).id());
             owned_text = Some(cb.spawn(Text("".into())).id());
         })
         .id();
@@ -491,10 +503,22 @@ fn setup_shop_item(
                 ..default()
             },
             ShopItem(id),
+            SuggestionStar(star.unwrap()),
             OwnedText(owned_text.unwrap()),
             Owner(player),
         ))
         .set_parent(parent)
         .insert_children(0, &[image])
         .id()
+}
+
+fn fav_star(icons: &Icons) -> impl Bundle {
+    (
+        Node {
+            width: Val::Percent(35.0),
+            height: Val::Percent(35.0),
+            ..default()
+        },
+        ImageNode::from(icons.0.get(&Icon::Star).unwrap().clone()),
+    )
 }

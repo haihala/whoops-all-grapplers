@@ -116,6 +116,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                     ..default()
                 },
                 icon: Icon::Boots,
+                suggested: true,
                 ..default()
             },
         ),
@@ -238,6 +239,7 @@ pub fn universal_items() -> impl Iterator<Item = (ItemId, Item)> {
                 },
                 icon: Icon::ThumbTack,
                 max_stack: 10,
+                suggested: true,
             },
         ),
         (

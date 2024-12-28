@@ -120,7 +120,8 @@ impl Sound {
             Sound::PaperCrumple => 0.5,
             Sound::Matches => 1.3,
 
-            Sound::Motivation | Sound::AnimeBeginnings | Sound::WaitingMusic => 0.3,
+            Sound::Motivation => 0.1,
+            Sound::AnimeBeginnings | Sound::WaitingMusic => 0.3,
 
             // Music
             _ => 1.0,

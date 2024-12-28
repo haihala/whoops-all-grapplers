@@ -104,10 +104,16 @@ impl PlayerVelocity {
     pub(super) fn x_collision(&mut self) {
         // Just stop for now, but can be used to implement bounces and whatnot in the future
         self.velocity.x = 0.0;
+        for movement in &mut self.movements {
+            movement.amount.x = 0.0;
+        }
     }
 
     pub(super) fn y_collision(&mut self) {
         // Hit the floor
         self.velocity.y = 0.0;
+        for movement in &mut self.movements {
+            movement.amount.y = 0.0;
+        }
     }
 }

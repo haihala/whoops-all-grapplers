@@ -155,7 +155,7 @@ fn setup_bottom_bars(commands: &mut Commands, container: Entity) {
         &[
             ("A/Cross to buy", GENERIC_TEXT_COLOR),
             ("B/Circle to sell", GENERIC_TEXT_COLOR),
-            ("Option/Start to proceed", GENERIC_TEXT_COLOR),
+            ("X/Square to proceed", GENERIC_TEXT_COLOR),
         ],
     );
 }

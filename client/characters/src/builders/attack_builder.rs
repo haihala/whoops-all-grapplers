@@ -369,7 +369,7 @@ impl HitBuilder {
 
     pub fn with_dynamic_on_hit_events(self, events: DynamicEvents) -> Self {
         self.with_strike_builder(move |mut sb| {
-            assert!(sb.on_hit_effects.dynamic.is_none());
+            debug_assert!(sb.on_hit_effects.dynamic.is_none());
             sb.on_hit_effects.dynamic = Some(events.clone());
             sb
         })

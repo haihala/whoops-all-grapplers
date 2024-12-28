@@ -122,7 +122,7 @@ impl ActionBuilder {
     }
 
     pub fn make_transient(mut self) -> Self {
-        assert!(self.total_duration == 0);
+        debug_assert!(self.total_duration == 0);
         self.transient = true;
         self
     }
@@ -225,7 +225,7 @@ impl ActionBuilder {
     }
 
     pub fn static_events_on_frame(mut self, frame: usize, events: Vec<ActionEvent>) -> Self {
-        assert!(!self.transient);
+        debug_assert!(!self.transient);
         self.blobs.push(EventBlob {
             events: Events {
                 constant: events,
@@ -237,7 +237,7 @@ impl ActionBuilder {
     }
 
     pub fn static_events_after_frame(mut self, frame: usize, events: Vec<ActionEvent>) -> Self {
-        assert!(!self.transient);
+        debug_assert!(!self.transient);
         self.blobs.push(EventBlob {
             events: Events {
                 constant: events,
@@ -253,7 +253,7 @@ impl ActionBuilder {
     }
 
     pub fn dyn_events_on_frame(mut self, frame: usize, events: DynamicEvents) -> Self {
-        assert!(!self.transient);
+        debug_assert!(!self.transient);
         self.blobs.push(EventBlob {
             events: Events {
                 dynamic: Some(events),
@@ -265,7 +265,7 @@ impl ActionBuilder {
     }
 
     pub fn dyn_events_after_frame(mut self, frame: usize, events: DynamicEvents) -> Self {
-        assert!(!self.transient);
+        debug_assert!(!self.transient);
         self.blobs.push(EventBlob {
             events: Events {
                 dynamic: Some(events),
@@ -277,7 +277,7 @@ impl ActionBuilder {
     }
 
     pub fn end_at(mut self, frame: usize) -> Self {
-        assert!(!self.transient);
+        debug_assert!(!self.transient);
         self.total_duration = frame;
         self
     }

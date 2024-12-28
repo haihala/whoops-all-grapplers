@@ -128,7 +128,7 @@ impl From<String> for MotionInput {
             match ch {
                 // Modifiers
                 '+' => {
-                    assert!(
+                    debug_assert!(
                         !complete.is_empty(),
                         "Sticky modifier can't be first symbol"
                     );
@@ -180,7 +180,7 @@ impl From<String> for MotionInput {
                 }
                 '*' => {
                     incomplete.mode = RequirementMode::Anything;
-                    assert!(!incomplete.state_requirement.is_empty());
+                    debug_assert!(!incomplete.state_requirement.is_empty());
                     complete.push(incomplete);
                     incomplete = InputRequirement::default();
                 }
@@ -192,7 +192,7 @@ impl From<String> for MotionInput {
             }
         }
 
-        assert!(!complete.is_empty(), "No requirements");
+        debug_assert!(!complete.is_empty(), "No requirements");
 
         let mut out = Self {
             requirements: complete.into_iter().rev().collect(),

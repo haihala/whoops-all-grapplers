@@ -13,8 +13,8 @@ impl Area {
     }
 
     pub fn new(x: f32, y: f32, width: f32, height: f32) -> Self {
-        assert!(width >= 0.0);
-        assert!(height >= 0.0);
+        debug_assert!(width >= 0.0);
+        debug_assert!(height >= 0.0);
         Self {
             center: Vec2::new(x, y),
             width,

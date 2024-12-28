@@ -73,7 +73,7 @@ pub fn end_combat(
         -(res.get(GaugeType::Health).unwrap().get_percentage().round() as i32) // f32 doesn't implement ord, so sort doesn't work
     });
 
-    assert!(ordered_healths.len() == 2);
+    debug_assert!(ordered_healths.len() == 2);
     let [(winner_props, winner, winner_inventory, winner_character), (loser_props, _, loser_inventory, loser_character)] =
         &mut ordered_healths[..]
     else {

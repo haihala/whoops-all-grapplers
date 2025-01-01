@@ -55,6 +55,7 @@ impl Plugin for DevPlugin {
                     fullscreen_toggle,
                     pause_toggle,
                     kill_system,
+                    reset_bind,
                 )
                     .chain()
                     .in_set(SystemStep::DevTools),
@@ -244,5 +245,21 @@ fn kill_system(keys: Res<ButtonInput<KeyCode>>, mut players: Query<(&Player, &mu
                 res.get_mut(GaugeType::Health).unwrap().drain(99999);
             }
         }
+    }
+}
+
+fn reset_bind(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut players: Query<&mut Gauges>,
+    mut clock: ResMut<Clock>,
+) {
+    let reset_pressed = keys.just_released(KeyCode::Digit0);
+
+    if reset_pressed {
+        for mut res in &mut players {
+            res.get_mut(GaugeType::Health).unwrap().gain(99999);
+        }
+
+        clock.reset();
     }
 }

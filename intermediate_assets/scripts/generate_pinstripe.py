@@ -3,6 +3,7 @@
 import png
 
 WIDTH = 2047
+HEIGHT = WIDTH  # Easier to debug if it's a square
 PERIOD = 25
 STRIPE_POWER = 12.0
 STRIPE_VALUE = 200.0
@@ -21,9 +22,12 @@ def get_pixel(n):
     return int(sharpened * STRIPE_VALUE + (1-sharpened) * BG_VALUE)
 
 
-img = [[
-    get_pixel(n) for n in range(WIDTH)
-]]
+img = [
+    [
+        get_pixel(w) for w in range(WIDTH)
+    ]
+    for h in range(HEIGHT)
+]
 with open('pinstripe.png', 'wb') as f:
-    w = png.Writer(WIDTH, 1, greyscale=True)
+    w = png.Writer(WIDTH, HEIGHT, greyscale=True)
     w.write(f, img)

@@ -99,10 +99,7 @@ input, visual, function
 - Input: `5f`
 - Visual: Gief credit card swipe
 - Function: Anti-air, poke
-- Duckable?
-  - Give animating it a go
-    - If it sensibly hits low, make it hit crouchers
-    - If yes, make 2f a Balrog stomp
+- Can be ducked
 - Not that fast vs grounded (Hitbox descends)
 
 #### Dick jab
@@ -110,17 +107,8 @@ input, visual, function
 `2f` option based on how it goes with [Credit card swipe](#credit-card-swipe)
 
 - Input: `2f`
-- Visual: Gordeau 2A
-- Function: Fastest move
-
-#### Rog stomp
-
-`2f` option based on how it goes with [Credit card swipe](#credit-card-swipe).
-Could turn to something like a `4f` if we go with [Dick jab](#dick-jab) for `2f`
-
-- Input: `2f`
-- Visual: SFV Balrog 2mk, 2mk tc second hit / Tekken Steve stomp
-- Function: Fast, very short ranged standing low
+- Visual: Gordeau 2A, maybe G cr.lp
+- Function: Fastest move, neutral poke
 
 #### Jumping knees
 
@@ -131,19 +119,19 @@ Could turn to something like a `4f` if we go with [Dick jab](#dick-jab) for `2f`
 #### Hook punch
 
 - Input: `5s`
-- Visual: Sol c.s
-- Function: Launcher, combo tool
+- Visual: Sol c.s / f.s hybrid
+- Function: Launcher, combo tool, big damage starter
 
-#### Sweep
+#### Stomps
 
-- Input: `2s`
-- Visual: Gief SF6 sweep
-- Function: Long range unsafe low
+- Input: `2s[2s[2s]]`
+- Visual: Gief SF6 2mk series
+- Function: Low, grounded combo damage, build up time to charge
 
-#### Elboverhead
+#### Overhead
 
 - Input: `6s`
-- Visual: Hugo 5hp
+- Visual: Double-fisted overhead swing
 - Function: Standing overhead
 - Input has intentional implications with [Timewinder](#timewinder) charge
 

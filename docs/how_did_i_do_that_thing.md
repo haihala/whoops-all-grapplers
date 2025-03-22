@@ -52,3 +52,16 @@ The weight paint from the base mesh should now be copied over to the other mesh.
 Identical weight paint -> identical movements -> no clipping
 
 If that didn't work, check that modifiers are in the correct order.
+
+## Shake
+
+- Add key frames
+- Go to graph editor
+- Per channel you want to shake:
+  - Select the channel (name turns yellow, NOT check box)
+  - On the right (press n if no panel) select "modifier"
+  - Add a noise modifier
+  - Bigger scale, slower change, 4 is a good default
+  - Strength is amplitude, 0.1 is a good default
+  - Offset them or they are in sync
+- You can copy-paste the modifiers, although clunkily

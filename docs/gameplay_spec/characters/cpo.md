@@ -172,7 +172,8 @@ input, visual, function
 #### Timewinder
 
 - Visual: Balrog dash punch / Sol sidewinder
-  - Has a small hitbox sweet spot on hit
+  - First does a shoulder bash, which is a separate "clean hit" hitbox
+    - Knocks target airborne
 - Input:
   - Charge: `[14]`
     - Smooth scale charge
@@ -182,7 +183,7 @@ input, visual, function
     - Ground:
       - `6`: Hits mid can link after on hit
       - `3`: Hits low, knocks down, but worse on block
-    - Air: `[963]`, juggle tool, hits mid, can "TK"
+    - Air: `[963]`, juggle tool, hits overhead, can "TK"
   - Press:
     - `f`: Short and fast
       - Can be spaced to be safe
@@ -194,13 +195,14 @@ input, visual, function
       - Use case:
         - Combo tool
         - Unsafe jumpscare
-    - `(fs)`: Fastest and launching
+    - `(fs)`: Fastest longest reach
+      - Notably longer lunge before the shoulder
       - Death on block / whiff
       - Use case: Giga punish starter
 - So in total you have:
   - 3 Directional versions (air, mid, low)
   - 3 Button versions (`f`, `s`, `(fs)`)
-  - 8 Permutations of sweet spots (2^(space, charge, black flash))
+  - 8 Permutations of sweet spots (2^(clean hit, charge, black flash))
   - So a total of 72 versions
 
 #### Pay check
@@ -218,8 +220,8 @@ input, visual, function
 - Input: `214g`
 - Activates an install
   - Aesthetically similar to Hakari's domain expansion
-    - Does the hand sign
-    - Changes the music
+    - Does the dance, which stops time for a second or so
+    - Changes the music while active
 - While active
   - Generates about 1/3 segments of meter per second
   - If meter is full, health regenerates about 20/s
@@ -246,3 +248,5 @@ input, visual, function
   - Personal?
   - Speeding up costs a resource that you gain by slowing down
 - Tracer rewind
+- Launcher version to grounded [[#Timewinder]] (end in up+forward?)
+  - Overlaps with TK air version

@@ -85,15 +85,15 @@ pub const SPARK_BURST_INNER_COLOR: Color = Color::srgb(1.0, 0.8, 0.6);
 
 pub const WEAKEN_STATUS_COLOR: Color = Color::srgb(0.0, 0.0, 0.0);
 
-// Samurai sword slashes
+// Ronin sword slashes
 pub const FAST_SWORD_VFX: Color = Color::srgb(0.8, 0.8, 0.8);
 pub const STRONG_SWORD_VFX: Color = Color::srgb(0.9, 0.6, 0.5);
 pub const METERED_SWORD_VFX: Color = Color::srgb(0.5, 0.6, 0.9);
 
 // Player colors
-pub const SAMURAI_ALT_SHIRT_COLOR: Color = Color::WHITE;
-pub const SAMURAI_ALT_JEANS_COLOR: Color = Color::Srgba(MIDNIGHT_BLUE);
-pub const SAMURAI_ALT_HELMET_COLOR: Color = Color::srgb(38.0 / 255.0, 50.0 / 255.0, 100.0 / 255.0);
+pub const RONIN_ALT_SHIRT_COLOR: Color = Color::WHITE;
+pub const RONIN_ALT_JEANS_COLOR: Color = Color::Srgba(MIDNIGHT_BLUE);
+pub const RONIN_ALT_HELMET_COLOR: Color = Color::srgb(38.0 / 255.0, 50.0 / 255.0, 100.0 / 255.0);
 
 // UI
 pub const LOADING_SCREEN_BACKGROUND: Color = Color::srgb(0.2, 0.2, 0.2);

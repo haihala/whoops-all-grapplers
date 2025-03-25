@@ -4,9 +4,9 @@ use bevy::{prelude::*, utils::HashMap};
 
 use foundation::{
     ActionId, Animation, AnimationType, Area, CancelType, GameButton, Icon, ItemId, Model, Pickup,
-    PickupRequest, SamuraiAction, SamuraiAnimation, Sound, SpecialVersion, Stats, StatusCondition,
+    PickupRequest, RoninAction, RoninAnimation, Sound, SpecialVersion, Stats, StatusCondition,
     StatusFlag, VfxRequest, VisualEffect, VoiceLine, FAST_SWORD_VFX, FPS, METERED_SWORD_VFX,
-    METER_BAR_SEGMENT, SAMURAI_ALT_HELMET_COLOR, SAMURAI_ALT_JEANS_COLOR, SAMURAI_ALT_SHIRT_COLOR,
+    METER_BAR_SEGMENT, RONIN_ALT_HELMET_COLOR, RONIN_ALT_JEANS_COLOR, RONIN_ALT_SHIRT_COLOR,
     STRONG_SWORD_VFX,
 };
 
@@ -28,23 +28,23 @@ const CHARACTER_UNIVERSALS: CharacterUniversals = CharacterUniversals {
     normal_grunt: Sound::FemaleExhale,
 };
 
-pub fn samurai() -> Character {
-    let (jumps, gravity) = jumps(1.7, 1.0, Animation::Samurai(SamuraiAnimation::Jump));
+pub fn ronin() -> Character {
+    let (jumps, gravity) = jumps(1.7, 1.0, Animation::Ronin(RoninAnimation::Jump));
 
     Character::new(
-        Model::Samurai,
+        Model::Ronin,
         Sound::Motivation,
         vec![
-            ("T-shirt", SAMURAI_ALT_SHIRT_COLOR),
-            ("Jeans", SAMURAI_ALT_JEANS_COLOR),
-            ("Samurai Helmet.1", SAMURAI_ALT_HELMET_COLOR),
+            ("T-shirt", RONIN_ALT_SHIRT_COLOR),
+            ("Jeans", RONIN_ALT_JEANS_COLOR),
+            ("Samurai Helmet.1", RONIN_ALT_HELMET_COLOR),
         ]
         .into_iter()
         .collect(),
-        samurai_anims(),
-        samurai_moves(jumps),
-        samurai_items(),
-        samurai_boxes(),
+        ronin_anims(),
+        ronin_moves(jumps),
+        ronin_items(),
+        ronin_boxes(),
         Stats {
             walk_speed: 1.2,
             back_walk_speed_multiplier: 0.8,
@@ -82,27 +82,27 @@ pub fn samurai() -> Character {
     )
 }
 
-fn samurai_anims() -> HashMap<AnimationType, Animation> {
+fn ronin_anims() -> HashMap<AnimationType, Animation> {
     vec![
-        (AnimationType::AirIdle, SamuraiAnimation::Air),
-        (AnimationType::AirStun, SamuraiAnimation::AirStagger),
-        (AnimationType::StandIdle, SamuraiAnimation::Idle),
-        (AnimationType::StandBlock, SamuraiAnimation::Block),
-        (AnimationType::StandStun, SamuraiAnimation::Stagger),
-        (AnimationType::WalkBack, SamuraiAnimation::WalkBack),
-        (AnimationType::WalkForward, SamuraiAnimation::WalkForward),
-        (AnimationType::CrouchIdle, SamuraiAnimation::Crouch),
-        (AnimationType::CrouchBlock, SamuraiAnimation::CrouchBlock),
-        (AnimationType::CrouchStun, SamuraiAnimation::CrouchStagger),
-        (AnimationType::Getup, SamuraiAnimation::Getup),
-        (AnimationType::Default, SamuraiAnimation::StandPose),
+        (AnimationType::AirIdle, RoninAnimation::Air),
+        (AnimationType::AirStun, RoninAnimation::AirStagger),
+        (AnimationType::StandIdle, RoninAnimation::Idle),
+        (AnimationType::StandBlock, RoninAnimation::Block),
+        (AnimationType::StandStun, RoninAnimation::Stagger),
+        (AnimationType::WalkBack, RoninAnimation::WalkBack),
+        (AnimationType::WalkForward, RoninAnimation::WalkForward),
+        (AnimationType::CrouchIdle, RoninAnimation::Crouch),
+        (AnimationType::CrouchBlock, RoninAnimation::CrouchBlock),
+        (AnimationType::CrouchStun, RoninAnimation::CrouchStagger),
+        (AnimationType::Getup, RoninAnimation::Getup),
+        (AnimationType::Default, RoninAnimation::StandPose),
     ]
     .into_iter()
     .map(|(k, v)| (k, Animation::from(v)))
     .collect()
 }
 
-fn samurai_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<ActionId, Action> {
+fn ronin_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<ActionId, Action> {
     jumps
         .chain(dashes())
         .chain(item_actions())
@@ -110,7 +110,7 @@ fn samurai_moves(jumps: impl Iterator<Item = (ActionId, Action)>) -> HashMap<Act
             normals()
                 .chain(throws())
                 .chain(specials())
-                .map(|(k, v)| (ActionId::Samurai(k), v)),
+                .map(|(k, v)| (ActionId::Ronin(k), v)),
         )
         .collect()
 }
@@ -119,7 +119,7 @@ fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
     [
         // Grounded forward dash
         DashBuilder::forward()
-            .with_animation(SamuraiAnimation::GroundForwardDash)
+            .with_animation(RoninAnimation::GroundForwardDash)
             .with_character_universals(CHARACTER_UNIVERSALS)
             .on_frame(
                 0,
@@ -133,7 +133,7 @@ fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
             .build(),
         // Grounded back dash
         DashBuilder::back()
-            .with_animation(SamuraiAnimation::BackDash)
+            .with_animation(RoninAnimation::BackDash)
             .with_character_universals(CHARACTER_UNIVERSALS)
             .on_frame(0, Movement::impulse(Vec2::X * 6.9))
             .end_at(20)
@@ -141,7 +141,7 @@ fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
         // Air forward dash
         DashBuilder::forward()
             .air_only()
-            .with_animation(SamuraiAnimation::AirForwardDash)
+            .with_animation(RoninAnimation::AirForwardDash)
             .with_character_universals(CHARACTER_UNIVERSALS)
             .on_frame(0, Movement::impulse(Vec2::X * 3.0))
             .end_at(20)
@@ -149,7 +149,7 @@ fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
         // Air back dash
         DashBuilder::back()
             .air_only()
-            .with_animation(SamuraiAnimation::BackDash)
+            .with_animation(RoninAnimation::BackDash)
             .with_character_universals(CHARACTER_UNIVERSALS)
             .on_frame(0, Movement::impulse(Vec2::X * 3.0))
             .end_at(20)
@@ -159,15 +159,15 @@ fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
     .flatten()
 }
 
-fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
-    debug!("Samurai normals");
+fn normals() -> impl Iterator<Item = (RoninAction, Action)> {
+    debug!("Ronin normals");
 
     vec![
         (
-            SamuraiAction::KneeThrust,
+            RoninAction::KneeThrust,
             AttackBuilder::button(GameButton::Fast)
                 .with_character_universals(CHARACTER_UNIVERSALS)
-                .with_animation(SamuraiAnimation::KneeThrust)
+                .with_animation(RoninAnimation::KneeThrust)
                 .with_total_duration(21)
                 .with_hit_on_frame(
                     5,
@@ -181,11 +181,11 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .build(),
         ),
         (
-            SamuraiAction::LowKick,
+            RoninAction::LowKick,
             AttackBuilder::button(GameButton::Fast)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .crouching()
-                .with_animation(SamuraiAnimation::LowKick)
+                .with_animation(RoninAnimation::LowKick)
                 .with_total_duration(32)
                 .with_hit_on_frame(
                     6,
@@ -200,10 +200,10 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .build(),
         ),
         (
-            SamuraiAction::HeelKick,
+            RoninAction::HeelKick,
             AttackBuilder::button(GameButton::Strong)
                 .with_character_universals(CHARACTER_UNIVERSALS)
-                .with_animation(SamuraiAnimation::HeelKick)
+                .with_animation(RoninAnimation::HeelKick)
                 .with_total_duration(37)
                 .with_hit_on_frame(
                     9,
@@ -230,10 +230,10 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .build(),
         ),
         (
-            SamuraiAction::Uppercut,
+            RoninAction::Uppercut,
             AttackBuilder::button(GameButton::Strong)
                 .crouching()
-                .with_animation(SamuraiAnimation::Uppercut)
+                .with_animation(RoninAnimation::Uppercut)
                 .with_extra_initial_events(vec![ActionEvent::ExpandHurtbox(
                     Area::new(0.1, 1.0, 0.6, 0.8),
                     30,
@@ -277,10 +277,10 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .build(),
         ),
         (
-            SamuraiAction::HighStab,
+            RoninAction::HighStab,
             AttackBuilder::button(GameButton::Gimmick)
                 .with_character_universals(CHARACTER_UNIVERSALS)
-                .with_animation(SamuraiAnimation::HighStab)
+                .with_animation(RoninAnimation::HighStab)
                 .with_extra_initial_events(vec![ActionEvent::Condition(StatusCondition::kara_to(
                     vec![ActionId::GiParry],
                 ))])
@@ -328,11 +328,11 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .build(),
         ),
         (
-            SamuraiAction::SkySlash,
+            RoninAction::SkySlash,
             AttackBuilder::button(GameButton::Gimmick)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .crouching()
-                .with_animation(SamuraiAnimation::SkyStab)
+                .with_animation(RoninAnimation::SkyStab)
                 .with_total_duration(40)
                 .with_extra_initial_events(vec![ActionEvent::ExpandHurtbox(
                     Area::new(0.1, 1.0, 0.6, 0.8),
@@ -351,11 +351,11 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .build(),
         ),
         (
-            SamuraiAction::AirSlice,
+            RoninAction::AirSlice,
             AttackBuilder::button(GameButton::Gimmick)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .air_only()
-                .with_animation(SamuraiAnimation::AirStab)
+                .with_animation(RoninAnimation::AirStab)
                 .with_total_duration(70)
                 .with_hit_on_frame(
                     7,
@@ -370,11 +370,11 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .build(),
         ),
         (
-            SamuraiAction::FalconKnee,
+            RoninAction::FalconKnee,
             AttackBuilder::button(GameButton::Fast)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .air_only()
-                .with_animation(SamuraiAnimation::FalconKnee)
+                .with_animation(RoninAnimation::FalconKnee)
                 .with_total_duration(25)
                 .with_hit_on_frame(
                     2,
@@ -388,9 +388,9 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .build(),
         ),
         (
-            SamuraiAction::FootDiveHold,
+            RoninAction::FootDiveHold,
             ActionBuilder::button(GameButton::Strong)
-                .with_animation(SamuraiAnimation::FootDiveHold)
+                .with_animation(RoninAnimation::FootDiveHold)
                 .static_immediate_events(vec![Movement {
                     amount: Vec2::Y * -1.0,
                     duration: 7,
@@ -403,7 +403,7 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                     Arc::new(|situation: &Situation| {
                         if !situation.held_buttons.contains(&GameButton::Strong) {
                             return vec![ActionEvent::StartAction(
-                                SamuraiAction::FootDiveRelease.into(),
+                                RoninAction::FootDiveRelease.into(),
                             )];
                         }
                         vec![]
@@ -412,10 +412,10 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 .build(),
         ),
         (
-            SamuraiAction::FootDiveRelease,
+            RoninAction::FootDiveRelease,
             AttackBuilder::normal()
-                .follow_up_from(vec![ActionId::Samurai(SamuraiAction::FootDiveHold)])
-                .with_animation(SamuraiAnimation::FootDiveRelease)
+                .follow_up_from(vec![ActionId::Ronin(RoninAction::FootDiveHold)])
+                .with_animation(RoninAnimation::FootDiveRelease)
                 .with_total_duration(20)
                 .air_only()
                 .with_hit_on_frame(
@@ -434,13 +434,13 @@ fn normals() -> impl Iterator<Item = (SamuraiAction, Action)> {
     .into_iter()
 }
 
-fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
-    debug!("Samurai throws");
+fn throws() -> impl Iterator<Item = (RoninAction, Action)> {
+    debug!("Ronin throws");
 
     let (stand_throw_target, stand_throw_activation) = ThrowEffectBuilder::new(
-        SamuraiAnimation::StandThrowHit,
+        RoninAnimation::StandThrowHit,
         80,
-        SamuraiAnimation::StandThrowTarget,
+        RoninAnimation::StandThrowTarget,
         30,
     )
     .with_damage(10)
@@ -448,9 +448,9 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
     .build();
 
     let (crouch_throw_target, crouch_throw_activation) = ThrowEffectBuilder::new(
-        SamuraiAnimation::CrouchThrowHit,
+        RoninAnimation::CrouchThrowHit,
         80,
-        SamuraiAnimation::CrouchThrowTarget,
+        RoninAnimation::CrouchThrowTarget,
         30,
     )
     .with_damage(10)
@@ -459,9 +459,9 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
     .build();
 
     let (air_throw_target, air_throw_activation) = ThrowEffectBuilder::new(
-        SamuraiAnimation::AirThrowHit,
+        RoninAnimation::AirThrowHit,
         50,
-        SamuraiAnimation::AirThrowTarget,
+        RoninAnimation::AirThrowTarget,
         50,
     )
     .with_damage(10)
@@ -470,11 +470,11 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
 
     vec![
         (
-            SamuraiAction::ForwardThrow,
+            RoninAction::ForwardThrow,
             AttackBuilder::button(GameButton::Wrestling)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_total_duration(37)
-                .with_animation(SamuraiAnimation::StandThrowStartup)
+                .with_animation(RoninAnimation::StandThrowStartup)
                 .with_extra_initial_events(vec![ActionEvent::Condition(StatusCondition::kara_to(
                     vec![ActionId::GiParry],
                 ))])
@@ -483,82 +483,82 @@ fn throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                     HitBuilder::normal()
                         .forward_throw()
                         .with_active_frames(3)
-                        .throw_hit_action(SamuraiAction::StandThrowHit)
-                        .throw_target_action(SamuraiAction::StandThrowTarget)
+                        .throw_hit_action(RoninAction::StandThrowHit)
+                        .throw_target_action(RoninAction::StandThrowTarget)
                         .with_hitbox(Area::new(0.5, 1.0, 0.5, 0.5)),
                 )
                 .build(),
         ),
         (
-            SamuraiAction::BackThrow,
+            RoninAction::BackThrow,
             AttackBuilder::normal()
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_input("{4}w")
-                .with_animation(SamuraiAnimation::StandThrowStartup)
+                .with_animation(RoninAnimation::StandThrowStartup)
                 .with_total_duration(37)
                 .with_hit_on_frame(
                     3,
                     HitBuilder::normal()
                         .back_throw()
                         .with_active_frames(3)
-                        .throw_hit_action(SamuraiAction::StandThrowHit)
-                        .throw_target_action(SamuraiAction::StandThrowTarget)
+                        .throw_hit_action(RoninAction::StandThrowHit)
+                        .throw_target_action(RoninAction::StandThrowTarget)
                         .with_hitbox(Area::new(0.5, 1.0, 0.5, 0.5)),
                 )
                 .build(),
         ),
-        (SamuraiAction::StandThrowHit, stand_throw_activation),
-        (SamuraiAction::StandThrowTarget, stand_throw_target),
+        (RoninAction::StandThrowHit, stand_throw_activation),
+        (RoninAction::StandThrowTarget, stand_throw_target),
         (
-            SamuraiAction::CrouchThrow,
+            RoninAction::CrouchThrow,
             AttackBuilder::button(GameButton::Wrestling)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .crouching()
                 .with_total_duration(60)
-                .with_animation(SamuraiAnimation::CrouchThrowStartup)
+                .with_animation(RoninAnimation::CrouchThrowStartup)
                 .with_hit_on_frame(
                     5,
                     HitBuilder::normal()
                         .with_active_frames(3)
                         .forward_throw()
-                        .throw_hit_action(SamuraiAction::CrouchThrowHit)
-                        .throw_target_action(SamuraiAction::CrouchThrowTarget)
+                        .throw_hit_action(RoninAction::CrouchThrowHit)
+                        .throw_target_action(RoninAction::CrouchThrowTarget)
                         .with_hitbox(Area::new(0.7, 0.1, 0.5, 0.2)),
                 )
                 .build(),
         ),
-        (SamuraiAction::CrouchThrowHit, crouch_throw_activation),
-        (SamuraiAction::CrouchThrowTarget, crouch_throw_target),
+        (RoninAction::CrouchThrowHit, crouch_throw_activation),
+        (RoninAction::CrouchThrowTarget, crouch_throw_target),
         (
-            SamuraiAction::AirThrow,
+            RoninAction::AirThrow,
             AttackBuilder::button(GameButton::Wrestling)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .air_only()
-                .with_animation(SamuraiAnimation::AirThrowStartup)
+                .with_animation(RoninAnimation::AirThrowStartup)
                 .with_total_duration(40)
                 .with_hit_on_frame(
                     4,
                     HitBuilder::normal()
                         .with_active_frames(2)
                         .forward_throw()
-                        .throw_hit_action(SamuraiAction::AirThrowHit)
-                        .throw_target_action(SamuraiAction::AirThrowTarget)
+                        .throw_hit_action(RoninAction::AirThrowHit)
+                        .throw_target_action(RoninAction::AirThrowTarget)
                         .with_hitbox(Area::new(0.4, 0.8, 0.4, 0.4)),
                 )
                 .build(),
         ),
-        (SamuraiAction::AirThrowHit, air_throw_activation),
-        (SamuraiAction::AirThrowTarget, air_throw_target),
+        (RoninAction::AirThrowHit, air_throw_activation),
+        (RoninAction::AirThrowTarget, air_throw_target),
     ]
     .into_iter()
 }
 
-fn specials() -> impl Iterator<Item = (SamuraiAction, Action)> {
-    debug!("Samurai specials");
+fn specials() -> impl Iterator<Item = (RoninAction, Action)> {
+    debug!("Ronin specials");
     stance_moves().chain(kunai_throws())
 }
 
-fn stance_moves() -> impl Iterator<Item = (SamuraiAction, Action)> {
+fn stance_moves() -> impl Iterator<Item = (RoninAction, Action)> {
     vec![
         SpecialVersion::Fast,
         SpecialVersion::Strong,
@@ -568,19 +568,19 @@ fn stance_moves() -> impl Iterator<Item = (SamuraiAction, Action)> {
     .flat_map(|version| {
         vec![
             // Base kit
-            (SamuraiAction::SwordStance(version), sword_stance(version)),
-            (SamuraiAction::StanceCancel(version), stance_cancel(version)),
-            (SamuraiAction::ViperStrike(version), viper_strike(version)),
-            (SamuraiAction::RisingSun(version), rising_sun(version)),
-            (SamuraiAction::Sharpen(version), sharpen(version)),
+            (RoninAction::SwordStance(version), sword_stance(version)),
+            (RoninAction::StanceCancel(version), stance_cancel(version)),
+            (RoninAction::ViperStrike(version), viper_strike(version)),
+            (RoninAction::RisingSun(version), rising_sun(version)),
+            (RoninAction::Sharpen(version), sharpen(version)),
             // Require items
-            (SamuraiAction::SwordSlam(version), sword_slam(version)),
+            (RoninAction::SwordSlam(version), sword_slam(version)),
             (
-                SamuraiAction::StanceForwardDash(version),
+                RoninAction::StanceForwardDash(version),
                 stance_dash(version, false),
             ),
             (
-                SamuraiAction::StanceBackDash(version),
+                RoninAction::StanceBackDash(version),
                 stance_dash(version, true),
             ),
         ]
@@ -601,10 +601,7 @@ fn sword_stance(version: SpecialVersion) -> Action {
     let mut builder = ActionBuilder::special()
         .with_input(input)
         .static_immediate_events({
-            let mut events = vec![
-                SamuraiAnimation::SwordStance.into(),
-                ActionEvent::ForceStand,
-            ];
+            let mut events = vec![RoninAnimation::SwordStance.into(), ActionEvent::ForceStand];
 
             events.push(if metered {
                 ActionEvent::Condition(StatusCondition {
@@ -614,8 +611,8 @@ fn sword_stance(version: SpecialVersion) -> Action {
                     ..default()
                 })
             } else {
-                ActionEvent::Condition(StatusCondition::kara_to(vec![ActionId::Samurai(
-                    SamuraiAction::SwordStance(SpecialVersion::Metered),
+                ActionEvent::Condition(StatusCondition::kara_to(vec![ActionId::Ronin(
+                    RoninAction::SwordStance(SpecialVersion::Metered),
                 )]))
             });
             events
@@ -625,11 +622,11 @@ fn sword_stance(version: SpecialVersion) -> Action {
             vec![ActionEvent::Condition(StatusCondition {
                 flag: StatusFlag::Cancel(CancelType::Specific(
                     vec![
-                        SamuraiAction::StanceForwardDash(version),
-                        SamuraiAction::StanceBackDash(version),
+                        RoninAction::StanceForwardDash(version),
+                        RoninAction::StanceBackDash(version),
                     ]
                     .into_iter()
-                    .map(ActionId::Samurai)
+                    .map(ActionId::Ronin)
                     .collect(),
                 )),
                 ..default()
@@ -640,7 +637,7 @@ fn sword_stance(version: SpecialVersion) -> Action {
             Arc::new(move |situation: &Situation| {
                 if situation.held_buttons.contains(&GameButton::Gimmick) {
                     return vec![ActionEvent::StartAction(
-                        SamuraiAction::Sharpen(version).into(),
+                        RoninAction::Sharpen(version).into(),
                     )];
                 }
 
@@ -650,7 +647,7 @@ fn sword_stance(version: SpecialVersion) -> Action {
                 {
                     return vec![ActionEvent::StartAction(
                         if situation.stick_position.as_vec2().y == -1.0 {
-                            SamuraiAction::ViperStrike(version)
+                            RoninAction::ViperStrike(version)
                         } else if situation
                             .facing
                             .absolute
@@ -658,7 +655,7 @@ fn sword_stance(version: SpecialVersion) -> Action {
                             .x
                             == -1.0
                         {
-                            SamuraiAction::RisingSun(version)
+                            RoninAction::RisingSun(version)
                         } else if situation
                             .facing
                             .absolute
@@ -667,9 +664,9 @@ fn sword_stance(version: SpecialVersion) -> Action {
                             == 1.0
                             && situation.inventory.contains(ItemId::Fireaxe)
                         {
-                            SamuraiAction::SwordSlam(version)
+                            RoninAction::SwordSlam(version)
                         } else {
-                            SamuraiAction::StanceCancel(version)
+                            RoninAction::StanceCancel(version)
                         }
                         .into(),
                     )];
@@ -690,9 +687,9 @@ fn sword_stance(version: SpecialVersion) -> Action {
 
 fn stance_cancel(version: SpecialVersion) -> Action {
     ActionBuilder::special()
-        .with_animation(SamuraiAnimation::StanceCancel)
+        .with_animation(RoninAnimation::StanceCancel)
         .static_immediate_events(vec![ActionEvent::ClearCondition(StatusFlag::Intangible)])
-        .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
+        .follow_up_from(vec![ActionId::Ronin(RoninAction::SwordStance(version))])
         .end_at(8)
         .build()
 }
@@ -700,7 +697,7 @@ fn stance_cancel(version: SpecialVersion) -> Action {
 fn stance_dash(version: SpecialVersion, back: bool) -> Action {
     ActionBuilder::special()
         .with_input(if back { "454" } else { "656" })
-        .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
+        .follow_up_from(vec![ActionId::Ronin(RoninAction::SwordStance(version))])
         .static_immediate_events(vec![
             ActionEvent::Teleport(Vec2::X * if back { -2.0 } else { 2.0 }),
             ActionEvent::RelativeVisualEffect(VfxRequest {
@@ -711,8 +708,8 @@ fn stance_dash(version: SpecialVersion, back: bool) -> Action {
         ])
         .static_events_after_frame(
             10,
-            vec![ActionEvent::StartAction(ActionId::Samurai(
-                SamuraiAction::SwordStance(version),
+            vec![ActionEvent::StartAction(ActionId::Ronin(
+                RoninAction::SwordStance(version),
             ))],
         )
         .with_requirement(ActionRequirement::ItemOwned(ItemId::SmokeBomb))
@@ -729,9 +726,9 @@ fn sharpen(version: SpecialVersion) -> Action {
     ActionBuilder::special()
         .static_immediate_events(vec![
             if slow {
-                SamuraiAnimation::SlowSharpen
+                RoninAnimation::SlowSharpen
             } else {
-                SamuraiAnimation::FastSharpen
+                RoninAnimation::FastSharpen
             }
             .into(),
             ActionEvent::Sound(Sound::KnifeChopstickDrag.into()),
@@ -745,7 +742,7 @@ fn sharpen(version: SpecialVersion) -> Action {
             ],
         )
         .end_at(if slow { 60 } else { 45 })
-        .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
+        .follow_up_from(vec![ActionId::Ronin(RoninAction::SwordStance(version))])
         .build()
 }
 
@@ -759,13 +756,13 @@ fn sword_slam(version: SpecialVersion) -> Action {
 
     AttackBuilder::special()
         .with_character_universals(CHARACTER_UNIVERSALS)
-        .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
+        .follow_up_from(vec![ActionId::Ronin(RoninAction::SwordStance(version))])
         .with_extra_requirement(ActionRequirement::ItemOwned(ItemId::Fireaxe))
         .with_sound(Sound::FemaleKiritsu)
         .with_animation(if slow {
-            SamuraiAnimation::SlowSwordSlam
+            RoninAnimation::SlowSwordSlam
         } else {
-            SamuraiAnimation::FastSwordSlam
+            RoninAnimation::FastSwordSlam
         })
         .with_total_duration(if slow { 80 } else { 60 })
         .with_vfx_on_frame(
@@ -809,11 +806,11 @@ fn viper_strike(version: SpecialVersion) -> Action {
     AttackBuilder::special()
         .with_character_universals(CHARACTER_UNIVERSALS)
         .with_sound(Sound::FemaleShagamu)
-        .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
+        .follow_up_from(vec![ActionId::Ronin(RoninAction::SwordStance(version))])
         .with_animation(if slow {
-            SamuraiAnimation::SlowViperStrike
+            RoninAnimation::SlowViperStrike
         } else {
-            SamuraiAnimation::FastViperStrike
+            RoninAnimation::FastViperStrike
         })
         .with_extra_initial_events(vec![Movement {
             amount: Vec2::X * if long_lunge { 12.0 } else { 8.0 },
@@ -859,11 +856,11 @@ fn rising_sun(version: SpecialVersion) -> Action {
         .with_character_universals(CHARACTER_UNIVERSALS)
         .with_sound(Sound::FemaleHiYah)
         .with_animation(if slow {
-            SamuraiAnimation::SlowRisingSun
+            RoninAnimation::SlowRisingSun
         } else {
-            SamuraiAnimation::FastRisingSun
+            RoninAnimation::FastRisingSun
         })
-        .follow_up_from(vec![ActionId::Samurai(SamuraiAction::SwordStance(version))])
+        .follow_up_from(vec![ActionId::Ronin(RoninAction::SwordStance(version))])
         .with_total_duration(if slow { 56 } else { 44 })
         .with_vfx_on_frame(
             activation_frame,
@@ -892,7 +889,7 @@ fn rising_sun(version: SpecialVersion) -> Action {
         .build()
 }
 
-fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
+fn kunai_throws() -> impl Iterator<Item = (RoninAction, Action)> {
     vec![
         SpecialVersion::Fast,
         SpecialVersion::Strong,
@@ -900,7 +897,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
     ]
     .into_iter()
     .map(|version| {
-        (SamuraiAction::KunaiThrow(version), {
+        (RoninAction::KunaiThrow(version), {
             let (input, base_velocity, hits, metered) = match version {
                 SpecialVersion::Fast => ("{2}*6f", Vec2::new(4.0, 2.0), 1, false),
                 SpecialVersion::Strong => ("{2}*6s", Vec2::new(0.9, 4.0), 2, false),
@@ -909,7 +906,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
 
             let mut builder = ActionBuilder::special()
                 .with_input(input)
-                .with_animation(SamuraiAnimation::KunaiThrow)
+                .with_animation(RoninAnimation::KunaiThrow)
                 .with_sound(Sound::FemaleKyatchi)
                 .with_requirement(ActionRequirement::ResourceValue(GaugeType::KunaiCounter, 1))
                 .dyn_events_on_frame(
@@ -986,7 +983,7 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
                 builder.with_meter_cost()
             } else {
                 builder.static_immediate_events(vec![ActionEvent::Condition(
-                    StatusCondition::kara_to(vec![ActionId::Samurai(SamuraiAction::KunaiThrow(
+                    StatusCondition::kara_to(vec![ActionId::Ronin(RoninAction::KunaiThrow(
                         SpecialVersion::Metered,
                     ))]),
                 )])
@@ -999,12 +996,12 @@ fn kunai_throws() -> impl Iterator<Item = (SamuraiAction, Action)> {
 
 fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
     universal_item_actions(
-        Animation::Samurai(SamuraiAnimation::GiParry),
-        Animation::Samurai(SamuraiAnimation::RC),
+        Animation::Ronin(RoninAnimation::GiParry),
+        Animation::Ronin(RoninAnimation::RC),
     )
 }
 
-fn samurai_items() -> HashMap<ItemId, Item> {
+fn ronin_items() -> HashMap<ItemId, Item> {
     vec![
         (
             ItemId::IceCube,
@@ -1137,7 +1134,7 @@ fn samurai_items() -> HashMap<ItemId, Item> {
     .collect()
 }
 
-fn samurai_boxes() -> CharacterBoxes {
+fn ronin_boxes() -> CharacterBoxes {
     CharacterBoxes {
         standing: CharacterStateBoxes {
             head: Area::new(-0.05, 1.8, 0.4, 0.3),

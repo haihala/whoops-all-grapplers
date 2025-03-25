@@ -1,5 +1,5 @@
 mod character;
-mod samurai;
+mod ronin;
 
 pub use character::Character;
-pub use samurai::samurai;
+pub use ronin::ronin;

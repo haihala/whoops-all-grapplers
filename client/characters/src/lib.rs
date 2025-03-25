@@ -15,7 +15,7 @@ pub use actions::{
     CharacterStateBoxes, FlashRequest, Hitbox, Hurtboxes, Lifetime, Movement, ToHit,
 };
 pub use bridging::{ActionTracker, HitEffect, HitInfo, Situation};
-pub use characters::{samurai, Character};
+pub use characters::{ronin, Character};
 pub use items::{ConsumableType, Inventory, Item, ItemCategory};
 pub use resources::{
     ChargeProperty, CounterVisual, Gauge, GaugeType, Gauges, RenderInstructions, ResourceBarVisual,

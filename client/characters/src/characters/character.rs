@@ -5,7 +5,7 @@ use foundation::{
 
 use crate::{resources::GaugeType, Action, CharacterBoxes, Gauge, Item};
 
-use super::samurai;
+use super::ronin;
 
 #[derive(Debug, Component)]
 pub struct Character {
@@ -72,20 +72,20 @@ impl Character {
 impl From<CharacterId> for Character {
     fn from(value: CharacterId) -> Self {
         match value {
-            CharacterId::Samurai => samurai(),
+            CharacterId::Ronin => ronin(),
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{characters::samurai, ActionEvent, ActionRequirement, ActionTracker, Situation};
+    use crate::{ActionEvent, ActionRequirement, ActionTracker, Situation};
 
     use super::*;
 
     #[test]
     fn all_moves_end() {
-        for char in [samurai()] {
+        for char in [ronin()] {
             for (id, mov) in char.moves.iter() {
                 if mov.transient {
                     continue;
@@ -111,7 +111,7 @@ mod test {
 
     #[test]
     fn moves_with_inputs_have_starter_requirement() {
-        for char in [samurai()] {
+        for char in [ronin()] {
             for (id, mov) in char.moves.iter() {
                 debug!("Move ID: {:?}", id);
 

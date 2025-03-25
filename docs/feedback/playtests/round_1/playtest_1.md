@@ -27,7 +27,7 @@ Ideas for non-obvious fixes:
   - Get rid of the gimmick button
     - Replace with dash?
     - Another attack button?
-  - New gimmick (sword for mizku (old name for samurai))
+  - New gimmick (sword for mizku (old name for samurai (old name for ronin)))
     - Move sharpen to like a quarter circle back special
     - Add a standing slash and a crouching slash
     - All slashes scale in damage from sharpen stacks

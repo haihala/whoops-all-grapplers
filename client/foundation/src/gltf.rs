@@ -2,14 +2,14 @@ use bevy::prelude::*;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Reflect)]
 pub enum Model {
-    Samurai,
+    Ronin,
     Fireball,
     Kunai,
     TrainingStage,
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Default, Reflect)]
-pub enum SamuraiAnimation {
+pub enum RoninAnimation {
     Air,
     AirStab,
     AirStagger,
@@ -64,12 +64,12 @@ pub enum SamuraiAnimation {
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 pub enum Animation {
-    Samurai(SamuraiAnimation),
+    Ronin(RoninAnimation),
 }
 
-impl From<SamuraiAnimation> for Animation {
-    fn from(value: SamuraiAnimation) -> Self {
-        Animation::Samurai(value)
+impl From<RoninAnimation> for Animation {
+    fn from(value: RoninAnimation) -> Self {
+        Animation::Ronin(value)
     }
 }
 

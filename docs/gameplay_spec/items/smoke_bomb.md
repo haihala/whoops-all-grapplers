@@ -1,3 +1,2 @@
-- [Samurai](/docs/gameplay_spec/characters/samurai.md) base item
-- Allows for a dash (with a smoke bomb effect) while in [Sword
-  stance](/docs/gameplay_spec/characters/samurai.md#sword-stance)
+- [Ronin](/docs/gameplay_spec/characters/ronin.md) base item
+- Allows for a dash (with a smoke bomb effect) while in [Sword stance](/docs/gameplay_spec/characters/ronin.md#sword-stance)

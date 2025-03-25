@@ -33,7 +33,7 @@ pub struct Stats {
     // Direct Influence
     pub direct_influence: f32,
 
-    // Samurai
+    // Ronin
     pub kunais: i32,
     pub auto_sharpen: i32,
     pub retain_sharpness: bool,

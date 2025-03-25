@@ -40,11 +40,11 @@ pub enum ActionId {
     TestMove,
     SecondTestMove,
 
-    Samurai(SamuraiAction),
+    Ronin(RoninAction),
 }
 
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub enum SamuraiAction {
+pub enum RoninAction {
     SwordStance(SpecialVersion),
     StanceCancel(SpecialVersion),
     StanceForwardDash(SpecialVersion),
@@ -83,8 +83,8 @@ pub enum SamuraiAction {
     KneeThrust,
 }
 
-impl From<SamuraiAction> for ActionId {
-    fn from(value: SamuraiAction) -> Self {
-        Self::Samurai(value)
+impl From<RoninAction> for ActionId {
+    fn from(value: RoninAction) -> Self {
+        Self::Ronin(value)
     }
 }

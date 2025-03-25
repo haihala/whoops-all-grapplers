@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use foundation::{
-    ActionId, Animation, Area, PickupRequest, SamuraiAnimation, SoundRequest, StatusCondition,
+    ActionId, Animation, Area, PickupRequest, RoninAnimation, SoundRequest, StatusCondition,
     StatusFlag, VfxRequest, VoiceLine,
 };
 
@@ -181,8 +181,8 @@ impl From<VfxRequest> for ActionEvent {
     }
 }
 
-impl From<SamuraiAnimation> for ActionEvent {
-    fn from(value: SamuraiAnimation) -> Self {
+impl From<RoninAnimation> for ActionEvent {
+    fn from(value: RoninAnimation) -> Self {
         ActionEvent::Animation(Animation::from(value).into())
     }
 }

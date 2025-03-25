@@ -20,7 +20,7 @@ pub(super) fn model_paths() -> HashMap<Model, &'static str> {
     // TODO: This could use the bevy 0.14 typed asset handles instead of static strings
     // So far, I think that is a waste of effort.
     vec![
-        (Model::Samurai, "samurai.glb#Scene0"),
+        (Model::Ronin, "samurai.glb#Scene0"),
         (Model::Fireball, "fireball.glb#Scene0"),
         (Model::Kunai, "kunai.glb#Scene0"),
         (Model::TrainingStage, "stage.glb#Scene0"),

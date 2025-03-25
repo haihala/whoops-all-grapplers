@@ -30,7 +30,7 @@ pub enum ItemId {
     Wing,
 
     // Character specific
-    // Samurai
+    // Ronin
     SpareKunai,
     KunaiPouch,
     KunaiBelt,

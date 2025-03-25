@@ -5,7 +5,7 @@ myself where I'm going.
 
 # Roster:
 
-- [Samurai](/docs/gameplay_spec/characters/samurai.md) - Tricksy
+- [Ronin](/docs/gameplay_spec/characters/ronin.md) - Tricksy
 - [Lex](/docs/ideas/steam_launch/lex.md) - "Zoner"
 - [Ramkinef](/docs/ideas/steam_launch/ramkinef.md) - Mega grappler
 - [The Hexmaster](/docs/ideas/steam_launch/the_hexmaster.md) - Akuma function, annoying and "unfair"

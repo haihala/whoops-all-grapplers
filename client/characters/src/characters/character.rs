@@ -5,7 +5,7 @@ use foundation::{
 
 use crate::{resources::GaugeType, Action, CharacterBoxes, Gauge, Item};
 
-use super::ronin;
+use super::{cpo, ronin};
 
 #[derive(Debug, Component)]
 pub struct Character {
@@ -73,6 +73,7 @@ impl From<CharacterId> for Character {
     fn from(value: CharacterId) -> Self {
         match value {
             CharacterId::Ronin => ronin(),
+            CharacterId::CPO => cpo(),
         }
     }
 }

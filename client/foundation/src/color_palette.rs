@@ -95,6 +95,9 @@ pub const RONIN_ALT_SHIRT_COLOR: Color = Color::WHITE;
 pub const RONIN_ALT_JEANS_COLOR: Color = Color::Srgba(MIDNIGHT_BLUE);
 pub const RONIN_ALT_HELMET_COLOR: Color = Color::srgb(38.0 / 255.0, 50.0 / 255.0, 100.0 / 255.0);
 
+pub const CPO_ALT_SHIRT_COLOR: Color = Color::srgb(250.0 / 255.0, 128.0 / 255.0, 114.0 / 255.0);
+pub const CPO_ALT_SOCKS_COLOR: Color = Color::WHITE;
+
 // UI
 pub const LOADING_SCREEN_BACKGROUND: Color = Color::srgb(0.2, 0.2, 0.2);
 pub const CONTROLLER_ASSIGNMENT_SIDE_COLOR: Color = Color::srgb(0.1, 0.1, 0.1);

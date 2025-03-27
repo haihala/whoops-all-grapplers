@@ -21,6 +21,7 @@ pub(super) fn model_paths() -> HashMap<Model, &'static str> {
     // So far, I think that is a waste of effort.
     vec![
         (Model::Ronin, "samurai.glb#Scene0"),
+        (Model::CPO, "cpo.glb#Scene0"),
         (Model::Fireball, "fireball.glb#Scene0"),
         (Model::Kunai, "kunai.glb#Scene0"),
         (Model::TrainingStage, "stage.glb#Scene0"),

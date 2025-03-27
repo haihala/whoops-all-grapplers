@@ -1,5 +1,5 @@
 mod action_id;
-pub use action_id::{ActionId, RoninAction, SpecialVersion};
+pub use action_id::{ActionId, CPOAction, RoninAction, SpecialVersion};
 
 mod area;
 pub use area::Area;

@@ -8,6 +8,7 @@ use strum_macros::EnumIter;
 pub enum CharacterId {
     #[default]
     Ronin,
+    CPO,
 }
 impl FromStr for CharacterId {
     type Err = String;
@@ -15,6 +16,7 @@ impl FromStr for CharacterId {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "ronin" => Ok(Self::Ronin),
+            "cpo" => Ok(Self::CPO),
             _ => Err(format!("Unknown character: {}", s)),
         }
     }
@@ -23,6 +25,7 @@ impl std::fmt::Display for CharacterId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             CharacterId::Ronin => write!(f, "ronin"),
+            CharacterId::CPO => write!(f, "CPO"),
         }
     }
 }

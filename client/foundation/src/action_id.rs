@@ -41,6 +41,7 @@ pub enum ActionId {
     SecondTestMove,
 
     Ronin(RoninAction),
+    CPO(CPOAction),
 }
 
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -86,5 +87,46 @@ pub enum RoninAction {
 impl From<RoninAction> for ActionId {
     fn from(value: RoninAction) -> Self {
         Self::Ronin(value)
+    }
+}
+
+#[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub enum CPOAction {
+    BlackFlash,
+
+    // Specials
+    AirTimewinder,
+    GroundTimeWinderStraight,
+    GroundTimeWinderLow,
+    PayCheckStartup,
+    PayCheckHit,
+    PayCheckRecipient,
+    AdBreak,
+    Sugarcoat,
+
+    // Throws
+    AirThrowStartup,
+    AirThrowHit,
+    AirThrowRecipient,
+    ForwardThrowStartup,
+    BackThrowStartup,
+    GroundThrowHit,
+    ForwardThrowRecipient,
+    BackThrowRecipient,
+
+    // Normals
+    BodySplash,
+    Stomp3,
+    Stomp2,
+    Stomp1,
+    HookPunch,
+    JumpingKnees,
+    DickJab,
+    Chop,
+}
+
+impl From<CPOAction> for ActionId {
+    fn from(value: CPOAction) -> Self {
+        Self::CPO(value)
     }
 }

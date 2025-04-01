@@ -434,7 +434,6 @@ impl HitBuilder {
         }
     }
 
-    #[allow(unused)]
     pub fn with_cancels_to(self, cancel_type: CancelType, window_size: usize) -> Self {
         self.with_strike_builder(|sb| sb.with_cancel_window(cancel_type.clone(), window_size))
     }
@@ -736,8 +735,8 @@ impl StrikeEffectBuilder {
         Arc::new(move |situation: &Situation, hit_data: &HitInfo| {
             let sharpness = situation
                 .get_resource(GaugeType::Sharpness)
-                .unwrap()
-                .current;
+                .map(|re| re.current)
+                .unwrap_or_default();
 
             let (effect, offset, rotation) = if situation.combo.ongoing() {
                 (VisualEffect::Hit, Vec2::ZERO, Quat::default())

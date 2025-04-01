@@ -1,14 +1,15 @@
 use bevy::{prelude::*, utils::HashMap};
 
 use foundation::{
-    ActionId, Animation, AnimationType, Area, CPOAction, CPOAnimation, GameButton, Icon, ItemId,
-    Model, Sound, Stats, StatusCondition, VoiceLine, CPO_ALT_SHIRT_COLOR, CPO_ALT_SOCKS_COLOR,
+    ActionId, Animation, AnimationType, Area, CPOAction, CPOAnimation, CancelType, GameButton,
+    ItemId, Model, Sound, Stats, StatusCondition, VoiceLine, CPO_ALT_SHIRT_COLOR,
+    CPO_ALT_SOCKS_COLOR,
 };
 
 use crate::{
     items::{universal_item_actions, universal_items},
-    jumps, Action, ActionEvent, AttackBuilder, CharacterBoxes, CharacterStateBoxes,
-    CharacterUniversals, ConsumableType, DashBuilder, HitBuilder, Item, ItemCategory, Movement,
+    jumps, Action, ActionEvent, ActionRequirement, AttackBuilder, CharacterBoxes,
+    CharacterStateBoxes, CharacterUniversals, DashBuilder, HitBuilder, Item, Movement,
     ThrowEffectBuilder,
 };
 
@@ -19,8 +20,7 @@ const CHARACTER_UNIVERSALS: CharacterUniversals = CharacterUniversals {
 };
 
 pub fn cpo() -> Character {
-    // TODO: I eyeballed some bigger numbers here
-    let (jumps, gravity) = jumps(1.8, 1.2, Animation::CPO(CPOAnimation::Jump));
+    let (jumps, gravity) = jumps(1.4, 1.1, Animation::CPO(CPOAnimation::Jump));
 
     Character::new(
         Model::CPO,
@@ -39,9 +39,8 @@ pub fn cpo() -> Character {
         cpo_boxes(),
         Stats {
             // TODO: Check values
-            walk_speed: 1.2,
+            walk_speed: 1.8,
             back_walk_speed_multiplier: 0.8,
-            kunais: 2,
             gravity,
             ..Stats::character_default()
         },
@@ -98,11 +97,11 @@ fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
             .on_frame(
                 0,
                 Movement {
-                    amount: Vec2::X * 2.0,
+                    amount: Vec2::X * 4.0,
                     duration: 4,
                 },
             )
-            .on_frame(5, Movement::impulse(Vec2::new(2.0, 5.0)))
+            .on_frame(5, Movement::impulse(Vec2::X * 4.0))
             .end_at(20)
             .build(),
         // Grounded back dash
@@ -136,7 +135,168 @@ fn dashes() -> impl Iterator<Item = (ActionId, Action)> {
 fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
     debug!("CPO normals");
 
-    vec![].into_iter()
+    vec![
+        (
+            CPOAction::Chop,
+            AttackBuilder::button(GameButton::Fast)
+                .with_character_universals(CHARACTER_UNIVERSALS)
+                .with_animation(CPOAnimation::Chop)
+                .with_total_duration(20)
+                .with_hit_on_frame(
+                    6,
+                    HitBuilder::normal()
+                        .with_active_frames(2)
+                        .with_damage(5)
+                        .with_advantage_on_block(-1)
+                        .with_advantage_on_hit(4)
+                        .with_hitbox(Area::new(0.2, 1.8, 0.5, 0.5)),
+                )
+                .with_hit_on_frame(
+                    9,
+                    HitBuilder::normal()
+                        .with_active_frames(2)
+                        .with_damage(5)
+                        .with_advantage_on_block(-1)
+                        .with_advantage_on_hit(4)
+                        .with_hitbox(Area::new(0.6, 1.1, 0.25, 0.35)),
+                )
+                .build(),
+        ),
+        (
+            CPOAction::DickJab,
+            AttackBuilder::button(GameButton::Fast)
+                .crouching()
+                .with_character_universals(CHARACTER_UNIVERSALS)
+                .with_animation(CPOAnimation::DickJab)
+                .with_total_duration(15)
+                .with_hit_on_frame(
+                    4,
+                    HitBuilder::normal()
+                        .with_active_frames(2)
+                        .with_damage(5)
+                        .with_advantage_on_block(-1)
+                        .with_advantage_on_hit(4)
+                        .with_hitbox(Area::new(0.75, 0.6, 0.35, 0.35)),
+                )
+                .build(),
+        ),
+        (
+            CPOAction::JumpingKnees,
+            AttackBuilder::button(GameButton::Fast)
+                .air_only()
+                .with_character_universals(CHARACTER_UNIVERSALS)
+                .with_animation(CPOAnimation::JumpingKnees)
+                .with_total_duration(50)
+                .with_hit_on_frame(
+                    4,
+                    HitBuilder::normal()
+                        .with_active_frames(2)
+                        .with_damage(5)
+                        .with_advantage_on_block(-1)
+                        .with_advantage_on_hit(4)
+                        .with_hitbox(Area::new(0.25, 0.65, 0.35, 0.35)),
+                )
+                .build(),
+        ),
+        (
+            CPOAction::HookPunch,
+            AttackBuilder::button(GameButton::Strong)
+                .with_character_universals(CHARACTER_UNIVERSALS)
+                .with_animation(CPOAnimation::HookPunch)
+                .with_total_duration(25)
+                .with_hit_on_frame(
+                    10,
+                    HitBuilder::normal()
+                        .with_active_frames(2)
+                        .with_damage(5)
+                        .with_advantage_on_block(-1)
+                        .with_advantage_on_hit(4)
+                        .with_hitbox(Area::new(0.6, 1.3, 0.35, 0.35)),
+                )
+                .build(),
+        ),
+        (
+            CPOAction::Stomp1,
+            AttackBuilder::button(GameButton::Strong)
+                .crouching()
+                .with_character_universals(CHARACTER_UNIVERSALS)
+                .with_animation(CPOAnimation::Stomp1)
+                .with_total_duration(40)
+                .with_hit_on_frame(
+                    13,
+                    HitBuilder::normal()
+                        .with_active_frames(2)
+                        .with_damage(5)
+                        .with_advantage_on_block(-1)
+                        .with_advantage_on_hit(4)
+                        .with_hitbox(Area::new(0.55, 0.2, 0.35, 0.35))
+                        .with_cancels_to(CancelType::Specific(vec![CPOAction::Stomp2.into()]), 20),
+                )
+                .build(),
+        ),
+        (
+            CPOAction::Stomp2,
+            AttackBuilder::button(GameButton::Strong)
+                .crouching()
+                .with_extra_requirement(ActionRequirement::ActionOngoing(vec![
+                    CPOAction::Stomp1.into()
+                ]))
+                .with_character_universals(CHARACTER_UNIVERSALS)
+                .with_animation(CPOAnimation::Stomp2)
+                .with_total_duration(35)
+                .with_hit_on_frame(
+                    10,
+                    HitBuilder::normal()
+                        .with_active_frames(2)
+                        .with_damage(5)
+                        .with_advantage_on_block(-1)
+                        .with_advantage_on_hit(4)
+                        .with_hitbox(Area::new(0.6, 0.2, 0.35, 0.35))
+                        .with_cancels_to(CancelType::Specific(vec![CPOAction::Stomp3.into()]), 20),
+                )
+                .build(),
+        ),
+        (
+            CPOAction::Stomp3,
+            AttackBuilder::button(GameButton::Strong)
+                .crouching()
+                .with_extra_requirement(ActionRequirement::ActionOngoing(vec![
+                    CPOAction::Stomp2.into()
+                ]))
+                .with_character_universals(CHARACTER_UNIVERSALS)
+                .with_animation(CPOAnimation::Stomp3)
+                .with_total_duration(70)
+                .with_hit_on_frame(
+                    12,
+                    HitBuilder::normal()
+                        .with_active_frames(2)
+                        .with_damage(5)
+                        .with_advantage_on_block(-1)
+                        .with_advantage_on_hit(4)
+                        .with_hitbox(Area::new(0.65, 0.2, 0.35, 0.35)),
+                )
+                .build(),
+        ),
+        (
+            CPOAction::BodySplash,
+            AttackBuilder::button(GameButton::Strong)
+                .air_only()
+                .with_character_universals(CHARACTER_UNIVERSALS)
+                .with_animation(CPOAnimation::BodySplash)
+                .with_total_duration(150)
+                .with_hit_on_frame(
+                    5,
+                    HitBuilder::normal()
+                        .with_active_frames(150)
+                        .with_damage(5)
+                        .with_advantage_on_block(-1)
+                        .with_advantage_on_hit(4)
+                        .with_hitbox(Area::new(0.1, 1.2, 1.35, 0.5)),
+                )
+                .build(),
+        ),
+    ]
+    .into_iter()
 }
 
 fn throws() -> impl Iterator<Item = (CPOAction, Action)> {
@@ -252,157 +412,28 @@ fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {
 }
 
 fn cpo_items() -> HashMap<ItemId, Item> {
-    vec![
-        (
-            ItemId::IceCube,
-            Item {
-                cost: 400,
-                explanation: "First hit of 2h against airborne opponent freezes their momentum.\n\nLand this for a good day".into(),
-                category: ItemCategory::Basic,
-                icon: Icon::IceCube,
-                ..default()
-            },
-        ),
-        (
-            ItemId::SpareKunai,
-            Item {
-                cost: 250,
-                explanation: "Three is better than two".into(),
-                category: ItemCategory::Basic,
-                icon: Icon::Kunai,
-                effect: Stats {
-                    kunais: 1,
-                    ..default()
-                },
-                suggested: true,
-                ..default()
-            },
-        ),
-        (
-            ItemId::KunaiPouch,
-            Item {
-                cost: 400,
-                explanation: "5 uses for Kunai.\n\nThe more the merrier".into(),
-                category: ItemCategory::Upgrade(vec![ItemId::SpareKunai]),
-                icon: Icon::KunaiPouch,
-                effect: Stats {
-                    kunais: 2,
-                    ..default()
-                },
-                suggested: true,
-                ..default()
-            },
-        ),
-        (
-            ItemId::KunaiBelt,
-            Item {
-                cost: 1000,
-                explanation: "8 uses for Kunai.\n\n8 is perfection.".into(),
-                category: ItemCategory::Upgrade(vec![ItemId::KunaiPouch]),
-                icon: Icon::KunaiBelt,
-                effect: Stats {
-                    kunais: 3,
-                    ..default()
-                },
-                suggested: true,
-                ..default()
-            },
-        ),
-        (
-            ItemId::MiniTasers,
-            Item {
-                cost: 400,
-                explanation: "Adds a shock effect to kunais (more stun)".into(),
-                category: ItemCategory::Basic,
-                icon: Icon::Taser,
-                ..default()
-            },
-        ),
-        (
-            ItemId::Protractor,
-            Item {
-                cost: 250,
-                explanation: "Stick position influences Kunai velocity\n\n. It's about angles."
-                    .into(),
-                category: ItemCategory::Basic,
-                icon: Icon::Protractor,
-                ..default()
-            },
-        ),
-        (
-            ItemId::BladeOil,
-            Item {
-                category: ItemCategory::Consumable(ConsumableType::OneRound),
-                explanation: "Retain sharpness from the previous round.".into(),
-                cost: 100,
-                icon: Icon::BladeOil,
-                effect: Stats {
-                    retain_sharpness: true,
-                    ..default()
-                },
-                ..default()
-            },
-        ),
-        (
-            ItemId::SmithyCoupon,
-            Item {
-                category: ItemCategory::Consumable(ConsumableType::OneRound),
-                explanation: "Pre-sharpen the sword by two levels".into(),
-                cost: 100,
-                icon: Icon::SmithyCoupon,
-                effect: Stats {
-                    auto_sharpen: 2,
-                    ..default()
-                },
-                ..default()
-            },
-        ),
-        (
-            ItemId::Fireaxe,
-            Item {
-                category: ItemCategory::Basic,
-                explanation: "Release stance while holding forward to do an overhead".into(),
-                cost: 400,
-                icon: Icon::Fireaxe,
-                ..default()
-            },
-        ),
-        (
-            ItemId::SmokeBomb,
-            Item {
-                category: ItemCategory::Basic,
-                explanation: "Dash in sword stance".into(),
-                cost: 1000,
-                icon: Icon::SmokeBomb,
-                suggested: true,
-                ..default()
-            },
-        ),
-    ]
-    .into_iter()
-    .chain(universal_items())
-    .collect()
+    vec![].into_iter().chain(universal_items()).collect()
 }
 
 fn cpo_boxes() -> CharacterBoxes {
     CharacterBoxes {
         standing: CharacterStateBoxes {
-            head: Area::new(-0.05, 1.8, 0.4, 0.3),
-            chest: Area::new(0.0, 1.3, 0.6, 0.8),
-            legs: Area::new(0.05, 0.6, 0.65, 1.2),
-            pushbox: Area::from_center_size(Vec2::Y * 0.7, Vec2::new(0.4, 1.4)),
+            head: Area::new(0.0, 1.9, 0.6, 0.5),
+            chest: Area::new(0.0, 1.3, 0.7, 0.8),
+            legs: Area::new(0.0, 0.6, 0.8, 1.2),
+            pushbox: Area::new(0.0, 0.7, 0.4, 1.4),
         },
         crouching: CharacterStateBoxes {
-            head: Area::new(0.2, 0.6, 0.4, 0.3),
-            chest: Area::new(0.1, 0.45, 0.6, 0.3),
-            legs: Area::new(0.0, 0.2, 1.0, 0.4),
-            pushbox: Area::from_center_size(Vec2::new(0.1, 0.35), Vec2::new(0.6, 0.7)),
+            head: Area::new(0.1, 1.5, 0.6, 0.5),
+            chest: Area::new(0.0, 1.0, 0.7, 0.8),
+            legs: Area::new(0.0, 0.5, 0.8, 1.0),
+            pushbox: Area::new(0.0, 0.5, 0.4, 1.0),
         },
         airborne: CharacterStateBoxes {
-            head: Area::new(0.15, 1.25, 0.4, 0.3),
-            chest: Area::new(0.1, 0.9, 1.1, 0.6),
-            legs: Area::new(-0.2, 0.4, 0.9, 0.8),
-            pushbox: Area::from_center_size(Vec2::new(0.0, 0.55), Vec2::new(0.4, 0.6)),
+            head: Area::new(0.0, 1.9, 0.6, 0.5),
+            chest: Area::new(0.0, 1.3, 1.2, 0.8),
+            legs: Area::new(0.0, 1.0, 1.3, 0.7),
+            pushbox: Area::new(0.0, 1.6, 0.4, 0.6),
         },
     }
 }

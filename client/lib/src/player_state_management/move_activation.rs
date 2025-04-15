@@ -92,7 +92,7 @@ pub(super) fn move_activator(
         &Stats,
         &InputParser,
         &CharacterFacing,
-        &mut CharacterClock,
+        &CharacterClock,
         &Combo,
     )>,
 ) {
@@ -108,11 +108,11 @@ pub(super) fn move_activator(
         stats,
         parser,
         facing,
-        mut clock,
+        clock,
         combo,
     ) in &mut query
     {
-        if clock.move_activation_processed {
+        if clock.hitstop_frames > 0 {
             continue;
         }
 
@@ -159,6 +159,5 @@ pub(super) fn move_activator(
 
             state.start_move(to_activate, clock.frame);
         }
-        clock.move_activation_processed = true;
     }
 }

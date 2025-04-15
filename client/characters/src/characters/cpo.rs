@@ -8,9 +8,8 @@ use foundation::{
 
 use crate::{
     items::{universal_item_actions, universal_items},
-    jumps, Action, ActionEvent, ActionRequirement, AttackBuilder, CharacterBoxes,
-    CharacterStateBoxes, CharacterUniversals, DashBuilder, HitBuilder, Item, Movement,
-    ThrowEffectBuilder,
+    jumps, Action, ActionEvent, AttackBuilder, CharacterBoxes, CharacterStateBoxes,
+    CharacterUniversals, DashBuilder, HitBuilder, Item, Movement, ThrowEffectBuilder,
 };
 
 use super::Character;
@@ -238,9 +237,7 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
             CPOAction::Stomp2,
             AttackBuilder::button(GameButton::Strong)
                 .crouching()
-                .with_extra_requirement(ActionRequirement::ActionOngoing(vec![
-                    CPOAction::Stomp1.into()
-                ]))
+                .follow_up_from(vec![CPOAction::Stomp1.into()])
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_animation(CPOAnimation::Stomp2)
                 .with_total_duration(35)
@@ -260,9 +257,7 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
             CPOAction::Stomp3,
             AttackBuilder::button(GameButton::Strong)
                 .crouching()
-                .with_extra_requirement(ActionRequirement::ActionOngoing(vec![
-                    CPOAction::Stomp2.into()
-                ]))
+                .follow_up_from(vec![CPOAction::Stomp2.into()])
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_animation(CPOAnimation::Stomp3)
                 .with_total_duration(70)

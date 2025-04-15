@@ -36,8 +36,7 @@ impl Clock {
 #[derive(Reflect, Component, Debug, Clone, Copy, Default)]
 pub struct CharacterClock {
     pub frame: usize,
-    pub move_activation_processed: bool,
-    pub move_events_processed: bool,
+    pub hitstop_frames: usize,
 }
 
 impl CharacterClock {
@@ -45,9 +44,6 @@ impl CharacterClock {
         *self = Self::default();
     }
 }
-
-#[derive(Debug, Component, Deref, Clone, Copy)]
-pub struct Hitstop(pub usize);
 
 // This needs to be defined here because it gets used here
 // It is a workaround that allows running the same systems in both online and offline
@@ -90,6 +86,7 @@ impl Plugin for TimePlugin {
             RollbackSchedule,
             (
                 (
+                    SystemStep::HitStop,
                     SystemStep::Clock,
                     SystemStep::SetupPlayerGLTF,
                     SystemStep::EntityManagement,
@@ -117,7 +114,6 @@ impl Plugin for TimePlugin {
                     SystemStep::Shop,
                     SystemStep::Presentation,
                     SystemStep::UI,
-                    SystemStep::HitStop,
                     SystemStep::Camera,
                     SystemStep::SetupStage,
                     SystemStep::DevTools,
@@ -140,12 +136,10 @@ fn global_clock_update(mut clock: ResMut<Clock>) {
     clock.frame += 1;
 }
 
-fn character_clock_update(mut query: Query<(&mut CharacterClock, Option<&Hitstop>)>) {
-    for (mut clock, maybe_hitstop) in &mut query {
-        if maybe_hitstop.is_none() {
+fn character_clock_update(mut query: Query<&mut CharacterClock>) {
+    for mut clock in &mut query {
+        if clock.hitstop_frames == 0 {
             clock.frame += 1;
-            clock.move_activation_processed = false;
-            clock.move_events_processed = false;
         }
     }
 }

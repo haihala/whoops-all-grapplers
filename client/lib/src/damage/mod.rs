@@ -28,7 +28,7 @@ impl Plugin for DamagePlugin {
         )
         .add_systems(
             RollbackSchedule,
-            hitstop::clear_hitstop.in_set(SystemStep::HitStop),
+            hitstop::update_hitstop.in_set(SystemStep::HitStop),
         )
         .add_observer(hitstop::start_hitstop);
     }

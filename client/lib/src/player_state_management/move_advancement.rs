@@ -11,7 +11,7 @@ pub(super) fn move_advancement(
     mut commands: Commands,
     mut query: Query<(
         &mut PlayerState,
-        &mut CharacterClock,
+        &CharacterClock,
         &Transform,
         &Inventory,
         &Character,
@@ -25,7 +25,7 @@ pub(super) fn move_advancement(
 ) {
     for (
         mut state,
-        mut clock,
+        clock,
         tf,
         inventory,
         character,
@@ -37,7 +37,7 @@ pub(super) fn move_advancement(
         combo,
     ) in &mut query
     {
-        if clock.move_events_processed {
+        if clock.hitstop_frames > 0 {
             continue;
         }
 
@@ -54,8 +54,6 @@ pub(super) fn move_advancement(
         ) {
             commands.trigger_targets(event, entity)
         }
-
-        clock.move_events_processed = true;
     }
 }
 

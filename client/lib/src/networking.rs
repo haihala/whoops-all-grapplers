@@ -10,9 +10,9 @@ use bevy_matchbox::prelude::*;
 use characters::{Attack, Gauges, Hitbox, Hurtboxes, Inventory};
 use foundation::{
     Area, CharacterClock, CharacterFacing, Characters, Clock, Combo, Controllers, GameState,
-    Hitstop, InputDevice, InputStream, LocalCharacter, LocalController, MatchState,
-    NetworkInputButton, OnlineState, Owner, Pickup, Player, RollbackSchedule, RoundLog, Stats,
-    WagArgs, STICK_DEAD_ZONE,
+    InputDevice, InputStream, LocalCharacter, LocalController, MatchState, NetworkInputButton,
+    OnlineState, Owner, Pickup, Player, RollbackSchedule, RoundLog, Stats, WagArgs,
+    STICK_DEAD_ZONE,
 };
 use input_parsing::{InputParser, ParrotStream};
 use player_state::PlayerState;
@@ -98,7 +98,6 @@ impl Plugin for NetworkPlugin {
             .rollback_component_with_copy::<CharacterShake>()
             .rollback_component_with_copy::<Combo>()
             .rollback_component_with_copy::<HitboxSpawner>()
-            .rollback_component_with_copy::<Hitstop>()
             .rollback_component_with_copy::<Player>()
             .rollback_component_with_copy::<Pushbox>()
             .rollback_component_with_copy::<Stats>()

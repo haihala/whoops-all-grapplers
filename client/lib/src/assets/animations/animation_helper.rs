@@ -3,7 +3,7 @@ use std::{mem::take, time::Duration};
 use bevy::{prelude::*, scene::SceneInstance};
 
 use characters::AnimationRequest;
-use foundation::{Animation, Hitstop, Stats};
+use foundation::{Animation, CharacterClock, Stats};
 
 use super::Animations;
 
@@ -100,11 +100,11 @@ fn find_animation_player_entity(
 
 pub fn update_animation(
     animations: Res<Animations>,
-    mut main: Query<(&mut AnimationHelper, &Stats, Option<&Hitstop>)>,
+    mut main: Query<(&mut AnimationHelper, &Stats, &CharacterClock)>,
     mut players: Query<(&mut AnimationPlayer, &mut AnimationTransitions)>,
     mut scenes: Query<&mut Transform, With<SceneRoot>>,
 ) {
-    for (mut helper, stats, maybe_histop) in &mut main {
+    for (mut helper, stats, clock) in &mut main {
         let (mut player, mut transitions) = players.get_mut(helper.player_entity).unwrap();
         let mut scene_root = scenes.get_mut(helper.scene_root).unwrap();
 
@@ -122,7 +122,7 @@ pub fn update_animation(
                 active.set_speed(stats.action_speed_multiplier);
             }
 
-            if maybe_histop.is_some() {
+            if clock.hitstop_frames > 0 {
                 active.pause();
             }
 

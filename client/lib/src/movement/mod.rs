@@ -4,7 +4,7 @@ mod stick_movement;
 
 use std::f32::consts::PI;
 
-use characters::Movement;
+use characters::{Hurtboxes, Movement};
 pub use followers::Follow;
 pub use player_velocity::PlayerVelocity;
 
@@ -184,12 +184,13 @@ fn resolve_floor(
         &mut PlayerVelocity,
         &mut PlayerState,
         &mut HitboxSpawner,
-        &mut Transform,
+        &mut Hurtboxes,
+        &Transform,
         &Pushbox,
         &CharacterClock,
     )>,
 ) {
-    for (mut velocity, mut state, mut spawner, tf, pushbox, clock) in &mut players {
+    for (mut velocity, mut state, mut spawner, mut boxes, tf, pushbox, clock) in &mut players {
         let on_floor =
             pushbox.with_center(tf.translation.truncate()).bottom() <= GROUND_PLANE_HEIGHT;
 
@@ -198,6 +199,7 @@ fn resolve_floor(
             // Velocity check ensures that we don't call land on the frame we're being launched
             state.land(clock.frame);
             spawner.despawn_on_landing();
+            boxes.clear_extras();
             velocity.y_collision();
             velocity.next_pos.y = GROUND_PLANE_HEIGHT;
         }

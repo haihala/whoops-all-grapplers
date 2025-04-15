@@ -193,7 +193,7 @@ pub fn reset_combat(
         parser.clear();
         velocity.reset();
         animation_helper.reset();
-        hurtboxes.reset();
+        hurtboxes.clear_extras();
         char_clock.reset();
         combo.reset();
 

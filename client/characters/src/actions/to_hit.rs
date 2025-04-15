@@ -94,7 +94,7 @@ impl Hurtboxes {
         self.extra.retain(|(_, end)| frame <= *end);
     }
 
-    pub fn reset(&mut self) {
+    pub fn clear_extras(&mut self) {
         self.extra.clear();
     }
 }

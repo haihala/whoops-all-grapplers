@@ -2,33 +2,6 @@
 
 Chief Pounding Officer, a robotic Vince McMahoon
 
-## Design question block
-
-This is for the things that need to be thought of
-
-- Is [Black flash](#black-flash) an annoying execution check?
-  - Yes, you have no reason to not go for it
-  - Maybe if it costs bar?
-    - What does the button do without bar?
-  - Maybe if there is a different cost on whiff?
-    - Go down a level
-    - Forced stumble animation
-- How about them fever levels
-  - Options:
-    - Keep 4 as ad break, put a parry on 3
-    - Move ad break on 3, make 4 an instant kill
-- Timewinder sweet spots
-  - Ideas for properties
-    - Speed increase
-    - Damage increase
-    - Launch
-    - Wall bounce
-    - Huge hitstop
-      - Stops their time, allows a hit after
-      - Clock vfx + ticking sfx
-    - [Fever](#fever) level
-- Maybe reflavor [Ad break](#ad-break)?
-
 ## Lore
 
 - The owner of [W.A.G.](/docs/gameplay_spec/lore/w.a.g..md) in kayfabe.
@@ -58,35 +31,40 @@ This is for the things that need to be thought of
 
 ## Mechanics
 
-### Fever
+### Jackpot
 
-- Fever has a level and a timer
-- Fever level gives a damage and speed multiplier
-- New moves get unlocked at each level
-  - Start at level 0 with just [Sugarcoat](#sugarcoat)
-  - At level 1: [Timewinder](#timewinder)
-  - At level 2: [Pay check](#pay-check)
-  - At level 3:
-  - Finally at level 4: [Ad break](#ad-break)
-- Fever level goes down when:
-  - Fever timer finishes
-  - CPO gets hit
-- Meant to go up and down a lot
-  - You can go from 0 to 4 within one combo
-  - You can go back down to 0 by getting reset a few times
-- Getting to the final level is supposed to be very tricky
-- Visually, he gains more effects at higher levels
-  - The monitor on his head changes
-  - Aura (shader on a cylinder, world position coords)
-
-### Black flash
-
-- Input: `g` in any state besides hitstun
-- Activating starts a cooldown of about 2s
-- If a strike lands in the next few frames
-  - [Fever](#fever) level increases and timer resets
-  - Cooldown resets
-  - The activating move gains improved properties
+- `g` in any state besides hitstun activates timer
+  - Full bar is 2s
+    - Timer is also indicated as a ring that contracts around the character
+    - At the end the ring expands to a thin pillar and vanishes after time is up
+  - Pressing it again stops it
+    - Things grants a 1s buff
+      - Buff level depends on how close to the 1.5s mark you got
+        - There is an bell that indicates level
+          - N dings for level N
+            - Accompanied by a ripple effect on the ground
+          - Failure sound for misses
+          - Dismissal sound for untriggered
+        - Visual effect as well
+          - Super Sayan aura flashing up and down
+    - If buff is unused, forces chest grabbing animation
+  - If not stopped, nothing happens
+    - There is a 1s cooldown before timer can start again
+- Buff levels
+  - Level 3
+    - Frame perfect (1f)
+    - Buff effects
+      - +100% damage
+      - +20f hitstop
+      - Gain a segment of bar
+  - Level 2
+    - Window is +-2f (5f)
+    - Reasonably achievable success
+    - Buff effects are half of level 3
+  - Level 1
+    - Window is +-14f (29f)
+    - Borderline success
+    - Buff effects are half of level 2
 
 ## Moves
 
@@ -166,19 +144,22 @@ input, visual, function
   - https://wiki.supercombo.gg/w/Marvel_vs_Capcom_2/Magneto
 - Will cover opponent with sugar on hit or block
 - Very active
-- When covered in sugar, next hit will auto-trigger [Black flash](#black-flash)
+- When covered in sugar, next [Jackpot](#Jackpot) hit will upgrade by one degree
+  - Allows for level 4, which has double the effects of level 3
 - Sugar status lasts for about 5s or until CPO is hit
 
 #### Timewinder
 
 - Visual: Balrog dash punch / Sol sidewinder
-  - First does a shoulder bash, which is a separate "clean hit" hitbox
+  - First does a shoulder bash
     - Knocks target airborne
+      - Sometimes unwanted
 - Input:
   - Charge: `[14]`
     - Smooth scale charge
-      - You can do it with 0 charge
-      - 99% of charge is a sweet spot
+      - You can do it with 10% charge
+        - Prevent accidentals
+      - More charge goes further
   - Flick:
     - Ground:
       - `6`: Hits mid can link after on hit
@@ -186,24 +167,32 @@ input, visual, function
     - Air: `[963]`, juggle tool, hits overhead, can "TK"
   - Press:
     - `f`: Short and fast
-      - Can be spaced to be safe
+      - Can be spaced to be safe on block
       - Use cases:
         - Spacing trap pressure tool
         - Light combo special cancel
     - `s`: Powerful and longer lunging
-      - Punishable
+      - Punishable on block
+      - More upwards knock on shoulder
       - Use case:
         - Combo tool
         - Unsafe jumpscare
     - `(fs)`: Fastest longest reach
       - Notably longer lunge before the shoulder
+      - Wall bounces
       - Death on block / whiff
       - Use case: Giga punish starter
-- So in total you have:
-  - 3 Directional versions (air, mid, low)
-  - 3 Button versions (`f`, `s`, `(fs)`)
-  - 8 Permutations of sweet spots (2^(clean hit, charge, black flash))
-  - So a total of 72 versions
+- What do the sweet spots do
+  - [Jackpot](#jackpot) explains itself
+  - Clean hit shoulder
+    - Knocks airborne
+      - There is a loop that depends on NOT hitting it
+      - There is a combo that depends on exclusively hitting it
+  - Charge
+    - Lunge distance
+      - 99% charge has the most distance
+      - 100% charge has like 75% of 99% charge lunge
+    - Maybe there is not a specific "sweet spot", but it depends on use case
 
 #### Pay check
 
@@ -217,26 +206,26 @@ input, visual, function
 
 #### Ad break
 
-- Input: `214g`
+- Input: `214g[4g[4g[4g]]]`
+  - Four degrees of commitment, each lengthening the animation a bit
 - Activates an install
   - Aesthetically similar to Hakari's domain expansion
-    - Does the dance, which stops time for a second or so
+    - Does the dance, length depends on input
     - Changes the music while active
 - While active
   - Generates about 1/3 segments of meter per second
   - If meter is full, health regenerates about 20/s
-  - [Fever](#fever) timer is notably slower
-- Consumes all full meter segments
-  - Duration increases exponentially per segment
-  - Lasts something like 2^(segments-1) seconds
-    - 0 bars: 1s -> 1/3 bar
-    - 1 bars: 2s -> 2/3 bars
-    - 2 bars: 4s -> 1 + 1/3 bars
-    - 3 bars: 8s -> 2 + 2/3 bars (almost break even)
-    - All 4 bars: 16s -> 5 + 1/3 bars
-- If hit, ends the effect
+    - Editor note: This may be too much
+      - Although if you have max bar you deserve it
+  - 200% width [Jackpot](#jackpot) windows (except for Level 3 and 4)
+- Duration increases exponentially per button in input
+  - 1 press: 3s -> 1 bar / 60 health
+  - 2 presses: 6s -> 2 bars / 120 health
+  - 3 presses: 9s -> 3 bars / 180 health
+  - All 4 presses: 12s -> 4 bars / 240 health
+- Effect ends on hit
 - Items
-  - Passive income when active
+  - Passive income when active, extra if health is full
   - Hits reduce duration, don't end it outright
 
 ## Ideas

@@ -75,7 +75,7 @@ impl PlayerState {
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Move(tracker)),
             MainState::Air(_) => MainState::Air(AirState::Move(tracker)),
             // TODO: crashes during playtest
-            other => panic!("Starting a move while {:?}", other),
+            other => panic!("Starting a move while {other:?}"),
         };
         self.free_since = None;
         self.clear_cancel_windows();
@@ -186,7 +186,7 @@ impl PlayerState {
             MainState::Crouch(_) => {
                 MainState::Crouch(CrouchState::Stun(Stun::Block(recovery_frame)))
             }
-            other => panic!("Blocked while {:?}", other),
+            other => panic!("Blocked while {other:?}"),
         };
         self.free_since = None;
     }
@@ -195,7 +195,7 @@ impl PlayerState {
             MainState::Stand(_) => MainState::Stand(StandState::Stun(Stun::Hit(recovery_frame))),
             MainState::Crouch(_) => MainState::Crouch(CrouchState::Stun(Stun::Hit(recovery_frame))),
             MainState::Air(_) => MainState::Air(AirState::Freefall),
-            other => panic!("Stunned while {:?}", other),
+            other => panic!("Stunned while {other:?}"),
         };
         self.free_since = None;
     }

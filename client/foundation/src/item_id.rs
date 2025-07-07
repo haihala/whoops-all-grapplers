@@ -79,7 +79,7 @@ impl ItemId {
             | Self::Feather
             | Self::Fireaxe
             | Self::Protractor
-            | Self::Stopwatch => return format!("{:?}", self),
+            | Self::Stopwatch => return format!("{self:?}"),
         }
         .into()
     }

@@ -190,7 +190,7 @@ fn setup_bottom_hud(
                     container,
                     bar,
                     ResourceGauge(player, *prop_type),
-                    format!("Special resource bar {:?}", prop_type),
+                    format!("Special resource bar {prop_type:?}"),
                 );
             }
             RenderInstructions::Counter(counter) => {
@@ -201,7 +201,7 @@ fn setup_bottom_hud(
                     fonts.basic.clone(),
                     counter,
                     ResourceCounter(player, *prop_type),
-                    format!("Special resource counter {:?}", prop_type),
+                    format!("Special resource counter {prop_type:?}"),
                 );
             }
             RenderInstructions::None => {}

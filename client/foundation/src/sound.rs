@@ -94,7 +94,7 @@ impl Sound {
             Sound::FemaleGutPunch => Self::clips("female-gut-punch", 8),
             Sound::BottleBonk => Self::clips("bottle-bonk", 12),
             Sound::PastaPat => Self::clips("pasta-pat", 11),
-            Sound::Number(n) => vec![format!("sound_effects/number-{:0>2}.ogg", n)],
+            Sound::Number(n) => vec![format!("sound_effects/number-{n:0>2}.ogg")],
             Sound::AnnouncerRound => Self::clips("announcer-round", 3),
             Sound::AnnouncerFight => Self::clips("announcer-fight", 3),
             Sound::AnnouncerWins => Self::clips("announcer-wins", 5),
@@ -114,7 +114,7 @@ impl Sound {
 
     fn clips(base_file_name: &'static str, amount: usize) -> Vec<String> {
         (1..=amount)
-            .map(|int| format!("sound_effects/{}-{:0>2}.ogg", base_file_name, int))
+            .map(|int| format!("sound_effects/{base_file_name}-{int:0>2}.ogg"))
             .collect()
     }
 

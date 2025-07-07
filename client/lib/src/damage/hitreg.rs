@@ -222,7 +222,7 @@ pub(super) fn detect_hits(
             };
 
             if let Some(reason) = avoid_notification {
-                notifications.add(defending_player, format!("Avoid - {}", reason,));
+                notifications.add(defending_player, format!("Avoid - {reason}"));
             }
 
             if hit_tracker.hit_intangible {
@@ -404,7 +404,7 @@ fn handle_blocking(height: AttackHeight, stick: StickPosition) -> (bool, String)
     } {
         (true, "Blocked!".into())
     } else {
-        (false, format!("Hit {:?}", height))
+        (false, format!("Hit {height:?}"))
     }
 }
 

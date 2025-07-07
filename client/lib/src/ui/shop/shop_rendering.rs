@@ -104,7 +104,7 @@ pub fn update_slot_visuals(
                     if item.max_stack == 1 {
                         "Owned".into()
                     } else {
-                        format!("{}/{}", item_count, item.max_stack)
+                        format!("{item_count}/{}", item.max_stack)
                     },
                 )
             } else {
@@ -163,8 +163,8 @@ pub fn update_info_panel(
 
         let price_line = allowed_ops
             .into_iter()
-            .map(|(op, amount)| format!("{} for ${}", op, amount))
-            .reduce(|a, b| format!("{}, {}", a, b))
+            .map(|(op, amount)| format!("{op} for ${amount}"))
+            .reduce(|a, b| format!("{a}, {b}"))
             .unwrap();
 
         // Update texts

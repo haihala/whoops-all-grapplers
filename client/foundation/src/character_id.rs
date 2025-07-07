@@ -17,7 +17,7 @@ impl FromStr for CharacterId {
         match s {
             "ronin" => Ok(Self::Ronin),
             "cpo" => Ok(Self::CPO),
-            _ => Err(format!("Unknown character: {}", s)),
+            _ => Err(format!("Unknown character: {s}")),
         }
     }
 }

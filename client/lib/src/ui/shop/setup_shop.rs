@@ -214,7 +214,7 @@ fn setup_shop_root(
                 ..default()
             },
             BackgroundColor(SHOP_DIVIDER_COLOR),
-            Name::new(format!("Player {} shop root", &owner)),
+            Name::new(format!("Player {owner} shop root")),
             ChildOf(parent),
         ))
         .id();

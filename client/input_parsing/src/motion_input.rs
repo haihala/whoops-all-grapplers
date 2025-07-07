@@ -71,7 +71,7 @@ impl MotionInput {
                         break false;
                     }
 
-                    if options.iter().any(|ev| *ev == event) {
+                    if options.contains(&event) {
                         break true;
                     }
 
@@ -207,7 +207,7 @@ impl From<String> for MotionInput {
                 'S' => {
                     out.slow = true;
                 }
-                unknown => panic!("Unknown char ̈́'{}'", unknown),
+                unknown => panic!("Unknown char ̈́'{unknown}'"),
             }
         }
 

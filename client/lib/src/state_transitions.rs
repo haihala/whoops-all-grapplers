@@ -83,7 +83,7 @@ pub fn end_combat(
     let round_money = BASE_ROUND_MONEY + ROUND_MONEY_BUILDUP * round_log.rounds_played();
 
     for player in [Player::One, Player::Two] {
-        notifications.add(player, format!("Round payout: ${}", round_money));
+        notifications.add(player, format!("Round payout: ${round_money}"));
 
         let meter_money = if player == **winner {
             let meter_money = winner_props.get(GaugeType::Meter).unwrap().current;
@@ -95,7 +95,7 @@ pub fn end_combat(
             meter_money
         };
 
-        notifications.add(player, format!("Meter payout: ${}", meter_money));
+        notifications.add(player, format!("Meter payout: ${meter_money}"));
     }
 
     winner_inventory.remove_one_round_consumables(winner_character);
@@ -114,7 +114,7 @@ pub fn end_combat(
         announcer.tie();
         RoundResult { winner: None }
     } else {
-        notifications.add(**winner, format!("Victory bonus: ${}", VICTORY_BONUS));
+        notifications.add(**winner, format!("Victory bonus: ${VICTORY_BONUS}"));
         winner_inventory.money += VICTORY_BONUS;
 
         commands.trigger(SoundRequest::from(

@@ -100,7 +100,7 @@ fn create_selected_controller_area(fonts: &Fonts, root: &mut ChildSpawnerCommand
     ))
     .with_children(|cb| {
         cb.spawn((
-            Text::from(format!("Player {}", player)),
+            Text::from(format!("Player {player}")),
             TextFont {
                 font: fonts.basic.clone(),
                 font_size: 60.0,

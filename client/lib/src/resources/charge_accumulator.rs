@@ -25,11 +25,8 @@ pub fn manage_charge(
                         .all(|button| parser.get_pressed().contains(button));
 
                 let charging = direction_held || buttons_pressed;
-                let frames_since_last_gain = if clock.frame > charge_props.last_gain_frame {
-                    clock.frame - charge_props.last_gain_frame
-                } else {
-                    0
-                };
+                let frames_since_last_gain =
+                    clock.frame.saturating_sub(charge_props.last_gain_frame);
 
                 // Done this way to normalize frame skips but not allow repeatedly tapping back to build charge at the same pace as holding back
                 if charging {

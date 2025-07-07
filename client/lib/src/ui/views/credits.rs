@@ -60,7 +60,7 @@ pub fn setup_credits_menu(mut commands: Commands, fonts: Res<Fonts>) {
                             font_size: 24.0,
                             ..default()
                         },
-                        Name::new(format!("{} credit for {}", name, section.heading)),
+                        Name::new(format!("{name} credit for {}", section.heading)),
                     ));
                 }
             }

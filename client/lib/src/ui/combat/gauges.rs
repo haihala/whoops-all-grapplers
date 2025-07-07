@@ -57,7 +57,7 @@ pub fn setup_bar(
                         ..default()
                     },
                     BackgroundColor(instructions.default_color),
-                    Name::new(format!("Segment {}", i)),
+                    Name::new(format!("Segment {i}")),
                 ));
             }
         });

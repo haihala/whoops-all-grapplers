@@ -122,10 +122,13 @@ pub fn update_notifications(
     containers: Query<(Entity, &NotificationContainer)>,
     clock: Res<Clock>,
 ) {
-    for expired_toast in toasts.spawned.extract_if(|notification| {
-        notification.created_at + TIME_TO_LIVE < clock.frame
-            || notification.created_at > clock.frame // Previous round
-    }) {
+    for expired_toast in toasts
+        .spawned
+        .extract_if(.., |notification: &mut Notification| {
+            notification.created_at + TIME_TO_LIVE < clock.frame
+                || notification.created_at > clock.frame // Previous round
+        })
+    {
         // This structure needs to be here, as the entity gets despawned sometimes
         if let Ok(mut ent_commands) = commands.get_entity(expired_toast.entity) {
             ent_commands.despawn();

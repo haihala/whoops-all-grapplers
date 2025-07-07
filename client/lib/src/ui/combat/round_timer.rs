@@ -33,21 +33,20 @@ pub fn setup_timer(
                 ..default()
             },
             Name::new("Timer"),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .id();
 
-    commands
-        .spawn((
-            Text::new(COMBAT_DURATION.round().to_string()),
-            TextFont {
-                font,
-                font_size: 100.0,
-                ..default()
-            },
-            TextColor(ROUND_TIMER_TEXT_COLOR),
-            TextLayout::new_with_justify(JustifyText::Center),
-            RoundTimer,
-        ))
-        .set_parent(container);
+    commands.spawn((
+        Text::new(COMBAT_DURATION.round().to_string()),
+        TextFont {
+            font,
+            font_size: 100.0,
+            ..default()
+        },
+        TextColor(ROUND_TIMER_TEXT_COLOR),
+        TextLayout::new_with_justify(JustifyText::Center),
+        RoundTimer,
+        ChildOf(container),
+    ));
 }

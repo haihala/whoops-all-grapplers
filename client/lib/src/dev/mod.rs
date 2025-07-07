@@ -1,7 +1,8 @@
 use bevy::{
-    input::gamepad::gamepad_event_processing_system, prelude::*, utils::HashMap, window::WindowMode,
+    input::gamepad::gamepad_event_processing_system, platform::collections::HashMap, prelude::*,
+    window::WindowMode,
 };
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};
 
 use characters::{ActionEvent, FlashRequest, GaugeType, Gauges, Hitbox, Hurtboxes, Inventory};
 use foundation::{
@@ -25,50 +26,53 @@ pub struct DevPlugin;
 
 impl Plugin for DevPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(WorldInspectorPlugin::new())
-            .register_type::<Player>()
-            // TODO FIXME Recursive type definition problem
-            // .register_type::<PlayerState>()
-            .register_type::<Clock>()
-            .register_type::<PlayerVelocity>()
-            .register_type::<ObjectVelocity>()
-            .register_type::<Pushbox>()
-            .register_type::<Area>()
-            .register_type::<Hurtboxes>()
-            .register_type::<Hitbox>()
-            .register_type::<MoveBuffer>()
-            .register_type::<Inventory>()
-            .register_type::<Facing>()
-            .register_type::<Stats>()
-            .register_type::<InputParser>()
-            .register_type::<ParrotStream>()
-            .add_systems(Startup, setup_gizmos)
-            // This needs access to gamepads, which don't in startup
-            // It also needs to happen before any other gameplay systems
-            // Too early, dev-local breaks. Too late and dev-synctest breaks.
-            .add_systems(PreUpdate, skip_menus.after(gamepad_event_processing_system))
-            .add_systems(
-                RollbackSchedule,
-                (
-                    audio_test_system,
-                    shader_test_system,
-                    fullscreen_toggle,
-                    pause_toggle,
-                    kill_system,
-                    reset_bind,
-                )
-                    .chain()
-                    .in_set(SystemStep::DevTools),
+        app.add_plugins(EguiPlugin {
+            enable_multipass_for_primary_context: true,
+        })
+        .add_plugins(WorldInspectorPlugin::new())
+        .register_type::<Player>()
+        // TODO FIXME Recursive type definition problem
+        // .register_type::<PlayerState>()
+        .register_type::<Clock>()
+        .register_type::<PlayerVelocity>()
+        .register_type::<ObjectVelocity>()
+        .register_type::<Pushbox>()
+        .register_type::<Area>()
+        .register_type::<Hurtboxes>()
+        .register_type::<Hitbox>()
+        .register_type::<MoveBuffer>()
+        .register_type::<Inventory>()
+        .register_type::<Facing>()
+        .register_type::<Stats>()
+        .register_type::<InputParser>()
+        .register_type::<ParrotStream>()
+        .add_systems(Startup, setup_gizmos)
+        // This needs access to gamepads, which don't in startup
+        // It also needs to happen before any other gameplay systems
+        // Too early, dev-local breaks. Too late and dev-synctest breaks.
+        .add_systems(PreUpdate, skip_menus.after(gamepad_event_processing_system))
+        .add_systems(
+            RollbackSchedule,
+            (
+                audio_test_system,
+                shader_test_system,
+                fullscreen_toggle,
+                pause_toggle,
+                kill_system,
+                reset_bind,
             )
-            .add_systems(
-                Update,
-                (
-                    box_visualization::visualize_hitboxes,
-                    box_visualization::visualize_hurtboxes,
-                    box_visualization::visualize_pushboxes,
-                    box_visualization::visualize_generic_areas,
-                ),
-            );
+                .chain()
+                .in_set(SystemStep::DevTools),
+        )
+        .add_systems(
+            Update,
+            (
+                box_visualization::visualize_hitboxes,
+                box_visualization::visualize_hurtboxes,
+                box_visualization::visualize_pushboxes,
+                box_visualization::visualize_generic_areas,
+            ),
+        );
     }
 }
 
@@ -195,7 +199,7 @@ fn audio_test_system(mut commands: Commands, keys: Res<ButtonInput<KeyCode>>) {
 
 fn fullscreen_toggle(keys: Res<ButtonInput<KeyCode>>, mut windows: Query<&mut Window>) {
     if keys.just_pressed(KeyCode::Digit3) {
-        let mut win = windows.get_single_mut().unwrap();
+        let mut win = windows.single_mut().unwrap();
         info!("Fullscreen toggle");
 
         win.mode = match win.mode {

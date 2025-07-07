@@ -46,8 +46,8 @@ pub fn setup_bar(
             instructions,
             marker,
             Name::new(name),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .with_children(|root_bar| {
             for i in 0..instructions.segments {
                 root_bar.spawn((
@@ -91,8 +91,8 @@ pub fn setup_counter(
             },
             instructions,
             Name::new(name),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .with_children(|root_bar| {
             let text_style = (
                 TextFont {
@@ -103,7 +103,7 @@ pub fn setup_counter(
                 TextColor(RESOURCE_COUNTER_TEXT_COLOR),
             );
 
-            let spawn_label = |root: &mut ChildBuilder| {
+            let spawn_label = |root: &mut ChildSpawnerCommands| {
                 root.spawn((
                     Text::new(instructions.label),
                     text_style.clone(),
@@ -111,7 +111,7 @@ pub fn setup_counter(
                 ));
             };
 
-            let spawn_counter = |root: &mut ChildBuilder| {
+            let spawn_counter = |root: &mut ChildSpawnerCommands| {
                 root.spawn((
                     Text::new("0"),
                     text_style.clone(),

@@ -64,7 +64,7 @@ pub fn setup_main_menu(mut commands: Commands, fonts: Res<Fonts>) {
     }
 }
 
-fn setup_buttons(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity> {
+fn setup_buttons(root: &mut ChildSpawnerCommands, fonts: &Fonts) -> Vec<Entity> {
     vec![
         MainMenuOptions::LocalPlay,
         MainMenuOptions::OnlinePlay,
@@ -115,7 +115,7 @@ pub fn navigate_main_menu(
                         state.set(GameState::Credits);
                     }
                     MainMenuOptions::QuitToDesktop => {
-                        exit.send_default();
+                        exit.write_default();
                     }
                 };
             }

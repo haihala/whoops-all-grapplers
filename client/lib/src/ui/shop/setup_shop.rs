@@ -47,13 +47,15 @@ pub fn setup_shop(
     setup_shop_top_bar(&mut commands, root, &fonts);
 
     let container = commands
-        .spawn(Node {
-            justify_content: JustifyContent::SpaceBetween,
-            column_gap: Val::Percent(0.5),
-            flex_grow: 1.0,
-            ..default()
-        })
-        .set_parent(root)
+        .spawn((
+            Node {
+                justify_content: JustifyContent::SpaceBetween,
+                column_gap: Val::Percent(0.5),
+                flex_grow: 1.0,
+                ..default()
+            },
+            ChildOf(root),
+        ))
         .id();
 
     let player_one_components = setup_shop_root(
@@ -113,8 +115,8 @@ fn setup_shop_top_bar(commands: &mut Commands, container: Entity, fonts: &Fonts)
             },
             BackgroundColor(SHOP_DARK_BACKGROUND_COLOR),
             Name::new("Shop top bar"),
+            ChildOf(container),
         ))
-        .set_parent(container)
         .with_children(|cb| {
             cb.spawn((
                 Text::new("$0"),
@@ -181,8 +183,8 @@ fn shop_ribbon(
             },
             BackgroundColor(SHOP_DARK_BACKGROUND_COLOR),
             Name::new(title),
+            ChildOf(container),
         ))
-        .set_parent(container)
         .with_children(|cb| {
             for (text, color) in items {
                 cb.spawn((Text::new(*text), style.clone(), TextColor(*color)));
@@ -213,8 +215,8 @@ fn setup_shop_root(
             },
             BackgroundColor(SHOP_DIVIDER_COLOR),
             Name::new(format!("Player {} shop root", &owner)),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .id();
 
     setup_info_panel(commands, container, &mut shop_root_builder, fonts, icons);
@@ -250,8 +252,8 @@ fn setup_countdown_number(
             Visibility::Hidden,
             BackgroundColor(SHOP_TIMER_BACKGROUND_COLOR),
             Name::new("Countdown"),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .id();
 
     shop_root.countdown = Some(container);
@@ -265,8 +267,8 @@ fn setup_countdown_number(
                     ..default()
                 },
                 TextColor(GENERIC_TEXT_COLOR),
+                ChildOf(container),
             ))
-            .set_parent(container)
             .id(),
     );
 }
@@ -287,8 +289,8 @@ fn setup_info_panel(
             },
             BackgroundColor(SHOP_DARK_BACKGROUND_COLOR),
             Name::new("Info panel"),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .id();
 
     shop_root.big_icon = Some(big_icon(commands, container, icons));
@@ -310,8 +312,8 @@ fn big_icon(commands: &mut Commands, parent: Entity, icons: &Icons) -> Entity {
             ImageNode::default(),
             SuggestionStar(star),
             Name::new("Big icon"),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .insert_children(0, &[star])
         .id()
 }
@@ -334,8 +336,8 @@ fn setup_explanation_box(
                 ..default()
             },
             Name::new("Explanations"),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .id();
 
     let basic_style = TextFont {
@@ -388,8 +390,7 @@ fn setup_text_sections(
     name: impl Into<String>,
 ) -> Entity {
     commands
-        .spawn((Text::default(), Name::new(name.into())))
-        .set_parent(parent)
+        .spawn((Text::default(), Name::new(name.into()), ChildOf(parent)))
         .with_children(|cb| {
             for txt in texts {
                 cb.spawn((
@@ -420,8 +421,8 @@ fn setup_shop_grid(
                 ..default()
             },
             Name::new("Available items root"),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .id();
 
     shop_root.grid_items = fill_item_grid(commands, icons, container, player, character);
@@ -506,8 +507,8 @@ fn setup_shop_item(
             SuggestionStar(star.unwrap()),
             OwnedText(owned_text.unwrap()),
             Owner(player),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .insert_children(0, &[image])
         .id()
 }

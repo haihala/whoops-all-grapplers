@@ -17,13 +17,13 @@ pub fn start_animation(
     tfs: Query<&Transform>,
     players: Res<Players>,
 ) {
-    let mut helper = query.get_mut(trigger.entity()).unwrap();
+    let mut helper = query.get_mut(trigger.target()).unwrap();
     let animation_request = trigger.event();
 
     helper.play(if animation_request.invert {
         // Meant for targets
         let [active, opponent] = tfs
-            .get_many([trigger.entity(), players.get_other_entity(trigger.entity())])
+            .get_many([trigger.target(), players.get_other_entity(trigger.target())])
             .unwrap();
         let position_offset = (opponent.translation - active.translation).truncate();
         AnimationRequest {
@@ -69,7 +69,7 @@ pub fn play_voiceline(
 ) {
     commands.trigger(Into::<SoundRequest>::into(
         chars
-            .get(trigger.entity())
+            .get(trigger.target())
             .unwrap()
             .get_voiceline(trigger.event().0),
     ));
@@ -86,7 +86,7 @@ pub fn play_audio(trigger: Trigger<SoundRequest>, mut commands: Commands, sounds
         PlaybackSettings {
             // Shift speed (pitch) by up to about 10% either way
             speed: sound.speed_modifier(),
-            volume: Volume::new(sound.volume()),
+            volume: Volume::Linear(sound.volume()), // TODO: Supports decibels, may prefer that
             mode: if sound.is_music() {
                 PlaybackMode::Loop
             } else {

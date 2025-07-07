@@ -1,9 +1,6 @@
 use crate::{motion_input::MotionInput, ParrotStream};
 
-use bevy::{
-    prelude::*,
-    utils::{HashMap, HashSet},
-};
+use bevy::{platform::collections::HashMap, platform::collections::HashSet, prelude::*};
 
 use foundation::{
     ActionId, CharacterFacing, Clock, Facing, GameButton, InputEvent, InputState, StickPosition,

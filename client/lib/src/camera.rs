@@ -95,7 +95,7 @@ fn center_camera(
 ) {
     let avg_player_x = queries.p0().iter().map(|tf| tf.translation.x).sum::<f32>() / 2.0;
 
-    let mut cam_zoom = cam_zooms.single_mut();
+    let mut cam_zoom = cam_zooms.single_mut().unwrap();
     cam_zoom.player_midpoint = avg_player_x;
     cam_zoom.player_distance = queries
         .p0()
@@ -107,7 +107,7 @@ fn center_camera(
 
     // Do some light lerping to make backthrows less jarring
     let mut camquery = queries.p1();
-    let mut tf = camquery.single_mut();
+    let mut tf = camquery.single_mut().unwrap();
     let target = Vec3 {
         x: avg_player_x.clamp(-CAMERA_CLAMP, CAMERA_CLAMP),
         ..tf.translation
@@ -128,15 +128,15 @@ pub fn tilt_camera(
     mut cams: Query<&mut RootCameraEffects>,
     players: Query<&CharacterFacing>,
 ) {
-    let mut tilt = cams.single_mut();
-    let facing = players.get(trigger.entity()).unwrap();
+    let mut tilt = cams.single_mut().unwrap();
+    let facing = players.get(trigger.target()).unwrap();
     tilt.tilt_velocity += facing.visual.mirror_vec2(trigger.event().0);
 }
 
 fn reset_camera_tilt(
     mut cams: Query<(&mut Transform, &mut RootCameraEffects), With<CameraWrapper>>,
 ) {
-    let (mut tf, mut tilt) = cams.single_mut();
+    let (mut tf, mut tilt) = cams.single_mut().unwrap();
 
     tilt.tilt_velocity *= TILT_DAMPENING;
 
@@ -170,7 +170,7 @@ fn shake_camera(
     mut cams: Query<&mut ChildCameraEffects>,
     time: Res<Time>,
 ) {
-    let mut childcam_fx = cams.single_mut();
+    let mut childcam_fx = cams.single_mut().unwrap();
     // Done after to avoid division by zero.
     childcam_fx.last_shake_start = time.elapsed_secs();
 }
@@ -180,7 +180,7 @@ fn zoom_camera(
     mut cams: Query<&mut ChildCameraEffects>,
     time: Res<Time>,
 ) {
-    let mut childcam_fx = cams.single_mut();
+    let mut childcam_fx = cams.single_mut().unwrap();
     childcam_fx.zoom_until = time.elapsed_secs() + trigger.event().0;
 }
 
@@ -188,7 +188,7 @@ fn child_camera_effects(
     mut cams: Query<(&mut Transform, &mut ChildCameraEffects)>,
     time: Res<Time>,
 ) {
-    let (mut tf, mut childcam_fx) = cams.single_mut();
+    let (mut tf, mut childcam_fx) = cams.single_mut().unwrap();
 
     let translation = if childcam_fx.pivot.is_some() {
         let zoomed = childcam_fx.zoom_until > time.elapsed_secs();

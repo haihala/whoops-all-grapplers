@@ -34,7 +34,7 @@ fn despawn_marked(
 ) {
     for (marked, marker) in &marks {
         if marker.0 < clock.frame {
-            commands.entity(marked).despawn_recursive();
+            commands.entity(marked).despawn();
         }
     }
 }

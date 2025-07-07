@@ -42,7 +42,7 @@ pub fn start_relative_vfx(
     query: Query<(&Transform, &CharacterFacing)>,
     mut commands: Commands,
 ) {
-    let (tf, facing) = query.get(trigger.entity()).unwrap();
+    let (tf, facing) = query.get(trigger.target()).unwrap();
     let mut request = trigger.event().0;
     if facing.visual.to_flipped() {
         request.mirror = !request.mirror;

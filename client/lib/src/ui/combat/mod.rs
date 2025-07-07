@@ -28,7 +28,7 @@ pub fn setup_combat_hud(
     existing_huds: Query<Entity, With<CombatUI>>,
 ) {
     for entity in &existing_huds {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 
     let container = commands
@@ -92,8 +92,8 @@ fn setup_player_hud(
                 ..default()
             },
             Name::new("Player HUD"),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .id();
 
     setup_top_hud(commands, container, fonts, player);
@@ -118,8 +118,8 @@ fn setup_top_hud(commands: &mut Commands, parent: Entity, fonts: &Fonts, player:
                 ..default()
             },
             Name::new(format!("Player {player} health bar wrapper")),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .id();
 
     gauges::setup_bar(
@@ -134,19 +134,18 @@ fn setup_top_hud(commands: &mut Commands, parent: Entity, fonts: &Fonts, player:
 }
 
 fn setup_round_counter(commands: &mut Commands, parent: Entity, fonts: &Fonts, player: Player) {
-    commands
-        .spawn((
-            Text::new("0"),
-            TextFont {
-                font: fonts.basic.clone(),
-                font_size: 40.0,
-                ..default()
-            },
-            TextColor(GENERIC_TEXT_COLOR),
-            ScoreText(player),
-            Name::new("Round counter"),
-        ))
-        .set_parent(parent);
+    commands.spawn((
+        Text::new("0"),
+        TextFont {
+            font: fonts.basic.clone(),
+            font_size: 40.0,
+            ..default()
+        },
+        TextColor(GENERIC_TEXT_COLOR),
+        ScoreText(player),
+        Name::new("Round counter"),
+        ChildOf(parent),
+    ));
 }
 
 fn setup_bottom_hud(
@@ -157,23 +156,25 @@ fn setup_bottom_hud(
     properties: &Gauges,
 ) {
     let container = commands
-        .spawn(Node {
-            flex_direction: FlexDirection::Column,
-            justify_content: JustifyContent::FlexEnd,
-            align_items: match player {
-                // Align towards the side of the screen
-                Player::One => AlignItems::FlexStart,
-                Player::Two => AlignItems::FlexEnd,
-            },
-            width: Val::Percent(100.0),
-            height: Val::Percent(40.0),
-            margin: UiRect {
-                bottom: Val::Percent(gauges::SCREEN_EDGE_PADDING),
+        .spawn((
+            Node {
+                flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::FlexEnd,
+                align_items: match player {
+                    // Align towards the side of the screen
+                    Player::One => AlignItems::FlexStart,
+                    Player::Two => AlignItems::FlexEnd,
+                },
+                width: Val::Percent(100.0),
+                height: Val::Percent(40.0),
+                margin: UiRect {
+                    bottom: Val::Percent(gauges::SCREEN_EDGE_PADDING),
+                    ..default()
+                },
                 ..default()
             },
-            ..default()
-        })
-        .set_parent(parent)
+            ChildOf(parent),
+        ))
         .id();
 
     for (prop_type, property) in properties.iter() {

@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 use rand::Rng;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;

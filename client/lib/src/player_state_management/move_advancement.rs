@@ -63,12 +63,12 @@ pub fn end_moves(
     clock: Res<Clock>,
     mut query: Query<(&mut PlayerState, &mut Hurtboxes)>,
 ) {
-    let (mut state, mut hurtboxes) = query.get_mut(trigger.entity()).unwrap();
+    let (mut state, mut hurtboxes) = query.get_mut(trigger.target()).unwrap();
     state.recover(clock.frame);
     hurtboxes.extra.clear();
     if state.has_flag(StatusFlag::Weaken) {
         state.clear_conditions(StatusFlag::Weaken);
         // This clears the current color
-        commands.trigger_targets(ColorShift(Color::default(), 0), trigger.entity());
+        commands.trigger_targets(ColorShift(Color::default(), 0), trigger.target());
     }
 }

@@ -105,7 +105,7 @@ pub fn navigate_credits(
     mut ui_root: Query<&mut ScrollPosition, With<CreditsNav>>,
     mut scroll_direction: Local<f32>,
 ) {
-    let mut scroll = ui_root.single_mut();
+    let mut scroll = ui_root.single_mut().unwrap();
 
     for ev in input_stream.menu_events.clone() {
         if ev.event == MenuInput::Cancel {

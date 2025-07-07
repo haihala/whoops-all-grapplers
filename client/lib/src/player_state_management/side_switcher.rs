@@ -28,6 +28,6 @@ pub fn sideswitcher(
 }
 
 pub fn flip_visuals(trigger: Trigger<FlipVisuals>, mut query: Query<&mut CharacterFacing>) {
-    let mut facing = query.get_mut(trigger.entity()).unwrap();
+    let mut facing = query.get_mut(trigger.target()).unwrap();
     facing.visual = facing.visual.opposite();
 }

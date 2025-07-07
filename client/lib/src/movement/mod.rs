@@ -114,7 +114,7 @@ fn player_gravity(mut players: Query<(&mut PlayerVelocity, &PlayerState, &Stats,
 }
 
 pub fn clear_movement(trigger: Trigger<MultiplyMomentum>, mut query: Query<&mut PlayerVelocity>) {
-    let mut vel = query.get_mut(trigger.entity()).unwrap();
+    let mut vel = query.get_mut(trigger.target()).unwrap();
     vel.multiply_moments(trigger.event().0);
 }
 
@@ -123,7 +123,7 @@ pub fn add_movement(
     clock: Res<Clock>,
     mut query: Query<(&mut PlayerVelocity, &CharacterFacing)>,
 ) {
-    let (mut vel, facing) = query.get_mut(trigger.entity()).unwrap();
+    let (mut vel, facing) = query.get_mut(trigger.target()).unwrap();
     vel.handle_movement(clock.frame, facing.visual, *trigger.event());
 }
 
@@ -131,7 +131,7 @@ pub fn handle_teleports(
     trigger: Trigger<TeleportEvent>,
     mut query: Query<(&mut PlayerVelocity, &CharacterFacing)>,
 ) {
-    let (mut vel, facing) = query.get_mut(trigger.entity()).unwrap();
+    let (mut vel, facing) = query.get_mut(trigger.target()).unwrap();
     vel.teleport = Some(facing.absolute.mirror_vec2(trigger.event().0));
 }
 
@@ -320,7 +320,7 @@ fn move_objects(
             || transform.translation.y < GROUND_PLANE_HEIGHT
         {
             if velocity.floor_despawns {
-                commands.entity(entity).despawn_recursive();
+                commands.entity(entity).despawn();
             } else {
                 continue;
             }

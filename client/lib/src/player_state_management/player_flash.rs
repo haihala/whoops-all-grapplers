@@ -8,18 +8,18 @@ pub fn handle_flash_events(
     trigger: Trigger<FlashRequest>,
     mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
     handles: Query<(Entity, &MeshMaterial3d<ExtendedFlashMaterial>)>,
-    parents: Query<&Parent>,
+    parents: Query<&ChildOf>,
     time: Res<Time>,
 ) {
     for (material_entity, handle) in &handles {
-        let mut parent = parents.get(material_entity).unwrap();
+        let mut parent = parents.get(material_entity).unwrap().parent();
 
-        while let Ok(next) = parents.get(**parent) {
-            parent = next;
+        while let Ok(next) = parents.get(parent) {
+            parent = next.parent();
         }
 
         // Root level parent ought to be the player
-        if **parent != trigger.entity() {
+        if parent != trigger.target() {
             continue;
         }
 
@@ -37,18 +37,18 @@ pub fn handle_color_shift(
     trigger: Trigger<ColorShift>,
     mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
     handles: Query<(Entity, &MeshMaterial3d<ExtendedFlashMaterial>)>,
-    parents: Query<&Parent>,
+    parents: Query<&ChildOf>,
     time: Res<Time>,
 ) {
     for (material_entity, handle) in &handles {
-        let mut parent = parents.get(material_entity).unwrap();
+        let mut parent = parents.get(material_entity).unwrap().parent();
 
-        while let Ok(next) = parents.get(**parent) {
-            parent = next;
+        while let Ok(next) = parents.get(parent) {
+            parent = next.parent();
         }
 
         // Root level parent ought to be the player
-        if **parent != trigger.entity() {
+        if parent != trigger.target() {
             continue;
         }
 

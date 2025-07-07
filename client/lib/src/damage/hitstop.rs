@@ -8,7 +8,7 @@ pub fn start_hitstop(
     mut helpers: Query<(&mut CharacterClock, &AnimationHelper)>,
     mut anim_players: Query<&mut AnimationPlayer>,
 ) {
-    let (mut clock, anim_player) = helpers.get_mut(trigger.entity()).unwrap();
+    let (mut clock, anim_player) = helpers.get_mut(trigger.target()).unwrap();
     let StartHitstop(duration) = trigger.event();
     clock.hitstop_frames = *duration;
     anim_players

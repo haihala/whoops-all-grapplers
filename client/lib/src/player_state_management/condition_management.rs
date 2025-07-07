@@ -10,7 +10,7 @@ pub fn activate_conditions(
     mut commands: Commands,
     mut query: Query<(&mut PlayerState, &CharacterClock)>,
 ) {
-    let entity = trigger.entity();
+    let entity = trigger.target();
     let new_condition = trigger.event().clone();
     let (mut state, clock) = query.get_mut(entity).unwrap();
 
@@ -41,7 +41,7 @@ pub fn activate_conditions(
 }
 
 pub fn clear_conditions(trigger: Trigger<ClearStatus>, mut query: Query<&mut PlayerState>) {
-    let mut state = query.get_mut(trigger.entity()).unwrap();
+    let mut state = query.get_mut(trigger.target()).unwrap();
     state.clear_conditions(trigger.event().0.clone());
 }
 

@@ -37,23 +37,22 @@ pub struct ComboHitsMarker;
 pub struct ComboDamageMarker;
 
 pub fn setup_toasts(commands: &mut Commands, parent: Entity, player: Player) {
-    commands
-        .spawn((
-            Node {
-                flex_direction: FlexDirection::Column,
-                align_items: match player {
-                    // Align towards the edge of the screen
-                    Player::One => AlignItems::FlexStart,
-                    Player::Two => AlignItems::FlexEnd,
-                },
-                width: Val::Percent(100.0),
-                height: Val::Percent(30.0),
-                ..default()
+    commands.spawn((
+        Node {
+            flex_direction: FlexDirection::Column,
+            align_items: match player {
+                // Align towards the edge of the screen
+                Player::One => AlignItems::FlexStart,
+                Player::Two => AlignItems::FlexEnd,
             },
-            VisibleInStates(vec![MatchState::Combat, MatchState::PostRound]),
-            NotificationContainer(player),
-        ))
-        .set_parent(parent);
+            width: Val::Percent(100.0),
+            height: Val::Percent(30.0),
+            ..default()
+        },
+        VisibleInStates(vec![MatchState::Combat, MatchState::PostRound]),
+        NotificationContainer(player),
+        ChildOf(parent),
+    ));
 }
 
 pub fn setup_combo_counter(commands: &mut Commands, parent: Entity, player: Player, fonts: &Fonts) {
@@ -73,8 +72,8 @@ pub fn setup_combo_counter(commands: &mut Commands, parent: Entity, player: Play
             VisibleInStates(vec![MatchState::Combat, MatchState::PostRound]),
             Visibility::Inherited,
             Name::new("Combo counter"),
+            ChildOf(parent),
         ))
-        .set_parent(parent)
         .with_children(|cb| {
             // This exists so that we can use both the generic visibility system and the more
             // fine-grained model that hides the combo counter when not in a combo
@@ -128,8 +127,8 @@ pub fn update_notifications(
             || notification.created_at > clock.frame // Previous round
     }) {
         // This structure needs to be here, as the entity gets despawned sometimes
-        if let Some(ent) = commands.get_entity(expired_toast.entity) {
-            ent.despawn_recursive();
+        if let Ok(mut ent_commands) = commands.get_entity(expired_toast.entity) {
+            ent_commands.despawn();
         }
     }
 
@@ -154,7 +153,7 @@ pub fn update_notifications(
 }
 
 fn spawn_notification(
-    parent: &mut ChildBuilder,
+    parent: &mut ChildSpawnerCommands,
     font: Handle<Font>,
     bg_color: Color,
     text_color: Color,

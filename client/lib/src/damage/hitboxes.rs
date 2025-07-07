@@ -119,7 +119,7 @@ pub fn spawn_hitbox(
         &Player,
     )>,
 ) {
-    let (mut spawner, tf, parent, facing, player) = query.get_mut(trigger.entity()).unwrap();
+    let (mut spawner, tf, parent, facing, player) = query.get_mut(trigger.target()).unwrap();
     let SpawnHitbox(attack) = trigger.event();
 
     spawner.spawn_attack(

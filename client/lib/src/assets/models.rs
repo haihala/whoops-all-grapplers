@@ -1,6 +1,6 @@
 use bevy::{
-    pbr::ExtendedMaterial, prelude::*, render::view::NoFrustumCulling, scene::SceneInstance,
-    utils::HashMap,
+    pbr::ExtendedMaterial, platform::collections::HashMap, prelude::*,
+    render::view::NoFrustumCulling, scene::SceneInstance,
 };
 use foundation::{Clock, MatchState, Model};
 
@@ -81,7 +81,7 @@ pub fn shake_character(
     mut charshakes: Query<&mut CharacterShake>,
 ) {
     let ShakeCharacter(amount) = trigger.event();
-    charshakes.get_mut(trigger.entity()).unwrap().amount = *amount;
+    charshakes.get_mut(trigger.target()).unwrap().amount = *amount;
 }
 
 const SHAKE_SPEED: f32 = 2.0;

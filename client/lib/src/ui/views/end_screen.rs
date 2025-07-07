@@ -92,7 +92,7 @@ pub struct OptionHoverIndicator {
 }
 
 fn setup_end_screen_option(
-    root: &mut ChildBuilder,
+    root: &mut ChildSpawnerCommands,
     fonts: &Fonts,
     option: EndScreenOption,
 ) -> Entity {
@@ -200,7 +200,7 @@ pub fn navigate_end_screen(
                         }
                     }
                     EndScreenOption::QuitToDesktop => {
-                        quitter.send_default();
+                        quitter.write_default();
                     }
                 }
             }
@@ -221,12 +221,12 @@ pub fn update_end_screen_visuals(
     )>,
     result_text: Single<&mut Text, With<MatchResultTextMarker>>,
     result: Res<GameResult>,
-    hierarchy: Query<&Parent>,
+    hierarchy: Query<&ChildOf>,
     navigator: Res<EndScreenNav>,
 ) {
     for (mut visibility, mut text_color, indicator, entity) in &mut indicators {
-        let middle = hierarchy.get(entity).unwrap();
-        let option = **hierarchy.get(**middle).unwrap();
+        let middle = hierarchy.get(entity).unwrap().parent();
+        let option = hierarchy.get(middle).unwrap().parent();
 
         let (locked, selected) = match indicator.player {
             Player::One => (navigator.p1_locked, navigator.p1_select.selected),

@@ -67,7 +67,7 @@ pub fn setup_controller_assignment(mut commands: Commands, fonts: Res<Fonts>) {
     commands.insert_resource(ControllerAssignment::default());
 }
 
-fn setup_areas(root: &mut ChildBuilder, fonts: &Fonts) {
+fn setup_areas(root: &mut ChildSpawnerCommands, fonts: &Fonts) {
     root.spawn((
         Node {
             flex_grow: 1.0,
@@ -85,7 +85,7 @@ fn setup_areas(root: &mut ChildBuilder, fonts: &Fonts) {
     });
 }
 
-fn create_selected_controller_area(fonts: &Fonts, root: &mut ChildBuilder, player: Player) {
+fn create_selected_controller_area(fonts: &Fonts, root: &mut ChildSpawnerCommands, player: Player) {
     root.spawn((
         Node {
             flex_grow: 1.0,
@@ -110,7 +110,7 @@ fn create_selected_controller_area(fonts: &Fonts, root: &mut ChildBuilder, playe
     });
 }
 
-fn create_unused_controller_area(fonts: &Fonts, root: &mut ChildBuilder) {
+fn create_unused_controller_area(fonts: &Fonts, root: &mut ChildSpawnerCommands) {
     root.spawn((
         Node {
             flex_grow: 1.0,
@@ -181,7 +181,7 @@ pub fn update_controller_assignment_menu_visuals(
     }
 
     for old in &existing_icons {
-        commands.entity(old).despawn_recursive();
+        commands.entity(old).despawn();
     }
 
     let p1_selected = selected_controllers
@@ -196,7 +196,7 @@ pub fn update_controller_assignment_menu_visuals(
         .unwrap()
         .0;
 
-    let unused = free_container.get_single().unwrap();
+    let unused = free_container.single().unwrap();
     for (index, pad_id) in [(KEYBOARD_MAGIC_CONSTANT, InputDevice::Keyboard)]
         .into_iter()
         .chain(pads.iter().map(InputDevice::Controller).enumerate())
@@ -217,9 +217,9 @@ pub fn update_controller_assignment_menu_visuals(
     }
 }
 
-fn create_icon(id: usize, fonts: &Fonts) -> impl Fn(&mut ChildBuilder) {
+fn create_icon(id: usize, fonts: &Fonts) -> impl Fn(&mut ChildSpawnerCommands) {
     let font = fonts.basic.clone();
-    move |cb: &mut ChildBuilder| {
+    move |cb: &mut ChildSpawnerCommands| {
         cb.spawn((
             Text::from(if id == KEYBOARD_MAGIC_CONSTANT {
                 "keyboard".into()

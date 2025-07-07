@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 use foundation::{ItemId, Stats, SELL_RETURN, STARTING_MONEY};
 
 use crate::{Character, ConsumableType, Item, ItemCategory};

@@ -1,4 +1,4 @@
-use bevy::{asset::AssetPath, prelude::*, utils::HashMap};
+use bevy::{asset::AssetPath, platform::collections::HashMap, prelude::*};
 
 use foundation::{Animation, CPOAnimation, RoninAnimation};
 

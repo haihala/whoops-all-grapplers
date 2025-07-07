@@ -451,7 +451,7 @@ pub fn snap_and_switch(
 ) {
     let [(mut self_tf, mut self_facing, self_pushbox, mut self_velocity), (other_tf, mut other_facing, other_pushbox, other_velocity)] =
         query
-            .get_many_mut([trigger.entity(), players.get_other_entity(trigger.entity())])
+            .get_many_mut([trigger.target(), players.get_other_entity(trigger.target())])
             .unwrap();
 
     let raw_diff = self_tf.translation.x - other_tf.translation.x; // This ought to be positive when attacker is on the left
@@ -479,7 +479,7 @@ pub fn hitstun_events(
     trigger: Trigger<UpdateHitstun>,
     mut query: Query<(&mut PlayerState, &CharacterClock)>,
 ) {
-    let (mut state, clock) = query.get_mut(trigger.entity()).unwrap();
+    let (mut state, clock) = query.get_mut(trigger.target()).unwrap();
     state.hit_stun(clock.frame + trigger.event().0);
 }
 
@@ -487,7 +487,7 @@ pub fn blockstun_events(
     trigger: Trigger<UpdateBlockstun>,
     mut query: Query<(&mut PlayerState, &CharacterClock)>,
 ) {
-    let (mut state, clock) = query.get_mut(trigger.entity()).unwrap();
+    let (mut state, clock) = query.get_mut(trigger.target()).unwrap();
     state.block(clock.frame + trigger.event().0);
 }
 
@@ -495,7 +495,7 @@ pub fn launch_events(
     trigger: Trigger<LaunchImpulse>,
     mut query: Query<(&mut PlayerState, &mut PlayerVelocity, &CharacterFacing)>,
 ) {
-    let (mut state, mut velocity, facing) = query.get_mut(trigger.entity()).unwrap();
+    let (mut state, mut velocity, facing) = query.get_mut(trigger.target()).unwrap();
     state.launch();
     velocity.add_impulse(facing.visual.mirror_vec2(trigger.event().0));
 }

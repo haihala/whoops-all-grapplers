@@ -87,34 +87,34 @@ pub struct FlipVisuals;
 pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
     match trigger.event() {
         ActionEvent::Animation(ar) => {
-            commands.trigger_targets(*ar, trigger.entity());
+            commands.trigger_targets(*ar, trigger.target());
         }
         ActionEvent::Sound(sfx) => {
             commands.trigger(*sfx);
         }
         ActionEvent::StartAction(act) => {
-            commands.trigger_targets(StartAction(act.to_owned()), trigger.entity());
+            commands.trigger_targets(StartAction(act.to_owned()), trigger.target());
         }
         ActionEvent::SpawnHitbox(atk) => {
-            commands.trigger_targets(SpawnHitbox(atk.clone()), trigger.entity());
+            commands.trigger_targets(SpawnHitbox(atk.clone()), trigger.target());
         }
         ActionEvent::MultiplyMomentum(amount) => {
-            commands.trigger_targets(MultiplyMomentum(*amount), trigger.entity());
+            commands.trigger_targets(MultiplyMomentum(*amount), trigger.target());
         }
         ActionEvent::Movement(mov) => {
-            commands.trigger_targets(*mov, trigger.entity());
+            commands.trigger_targets(*mov, trigger.target());
         }
         ActionEvent::Condition(cond) => {
-            commands.trigger_targets(cond.to_owned(), trigger.entity());
+            commands.trigger_targets(cond.to_owned(), trigger.target());
         }
         ActionEvent::ForceStand => {
-            commands.trigger_targets(ForceState(SimpleState::Stand), trigger.entity());
+            commands.trigger_targets(ForceState(SimpleState::Stand), trigger.target());
         }
         ActionEvent::ForceCrouch => {
-            commands.trigger_targets(ForceState(SimpleState::Crouch), trigger.entity());
+            commands.trigger_targets(ForceState(SimpleState::Crouch), trigger.target());
         }
         ActionEvent::ForceAir => {
-            commands.trigger_targets(ForceState(SimpleState::Air), trigger.entity());
+            commands.trigger_targets(ForceState(SimpleState::Air), trigger.target());
         }
         ActionEvent::ModifyResource(rt, amount) => {
             commands.trigger_targets(
@@ -122,53 +122,53 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
                     resource: *rt,
                     amount: *amount,
                 },
-                trigger.entity(),
+                trigger.target(),
             );
         }
         ActionEvent::ClearResource(rt) => {
-            commands.trigger_targets(ClearResource(*rt), trigger.entity());
+            commands.trigger_targets(ClearResource(*rt), trigger.target());
         }
         ActionEvent::SnapToOpponent { sideswitch } => {
             commands.trigger_targets(
                 SnapToOpponent {
                     sideswitch: *sideswitch,
                 },
-                trigger.entity(),
+                trigger.target(),
             );
         }
         // TODO: Maybe these could be compressed to one event that contains a struct?
         ActionEvent::HitStun(hs) => {
-            commands.trigger_targets(UpdateHitstun(*hs), trigger.entity());
+            commands.trigger_targets(UpdateHitstun(*hs), trigger.target());
         }
         ActionEvent::BlockStun(bs) => {
-            commands.trigger_targets(UpdateBlockstun(*bs), trigger.entity());
+            commands.trigger_targets(UpdateBlockstun(*bs), trigger.target());
         }
         ActionEvent::LaunchStun(impulse) => {
-            commands.trigger_targets(LaunchImpulse(*impulse), trigger.entity());
+            commands.trigger_targets(LaunchImpulse(*impulse), trigger.target());
         }
         ActionEvent::Hitstop(frames) => {
-            commands.trigger_targets(StartHitstop(*frames), trigger.entity());
+            commands.trigger_targets(StartHitstop(*frames), trigger.target());
         }
         ActionEvent::CameraTilt(tilt) => {
-            commands.trigger_targets(TiltCamera(*tilt), trigger.entity());
+            commands.trigger_targets(TiltCamera(*tilt), trigger.target());
         }
         ActionEvent::Zoom(duration) => {
-            commands.trigger_targets(ZoomCamera(*duration), trigger.entity());
+            commands.trigger_targets(ZoomCamera(*duration), trigger.target());
         }
         ActionEvent::CameraShake => {
             commands.trigger(ShakeCamera);
         }
         ActionEvent::Flash(fr) => {
-            commands.trigger_targets(*fr, trigger.entity());
+            commands.trigger_targets(*fr, trigger.target());
         }
         ActionEvent::AbsoluteVisualEffect(vfx) => {
             commands.trigger(SpawnVfx(*vfx));
         }
         ActionEvent::RelativeVisualEffect(vfx) => {
-            commands.trigger_targets(SpawnRelativeVfx(*vfx), trigger.entity());
+            commands.trigger_targets(SpawnRelativeVfx(*vfx), trigger.target());
         }
         ActionEvent::End => {
-            commands.trigger_targets(EndAction, trigger.entity());
+            commands.trigger_targets(EndAction, trigger.target());
         }
         ActionEvent::ExpandHurtbox(area, duration) => {
             commands.trigger_targets(
@@ -176,29 +176,29 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
                     area: *area,
                     duration: *duration,
                 },
-                trigger.entity(),
+                trigger.target(),
             );
         }
         ActionEvent::SayVoiceLine(line) => {
-            commands.trigger_targets(ActivateVoiceline(*line), trigger.entity());
+            commands.trigger_targets(ActivateVoiceline(*line), trigger.target());
         }
         ActionEvent::CharacterShake(amount) => {
-            commands.trigger_targets(ShakeCharacter(*amount), trigger.entity());
+            commands.trigger_targets(ShakeCharacter(*amount), trigger.target());
         }
         ActionEvent::Teleport(amount) => {
-            commands.trigger_targets(TeleportEvent(*amount), trigger.entity());
+            commands.trigger_targets(TeleportEvent(*amount), trigger.target());
         }
         ActionEvent::ColorShift(color, frames) => {
-            commands.trigger_targets(ColorShift(*color, *frames), trigger.entity());
+            commands.trigger_targets(ColorShift(*color, *frames), trigger.target());
         }
         ActionEvent::ClearCondition(flag) => {
-            commands.trigger_targets(ClearStatus(flag.clone()), trigger.entity());
+            commands.trigger_targets(ClearStatus(flag.clone()), trigger.target());
         }
         ActionEvent::SpawnPickup(pickup_request) => {
-            commands.trigger_targets(*pickup_request, trigger.entity())
+            commands.trigger_targets(*pickup_request, trigger.target())
         }
         ActionEvent::FlipVisuals => {
-            commands.trigger_targets(FlipVisuals, trigger.entity());
+            commands.trigger_targets(FlipVisuals, trigger.target());
         }
         ActionEvent::Noop => {}
     }

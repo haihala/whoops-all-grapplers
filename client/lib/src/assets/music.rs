@@ -63,7 +63,7 @@ pub fn update_music(
         };
 
         if let Some(request) = to_play {
-            commands.entity(ent).despawn_recursive();
+            commands.entity(ent).despawn();
             commands.trigger(request);
         }
     }

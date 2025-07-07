@@ -1,6 +1,6 @@
 use std::{f32::consts::PI, sync::Arc};
 
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 
 use foundation::{
     ActionId, Animation, AnimationType, Area, CancelType, GameButton, Icon, ItemId, Model, Pickup,

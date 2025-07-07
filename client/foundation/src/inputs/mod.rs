@@ -1,4 +1,4 @@
-use bevy::{math::u16, prelude::*, utils::HashMap};
+use bevy::{math::u16, platform::collections::HashMap, prelude::*};
 
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;

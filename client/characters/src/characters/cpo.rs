@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 
 use foundation::{
     ActionId, Animation, AnimationType, Area, CPOAction, CPOAnimation, CancelType, GameButton,

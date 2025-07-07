@@ -218,7 +218,7 @@ impl From<String> for MotionInput {
 #[cfg(test)]
 mod test {
     use super::*;
-    use bevy::utils::HashSet;
+    use bevy::platform::collections::HashSet;
     use foundation::{Facing::*, GameButton::*, InputEvent::*, InputState, StickPosition::*};
 
     #[test]

@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 use foundation::{
     ActionId, Animation, AnimationType, CharacterId, ItemId, Model, Player, Sound, Stats, VoiceLine,
 };

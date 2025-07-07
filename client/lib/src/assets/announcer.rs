@@ -49,7 +49,7 @@ pub fn update_announcer(
 
     if announcer.clear_existing {
         for entity in &marked {
-            commands.entity(entity).despawn_recursive();
+            commands.entity(entity).despawn();
         }
         announcer.clear_existing = false;
     }

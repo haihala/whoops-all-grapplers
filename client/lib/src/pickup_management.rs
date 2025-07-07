@@ -47,7 +47,7 @@ pub fn pick_up_pickups(
                     }
                 }
 
-                commands.entity(entity).despawn_recursive();
+                commands.entity(entity).despawn();
             }
         }
     }
@@ -71,7 +71,7 @@ pub fn spawn_pickups(
     } = trigger.event();
     let (model, transform) = pickup.spawn_info();
 
-    let (player_tf, player, facing) = query.get(trigger.entity()).unwrap();
+    let (player_tf, player, facing) = query.get(trigger.target()).unwrap();
 
     // These will get despawned in the post-round cleanup
     let despawn_after = lifetime.unwrap_or((60.0 * MAX_COMBAT_DURATION) as usize);

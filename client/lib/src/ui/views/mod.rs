@@ -61,7 +61,7 @@ impl Plugin for ViewsPlugin {
 }
 
 fn setup_view_title<'a>(
-    root: &'a mut ChildBuilder,
+    root: &'a mut ChildSpawnerCommands,
     fonts: &Fonts,
     text: impl Into<String>,
 ) -> EntityCommands<'a> {
@@ -76,7 +76,7 @@ fn setup_view_title<'a>(
     ))
 }
 
-fn setup_view_subtitle(root: &mut ChildBuilder, fonts: &Fonts, text: impl Into<String>) {
+fn setup_view_subtitle(root: &mut ChildSpawnerCommands, fonts: &Fonts, text: impl Into<String>) {
     root.spawn((
         Text::new(text),
         TextFont {

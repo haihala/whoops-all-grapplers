@@ -66,7 +66,7 @@ fn set_ui_scale(
     mut ui_scale: ResMut<UiScale>,
     mut local_width: Local<f32>,
 ) {
-    let window = windows.single();
+    let window = windows.single().unwrap();
 
     if window.width() == *local_width {
         return;

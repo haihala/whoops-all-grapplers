@@ -2,8 +2,8 @@ use std::hash::{Hash, Hasher};
 
 use bevy::{
     ecs::schedule::{LogLevel, ScheduleBuildSettings},
+    platform::collections::HashMap,
     prelude::*,
-    utils::HashMap,
 };
 use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;

@@ -62,7 +62,7 @@ pub struct CharacterHoverIndicator {
     player: Player,
 }
 
-fn setup_character_options(root: &mut ChildBuilder, fonts: &Fonts) -> Vec<Entity> {
+fn setup_character_options(root: &mut ChildSpawnerCommands, fonts: &Fonts) -> Vec<Entity> {
     CharacterId::iter()
         .map(|character| {
             root.spawn((

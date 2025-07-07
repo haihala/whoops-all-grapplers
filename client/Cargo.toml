@@ -17,10 +17,10 @@ lto = "off"
 opt-level = 3
 
 [workspace.dependencies]
-bevy = "0.15"
-bevy-inspector-egui = "0.28"
-bevy_matchbox = { version = "0.11", features = ["ggrs"] }
-bevy_ggrs = "0.17"
+bevy = "0.16"
+bevy-inspector-egui = "0.31"
+bevy_matchbox = { version = "0.12", features = ["ggrs"] }
+bevy_ggrs = "0.18"
 
 rand = "0.8"
 strum = "0.26"

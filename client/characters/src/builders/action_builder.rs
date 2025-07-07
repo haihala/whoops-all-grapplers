@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 use foundation::{
     ActionCategory, ActionId, Animation, GameButton, SimpleState, Sound, VfxRequest, VisualEffect,
     METER_BAR_SEGMENT,

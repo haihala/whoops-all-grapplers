@@ -25,7 +25,7 @@ pub fn expand_hurtboxes(
     clock: Res<Clock>,
     mut query: Query<&mut Hurtboxes>,
 ) {
-    let mut hurtboxes = query.get_mut(trigger.entity()).unwrap();
+    let mut hurtboxes = query.get_mut(trigger.target()).unwrap();
     hurtboxes
         .extra
         .push((trigger.event().area, trigger.event().duration + clock.frame));

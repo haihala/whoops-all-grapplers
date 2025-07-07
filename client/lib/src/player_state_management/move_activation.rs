@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 
 use characters::{Character, Gauges, Hurtboxes, Inventory, Situation};
 use foundation::{ActionId, CancelType, CharacterClock, CharacterFacing, Clock, Combo, Stats};
@@ -74,7 +74,7 @@ pub(super) fn automatic_activation(
     trigger: Trigger<StartAction>,
     mut query: Query<&mut MoveBuffer>,
 ) {
-    let mut buffer = query.get_mut(trigger.entity()).unwrap();
+    let mut buffer = query.get_mut(trigger.target()).unwrap();
 
     buffer.activation = Some(trigger.event().0)
 }

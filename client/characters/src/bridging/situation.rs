@@ -1,5 +1,4 @@
-use bevy::prelude::*;
-use bevy::utils::HashSet;
+use bevy::{platform::collections::HashSet, prelude::*};
 use foundation::{CharacterFacing, Combo, GameButton, Stats, StatusFlag, StickPosition};
 
 use crate::{ActionEvent, ActionTracker, Gauge, GaugeType, Inventory};

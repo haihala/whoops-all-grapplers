@@ -46,6 +46,7 @@ pub enum Sound {
     HangingKnifeFlick,
     Matches,
     PaperCrumple,
+    BoxingBell(i32),
 
     // Music
     Motivation,
@@ -59,6 +60,8 @@ impl Sound {
             .flat_map(|sfx| {
                 if matches!(sfx, Sound::Number(_)) {
                     (1..=20).map(Sound::Number).collect()
+                } else if matches!(sfx, Self::BoxingBell(_)) {
+                    (1..=3).map(Sound::BoxingBell).collect()
                 } else {
                     vec![sfx]
                 }
@@ -109,6 +112,7 @@ impl Sound {
             Sound::WaitingMusic => {
                 vec!["music/waiting-music-116216.mp3".to_string()]
             }
+            Sound::BoxingBell(n) => vec![format!("sound_effects/boxing-bell-{n:0>2}.ogg")],
         }
     }
 

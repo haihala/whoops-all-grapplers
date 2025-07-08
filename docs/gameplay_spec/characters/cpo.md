@@ -37,19 +37,15 @@ Chief Pounding Officer, a robotic Vince McMahoon
   - Full bar is 2s
     - Timer is also indicated as a ring that contracts around the character
     - At the end the ring expands to a thin pillar and vanishes after time is up
-  - Pressing it again stops it
-    - Things grants a 1s buff
-      - Buff level depends on how close to the 1.5s mark you got
-        - There is an bell that indicates level
-          - N dings for level N
-            - Accompanied by a ripple effect on the ground
-          - Failure sound for misses
-          - Dismissal sound for untriggered
-        - Visual effect as well
-          - Super Sayan aura flashing up and down
-    - If buff is unused, forces chest grabbing animation
-  - If not stopped, nothing happens
-    - There is a 1s cooldown before timer can start again
+  - Hitting with a move will grant buffs to that move
+    - Buff level depends on how close to the 1.5s mark you got
+      - There is an bell that indicates level
+        - N dings for level N
+          - Accompanied by a ripple effect on the ground
+        - Failure sound for misses
+        - Dismissal sound for untriggered
+      - Visual effect as well
+        - Super Sayan aura flashing up and down
 - Buff levels
   - Level 3
     - Frame perfect (1f)
@@ -62,7 +58,7 @@ Chief Pounding Officer, a robotic Vince McMahoon
     - Reasonably achievable success
     - Buff effects are half of level 3
   - Level 1
-    - Window is +-14f (29f)
+    - Window is +-10f (21f)
     - Borderline success
     - Buff effects are half of level 2
 

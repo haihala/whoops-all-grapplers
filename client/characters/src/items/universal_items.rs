@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use foundation::{
-    ActionCategory, ActionId, Animation, CancelType, Icon, ItemId, Stats, StatusCondition,
-    StatusFlag, VfxRequest, VisualEffect, GI_PARRY_FLASH_COLOR, RC_PULSE_BASE_COLOR,
-    RC_PULSE_EDGE_COLOR,
+    ActionCategory, ActionId, Animation, CancelType, Icon, ItemId, RingPulse, Stats,
+    StatusCondition, StatusFlag, VfxRequest, VisualEffect, GI_PARRY_FLASH_COLOR,
+    RC_PULSE_BASE_COLOR, RC_PULSE_EDGE_COLOR,
 };
 
 use crate::{
@@ -38,10 +38,13 @@ fn fast_fall() -> Action {
         .with_input("{789456}[123]")
         .make_transient()
         .air_only()
-        .every_frame(vec![
-            ActionEvent::MultiplyMomentum(Vec2::new(1.0, 0.1)),
-            Movement::impulse(Vec2::Y * -3.0).into(),
-        ])
+        .every_frame(crate::Events {
+            constant: vec![
+                ActionEvent::MultiplyMomentum(Vec2::new(1.0, 0.1)),
+                Movement::impulse(Vec2::Y * -3.0).into(),
+            ],
+            ..default()
+        })
         .with_requirement(ActionRequirement::ItemOwned(ItemId::DivingHelmet))
         .build()
 }
@@ -57,7 +60,11 @@ fn romaine_cancel(animation: Animation) -> Action {
         .static_immediate_events(vec![
             animation.into(),
             ActionEvent::RelativeVisualEffect(VfxRequest {
-                effect: VisualEffect::RingPulse(RC_PULSE_BASE_COLOR, RC_PULSE_EDGE_COLOR),
+                effect: VisualEffect::RingPulse(RingPulse {
+                    base_color: RC_PULSE_BASE_COLOR,
+                    edge_color: RC_PULSE_EDGE_COLOR,
+                    ..default()
+                }),
                 tf: Transform::from_translation(Vec3::Y),
                 ..default()
             }),

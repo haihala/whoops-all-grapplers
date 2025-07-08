@@ -4,9 +4,10 @@ use bevy::prelude::*;
 
 use foundation::{
     ActionCategory, ActionId, Animation, Area, CancelType, Facing, GameButton, Icon, Model,
-    SimpleState, Sound, StatusCondition, StatusFlag, VfxRequest, VisualEffect, VoiceLine,
-    BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR, LOW_OPENER_COLOR, MID_OPENER_COLOR, ON_BLOCK_HITSTOP,
-    ON_HIT_HITSTOP, SMALL_HIT_THRESHOLD, THROW_TECH_RING_BASE_COLOR, THROW_TECH_RING_EDGE_COLOR,
+    RingPulse, SimpleState, Sound, StatusCondition, StatusFlag, VfxRequest, VisualEffect,
+    VoiceLine, BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR, JACKPOT_COLOR, JACKPOT_METER_GAIN,
+    JACKPOT_RING_BASE_COLOR, LOW_OPENER_COLOR, MID_OPENER_COLOR, ON_BLOCK_HITSTOP, ON_HIT_HITSTOP,
+    SMALL_HIT_THRESHOLD, THROW_TECH_RING_BASE_COLOR, THROW_TECH_RING_EDGE_COLOR,
 };
 
 use crate::{
@@ -151,6 +152,7 @@ impl AttackBuilder {
                 hit
             };
         }
+
         self.hits.push((frame, hit));
         self
     }
@@ -355,6 +357,11 @@ impl HitBuilder {
         self
     }
 
+    #[allow(unused)]
+    fn is_throw(&self) -> bool {
+        matches!(self.sub_builder, SubBuilder::Throw(_))
+    }
+
     fn throw_builder(&self) -> ThrowStartupBuilder {
         let SubBuilder::Throw(tb) = self.sub_builder else {
             panic!("Not a throw")
@@ -551,10 +558,11 @@ pub fn build_throw_effect(
                     ActionEvent::Sound(Sound::BottleBonk.into()),
                     Movement::impulse(Vec2::X * -2.0).into(),
                     ActionEvent::AbsoluteVisualEffect(VfxRequest {
-                        effect: VisualEffect::RingPulse(
-                            THROW_TECH_RING_BASE_COLOR,
-                            THROW_TECH_RING_EDGE_COLOR,
-                        ),
+                        effect: VisualEffect::RingPulse(RingPulse {
+                            base_color: THROW_TECH_RING_BASE_COLOR,
+                            edge_color: THROW_TECH_RING_EDGE_COLOR,
+                            ..default()
+                        }),
                         tf,
                         ..default()
                     }),
@@ -738,6 +746,30 @@ impl StrikeEffectBuilder {
                 .map(|re| re.current)
                 .unwrap_or_default();
 
+            let jackpot_level = if let Some(StatusFlag::Jackpot { target_frame }) = situation
+                .status_flags
+                .iter()
+                .find(|sf| matches!(sf, StatusFlag::Jackpot { target_frame: _ }))
+            {
+                let offset = (situation.abs_frame as isize - *target_frame as isize).abs();
+                match offset {
+                    0 => 3,
+                    1..3 => 2,
+                    3..6 => 1,
+                    _ => 0,
+                }
+            } else {
+                0
+            };
+
+            let jackpot_multiplier = match jackpot_level {
+                3 => 1.0,
+                2 => 0.5,
+                1 => 0.25,
+                0 => 0.0,
+                _ => panic!("Jackpot level is not 0-3, but {jackpot_level}"),
+            };
+
             let (effect, offset, rotation) = if situation.combo.ongoing() {
                 (VisualEffect::Hit, Vec2::ZERO, Quat::default())
             } else {
@@ -812,7 +844,8 @@ impl StrikeEffectBuilder {
                     ],
                 }
             } else {
-                let damage = self.base_damage + self.sharpness_scaling * sharpness;
+                let damage = ((self.base_damage + self.sharpness_scaling * sharpness) as f32
+                    * (1.0 + jackpot_multiplier)) as i32;
                 let voice_line_event = if damage >= BIG_HIT_THRESHOLD {
                     ActionEvent::SayVoiceLine(VoiceLine::BigHit)
                 } else if damage >= SMALL_HIT_THRESHOLD {
@@ -824,13 +857,40 @@ impl StrikeEffectBuilder {
                 let (launcher, stun_event) = match self.hit_stun {
                     HitStun::Stun(stun) => (
                         false,
-                        ActionEvent::HitStun(match stun {
-                            Stun::Relative(advantage) => (recovery + advantage) as usize,
-                            Stun::Absolute(frames) => frames,
-                        }),
+                        ActionEvent::HitStun(
+                            match stun {
+                                Stun::Relative(advantage) => (recovery + advantage) as usize,
+                                Stun::Absolute(frames) => frames,
+                            } + (jackpot_multiplier * 20.0) as usize,
+                        ),
                     ),
                     HitStun::Launch(vec2) => (true, ActionEvent::LaunchStun(vec2)),
                     HitStun::Knockdown => (true, ActionEvent::LaunchStun(Vec2::ZERO)),
+                };
+
+                let jackpot_events = if jackpot_level != 0 {
+                    vec![
+                        ActionEvent::Sound(Sound::BoxingBell(jackpot_level).into()),
+                        ActionEvent::Flash(FlashRequest::jackpot(jackpot_level)),
+                        ActionEvent::RelativeVisualEffect(VfxRequest {
+                            effect: VisualEffect::RingPulse(RingPulse {
+                                base_color: JACKPOT_RING_BASE_COLOR,
+                                edge_color: JACKPOT_COLOR,
+                                rings: jackpot_level,
+                                thickness: 0.15,
+                                offset: 0.2,
+                                duration: 0.4 * (jackpot_level + 1) as f32,
+                            }),
+                            tf: Transform {
+                                rotation: Quat::from_axis_angle(Vec3::X, -PI / 2.0),
+                                translation: Vec3::Y * 0.2,
+                                scale: Vec3::splat(2.0),
+                            },
+                            ..default()
+                        }),
+                    ]
+                } else {
+                    vec![]
                 };
 
                 HitEffect {
@@ -850,7 +910,14 @@ impl StrikeEffectBuilder {
                             },
                             mirror: situation.facing.visual.to_flipped(),
                         }),
-                    ],
+                        ActionEvent::ModifyResource(
+                            GaugeType::Meter,
+                            (jackpot_multiplier * JACKPOT_METER_GAIN as f32) as i32,
+                        ),
+                    ]
+                    .into_iter()
+                    .chain(jackpot_events)
+                    .collect(),
                     defender: self
                         .on_hit_effects
                         .constant

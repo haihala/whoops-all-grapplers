@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 
-use foundation::{CharacterFacing, Clock, Icons, MatchState, VfxRequest, VisualEffect};
+use foundation::{CharacterFacing, Clock, Icons, MatchState, VfxRequest, VisualEffect, FPS};
 
 use crate::{
+    assets::materials::JackpotRingMaterial,
     entity_management::DespawnMarker,
     event_spreading::{SpawnRelativeVfx, SpawnVfx},
+    movement::Follow,
 };
 
 use super::materials::{
@@ -25,9 +27,10 @@ pub fn spawn_vfx<M: Material>(
         transform,
         material,
         frames_to_live,
+        follow,
     } = trigger.event();
 
-    commands.spawn((
+    let mut ent_cmds = commands.spawn((
         Mesh3d(mesh.clone()),
         *transform,
         MeshMaterial3d(material_asset.add(material.clone())),
@@ -35,20 +38,24 @@ pub fn spawn_vfx<M: Material>(
         StateScoped(MatchState::Combat),
         Name::new("VFX"),
     ));
+
+    if let Some(component) = follow {
+        ent_cmds.insert(*component);
+    }
 }
 
 pub fn start_relative_vfx(
     trigger: Trigger<SpawnRelativeVfx>,
-    query: Query<(&Transform, &CharacterFacing)>,
+    query: Query<(Entity, &Transform, &CharacterFacing)>,
     mut commands: Commands,
 ) {
-    let (tf, facing) = query.get(trigger.target()).unwrap();
+    let (entity, tf, facing) = query.get(trigger.target()).unwrap();
     let mut request = trigger.event().0;
     if facing.visual.to_flipped() {
         request.mirror = !request.mirror;
     }
     request.tf.translation += tf.translation;
-    commands.trigger(SpawnVfx(request));
+    commands.trigger(SpawnVfx(request, Some(entity)));
 }
 
 // Bevy allows for a max of N system params, which means we need to split the vfx spawning after we
@@ -59,6 +66,7 @@ pub struct MaxSystemParamCountFix<T: Material> {
     transform: Transform,
     material: T,
     frames_to_live: usize,
+    follow: Option<Follow>,
 }
 
 pub fn start_absolute_vfx(
@@ -68,7 +76,7 @@ pub fn start_absolute_vfx(
     mut meshes: ResMut<Assets<Mesh>>,
     icons: Res<Icons>,
 ) {
-    let SpawnVfx(VfxRequest { effect, tf, mirror }) = trigger.event();
+    let SpawnVfx(VfxRequest { effect, tf, mirror }, maybe_player) = trigger.event();
 
     let mesh = meshes.add(effect.mesh_size());
     let transform = Transform {
@@ -82,6 +90,7 @@ pub fn start_absolute_vfx(
             transform,
             material: BlankMaterial::default(),
             frames_to_live: 15,
+            follow: None,
         }),
         VisualEffect::Hit => {
             commands.trigger(MaxSystemParamCountFix {
@@ -89,6 +98,7 @@ pub fn start_absolute_vfx(
                 transform,
                 material: HitSparkMaterial::new(time.elapsed_secs()),
                 frames_to_live: 10,
+                follow: None,
             });
         }
         VisualEffect::Clash => {
@@ -97,6 +107,7 @@ pub fn start_absolute_vfx(
                 transform,
                 material: ClashSparkMaterial::new(time.elapsed_secs()),
                 frames_to_live: 10,
+                follow: None,
             });
         }
         VisualEffect::Block => {
@@ -105,14 +116,24 @@ pub fn start_absolute_vfx(
                 transform,
                 material: BlockEffectMaterial::new(time.elapsed_secs()),
                 frames_to_live: 10,
+                follow: None,
             });
         }
-        VisualEffect::RingPulse(c1, c2) => {
+        VisualEffect::RingPulse(pulse) => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
-                material: RingRippleMaterial::new(*c1, *c2, time.elapsed_secs()),
-                frames_to_live: 60,
+                material: RingRippleMaterial {
+                    base_color: pulse.base_color.into(),
+                    edge_color: pulse.edge_color.into(),
+                    start_time: time.elapsed_secs(),
+                    rings: pulse.rings,
+                    duration: pulse.duration,
+                    ring_thickness: pulse.thickness,
+                    offset: pulse.offset,
+                },
+                frames_to_live: (pulse.duration * FPS) as usize,
+                follow: None,
             });
         }
         VisualEffect::SpeedLines => {
@@ -121,6 +142,7 @@ pub fn start_absolute_vfx(
                 transform,
                 material: LineFieldMaterial::new(time.elapsed_secs(), *mirror),
                 frames_to_live: 20,
+                follow: None,
             });
         }
         VisualEffect::ThrowTarget => {
@@ -129,6 +151,7 @@ pub fn start_absolute_vfx(
                 transform,
                 material: FocalPointLinesMaterial::new(time.elapsed_secs()),
                 frames_to_live: 60,
+                follow: None,
             });
         }
         VisualEffect::Lightning => {
@@ -137,6 +160,7 @@ pub fn start_absolute_vfx(
                 transform,
                 material: LightningBoltMaterial::new(time.elapsed_secs(), *mirror),
                 frames_to_live: 60,
+                follow: None,
             });
         }
         VisualEffect::WaveDiagonal(color) => {
@@ -145,6 +169,7 @@ pub fn start_absolute_vfx(
                 transform,
                 material: DiagonalWaveMaterial::new(time.elapsed_secs(), *color, *mirror),
                 frames_to_live: 60,
+                follow: None,
             });
         }
         VisualEffect::WaveFlat(color) => {
@@ -153,6 +178,7 @@ pub fn start_absolute_vfx(
                 transform,
                 material: FlatWaveMaterial::new(time.elapsed_secs(), *color, *mirror),
                 frames_to_live: 60,
+                follow: None,
             });
         }
         VisualEffect::Pebbles => {
@@ -161,6 +187,7 @@ pub fn start_absolute_vfx(
                 transform,
                 material: PebbleMaterial::new(time.elapsed_secs(), *mirror),
                 frames_to_live: 60,
+                follow: None,
             });
         }
         VisualEffect::Sparks => {
@@ -169,6 +196,7 @@ pub fn start_absolute_vfx(
                 transform,
                 material: SparkBurstMaterial::new(time.elapsed_secs(), *mirror),
                 frames_to_live: 60,
+                follow: None,
             });
         }
         VisualEffect::OpenerSpark(color) => {
@@ -177,6 +205,7 @@ pub fn start_absolute_vfx(
                 transform,
                 material: MidFlashMaterial::new(time.elapsed_secs(), *color),
                 frames_to_live: 60,
+                follow: None,
             });
         }
         VisualEffect::SmokeBomb => {
@@ -185,6 +214,7 @@ pub fn start_absolute_vfx(
                 transform,
                 material: SmokeBombMaterial::new(time.elapsed_secs()),
                 frames_to_live: 60,
+                follow: None,
             });
         }
         VisualEffect::Icon(icon) => {
@@ -196,6 +226,25 @@ pub fn start_absolute_vfx(
                     icons.0.get(icon).unwrap().clone(),
                 ),
                 frames_to_live: 60,
+                follow: None,
+            });
+        }
+        VisualEffect::JackpotRing => {
+            commands.trigger(MaxSystemParamCountFix {
+                mesh: {
+                    let size = VisualEffect::JackpotRing.mesh_size().size();
+                    meshes.add(Cylinder::new(size.x / 2.0, size.y).mesh())
+                },
+                transform,
+                material: JackpotRingMaterial {
+                    start_time: time.elapsed_secs(),
+                    ..default()
+                },
+                frames_to_live: 120,
+                follow: Some(Follow {
+                    target: maybe_player.unwrap(),
+                    offset: Vec3::Y * 1.5,
+                }),
             });
         }
     };

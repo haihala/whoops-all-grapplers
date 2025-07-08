@@ -81,6 +81,7 @@ pub(super) fn automatic_activation(
 
 #[allow(clippy::type_complexity)]
 pub(super) fn move_activator(
+    abs_clock: Res<Clock>,
     mut query: Query<(
         &mut Hurtboxes,
         &mut MoveBuffer,
@@ -108,11 +109,11 @@ pub(super) fn move_activator(
         stats,
         parser,
         facing,
-        clock,
+        char_clock,
         combo,
     ) in &mut query
     {
-        if clock.hitstop_frames > 0 {
+        if char_clock.hitstop_frames > 0 {
             continue;
         }
 
@@ -125,7 +126,8 @@ pub(super) fn move_activator(
                 resources.to_owned(),
                 parser.to_owned(),
                 stats.to_owned(),
-                clock.frame,
+                char_clock.frame,
+                abs_clock.frame,
                 tf.translation,
                 *facing,
                 combo.to_owned(),
@@ -157,7 +159,7 @@ pub(super) fn move_activator(
             // Remove old extra expanded hurtboxes (if a move is canceled)
             hurtboxes.extra.clear();
 
-            state.start_move(to_activate, clock.frame);
+            state.start_move(to_activate, char_clock.frame);
         }
     }
 }

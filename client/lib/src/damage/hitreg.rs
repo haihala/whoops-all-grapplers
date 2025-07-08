@@ -57,6 +57,7 @@ pub struct HitPlayerQuery<'a> {
     combo: &'a mut Combo,
     character: &'a Character,
     inventory: &'a Inventory,
+    clock: &'a CharacterClock,
 }
 
 #[allow(clippy::type_complexity)]
@@ -100,11 +101,14 @@ pub(super) fn clash_parry(
         {
             // Hitboxes collide
             commands.trigger(SoundRequest::from(Sound::GlassClink));
-            commands.trigger(SpawnVfx(VfxRequest {
-                effect: VisualEffect::Clash,
-                tf: Transform::from_translation(overlap.center().extend(0.0)),
-                ..default()
-            }));
+            commands.trigger(SpawnVfx(
+                VfxRequest {
+                    effect: VisualEffect::Clash,
+                    tf: Transform::from_translation(overlap.center().extend(0.0)),
+                    ..default()
+                },
+                None,
+            ));
 
             for (mut tracker, owner, is_projectile) in [
                 (tracker1, owner1, maybe_proj1.is_some()),
@@ -246,7 +250,7 @@ pub fn apply_connections(
     mut commands: Commands,
     mut notifications: ResMut<Notifications>,
     mut players: Query<HitPlayerQuery>,
-    clock: Res<Clock>,
+    abs_clock: Res<Clock>,
 ) {
     if hits.len() >= 2 {
         if hits
@@ -261,18 +265,21 @@ pub fn apply_connections(
                 notifications.add(*player.player, "Throw clash".to_owned());
             }
 
-            commands.trigger(SpawnVfx(VfxRequest {
-                effect: VisualEffect::Clash,
-                tf: Transform::from_translation(
-                    hits.iter()
-                        .map(|hit| hit.overlap.center())
-                        .reduce(|a, b| a + b)
-                        .unwrap()
-                        .extend(0.0)
-                        * 0.5,
-                ),
-                ..default()
-            }));
+            commands.trigger(SpawnVfx(
+                VfxRequest {
+                    effect: VisualEffect::Clash,
+                    tf: Transform::from_translation(
+                        hits.iter()
+                            .map(|hit| hit.overlap.center())
+                            .reduce(|a, b| a + b)
+                            .unwrap()
+                            .extend(0.0)
+                            * 0.5,
+                    ),
+                    ..default()
+                },
+                None,
+            ));
 
             return;
         } else if hits
@@ -313,11 +320,14 @@ pub fn apply_connections(
                     ActionEvent::ModifyResource(GaugeType::Meter, GI_PARRY_METER_GAIN),
                     hit.defender,
                 );
-                commands.trigger(SpawnVfx(VfxRequest {
-                    effect: VisualEffect::Clash,
-                    tf: Transform::from_translation(hit.overlap.center().extend(0.0)),
-                    ..default()
-                }));
+                commands.trigger(SpawnVfx(
+                    VfxRequest {
+                        effect: VisualEffect::Clash,
+                        tf: Transform::from_translation(hit.overlap.center().extend(0.0)),
+                        ..default()
+                    },
+                    None,
+                ));
 
                 defender.state.register_hit();
 
@@ -330,7 +340,8 @@ pub fn apply_connections(
             attacker.properties.to_owned(),
             attacker.parser.to_owned(),
             attacker.stats.to_owned(),
-            clock.frame,
+            attacker.clock.frame,
+            abs_clock.frame,
             attacker.tf.translation,
             attacker.facing.to_owned(),
             attacker.combo.to_owned(),

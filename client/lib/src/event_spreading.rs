@@ -55,7 +55,7 @@ pub struct ShakeCamera;
 pub struct SpawnRelativeVfx(pub VfxRequest);
 
 #[derive(Debug, Event)]
-pub struct SpawnVfx(pub VfxRequest);
+pub struct SpawnVfx(pub VfxRequest, pub Option<Entity>);
 
 #[derive(Debug, Event)]
 pub struct EndAction;
@@ -162,7 +162,7 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
             commands.trigger_targets(*fr, trigger.target());
         }
         ActionEvent::AbsoluteVisualEffect(vfx) => {
-            commands.trigger(SpawnVfx(*vfx));
+            commands.trigger(SpawnVfx(*vfx, None));
         }
         ActionEvent::RelativeVisualEffect(vfx) => {
             commands.trigger_targets(SpawnRelativeVfx(*vfx), trigger.target());

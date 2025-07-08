@@ -9,6 +9,7 @@ use crate::event_spreading::{ColorShift, EndAction};
 #[allow(clippy::type_complexity)]
 pub(super) fn move_advancement(
     mut commands: Commands,
+    abs_clock: Res<Clock>,
     mut query: Query<(
         &mut PlayerState,
         &CharacterClock,
@@ -25,7 +26,7 @@ pub(super) fn move_advancement(
 ) {
     for (
         mut state,
-        clock,
+        char_clock,
         tf,
         inventory,
         character,
@@ -37,7 +38,7 @@ pub(super) fn move_advancement(
         combo,
     ) in &mut query
     {
-        if clock.hitstop_frames > 0 {
+        if char_clock.hitstop_frames > 0 {
             continue;
         }
 
@@ -47,7 +48,8 @@ pub(super) fn move_advancement(
             resources.to_owned(),
             parser.to_owned(),
             stats.to_owned(),
-            clock.frame,
+            char_clock.frame,
+            abs_clock.frame,
             tf.translation,
             *facing,
             combo.to_owned(),

@@ -95,6 +95,7 @@ pub struct ActionBuilder {
     extra_requirements: Vec<ActionRequirement>,
     pub follows_up_from: Option<Vec<ActionId>>,
     pub total_duration: usize,
+    pub character_universals: Option<CharacterUniversals>,
 }
 
 impl ActionBuilder {
@@ -127,11 +128,12 @@ impl ActionBuilder {
         self
     }
 
-    pub fn with_character_universals(self, universals: CharacterUniversals) -> Self {
+    pub fn with_character_universals(mut self, universals: CharacterUniversals) -> Self {
         if self.category == ActionCategory::Normal {
-            return self.with_sound(universals.normal_grunt);
+            self = self.with_sound(universals.normal_grunt);
         }
 
+        self.character_universals = Some(universals);
         self
     }
 
@@ -209,12 +211,9 @@ impl ActionBuilder {
         self
     }
 
-    pub fn every_frame(mut self, events: Vec<ActionEvent>) -> Self {
+    pub fn every_frame(mut self, events: Events) -> Self {
         self.blobs.push(EventBlob {
-            events: Events {
-                constant: events,
-                ..default()
-            },
+            events,
             timing: Timing::Always,
         });
         self
@@ -356,16 +355,19 @@ impl ActionBuilder {
             self =
                 self.static_immediate_events(vec![ActionEvent::ClearResource(GaugeType::Charge)]);
         }
-        if let Some(state) = self.state {
-            match state {
-                SimpleState::Air => {}
-                SimpleState::Stand => {
-                    self = self.static_immediate_events(vec![ActionEvent::ForceStand])
-                }
-                SimpleState::Crouch => {
-                    self = self.static_immediate_events(vec![ActionEvent::ForceCrouch])
-                }
-            };
+
+        if !self.transient {
+            if let Some(state) = self.state {
+                match state {
+                    SimpleState::Air => {}
+                    SimpleState::Stand => {
+                        self = self.static_immediate_events(vec![ActionEvent::ForceStand])
+                    }
+                    SimpleState::Crouch => {
+                        self = self.static_immediate_events(vec![ActionEvent::ForceCrouch])
+                    }
+                };
+            }
         }
 
         let folded_events: Vec<(Timing, Events)> = self

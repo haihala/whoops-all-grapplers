@@ -1,15 +1,19 @@
+use std::sync::Arc;
+
 use bevy::{platform::collections::HashMap, prelude::*};
 
 use foundation::{
-    ActionId, Animation, AnimationType, Area, CPOAction, CPOAnimation, CancelType, GameButton,
-    ItemId, Model, Sound, Stats, StatusCondition, VoiceLine, CPO_ALT_SHIRT_COLOR,
-    CPO_ALT_SOCKS_COLOR,
+    ActionCategory, ActionId, Animation, AnimationType, Area, CPOAction, CPOAnimation, CancelType,
+    GameButton, ItemId, Model, Sound, Stats, StatusCondition, StatusFlag, VfxRequest, VisualEffect,
+    VoiceLine, CPO_ALT_SHIRT_COLOR, CPO_ALT_SOCKS_COLOR, FPS, JACKPOT_HIGH_POINT_PERCENTAGE,
+    JACKPOT_TOTAL_DURATION,
 };
 
 use crate::{
     items::{universal_item_actions, universal_items},
-    jumps, Action, ActionEvent, AttackBuilder, CharacterBoxes, CharacterStateBoxes,
-    CharacterUniversals, DashBuilder, HitBuilder, Item, Movement, ThrowEffectBuilder,
+    jumps, Action, ActionBuilder, ActionEvent, ActionRequirement, AttackBuilder, CharacterBoxes,
+    CharacterStateBoxes, CharacterUniversals, DashBuilder, HitBuilder, Item, Movement, Situation,
+    ThrowEffectBuilder,
 };
 
 use super::Character;
@@ -288,6 +292,40 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
                         .with_advantage_on_hit(4)
                         .with_hitbox(Area::new(0.1, 1.2, 1.35, 0.5)),
                 )
+                .build(),
+        ),
+        (
+            CPOAction::Jackpot,
+            ActionBuilder::for_category(ActionCategory::MegaInterrupt)
+                .with_input("g")
+                .make_transient()
+                .with_character_universals(CHARACTER_UNIVERSALS)
+                .every_frame(crate::Events {
+                    dynamic: Some(Arc::new(|situation: &Situation| {
+                        vec![
+                            ActionEvent::Condition(StatusCondition {
+                                flag: StatusFlag::Jackpot {
+                                    target_frame: situation.abs_frame
+                                        + (JACKPOT_HIGH_POINT_PERCENTAGE
+                                            * JACKPOT_TOTAL_DURATION
+                                            * FPS)
+                                            as usize,
+                                },
+                                expiration: Some((JACKPOT_TOTAL_DURATION * FPS) as usize),
+                                ..default()
+                            }),
+                            ActionEvent::RelativeVisualEffect(VfxRequest {
+                                effect: VisualEffect::JackpotRing,
+                                tf: Transform::from_translation(Vec3::Y * 1.5),
+                                ..default()
+                            }),
+                        ]
+                    })),
+                    ..default()
+                })
+                .with_requirement(ActionRequirement::NoStatusMatches(|sf| {
+                    matches!(sf, &StatusFlag::Jackpot { target_frame: _ })
+                }))
                 .build(),
         ),
     ]

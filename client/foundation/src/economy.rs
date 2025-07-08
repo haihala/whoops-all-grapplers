@@ -2,6 +2,7 @@
 pub const CLASH_PARRY_METER_GAIN: i32 = 20;
 pub const GI_PARRY_METER_GAIN: i32 = 30;
 pub const METER_BAR_SEGMENT: i32 = 25;
+pub const JACKPOT_METER_GAIN: i32 = METER_BAR_SEGMENT; // For perfect
 
 // Money
 pub const STARTING_MONEY: usize = 250;

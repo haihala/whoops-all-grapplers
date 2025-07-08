@@ -167,6 +167,9 @@ pub enum StatusFlag {
     AirActionCooldown,
     Cancel(CancelType),
     ComicCancelCooldown,
+    Jackpot {
+        target_frame: usize,
+    },
 }
 
 impl StatusFlag {
@@ -194,3 +197,6 @@ impl StatusCondition {
         }
     }
 }
+
+pub const JACKPOT_TOTAL_DURATION: f32 = 2.0;
+pub const JACKPOT_HIGH_POINT_PERCENTAGE: f32 = 0.75;

@@ -2,7 +2,7 @@ use foundation::{ActionCategory, ActionId, CancelType, GameButton, ItemId, Statu
 
 use crate::{GaugeType, Situation};
 
-#[derive(Debug, Clone, PartialEq, Hash, Default)]
+#[derive(Debug, Clone, Hash, Default)]
 pub enum ActionRequirement {
     #[default]
     None,
@@ -17,6 +17,8 @@ pub enum ActionRequirement {
     ButtonPressed(GameButton),
     ButtonNotPressed(GameButton),
     StatusNotActive(StatusFlag),
+    StatusMatches(fn(sf: &StatusFlag) -> bool),
+    NoStatusMatches(fn(sf: &StatusFlag) -> bool),
     Starter(ActionCategory),
     And(Vec<ActionRequirement>),
     Or(Vec<ActionRequirement>),
@@ -120,6 +122,10 @@ impl ActionRequirement {
                     }
                 }
                 false
+            }
+            ActionRequirement::StatusMatches(checker) => situation.status_flags.iter().any(checker),
+            ActionRequirement::NoStatusMatches(checker) => {
+                !situation.status_flags.iter().any(checker)
             }
         }
     }

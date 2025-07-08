@@ -29,6 +29,7 @@ pub fn handle_flash_events(
         material.extension.color = req.color.into();
         material.extension.speed = req.speed;
         material.extension.depth = req.depth;
+        material.extension.angle_mult = req.angle_mult;
         material.extension.duration = req.duration;
     }
 }

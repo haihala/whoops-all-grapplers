@@ -75,10 +75,11 @@ struct CreditSection {
 fn credits_sections() -> Vec<CreditSection> {
     vec![
         CreditSection {
-            heading: "Music found through Pixabay".into(),
+            heading: "Music and sound effects found through Pixabay".into(),
             people: vec![
                 "SigmaMusicArt (Mihail Smusev)".into(),
                 "PHANTASTICBEATS (Vincent)".into(),
+                "freesound_community".into(),
             ],
         },
         CreditSection {

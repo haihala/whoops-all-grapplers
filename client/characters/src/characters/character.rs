@@ -97,7 +97,7 @@ mod test {
                         start_frame: 0,
                         ..default()
                     }),
-                    frame: 9999,
+                    char_frame: 9999,
                     ..default()
                 };
                 let end_events = (mov.script)(&sit);

@@ -6,9 +6,10 @@ use bevy::{
 use foundation::{
     BLOCK_EFFECT_BASE_COLOR, BLOCK_EFFECT_EDGE_COLOR, CLASH_SPARK_BASE_COLOR,
     CLASH_SPARK_EDGE_COLOR, HIT_SPARK_BASE_COLOR, HIT_SPARK_EDGE_COLOR, HIT_SPARK_MID_COLOR,
-    LIGHTNING_BOLT_INNER_COLOR, LIGHTNING_BOLT_OUTER_COLOR, OPENER_INNER_COLOR,
-    PEBBLE_BORDER_COLOR, PEBBLE_INNER_COLOR, SPARK_BURST_BORDER_COLOR, SPARK_BURST_INNER_COLOR,
-    SPEED_LINES_BASE_COLOR, SPEED_LINES_EDGE_COLOR,
+    JACKPOT_HIGH_POINT_PERCENTAGE, JACKPOT_TOTAL_DURATION, LIGHTNING_BOLT_INNER_COLOR,
+    LIGHTNING_BOLT_OUTER_COLOR, OPENER_INNER_COLOR, PEBBLE_BORDER_COLOR, PEBBLE_INNER_COLOR,
+    SPARK_BURST_BORDER_COLOR, SPARK_BURST_INNER_COLOR, SPEED_LINES_BASE_COLOR,
+    SPEED_LINES_EDGE_COLOR,
 };
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -223,24 +224,30 @@ impl Material for BlankMaterial {
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct RingRippleMaterial {
     #[uniform(0)]
-    base_color: LinearRgba,
+    pub base_color: LinearRgba,
     #[uniform(1)]
-    edge_color: LinearRgba,
+    pub edge_color: LinearRgba,
     #[uniform(2)]
-    duration: f32,
+    pub duration: f32,
     #[uniform(3)]
-    ring_thickness: f32,
+    pub ring_thickness: f32,
     #[uniform(4)]
-    start_time: f32,
+    pub start_time: f32,
+    #[uniform(5)]
+    pub rings: i32,
+    #[uniform(6)]
+    pub offset: f32,
 }
-impl RingRippleMaterial {
-    pub fn new(base_color: Color, edge_color: Color, start_time: f32) -> Self {
+impl Default for RingRippleMaterial {
+    fn default() -> Self {
         Self {
-            start_time,
-            base_color: base_color.into(),
-            edge_color: edge_color.into(),
+            start_time: 0.0,
+            base_color: LinearRgba::default(),
+            edge_color: LinearRgba::default(),
             duration: 0.7,
             ring_thickness: 0.05,
+            rings: 1,
+            offset: 0.08,
         }
     }
 }
@@ -454,6 +461,49 @@ impl Material for FlatWaveMaterial {
     }
 }
 
+#[derive(Asset, AsBindGroup, TypePath, Debug, Clone)]
+pub struct JackpotRingMaterial {
+    #[uniform(0)]
+    pub start_time: f32,
+    #[uniform(1)]
+    pub duration: f32,
+    #[uniform(2)]
+    pub peak: f32,
+}
+
+impl Default for JackpotRingMaterial {
+    fn default() -> Self {
+        Self {
+            start_time: Default::default(),
+            duration: JACKPOT_TOTAL_DURATION,
+            peak: JACKPOT_HIGH_POINT_PERCENTAGE,
+        }
+    }
+}
+
+impl Material for JackpotRingMaterial {
+    fn vertex_shader() -> ShaderRef {
+        "shaders/jackpot_ring.wgsl".into()
+    }
+    fn fragment_shader() -> ShaderRef {
+        "shaders/jackpot_ring.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
+
+    fn specialize(
+        _pipeline: &bevy::pbr::MaterialPipeline<Self>,
+        descriptor: &mut bevy::render::render_resource::RenderPipelineDescriptor,
+        _layout: &bevy::render::mesh::MeshVertexBufferLayoutRef,
+        _key: bevy::pbr::MaterialPipelineKey<Self>,
+    ) -> Result<(), bevy::render::render_resource::SpecializedMeshPipelineError> {
+        descriptor.primitive.cull_mode = None;
+        Ok(())
+    }
+}
+
 // Extended Flash Material
 pub type ExtendedFlashMaterial = ExtendedMaterial<StandardMaterial, FlashMaterial>;
 
@@ -475,6 +525,8 @@ pub struct FlashMaterial {
     pub color_shift_end: f32,
     #[uniform(106)]
     pub color_shift: LinearRgba,
+    #[uniform(107)]
+    pub angle_mult: f32,
 }
 impl MaterialExtension for FlashMaterial {
     fn fragment_shader() -> ShaderRef {

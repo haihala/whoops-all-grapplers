@@ -15,7 +15,7 @@ var<uniform> flash_color: vec4<f32>;
 @group(2) @binding(101)
 var<uniform> flash_speed: f32;
 @group(2) @binding(102)
-var<uniform> flash_depth: f32;
+var<uniform> max_depth: f32;
 @group(2) @binding(103)
 var<uniform> flash_duration: f32;
 @group(2) @binding(104)
@@ -24,6 +24,8 @@ var<uniform> flash_start: f32;
 var<uniform> weaken_end: f32;
 @group(2) @binding(106)
 var<uniform> weaken_color: vec4f;
+@group(2) @binding(107)
+var<uniform> angle_mult: f32;
 
 #import bevy_pbr::{
     pbr_fragment::pbr_input_from_standard_material,
@@ -46,7 +48,7 @@ fn fragment(
     let age_damp = step(flash_age, flash_duration);
     let norm = dot(in.world_normal, normalize(view.world_position.xyz - in.world_position.xyz));
 
-    let depth = step(norm, abs(cos(flash_age * flash_speed)));
+    let depth = max_depth * step(norm, angle_mult * abs(cos(flash_age * flash_speed)));
 #ifdef PREPASS_PIPELINE
     // in deferred mode we can't modify anything after that, as lighting is run in a separate fullscreen shader.
     let out = deferred_output(in, pbr_input);

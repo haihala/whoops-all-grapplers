@@ -48,6 +48,8 @@ pub const NOTIFICATION_TEXT_COLOR: Color = Color::BLACK;
 pub const HIT_FLASH_COLOR: Color = Color::WHITE;
 pub const GI_PARRY_FLASH_COLOR: Color = Color::Srgba(ALICE_BLUE);
 pub const TRACK_SPIKES_FLASH_COLOR: Color = Color::Srgba(YELLOW);
+pub const JACKPOT_COLOR: Color = Color::srgb(0.2, 0.9, 0.1);
+pub const JACKPOT_RING_BASE_COLOR: Color = Color::WHITE;
 
 // Shader effects
 pub const HIT_SPARK_BASE_COLOR: Color = TRANSPARENT;

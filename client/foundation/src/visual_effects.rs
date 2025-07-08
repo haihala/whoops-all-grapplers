@@ -17,9 +17,10 @@ pub enum VisualEffect {
     OpenerSpark(Color),
     WaveDiagonal(Color),
     WaveFlat(Color),
-    RingPulse(Color, Color),
+    RingPulse(RingPulse),
     SmokeBomb,
     Icon(Icon),
+    JackpotRing,
 }
 impl VisualEffect {
     pub fn mesh_size(&self) -> Rectangle {
@@ -27,10 +28,34 @@ impl VisualEffect {
             VisualEffect::Clash => Rectangle::new(1.5, 1.5),
             VisualEffect::Block => Rectangle::new(1.1, 2.0),
             VisualEffect::Hit => Rectangle::new(1.1, 1.1),
-            VisualEffect::RingPulse(_, _) | VisualEffect::ThrowTarget => Rectangle::new(2.0, 2.0),
+            VisualEffect::RingPulse(_) | VisualEffect::ThrowTarget => Rectangle::new(2.0, 2.0),
             VisualEffect::Pebbles | VisualEffect::Sparks => Rectangle::new(1.8, 1.8),
             VisualEffect::SmokeBomb => Rectangle::new(3.0, 3.0),
+            VisualEffect::JackpotRing => Rectangle::new(2.0, 3.0),
             _ => Rectangle::default(),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct RingPulse {
+    pub base_color: Color,
+    pub edge_color: Color,
+    pub rings: i32,
+    pub duration: f32,
+    pub thickness: f32,
+    pub offset: f32,
+}
+
+impl Default for RingPulse {
+    fn default() -> Self {
+        Self {
+            base_color: Default::default(),
+            edge_color: Default::default(),
+            rings: 1,
+            duration: 1.0,
+            thickness: 0.05,
+            offset: 0.08,
         }
     }
 }

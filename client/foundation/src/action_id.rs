@@ -92,7 +92,7 @@ impl From<RoninAction> for ActionId {
 
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum CPOAction {
-    BlackFlash,
+    Jackpot,
 
     // Specials
     AirTimewinder,

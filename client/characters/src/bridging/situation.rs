@@ -11,7 +11,8 @@ pub struct Situation {
     pub inventory: Inventory,
     pub resources: Vec<(GaugeType, Gauge)>,
     pub status_flags: HashSet<StatusFlag>,
-    pub frame: usize,
+    pub char_frame: usize,
+    pub abs_frame: usize,
     pub stats: Stats,
     pub stick_position: StickPosition,
     pub held_buttons: HashSet<GameButton>,
@@ -39,7 +40,7 @@ impl Situation {
     }
 
     pub fn elapsed(&self) -> usize {
-        self.tracker.map_or(0, |t| self.frame - t.start_frame)
+        self.tracker.map_or(0, |t| self.char_frame - t.start_frame)
     }
 
     // TODO: Add a system where this also is only once true in the lifespan of the move

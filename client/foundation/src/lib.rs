@@ -54,10 +54,12 @@ mod sound;
 pub use sound::{Sound, SoundRequest, Sounds, VoiceLine, BIG_HIT_THRESHOLD, SMALL_HIT_THRESHOLD};
 
 mod status;
-pub use status::{Stats, StatusCondition, StatusFlag};
+pub use status::{
+    Stats, StatusCondition, StatusFlag, JACKPOT_HIGH_POINT_PERCENTAGE, JACKPOT_TOTAL_DURATION,
+};
 
 mod time;
 pub use time::*;
 
 mod visual_effects;
-pub use visual_effects::{VfxRequest, VisualEffect};
+pub use visual_effects::{RingPulse, VfxRequest, VisualEffect};

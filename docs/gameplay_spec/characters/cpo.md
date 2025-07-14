@@ -163,6 +163,7 @@ input, visual, function
     - Air: `[963]`, juggle tool, hits overhead, can "TK"
   - Press:
     - `f`: Short and fast
+      - Only the punch part, no shoulder
       - Can be spaced to be safe on block
       - Use cases:
         - Spacing trap pressure tool

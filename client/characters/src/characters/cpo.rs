@@ -4,16 +4,20 @@ use bevy::{platform::collections::HashMap, prelude::*};
 
 use foundation::{
     ActionCategory, ActionId, Animation, AnimationType, Area, CPOAction, CPOAnimation, CancelType,
-    GameButton, ItemId, Model, Sound, Stats, StatusCondition, StatusFlag, VfxRequest, VisualEffect,
-    VoiceLine, CPO_ALT_SHIRT_COLOR, CPO_ALT_SOCKS_COLOR, FPS, JACKPOT_HIGH_POINT_PERCENTAGE,
-    JACKPOT_TOTAL_DURATION,
+    GameButton, ItemId, Model, Sound, SpecialVersion, Stats, StatusCondition, StatusFlag,
+    StickPosition, VfxRequest, VisualEffect, VoiceLine, CHARGE_BAR_FULL_SEGMENT_COLOR,
+    CHARGE_BAR_PARTIAL_SEGMENT_COLOR, CPO_ALT_SHIRT_COLOR, CPO_ALT_SOCKS_COLOR, FPS,
+    JACKPOT_HIGH_POINT_PERCENTAGE, JACKPOT_TOTAL_DURATION,
 };
 
 use crate::{
     items::{universal_item_actions, universal_items},
-    jumps, Action, ActionBuilder, ActionEvent, ActionRequirement, AttackBuilder, CharacterBoxes,
-    CharacterStateBoxes, CharacterUniversals, DashBuilder, HitBuilder, Item, Movement, Situation,
-    ThrowEffectBuilder,
+    jumps,
+    resources::ChargePerfection,
+    Action, ActionBuilder, ActionEvent, ActionRequirement, AttackBuilder, AttackHeight,
+    CharacterBoxes, CharacterStateBoxes, CharacterUniversals, ChargeProperty, DashBuilder,
+    DynamicEvents, Gauge, GaugeType, HitBuilder, Item, Movement, RenderInstructions,
+    ResourceBarVisual, Situation, SpecialProperty, ThrowEffectBuilder,
 };
 
 use super::Character;
@@ -47,7 +51,25 @@ pub fn cpo() -> Character {
             gravity,
             ..Stats::character_default()
         },
-        vec![],
+        vec![(
+            GaugeType::Charge,
+            Gauge {
+                render_instructions: RenderInstructions::Bar(ResourceBarVisual {
+                    height: 10.0,
+                    // TODO: Visual for perfect charge
+                    default_color: CHARGE_BAR_PARTIAL_SEGMENT_COLOR,
+                    full_color: Some(CHARGE_BAR_FULL_SEGMENT_COLOR),
+                    segments: 1,
+                    segment_gap: 0.0,
+                }),
+                max: Some(60),
+                special: Some(SpecialProperty::Charge(ChargeProperty {
+                    directions: vec![StickPosition::NW, StickPosition::SW, StickPosition::W],
+                    ..default()
+                })),
+                ..default()
+            },
+        )],
         vec![
             (VoiceLine::Defeat, Sound::MaleNo),
             (VoiceLine::BigHit, Sound::MaleArgh),
@@ -434,7 +456,215 @@ fn throws() -> impl Iterator<Item = (CPOAction, Action)> {
 
 fn specials() -> impl Iterator<Item = (CPOAction, Action)> {
     debug!("CPO specials");
-    vec![].into_iter()
+
+    vec![
+        SpecialVersion::Fast,
+        SpecialVersion::Strong,
+        SpecialVersion::Metered,
+    ]
+    .into_iter()
+    .flat_map(|strength| {
+        vec![
+            (
+                CPOAction::GroundTimeWinderStraight(strength),
+                timewinder(strength, AttackHeight::Mid),
+            ),
+            (
+                CPOAction::GroundTimeWinderLow(strength),
+                timewinder(strength, AttackHeight::Low),
+            ),
+            (
+                CPOAction::AirTimewinder(strength),
+                timewinder(strength, AttackHeight::High),
+            ),
+        ]
+    })
+}
+
+const TIMEWINDER_STRAIGHT_BASE_MOMENTUM: f32 = 15.0;
+const TIMEWINDER_LOW_BASE_MOMENTUM: f32 = 10.0;
+const TIMEWINDER_AIR_BASE_MOMENTUM: f32 = 7.0;
+
+const FAST_TIMEWINDER_DISTANCE_MUL: f32 = 0.6;
+const STRONG_TIMEWINDER_DISTANCE_MUL: f32 = 0.5;
+const METERED_TIMEWINDER_DISTANCE_MUL: f32 = 0.7;
+
+const TIMEWINDER_SECONDARY_MOVEMENT: f32 = 6.0;
+
+fn timewinder_dynamic_initial(version: SpecialVersion, height: AttackHeight) -> DynamicEvents {
+    Arc::new(move |situation: &Situation| {
+        let momentum = match ChargePerfection::from_gauge(
+            situation.get_resource(GaugeType::Charge).unwrap(),
+        ) {
+            ChargePerfection::Early(val) => 1.5 * val,
+            ChargePerfection::Perfect => 2.0,
+            ChargePerfection::Over => 1.0,
+        } * match height {
+            AttackHeight::Low => TIMEWINDER_LOW_BASE_MOMENTUM,
+            AttackHeight::Mid => TIMEWINDER_STRAIGHT_BASE_MOMENTUM,
+            AttackHeight::High => TIMEWINDER_AIR_BASE_MOMENTUM,
+        } * match version {
+            SpecialVersion::Metered => METERED_TIMEWINDER_DISTANCE_MUL,
+            SpecialVersion::Strong => STRONG_TIMEWINDER_DISTANCE_MUL,
+            SpecialVersion::Fast => FAST_TIMEWINDER_DISTANCE_MUL,
+        };
+
+        vec![
+            ActionEvent::ClearResource(GaugeType::Charge),
+            ActionEvent::MultiplyMomentum(Vec2::new(0.8, 0.0)), // Stops falling / rising
+            ActionEvent::Movement(Movement::impulse(Vec2::X * momentum)),
+            ActionEvent::RelativeVisualEffect(VfxRequest {
+                // TODO: Use bezier
+                effect: VisualEffect::SpeedLines,
+                ..default()
+            }),
+        ]
+    })
+}
+
+fn fast_timewinder(height: AttackHeight) -> Action {
+    let mut builder = AttackBuilder::special()
+        .with_character_universals(CHARACTER_UNIVERSALS)
+        .with_input(match height {
+            AttackHeight::Low => "3+f",
+            AttackHeight::Mid => "6+f",
+            AttackHeight::High => "[369]+f",
+        })
+        .with_animation(match height {
+            AttackHeight::Mid => CPOAnimation::TimewinderGroundStraight,
+            AttackHeight::Low => CPOAnimation::TimewinderGroundLow,
+            AttackHeight::High => CPOAnimation::TimewinderAirStrike,
+        })
+        .with_total_duration(60)
+        .with_extra_requirement(ActionRequirement::ResourceValue(GaugeType::Charge, 20))
+        .with_extra_initial_dyn_events(timewinder_dynamic_initial(SpecialVersion::Fast, height))
+        .with_hit_on_frame(9, {
+            let hb = HitBuilder::special()
+                .with_attack_height(height)
+                .with_active_frames(3)
+                .with_hitbox(Area::new(
+                    1.0,
+                    match height {
+                        AttackHeight::Mid => 1.1,
+                        AttackHeight::Low => 0.2,
+                        AttackHeight::High => 0.5,
+                    },
+                    1.2,
+                    0.4,
+                ))
+                .with_damage(12);
+
+            match height {
+                AttackHeight::Low => hb
+                    .with_advantage_on_block(-25)
+                    .with_advantage_on_hit(2)
+                    .knocks_down(),
+                AttackHeight::Mid => hb
+                    .with_advantage_on_block(-8)
+                    .with_advantage_on_hit(5)
+                    // In the rare case it hits airborne
+                    .with_strike_builder(|sb| sb.with_juggle_impulse(Vec2::new(-5.0, 1.0))),
+                AttackHeight::High => {
+                    // Air version, guess numbers
+                    hb.with_blockstun(20).with_hitstun(30)
+                }
+            }
+        });
+
+    if height == AttackHeight::High {
+        builder = builder.air_only();
+    }
+
+    builder.build()
+}
+
+fn timewinder(version: SpecialVersion, height: AttackHeight) -> Action {
+    if version == SpecialVersion::Fast {
+        // Doesn't have the shoulder part, so we separate it this way
+        return fast_timewinder(height);
+    }
+
+    let mut builder = AttackBuilder::special()
+        .with_character_universals(CHARACTER_UNIVERSALS)
+        .with_input(match (version, height) {
+            (SpecialVersion::Strong, AttackHeight::Low) => "3+s",
+            (SpecialVersion::Strong, AttackHeight::Mid) => "6+s",
+            (SpecialVersion::Strong, AttackHeight::High) => "[369]+s",
+            (SpecialVersion::Metered, AttackHeight::Low) => "3+s",
+            (SpecialVersion::Metered, AttackHeight::Mid) => "6+s",
+            (SpecialVersion::Metered, AttackHeight::High) => "[369]+s",
+            _ => panic!("Unexpected version/height combo for timewinder: {version:?}/{height:?}"),
+        })
+        .with_animation(match height {
+            AttackHeight::Mid | AttackHeight::Low => CPOAnimation::TimewinderGroundShoulder,
+            AttackHeight::High => CPOAnimation::TimewinderAirShoulder,
+        })
+        .with_total_duration(82)
+        .with_extra_requirement(ActionRequirement::ResourceValue(GaugeType::Charge, 20))
+        .with_extra_initial_dyn_events(timewinder_dynamic_initial(version, height))
+        .with_hit_on_frame(20, {
+            HitBuilder::special()
+                .with_active_frames(2)
+                .launches(Vec2::new(0.5, 3.0))
+                .with_damage(5)
+                .with_hitbox(Area::new(0.6, 1.1, 0.5, 1.0))
+                .with_blockstun(5) // Just needs to last long enough for second hit to connect
+        })
+        .with_extra_events(
+            22,
+            vec![
+                ActionEvent::Animation(
+                    Animation::CPO(match height {
+                        AttackHeight::Mid => CPOAnimation::TimewinderGroundStraight,
+                        AttackHeight::Low => CPOAnimation::TimewinderGroundLow,
+                        AttackHeight::High => CPOAnimation::TimewinderAirStrike,
+                    })
+                    .into(),
+                ),
+                ActionEvent::Movement(Movement::impulse(Vec2::X * TIMEWINDER_SECONDARY_MOVEMENT)),
+            ],
+        )
+        .with_hit_on_frame(29, {
+            let mut hb = HitBuilder::special()
+                .with_attack_height(height)
+                .with_active_frames(3)
+                .with_hitbox(Area::new(
+                    1.0,
+                    match height {
+                        AttackHeight::Mid => 1.1,
+                        AttackHeight::Low => 0.2,
+                        AttackHeight::High => 0.5,
+                    },
+                    1.2,
+                    0.4,
+                ))
+                .with_damage(12);
+
+            match height {
+                AttackHeight::Low => {
+                    hb = hb.with_advantage_on_block(-15);
+                    hb = hb.with_advantage_on_hit(4);
+                }
+                AttackHeight::Mid => {
+                    hb = hb.with_advantage_on_block(-8);
+                    hb = hb.with_advantage_on_hit(8);
+                    hb = hb.with_strike_builder(|sb| sb.with_juggle_impulse(Vec2::new(-5.0, 6.0)))
+                }
+                AttackHeight::High => {
+                    // Air version, guess numbers
+                    hb = hb.with_blockstun(20);
+                    hb = hb.with_hitstun(30);
+                }
+            }
+
+            hb
+        });
+
+    if height == AttackHeight::High {
+        builder = builder.air_only();
+    }
+
+    builder.build()
 }
 
 fn item_actions() -> impl Iterator<Item = (ActionId, Action)> {

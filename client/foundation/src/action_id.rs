@@ -7,6 +7,7 @@ pub enum SpecialVersion {
     Fast,
 }
 
+// NOTE: Order matters, later actions take priority.
 #[derive(Reflect, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default, Component)]
 pub enum ActionId {
     #[default]
@@ -94,16 +95,6 @@ impl From<RoninAction> for ActionId {
 pub enum CPOAction {
     Jackpot,
 
-    // Specials
-    AirTimewinder,
-    GroundTimeWinderStraight,
-    GroundTimeWinderLow,
-    PayCheckStartup,
-    PayCheckHit,
-    PayCheckRecipient,
-    AdBreak,
-    Sugarcoat,
-
     // Throws
     AirThrowStartup,
     AirThrowHit,
@@ -123,6 +114,16 @@ pub enum CPOAction {
     JumpingKnees,
     DickJab,
     Chop,
+
+    // Specials
+    AirTimewinder(SpecialVersion),
+    GroundTimeWinderStraight(SpecialVersion),
+    GroundTimeWinderLow(SpecialVersion),
+    PayCheckStartup,
+    PayCheckHit,
+    PayCheckRecipient,
+    AdBreak,
+    Sugarcoat,
 }
 
 impl From<CPOAction> for ActionId {

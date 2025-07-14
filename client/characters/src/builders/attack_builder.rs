@@ -204,9 +204,23 @@ impl AttackBuilder {
         }
     }
 
+    pub fn with_extra_initial_dyn_events(self, events: DynamicEvents) -> Self {
+        Self {
+            action_builder: self.action_builder.dyn_immediate_events(events),
+            ..self
+        }
+    }
+
     pub fn with_extra_initial_events(self, events: Vec<ActionEvent>) -> Self {
         Self {
             action_builder: self.action_builder.static_immediate_events(events),
+            ..self
+        }
+    }
+
+    pub fn with_extra_events(self, frame: usize, events: Vec<ActionEvent>) -> Self {
+        Self {
+            action_builder: self.action_builder.static_events_on_frame(frame, events),
             ..self
         }
     }
@@ -344,7 +358,7 @@ impl HitBuilder {
         }
     }
 
-    fn with_strike_builder(
+    pub fn with_strike_builder(
         mut self,
         transformer: impl Fn(StrikeEffectBuilder) -> StrikeEffectBuilder,
     ) -> Self {
@@ -490,6 +504,9 @@ impl HitBuilder {
     pub fn hits_low(self) -> Self {
         self.with_strike_builder(|sb| sb.with_height(AttackHeight::Low))
     }
+    pub fn with_attack_height(self, height: AttackHeight) -> Self {
+        self.with_strike_builder(|sb| sb.with_height(height))
+    }
 
     pub fn with_distance_on_block(self, distance: f32) -> Self {
         self.with_strike_builder(|sb| sb.with_distance_on_block(distance))
@@ -611,6 +628,7 @@ pub struct StrikeEffectBuilder {
     sharpness_scaling: i32,
     on_hit_effects: Events,
     cancel: Option<(CancelType, Option<usize>)>,
+    juggle_impulse: Vec2,
 }
 impl Default for StrikeEffectBuilder {
     fn default() -> Self {
@@ -628,6 +646,7 @@ impl Default for StrikeEffectBuilder {
             defender_push_on_hit: 0.0,
             chip_damage: 1,
             sharpness_scaling: 0,
+            juggle_impulse: Vec2::new(-1.0, 5.0),
         }
         .with_distance_on_hit(0.7)
         .with_distance_on_block(1.2)
@@ -652,6 +671,13 @@ impl StrikeEffectBuilder {
     pub fn with_hitstun(self, stun: Stun) -> Self {
         Self {
             hit_stun: HitStun::Stun(stun),
+            ..self
+        }
+    }
+
+    pub fn with_juggle_impulse(self, juggle_impulse: Vec2) -> Self {
+        Self {
+            juggle_impulse,
             ..self
         }
     }
@@ -934,7 +960,7 @@ impl StrikeEffectBuilder {
                             Movement::impulse(-Vec2::X * self.defender_push_on_hit).into(),
                             ActionEvent::ModifyResource(GaugeType::Health, -damage),
                             if hit_data.airborne && !launcher {
-                                ActionEvent::LaunchStun(Vec2::new(-1.0, 5.0))
+                                ActionEvent::LaunchStun(self.juggle_impulse)
                             } else {
                                 ActionEvent::Noop
                             },

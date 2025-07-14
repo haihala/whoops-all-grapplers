@@ -147,6 +147,26 @@ impl Gauge {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum ChargePerfection {
+    Early(f32),
+    Perfect,
+    Over,
+}
+impl ChargePerfection {
+    pub fn from_gauge(gauge: &Gauge) -> Self {
+        if gauge.is_full() {
+            return ChargePerfection::Over;
+        }
+
+        if gauge.current == gauge.max.unwrap() - 1 {
+            return ChargePerfection::Perfect;
+        }
+
+        ChargePerfection::Early(gauge.current as f32 / (gauge.max.unwrap() - 1) as f32)
+    }
+}
+
 #[derive(Debug, Clone, Copy, Component)]
 pub struct ResourceBarVisual {
     pub height: f32,
@@ -215,7 +235,7 @@ impl Default for ChargeProperty {
         Self {
             directions: vec![StickPosition::SW, StickPosition::S, StickPosition::W],
             buttons: vec![],
-            clear_time: 20,
+            clear_time: 10,
             last_gain_frame: 0,
             charging: false,
         }

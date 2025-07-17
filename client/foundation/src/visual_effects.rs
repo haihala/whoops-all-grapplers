@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::Icon;
 
-#[derive(Debug, PartialEq, Clone, Copy, Default)]
+#[derive(Debug, PartialEq, Clone, Default)]
 pub enum VisualEffect {
     #[default]
     Blank,
@@ -21,6 +21,7 @@ pub enum VisualEffect {
     SmokeBomb,
     Icon(Icon),
     JackpotRing,
+    Smear(Smear),
 }
 impl VisualEffect {
     pub fn mesh_size(&self) -> Rectangle {
@@ -60,7 +61,15 @@ impl Default for RingPulse {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Copy, Default)]
+#[derive(Debug, PartialEq, Clone)]
+pub struct Smear {
+    pub primary_color: Color,
+    pub secondary_color: Color,
+    pub control_points: Vec<Vec3>,
+    pub duration: usize,
+}
+
+#[derive(Debug, PartialEq, Clone, Default)]
 pub struct VfxRequest {
     pub effect: VisualEffect,
     pub tf: Transform,

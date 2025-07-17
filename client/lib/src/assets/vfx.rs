@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use foundation::{CharacterFacing, Clock, Icons, MatchState, VfxRequest, VisualEffect, FPS};
 
 use crate::{
-    assets::materials::JackpotRingMaterial,
+    assets::materials::{BezierSwooshMaterial, JackpotRingMaterial},
     entity_management::DespawnMarker,
     event_spreading::{SpawnRelativeVfx, SpawnVfx},
     movement::Follow,
@@ -16,7 +16,7 @@ use super::materials::{
     SparkBurstMaterial,
 };
 
-pub fn spawn_vfx<M: Material>(
+pub fn spawn_vfx<M: Material + std::fmt::Debug>(
     trigger: Trigger<MaxSystemParamCountFix<M>>,
     mut commands: Commands,
     mut material_asset: ResMut<Assets<M>>,
@@ -50,7 +50,7 @@ pub fn start_relative_vfx(
     mut commands: Commands,
 ) {
     let (entity, tf, facing) = query.get(trigger.target()).unwrap();
-    let mut request = trigger.event().0;
+    let mut request = trigger.event().0.clone();
     if facing.visual.to_flipped() {
         request.mirror = !request.mirror;
     }
@@ -245,6 +245,35 @@ pub fn start_absolute_vfx(
                     target: maybe_player.unwrap(),
                     offset: Vec3::Y * 1.5,
                 }),
+            });
+        }
+        VisualEffect::Smear(smear) => {
+            let padding = std::iter::repeat_n(Vec3::default(), 16 - smear.control_points.len());
+            let curves = ((smear.control_points.len() - 4) / 3 + 1) as u32;
+            let control_points: [Vec4; 16] = smear
+                .control_points
+                .clone()
+                .into_iter()
+                .chain(padding)
+                .map(|v| v.extend(0.0))
+                .collect::<Vec<_>>()
+                .try_into()
+                .unwrap();
+            let inner_duration = smear.duration as f32 / FPS;
+
+            commands.trigger(MaxSystemParamCountFix {
+                mesh,
+                transform,
+                material: BezierSwooshMaterial {
+                    primary_color: smear.primary_color.into(),
+                    secondary_color: smear.secondary_color.into(),
+                    duration: inner_duration,
+                    curves,
+                    control_points,
+                    start_time: time.elapsed_secs(),
+                },
+                frames_to_live: smear.duration,
+                follow: None,
             });
         }
     };

@@ -54,6 +54,7 @@ impl Plugin for AssetsPlugin {
             .add_plugins((
                 MaterialPlugin::<materials::IconFlashMaterial>::default(),
                 MaterialPlugin::<materials::JackpotRingMaterial>::default(),
+                MaterialPlugin::<materials::BezierSwooshMaterial>::default(),
             ))
             .add_systems(
                 Startup,
@@ -105,7 +106,8 @@ impl Plugin for AssetsPlugin {
             .add_observer(vfx::spawn_vfx::<materials::SparkBurstMaterial>)
             .add_observer(vfx::spawn_vfx::<materials::SmokeBombMaterial>)
             .add_observer(vfx::spawn_vfx::<materials::MidFlashMaterial>)
+            .add_observer(vfx::spawn_vfx::<materials::IconFlashMaterial>)
             .add_observer(vfx::spawn_vfx::<materials::JackpotRingMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::IconFlashMaterial>);
+            .add_observer(vfx::spawn_vfx::<materials::BezierSwooshMaterial>);
     }
 }

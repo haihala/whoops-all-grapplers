@@ -162,10 +162,10 @@ pub fn spread_events(trigger: Trigger<ActionEvent>, mut commands: Commands) {
             commands.trigger_targets(*fr, trigger.target());
         }
         ActionEvent::AbsoluteVisualEffect(vfx) => {
-            commands.trigger(SpawnVfx(*vfx, None));
+            commands.trigger(SpawnVfx(vfx.clone(), None));
         }
         ActionEvent::RelativeVisualEffect(vfx) => {
-            commands.trigger_targets(SpawnRelativeVfx(*vfx), trigger.target());
+            commands.trigger_targets(SpawnRelativeVfx(vfx.clone()), trigger.target());
         }
         ActionEvent::End => {
             commands.trigger_targets(EndAction, trigger.target());

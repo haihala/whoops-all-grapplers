@@ -26,6 +26,10 @@ use super::Character;
 
 const CHARACTER_UNIVERSALS: CharacterUniversals = CharacterUniversals {
     normal_grunt: Sound::FemaleExhale,
+
+    // TODO: I just threw these here, pick something smart later on
+    primary_color: RONIN_ALT_HELMET_COLOR,
+    secondary_color: RONIN_ALT_JEANS_COLOR,
 };
 
 pub fn ronin() -> Character {

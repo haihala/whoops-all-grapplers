@@ -62,4 +62,4 @@ mod time;
 pub use time::*;
 
 mod visual_effects;
-pub use visual_effects::{RingPulse, VfxRequest, VisualEffect};
+pub use visual_effects::{RingPulse, Smear, VfxRequest, VisualEffect};

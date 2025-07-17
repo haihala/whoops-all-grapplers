@@ -15,6 +15,8 @@ use super::DynamicEvents;
 #[derive(Debug, Clone, Copy)]
 pub struct CharacterUniversals {
     pub normal_grunt: Sound,
+    pub primary_color: Color,
+    pub secondary_color: Color,
 }
 
 #[derive(Clone, Default)]
@@ -300,7 +302,7 @@ impl ActionBuilder {
             frame,
             Arc::new(move |situation: &Situation| {
                 vec![ActionEvent::RelativeVisualEffect(VfxRequest {
-                    effect,
+                    effect: effect.clone(),
                     tf: situation.facing.visual.mirror_transform(tf),
                     ..default()
                 })]

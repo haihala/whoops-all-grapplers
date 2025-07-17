@@ -504,6 +504,32 @@ impl Material for JackpotRingMaterial {
     }
 }
 
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct BezierSwooshMaterial {
+    #[uniform(0)]
+    pub control_points: [Vec4; 16],
+    #[uniform(1)]
+    pub curves: u32,
+    #[uniform(2)]
+    pub duration: f32,
+    #[uniform(3)]
+    pub start_time: f32,
+    #[uniform(4)]
+    pub primary_color: LinearRgba,
+    #[uniform(5)]
+    pub secondary_color: LinearRgba,
+}
+
+impl Material for BezierSwooshMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/bezier_swoosh.wgsl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode {
+        AlphaMode::Blend
+    }
+}
+
 // Extended Flash Material
 pub type ExtendedFlashMaterial = ExtendedMaterial<StandardMaterial, FlashMaterial>;
 

@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use foundation::{
     ActionCategory, ActionId, Animation, Area, CancelType, Facing, GameButton, Icon, Model,
-    RingPulse, SimpleState, Sound, StatusCondition, StatusFlag, VfxRequest, VisualEffect,
+    RingPulse, SimpleState, Smear, Sound, StatusCondition, StatusFlag, VfxRequest, VisualEffect,
     VoiceLine, BIG_HIT_THRESHOLD, HIGH_OPENER_COLOR, JACKPOT_COLOR, JACKPOT_METER_GAIN,
     JACKPOT_RING_BASE_COLOR, LOW_OPENER_COLOR, MID_OPENER_COLOR, ON_BLOCK_HITSTOP, ON_HIT_HITSTOP,
     SMALL_HIT_THRESHOLD, THROW_TECH_RING_BASE_COLOR, THROW_TECH_RING_EDGE_COLOR,
@@ -153,7 +153,36 @@ impl AttackBuilder {
             };
         }
 
+        // If the hit has a smear, start that a few frames before hitbox is active,
+        if let Some(smear) = hit.smear.clone() {
+            let smear_start_frame = frame.saturating_sub(smear.duration / 4);
+            let hitbox = hit.hitbox;
+            let smear_pos = hitbox.center();
+            let smear_size = hitbox.size() * Vec2::splat(1.1); // Make it slightly bigger than the hitbox
+
+            let universals = self.action_builder.character_universals.unwrap();
+
+            self.action_builder = self.action_builder.static_events_on_frame(
+                smear_start_frame,
+                vec![ActionEvent::RelativeVisualEffect(VfxRequest {
+                    effect: VisualEffect::Smear(Smear {
+                        primary_color: universals.primary_color,
+                        secondary_color: universals.secondary_color,
+                        control_points: smear.control_points,
+                        duration: smear.duration,
+                    }),
+                    tf: Transform {
+                        translation: smear_pos.extend(0.0),
+                        scale: smear_size.extend(1.0),
+                        ..default()
+                    },
+                    ..default()
+                })],
+            );
+        }
+
         self.hits.push((frame, hit));
+
         self
     }
 
@@ -283,7 +312,13 @@ impl AttackBuilder {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Clone)]
+struct SmearSpec {
+    duration: usize,
+    control_points: Vec<Vec3>,
+}
+
+#[derive(Default, Debug)]
 pub struct HitBuilder {
     hitbox: Hitbox,
     expand_hurtbox: Option<usize>,
@@ -295,6 +330,7 @@ pub struct HitBuilder {
     hit_count: usize,
     hitbox_lifetime: Lifetime,
     additional_events: Events,
+    smear: Option<SmearSpec>,
 }
 
 impl HitBuilder {
@@ -371,11 +407,6 @@ impl HitBuilder {
         self
     }
 
-    #[allow(unused)]
-    fn is_throw(&self) -> bool {
-        matches!(self.sub_builder, SubBuilder::Throw(_))
-    }
-
     fn throw_builder(&self) -> ThrowStartupBuilder {
         let SubBuilder::Throw(tb) = self.sub_builder else {
             panic!("Not a throw")
@@ -399,6 +430,16 @@ impl HitBuilder {
     pub fn with_active_frames(mut self, frames: usize) -> Self {
         self.hitbox_lifetime = Lifetime::frames(frames);
         self
+    }
+
+    pub fn with_smear(self, duration: usize, control_points: Vec<Vec3>) -> Self {
+        Self {
+            smear: Some(SmearSpec {
+                control_points,
+                duration,
+            }),
+            ..self
+        }
     }
 
     pub fn with_hitbox(self, hitbox: Area) -> Self {

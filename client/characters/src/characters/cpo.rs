@@ -6,8 +6,8 @@ use foundation::{
     ActionCategory, ActionId, Animation, AnimationType, Area, CPOAction, CPOAnimation, CancelType,
     GameButton, ItemId, Model, Sound, SpecialVersion, Stats, StatusCondition, StatusFlag,
     StickPosition, VfxRequest, VisualEffect, VoiceLine, CHARGE_BAR_FULL_SEGMENT_COLOR,
-    CHARGE_BAR_PARTIAL_SEGMENT_COLOR, CPO_ALT_SHIRT_COLOR, CPO_ALT_SOCKS_COLOR, FPS,
-    JACKPOT_HIGH_POINT_PERCENTAGE, JACKPOT_TOTAL_DURATION,
+    CHARGE_BAR_PARTIAL_SEGMENT_COLOR, CPO_ALT_SHIRT_COLOR, CPO_ALT_SOCKS_COLOR, CPO_DOLLAR_GREEN,
+    CPO_GOLD_YELLOW, FPS, JACKPOT_HIGH_POINT_PERCENTAGE, JACKPOT_TOTAL_DURATION,
 };
 
 use crate::{
@@ -24,6 +24,8 @@ use super::Character;
 
 const CHARACTER_UNIVERSALS: CharacterUniversals = CharacterUniversals {
     normal_grunt: Sound::MaleGrunt,
+    primary_color: CPO_DOLLAR_GREEN,
+    secondary_color: CPO_GOLD_YELLOW,
 };
 
 pub fn cpo() -> Character {
@@ -166,7 +168,7 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
             AttackBuilder::button(GameButton::Fast)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_animation(CPOAnimation::Chop)
-                .with_total_duration(20)
+                .with_total_duration(16)
                 .with_hit_on_frame(
                     6,
                     HitBuilder::normal()
@@ -174,16 +176,16 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
                         .with_damage(5)
                         .with_advantage_on_block(-1)
                         .with_advantage_on_hit(4)
-                        .with_hitbox(Area::new(0.2, 1.8, 0.5, 0.5)),
-                )
-                .with_hit_on_frame(
-                    9,
-                    HitBuilder::normal()
-                        .with_active_frames(2)
-                        .with_damage(5)
-                        .with_advantage_on_block(-1)
-                        .with_advantage_on_hit(4)
-                        .with_hitbox(Area::new(0.6, 1.1, 0.25, 0.35)),
+                        .with_hitbox(Area::new(0.4, 1.6, 1.0, 1.3))
+                        .with_smear(
+                            6,
+                            vec![
+                                Vec3::new(-1.0, 0.8, 10.0),
+                                Vec3::new(1.2, 1.2, 20.0),
+                                Vec3::new(0.8, -0.6, 30.0),
+                                Vec3::new(0.7, -0.9, 10.0),
+                            ],
+                        ),
                 )
                 .build(),
         ),

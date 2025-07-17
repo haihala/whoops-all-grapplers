@@ -1,7 +1,7 @@
 use bevy::color::palettes::css::*;
 use bevy::prelude::*;
 
-const WWE_RAW_RED: Color = Color::srgb(195.0 / 255.0, 24.0 / 255.0, 24.0 / 255.0);
+const WWE_RAW_RED: Color = Color::srgb_u8(195, 24, 24);
 
 // Resource bars
 pub const HEALTH_BAR_COLOR: Color = Color::srgb(0.9, 0.0, 0.0);
@@ -95,9 +95,9 @@ pub const METERED_SWORD_VFX: Color = Color::srgb(0.5, 0.6, 0.9);
 // Player colors
 pub const RONIN_ALT_SHIRT_COLOR: Color = Color::WHITE;
 pub const RONIN_ALT_JEANS_COLOR: Color = Color::Srgba(MIDNIGHT_BLUE);
-pub const RONIN_ALT_HELMET_COLOR: Color = Color::srgb(38.0 / 255.0, 50.0 / 255.0, 100.0 / 255.0);
+pub const RONIN_ALT_HELMET_COLOR: Color = Color::srgb_u8(38, 50, 100);
 
-pub const CPO_ALT_SHIRT_COLOR: Color = Color::srgb(250.0 / 255.0, 128.0 / 255.0, 114.0 / 255.0);
+pub const CPO_ALT_SHIRT_COLOR: Color = Color::srgb_u8(250, 145, 130); // light salmon red
 pub const CPO_ALT_SOCKS_COLOR: Color = Color::WHITE;
 
 // UI

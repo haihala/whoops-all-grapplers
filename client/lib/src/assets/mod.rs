@@ -12,10 +12,10 @@ mod vfx;
 pub use animations::{AnimationHelper, AnimationHelperSetup, Animations};
 pub use announcer::Announcer;
 pub use asset_updater::{play_voiceline, start_animation};
-pub use materials::{ExtendedFlashMaterial, FlashMaterial};
+pub use materials::*;
 pub use models::{shake_character, CharacterShake, Models, PlayerModelHook};
 pub use music::Music;
-pub use vfx::start_relative_vfx;
+pub use vfx::{start_relative_vfx, VfxMaterialPlugin};
 
 use foundation::{MatchState, RollbackSchedule, SystemStep};
 
@@ -34,27 +34,26 @@ impl Plugin for AssetsPlugin {
         app.init_resource::<AssetsLoading>()
             .init_resource::<Announcer>()
             .add_plugins((
-                MaterialPlugin::<materials::HitSparkMaterial>::default(),
-                MaterialPlugin::<materials::BlankMaterial>::default(),
-                MaterialPlugin::<materials::BlockEffectMaterial>::default(),
-                MaterialPlugin::<materials::ClashSparkMaterial>::default(),
-                MaterialPlugin::<materials::RingRippleMaterial>::default(),
-                MaterialPlugin::<materials::LineFieldMaterial>::default(),
-                MaterialPlugin::<materials::FocalPointLinesMaterial>::default(),
-                MaterialPlugin::<materials::LightningBoltMaterial>::default(),
-                MaterialPlugin::<materials::FlatWaveMaterial>::default(),
-                MaterialPlugin::<materials::DiagonalWaveMaterial>::default(),
-                MaterialPlugin::<materials::PebbleMaterial>::default(),
-                MaterialPlugin::<materials::SparkBurstMaterial>::default(),
-                MaterialPlugin::<materials::SmokeBombMaterial>::default(),
-                MaterialPlugin::<materials::MidFlashMaterial>::default(),
-                MaterialPlugin::<ExtendedFlashMaterial>::default(),
+                VfxMaterialPlugin::<ExtendedFlashMaterial>::default(),
+                VfxMaterialPlugin::<HitSparkMaterial>::default(),
+                VfxMaterialPlugin::<BlankMaterial>::default(),
+                VfxMaterialPlugin::<BlockEffectMaterial>::default(),
+                VfxMaterialPlugin::<ClashSparkMaterial>::default(),
+                VfxMaterialPlugin::<RingRippleMaterial>::default(),
+                VfxMaterialPlugin::<LineFieldMaterial>::default(),
+                VfxMaterialPlugin::<FocalPointLinesMaterial>::default(),
+                VfxMaterialPlugin::<LightningBoltMaterial>::default(),
+                VfxMaterialPlugin::<FlatWaveMaterial>::default(),
+                VfxMaterialPlugin::<DiagonalWaveMaterial>::default(),
+                VfxMaterialPlugin::<PebbleMaterial>::default(),
+                VfxMaterialPlugin::<SparkBurstMaterial>::default(),
+                VfxMaterialPlugin::<SmokeBombMaterial>::default(),
             ))
-            // Limit of plugins per call to add_plugins
             .add_plugins((
-                MaterialPlugin::<materials::IconFlashMaterial>::default(),
-                MaterialPlugin::<materials::JackpotRingMaterial>::default(),
-                MaterialPlugin::<materials::BezierSwooshMaterial>::default(),
+                VfxMaterialPlugin::<MidFlashMaterial>::default(),
+                VfxMaterialPlugin::<IconFlashMaterial>::default(),
+                VfxMaterialPlugin::<JackpotRingMaterial>::default(),
+                VfxMaterialPlugin::<BezierSwooshMaterial>::default(),
             ))
             .add_systems(
                 Startup,
@@ -90,24 +89,6 @@ impl Plugin for AssetsPlugin {
                 ann.fight()
             })
             .add_observer(asset_updater::play_audio)
-            .add_observer(vfx::start_absolute_vfx)
-            .add_observer(vfx::spawn_vfx::<materials::BlankMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::HitSparkMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::BlankMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::BlockEffectMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::ClashSparkMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::RingRippleMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::LineFieldMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::FocalPointLinesMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::LightningBoltMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::FlatWaveMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::DiagonalWaveMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::PebbleMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::SparkBurstMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::SmokeBombMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::MidFlashMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::IconFlashMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::JackpotRingMaterial>)
-            .add_observer(vfx::spawn_vfx::<materials::BezierSwooshMaterial>);
+            .add_observer(vfx::start_absolute_vfx);
     }
 }

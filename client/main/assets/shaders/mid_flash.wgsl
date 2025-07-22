@@ -1,12 +1,14 @@
 #import bevy_pbr::forward_io::VertexOutput
 #import bevy_pbr::mesh_view_bindings::{globals, view};
 
+#import "shaders/helpers.wgsl"::{FPS};
+
 const PI = 3.14159265359;
 const cycle_duration = 2.0;
 const anim_duration = 0.5;
 
 
-@group(2) @binding(0) var<uniform> start_time: f32;
+@group(2) @binding(0) var<uniform> frame: u32;
 @group(2) @binding(1) var<uniform> inner_color: vec4<f32>;
 @group(2) @binding(2) var<uniform> outer_color: vec4<f32>;
 
@@ -23,7 +25,7 @@ const edge = 0.03;
 fn fragment(
     mesh: VertexOutput,
 ) -> @location(0) vec4<f32> {
-    let time = globals.time - start_time;
+    let time = f32(frame)/FPS;
     let cycle = min(1.0, cycle_duration * fract(time / cycle_duration) / anim_duration);
 
     let a = pow(cycle + 0.3, 5.0) ;

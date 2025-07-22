@@ -8,7 +8,7 @@
 @group(2) @binding(1) var<uniform> curve_count: u32;
 @group(2) @binding(2) var<uniform> duration_frames: u32;
 @group(2) @binding(3) var<uniform> overlap: f32;
-@group(2) @binding(4) var<uniform> start_time: f32;
+@group(2) @binding(4) var<uniform> frame: u32;
 @group(2) @binding(5) var<uniform> primary_color: vec4f;
 @group(2) @binding(6) var<uniform> secondary_color: vec4f;
 
@@ -18,12 +18,12 @@ const sections_per_curve_per_unit: u32 = 40;
 fn fragment(
     mesh: VertexOutput,
 ) -> @location(0) vec4<f32> {
-    let time = globals.time - start_time;
     let duration = f32(duration_frames) / FPS;
+    let t = f32(frame) / FPS;
     let t_length = overlap * (1/f32(duration_frames));
 
     let cycle = remap(
-        clamp(time / duration, 0.0, 1.0),
+        clamp(t/duration, 0.0, 1.0),
         0.0,
         1.0,
         0.0,

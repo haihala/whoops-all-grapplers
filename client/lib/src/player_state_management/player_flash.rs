@@ -9,7 +9,6 @@ pub fn handle_flash_events(
     mut materials: ResMut<Assets<ExtendedFlashMaterial>>,
     handles: Query<(Entity, &MeshMaterial3d<ExtendedFlashMaterial>)>,
     parents: Query<&ChildOf>,
-    time: Res<Time>,
 ) {
     for (material_entity, handle) in &handles {
         let mut parent = parents.get(material_entity).unwrap().parent();
@@ -24,7 +23,7 @@ pub fn handle_flash_events(
         }
 
         let material = materials.get_mut(handle).unwrap();
-        material.extension.flash_start = time.elapsed_secs();
+        material.extension.frame = 0;
         let req = trigger.event();
         material.extension.color = req.color.into();
         material.extension.speed = req.speed;

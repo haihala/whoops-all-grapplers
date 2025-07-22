@@ -273,6 +273,7 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
                 .with_hit_on_frame(
                     11,
                     HitBuilder::normal()
+                        .hits_low()
                         .with_active_frames(2)
                         .with_damage(5)
                         .with_advantage_on_block(-1)
@@ -303,6 +304,7 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
                 .with_hit_on_frame(
                     8,
                     HitBuilder::normal()
+                        .hits_low()
                         .with_active_frames(2)
                         .with_damage(5)
                         .with_advantage_on_block(-1)
@@ -333,6 +335,7 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
                 .with_hit_on_frame(
                     10,
                     HitBuilder::normal()
+                        .hits_low()
                         .with_active_frames(2)
                         .with_damage(5)
                         .with_advantage_on_block(-1)

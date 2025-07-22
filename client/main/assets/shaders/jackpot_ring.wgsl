@@ -2,7 +2,7 @@
 #import bevy_pbr::mesh_view_bindings::{globals, view};
 #import bevy_pbr::mesh_functions::{get_world_from_local, mesh_position_local_to_clip}
 
-#import "shaders/helpers.wgsl"::{easeInQuint, easeOutElastic, easeOutQuint, easeInCirc, PI, TAU, remap}
+#import "shaders/helpers.wgsl"::{easeInQuint, easeOutElastic, easeOutQuint, easeInCirc, PI, TAU, remap, FPS}
 
 struct VertexOutput {
     @builtin(position) position: vec4<f32>,
@@ -30,7 +30,7 @@ const color_fade = 2.0;
 const line_inner_thickness = 0.002;              // Without outline
 const line_outer_thickness = 0.01;              // Including outline
 
-@group(2) @binding(0) var<uniform> start_time: f32;
+@group(2) @binding(0) var<uniform> frame: u32;
 @group(2) @binding(1) var<uniform> duration: f32;
 @group(2) @binding(2) var<uniform> peak: f32;
 
@@ -38,7 +38,7 @@ const line_outer_thickness = 0.01;              // Including outline
 fn vertex(vertex: Vertex) -> VertexOutput {
     var out: VertexOutput;
 
-    let time = (globals.time - start_time) / duration;
+    let time = f32(frame) / FPS / duration;
 
     // Goes up and down, always in range [0, 1], 1 at peak
     var t = 1.0;
@@ -79,7 +79,7 @@ fn fragment(
         return vec4(0.0);
     }
 
-    let time = (globals.time - start_time) / duration;
+    let time = f32(frame) / FPS / duration;
 
     if (time >= 1.0) {
         return vec4(0.0);

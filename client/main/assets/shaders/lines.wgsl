@@ -1,12 +1,14 @@
 #import bevy_pbr::forward_io::VertexOutput
 #import bevy_pbr::mesh_view_bindings::{globals, view};
 
+#import "shaders/helpers.wgsl"::{FPS};
+
 @group(2) @binding(0) var<uniform> base_color: vec4<f32>;
 @group(2) @binding(1) var<uniform> edge_color: vec4<f32>;
 @group(2) @binding(2) var<uniform> speed: f32;
 @group(2) @binding(3) var<uniform> line_thickness: f32;
 @group(2) @binding(4) var<uniform> layer_count: i32;
-@group(2) @binding(5) var<uniform> start_time: f32;
+@group(2) @binding(5) var<uniform> frame: u32;
 @group(2) @binding(6) var<uniform> duration: f32;
 @group(2) @binding(7) var<uniform> mirror: f32;
 
@@ -18,7 +20,7 @@ const offset = PI * 2 / 3;
 fn fragment(
     mesh: VertexOutput,
 ) -> @location(0) vec4<f32> {
-    let time = (globals.time - start_time);
+    let time = f32(frame)/FPS;
 
     let wt = time / duration;
     // Ease-in-quint

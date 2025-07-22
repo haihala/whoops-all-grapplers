@@ -18,10 +18,10 @@ pub fn start_hitstop(
 }
 
 pub fn update_hitstop(
-    mut hitstops: Query<(&mut CharacterClock, &AnimationHelper)>,
+    mut players: Query<(&mut CharacterClock, &AnimationHelper)>,
     mut anim_players: Query<&mut AnimationPlayer>,
 ) {
-    for (mut clock, helper) in &mut hitstops {
+    for (mut clock, helper) in &mut players {
         if clock.hitstop_frames == 1 {
             anim_players
                 .get_mut(helper.player_entity)

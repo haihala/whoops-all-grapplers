@@ -1,10 +1,12 @@
 #import bevy_pbr::forward_io::VertexOutput
 #import bevy_pbr::mesh_view_bindings::{globals, view};
 
+#import "shaders/helpers.wgsl"::{FPS};
+
 @group(2) @binding(0) var<uniform> base_color: vec4<f32>;
 @group(2) @binding(1) var<uniform> edge_color: vec4<f32>;
 @group(2) @binding(2) var<uniform> speed: f32;
-@group(2) @binding(3) var<uniform> start_time: f32;
+@group(2) @binding(3) var<uniform> frame: u32;
 
 const PI = 3.14159265359;
 
@@ -17,7 +19,7 @@ fn fragment(
     let angle = atan2(centered.x, centered.y);
     let range = length(centered);
 
-    let time = speed * (globals.time - start_time);
+    let time = speed * (f32(frame)/FPS);
     let time_offset = speed * globals.time;
 
     let trig = pow(

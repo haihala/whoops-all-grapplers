@@ -1,6 +1,8 @@
 #import bevy_pbr::forward_io::VertexOutput
 #import bevy_pbr::mesh_view_bindings::{globals, view};
 
+#import "shaders/helpers.wgsl"::{FPS};
+
 const PI = 3.14159265359;
 
 // Controls
@@ -16,14 +18,14 @@ const wave_speed = 18.0;
 
 @group(2) @binding(0) var<uniform> inner_color: vec4<f32>;
 @group(2) @binding(1) var<uniform> outer_color: vec4<f32>;
-@group(2) @binding(2) var<uniform> start_time: f32;
+@group(2) @binding(2) var<uniform> frame: u32;
 @group(2) @binding(3) var<uniform> mirror: i32;
 
 @fragment
 fn fragment(
     mesh: VertexOutput,
 ) -> @location(0) vec4<f32> {
-    let cycle = (globals.time - start_time);
+    let cycle = f32(frame)/FPS;
 
     let shake = pow((1 - cycle), 5.0) * 0.1;
 

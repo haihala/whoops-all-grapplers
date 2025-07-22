@@ -10,6 +10,8 @@
 }
 #endif
 
+#import "shaders/helpers.wgsl"::{FPS};
+
 @group(2) @binding(100)
 var<uniform> flash_color: vec4<f32>;
 @group(2) @binding(101)
@@ -19,7 +21,7 @@ var<uniform> max_depth: f32;
 @group(2) @binding(103)
 var<uniform> flash_duration: f32;
 @group(2) @binding(104)
-var<uniform> flash_start: f32;
+var<uniform> frame: u32;
 @group(2) @binding(105)
 var<uniform> weaken_end: f32;
 @group(2) @binding(106)
@@ -44,7 +46,7 @@ fn fragment(
     // alpha discard
     pbr_input.material.base_color = alpha_discard(pbr_input.material, pbr_input.material.base_color);
 
-    let flash_age = (globals.time - flash_start);
+    let flash_age = f32(frame)/FPS;
     let age_damp = step(flash_age, flash_duration);
     let norm = dot(in.world_normal, normalize(view.world_position.xyz - in.world_position.xyz));
 

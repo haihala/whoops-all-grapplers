@@ -1,11 +1,13 @@
 #import bevy_pbr::forward_io::VertexOutput
 #import bevy_pbr::mesh_view_bindings::{globals, view};
 
+#import "shaders/helpers.wgsl"::{FPS};
+
 @group(2) @binding(0) var<uniform> base_color: vec4<f32>;
 @group(2) @binding(1) var<uniform> edge_color: vec4<f32>;
 @group(2) @binding(2) var<uniform> duration: f32;
 @group(2) @binding(3) var<uniform> ring_thickness: f32;
-@group(2) @binding(4) var<uniform> start_time: f32;
+@group(2) @binding(4) var<uniform> frame: u32;
 @group(2) @binding(5) var<uniform> rings: i32;
 @group(2) @binding(6) var<uniform> offset: f32;
 
@@ -18,7 +20,7 @@ fn fragment(
 ) -> @location(0) vec4<f32> {
     let centered = 2 * (mesh.uv - 0.5);
     let normdist = length(centered);
-    let time = (globals.time - start_time) /  duration;  // Normalized time
+    let time = f32(frame) / FPS /  duration;  // Normalized time
 
     let half_ring = ring_thickness / 2.0;
 

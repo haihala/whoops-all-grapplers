@@ -1,10 +1,12 @@
 #import bevy_pbr::forward_io::VertexOutput
 #import bevy_pbr::mesh_view_bindings::{globals, view};
 
+#import "shaders/helpers.wgsl"::{FPS};
+
 @group(2) @binding(0) var<uniform> base_color: vec4<f32>;
 @group(2) @binding(1) var<uniform> mid_color: vec4<f32>;
 @group(2) @binding(2) var<uniform> edge_color: vec4<f32>;
-@group(2) @binding(3) var<uniform> start_time: f32;
+@group(2) @binding(3) var<uniform> frame: u32;
 
 const PI = 3.14159265359;
 const offset = PI * 2 / 3;
@@ -18,7 +20,7 @@ fn fragment(
 ) -> @location(0) vec4<f32> {
     // Coordinate relative to middle
     let centered = 2 * (mesh.uv - 0.5);
-    let time = globals.time - start_time;
+    let time = f32(frame)/FPS;
 
     let angle = atan2(centered.x, centered.y) + 0.1 * time;
     let base_wave = wave(angle, 1.0, 1.0, 7);

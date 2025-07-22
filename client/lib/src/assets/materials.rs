@@ -12,6 +12,10 @@ use foundation::{
     SPEED_LINES_EDGE_COLOR,
 };
 
+pub trait AnimatedMaterial {
+    fn bump_frame(&mut self);
+}
+
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct LightningBoltMaterial {
     #[uniform(0)]
@@ -19,19 +23,25 @@ pub struct LightningBoltMaterial {
     #[uniform(1)]
     outer_color: LinearRgba,
     #[uniform(2)]
-    start_time: f32,
+    pub frame: u32,
     #[uniform(3)]
     mirror: i32, // Bools not supported
 }
 
 impl LightningBoltMaterial {
-    pub fn new(start_time: f32, mirror: bool) -> Self {
+    pub fn new(mirror: bool) -> Self {
         Self {
             inner_color: LIGHTNING_BOLT_INNER_COLOR.into(),
             outer_color: LIGHTNING_BOLT_OUTER_COLOR.into(),
-            start_time,
+            frame: 0,
             mirror: mirror as i32,
         }
+    }
+}
+
+impl AnimatedMaterial for LightningBoltMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
     }
 }
 
@@ -45,18 +55,17 @@ impl Material for LightningBoltMaterial {
     }
 }
 
-#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone, Default)]
 pub struct FocalPointLinesMaterial {
     #[uniform(0)]
-    start_time: f32,
+    pub frame: u32,
 }
 
-impl FocalPointLinesMaterial {
-    pub fn new(start_time: f32) -> Self {
-        Self { start_time }
+impl AnimatedMaterial for FocalPointLinesMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
     }
 }
-
 impl Material for FocalPointLinesMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/focal_point_lines.wgsl".into()
@@ -80,17 +89,20 @@ pub struct LineFieldMaterial {
     #[uniform(4)]
     layer_count: i32,
     #[uniform(5)]
-    start_time: f32,
+    frame: u32,
     #[uniform(6)]
     duration: f32,
     #[uniform(7)]
     mirror: f32,
 }
-
+impl AnimatedMaterial for LineFieldMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
 impl LineFieldMaterial {
-    pub fn new(start_time: f32, mirror: bool) -> Self {
+    pub fn new(mirror: bool) -> Self {
         Self {
-            start_time,
             mirror: mirror as i32 as f32 * -2.0 + 1.0,
             base_color: SPEED_LINES_BASE_COLOR.into(),
             edge_color: SPEED_LINES_EDGE_COLOR.into(),
@@ -98,6 +110,7 @@ impl LineFieldMaterial {
             line_thickness: 0.2,
             layer_count: 5,
             duration: 0.2,
+            frame: 0,
         }
     }
 }
@@ -121,15 +134,20 @@ pub struct HitSparkMaterial {
     #[uniform(2)]
     edge_color: LinearRgba,
     #[uniform(3)]
-    start_time: f32,
+    pub frame: u32,
 }
-impl HitSparkMaterial {
-    pub fn new(start_time: f32) -> Self {
+impl AnimatedMaterial for HitSparkMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
+impl Default for HitSparkMaterial {
+    fn default() -> Self {
         Self {
-            start_time,
             edge_color: HIT_SPARK_EDGE_COLOR.into(),
             mid_color: HIT_SPARK_MID_COLOR.into(),
             base_color: HIT_SPARK_BASE_COLOR.into(),
+            frame: 0,
         }
     }
 }
@@ -153,15 +171,20 @@ pub struct BlockEffectMaterial {
     #[uniform(2)]
     speed: f32,
     #[uniform(3)]
-    start_time: f32,
+    pub frame: u32,
 }
-impl BlockEffectMaterial {
-    pub fn new(start_time: f32) -> Self {
+impl AnimatedMaterial for BlockEffectMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
+impl Default for BlockEffectMaterial {
+    fn default() -> Self {
         Self {
-            start_time,
             edge_color: BLOCK_EFFECT_EDGE_COLOR.into(),
             base_color: BLOCK_EFFECT_BASE_COLOR.into(),
             speed: 1.5,
+            frame: 0,
         }
     }
 }
@@ -185,12 +208,17 @@ pub struct ClashSparkMaterial {
     #[uniform(2)]
     speed: f32,
     #[uniform(3)]
-    start_time: f32,
+    pub frame: u32,
 }
-impl ClashSparkMaterial {
-    pub fn new(start_time: f32) -> Self {
+impl AnimatedMaterial for ClashSparkMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
+impl Default for ClashSparkMaterial {
+    fn default() -> Self {
         Self {
-            start_time,
+            frame: 0,
             edge_color: CLASH_SPARK_EDGE_COLOR.into(),
             base_color: CLASH_SPARK_BASE_COLOR.into(),
             speed: 1.2,
@@ -210,7 +238,9 @@ impl Material for ClashSparkMaterial {
 
 #[derive(Asset, AsBindGroup, TypePath, Debug, Clone, Default)]
 pub struct BlankMaterial {} // needs to be this type of struct for material
-
+impl AnimatedMaterial for BlankMaterial {
+    fn bump_frame(&mut self) {}
+}
 impl Material for BlankMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/blank.wgsl".into()
@@ -232,7 +262,7 @@ pub struct RingRippleMaterial {
     #[uniform(3)]
     pub ring_thickness: f32,
     #[uniform(4)]
-    pub start_time: f32,
+    pub frame: u32,
     #[uniform(5)]
     pub rings: i32,
     #[uniform(6)]
@@ -241,7 +271,7 @@ pub struct RingRippleMaterial {
 impl Default for RingRippleMaterial {
     fn default() -> Self {
         Self {
-            start_time: 0.0,
+            frame: 0,
             base_color: LinearRgba::default(),
             edge_color: LinearRgba::default(),
             duration: 0.7,
@@ -251,7 +281,11 @@ impl Default for RingRippleMaterial {
         }
     }
 }
-
+impl AnimatedMaterial for RingRippleMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
 impl Material for RingRippleMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/ring_ripple.wgsl".into()
@@ -265,20 +299,24 @@ impl Material for RingRippleMaterial {
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct IconFlashMaterial {
     #[uniform(0)]
-    start_time: f32,
+    pub frame: u32,
     #[texture(1)]
     #[sampler(2)]
     array_texture: Handle<Image>,
 }
 impl IconFlashMaterial {
-    pub fn new(start_time: f32, icon: Handle<Image>) -> Self {
+    pub fn new(icon: Handle<Image>) -> Self {
         Self {
-            start_time,
+            frame: 0,
             array_texture: icon,
         }
     }
 }
-
+impl AnimatedMaterial for IconFlashMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
 impl Material for IconFlashMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/icon_flash.wgsl".into()
@@ -289,17 +327,16 @@ impl Material for IconFlashMaterial {
     }
 }
 
-#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone, Default)]
 pub struct SmokeBombMaterial {
     #[uniform(0)]
-    start_time: f32,
+    pub frame: u32,
 }
-impl SmokeBombMaterial {
-    pub fn new(start_time: f32) -> Self {
-        Self { start_time }
+impl AnimatedMaterial for SmokeBombMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
     }
 }
-
 impl Material for SmokeBombMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/smoke_bomb.wgsl".into()
@@ -313,7 +350,7 @@ impl Material for SmokeBombMaterial {
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct SparkBurstMaterial {
     #[uniform(0)]
-    start_time: f32,
+    pub frame: u32,
     #[uniform(1)]
     inner_color: LinearRgba,
     #[uniform(2)]
@@ -321,10 +358,15 @@ pub struct SparkBurstMaterial {
     #[uniform(3)]
     mirror: f32,
 }
+impl AnimatedMaterial for SparkBurstMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
 impl SparkBurstMaterial {
-    pub fn new(start_time: f32, mirror: bool) -> Self {
+    pub fn new(mirror: bool) -> Self {
         Self {
-            start_time,
+            frame: 0,
             inner_color: SPARK_BURST_INNER_COLOR.into(),
             border_color: SPARK_BURST_BORDER_COLOR.into(),
             mirror: mirror as i32 as f32,
@@ -345,7 +387,7 @@ impl Material for SparkBurstMaterial {
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct PebbleMaterial {
     #[uniform(0)]
-    start_time: f32,
+    pub frame: u32,
     #[uniform(1)]
     inner_color: LinearRgba,
     #[uniform(2)]
@@ -353,10 +395,15 @@ pub struct PebbleMaterial {
     #[uniform(3)]
     mirror: f32,
 }
+impl AnimatedMaterial for PebbleMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
 impl PebbleMaterial {
-    pub fn new(start_time: f32, mirror: bool) -> Self {
+    pub fn new(mirror: bool) -> Self {
         Self {
-            start_time,
+            frame: 0,
             inner_color: PEBBLE_INNER_COLOR.into(),
             border_color: PEBBLE_BORDER_COLOR.into(),
             mirror: mirror as i32 as f32,
@@ -377,22 +424,26 @@ impl Material for PebbleMaterial {
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct MidFlashMaterial {
     #[uniform(0)]
-    start_time: f32,
+    pub frame: u32,
     #[uniform(1)]
     inner_color: LinearRgba,
     #[uniform(2)]
     outer_color: LinearRgba,
 }
 impl MidFlashMaterial {
-    pub fn new(start_time: f32, color: Color) -> Self {
+    pub fn new(color: Color) -> Self {
         Self {
-            start_time,
+            frame: 0,
             inner_color: OPENER_INNER_COLOR.into(),
             outer_color: color.into(),
         }
     }
 }
-
+impl AnimatedMaterial for MidFlashMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
 impl Material for MidFlashMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/mid_flash.wgsl".into()
@@ -406,22 +457,27 @@ impl Material for MidFlashMaterial {
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct DiagonalWaveMaterial {
     #[uniform(0)]
-    start_time: f32,
+    pub frame: u32,
     #[uniform(1)]
     color: LinearRgba,
     #[uniform(2)]
     mirror: i32, // Bools not supported
 }
 impl DiagonalWaveMaterial {
-    pub fn new(start_time: f32, color: Color, mirror: bool) -> Self {
+    pub fn new(color: Color, mirror: bool) -> Self {
         Self {
-            start_time,
+            frame: 0,
             color: color.into(),
             mirror: mirror as i32,
         }
     }
 }
 
+impl AnimatedMaterial for DiagonalWaveMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
 impl Material for DiagonalWaveMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/diagonal_wave.wgsl".into()
@@ -435,22 +491,26 @@ impl Material for DiagonalWaveMaterial {
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct FlatWaveMaterial {
     #[uniform(0)]
-    start_time: f32,
+    pub frame: u32,
     #[uniform(1)]
     color: LinearRgba,
     #[uniform(2)]
     mirror: i32, // Bools not supported
 }
 impl FlatWaveMaterial {
-    pub fn new(start_time: f32, color: Color, mirror: bool) -> Self {
+    pub fn new(color: Color, mirror: bool) -> Self {
         Self {
-            start_time,
+            frame: 0,
             color: color.into(),
             mirror: mirror as i32,
         }
     }
 }
-
+impl AnimatedMaterial for FlatWaveMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
 impl Material for FlatWaveMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/flat_wave.wgsl".into()
@@ -464,17 +524,21 @@ impl Material for FlatWaveMaterial {
 #[derive(Asset, AsBindGroup, TypePath, Debug, Clone)]
 pub struct JackpotRingMaterial {
     #[uniform(0)]
-    pub start_time: f32,
+    pub frame: u32,
     #[uniform(1)]
     pub duration: f32,
     #[uniform(2)]
     pub peak: f32,
 }
-
+impl AnimatedMaterial for JackpotRingMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
 impl Default for JackpotRingMaterial {
     fn default() -> Self {
         Self {
-            start_time: Default::default(),
+            frame: 0,
             duration: JACKPOT_TOTAL_DURATION,
             peak: JACKPOT_HIGH_POINT_PERCENTAGE,
         }
@@ -504,7 +568,7 @@ impl Material for JackpotRingMaterial {
     }
 }
 
-#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone, Default)]
 pub struct BezierSwooshMaterial {
     #[uniform(0)]
     pub control_points: [Vec4; 16],
@@ -515,13 +579,17 @@ pub struct BezierSwooshMaterial {
     #[uniform(3)]
     pub overlap: f32,
     #[uniform(4)]
-    pub start_time: f32,
+    pub frame: u32,
     #[uniform(5)]
     pub primary_color: LinearRgba,
     #[uniform(6)]
     pub secondary_color: LinearRgba,
 }
-
+impl AnimatedMaterial for BezierSwooshMaterial {
+    fn bump_frame(&mut self) {
+        self.frame += 1;
+    }
+}
 impl Material for BezierSwooshMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/bezier_swoosh.wgsl".into()
@@ -548,7 +616,7 @@ pub struct FlashMaterial {
     #[uniform(103)]
     pub duration: f32,
     #[uniform(104)]
-    pub flash_start: f32,
+    pub frame: u32,
     #[uniform(105)]
     pub color_shift_end: f32,
     #[uniform(106)]
@@ -563,5 +631,10 @@ impl MaterialExtension for FlashMaterial {
 
     fn deferred_fragment_shader() -> ShaderRef {
         "shaders/flash_material.wgsl".into()
+    }
+}
+impl AnimatedMaterial for ExtendedFlashMaterial {
+    fn bump_frame(&mut self) {
+        self.extension.frame += 1;
     }
 }

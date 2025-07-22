@@ -1,9 +1,14 @@
+use std::marker::PhantomData;
+
 use bevy::prelude::*;
 
-use foundation::{CharacterFacing, Clock, Icons, MatchState, VfxRequest, VisualEffect, FPS};
+use foundation::{
+    CharacterClock, CharacterFacing, Clock, Icons, MatchState, Owner, Players, RollbackSchedule,
+    SystemStep, VfxRequest, VisualEffect, FPS,
+};
 
 use crate::{
-    assets::materials::{BezierSwooshMaterial, JackpotRingMaterial},
+    assets::materials::{AnimatedMaterial, BezierSwooshMaterial, JackpotRingMaterial},
     camera::FOREGROUND,
     entity_management::DespawnMarker,
     event_spreading::{SpawnRelativeVfx, SpawnVfx},
@@ -17,7 +22,34 @@ use super::materials::{
     SparkBurstMaterial,
 };
 
-pub fn spawn_vfx<M: Material + std::fmt::Debug>(
+#[derive(Debug)]
+pub struct VfxMaterialPlugin<M: Material + AnimatedMaterial + std::fmt::Debug> {
+    pd: PhantomData<M>,
+}
+
+impl<M: Material + AnimatedMaterial + std::fmt::Debug> Default for VfxMaterialPlugin<M> {
+    fn default() -> Self {
+        Self {
+            pd: Default::default(),
+        }
+    }
+}
+impl<M> Plugin for VfxMaterialPlugin<M>
+where
+    M: Material + AnimatedMaterial + std::fmt::Debug,
+    M::Data: PartialEq + Eq + std::hash::Hash + Clone,
+{
+    fn build(&self, app: &mut App) {
+        app.add_plugins(MaterialPlugin::<M>::default())
+            .add_observer(spawn_vfx::<M>)
+            .add_systems(
+                RollbackSchedule,
+                update_animated_material::<M>.in_set(SystemStep::Presentation),
+            );
+    }
+}
+
+fn spawn_vfx<M: Material + std::fmt::Debug>(
     trigger: Trigger<MaxSystemParamCountFix<M>>,
     mut commands: Commands,
     mut material_asset: ResMut<Assets<M>>,
@@ -43,6 +75,15 @@ pub fn spawn_vfx<M: Material + std::fmt::Debug>(
 
     if let Some(component) = follow {
         ent_cmds.insert(*component);
+    }
+}
+
+fn update_animated_material<M: Material + AnimatedMaterial + std::fmt::Debug>(
+    mut material_asset: ResMut<Assets<M>>,
+) {
+    for (_, asset) in material_asset.iter_mut() {
+        // TODO: Check if in hitstop
+        asset.bump_frame();
     }
 }
 
@@ -74,7 +115,6 @@ pub struct MaxSystemParamCountFix<T: Material> {
 pub fn start_absolute_vfx(
     trigger: Trigger<SpawnVfx>,
     mut commands: Commands,
-    time: Res<Time>,
     mut meshes: ResMut<Assets<Mesh>>,
     icons: Res<Icons>,
 ) {
@@ -111,7 +151,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: HitSparkMaterial::new(time.elapsed_secs()),
+                material: HitSparkMaterial::default(),
                 frames_to_live: 10,
             });
         }
@@ -120,7 +160,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: ClashSparkMaterial::new(time.elapsed_secs()),
+                material: ClashSparkMaterial::default(),
                 frames_to_live: 10,
             });
         }
@@ -129,7 +169,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: BlockEffectMaterial::new(time.elapsed_secs()),
+                material: BlockEffectMaterial::default(),
                 frames_to_live: 10,
             });
         }
@@ -141,11 +181,11 @@ pub fn start_absolute_vfx(
                 material: RingRippleMaterial {
                     base_color: pulse.base_color.into(),
                     edge_color: pulse.edge_color.into(),
-                    start_time: time.elapsed_secs(),
                     rings: pulse.rings,
                     duration: pulse.duration,
                     ring_thickness: pulse.thickness,
                     offset: pulse.offset,
+                    ..default()
                 },
                 frames_to_live: (pulse.duration * FPS) as usize,
             });
@@ -155,7 +195,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: LineFieldMaterial::new(time.elapsed_secs(), *mirror),
+                material: LineFieldMaterial::new(*mirror),
                 frames_to_live: 20,
             });
         }
@@ -164,7 +204,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: FocalPointLinesMaterial::new(time.elapsed_secs()),
+                material: FocalPointLinesMaterial::default(),
                 frames_to_live: 60,
             });
         }
@@ -173,7 +213,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: LightningBoltMaterial::new(time.elapsed_secs(), *mirror),
+                material: LightningBoltMaterial::new(*mirror),
                 frames_to_live: 60,
             });
         }
@@ -182,7 +222,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: DiagonalWaveMaterial::new(time.elapsed_secs(), *color, *mirror),
+                material: DiagonalWaveMaterial::new(*color, *mirror),
                 frames_to_live: 60,
             });
         }
@@ -191,7 +231,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: FlatWaveMaterial::new(time.elapsed_secs(), *color, *mirror),
+                material: FlatWaveMaterial::new(*color, *mirror),
                 frames_to_live: 60,
             });
         }
@@ -200,7 +240,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: PebbleMaterial::new(time.elapsed_secs(), *mirror),
+                material: PebbleMaterial::new(*mirror),
                 frames_to_live: 60,
             });
         }
@@ -209,7 +249,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: SparkBurstMaterial::new(time.elapsed_secs(), *mirror),
+                material: SparkBurstMaterial::new(*mirror),
                 frames_to_live: 60,
             });
         }
@@ -218,7 +258,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: MidFlashMaterial::new(time.elapsed_secs(), *color),
+                material: MidFlashMaterial::new(*color),
                 frames_to_live: 60,
             });
         }
@@ -227,7 +267,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: SmokeBombMaterial::new(time.elapsed_secs()),
+                material: SmokeBombMaterial::default(),
                 frames_to_live: 60,
             });
         }
@@ -236,10 +276,7 @@ pub fn start_absolute_vfx(
                 mesh,
                 transform,
                 follow,
-                material: IconFlashMaterial::new(
-                    time.elapsed_secs(),
-                    icons.0.get(icon).unwrap().clone(),
-                ),
+                material: IconFlashMaterial::new(icons.0.get(icon).unwrap().clone()),
                 frames_to_live: 60,
             });
         }
@@ -251,10 +288,7 @@ pub fn start_absolute_vfx(
                 },
                 transform,
                 follow,
-                material: JackpotRingMaterial {
-                    start_time: time.elapsed_secs(),
-                    ..default()
-                },
+                material: JackpotRingMaterial::default(),
                 frames_to_live: 120,
             });
         }
@@ -289,7 +323,7 @@ pub fn start_absolute_vfx(
                     overlap: smear.overlap,
                     curves,
                     control_points,
-                    start_time: time.elapsed_secs(),
+                    ..default()
                 },
                 frames_to_live: smear.duration as usize,
             });

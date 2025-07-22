@@ -1,6 +1,8 @@
 const PI = 3.14159265359;
 const TAU = PI*2.0;
 
+const FPS = 60.0;
+
 fn inverse_lerp(floor: f32, ceil: f32, val: f32) -> f32 {
     return (val - floor) / (ceil - floor);
 }

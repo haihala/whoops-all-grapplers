@@ -511,7 +511,7 @@ pub struct BezierSwooshMaterial {
     #[uniform(1)]
     pub curves: u32,
     #[uniform(2)]
-    pub duration: f32,
+    pub duration: u32,
     #[uniform(3)]
     pub start_time: f32,
     #[uniform(4)]

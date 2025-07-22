@@ -66,7 +66,7 @@ pub struct Smear {
     pub primary_color: Color,
     pub secondary_color: Color,
     pub control_points: Vec<Vec3>,
-    pub duration: usize,
+    pub duration: u32,
 }
 
 #[derive(Debug, PartialEq, Clone, Default)]

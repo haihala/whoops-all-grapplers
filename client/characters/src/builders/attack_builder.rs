@@ -155,7 +155,7 @@ impl AttackBuilder {
 
         // If the hit has a smear, start that a few frames before hitbox is active,
         if let Some(smear) = hit.smear.clone() {
-            let smear_start_frame = frame.saturating_sub(smear.duration / 4);
+            let smear_start_frame = (frame as u32).saturating_sub(smear.duration / 4);
             let hitbox = hit.hitbox;
             let smear_pos = hitbox.center();
             let smear_size = hitbox.size() * 1.1; // Make it slightly bigger than the hitbox
@@ -163,7 +163,7 @@ impl AttackBuilder {
             let universals = self.action_builder.character_universals.unwrap();
 
             self.action_builder = self.action_builder.static_events_on_frame(
-                smear_start_frame,
+                smear_start_frame as usize,
                 vec![ActionEvent::RelativeVisualEffect(VfxRequest {
                     effect: VisualEffect::Smear(Smear {
                         primary_color: universals.primary_color,
@@ -314,7 +314,7 @@ impl AttackBuilder {
 
 #[derive(Debug, Clone)]
 struct SmearSpec {
-    duration: usize,
+    duration: u32,
     control_points: Vec<Vec3>,
 }
 
@@ -432,7 +432,7 @@ impl HitBuilder {
         self
     }
 
-    pub fn with_smear(self, duration: usize, control_points: Vec<Vec3>) -> Self {
+    pub fn with_smear(self, duration: u32, control_points: Vec<Vec3>) -> Self {
         Self {
             smear: Some(SmearSpec {
                 control_points,

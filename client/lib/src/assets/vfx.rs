@@ -266,7 +266,6 @@ pub fn start_absolute_vfx(
                 .collect::<Vec<_>>()
                 .try_into()
                 .unwrap();
-            let inner_duration = smear.duration as f32 / FPS;
 
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
@@ -274,12 +273,12 @@ pub fn start_absolute_vfx(
                 material: BezierSwooshMaterial {
                     primary_color: smear.primary_color.into(),
                     secondary_color: smear.secondary_color.into(),
-                    duration: inner_duration,
+                    duration: smear.duration,
                     curves,
                     control_points,
                     start_time: time.elapsed_secs(),
                 },
-                frames_to_live: smear.duration,
+                frames_to_live: smear.duration as usize,
                 follow: None,
             });
         }

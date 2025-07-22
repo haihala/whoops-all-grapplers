@@ -156,7 +156,7 @@ impl AttackBuilder {
         // If the hit has a smear, start that a few frames before hitbox is active,
         if let Some(smear) = hit.smear.clone() {
             let smear_start_frame = (frame as u32).saturating_sub(smear.duration / 4);
-            let hitbox = hit.hitbox;
+            let hitbox = hit.hitbox.expanded_by(smear.area_expansion);
             let smear_pos = hitbox.center().extend(0.0);
             let smear_size = hitbox.size() * 1.1; // Make it slightly bigger than the hitbox
 
@@ -320,6 +320,7 @@ pub struct SmearSpec {
     pub control_points: Vec<Vec3>,
     pub overlap: f32,
     pub follow: bool,
+    pub area_expansion: Area,
 }
 
 impl Default for SmearSpec {
@@ -329,6 +330,7 @@ impl Default for SmearSpec {
             control_points: Default::default(),
             overlap: 2.0,
             follow: true,
+            area_expansion: Area::default(),
         }
     }
 }

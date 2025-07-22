@@ -538,15 +538,15 @@ fn specials() -> impl Iterator<Item = (CPOAction, Action)> {
     })
 }
 
-const TIMEWINDER_STRAIGHT_BASE_MOMENTUM: f32 = 15.0;
-const TIMEWINDER_LOW_BASE_MOMENTUM: f32 = 10.0;
-const TIMEWINDER_AIR_BASE_MOMENTUM: f32 = 7.0;
+const TIMEWINDER_STRAIGHT_BASE_MOMENTUM: Vec2 = Vec2::new(15.0, 0.0);
+const TIMEWINDER_LOW_BASE_MOMENTUM: Vec2 = Vec2::new(10.0, 0.0);
+const TIMEWINDER_AIR_BASE_MOMENTUM: Vec2 = Vec2::new(7.0, 2.0);
 
 const FAST_TIMEWINDER_DISTANCE_MUL: f32 = 0.6;
 const STRONG_TIMEWINDER_DISTANCE_MUL: f32 = 0.5;
 const METERED_TIMEWINDER_DISTANCE_MUL: f32 = 0.7;
 
-const TIMEWINDER_SECONDARY_MOVEMENT: f32 = 6.0;
+const TIMEWINDER_SECONDARY_MOVEMENT_MUL: f32 = 0.8;
 
 fn timewinder_dynamic_initial(version: SpecialVersion, height: AttackHeight) -> DynamicEvents {
     Arc::new(move |situation: &Situation| {
@@ -569,7 +569,7 @@ fn timewinder_dynamic_initial(version: SpecialVersion, height: AttackHeight) -> 
         vec![
             ActionEvent::ClearResource(GaugeType::Charge),
             ActionEvent::MultiplyMomentum(Vec2::new(0.8, 0.0)), // Stops falling / rising
-            ActionEvent::Movement(Movement::impulse(Vec2::X * momentum)),
+            ActionEvent::Movement(Movement::impulse(momentum)),
             ActionEvent::RelativeVisualEffect(VfxRequest {
                 // TODO: Use bezier
                 effect: VisualEffect::SpeedLines,
@@ -577,6 +577,45 @@ fn timewinder_dynamic_initial(version: SpecialVersion, height: AttackHeight) -> 
             }),
         ]
     })
+}
+
+fn timewinder_smear(height: AttackHeight) -> SmearSpec {
+    let (control_points, area_expansion) = match height {
+        AttackHeight::Low => (
+            vec![
+                Vec3::new(-1.2, 0.8, 10.0),
+                Vec3::new(0.0, 0.3, 30.0),
+                Vec3::new(0.5, 0.0, 40.0),
+                Vec3::new(1.2, -0.7, 10.0),
+            ],
+            Area::from_sides(0.5, 0.0, 0.5, -0.2),
+        ),
+        AttackHeight::Mid => (
+            vec![
+                Vec3::new(-1.2, 0.0, 10.0),
+                Vec3::new(0.0, 0.1, 30.0),
+                Vec3::new(0.5, 0.1, 40.0),
+                Vec3::new(1.2, 0.0, 10.0),
+            ],
+            Area::default(),
+        ),
+        AttackHeight::High => (
+            vec![
+                Vec3::new(-1.2, 0.8, 10.0),
+                Vec3::new(0.0, 0.3, 30.0),
+                Vec3::new(0.5, 0.0, 40.0),
+                Vec3::new(1.2, -0.7, 10.0),
+            ],
+            Area::from_sides(0.5, 0.0, 0.5, -0.2),
+        ),
+    };
+    SmearSpec {
+        duration: 8,
+        overlap: 4.0,
+        control_points,
+        area_expansion,
+        ..default()
+    }
 }
 
 fn fast_timewinder(height: AttackHeight) -> Action {
@@ -604,23 +643,13 @@ fn fast_timewinder(height: AttackHeight) -> Action {
                     match height {
                         AttackHeight::Mid => 1.1,
                         AttackHeight::Low => 0.2,
-                        AttackHeight::High => 0.5,
+                        AttackHeight::High => 0.6,
                     },
                     1.2,
                     0.4,
                 ))
                 .with_damage(12)
-                .with_smear(SmearSpec {
-                    duration: 12,
-                    control_points: vec![
-                        Vec3::new(-1.2, 0.0, 10.0),
-                        Vec3::new(0.0, 0.1, 30.0),
-                        Vec3::new(0.5, 0.1, 40.0),
-                        Vec3::new(1.2, 0.0, 10.0),
-                    ],
-                    overlap: 4.0,
-                    ..default()
-                });
+                .with_smear(timewinder_smear(height));
 
             match height {
                 AttackHeight::Low => hb
@@ -670,7 +699,7 @@ fn timewinder(version: SpecialVersion, height: AttackHeight) -> Action {
         .with_total_duration(70)
         .with_extra_requirement(ActionRequirement::ResourceValue(GaugeType::Charge, 20))
         .with_extra_initial_dyn_events(timewinder_dynamic_initial(version, height))
-        .with_hit_on_frame(20, {
+        .with_hit_on_frame(10, {
             HitBuilder::special()
                 .with_active_frames(2)
                 .launches(Vec2::new(0.5, 3.0))
@@ -689,7 +718,17 @@ fn timewinder(version: SpecialVersion, height: AttackHeight) -> Action {
                     })
                     .into(),
                 ),
-                ActionEvent::Movement(Movement::impulse(Vec2::X * TIMEWINDER_SECONDARY_MOVEMENT)),
+                ActionEvent::Movement(Movement::impulse(
+                    match height {
+                        AttackHeight::Low => TIMEWINDER_LOW_BASE_MOMENTUM,
+                        AttackHeight::Mid => TIMEWINDER_STRAIGHT_BASE_MOMENTUM,
+                        AttackHeight::High => TIMEWINDER_AIR_BASE_MOMENTUM,
+                    } * match version {
+                        SpecialVersion::Metered => METERED_TIMEWINDER_DISTANCE_MUL,
+                        SpecialVersion::Strong => STRONG_TIMEWINDER_DISTANCE_MUL,
+                        SpecialVersion::Fast => FAST_TIMEWINDER_DISTANCE_MUL,
+                    } * TIMEWINDER_SECONDARY_MOVEMENT_MUL,
+                )),
             ],
         )
         .with_hit_on_frame(19, {
@@ -701,23 +740,13 @@ fn timewinder(version: SpecialVersion, height: AttackHeight) -> Action {
                     match height {
                         AttackHeight::Mid => 1.1,
                         AttackHeight::Low => 0.2,
-                        AttackHeight::High => 0.5,
+                        AttackHeight::High => 0.6,
                     },
                     1.2,
                     0.4,
                 ))
                 .with_damage(12)
-                .with_smear(SmearSpec {
-                    duration: 8,
-                    control_points: vec![
-                        Vec3::new(-1.2, 0.0, 10.0),
-                        Vec3::new(0.0, 0.1, 30.0),
-                        Vec3::new(0.5, 0.1, 50.0),
-                        Vec3::new(1.2, 0.0, 10.0),
-                    ],
-                    overlap: 4.0,
-                    ..default()
-                });
+                .with_smear(timewinder_smear(height));
 
             match height {
                 AttackHeight::Low => {

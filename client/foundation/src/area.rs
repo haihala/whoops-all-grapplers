@@ -62,6 +62,14 @@ impl Area {
     pub fn mul_grow(self, delta: f32) -> Self {
         Self::from_center_size(self.center, self.size() * delta)
     }
+    pub fn expanded_by(self, other: Self) -> Self {
+        Self::from_sides(
+            self.top() + other.top(),
+            self.bottom() + other.bottom(),
+            self.left() + other.left(),
+            self.right() + other.right(),
+        )
+    }
     pub fn intersection(&self, other: &Area) -> Option<Area> {
         let x_overlap = self.left() < other.right() && self.right() > other.left();
         let y_overlap = self.bottom() < other.top() && self.top() > other.bottom();

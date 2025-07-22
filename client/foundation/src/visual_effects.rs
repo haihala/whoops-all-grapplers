@@ -67,6 +67,7 @@ pub struct Smear {
     pub secondary_color: Color,
     pub control_points: Vec<Vec3>,
     pub duration: u32,
+    pub overlap: f32,
 }
 
 #[derive(Debug, PartialEq, Clone, Default)]
@@ -74,6 +75,7 @@ pub struct VfxRequest {
     pub effect: VisualEffect,
     pub tf: Transform,
     pub mirror: bool,
+    pub follow_offset: Option<Vec3>,
 }
 
 impl From<VisualEffect> for VfxRequest {

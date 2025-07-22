@@ -7,12 +7,12 @@
 @group(2) @binding(0) var<uniform> control_points: array<vec3f, 16>;
 @group(2) @binding(1) var<uniform> curve_count: u32;
 @group(2) @binding(2) var<uniform> duration_frames: u32;
-@group(2) @binding(3) var<uniform> start_time: f32;
-@group(2) @binding(4) var<uniform> primary_color: vec4f;
-@group(2) @binding(5) var<uniform> secondary_color: vec4f;
+@group(2) @binding(3) var<uniform> overlap: f32;
+@group(2) @binding(4) var<uniform> start_time: f32;
+@group(2) @binding(5) var<uniform> primary_color: vec4f;
+@group(2) @binding(6) var<uniform> secondary_color: vec4f;
 
 const sections_per_curve_per_unit: u32 = 40;
-const overlap = 2.0;
 
 @fragment
 fn fragment(

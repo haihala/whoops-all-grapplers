@@ -513,10 +513,12 @@ pub struct BezierSwooshMaterial {
     #[uniform(2)]
     pub duration: u32,
     #[uniform(3)]
-    pub start_time: f32,
+    pub overlap: f32,
     #[uniform(4)]
-    pub primary_color: LinearRgba,
+    pub start_time: f32,
     #[uniform(5)]
+    pub primary_color: LinearRgba,
+    #[uniform(6)]
     pub secondary_color: LinearRgba,
 }
 

@@ -971,6 +971,7 @@ fn kunai_throws() -> impl Iterator<Item = (RoninAction, Action)> {
                                                 effect: VisualEffect::Lightning,
                                                 tf: Transform::from_translation(Vec3::Y),
                                                 mirror: true,
+                                                ..default()
                                             }),
                                         ]
                                     } else {

@@ -1,4 +1,7 @@
-use bevy::{prelude::*, render::view::NoFrustumCulling};
+use bevy::{
+    prelude::*,
+    render::view::{NoFrustumCulling, RenderLayers},
+};
 use foundation::{
     CharacterFacing, InMatch, MatchState, Player, RollbackSchedule, SystemStep, WagArgs,
     LOADING_SCREEN_BACKGROUND,
@@ -45,6 +48,8 @@ impl Plugin for CustomCameraPlugin {
     }
 }
 
+pub const FOREGROUND: RenderLayers = RenderLayers::layer(2);
+
 fn add_camera(
     mut commands: Commands,
     args: Res<WagArgs>,
@@ -69,6 +74,21 @@ fn add_camera(
                     InheritedVisibility::VISIBLE,
                 ))
                 .with_children(|main_cam| {
+                    // VFX camera
+                    main_cam.spawn((
+                        Camera3d::default(),
+                        Camera {
+                            // renders after / on top of the main camera
+                            order: 1,
+                            // don't clear the color while rendering this camera
+                            clear_color: ClearColorConfig::None,
+                            ..default()
+                        },
+                        Projection::Perspective(PerspectiveProjection::default()),
+                        Name::new("VFX Camera"),
+                        FOREGROUND,
+                    ));
+
                     if args.dev.is_none() {
                         // This blocks the view while game is loading
                         main_cam.spawn((

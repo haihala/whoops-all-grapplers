@@ -157,7 +157,7 @@ impl AttackBuilder {
         if let Some(smear) = hit.smear.clone() {
             let smear_start_frame = (frame as u32).saturating_sub(smear.duration / 4);
             let hitbox = hit.hitbox;
-            let smear_pos = hitbox.center();
+            let smear_pos = hitbox.center().extend(0.0);
             let smear_size = hitbox.size() * 1.1; // Make it slightly bigger than the hitbox
 
             let universals = self.action_builder.character_universals.unwrap();
@@ -170,12 +170,14 @@ impl AttackBuilder {
                         secondary_color: universals.secondary_color,
                         control_points: smear.control_points,
                         duration: smear.duration,
+                        overlap: smear.overlap,
                     }),
                     tf: Transform {
-                        translation: smear_pos.extend(0.0),
+                        translation: smear_pos,
                         scale: smear_size.extend(1.0),
                         ..default()
                     },
+                    follow_offset: if smear.follow { Some(smear_pos) } else { None },
                     ..default()
                 })],
             );
@@ -313,9 +315,22 @@ impl AttackBuilder {
 }
 
 #[derive(Debug, Clone)]
-struct SmearSpec {
-    duration: u32,
-    control_points: Vec<Vec3>,
+pub struct SmearSpec {
+    pub duration: u32,
+    pub control_points: Vec<Vec3>,
+    pub overlap: f32,
+    pub follow: bool,
+}
+
+impl Default for SmearSpec {
+    fn default() -> Self {
+        Self {
+            duration: Default::default(),
+            control_points: Default::default(),
+            overlap: 2.0,
+            follow: true,
+        }
+    }
 }
 
 #[derive(Default, Debug)]
@@ -432,12 +447,9 @@ impl HitBuilder {
         self
     }
 
-    pub fn with_smear(self, duration: u32, control_points: Vec<Vec3>) -> Self {
+    pub fn with_smear(self, spec: SmearSpec) -> Self {
         Self {
-            smear: Some(SmearSpec {
-                control_points,
-                duration,
-            }),
+            smear: Some(spec),
             ..self
         }
     }
@@ -891,6 +903,7 @@ impl StrikeEffectBuilder {
                             effect: VisualEffect::Block,
                             tf: Transform::from_translation(hit_data.hitbox_pos.extend(0.0)),
                             mirror: situation.facing.visual.to_flipped(),
+                            ..default()
                         }),
                     ],
                     defender: vec![
@@ -976,6 +989,7 @@ impl StrikeEffectBuilder {
                                 ..default()
                             },
                             mirror: situation.facing.visual.to_flipped(),
+                            ..default()
                         }),
                         ActionEvent::ModifyResource(
                             GaugeType::Meter,

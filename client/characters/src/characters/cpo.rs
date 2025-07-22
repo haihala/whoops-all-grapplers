@@ -17,7 +17,7 @@ use crate::{
     Action, ActionBuilder, ActionEvent, ActionRequirement, AttackBuilder, AttackHeight,
     CharacterBoxes, CharacterStateBoxes, CharacterUniversals, ChargeProperty, DashBuilder,
     DynamicEvents, Gauge, GaugeType, HitBuilder, Item, Movement, RenderInstructions,
-    ResourceBarVisual, Situation, SpecialProperty, ThrowEffectBuilder,
+    ResourceBarVisual, Situation, SmearSpec, SpecialProperty, ThrowEffectBuilder,
 };
 
 use super::Character;
@@ -177,15 +177,16 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
                         .with_advantage_on_block(-1)
                         .with_advantage_on_hit(4)
                         .with_hitbox(Area::new(0.4, 1.6, 1.0, 1.3))
-                        .with_smear(
-                            6,
-                            vec![
+                        .with_smear(SmearSpec {
+                            duration: 6,
+                            control_points: vec![
                                 Vec3::new(-1.0, 0.8, 10.0),
                                 Vec3::new(1.2, 1.2, 20.0),
                                 Vec3::new(0.8, -0.6, 30.0),
                                 Vec3::new(0.7, -0.9, 10.0),
                             ],
-                        ),
+                            ..default()
+                        }),
                 )
                 .build(),
         ),
@@ -195,7 +196,7 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
                 .crouching()
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_animation(CPOAnimation::DickJab)
-                .with_total_duration(15)
+                .with_total_duration(17)
                 .with_hit_on_frame(
                     4,
                     HitBuilder::normal()
@@ -203,7 +204,17 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
                         .with_damage(5)
                         .with_advantage_on_block(-1)
                         .with_advantage_on_hit(4)
-                        .with_hitbox(Area::new(0.75, 0.6, 0.35, 0.35)),
+                        .with_hitbox(Area::new(0.5, 0.7, 0.7, 0.7))
+                        .with_smear(SmearSpec {
+                            duration: 4,
+                            control_points: vec![
+                                Vec3::new(-0.9, 0.8, 10.0),
+                                Vec3::new(0.7, -0.7, 20.0),
+                                Vec3::new(0.8, -0.8, 30.0),
+                                Vec3::new(0.9, -0.9, 10.0),
+                            ],
+                            ..default()
+                        }),
                 )
                 .build(),
         ),
@@ -230,15 +241,25 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
             AttackBuilder::button(GameButton::Strong)
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_animation(CPOAnimation::HookPunch)
-                .with_total_duration(25)
+                .with_total_duration(24)
                 .with_hit_on_frame(
-                    10,
+                    9,
                     HitBuilder::normal()
                         .with_active_frames(2)
                         .with_damage(5)
                         .with_advantage_on_block(-1)
                         .with_advantage_on_hit(4)
-                        .with_hitbox(Area::new(0.6, 1.3, 0.35, 0.35)),
+                        .with_hitbox(Area::new(0.4, 1.1, 0.55, 0.55))
+                        .with_smear(SmearSpec {
+                            duration: 5,
+                            control_points: vec![
+                                Vec3::new(-0.9, -0.9, 10.0),
+                                Vec3::new(0.0, -0.3, 20.0),
+                                Vec3::new(0.8, 0.5, 30.0),
+                                Vec3::new(0.9, 0.9, 10.0),
+                            ],
+                            ..default()
+                        }),
                 )
                 .build(),
         ),
@@ -248,16 +269,26 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
                 .crouching()
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_animation(CPOAnimation::Stomp1)
-                .with_total_duration(40)
+                .with_total_duration(38)
                 .with_hit_on_frame(
-                    13,
+                    11,
                     HitBuilder::normal()
                         .with_active_frames(2)
                         .with_damage(5)
                         .with_advantage_on_block(-1)
                         .with_advantage_on_hit(4)
-                        .with_hitbox(Area::new(0.55, 0.2, 0.35, 0.35))
-                        .with_cancels_to(CancelType::Specific(vec![CPOAction::Stomp2.into()]), 20),
+                        .with_hitbox(Area::new(0.55, 0.5, 0.4, 1.0))
+                        .with_cancels_to(CancelType::Specific(vec![CPOAction::Stomp2.into()]), 20)
+                        .with_smear(SmearSpec {
+                            duration: 5,
+                            control_points: vec![
+                                Vec3::new(-0.8, 0.9, 10.0),
+                                Vec3::new(-0.4, 0.3, 50.0),
+                                Vec3::new(0.5, -0.4, 70.0),
+                                Vec3::new(0.9, -0.9, 10.0),
+                            ],
+                            ..default()
+                        }),
                 )
                 .build(),
         ),
@@ -268,16 +299,26 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
                 .follow_up_from(vec![CPOAction::Stomp1.into()])
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_animation(CPOAnimation::Stomp2)
-                .with_total_duration(35)
+                .with_total_duration(33)
                 .with_hit_on_frame(
-                    10,
+                    8,
                     HitBuilder::normal()
                         .with_active_frames(2)
                         .with_damage(5)
                         .with_advantage_on_block(-1)
                         .with_advantage_on_hit(4)
-                        .with_hitbox(Area::new(0.6, 0.2, 0.35, 0.35))
-                        .with_cancels_to(CancelType::Specific(vec![CPOAction::Stomp3.into()]), 20),
+                        .with_hitbox(Area::new(0.6, 0.5, 0.45, 1.0))
+                        .with_cancels_to(CancelType::Specific(vec![CPOAction::Stomp3.into()]), 20)
+                        .with_smear(SmearSpec {
+                            duration: 5,
+                            control_points: vec![
+                                Vec3::new(-0.8, 0.9, 10.0),
+                                Vec3::new(-0.4, 0.3, 55.0),
+                                Vec3::new(0.5, -0.4, 75.0),
+                                Vec3::new(0.9, -0.9, 10.0),
+                            ],
+                            ..default()
+                        }),
                 )
                 .build(),
         ),
@@ -288,15 +329,25 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
                 .follow_up_from(vec![CPOAction::Stomp2.into()])
                 .with_character_universals(CHARACTER_UNIVERSALS)
                 .with_animation(CPOAnimation::Stomp3)
-                .with_total_duration(70)
+                .with_total_duration(66)
                 .with_hit_on_frame(
-                    12,
+                    10,
                     HitBuilder::normal()
                         .with_active_frames(2)
                         .with_damage(5)
                         .with_advantage_on_block(-1)
                         .with_advantage_on_hit(4)
-                        .with_hitbox(Area::new(0.65, 0.2, 0.35, 0.35)),
+                        .with_hitbox(Area::new(0.65, 0.5, 0.5, 1.0))
+                        .with_smear(SmearSpec {
+                            duration: 5,
+                            control_points: vec![
+                                Vec3::new(-0.8, 0.9, 10.0),
+                                Vec3::new(-0.4, 0.3, 60.0),
+                                Vec3::new(0.5, -0.4, 80.0),
+                                Vec3::new(0.9, -0.9, 10.0),
+                            ],
+                            ..default()
+                        }),
                 )
                 .build(),
         ),
@@ -341,6 +392,7 @@ fn normals() -> impl Iterator<Item = (CPOAction, Action)> {
                             ActionEvent::RelativeVisualEffect(VfxRequest {
                                 effect: VisualEffect::JackpotRing,
                                 tf: Transform::from_translation(Vec3::Y * 1.5),
+                                follow_offset: Some(Vec3::Y * 1.5),
                                 ..default()
                             }),
                         ]
@@ -537,7 +589,7 @@ fn fast_timewinder(height: AttackHeight) -> Action {
             AttackHeight::Low => CPOAnimation::TimewinderGroundLow,
             AttackHeight::High => CPOAnimation::TimewinderAirStrike,
         })
-        .with_total_duration(60)
+        .with_total_duration(58)
         .with_extra_requirement(ActionRequirement::ResourceValue(GaugeType::Charge, 20))
         .with_extra_initial_dyn_events(timewinder_dynamic_initial(SpecialVersion::Fast, height))
         .with_hit_on_frame(9, {
@@ -554,7 +606,18 @@ fn fast_timewinder(height: AttackHeight) -> Action {
                     1.2,
                     0.4,
                 ))
-                .with_damage(12);
+                .with_damage(12)
+                .with_smear(SmearSpec {
+                    duration: 12,
+                    control_points: vec![
+                        Vec3::new(-1.2, 0.0, 10.0),
+                        Vec3::new(0.0, 0.1, 30.0),
+                        Vec3::new(0.5, 0.1, 40.0),
+                        Vec3::new(1.2, 0.0, 10.0),
+                    ],
+                    overlap: 4.0,
+                    ..default()
+                });
 
             match height {
                 AttackHeight::Low => hb
@@ -601,7 +664,7 @@ fn timewinder(version: SpecialVersion, height: AttackHeight) -> Action {
             AttackHeight::Mid | AttackHeight::Low => CPOAnimation::TimewinderGroundShoulder,
             AttackHeight::High => CPOAnimation::TimewinderAirShoulder,
         })
-        .with_total_duration(82)
+        .with_total_duration(70)
         .with_extra_requirement(ActionRequirement::ResourceValue(GaugeType::Charge, 20))
         .with_extra_initial_dyn_events(timewinder_dynamic_initial(version, height))
         .with_hit_on_frame(20, {
@@ -613,7 +676,7 @@ fn timewinder(version: SpecialVersion, height: AttackHeight) -> Action {
                 .with_blockstun(5) // Just needs to last long enough for second hit to connect
         })
         .with_extra_events(
-            22,
+            12,
             vec![
                 ActionEvent::Animation(
                     Animation::CPO(match height {
@@ -626,7 +689,7 @@ fn timewinder(version: SpecialVersion, height: AttackHeight) -> Action {
                 ActionEvent::Movement(Movement::impulse(Vec2::X * TIMEWINDER_SECONDARY_MOVEMENT)),
             ],
         )
-        .with_hit_on_frame(29, {
+        .with_hit_on_frame(19, {
             let mut hb = HitBuilder::special()
                 .with_attack_height(height)
                 .with_active_frames(3)
@@ -640,7 +703,18 @@ fn timewinder(version: SpecialVersion, height: AttackHeight) -> Action {
                     1.2,
                     0.4,
                 ))
-                .with_damage(12);
+                .with_damage(12)
+                .with_smear(SmearSpec {
+                    duration: 8,
+                    control_points: vec![
+                        Vec3::new(-1.2, 0.0, 10.0),
+                        Vec3::new(0.0, 0.1, 30.0),
+                        Vec3::new(0.5, 0.1, 50.0),
+                        Vec3::new(1.2, 0.0, 10.0),
+                    ],
+                    overlap: 4.0,
+                    ..default()
+                });
 
             match height {
                 AttackHeight::Low => {

@@ -4,6 +4,7 @@ use foundation::{CharacterFacing, Clock, Icons, MatchState, VfxRequest, VisualEf
 
 use crate::{
     assets::materials::{BezierSwooshMaterial, JackpotRingMaterial},
+    camera::FOREGROUND,
     entity_management::DespawnMarker,
     event_spreading::{SpawnRelativeVfx, SpawnVfx},
     movement::Follow,
@@ -37,6 +38,7 @@ pub fn spawn_vfx<M: Material + std::fmt::Debug>(
         DespawnMarker(clock.frame + frames_to_live),
         StateScoped(MatchState::Combat),
         Name::new("VFX"),
+        FOREGROUND,
     ));
 
     if let Some(component) = follow {
@@ -76,53 +78,66 @@ pub fn start_absolute_vfx(
     mut meshes: ResMut<Assets<Mesh>>,
     icons: Res<Icons>,
 ) {
-    let SpawnVfx(VfxRequest { effect, tf, mirror }, maybe_player) = trigger.event();
+    let SpawnVfx(
+        VfxRequest {
+            effect,
+            tf,
+            mirror,
+            follow_offset,
+        },
+        maybe_player,
+    ) = trigger.event();
 
     let mesh = meshes.add(effect.mesh_size());
     let transform = Transform {
         translation: tf.translation + 0.1 * Vec3::Z,
         ..*tf
     };
+    let follow = follow_offset.map(|offset| Follow {
+        target: maybe_player.unwrap(),
+        offset,
+    });
 
     match effect {
         VisualEffect::Blank => commands.trigger(MaxSystemParamCountFix {
             mesh,
             transform,
+            follow,
             material: BlankMaterial::default(),
             frames_to_live: 15,
-            follow: None,
         }),
         VisualEffect::Hit => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: HitSparkMaterial::new(time.elapsed_secs()),
                 frames_to_live: 10,
-                follow: None,
             });
         }
         VisualEffect::Clash => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: ClashSparkMaterial::new(time.elapsed_secs()),
                 frames_to_live: 10,
-                follow: None,
             });
         }
         VisualEffect::Block => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: BlockEffectMaterial::new(time.elapsed_secs()),
                 frames_to_live: 10,
-                follow: None,
             });
         }
         VisualEffect::RingPulse(pulse) => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: RingRippleMaterial {
                     base_color: pulse.base_color.into(),
                     edge_color: pulse.edge_color.into(),
@@ -133,100 +148,99 @@ pub fn start_absolute_vfx(
                     offset: pulse.offset,
                 },
                 frames_to_live: (pulse.duration * FPS) as usize,
-                follow: None,
             });
         }
         VisualEffect::SpeedLines => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: LineFieldMaterial::new(time.elapsed_secs(), *mirror),
                 frames_to_live: 20,
-                follow: None,
             });
         }
         VisualEffect::ThrowTarget => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: FocalPointLinesMaterial::new(time.elapsed_secs()),
                 frames_to_live: 60,
-                follow: None,
             });
         }
         VisualEffect::Lightning => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: LightningBoltMaterial::new(time.elapsed_secs(), *mirror),
                 frames_to_live: 60,
-                follow: None,
             });
         }
         VisualEffect::WaveDiagonal(color) => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: DiagonalWaveMaterial::new(time.elapsed_secs(), *color, *mirror),
                 frames_to_live: 60,
-                follow: None,
             });
         }
         VisualEffect::WaveFlat(color) => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: FlatWaveMaterial::new(time.elapsed_secs(), *color, *mirror),
                 frames_to_live: 60,
-                follow: None,
             });
         }
         VisualEffect::Pebbles => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: PebbleMaterial::new(time.elapsed_secs(), *mirror),
                 frames_to_live: 60,
-                follow: None,
             });
         }
         VisualEffect::Sparks => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: SparkBurstMaterial::new(time.elapsed_secs(), *mirror),
                 frames_to_live: 60,
-                follow: None,
             });
         }
         VisualEffect::OpenerSpark(color) => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: MidFlashMaterial::new(time.elapsed_secs(), *color),
                 frames_to_live: 60,
-                follow: None,
             });
         }
         VisualEffect::SmokeBomb => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: SmokeBombMaterial::new(time.elapsed_secs()),
                 frames_to_live: 60,
-                follow: None,
             });
         }
         VisualEffect::Icon(icon) => {
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: IconFlashMaterial::new(
                     time.elapsed_secs(),
                     icons.0.get(icon).unwrap().clone(),
                 ),
                 frames_to_live: 60,
-                follow: None,
             });
         }
         VisualEffect::JackpotRing => {
@@ -236,15 +250,12 @@ pub fn start_absolute_vfx(
                     meshes.add(Cylinder::new(size.x / 2.0, size.y).mesh())
                 },
                 transform,
+                follow,
                 material: JackpotRingMaterial {
                     start_time: time.elapsed_secs(),
                     ..default()
                 },
                 frames_to_live: 120,
-                follow: Some(Follow {
-                    target: maybe_player.unwrap(),
-                    offset: Vec3::Y * 1.5,
-                }),
             });
         }
         VisualEffect::Smear(smear) => {
@@ -270,16 +281,17 @@ pub fn start_absolute_vfx(
             commands.trigger(MaxSystemParamCountFix {
                 mesh,
                 transform,
+                follow,
                 material: BezierSwooshMaterial {
                     primary_color: smear.primary_color.into(),
                     secondary_color: smear.secondary_color.into(),
                     duration: smear.duration,
+                    overlap: smear.overlap,
                     curves,
                     control_points,
                     start_time: time.elapsed_secs(),
                 },
                 frames_to_live: smear.duration as usize,
-                follow: None,
             });
         }
     };

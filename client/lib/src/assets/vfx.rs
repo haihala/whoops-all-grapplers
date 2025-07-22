@@ -54,7 +54,7 @@ pub fn start_relative_vfx(
     if facing.visual.to_flipped() {
         request.mirror = !request.mirror;
     }
-    request.tf.translation += tf.translation;
+    request.tf.translation = tf.translation + facing.visual.mirror_vec3(request.tf.translation);
     commands.trigger(SpawnVfx(request, Some(entity)));
 }
 
@@ -255,7 +255,14 @@ pub fn start_absolute_vfx(
                 .clone()
                 .into_iter()
                 .chain(padding)
-                .map(|v| v.extend(0.0))
+                .map(|v| {
+                    if *mirror {
+                        Vec3::new(-v.x, v.y, v.z)
+                    } else {
+                        v
+                    }
+                    .extend(0.0)
+                })
                 .collect::<Vec<_>>()
                 .try_into()
                 .unwrap();

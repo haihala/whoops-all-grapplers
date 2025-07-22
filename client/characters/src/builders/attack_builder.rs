@@ -158,7 +158,7 @@ impl AttackBuilder {
             let smear_start_frame = frame.saturating_sub(smear.duration / 4);
             let hitbox = hit.hitbox;
             let smear_pos = hitbox.center();
-            let smear_size = hitbox.size() * Vec2::splat(1.1); // Make it slightly bigger than the hitbox
+            let smear_size = hitbox.size() * 1.1; // Make it slightly bigger than the hitbox
 
             let universals = self.action_builder.character_universals.unwrap();
 

@@ -1,8 +1,14 @@
 use bevy::prelude::*;
-use foundation::{Clock, GameState, InMatch, MatchState, RollbackSchedule, SystemStep};
+use foundation::{
+    CharacterClock, Clock, GameState, InMatch, MatchState, Player, Players, RollbackSchedule,
+    SystemStep,
+};
 
 #[derive(Component, Copy, Clone)]
-pub struct DespawnMarker(pub usize);
+pub enum DespawnMarker {
+    Absolute(usize),
+    Relative(usize, Player),
+}
 
 #[derive(Debug, Component, Deref)]
 pub struct VisibleInStates<T: States>(pub Vec<T>);
@@ -29,11 +35,25 @@ impl Plugin for EntityManagementPlugin {
 
 fn despawn_marked(
     mut commands: Commands,
-    clock: Res<Clock>,
+    abs_clock: Res<Clock>,
+    rel_clocks: Query<&CharacterClock>,
     marks: Query<(Entity, &DespawnMarker)>,
+    maybe_players: Option<Res<Players>>,
 ) {
+    let Some(players) = maybe_players else {
+        // Not present on frame 0 I think?
+        return;
+    };
+
     for (marked, marker) in &marks {
-        if marker.0 < clock.frame {
+        let should_despawn = match marker {
+            DespawnMarker::Absolute(frame) => *frame < abs_clock.frame,
+            DespawnMarker::Relative(frame, player) => {
+                *frame < rel_clocks.get(players.get(*player)).unwrap().frame
+            }
+        };
+
+        if should_despawn {
             commands.entity(marked).despawn();
         }
     }

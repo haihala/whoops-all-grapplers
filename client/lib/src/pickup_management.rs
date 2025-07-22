@@ -75,6 +75,7 @@ pub fn spawn_pickups(
 
     // These will get despawned in the post-round cleanup
     let despawn_after = lifetime.unwrap_or((60.0 * MAX_COMBAT_DURATION) as usize);
+    let owner = if *flip_owner { player.other() } else { *player };
 
     let target = commands
         .spawn((
@@ -84,7 +85,7 @@ pub fn spawn_pickups(
             Visibility::default(),
             *pickup,
             *size,
-            Owner(if *flip_owner { player.other() } else { *player }),
+            Owner(owner),
             StateScoped(MatchState::Combat),
             ObjectVelocity {
                 speed: facing.visual.mirror_vec3(spawn_velocity.extend(0.0)),
@@ -92,7 +93,7 @@ pub fn spawn_pickups(
                 face_forward: false,
                 floor_despawns: false,
             },
-            DespawnMarker(clock.frame + despawn_after),
+            DespawnMarker::Relative(clock.frame + despawn_after, owner),
             Name::new("Pickup"),
         ))
         .add_rollback()
@@ -106,6 +107,6 @@ pub fn spawn_pickups(
             target,
             offset: transform.translation,
         },
-        DespawnMarker(clock.frame + despawn_after),
+        DespawnMarker::Relative(clock.frame + despawn_after, owner), // TODO: Is this necessary?
     ));
 }

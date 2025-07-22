@@ -16,6 +16,16 @@ impl Players {
         }
     }
 
+    pub fn get_inverse(&self, entity: Entity) -> Player {
+        if entity == self.one {
+            Player::One
+        } else if entity == self.two {
+            Player::Two
+        } else {
+            panic!("Unrecognized player")
+        }
+    }
+
     pub fn get_other_entity(&self, entity: Entity) -> Entity {
         if entity == self.one {
             self.two

@@ -53,7 +53,9 @@ fn spawn_vfx<M: Material + std::fmt::Debug>(
     trigger: Trigger<MaxSystemParamCountFix<M>>,
     mut commands: Commands,
     mut material_asset: ResMut<Assets<M>>,
-    clock: Res<Clock>,
+    rel_clocks: Query<&CharacterClock>,
+    abs_clock: Res<Clock>,
+    players: Res<Players>,
 ) {
     let MaxSystemParamCountFix {
         mesh,
@@ -67,23 +69,45 @@ fn spawn_vfx<M: Material + std::fmt::Debug>(
         Mesh3d(mesh.clone()),
         *transform,
         MeshMaterial3d(material_asset.add(material.clone())),
-        DespawnMarker(clock.frame + frames_to_live),
         StateScoped(MatchState::Combat),
         Name::new("VFX"),
         FOREGROUND,
     ));
 
     if let Some(component) = follow {
-        ent_cmds.insert(*component);
+        let player = players.get_inverse(component.target);
+        let rel_clock = rel_clocks.get(component.target).unwrap();
+        ent_cmds.insert((
+            *component,
+            Owner(player),
+            DespawnMarker::Relative(rel_clock.frame + frames_to_live, player),
+        ));
+    } else {
+        ent_cmds.insert(DespawnMarker::Absolute(abs_clock.frame + frames_to_live));
     }
 }
 
 fn update_animated_material<M: Material + AnimatedMaterial + std::fmt::Debug>(
-    mut material_asset: ResMut<Assets<M>>,
+    mut material_assets: ResMut<Assets<M>>,
+    materials: Query<(Option<&Owner>, &MeshMaterial3d<M>)>,
+    characters: Query<&CharacterClock>,
+    players: Res<Players>,
 ) {
-    for (_, asset) in material_asset.iter_mut() {
-        // TODO: Check if in hitstop
-        asset.bump_frame();
+    for (id, asset) in material_assets.iter_mut() {
+        for (maybe_owner, mesh_mat) in materials {
+            if mesh_mat.0.id() == id {
+                if let Some(owner) = maybe_owner {
+                    let player_ent = players.get(**owner);
+                    let clock = characters.get(player_ent).unwrap();
+                    if clock.hitstop_frames > 0 {
+                        // Owner of this material is in hitstop, don't update
+                        break;
+                    }
+                }
+
+                asset.bump_frame();
+            }
+        }
     }
 }
 

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use bevy_ggrs::AddRollbackCommandExtension;
 use characters::{Attack, Hitbox, Lifetime};
-use foundation::{Area, CharacterFacing, Clock, MatchState, Owner, Player};
+use foundation::{Area, CharacterClock, CharacterFacing, MatchState, Owner, Player};
 
 use crate::{
     assets::Models,
@@ -91,7 +91,7 @@ impl HitboxSpawner {
         }
 
         if let Some(lifetime) = attack.to_hit.lifetime.frames {
-            builder.insert(DespawnMarker(lifetime + frame));
+            builder.insert(DespawnMarker::Relative(lifetime + frame, player));
         }
         builder.insert(LifetimeFlags::from(attack.to_hit.lifetime));
         builder.add_rollback();
@@ -109,7 +109,6 @@ impl HitboxSpawner {
 pub fn spawn_hitbox(
     trigger: Trigger<SpawnHitbox>,
     mut commands: Commands,
-    clock: Res<Clock>,
     models: Res<Models>,
     mut query: Query<(
         &mut HitboxSpawner,
@@ -117,9 +116,10 @@ pub fn spawn_hitbox(
         Entity,
         &CharacterFacing,
         &Player,
+        &CharacterClock,
     )>,
 ) {
-    let (mut spawner, tf, parent, facing, player) = query.get_mut(trigger.target()).unwrap();
+    let (mut spawner, tf, parent, facing, player, clock) = query.get_mut(trigger.target()).unwrap();
     let SpawnHitbox(attack) = trigger.event();
 
     spawner.spawn_attack(
@@ -149,7 +149,7 @@ pub fn handle_despawn_flags(
                 || (flags.on_landing && spawner.mark_landers)
                 || (tracker.hits == 0)
             {
-                commands.entity(hitbox).insert(DespawnMarker(0));
+                commands.entity(hitbox).insert(DespawnMarker::Absolute(0));
             }
         }
 

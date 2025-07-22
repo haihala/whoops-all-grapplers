@@ -203,24 +203,27 @@ input, visual, function
 
 #### Ad break
 
-- Input: `214g[4g[4g[4g]]]`
+- Input: `214g`, button can be held
   - Four degrees of commitment, each lengthening the animation a bit
 - Activates an install
   - Aesthetically similar to Hakari's domain expansion
     - Does the dance, length depends on input
-    - Changes the music while active
+    - Changes the music while active?
 - While active
   - Generates about 1/3 segments of meter per second
   - If meter is full, health regenerates about 20/s
     - Editor note: This may be too much
       - Although if you have max bar you deserve it
   - 200% width [Jackpot](#jackpot) windows (except for Level 3 and 4)
-- Duration increases exponentially per button in input
-  - 1 press: 3s -> 1 bar / 60 health
-  - 2 presses: 6s -> 2 bars / 120 health
-  - 3 presses: 9s -> 3 bars / 180 health
-  - All 4 presses: 12s -> 4 bars / 240 health
+- There is a bar that indicates when it will end
+  - Bar constantly drains down
+  - You can redo the move to add more time
 - Effect ends on hit
+- Duration increases based on how many ticks the button is held for
+  - 1 tick: 3s -> 1 bar / 60 health
+  - 2 ticks: 6s -> 2 bars / 120 health
+  - 3 ticks: 9s -> 3 bars / 180 health
+  - All 4 ticks: 12s -> 4 bars / 240 health
 - Items
   - Passive income when active, extra if health is full
   - Hits reduce duration, don't end it outright

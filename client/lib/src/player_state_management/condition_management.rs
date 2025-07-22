@@ -12,7 +12,7 @@ pub fn activate_conditions(
 ) {
     let entity = trigger.target();
     let new_condition = trigger.event().clone();
-    let (mut state, clock) = query.get_mut(entity).unwrap();
+    let (mut state, char_clock) = query.get_mut(entity).unwrap();
 
     if let Some(color) = new_condition.flag.display_color() {
         commands.trigger_targets(
@@ -35,7 +35,7 @@ pub fn activate_conditions(
     state.add_condition(StatusCondition {
         expiration: new_condition
             .expiration
-            .map(|duration| clock.frame + duration),
+            .map(|duration| char_clock.frame + duration),
         ..new_condition
     });
 }

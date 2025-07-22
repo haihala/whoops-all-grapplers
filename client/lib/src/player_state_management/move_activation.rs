@@ -1,7 +1,7 @@
 use bevy::{platform::collections::HashMap, prelude::*};
 
 use characters::{Character, Gauges, Hurtboxes, Inventory, Situation};
-use foundation::{ActionId, CancelType, CharacterClock, CharacterFacing, Clock, Combo, Stats};
+use foundation::{ActionId, CharacterClock, CharacterFacing, Clock, Combo, Stats};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 
@@ -16,20 +16,20 @@ pub struct MoveBuffer {
     activation: Option<ActionId>,
 }
 impl MoveBuffer {
-    pub fn add_events(&mut self, events: Vec<ActionId>, frame: usize) {
+    pub fn add_events(&mut self, events: impl Iterator<Item = ActionId>, frame: usize) {
         for event in events {
             self.buffer.insert(event, frame);
         }
     }
 
     fn clear_old(&mut self, current_frame: usize) {
-        self.buffer.retain(|_, frame| {
-            if current_frame <= *frame {
-                // Default case, retain those who are fresh
-                current_frame - *frame < INPUT_BUFFER
-            } else {
-                // Round has restarted, clear the buffer
+        self.buffer.retain(|_, buffer_entry_frame| {
+            if *buffer_entry_frame > current_frame {
+                // Last frame input, but clock has reset
                 false
+            } else {
+                // Default case
+                current_frame - *buffer_entry_frame < INPUT_BUFFER
             }
         });
     }
@@ -41,14 +41,13 @@ impl MoveBuffer {
     fn get_situation_moves(
         &self,
         character: &Character,
-        windows: &Vec<CancelType>,
         situation: Situation,
     ) -> Vec<(usize, ActionId)> {
         self.buffer
             .iter()
             .filter_map(|(id, frame)| {
                 if let Some(action) = character.get_move(*id) {
-                    if action.requirement.check(*id, windows, &situation) {
+                    if action.requirement.check(*id, &situation, false) {
                         return Some((*frame, *id));
                     }
                 }
@@ -58,14 +57,63 @@ impl MoveBuffer {
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub(super) fn manage_buffer(
-    clock: Res<Clock>,
-    mut query: Query<(&mut MoveBuffer, &mut InputParser)>,
+    abs_clock: Res<Clock>,
+    mut query: Query<(
+        &mut MoveBuffer,
+        &mut InputParser,
+        &Character,
+        &Inventory,
+        &Gauges,
+        &Stats,
+        &CharacterFacing,
+        &CharacterClock,
+        &Combo,
+        &Transform,
+        &PlayerState,
+    )>,
 ) {
     // Read from the input parser and fill the buffer
-    for (mut buffer, mut parser) in &mut query {
-        buffer.clear_old(clock.frame);
-        buffer.add_events(parser.get_events(), clock.frame);
+    for (
+        mut buffer,
+        mut parser,
+        character,
+        inventory,
+        resources,
+        stats,
+        facing,
+        char_clock,
+        combo,
+        tf,
+        state,
+    ) in &mut query
+    {
+        let situation = state.build_situation(
+            inventory.to_owned(),
+            resources.to_owned(),
+            parser.to_owned(),
+            stats.to_owned(),
+            char_clock.frame,
+            abs_clock.frame,
+            tf.translation,
+            *facing,
+            combo.to_owned(),
+        );
+
+        buffer.clear_old(char_clock.frame);
+        buffer.add_events(
+            parser.get_events().into_iter().filter(|id| {
+                // Some requirements are checked at input reg time (charge)
+
+                let Some(action) = character.get_move(*id) else {
+                    panic!("Move is not in a char's kit");
+                };
+
+                action.requirement.check(*id, &situation, true)
+            }),
+            char_clock.frame,
+        );
         parser.clear();
     }
 }
@@ -133,8 +181,7 @@ pub(super) fn move_activator(
                 combo.to_owned(),
             );
 
-            let situation_moves =
-                buffer.get_situation_moves(character, &state.cancels(), situation);
+            let situation_moves = buffer.get_situation_moves(character, situation);
 
             if situation_moves.is_empty() {
                 continue;

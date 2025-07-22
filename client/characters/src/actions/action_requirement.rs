@@ -27,60 +27,86 @@ impl ActionRequirement {
     pub fn check(
         &self,
         self_id: ActionId,
-        windows: &Vec<CancelType>,
         situation: &Situation,
+        input_registration_time: bool,
     ) -> bool {
-        match self {
-            ActionRequirement::None => true,
-            ActionRequirement::Grounded => situation.grounded,
-            ActionRequirement::Airborne => !situation.grounded,
-            ActionRequirement::ActionOngoing(ids) => {
+        match (input_registration_time, self) {
+            (false, ActionRequirement::None) => true,
+            (false, ActionRequirement::Grounded) => situation.grounded,
+            (false, ActionRequirement::Airborne) => !situation.grounded,
+            (false, ActionRequirement::ActionOngoing(ids)) => {
                 let Some(tracker) = &situation.tracker else {
                     return false;
                 };
 
                 ids.contains(&tracker.action_id)
             }
-            ActionRequirement::ActionNotOngoing(ids) => {
+            (false, ActionRequirement::ActionNotOngoing(ids)) => {
                 let Some(tracker) = &situation.tracker else {
                     return true;
                 };
 
                 !ids.contains(&tracker.action_id)
             }
-            ActionRequirement::AnyActionOngoing => situation.tracker.is_some(),
-            ActionRequirement::ItemOwned(item_id) => situation.inventory.contains(*item_id),
-            ActionRequirement::ResourceFull(resource) => situation
-                .get_resource(*resource)
-                .expect("Character to have resource")
-                .is_full(),
-            ActionRequirement::ResourceValue(resource, value) => {
-                situation
-                    .get_resource(*resource)
-                    .expect("Character to have resource")
-                    .current
-                    >= *value
+            (false, ActionRequirement::AnyActionOngoing) => situation.tracker.is_some(),
+            (false, ActionRequirement::ItemOwned(item_id)) => {
+                situation.inventory.contains(*item_id)
             }
-            ActionRequirement::ButtonPressed(button) => situation.held_buttons.contains(button),
-            ActionRequirement::ButtonNotPressed(button) => !situation.held_buttons.contains(button),
-            ActionRequirement::StatusNotActive(status) => !situation.status_flags.contains(status),
-            ActionRequirement::And(list) => {
+            (_, ActionRequirement::ResourceFull(resource)) => {
+                // Only consider charge if at input registration time, don't consider charge if not
+                let consider_value = (input_registration_time && *resource == GaugeType::Charge)
+                    || (!input_registration_time && *resource != GaugeType::Charge);
+
+                if consider_value {
+                    situation
+                        .get_resource(*resource)
+                        .expect("Character to have resource")
+                        .is_full()
+                } else {
+                    true
+                }
+            }
+            (_, ActionRequirement::ResourceValue(resource, value)) => {
+                // Only consider charge if at input registration time, don't consider charge if not
+                let consider_value = (input_registration_time && *resource == GaugeType::Charge)
+                    || (!input_registration_time && *resource != GaugeType::Charge);
+
+                if consider_value {
+                    situation
+                        .get_resource(*resource)
+                        .expect("Character to have resource")
+                        .current
+                        >= *value
+                } else {
+                    true
+                }
+            }
+            (false, ActionRequirement::ButtonPressed(button)) => {
+                situation.held_buttons.contains(button)
+            }
+            (false, ActionRequirement::ButtonNotPressed(button)) => {
+                !situation.held_buttons.contains(button)
+            }
+            (false, ActionRequirement::StatusNotActive(status)) => {
+                !situation.status_flags.contains(status)
+            }
+            (_, ActionRequirement::And(list)) => {
                 for inner in list {
-                    if !inner.check(self_id, windows, situation) {
+                    if !inner.check(self_id, situation, input_registration_time) {
                         return false;
                     }
                 }
                 true
             }
-            ActionRequirement::Or(list) => {
+            (_, ActionRequirement::Or(list)) => {
                 for inner in list {
-                    if inner.check(self_id, windows, situation) {
+                    if inner.check(self_id, situation, input_registration_time) {
                         return true;
                     }
                 }
                 false
             }
-            ActionRequirement::Starter(category) => {
+            (false, ActionRequirement::Starter(category)) => {
                 if situation.stunned {
                     // TODO: Reconsider this one for bursts
                     return false;
@@ -96,7 +122,7 @@ impl ActionRequirement {
                     return true;
                 }
 
-                for win in windows {
+                for win in &situation.cancel_windows {
                     let matching_cancel = match win {
                         CancelType::Special => {
                             // Comic cancel uses the same cancel window
@@ -123,9 +149,15 @@ impl ActionRequirement {
                 }
                 false
             }
-            ActionRequirement::StatusMatches(checker) => situation.status_flags.iter().any(checker),
-            ActionRequirement::NoStatusMatches(checker) => {
+            (false, ActionRequirement::StatusMatches(checker)) => {
+                situation.status_flags.iter().any(checker)
+            }
+            (false, ActionRequirement::NoStatusMatches(checker)) => {
                 !situation.status_flags.iter().any(checker)
+            }
+            (true, _) => {
+                // This is to ignore most requirements at input time
+                true
             }
         }
     }

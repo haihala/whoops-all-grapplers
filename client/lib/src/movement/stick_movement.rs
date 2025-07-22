@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use foundation::{ActionId, CharacterFacing, Clock, Facing, StatusFlag, StickPosition};
+use foundation::{ActionId, CharacterClock, CharacterFacing, Facing, StatusFlag, StickPosition};
 use input_parsing::InputParser;
 use player_state::PlayerState;
 
@@ -12,10 +12,10 @@ pub fn movement_input(
         &mut PlayerState,
         &mut MoveBuffer,
         &CharacterFacing,
+        &CharacterClock,
     )>,
-    clock: Res<Clock>,
 ) {
-    for (reader, mut state, mut buffer, facing) in &mut query {
+    for (reader, mut state, mut buffer, facing, rel_clock) in &mut query {
         if state.has_flag(StatusFlag::MovementLock) {
             continue;
         }
@@ -32,13 +32,13 @@ pub fn movement_input(
 
                     match mirrored_stick {
                         StickPosition::N => {
-                            buffer.add_events(vec![ActionId::NeutralJump], clock.frame)
+                            buffer.add_events([ActionId::NeutralJump].into_iter(), rel_clock.frame)
                         }
                         StickPosition::NW => {
-                            buffer.add_events(vec![ActionId::BackJump], clock.frame)
+                            buffer.add_events([ActionId::BackJump].into_iter(), rel_clock.frame)
                         }
                         StickPosition::NE => {
-                            buffer.add_events(vec![ActionId::ForwardJump], clock.frame)
+                            buffer.add_events([ActionId::ForwardJump].into_iter(), rel_clock.frame)
                         }
                         _ => panic!("How did this stick position not get handled earlier?"),
                     }

@@ -1,5 +1,7 @@
 use bevy::{platform::collections::HashSet, prelude::*};
-use foundation::{CharacterFacing, Combo, GameButton, Stats, StatusFlag, StickPosition};
+use foundation::{
+    CancelType, CharacterFacing, Combo, GameButton, Stats, StatusFlag, StickPosition,
+};
 
 use crate::{ActionEvent, ActionTracker, Gauge, GaugeType, Inventory};
 
@@ -19,6 +21,7 @@ pub struct Situation {
     pub position: Vec3,
     pub combo: Combo,
     pub stunned: bool,
+    pub cancel_windows: Vec<CancelType>,
 }
 impl Situation {
     pub fn get_resource(&self, resource_type: GaugeType) -> Option<&Gauge> {

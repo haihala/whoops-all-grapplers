@@ -154,6 +154,7 @@ impl PlayerState {
             facing: player_facing,
             combo,
             stunned: self.stunned(),
+            cancel_windows: self.cancels(),
         }
     }
     pub fn get_action_tracker(&self) -> Option<&ActionTracker> {

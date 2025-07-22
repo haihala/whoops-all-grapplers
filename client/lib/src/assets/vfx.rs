@@ -122,6 +122,9 @@ pub fn start_relative_vfx(
         request.mirror = !request.mirror;
     }
     request.tf.translation = tf.translation + facing.visual.mirror_vec3(request.tf.translation);
+    request.follow_offset = request
+        .follow_offset
+        .map(|offset| facing.visual.mirror_vec3(offset));
     commands.trigger(SpawnVfx(request, Some(entity)));
 }
 
